@@ -1,5 +1,6 @@
 package org.tinymediamanager.ui.movies.actions;
 
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tasks.MovieCleanUpTask;
 import org.tinymediamanager.ui.IconManager;
@@ -45,9 +46,14 @@ public class MovieCleanUpFilesAction extends TmmAction {
             return;
         }
 
+        //Get Cleanup File Types from the settings
+        List<String> filetypes = Settings.getInstance().getCleanupFileType();
+        String extensions = String.join(",", filetypes);
+        extensions = extensions.replace(".", "");
+
         //Add only files with these extension to the FileArray
         for (Movie movie : selectedMovies) {
-            fileArray.addAll(getUnknownFiles(movie.getPath(),"*.{txt,url,html}"));
+            fileArray.addAll(getUnknownFiles(movie.getPath(),"*.{" + extensions + "}"));
         }
 
         MovieCleanUpTask cleanUpTask = new MovieCleanUpTask(fileArray);
