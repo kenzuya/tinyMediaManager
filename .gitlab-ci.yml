@@ -67,7 +67,7 @@ test:jdk11:
 
 test:jdk12:
   stage: test
-  image: maven:3-jdk-12-alpine
+  image: maven:3-jdk-12
   except:
     - master
   script:
