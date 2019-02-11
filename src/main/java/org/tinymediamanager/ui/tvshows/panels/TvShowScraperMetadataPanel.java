@@ -61,6 +61,8 @@ public class TvShowScraperMetadataPanel extends JPanel {
   private JCheckBox                   chckbxScrapeEpisodes;
   private JCheckBox                   chckbxAired;
   private JCheckBox                   chckbxStatus;
+  private JCheckBox                   chckbxCountry;
+  private JCheckBox                   chckbxStudio;
 
   /**
    * Instantiates a new tv show scraper metadata panel.
@@ -108,6 +110,12 @@ public class TvShowScraperMetadataPanel extends JPanel {
 
     chckbxArtwork = new JCheckBox(BUNDLE.getString("metatag.artwork")); //$NON-NLS-1$
     add(chckbxArtwork, "cell 4 2");
+
+    chckbxCountry = new JCheckBox(BUNDLE.getString("metatag.country"));
+    add(chckbxCountry,"cell 6 2");
+
+    chckbxStudio = new JCheckBox(BUNDLE.getString("metatag.studio"));
+    add(chckbxStudio, "cell 8 2");
 
     chckbxScrapeEpisodes = new JCheckBox(BUNDLE.getString("tvshow.scrapeepisodeseasondata")); //$NON-NLS-1$
     add(chckbxScrapeEpisodes, "cell 0 3 7 1,aligny top");
@@ -196,6 +204,16 @@ public class TvShowScraperMetadataPanel extends JPanel {
     AutoBinding<TvShowScraperMetadataConfig, Boolean, JCheckBox, Boolean> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
         config, tvShowScraperMetadataConfigBeanProperty, chckbxScrapeEpisodes, jCheckBoxBeanProperty);
     autoBinding_12.bind();
+    //
+    BeanProperty<TvShowScraperMetadataConfig, Boolean> tvShowScraperMetadataConfigBeanProperty_13 = BeanProperty.create("country");
+    AutoBinding<TvShowScraperMetadataConfig, Boolean, JCheckBox, Boolean> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+            config, tvShowScraperMetadataConfigBeanProperty_13, chckbxScrapeEpisodes, jCheckBoxBeanProperty);
+    autoBinding_13.bind();
+    //
+    BeanProperty<TvShowScraperMetadataConfig, Boolean> tvShowScraperMetadataConfigBeanProperty_14 = BeanProperty.create("studio");
+    AutoBinding<TvShowScraperMetadataConfig, Boolean, JCheckBox, Boolean> autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+            config, tvShowScraperMetadataConfigBeanProperty_14, chckbxScrapeEpisodes, jCheckBoxBeanProperty);
+    autoBinding_14.bind();
     //
     BeanProperty<TvShowScraperMetadataConfig, Boolean> tvShowScraperMetadataConfigBeanProperty_1 = BeanProperty.create("aired");
     AutoBinding<TvShowScraperMetadataConfig, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
