@@ -21,7 +21,6 @@ import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
@@ -31,15 +30,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.InputMap;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.table.TableCellEditor;
@@ -242,9 +236,9 @@ public class TmmTreeTable extends TmmTable {
       return getLayoutCache().isRootVisible();
     }
   }
-  
+
   @Override
-  public boolean editCellAt(int row, int column, EventObject e) {  
+  public boolean editCellAt(int row, int column, EventObject e) {
     // If it was on column 0, it may be a request to expand a tree node - check for that first.
     boolean isTreeColumn = isTreeColumnIndex(column);
     if (isTreeColumn) {
