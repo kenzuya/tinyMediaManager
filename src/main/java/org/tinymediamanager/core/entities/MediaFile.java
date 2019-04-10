@@ -703,6 +703,10 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     firePropertyChange(FILESIZE_IN_MB, oldValue, newValue);
   }
 
+  public String getBetterFilesize() {
+    return Utils.betterSizeFormat(filesize, false);
+  }
+
   public String getFilesizeInMegabytes() {
     DecimalFormat df = new DecimalFormat("#0.00");
     return df.format(filesize / (1024.0 * 1024.0)) + " M";

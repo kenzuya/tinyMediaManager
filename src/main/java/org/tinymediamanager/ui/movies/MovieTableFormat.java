@@ -36,6 +36,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.entities.Certification;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
@@ -220,13 +221,14 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
       }
-      return (int) (size / (1024.0 * 1024.0)) + " M";
+      return Utils.betterSizeFormat(size, false);
+      // return (int) (size / (1024.0 * 1024.0)) + " M";
     }, String.class);
     col.setColumnComparator(fileSizeComparator);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000000M") * 1.2f));
     addColumn(col);
 
     /*

@@ -27,6 +27,7 @@ import org.tinymediamanager.core.entities.Rating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -90,7 +91,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000000M") * 1.2f));
     addColumn(col);
 
     /*
@@ -175,8 +176,8 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       for (MediaFile mf : ((TvShowEpisode) userObject).getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
       }
-
-      return (int) (size / (1024.0 * 1024.0)) + " M";
+      return Utils.betterSizeFormat(size, false);
+      // return (int) (size / (1024.0 * 1024.0)) + " M";
     }
     return "";
   }
