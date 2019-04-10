@@ -24,6 +24,7 @@ import org.tinymediamanager.scraper.entities.Certification;
 import org.tinymediamanager.ui.IconManager;
 
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
+import javax.swing.JOptionPane;
 
 /**
  * The abstract TmmTableFormat is a convenience wrapper for the @see com.glazedlists.AdvancedTableFormat
@@ -237,7 +238,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   }
 
   public class FileSizeComparator implements Comparator<String> {
-    Pattern pattern = Pattern.compile("(.*) (.*?)");
+    Pattern pattern = Pattern.compile("(.*) (.*)");
 
     @Override
     public int compare(String arg0, String arg1) {
@@ -253,19 +254,23 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       Matcher matcher = pattern.matcher(sizeAsString);
       if (matcher.find()) {
         try {
-          float value = Float.parseFloat(matcher.group(1));
+          float value = Float.parseFloat(matcher.group(1).replace(',','.'));
           String unit = matcher.group(2);
-          if ("G".equals(unit)) {
+          if ('G' == unit.charAt(0)) {
             size = (long) (value * 1024 * 1024 * 1024);
           }
-          else if ("M".equals(unit)) {
+          else if ('M' == unit.charAt(0)) {
             size = (long) (value * 1024 * 1024);
+          }
+          else if ('K' == unit.charAt(0)) {
+            size = (long) (value * 1024);
           }
           else {
             size = (long) value;
           }
         }
         catch (Exception ignored) {
+          
         }
       }
 
