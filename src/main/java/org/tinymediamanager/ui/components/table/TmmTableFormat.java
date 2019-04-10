@@ -262,7 +262,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
           else if ('M' == unit.charAt(0)) {
             size = (long) (value * 1024 * 1024);
           }
-          else if ('K' == unit.charAt(0)) {
+          else if ('K' == unit.charAt(0) || 'k' == unit.charAt(0)) {
             size = (long) (value * 1024);
           }
           else {
