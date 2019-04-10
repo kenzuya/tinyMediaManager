@@ -24,7 +24,6 @@ import org.tinymediamanager.scraper.entities.Certification;
 import org.tinymediamanager.ui.IconManager;
 
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import javax.swing.JOptionPane;
 
 /**
  * The abstract TmmTableFormat is a convenience wrapper for the @see com.glazedlists.AdvancedTableFormat
