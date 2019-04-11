@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.Rating;
@@ -79,7 +80,7 @@ public class MovieSetTableFormat extends TmmTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000000M") * 1.2f));
     addColumn(col);
 
     /*
@@ -144,8 +145,8 @@ public class MovieSetTableFormat extends TmmTableFormat<TmmTreeNode> {
       for (MediaFile mf : ((Movie) userObject).getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
       }
-
-      return (int) (size / (1024.0 * 1024.0)) + " M";
+      // maybe add a setting so a user can decide which prefix (si or iec) should be used.
+      return Utils.humanReadableByteCount(size, false);
     }
     return null;
   }

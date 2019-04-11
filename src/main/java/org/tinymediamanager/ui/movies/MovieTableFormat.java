@@ -31,6 +31,7 @@ import javax.swing.ImageIcon;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieComparator;
@@ -220,13 +221,14 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
       }
-      return (int) (size / (1024.0 * 1024.0)) + " M";
+      // maybe add a setting so a user can decide which prefix (si or iec) should be used.
+      return Utils.humanReadableByteCount(size, false);
     }, String.class);
     col.setColumnComparator(fileSizeComparator);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setMinWidth((int) (fontMetrics.stringWidth("50000000M") * 1.2f));
     addColumn(col);
 
     /*

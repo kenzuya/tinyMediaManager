@@ -703,9 +703,9 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     firePropertyChange(FILESIZE_IN_MB, oldValue, newValue);
   }
 
-  public String getFilesizeInMegabytes() {
-    DecimalFormat df = new DecimalFormat("#0.00");
-    return df.format(filesize / (1024.0 * 1024.0)) + " M";
+  public String humanReadableByteCount() {
+    // maybe add a setting so a user can decide which prefix (si or iec) should be used.
+    return Utils.humanReadableByteCount(filesize, false);
   }
 
   public MediaFileType getType() {

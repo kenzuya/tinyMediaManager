@@ -1616,6 +1616,23 @@ public class Utils {
   }
 
   /**
+    Returns a human-readable version of the file size, where the input represents a specific number of bytes.
+
+   * @param bytes
+   *          file size
+   * @param si
+   *          use si units
+   * @return a human-readable version of the file size
+   */
+  public static String humanReadableByteCount(long bytes, boolean si) {
+      int unit = si ? 1000 : 1024;
+      if (bytes < unit) return bytes + " B";
+      int exp = (int) (Math.log(bytes) / Math.log(unit));
+      String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+      return String.format("%.2f %sB", bytes / Math.pow(unit, exp), pre);
+  }
+
+  /**
    * Visitor for copying a directory recursively<br>
    * Usage: Files.walkFileTree(sourcePath, new CopyFileVisitor(targetPath));
    */

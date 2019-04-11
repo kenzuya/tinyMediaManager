@@ -156,7 +156,7 @@ public abstract class MediaFilesPanel extends JPanel {
           return mediaFile.getFilename();
 
         case 2:
-          return mediaFile.getFilesizeInMegabytes();
+          return mediaFile.humanReadableByteCount();
 
         case 3:
           return getMediaFileTypeLocalized(mediaFile.getType());

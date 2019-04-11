@@ -237,7 +237,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   }
 
   public class FileSizeComparator implements Comparator<String> {
-    Pattern pattern = Pattern.compile("(.*) (.*?)");
+    Pattern pattern = Pattern.compile("(.*) (.*)");
 
     @Override
     public int compare(String arg0, String arg1) {
@@ -253,13 +253,19 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       Matcher matcher = pattern.matcher(sizeAsString);
       if (matcher.find()) {
         try {
-          float value = Float.parseFloat(matcher.group(1));
-          String unit = matcher.group(2);
-          if ("G".equals(unit)) {
-            size = (long) (value * 1024 * 1024 * 1024);
+          float value = Float.parseFloat(matcher.group(1).replace(',', '.'));
+          char unit = matcher.group(2).charAt(0);
+          // maybe add a setting so a user can decide which prefix (si or iec) should be used.
+          boolean si = false;
+          int factor = si ? 1000 : 1024;
+          if ('G' == unit) {
+            size = (long) (value * factor * factor * factor);
           }
-          else if ("M".equals(unit)) {
-            size = (long) (value * 1024 * 1024);
+          else if ('M' == unit) {
+            size = (long) (value * factor * factor);
+          }
+          else if ('K' == unit || 'k' == unit) {
+            size = (long) (value * factor);
           }
           else {
             size = (long) value;
