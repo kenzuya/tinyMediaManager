@@ -21,6 +21,7 @@ import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -240,8 +241,15 @@ public class TmmTreeTable extends TmmTable {
   public boolean editCellAt(int row, int column, EventObject e) {
     // If it was on column 0, it may be a request to expand a tree node - check for that first.
     boolean isTreeColumn = isTreeColumnIndex(column);
-    if (isTreeColumn && e instanceof MouseEvent) {
-      MouseEvent me = (MouseEvent) e;
+    if (isTreeColumn) {
+      MouseEvent me = null;
+      KeyEvent ke = null;
+      if (e instanceof MouseEvent) {
+        me = (MouseEvent) e;
+      }
+      else if (e instanceof KeyEvent) {
+        ke = (KeyEvent) e;
+      }
       TreePath path = getLayoutCache().getPathForRow(convertRowIndexToModel(row));
       if (path != null && !getTreeTableModel().isLeaf(path.getLastPathComponent())) {
         int handleWidth = TmmTreeTableCellRenderer.getExpansionHandleWidth();
@@ -259,12 +267,23 @@ public class TmmTreeTable extends TmmTable {
 
         TableColumn tableColumn = getColumnModel().getColumn(column);
         TableCellEditor columnCellEditor = tableColumn.getCellEditor();
-        if ((me.getX() > ins.left && me.getX() >= handleStart && me.getX() <= handleEnd) || (me.getClickCount() > 1 && columnCellEditor == null)) {
 
+        boolean mouseCheck = false, keyCheck = false;
+        int keyCode = -1;
+        if (me != null) {
+          mouseCheck = (me.getX() > ins.left && me.getX() >= handleStart && me.getX() <= handleEnd)
+              || (me.getClickCount() > 1 && columnCellEditor == null);
+        }
+        if (ke != null) {
+          keyCode = ke.getKeyCode();
+          keyCheck = (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_RIGHT) && columnCellEditor == null;
+        }
+        if (mouseCheck || keyCheck) {
           boolean expanded = getLayoutCache().isExpanded(path);
-          // me.consume(); - has no effect!
-          // System.err.println(" event consumed.");
           if (!expanded) {
+            if (keyCode == KeyEvent.VK_LEFT) {
+              return false;
+            }
             getTreePathSupport().expandPath(path);
 
             Object ourObject = path.getLastPathComponent();
@@ -290,6 +309,9 @@ public class TmmTreeTable extends TmmTable {
 
           }
           else {
+            if (keyCode == KeyEvent.VK_RIGHT) {
+              return false;
+            }
             getTreePathSupport().collapsePath(path);
           }
           // selectionDisabled = true;
@@ -297,11 +319,17 @@ public class TmmTreeTable extends TmmTable {
         }
       }
       // It may be a request to check/uncheck a check-box
-      if (checkAt(row, column, me)) {
-        return false;
+      if (me != null) {
+        if (checkAt(row, column, me)) {
+          return false;
+        }
+      }
+      else if (ke != null) {
+        if (checkAt(row, column, null)) {
+          return false;
+        }
       }
     }
-
     boolean res = false;
     if (!isTreeColumn || e instanceof MouseEvent && row >= 0 && isEditEvent(row, column, (MouseEvent) e)) {
       res = super.editCellAt(row, column, e);
@@ -458,7 +486,7 @@ public class TmmTreeTable extends TmmTable {
    * add a new filter to this tree
    *
    * @param newFilter
-   *          the new filter to be added
+   *                    the new filter to be added
    */
   public void addFilter(ITmmTreeFilter<TmmTreeNode> newFilter) {
     // add our filter listener
@@ -471,7 +499,7 @@ public class TmmTreeTable extends TmmTable {
    * removes the given filter from this tree
    *
    * @param filter
-   *          the filter to be removed
+   *                 the filter to be removed
    */
   public void removeFilter(ITmmTreeFilter filter) {
     // remove our filter listener
@@ -529,7 +557,7 @@ public class TmmTreeTable extends TmmTable {
    * provide table cell tooltips via our table model
    *
    * @param e
-   *          the mouse event
+   *            the mouse event
    * @return the tooltip or null
    */
   public String getToolTipText(MouseEvent e) {
@@ -623,7 +651,7 @@ public class TmmTreeTable extends TmmTable {
      * Create a new instance of the TmmTreeModel for the given TmmTree and data provider
      *
      * @param dataProvider
-     *          the data provider to create the model for
+     *                       the data provider to create the model for
      */
     public TmmTreeModelConnector(final TmmTreeDataProvider<E> dataProvider) {
       super(null, dataProvider);
