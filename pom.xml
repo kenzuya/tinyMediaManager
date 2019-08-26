@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>tinyMediaManager</artifactId>
-    <version>3.0.3-SNAPSHOT</version>
+    <version>3.0.4-SNAPSHOT</version>
     <name>tinyMediaManager</name>
 
     <scm>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>org.tinymediamanager</groupId>
             <artifactId>api-scraper</artifactId>
-            <version>3.0.3-SNAPSHOT</version>
+            <version>3.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.tinymediamanager</groupId>
@@ -102,7 +102,7 @@
         <dependency>
             <groupId>org.tinymediamanager.plugins</groupId>
             <artifactId>scraper-tvdb</artifactId>
-            <version>3.2-SNAPSHOT</version>
+            <version>3.2</version>
         </dependency>
         <dependency>
             <groupId>org.tinymediamanager.plugins</groupId>
@@ -185,6 +185,12 @@
             <artifactId>animated-gif-lib</artifactId>
             <version>1.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>muxer</artifactId>
+            <version>1.9.27</version>
+        </dependency>
+
     </dependencies>
 
     <build>
