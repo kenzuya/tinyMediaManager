@@ -15,35 +15,14 @@
  */
 package org.tinymediamanager.ui.movies.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.table.DefaultTableCellRenderer;
-
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
+import ca.odell.glazedlists.gui.AdvancedTableFormat;
+import ca.odell.glazedlists.swing.DefaultEventTableModel;
+import ca.odell.glazedlists.swing.GlazedListsSwing;
+import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,14 +52,33 @@ import org.tinymediamanager.ui.dialogs.MessageDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieSubtitleChooserModel;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
-import ca.odell.glazedlists.swing.GlazedListsSwing;
-import net.miginfocom.swing.MigLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * This dialog is used to show a chooser for subtitles found with the subtitle scrapers
@@ -150,8 +148,8 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
 
     // action listeners
-    btnSearch.addActionListener(e -> searchSubtitle(null, "", tfSearchQuery.getText()));
-    cbLanguage.addActionListener(e -> searchSubtitle(null, "", tfSearchQuery.getText()));
+    btnSearch.addActionListener(e -> searchSubtitle(fileToScrape.getFile().toFile(), "", tfSearchQuery.getText()));
+    cbLanguage.addActionListener(e -> searchSubtitle(fileToScrape.getFile().toFile(), "", tfSearchQuery.getText()));
 
     // start initial search
     searchSubtitle(fileToScrape.getFileAsPath().toFile(), movieToScrape.getImdbId(), tfSearchQuery.getText());
@@ -458,7 +456,8 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
           if (StringUtils.isBlank(lang)) {
             lang = model.getLanguage().name();
           }
-          DownloadTask task = new MovieSubtitleDownloadTask(model.getDownloadUrl(), fileToScrape.getFileAsPath(), lang, movieToScrape);
+          DownloadTask task = new MovieSubtitleDownloadTask(model.getDownloadUrl(), fileToScrape.getFileAsPath(), lang,
+                  movieToScrape, model.getProviderId());
           TmmTaskManager.getInstance().addDownloadTask(task);
         }
       }

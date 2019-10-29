@@ -15,14 +15,14 @@
  */
 package org.tinymediamanager.ui.movies;
 
-import java.util.ResourceBundle;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.UTF8Control;
+
+import java.util.ResourceBundle;
 
 /**
  * This is the model for the MovieSubtitleChooser
@@ -40,6 +40,7 @@ public class MovieSubtitleChooserModel extends AbstractModelObject {
   private String                                name         = "";
   private String                                releaseName  = "";
   private String                                downloadUrl  = "";
+  private String providerId = "";
 
   public MovieSubtitleChooserModel(SubtitleSearchResult result, MediaLanguages language) {
     this.result = result;
@@ -48,6 +49,8 @@ public class MovieSubtitleChooserModel extends AbstractModelObject {
     name = result.getTitle();
     releaseName = result.getReleaseName();
     downloadUrl = result.getUrl();
+    providerId = result.getProviderId();
+
   }
 
   /**
@@ -72,4 +75,9 @@ public class MovieSubtitleChooserModel extends AbstractModelObject {
   public MediaLanguages getLanguage() {
     return language;
   }
+
+  public String getProviderId() {
+    return providerId;
+  }
+
 }

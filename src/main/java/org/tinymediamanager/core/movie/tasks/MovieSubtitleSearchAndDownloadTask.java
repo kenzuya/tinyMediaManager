@@ -15,10 +15,6 @@
  */
 package org.tinymediamanager.core.movie.tasks;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ResourceBundle;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +36,10 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.mediaprovider.IMediaSubtitleProvider;
 import org.tinymediamanager.ui.UTF8Control;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * The class MovieSubtitleSearchAndDownloadTask is used to search and download subtitles by hash
@@ -121,7 +121,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
               lang = language.name();
             }
 
-            TmmTaskManager.getInstance().addDownloadTask(new MovieSubtitleDownloadTask(firstResult.getUrl(), mf.getFileAsPath(), lang, movie));
+            TmmTaskManager.getInstance().addDownloadTask(new MovieSubtitleDownloadTask(firstResult.getUrl(), mf.getFileAsPath(), lang, movie, firstResult.getProviderId()));
           }
           catch (ScrapeException e) {
             LOGGER.error("getSubtitles", e);

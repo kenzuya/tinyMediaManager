@@ -15,17 +15,6 @@
  */
 package org.tinymediamanager.scraper.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -36,6 +25,17 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * The class UrlUtil. This class is used for Url related tasks
@@ -231,6 +231,10 @@ public class UrlUtil {
     if (pathContents != null) {
       int pathContentsLength = pathContents.length;
       // lastPart: s659629384_752969_4472.jpg
+
+      if (pathContentsLength == 0) {
+        return ret;
+      }
       String lastPart = pathContents[pathContentsLength - 1];
       String[] lastPartContents = lastPart.split("\\.");
       if (lastPartContents != null && lastPartContents.length > 1) {

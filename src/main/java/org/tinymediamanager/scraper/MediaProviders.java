@@ -15,10 +15,6 @@
  */
 package org.tinymediamanager.scraper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +29,15 @@ import org.tinymediamanager.scraper.mpdbtv.MpdbMetadataProvider;
 import org.tinymediamanager.scraper.ofdb.OfdbMetadataProvider;
 import org.tinymediamanager.scraper.omdb.OmdbMetadataProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpensubtitlesMetadataProvider;
+import org.tinymediamanager.scraper.subdb.SubDBSubtitleProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.trakt.TraktMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * the class {@link MediaProviders} is used to manage all loaded {@link IMediaProvider}s.
@@ -100,6 +101,7 @@ public class MediaProviders {
     // SUBTITLES
     /////////////////////////////////////////////
     loadProvider(OpensubtitlesMetadataProvider.class);
+    loadProvider(SubDBSubtitleProvider.class);
   }
 
   private static void loadProvider(Class<? extends IMediaProvider> clazz) {

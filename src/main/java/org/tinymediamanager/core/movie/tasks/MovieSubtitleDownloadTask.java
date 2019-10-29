@@ -15,13 +15,6 @@
  */
 package org.tinymediamanager.core.movie.tasks;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.file.Path;
-import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +24,14 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tasks.DownloadTask;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * This class handles the download and additional unpacking of a subtitle
@@ -43,17 +44,23 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
   private final Movie         movie;
   private final String        languageTag;
   private final Path          videoFilePath;
+  private final String providerId;
 
-  public MovieSubtitleDownloadTask(String url, Path videoFilePath, String languageTag, Movie movie) {
+  public MovieSubtitleDownloadTask(String url, Path videoFilePath, String languageTag, Movie movie, String providerId) {
     super(url, movie.getPathNIO().resolve(FilenameUtils.getBaseName(videoFilePath.getFileName().toString()) + "." + languageTag));
     this.movie = movie;
     this.languageTag = languageTag;
     this.videoFilePath = videoFilePath;
+    this.providerId = providerId;
   }
 
   @Override
   protected void doInBackground() {
     // let the DownloadTask handle the whole download
+    // set special UserAgent for SubDB Scraping
+    if (providerId.equals("thesubdb")) {
+      setSpecialUserAgent("SubDB/1.0 (TheSubDB-Scraper/0.1; http://gitlab.com/TinyMediaManager)");
+    }
     super.doInBackground();
 
     MediaFile mf = new MediaFile(file);
@@ -99,6 +106,22 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
         LOGGER.debug("could not extract subtitle: {}", e.getMessage());
       }
     }
+
+    //from subdb we do not get a zip file
+    //so we have to rename the downloaded file to .srt format
+    if (providerId.equals("thesubdb")) {
+      Path newFile = file.resolveSibling(file.getFileName() + ".srt");
+      boolean ok = false;
+      try {
+        ok = Utils.moveFileSafe(file, newFile);
+      } catch (IOException e) {
+        LOGGER.debug("could not rename file: {}", e.getMessage());
+      }
+      if (ok) {
+        mf = new MediaFile(newFile);
+      }
+    }
+
     if (!old.equals(mf.getFileAsPath())) {
       // if it not the same (zip vs sub) - delete ZIP
       Utils.deleteFileSafely(old);
@@ -109,4 +132,5 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
     movie.addToMediaFiles(mf); // add file, but maybe with other MI values
     movie.saveToDb();
   }
+
 }
