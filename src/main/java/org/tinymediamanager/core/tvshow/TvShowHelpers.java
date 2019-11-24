@@ -158,10 +158,9 @@ public class TvShowHelpers {
     Map<String, Long> subPathCounts = subPaths.stream().collect(Collectors.groupingBy(s -> s, Collectors.counting()));
 
     // take the highest count
-    Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get();
-
-    // if there are at least 80% of all episodes having this subfolder, take it
-    if (entry.getValue() >= 0.8 * episodes.size()) {
+    Map.Entry<String, Long> entry = subPathCounts.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).orElse(null);
+    if (entry != null && entry.getValue() >= 0.8 * episodes.size()) {
+      // if there are at least 80% of all episodes having this subfolder, take it
       return entry.getKey();
     }
 

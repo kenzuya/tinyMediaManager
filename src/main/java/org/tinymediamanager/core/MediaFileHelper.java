@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -876,6 +877,7 @@ public class MediaFileHelper {
     // sometimes also an error is thrown
     catch (Exception | Error e) {
       LOGGER.error("Mediainfo could not open file: {} - {}", mediaFile.getFileAsPath(), e.getMessage());
+      miSnapshot = new HashMap<>();
     }
 
     return miSnapshot;
