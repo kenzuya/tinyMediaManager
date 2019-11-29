@@ -13,63 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.core.tasks;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+package org.tinymediamanager.updater;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.SwingWorker;
+import java.util.Scanner;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
- * UpdaterTasks checks if there's a new update for TMM
+ * the class {@link UpdateCheck} is used to check for a new update
  * 
- * @author Myron Boyle
+ * @author Manuel Laggner, Myron Boyle
  */
-public class UpdaterTask extends SwingWorker<Boolean, Void> {
-  private static final Logger LOGGER      = LoggerFactory.getLogger(UpdaterTask.class);
+public class UpdateCheck {
+  private static final Logger LOGGER      = LoggerFactory.getLogger(UpdateCheck.class);
+
   private String              changelog   = "";
   private boolean             forceUpdate = false;
 
-  /**
-   * Instantiates a new updater task.
-   */
-  public UpdaterTask() {
-  }
-
-  @Override
-  public Boolean doInBackground() {
+  public boolean isUpdateAvailable() {
     if (ReleaseInfo.isGitBuild()) {
       return false;
     }
 
     Path getdownFile = Paths.get("getdown.txt");
     Path digestFile = Paths.get("digest.txt");
+    LOGGER.info("Checking for updates...");
 
     ArrayList<String> updateUrls = new ArrayList<>();
-    try {
-      Thread.currentThread().setName("updateThread");
-      LOGGER.info("Checking for updates...");
-
-      // read getdown.txt (IOEx on any error)
-      for (String line : readLines(new FileReader(getdownFile.toFile()))) {
-        String[] kv = line.split("=");
+    try (Scanner scanner = new Scanner(getdownFile.toFile())) {
+      while (scanner.hasNextLine()) {
+        String[] kv = scanner.nextLine().split("=");
         if ("appbase".equals(kv[0].trim()) || "mirror".equals(kv[0].trim())) {
           updateUrls.add(kv[1].trim());
         }
@@ -110,7 +96,7 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
       if (!valid) {
         // we failed to download from all mirrors
         // last chance: throw ex and try really hardcoded mirror
-        throw new Exception("Error downloading remote checksum information.");
+        throw new IOException("Error downloading remote checksum information.");
       }
 
       // compare with our local
@@ -155,7 +141,7 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
 
         String gd = UrlUtil.getStringFromUrl(fallback);
         if (StringUtils.isBlank(gd) || !gd.contains("appbase")) {
-          throw new Exception("could not even download our fallback");
+          throw new IOException("could not even download our fallback");
         }
         Utils.writeStringToFile(getdownFile, gd);
         return true;
@@ -165,44 +151,25 @@ public class UpdaterTask extends SwingWorker<Boolean, Void> {
         Thread.currentThread().interrupt();
       }
       catch (Exception e2) {
-        LOGGER.error("Update fallback failed! {}", e2.getMessage());
-        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "Update check failed :(", e2.getMessage()));
+        LOGGER.error("Update fallback failed - {}", e2.getMessage());
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Update check failed :(", e2.getMessage()));
       }
     }
     return false;
   }
 
   /**
-   * Reads the contents of the supplied input stream into a list of lines. Closes the reader on successful or failed completion.
+   * get the changelog for the new update
+   * 
+   * @return the changelog
    */
-  private static List<String> readLines(Reader in) throws IOException {
-    List<String> lines = new ArrayList<>();
-    try {
-      BufferedReader bin = new BufferedReader(in);
-      for (String line = null; (line = bin.readLine()) != null; lines.add(line)) {
-      }
-    }
-    finally {
-      if (in != null) {
-        try {
-          in.close();
-        }
-        catch (IOException var2) {
-          // ok
-        }
-      }
-
-    }
-    return lines;
-  }
-
   public String getChangelog() {
     return changelog;
   }
 
   /**
    * when forced, do not ask for confirmation dialog.
-   * 
+   *
    * @return true/false
    */
   public boolean isForcedUpdate() {

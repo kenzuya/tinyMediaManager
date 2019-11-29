@@ -33,10 +33,10 @@ import javax.swing.event.HyperlinkEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.updater.UpdaterTask;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -80,7 +80,7 @@ public class UpdateDialog extends TmmDialog {
             TmmUIHelper.browseUrl(hle.getURL().toString());
           }
           catch (Exception e) {
-            LOGGER.error("error browsing to " + hle.getURL().toString() + " :" + e.getMessage());
+            LOGGER.error("error browsing to \"{}\" : {}", hle.getURL(), e.getMessage());
           }
         }
       });
@@ -95,8 +95,7 @@ public class UpdateDialog extends TmmDialog {
         setVisible(false);
         LOGGER.info("Updating...");
 
-        // spawn getdown and exit TMM
-        MainWindow.getActiveInstance().closeTmmAndStart(Utils.getPBforTMMupdate());
+        TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
       });
       addButton(btnUpdate);
     }

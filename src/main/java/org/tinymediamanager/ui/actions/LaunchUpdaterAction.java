@@ -18,7 +18,7 @@ package org.tinymediamanager.ui.actions;
 import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.UTF8Control;
 
@@ -38,6 +38,6 @@ public class LaunchUpdaterAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    MainWindow.getActiveInstance().closeTmmAndStart(Utils.getPBforTMMupdate());
+    MainWindow.getActiveInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
   }
 }
