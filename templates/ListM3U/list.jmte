@@ -1,4 +1,4 @@
 \#EXTM3U
 ${foreach movies movie}
 \#EXTINF\:${index_movie},${movie.title}
-${movie.path}/${movie.mainVideoFile.filename}${end}
+${movie.mainVideoFile.file}${end}
