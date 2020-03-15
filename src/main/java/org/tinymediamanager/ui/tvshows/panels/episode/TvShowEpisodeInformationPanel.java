@@ -213,7 +213,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       add(panelRight, "cell 1 1,grow");
       {
         JPanel panelTopDetails = new JPanel();
-        panelTopDetails.setLayout(new MigLayout("insets 0", "[][10lp][grow]", "[]2lp[]"));
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][10lp][grow]", "[]2lp[][]"));
 
         panelRight.add(panelTopDetails, "cell 0 0,grow");
         {
@@ -233,6 +233,13 @@ public class TvShowEpisodeInformationPanel extends JPanel {
           lblEpisode = new JLabel("");
           TmmFontHelper.changeFont(lblEpisode, 1.166);
           panelTopDetails.add(lblEpisode, "cell 2 1");
+        }
+        JLabel lblAiredT = new TmmLabel(BUNDLE.getString("metatag.aired"));
+        panelTopDetails.add(lblAiredT, "cell 0 2");
+        {
+
+          lblAired = new JLabel("");
+          panelTopDetails.add(lblAired, "cell 2 2");
         }
       }
       {
@@ -273,35 +280,28 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       {
         JPanel panelBottomDetails = new JPanel();
         panelRight.add(panelBottomDetails, "cell 0 9,grow");
-        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][10lp][200lp,grow]", "[]2lp[]2lp[]2lp[]"));
+        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][10lp][200lp,grow]", "[]2lp[]2lp[]"));
         {
           {
-            JLabel lblAiredT = new TmmLabel(BUNDLE.getString("metatag.aired"));
-            panelBottomDetails.add(lblAiredT, "cell 0 0");
-
-            lblAired = new JLabel("");
-            panelBottomDetails.add(lblAired, "cell 2 0");
-          }
-          {
             JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
-            panelBottomDetails.add(lblTagsT, "cell 0 1");
+            panelBottomDetails.add(lblTagsT, "cell 0 0");
 
             taTags = new ReadOnlyTextArea();
-            panelBottomDetails.add(taTags, "cell 2 1,growx,wmin 0");
+            panelBottomDetails.add(taTags, "cell 2 0,growx,wmin 0");
           }
           {
             JLabel lblPathT = new TmmLabel(BUNDLE.getString("metatag.path"));
-            panelBottomDetails.add(lblPathT, "cell 0 2");
+            panelBottomDetails.add(lblPathT, "cell 0 1");
 
             lblPath = new LinkLabel("");
-            panelBottomDetails.add(lblPath, "cell 2 2,growx,wmin 0");
+            panelBottomDetails.add(lblPath, "cell 2 1,growx,wmin 0");
           }
           {
             JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
-            panelBottomDetails.add(lblNoteT, "cell 0 3");
+            panelBottomDetails.add(lblNoteT, "cell 0 2");
 
             lblNote = new JLabel("");
-            panelBottomDetails.add(lblNote, "cell 2 3,growx,wmin 0");
+            panelBottomDetails.add(lblNote, "cell 2 2,growx,wmin 0");
           }
         }
       }

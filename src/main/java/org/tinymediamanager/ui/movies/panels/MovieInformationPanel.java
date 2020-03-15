@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.swing.Box;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -46,6 +47,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -61,6 +63,7 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
 import org.tinymediamanager.ui.converter.VoteCountConverter;
@@ -116,6 +119,7 @@ public class MovieInformationPanel extends JPanel {
   private JLabel                      lblCountry;
   private JLabel                      lblReleaseDate;
   private JTextArea                   taNote;
+  private JLabel                      lblCertificationLogo;
 
   /**
    * Instantiates a new movie information panel.
@@ -223,7 +227,7 @@ public class MovieInformationPanel extends JPanel {
 
   private void initComponents() {
     putClientProperty("class", "roundedPanel");
-    setLayout(new MigLayout("", "[100lp:100lp,grow][300lp:300lp,grow 250]", "[][]"));
+    setLayout(new MigLayout("", "[100lp:100lp,grow][300lp:300lp,grow 250]", "[][grow]"));
 
     {
       JPanel panelLeft = new JPanel();
@@ -273,7 +277,7 @@ public class MovieInformationPanel extends JPanel {
     }
     {
       JPanel panelRight = new JPanel();
-      panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[shrink 0][][shrink 0][][][][][shrink 0][][][][]"));
+      panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[shrink 0][][shrink 0][][][][][shrink 0][][grow,top][][]"));
 
       scrollPane = new JScrollPane(panelRight);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -282,7 +286,7 @@ public class MovieInformationPanel extends JPanel {
       {
         JPanel panelTopDetails = new JPanel();
         panelRight.add(panelTopDetails, "cell 0 0,grow");
-        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][20lp:n][][grow]", "[]2lp[]2lp[]2lp[]"));
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][grow][]", "[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]"));
 
         {
           JLabel lblYearT = new TmmLabel(BUNDLE.getString("metatag.year"));
@@ -291,7 +295,6 @@ public class MovieInformationPanel extends JPanel {
           lblYear = new JLabel("");
           panelTopDetails.add(lblYear, "cell 1 0,growx");
         }
-
         {
           JLabel lblImdbIdT = new TmmLabel(BUNDLE.getString("metatag.imdb"));
           panelTopDetails.add(lblImdbIdT, "cell 3 0");
@@ -299,15 +302,17 @@ public class MovieInformationPanel extends JPanel {
           lblImdbid = new LinkLabel("");
           panelTopDetails.add(lblImdbid, "cell 4 0");
         }
-
         {
-          JLabel lblCertificationT = new TmmLabel(BUNDLE.getString("metatag.certification"));
-          panelTopDetails.add(lblCertificationT, "cell 0 1");
-
-          lblCertification = new JLabel("");
-          panelTopDetails.add(lblCertification, "cell 1 1,growx");
+          lblCertificationLogo = new JLabel("");
+          panelTopDetails.add(lblCertificationLogo, "cell 5 0 1 2");
         }
+        {
+          JLabel lblReleaseDateT = new TmmLabel(BUNDLE.getString("metatag.releasedate"));
+          panelTopDetails.add(lblReleaseDateT, "cell 0 1");
 
+          lblReleaseDate = new JLabel("");
+          panelTopDetails.add(lblReleaseDate, "cell 1 1");
+        }
         {
           JLabel lblTmdbIdT = new TmmLabel(BUNDLE.getString("metatag.tmdb"));
           panelTopDetails.add(lblTmdbIdT, "cell 3 1");
@@ -315,13 +320,12 @@ public class MovieInformationPanel extends JPanel {
           lblTmdbid = new LinkLabel("");
           panelTopDetails.add(lblTmdbid, "cell 4 1");
         }
-
         {
-          JLabel lblRunningTimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
-          panelTopDetails.add(lblRunningTimeT, "cell 0 2");
+          JLabel lblCertificationT = new TmmLabel(BUNDLE.getString("metatag.certification"));
+          panelTopDetails.add(lblCertificationT, "cell 0 2");
 
-          lblRunningTime = new JLabel("");
-          panelTopDetails.add(lblRunningTime, "cell 1 2");
+          lblCertification = new JLabel("");
+          panelTopDetails.add(lblCertification, "cell 1 2,growx");
         }
 
         {
@@ -329,15 +333,42 @@ public class MovieInformationPanel extends JPanel {
           panelTopDetails.add(lblOtherIdsT, "cell 3 2");
 
           taOtherIds = new ReadOnlyTextArea();
-          panelTopDetails.add(taOtherIds, "cell 4 2,growx,wmin 0");
+          panelTopDetails.add(taOtherIds, "cell 4 2 2 2,growx,wmin 0");
         }
+        {
+          JLabel lblRunningTimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+          panelTopDetails.add(lblRunningTimeT, "cell 0 3");
 
+          lblRunningTime = new JLabel("");
+          panelTopDetails.add(lblRunningTime, "cell 1 3");
+        }
         {
           JLabel lblGenresT = new TmmLabel(BUNDLE.getString("metatag.genre"));
-          panelTopDetails.add(lblGenresT, "cell 0 3");
+          panelTopDetails.add(lblGenresT, "cell 0 4");
 
           taGenres = new ReadOnlyTextArea();
-          panelTopDetails.add(taGenres, "cell 1 3 4 1,growx,wmin 0");
+          panelTopDetails.add(taGenres, "cell 1 4 5 1,growx,wmin 0");
+        }
+        {
+          JLabel lblProductionT = new TmmLabel(BUNDLE.getString("metatag.production"));
+          panelTopDetails.add(lblProductionT, "cell 0 5");
+
+          taProduction = new ReadOnlyTextArea();
+          panelTopDetails.add(taProduction, "cell 1 5 5 1,growx,wmin 0");
+        }
+        {
+          JLabel lblCountryT = new TmmLabel(BUNDLE.getString("metatag.country"));
+          panelTopDetails.add(lblCountryT, "cell 0 6");
+
+          lblCountry = new JLabel("");
+          panelTopDetails.add(lblCountry, "cell 1 6 5 1,wmin 0");
+        }
+        {
+          JLabel lblSpokenLanguagesT = new TmmLabel(BUNDLE.getString("metatag.spokenlanguages"));
+          panelTopDetails.add(lblSpokenLanguagesT, "cell 0 7,wmin 0");
+
+          lblSpokenLanguages = new JLabel("");
+          panelTopDetails.add(lblSpokenLanguages, "cell 1 7 5 1");
         }
       }
 
@@ -392,70 +423,41 @@ public class MovieInformationPanel extends JPanel {
       {
         JPanel panelBottomDetails = new JPanel();
         panelRight.add(panelBottomDetails, "cell 0 11,grow");
-        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][10lp][200lp,grow]", "[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]"));
-
-        {
-          JLabel lblReleaseDateT = new TmmLabel(BUNDLE.getString("metatag.releasedate"));
-          panelBottomDetails.add(lblReleaseDateT, "cell 0 0");
-
-          lblReleaseDate = new JLabel("");
-          panelBottomDetails.add(lblReleaseDate, "cell 2 0,growx,wmin 0");
-        }
-        {
-          JLabel lblProductionT = new TmmLabel(BUNDLE.getString("metatag.production"));
-          panelBottomDetails.add(lblProductionT, "cell 0 1");
-
-          taProduction = new ReadOnlyTextArea();
-          panelBottomDetails.add(taProduction, "cell 2 1,growx, wmin 0");
-        }
-        {
-          JLabel lblCountryT = new TmmLabel(BUNDLE.getString("metatag.country"));
-          panelBottomDetails.add(lblCountryT, "cell 0 2");
-
-          lblCountry = new JLabel("");
-          panelBottomDetails.add(lblCountry, "cell 2 2,growx,wmin 0");
-        }
-        {
-          JLabel lblSpokenLanguagesT = new TmmLabel(BUNDLE.getString("metatag.spokenlanguages"));
-          panelBottomDetails.add(lblSpokenLanguagesT, "cell 0 3");
-
-          lblSpokenLanguages = new JLabel("");
-          panelBottomDetails.add(lblSpokenLanguages, "cell 2 3,growx,wmin 0");
-        }
+        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][200lp,grow]", "[]2lp[]2lp[]2lp[]2lp[]"));
         {
           JLabel lblMoviesetT = new TmmLabel(BUNDLE.getString("metatag.movieset"));
-          panelBottomDetails.add(lblMoviesetT, "cell 0 4");
+          panelBottomDetails.add(lblMoviesetT, "cell 0 0");
 
           lblMovieSet = new JLabel("");
-          panelBottomDetails.add(lblMovieSet, "cell 2 4,growx,wmin 0");
+          panelBottomDetails.add(lblMovieSet, "cell 1 0,growx,wmin 0");
         }
         {
           JLabel lblEditionT = new TmmLabel(BUNDLE.getString("metatag.edition"));
-          panelBottomDetails.add(lblEditionT, "cell 0 5");
+          panelBottomDetails.add(lblEditionT, "cell 0 1");
 
           lblEdition = new JLabel("");
-          panelBottomDetails.add(lblEdition, "cell 2 5,growx,wmin 0");
+          panelBottomDetails.add(lblEdition, "cell 1 1,growx,wmin 0");
         }
         {
           JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
-          panelBottomDetails.add(lblTagsT, "cell 0 6");
+          panelBottomDetails.add(lblTagsT, "cell 0 2");
 
           taTags = new ReadOnlyTextArea();
-          panelBottomDetails.add(taTags, "cell 2 6,growx, wmin 0");
+          panelBottomDetails.add(taTags, "cell 1 2,growx,wmin 0");
         }
         {
           JLabel lblMoviePathT = new TmmLabel(BUNDLE.getString("metatag.path"));
-          panelBottomDetails.add(lblMoviePathT, "cell 0 7");
+          panelBottomDetails.add(lblMoviePathT, "cell 0 3");
 
           lblMoviePath = new LinkLabel("");
-          panelBottomDetails.add(lblMoviePath, "cell 2 7,growx,wmin 0");
+          panelBottomDetails.add(lblMoviePath, "cell 1 3,growx,wmin 0");
         }
         {
           JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
-          panelBottomDetails.add(lblNoteT, "cell 0 8");
+          panelBottomDetails.add(lblNoteT, "cell 0 4");
 
           taNote = new ReadOnlyTextArea();
-          panelBottomDetails.add(taNote, "cell 2 8, growx, wmin 0");
+          panelBottomDetails.add(taNote, "cell 1 4,growx,wmin 0");
         }
       }
     }
@@ -499,8 +501,9 @@ public class MovieInformationPanel extends JPanel {
     autoBinding_9.bind();
     //
     BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_12 = BeanProperty.create("selectedMovie.imdbId");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_12, lblImdbid, jLabelBeanProperty);
+    BeanProperty<JTextArea, String> jTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
+        movieSelectionModelBeanProperty_12, lblImdbid, jTextAreaBeanProperty);
     autoBinding_10.bind();
     //
     BeanProperty<MovieSelectionModel, Integer> movieSelectionModelBeanProperty_13 = BeanProperty.create("selectedMovie.runtime");
@@ -510,13 +513,12 @@ public class MovieInformationPanel extends JPanel {
     autoBinding_14.bind();
     //
     BeanProperty<MovieSelectionModel, Integer> movieSelectionModelBeanProperty_15 = BeanProperty.create("selectedMovie.tmdbId");
-    AutoBinding<MovieSelectionModel, Integer, JLabel, String> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_15, lblTmdbid, jLabelBeanProperty);
+    AutoBinding<MovieSelectionModel, Integer, JTextArea, String> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
+        movieSelectionModelBeanProperty_15, lblTmdbid, jTextAreaBeanProperty);
     autoBinding_7.setConverter(new ZeroIdConverter());
     autoBinding_7.bind();
     //
     BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_16 = BeanProperty.create("selectedMovie.genresAsString");
-    BeanProperty<JTextArea, String> jTextAreaBeanProperty = BeanProperty.create("text");
     AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
         movieSelectionModelBeanProperty_16, taGenres, jTextAreaBeanProperty);
     autoBinding_17.bind();
@@ -562,7 +564,7 @@ public class MovieInformationPanel extends JPanel {
     BeanProperty<JLabel, String> jLabelBeanProperty_1 = BeanProperty.create("text");
     AutoBinding<MovieSelectionModel, Movie, JLabel, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
         movieSelectionModelBeanProperty_9, lblRating, jLabelBeanProperty_1);
-    autoBinding_1.setConverter(new RatingConverter<>());
+    autoBinding_1.setConverter(new RatingConverter<Movie, String>());
     autoBinding_1.bind();
     //
     BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_1 = BeanProperty.create("selectedMovie.releaseDateAsString");
@@ -610,5 +612,12 @@ public class MovieInformationPanel extends JPanel {
     AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
         movieSelectionModelBeanProperty_22, taNote, jTextAreaBeanProperty);
     autoBinding_22.bind();
+    //
+    BeanProperty<MovieSelectionModel, MediaCertification> movieSelectionModelBeanProperty_23 = BeanProperty.create("selectedMovie.certification");
+    BeanProperty<JLabel, Icon> jLabelBeanProperty_2 = BeanProperty.create("icon");
+    AutoBinding<MovieSelectionModel, MediaCertification, JLabel, Icon> autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        movieSelectionModel, movieSelectionModelBeanProperty_23, lblCertificationLogo, jLabelBeanProperty_2);
+    autoBinding_23.setConverter(new CertificationImageConverter());
+    autoBinding_23.bind();
   }
 }

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.swing.Box;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -41,6 +42,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -51,6 +53,7 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.converter.VoteCountConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
@@ -77,7 +80,7 @@ public class TvShowInformationPanel extends JPanel {
   private LinkLabel                   lblImdbId;
   private LinkLabel                   lblPath;
   private JLabel                      lblPremiered;
-  private JLabel                      lblStudio;
+  private JTextArea                   taStudio;
   private JLabel                      lblStatus;
   private JLabel                      lblYear;
   private JTextArea                   taTags;
@@ -100,6 +103,7 @@ public class TvShowInformationPanel extends JPanel {
   private MediaInformationLogosPanel  panelLogos;
   private JLabel                      lblOriginalTitle;
   private JScrollPane                 scrollPane;
+  private JLabel                      lblCertificationLogo;
 
   /**
    * Instantiates a new tv show information panel.
@@ -205,7 +209,7 @@ public class TvShowInformationPanel extends JPanel {
     }
     {
       JPanel panelRight = new JPanel();
-      panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[][shrink 0][][shrink 0][][shrink 0][][][][grow]"));
+      panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[][shrink 0][][shrink 0][][shrink 0][][grow][][]"));
 
       scrollPane = new JScrollPane(panelRight);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -213,7 +217,7 @@ public class TvShowInformationPanel extends JPanel {
       {
         JPanel panelTopDetails = new JPanel();
         panelRight.add(panelTopDetails, "cell 0 0,growx");
-        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][20lp:n][][grow]", "[]2lp[]2lp[]2lp[]2lp[]"));
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][grow][]", "[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]"));
         {
           JLabel lblYearT = new TmmLabel(BUNDLE.getString("metatag.year"));
           panelTopDetails.add(lblYearT, "flowy,cell 0 0");
@@ -229,11 +233,15 @@ public class TvShowInformationPanel extends JPanel {
           panelTopDetails.add(lblImdbId, "cell 4 0");
         }
         {
-          JLabel lblCertificationT = new TmmLabel(BUNDLE.getString("metatag.certification"));
-          panelTopDetails.add(lblCertificationT, "cell 0 1");
+          lblCertificationLogo = new JLabel("");
+          panelTopDetails.add(lblCertificationLogo, "cell 5 0 1 2");
+        }
+        {
+          JLabel lblPremieredT = new TmmLabel(BUNDLE.getString("metatag.premiered"));
+          panelTopDetails.add(lblPremieredT, "cell 0 1");
 
-          lblCertification = new JLabel("");
-          panelTopDetails.add(lblCertification, "cell 1 1");
+          lblPremiered = new JLabel("");
+          panelTopDetails.add(lblPremiered, "cell 1 1");
         }
         {
           JLabel lblThetvdbIdT = new TmmLabel("TheTVDB Id");
@@ -243,32 +251,53 @@ public class TvShowInformationPanel extends JPanel {
           panelTopDetails.add(lblThetvdbId, "cell 4 1");
         }
         {
-          JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
-          panelTopDetails.add(lblRuntimeT, "cell 0 2");
+          JLabel lblCertificationT = new TmmLabel(BUNDLE.getString("metatag.certification"));
+          panelTopDetails.add(lblCertificationT, "cell 0 2");
 
-          lblRuntime = new JLabel("");
-          panelTopDetails.add(lblRuntime, "cell 1 2");
+          lblCertification = new JLabel("");
+          panelTopDetails.add(lblCertification, "cell 1 2");
         }
         {
           JLabel lblOtherIdsT = new TmmLabel(BUNDLE.getString("metatag.otherids"));
           panelTopDetails.add(lblOtherIdsT, "cell 3 2");
 
           taOtherIds = new ReadOnlyTextArea();
-          panelTopDetails.add(taOtherIds, "cell 4 2,growx, wmin 0");
+          panelTopDetails.add(taOtherIds, "cell 4 2 2 2,growx,wmin 0");
         }
         {
-          JLabel lblStatusT = new TmmLabel(BUNDLE.getString("metatag.status"));
-          panelTopDetails.add(lblStatusT, "cell 0 3");
+          JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+          panelTopDetails.add(lblRuntimeT, "cell 0 3");
 
-          lblStatus = new JLabel("");
-          panelTopDetails.add(lblStatus, "cell 1 3 4 1");
+          lblRuntime = new JLabel("");
+          panelTopDetails.add(lblRuntime, "cell 1 3");
         }
         {
           JLabel lblGenresT = new TmmLabel(BUNDLE.getString("metatag.genre"));
           panelTopDetails.add(lblGenresT, "cell 0 4");
 
           taGenres = new ReadOnlyTextArea();
-          panelTopDetails.add(taGenres, "cell 1 4 4 1,growx,wmin 0");
+          panelTopDetails.add(taGenres, "cell 1 4 5 1,growx,wmin 0");
+        }
+        {
+          JLabel lblStatusT = new TmmLabel(BUNDLE.getString("metatag.status"));
+          panelTopDetails.add(lblStatusT, "cell 0 5");
+
+          lblStatus = new JLabel("");
+          panelTopDetails.add(lblStatus, "cell 1 5 4 1");
+        }
+        {
+          JLabel lblStudioT = new TmmLabel(BUNDLE.getString("metatag.studio"));
+          panelTopDetails.add(lblStudioT, "cell 0 6,wmin 0");
+
+          taStudio = new ReadOnlyTextArea();
+          panelTopDetails.add(taStudio, "cell 1 6 5 1,growx, wmin 0");
+        }
+        {
+          JLabel lblCountryT = new TmmLabel(BUNDLE.getString("metatag.country"));
+          panelTopDetails.add(lblCountryT, "cell 0 7");
+
+          lblCountry = new JLabel("");
+          panelTopDetails.add(lblCountry, "cell 1 7 5 1, wmin 0");
         }
       }
       {
@@ -309,51 +338,29 @@ public class TvShowInformationPanel extends JPanel {
       }
       {
         JPanel panelBottomDetails = new JPanel();
-        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][10lp][200lp,grow]", "[]2lp[]2lp[]2lp[]2lp[]2lp[]"));
+        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][grow]", "[]2lp[]2lp[]"));
         panelRight.add(panelBottomDetails, "cell 0 9,grow");
-        {
-          JLabel lblPremieredT = new TmmLabel(BUNDLE.getString("metatag.premiered"));
-          panelBottomDetails.add(lblPremieredT, "cell 0 0");
-
-          lblPremiered = new JLabel("");
-          panelBottomDetails.add(lblPremiered, "cell 1 0");
-        }
-
-        {
-          JLabel lblStudioT = new TmmLabel(BUNDLE.getString("metatag.studio"));
-          panelBottomDetails.add(lblStudioT, "cell 0 1");
-
-          lblStudio = new JLabel("");
-          panelBottomDetails.add(lblStudio, "cell 1 1 3 1,wmin 0");
-        }
-        {
-          JLabel lblCountryT = new TmmLabel(BUNDLE.getString("metatag.country"));
-          panelBottomDetails.add(lblCountryT, "cell 0 2");
-
-          lblCountry = new JLabel("");
-          panelBottomDetails.add(lblCountry, "cell 1 2 3 1,wmin 0");
-        }
 
         {
           JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
-          panelBottomDetails.add(lblTagsT, "cell 0 3");
+          panelBottomDetails.add(lblTagsT, "cell 0 0");
 
           taTags = new ReadOnlyTextArea();
-          panelBottomDetails.add(taTags, "cell 1 3 3 1,growx,wmin 0");
+          panelBottomDetails.add(taTags, "cell 1 0,growx,wmin 0");
         }
         {
           JLabel lblPathT = new TmmLabel(BUNDLE.getString("metatag.path"));
-          panelBottomDetails.add(lblPathT, "cell 0 4");
+          panelBottomDetails.add(lblPathT, "cell 0 1");
 
           lblPath = new LinkLabel("");
-          panelBottomDetails.add(lblPath, "cell 1 4 3 1,growx,wmin 0");
+          panelBottomDetails.add(lblPath, "cell 1 1,growx,wmin 0");
         }
         {
           JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
-          panelBottomDetails.add(lblNoteT, "cell 0 5");
+          panelBottomDetails.add(lblNoteT, "cell 0 2");
 
           taNote = new ReadOnlyTextArea();
-          panelBottomDetails.add(taNote, "cell 1 5 3 1,growx,wmin 0");
+          panelBottomDetails.add(taNote, "cell 1 2,growx,wmin 0");
         }
       }
     }
@@ -479,8 +486,8 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding_14.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_15 = BeanProperty.create("selectedTvShow.productionCompany");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_15, lblStudio, jLabelBeanProperty);
+    AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_15, taStudio, jTextAreaBeanProperty);
     autoBinding_15.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_16 = BeanProperty.create("selectedTvShow.country");
@@ -502,5 +509,12 @@ public class TvShowInformationPanel extends JPanel {
     AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowSelectionModel, tvShowSelectionModelBeanProperty_19, taNote, jTextAreaBeanProperty);
     autoBinding_19.bind();
+    //
+    BeanProperty<TvShowSelectionModel, MediaCertification> tvShowSelectionModelBeanProperty_20 = BeanProperty.create("selectedTvShow.certification");
+    BeanProperty<JLabel, Icon> jLabelBeanProperty_1 = BeanProperty.create("icon");
+    AutoBinding<TvShowSelectionModel, MediaCertification, JLabel, Icon> autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_20, lblCertificationLogo, jLabelBeanProperty_1);
+    autoBinding_20.setConverter(new CertificationImageConverter());
+    autoBinding_20.bind();
   }
 }
