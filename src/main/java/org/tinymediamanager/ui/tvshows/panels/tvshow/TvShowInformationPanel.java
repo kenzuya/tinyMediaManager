@@ -262,7 +262,7 @@ public class TvShowInformationPanel extends JPanel {
           panelTopDetails.add(lblOtherIdsT, "cell 3 2");
 
           taOtherIds = new ReadOnlyTextArea();
-          panelTopDetails.add(taOtherIds, "cell 4 2 2 2,growx,wmin 0");
+          panelTopDetails.add(taOtherIds, "cell 4 2 2 2,growx,wmin 0,aligny top");
         }
         {
           JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
