@@ -31,9 +31,9 @@ resource = changelog.txt
 resource = launcher.yml
 
 # JRE - will be mixed into the path by the ant build
-java_location = [windows] jre/jre_windows.jar
-java_location = [linux] jre/jre_linux.jar
-java_location = [mac os x] jre/jre_macos.jar
+resource = [windows] jre/jre_windows.tar.zst
+resource = [linux] jre/jre_linux.tar.zst
+resource = [mac os x] jre/jre_macos.tar.zst
 
 # translations
 %LOCALES%
@@ -52,7 +52,7 @@ resource = [linux] native/linux/liblwjgl.so
 resource = [linux] native/linux/liblwjgl_nfd.so
 
 # templates
-uresource = templates/templates.jar
+resource = templates/templates.tar.bz2
 
 # The main entry point for the application (prefix needed for GD params)
 class = org.tinymediamanager.TinyMediaManager

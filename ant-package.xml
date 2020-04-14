@@ -57,9 +57,9 @@
 		</copy>
 
 		<!-- zip templates -->
-		<zip destfile="${build.dir}/templates/templates.jar"
+		<tar compression="bzip2" destfile="${build.dir}/templates/templates.tar.bz2"
 			 basedir="templates">
-		</zip>
+		</tar>
 
 		<copy todir="${build.dir}/lib">
 			<fileset dir="target/dependency"/>
@@ -102,8 +102,8 @@
 				<include name="**/*"/>
 				<exclude name="native/windows*/**"/>
 				<exclude name="native/linux*/**"/>
-				<exclude name="jre/jre_windows.jar"/>
-				<exclude name="jre/jre_linux.jar"/>
+				<exclude name="jre/jre_windows*"/>
+				<exclude name="jre/jre_linux*"/>
 			</fileset>
 		</copy>
 
@@ -118,8 +118,8 @@
 				<include name="**/*"/>
 				<exclude name="native/mac*/**"/>
 				<exclude name="native/linux*/**"/>
-				<exclude name="jre/jre_macos.jar"/>
-				<exclude name="jre/jre_linux.jar"/>
+				<exclude name="jre/jre_macos*"/>
+				<exclude name="jre/jre_linux*"/>
 			</fileset>
 		</copy>
 
@@ -135,8 +135,8 @@
 				<include name="**/*"/>
 				<exclude name="native/mac*/**"/>
 				<exclude name="native/windows*/**"/>
-				<exclude name="jre/jre_macos.jar"/>
-				<exclude name="jre/jre_windows.jar"/>
+				<exclude name="jre/jre_macos*"/>
+				<exclude name="jre/jre_windows*"/>
 			</fileset>
 		</copy>
 

@@ -10,7 +10,6 @@ import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter.TemplateType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieExporter;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -36,8 +35,6 @@ public class JmteTest extends BasicTest {
     createFakeShow("Best Show");
     createFakeShow("THE show");
     createFakeShow("Show 3");
-
-    Utils.extractTemplates(true); // always extract fresh
   }
 
   @AfterClass

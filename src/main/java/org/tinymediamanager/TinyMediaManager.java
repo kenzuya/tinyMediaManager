@@ -434,9 +434,6 @@ public class TinyMediaManager {
         // rename downloaded files
         UpgradeTasks.renameDownloadedFiles();
 
-        // extract templates, if GD has not already done
-        Utils.extractTemplates();
-
         // clean old log files
         Utils.cleanOldLogs();
 

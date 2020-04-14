@@ -1401,39 +1401,6 @@ public class Utils {
   }
 
   /**
-   * extract our templates (only if non existing)
-   */
-  public static void extractTemplates() {
-    extractTemplates(false);
-  }
-
-  /**
-   * extract our templates (use force to overwrite)
-   */
-  public static void extractTemplates(boolean force) {
-    Path dest = Paths.get("templates");
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dest)) {
-      // count the directory amount if not forced
-      int dirCount = 0;
-      if (!force) {
-        for (Path path : directoryStream) {
-          if (Files.isDirectory(path)) {
-            dirCount++;
-          }
-        }
-      }
-
-      // if forced or the directory count is zero, we will extract the templates.zip
-      if (dirCount == 0 || force) {
-        Utils.unzip(dest.resolve("templates.jar"), dest);
-      }
-    }
-    catch (IOException e) {
-      LOGGER.warn("failed to extract templates: {}", e.getMessage());
-    }
-  }
-
-  /**
    * Java NIO replacement of commons-io
    * 
    * @param file
