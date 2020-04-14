@@ -21,34 +21,6 @@
 		<property name="rev" value="prerelease" />
 	</target>
 
-	<target name="checkArchitecture">
-
-		<condition property="is64Bit">
-			<equals arg1="${os.arch}" arg2="amd64"/>
-		</condition>
-	</target>
-	
-	<target name="launch4j64" depends="checkArchitecture" if="is64Bit">
-		<chmod file="AppBundler/launch4j-x64/bin/windres" perm="ugo+rx" />
-		<chmod file="AppBundler/launch4j-x64/bin/ld" perm="ugo+rx" />
-		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="AppBundler/launch4j-x64/launch4j.jar:AppBundler/launch4j-x64/lib/xstream.jar" />
-		<launch4j configFile="./AppBundler/launch4j.xml" txtProductVersion="${tmmVersion}_${tmmRevision}" outfile="${dist.dir}/win/tinyMediaManager.exe" />
-		<launch4j configFile="./AppBundler/launch4jUpdater.xml" txtProductVersion="${tmmVersion}_${tmmRevision}" outfile="${dist.dir}/win/tinyMediaManagerUpd.exe" />
-		<launch4j configFile="./AppBundler/launch4jcmd.xml" txtProductVersion="${tmmVersion}_${tmmRevision}" outfile="${dist.dir}/win/tinyMediaManagerCMD.exe" />
-		<launch4j configFile="./AppBundler/launch4jcmdUpdater.xml" txtProductVersion="${tmmVersion}_${tmmRevision}"
-				  outfile="${dist.dir}/win/tinyMediaManagerCMDUpd.exe"/>
-	</target>
-	<target name="launch4j32" depends="checkArchitecture" unless="is64Bit">
-		<chmod file="AppBundler/launch4j-x86/bin/windres" perm="ugo+rx" />
-		<chmod file="AppBundler/launch4j-x86/bin/ld" perm="ugo+rx" />
-		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="AppBundler/launch4j-x86/launch4j.jar:AppBundler/launch4j-x86/lib/xstream.jar" />
-		<launch4j configFile="./AppBundler/launch4j.xml" txtProductVersion="${tmmVersion}_${tmmRevision}" outfile="${dist.dir}/win/tinyMediaManager.exe" />
-		<launch4j configFile="./AppBundler/launch4jUpdater.xml" txtProductVersion="${tmmVersion}_${tmmRevision}" outfile="${dist.dir}/win/tinyMediaManagerUpd.exe" />
-		<launch4j configFile="./AppBundler/launch4jcmd.xml" txtProductVersion="${tmmVersion}_${tmmRevision}" outfile="${dist.dir}/win/tinyMediaManagerCMD.exe" />
-		<launch4j configFile="./AppBundler/launch4jcmdUpdater.xml" txtProductVersion="${tmmVersion}_${tmmRevision}"
-				  outfile="${dist.dir}/win/tinyMediaManagerCMDUpd.exe"/>
-	</target>
-
     <target name="package-app" description="builds the packages" depends="setNightly, setPreRelease">
 		<delete dir="${build.dir}" />
 		<mkdir dir="${build.dir}" />
@@ -76,8 +48,6 @@
 		<copy file="AppBundler/${getdown}" tofile="${build.dir}/getdown.txt" />
 		<copy file="LICENSE" todir="${build.dir}" />
 		<copy file="AppBundler/splashscreen.png" todir="${build.dir}" />
-		<copy file="AppBundler/progress.jpg" todir="${build.dir}" />
-		<copy file="AppBundler/tmm.png" todir="${build.dir}" />
 		<copy file="AppBundler/env.txt" todir="${build.dir}" />
 		<copy file="target/${tmmName}-${tmmVersion}.jar" tofile="${build.dir}/tmm.jar" />
 
@@ -91,7 +61,12 @@
 		</zip>
 
 		<copy todir="${build.dir}/lib">
-			<fileset dir="target/dependency" />
+			<fileset dir="target/dependency"/>
+		</copy>
+
+		<!-- JRE -->
+		<copy todir="${build.dir}/jre">
+			<fileset dir="jre"/>
 		</copy>
 
 		<!-- ===================================================== -->
@@ -100,7 +75,7 @@
 		<pathconvert property="gd.code" refid="classpath.default" pathsep="">
 			<mapper>
 				<chainedmapper>
-					<flattenmapper />
+					<flattenmapper/>
 					<!-- remove absolute path -->
 					<!-- add GD + lib/ prefix + newline ;) -->
 					<globmapper from="*" to="code = lib/*${line.separator}" />
@@ -108,109 +83,79 @@
 			</mapper>
 		</pathconvert>
 		<!--echo message="${gd.code}" /-->
-		<replace file="${build.dir}/getdown.txt" token="%CODELIBS%" value="${gd.code}" />
+		<replace file="${build.dir}/getdown.txt" token="%CODELIBS%" value="${gd.code}"/>
 
-		<echo message="=====================================================" />
-		<echo message="prepare build for MacOS X" />
-		<echo message="=====================================================" />
+		<echo message="====================================================="/>
+		<echo message="prepare build for MacOS X"/>
+		<echo message="====================================================="/>
 		<copy todir="${dist.dir}/mac/tinyMediaManager.app/Contents">
-			<fileset dir="AppBundler/dist-mac" />
+			<fileset dir="AppBundler/dist-mac"/>
 		</copy>
-		<replace file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" token="%VERSION%" value="${tmmVersion}" />
-		<replace file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" token="%SVNREV%" value="${tmmRevision}" />
-		<chmod file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/JavaApplicationStub" perm="ugo+rx" />
-		<chmod file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/tinyMediaManagerOSX.sh" perm="ugo+rx" />
-		<chmod file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/tinyMediaManagerCMD-OSX.sh"
-			   perm="ugo+rx"/>
-		<chmod file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/tinyMediaManagerCUpdaterMD-OSX.sh"
-			   perm="ugo+rx"/>
+		<replace file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" token="%VERSION%"
+				 value="${tmmVersion}"/>
+		<replace file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" token="%SVNREV%"
+				 value="${tmmRevision}"/>
+		<chmod file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager" perm="ugo+rx"/>
 		<copy todir="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/">
 			<fileset dir="${build.dir}">
-				<include name="**/*" />
-				<exclude name="native/windows*/**" />
-				<exclude name="native/linux*/**" />
+				<include name="**/*"/>
+				<exclude name="native/windows*/**"/>
+				<exclude name="native/linux*/**"/>
+				<exclude name="jre/jre_windows.jar"/>
+				<exclude name="jre/jre_linux.jar"/>
 			</fileset>
 		</copy>
-		<copy file="AppBundler/getdown-launcher.jar" tofile="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/getdown.jar" />
 
-		<echo message="=====================================================" />
-		<echo message="prepare build for Windows" />
-		<echo message="=====================================================" />
-		<antcall target="launch4j32" />
-		<antcall target="launch4j64" />
+		<echo message="====================================================="/>
+		<echo message="prepare build for Windows"/>
+		<echo message="====================================================="/>
+		<copy todir="${dist.dir}/win">
+			<fileset dir="AppBundler/dist-windows"/>
+		</copy>
 		<copy todir="${dist.dir}/win">
 			<fileset dir="${build.dir}">
-				<include name="**/*" />
-				<exclude name="native/mac*/**" />
-				<exclude name="native/linux*/**" />
+				<include name="**/*"/>
+				<exclude name="native/mac*/**"/>
+				<exclude name="native/linux*/**"/>
+				<exclude name="jre/jre_macos.jar"/>
+				<exclude name="jre/jre_linux.jar"/>
 			</fileset>
 		</copy>
-		<copy file="AppBundler/getdown-launcher.jar" tofile="${dist.dir}/win/getdown.jar" />
 
-		<echo message="=====================================================" />
-		<echo message="prepare build for Linux" />
-		<echo message="=====================================================" />
+		<echo message="====================================================="/>
+		<echo message="prepare build for Linux"/>
+		<echo message="====================================================="/>
 		<copy todir="${dist.dir}/linux">
-			<fileset dir="AppBundler/dist-linux" />
+			<fileset dir="AppBundler/dist-linux"/>
 		</copy>
-		<chmod file="${dist.dir}/linux/tinyMediaManager.sh" perm="ugo+rx" />
-		<chmod file="${dist.dir}/linux/tinyMediaManagerUpdater.sh" perm="ugo+rx" />
-		<chmod file="${dist.dir}/linux/tinyMediaManagerCMD.sh" perm="ugo+rx" />
-		<chmod file="${dist.dir}/linux/tinyMediaManagerUpdaterCMD.sh" perm="ugo+rx"/>
+		<chmod file="${dist.dir}/linux/tinyMediaManager" perm="ugo+rx"/>
 		<copy todir="${dist.dir}/linux">
 			<fileset dir="${build.dir}">
-				<include name="**/*" />
-				<exclude name="native/mac*/**" />
-				<exclude name="native/windows*/**" />
+				<include name="**/*"/>
+				<exclude name="native/mac*/**"/>
+				<exclude name="native/windows*/**"/>
+				<exclude name="jre/jre_macos.jar"/>
+				<exclude name="jre/jre_windows.jar"/>
 			</fileset>
 		</copy>
-		<copy file="AppBundler/getdown-launcher.jar" tofile="${dist.dir}/linux/getdown.jar" />
 
-		<echo message="=====================================================" />
-		<echo message="default files, NOT to include in DIST, but in GD" />
-		<echo message="=====================================================" />
-		<copy file="${dist.dir}/win/tinyMediaManager.exe" tofile="${build.dir}/tinyMediaManager.new" />
-		<copy file="${dist.dir}/win/tinyMediaManagerUpd.exe" tofile="${build.dir}/tinyMediaManagerUpd.new" />
-		<copy file="${dist.dir}/win/tinyMediaManagerCMD.exe" tofile="${build.dir}/tinyMediaManagerCMD.new" />
-		<copy file="${dist.dir}/win/tinyMediaManagerCMDUpd.exe" tofile="${build.dir}/tinyMediaManagerCMDUpd.new"/>
+		<echo message="====================================================="/>
+		<echo message="default files, NOT to include in DIST, but in GD"/>
+		<echo message="====================================================="/>
+		<copy file="${dist.dir}/win/tinyMediaManager.exe" todir="${build.dir}"/>
+		<copy file="${dist.dir}/linux/tinyMediaManager" todir="${build.dir}"/>
+		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager" todir="${build.dir}/macOS"/>
+		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" todir="${build.dir}/macOS"/>
+		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/tmm.icns" todir="${build.dir}/macOS"/>
 
-		<copy file="${dist.dir}/linux/tinyMediaManager.sh" todir="${build.dir}" />
-		<copy file="${dist.dir}/linux/tinyMediaManagerUpdater.sh" todir="${build.dir}" />
-		<copy file="${dist.dir}/linux/tinyMediaManagerCMD.sh" todir="${build.dir}" />
-		<copy file="${dist.dir}/linux/tinyMediaManagerUpdaterCMD.sh" todir="${build.dir}"/>
-
-		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/tinyMediaManagerOSX.sh" todir="${build.dir}" />
-		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/tinyMediaManagerCMD-OSX.sh"
-			  todir="${build.dir}"/>
-		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/tinyMediaManagerUpdaterCMD-OSX.sh"
-			  todir="${build.dir}"/>
-		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/JavaApplicationStub" tofile="${build.dir}/JavaApplicationStub.new" />
-		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" todir="${build.dir}" />
-		<copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/tmm.icns" todir="${build.dir}"/>
-
-		<copy file="AppBundler/getdown-launcher.jar" tofile="${build.dir}/getdown-new.jar" />
-
-		<!-- create webstart file (currently w/o plugins) -->
-		<copy file="AppBundler/webstart.php" tofile="${build.dir}/webstart.php" />
-		<pathconvert property="webstart" refid="classpath.default" pathsep="">
-			<mapper>
-				<chainedmapper>
-					<flattenmapper />
-					<globmapper from="*" to="        &lt;jar href=&quot;lib/*&quot; />${line.separator}" />
-				</chainedmapper>
-			</mapper>
-		</pathconvert>
-		<!-- echo message="${webstart}" /-->
-		<replace file="${build.dir}/webstart.php" token="%WEBSTARTLIBS%" value="${webstart}" />
-
-		<echo message="=====================================================" />
-		<echo message="finally create checksums" />
-		<echo message="=====================================================" />
+		<echo message="====================================================="/>
+		<echo message="finally create checksums"/>
+		<echo message="====================================================="/>
 		<taskdef name="digest" classname="com.threerings.getdown.tools.DigesterTask">
 			<classpath>
 				<!-- ANT module currently does NOT yet include core -->
-				<pathelement location="AppBundler/getdown-ant.jar" />
-				<pathelement location="AppBundler/getdown-core.jar" />
+				<pathelement location="AppBundler/getdown-ant.jar"/>
+				<pathelement location="AppBundler/getdown-core.jar"/>
 			</classpath>
 		</taskdef>
 		<digest appdir="${build.dir}" />
@@ -221,9 +166,9 @@
 		<copy file="${build.dir}/digest.txt" todir="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/" />
 		<copy file="${build.dir}/digest2.txt" todir="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/" />
 		<zip destfile="${dist.dir}/tmm_${tmmVersion}_mac.zip" level="9">
-			<zipfileset dir="${dist.dir}/mac" excludes="**/JavaApplicationStub,**/tinyMediaManagerOSX.sh" />
+			<zipfileset dir="${dist.dir}/mac" excludes="**/tinyMediaManager"/>
 			<zipfileset filemode="755" dir="${dist.dir}/mac"
-						includes="**/JavaApplicationStub,**/tinyMediaManagerOSX.sh, **/tinyMediaManagerCMD-OSX.sh, **/tinyMediaManagerUpdaterCMD-OSX.sh"/>
+						includes="**/tinyMediaManager"/>
 		</zip>
 
 		<echo message="=====================================================" />
@@ -241,8 +186,8 @@
 		<copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux" />
 		<copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux" />
 		<tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_linux.tar.gz">
-			<tarfileset dir="${dist.dir}/linux" excludes="*.sh" />
-			<tarfileset filemode="755" dir="${dist.dir}/linux" includes="*.sh" />
+			<tarfileset dir="${dist.dir}/linux" excludes="tinyMediaManager"/>
+			<tarfileset filemode="755" dir="${dist.dir}/linux" includes="tinyMediaManager"/>
 		</tar>
 
 		<!-- done, move build dir -->

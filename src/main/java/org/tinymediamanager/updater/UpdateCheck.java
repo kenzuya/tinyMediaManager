@@ -100,8 +100,13 @@ public class UpdateCheck {
       }
 
       // compare with our local
-      String localDigest = Utils.readFileToString(digestFile);
-      localDigest = localDigest.trim();
+      String localDigest = "";
+      try {
+        localDigest = Utils.readFileToString(digestFile).trim();
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
       if (!localDigest.equals(remoteDigest)) {
         LOGGER.info("Update needed...");
 

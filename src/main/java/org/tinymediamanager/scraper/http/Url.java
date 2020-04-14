@@ -39,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.NullInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -321,6 +322,11 @@ public class Url {
 
       responseContentLength = response.body().contentLength();
 
+      if (headRequest) {
+        response.close();
+        return new NullInputStream(0);
+      }
+
       is = getInputstreamInternal(response);
     }
     catch (HttpException e) {
@@ -338,7 +344,7 @@ public class Url {
     }
     catch (Exception e) {
       cleanup();
-      LOGGER.error("Unexpected exception getting url " + logUrl + " - " + e.getMessage(), e);
+      LOGGER.error("Unexpected exception getting url " + logUrl + " - " + e.getMessage(), e); // NOSONAR
     }
     return is;
   }
