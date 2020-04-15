@@ -1,5 +1,5 @@
 # The URL from which the client is downloaded
-appbase = https://test.tinymediamanager.org/v3/build/
+appbase = https://test.tinymediamanager.org/build/
 
 # UI Configuration
 ui.name = tinyMediaManager
@@ -22,9 +22,9 @@ code = tmm.jar
 
 resource = [windows] tinyMediaManager.exe
 xresource = [linux] tinyMediaManager
-xresource = [mac os x] macOS/tinyMediaManager
+xresource = [mac os x] macOS/MacOS/tinyMediaManager
 resource = [mac os x] macOS/Info.plist
-resource = [mac os x] macOS/tmm.icns
+resource = [mac os x] macOS/Resources/tmm.icns
 resource = version
 resource = splashscreen.png
 resource = changelog.txt

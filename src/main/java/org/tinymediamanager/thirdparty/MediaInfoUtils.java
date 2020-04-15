@@ -14,12 +14,16 @@ import com.sun.jna.Platform;
 public class MediaInfoUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(MediaInfoUtils.class);
 
+  private MediaInfoUtils() {
+    // private constructor for utility classes
+  }
+
   /**
    * load media info from /native/*
    */
   public static void loadMediaInfo() {
     try {
-      String miv = "";
+      String miv;
       String nativepath = "native/";
 
       // windows
@@ -35,17 +39,6 @@ public class MediaInfoUtils {
         nativepath += "mac";
       }
 
-      // mac uses the same lib for 32 and 64 bit
-      if (!Platform.isMac()) {
-        // https://en.wikipedia.org/wiki/X86-64
-        if (Platform.is64Bit()) {
-          nativepath += "-x64";
-        }
-        else {
-          nativepath += "-x86";
-        }
-      }
-
       // need that, since we cannot try and reload/unload a Class
       // MI does not load over UNC, so copy to temp
       if (System.getProperty("user.dir", "").startsWith("\\\\") || System.getProperty("user.dir", "").startsWith("//")) {
@@ -56,7 +49,7 @@ public class MediaInfoUtils {
 
         System.setProperty("jna.library.path", nativeDir.toString()); // MI
         System.setProperty("org.lwjgl.librarypath", nativeDir.toString()); // nfd
-        LOGGER.debug("Loading native libs from: {}", nativeDir.toString());
+        LOGGER.debug("Loading native libs from: {}", nativeDir);
       }
       else {
         System.setProperty("jna.library.path", nativepath); // MI
@@ -67,7 +60,7 @@ public class MediaInfoUtils {
       miv = MediaInfo.version(); // load class
 
       if (!StringUtils.isEmpty(miv)) {
-        LOGGER.info("Using " + miv);
+        LOGGER.info("Using {}", miv);
       }
       else {
         LOGGER.error("could not load MediaInfo!");
