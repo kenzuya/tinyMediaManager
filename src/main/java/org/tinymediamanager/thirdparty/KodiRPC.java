@@ -509,7 +509,6 @@ public class KodiRPC {
 
     Thread thread = new Thread(() -> {
       try {
-        LOGGER.info("send it");
         JsonApiRequest.execute(cm.getHostConfig(), call.getRequest());
       }
       catch (ApiException e) {
