@@ -507,7 +507,7 @@ public class KodiRPC {
       return;
     }
 
-    new Thread(() -> {
+    Thread thread = new Thread(() -> {
       try {
         JsonApiRequest.execute(cm.getHostConfig(), call.getRequest());
       }
@@ -515,6 +515,7 @@ public class KodiRPC {
         LOGGER.error("Error calling Kodi: {}", e.getMessage());
       }
     });
+    thread.start();
   }
 
   /**
