@@ -125,7 +125,7 @@ public class MainWindow extends JFrame {
     return logos;
   }
 
-  private void checkForUpdate() {
+  public void checkForUpdate() {
     Runnable runnable = () -> {
       try {
         UpdateCheck updateCheck = new UpdateCheck();

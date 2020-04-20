@@ -17,6 +17,7 @@ package org.tinymediamanager.updater;
 
 import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
 
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,11 +29,16 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
 import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
@@ -53,7 +59,7 @@ public class UpdaterTask extends TmmTask {
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
 
   public UpdaterTask() {
-    super(BUNDLE.getString("task.update"), 100, TaskType.BACKGROUND_TASK);
+    super(BUNDLE.getString("task.updater.prepare"), 100, TaskType.BACKGROUND_TASK);
   }
 
   @Override
@@ -107,6 +113,7 @@ public class UpdaterTask extends TmmTask {
       app.verifyResources(progobs, alreadyValid, unpacked, toInstallResources, toDownload);
 
       if (!toDownload.isEmpty()) {
+        setTaskName(BUNDLE.getString("task.update"));
         // we have resources to download, also note them as to-be-installed
         toInstallResources.addAll(toDownload);
 
@@ -119,6 +126,17 @@ public class UpdaterTask extends TmmTask {
         for (Resource resource : toInstallResources) {
           resource.install(true);
         }
+
+        // all files downloaded -> popup to inform the user (if we're in a UI environment)
+        if (!GraphicsEnvironment.isHeadless()) {
+          SwingUtilities.invokeLater(() -> {
+            int decision = JOptionPane.showConfirmDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.updater.restart.desc"),
+                BUNDLE.getString("tmm.updater.restart"), JOptionPane.YES_NO_OPTION);
+            if (decision == JOptionPane.YES_OPTION) {
+              MainWindow.getActiveInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
+            }
+          });
+        }
       }
     }
     catch (Exception e) {
@@ -130,7 +148,13 @@ public class UpdaterTask extends TmmTask {
    * Called if the application is determined to require resource downloads.
    */
   private void download(Collection<Resource> resources, Application app) throws IOException {
-    Downloader dl = new TmmGetdownDownloader();
+    Downloader dl = new TmmGetdownDownloader() {
+      @Override
+      protected void downloadProgress(int percent, long remaining) {
+        super.downloadProgress(percent, remaining);
+        publishState(percent);
+      }
+    };
 
     if (dl.download(resources, app.maxConcurrentDownloads())) {
       // download completed; mark the completed download by putting a .ready file into the /update folder

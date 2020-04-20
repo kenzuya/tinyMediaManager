@@ -18,26 +18,25 @@ package org.tinymediamanager.ui.actions;
 import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.UTF8Control;
 
 /**
- * The LaunchUpdaterAction to launch the updater (getdown) from within tinyMediaManager
+ * The CheckForUpdateAction is used to trigger an update check
  * 
  * @author Manuel Laggner
  */
-public class LaunchUpdaterAction extends TmmAction {
+public class CheckForUpdateAction extends TmmAction {
   private static final long           serialVersionUID = 3046686017542572465L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
-  public LaunchUpdaterAction() {
-    putValue(NAME, BUNDLE.getString("tmm.launchupdater")); //$NON-NLS-1$
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tmm.launchupdater.desc")); //$NON-NLS-1$
+  public CheckForUpdateAction() {
+    putValue(NAME, BUNDLE.getString("tmm.updater.check"));
+    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tmm.updater.check"));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    MainWindow.getActiveInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
+    MainWindow.getActiveInstance().checkForUpdate();
   }
 }

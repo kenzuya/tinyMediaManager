@@ -91,19 +91,23 @@ public class TmmOsUtils {
    */
   public static ProcessBuilder getPBforTMMrestart() {
     Path tmmExecutable;
+    ProcessBuilder pb;
 
     if (SystemUtils.IS_OS_WINDOWS) {
       tmmExecutable = Paths.get("tinyMediaManager.exe");
+      pb = new ProcessBuilder("start", "/min", tmmExecutable.toAbsolutePath().toString());
     }
     else if (SystemUtils.IS_OS_MAC) {
       tmmExecutable = Paths.get("../../MacOS/tinyMediaManager");
+      pb = new ProcessBuilder("/bin/sh", "-c", tmmExecutable.toAbsolutePath().toString());
     }
     else {
       tmmExecutable = Paths.get("tinyMediaManager");
+      pb = new ProcessBuilder("/bin/sh", "-c", tmmExecutable.toAbsolutePath().toString());
     }
 
-    ProcessBuilder pb = new ProcessBuilder(tmmExecutable.toAbsolutePath().toString());
     pb.directory(tmmExecutable.toAbsolutePath().getParent().toAbsolutePath().toFile());
+    pb.redirectOutput(new File("NUL")).redirectErrorStream(true);
     return pb;
   }
 }
