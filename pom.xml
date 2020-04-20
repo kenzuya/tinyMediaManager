@@ -6,7 +6,7 @@
 
 	<groupId>org.tinymediamanager</groupId>
 	<artifactId>tinyMediaManager</artifactId>
-	<version>3.1.6-SNAPSHOT</version>
+	<version>4.0-SNAPSHOT</version>
 
 	<name>tinyMediaManager</name>
 	<description>a media management tool written in Java</description>
@@ -76,8 +76,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.release>11</maven.compiler.release>
 		<skipTests>true</skipTests><!-- to override on command line -->
 
 		<jar.version>3.2.0</jar.version>
@@ -383,8 +382,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${compiler.version}</version>
 				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
+					<release>${maven.compiler.release}</release>
 					<debug>true</debug>
 					<debuglevel>lines,vars,source</debuglevel>
 				</configuration>
@@ -586,15 +584,6 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<id>java9+</id>
-			<activation>
-				<jdk>[9,)</jdk>
-			</activation>
-			<properties>
-				<maven.compiler.release>8</maven.compiler.release>
-			</properties>
-		</profile>
 		<profile>
 			<id>gitlab-ci</id>
 			<build>
