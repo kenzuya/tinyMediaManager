@@ -39,7 +39,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -69,7 +68,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle           BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle           BUNDLE           = ResourceBundle.getBundle("messages");
 
   private EventList<TvShowEpisode>              episodeEventList;
   private DefaultEventTableModel<TvShowEpisode> episodeTableModel;

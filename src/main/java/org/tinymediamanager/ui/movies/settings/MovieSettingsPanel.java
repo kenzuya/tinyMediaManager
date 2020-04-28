@@ -31,7 +31,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.threading.TmmTask;
@@ -54,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -4173835431245178069L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSettings          settings         = MovieModuleManager.SETTINGS;
 

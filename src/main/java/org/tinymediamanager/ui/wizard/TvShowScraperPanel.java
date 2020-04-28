@@ -38,7 +38,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -64,7 +63,7 @@ class TvShowScraperPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
   private final List<TvShowScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());

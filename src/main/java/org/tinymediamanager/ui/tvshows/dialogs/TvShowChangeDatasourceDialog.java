@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -51,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowChangeDatasourceDialog extends TmmDialog {
   private static final long           serialVersionUID = -1515243604267310274L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private List<TvShow>                tvShowsToEdit    = new ArrayList<>();
 

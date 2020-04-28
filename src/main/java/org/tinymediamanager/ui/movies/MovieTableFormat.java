@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieComparator;
@@ -48,7 +47,7 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class MovieTableFormat extends TmmTableFormat<Movie> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieTableFormat() {
 

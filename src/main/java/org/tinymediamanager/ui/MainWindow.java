@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tasks.UpdaterTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -77,7 +76,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainWindow extends JFrame {
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MainWindow.class);
   private static final long           serialVersionUID = 1L;
 

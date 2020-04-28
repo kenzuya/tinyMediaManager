@@ -27,7 +27,6 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.thirdparty.trakttv.TraktTv;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -45,7 +44,7 @@ import net.miginfocom.swing.MigLayout;
 class ExternalServicesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 7266564870819511988L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private JButton                     btnGetTraktPin;
   private JButton                     btnTestTraktConnection;
   private JLabel                      lblTraktStatus;

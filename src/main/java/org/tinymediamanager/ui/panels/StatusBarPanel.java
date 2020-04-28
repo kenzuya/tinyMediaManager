@@ -34,7 +34,6 @@ import javax.swing.UIManager;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
@@ -55,7 +54,7 @@ import net.miginfocom.swing.MigLayout;
 public class StatusBarPanel extends JPanel implements TmmTaskListener {
   private static final long           serialVersionUID = -6375900257553323558L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Set<TmmTaskHandle>          taskSet;
   private TmmTaskHandle               activeTask;

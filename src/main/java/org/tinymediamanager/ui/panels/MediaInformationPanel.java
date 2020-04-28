@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
@@ -63,7 +62,7 @@ import net.miginfocom.swing.MigLayout;
 abstract public class MediaInformationPanel extends JPanel {
   private static final long                 serialVersionUID = 2513029074142934502L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger               LOGGER           = LoggerFactory.getLogger(MediaInformationPanel.class);
 
   protected EventList<MediaFile>            mediaFileEventList;

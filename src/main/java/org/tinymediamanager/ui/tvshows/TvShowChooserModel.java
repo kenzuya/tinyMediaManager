@@ -27,7 +27,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -58,7 +57,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @author Manuel Laggner
  */
 public class TvShowChooserModel extends AbstractModelObject {
-  private static final ResourceBundle    BUNDLE          = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle    BUNDLE          = ResourceBundle.getBundle("messages");
   private static final Logger LOGGER = LoggerFactory.getLogger(TvShowChooserModel.class);
   public static final TvShowChooserModel emptyResult = new TvShowChooserModel();
 

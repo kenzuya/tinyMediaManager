@@ -27,7 +27,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -49,7 +48,7 @@ import org.tinymediamanager.scraper.util.MediaIdUtil;
  */
 public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowSubtitleSearchAndDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<TvShowEpisode>   episodes;
   private final List<MediaScraper>    subtitleScrapers;

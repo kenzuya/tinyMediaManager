@@ -26,7 +26,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.threading.TmmTask;
@@ -64,7 +63,7 @@ import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
  */
 public class TvShowScrapeTask extends TmmThreadPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
-  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<TvShow>                             tvShowsToScrape;
   private final boolean                                  doSearch;

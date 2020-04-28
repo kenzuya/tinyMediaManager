@@ -40,7 +40,6 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -51,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 class FileTypesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 9136097757447080369L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Settings                    settings         = Settings.getInstance();
   private JTextField                  tfVideoFiletype;

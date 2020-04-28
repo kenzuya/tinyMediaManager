@@ -39,7 +39,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.ui.IconManager;
@@ -57,7 +56,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSourcePanel extends JPanel {
   private static final long           serialVersionUID = -7126616245313008341L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
 

@@ -23,7 +23,6 @@ import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -44,7 +43,7 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public TvShowTableFormat() {
     FontMetrics fontMetrics = getFontMetrics();

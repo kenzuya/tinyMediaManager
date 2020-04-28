@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
@@ -35,7 +34,7 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  */
 public class MovieSetRemoveAction extends TmmAction {
   private static final long           serialVersionUID = -9030996266835702009L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   /**
    * Instantiates a new removes the movie set action.

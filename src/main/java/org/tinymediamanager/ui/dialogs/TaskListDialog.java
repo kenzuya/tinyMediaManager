@@ -28,7 +28,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -40,7 +39,7 @@ import net.miginfocom.swing.MigLayout;
 public class TaskListDialog extends TmmDialog implements TmmTaskListener {
   private static final long                           serialVersionUID = 4151412495928010232L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static TaskListDialog                       instance;
 

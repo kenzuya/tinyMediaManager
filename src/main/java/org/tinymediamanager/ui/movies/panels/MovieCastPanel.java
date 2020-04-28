@@ -29,7 +29,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
@@ -51,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieCastPanel extends JPanel {
   private static final long           serialVersionUID  = 2972207353452870494L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages");
 
   private MovieSelectionModel         selectionModel;
   private EventList<Person>           actorEventList    = null;

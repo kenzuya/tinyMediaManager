@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
@@ -40,7 +39,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieDeleteAction extends TmmAction {
   private static final long           serialVersionUID = -984567332370801730L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieDeleteAction() {
     putValue(SMALL_ICON, IconManager.DELETE_FOREVER);

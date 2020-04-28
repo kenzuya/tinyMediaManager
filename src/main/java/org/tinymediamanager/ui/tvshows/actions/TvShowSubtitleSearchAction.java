@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.IconManager;
@@ -38,7 +37,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowSubtitleChooserDialog;
  */
 public class TvShowSubtitleSearchAction extends TmmAction {
   private static final long           serialVersionUID = -6006932119900795735L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowSubtitleSearchAction() {
     putValue(NAME, BUNDLE.getString("tvshow.search.subtitle"));

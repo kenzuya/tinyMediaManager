@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -63,7 +62,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowMediaInformationPanel extends JPanel {
   private static final long           serialVersionUID = 1610264727610254912L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
   private TvShowSelectionModel        selectionModel;

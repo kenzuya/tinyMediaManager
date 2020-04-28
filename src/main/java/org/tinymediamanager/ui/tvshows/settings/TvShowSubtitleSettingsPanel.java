@@ -44,7 +44,6 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -70,7 +69,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSubtitleSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -1607146878528487625L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private List<ScraperInTable>        scrapers         = ObservableCollections.observableList(new ArrayList<>());

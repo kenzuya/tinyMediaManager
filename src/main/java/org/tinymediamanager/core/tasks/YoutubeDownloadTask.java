@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -58,7 +57,7 @@ public class YoutubeDownloadTask extends TmmTask {
   private static final Logger LOGGER = LoggerFactory.getLogger(YoutubeDownloadTask.class);
   private static final char[] ILLEGAL_FILENAME_CHARACTERS = {'/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
       ':' };
-  private static final ResourceBundle BUNDLE                      = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE                      = ResourceBundle.getBundle("messages");
   private MediaTrailer mediaTrailer;
   private MediaEntity mediaEntity;
   private YoutubeMedia mediaDetails;

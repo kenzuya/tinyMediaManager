@@ -56,7 +56,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -85,7 +84,7 @@ class MovieTrailerSettingsPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings settings = MovieModuleManager.SETTINGS;
   private List<TrailerScraper> scrapers = ObservableCollections.observableList(new ArrayList<>());

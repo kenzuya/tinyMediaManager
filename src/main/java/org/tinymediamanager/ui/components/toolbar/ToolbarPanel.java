@@ -43,7 +43,6 @@ import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.thirdparty.KodiRPC;
@@ -81,7 +80,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ToolbarPanel extends JPanel {
   private static final long           serialVersionUID = 7969400170662870244L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class);            // $NON-NLS-1$
 
   private ToolbarButton               btnSearch;

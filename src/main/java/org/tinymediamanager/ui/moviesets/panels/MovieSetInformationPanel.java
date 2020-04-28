@@ -45,7 +45,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.ColumnLayout;
@@ -74,7 +73,7 @@ public class MovieSetInformationPanel extends JPanel {
   private static final long            serialVersionUID    = -8166784589262658147L;
   private static final Logger          LOGGER              = LoggerFactory.getLogger(MovieSetInformationPanel.class);
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE              = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle  BUNDLE              = ResourceBundle.getBundle("messages");
   private static final String          ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private JLabel                       lblMovieSetName;
   private ImageLabel                   lblFanart;

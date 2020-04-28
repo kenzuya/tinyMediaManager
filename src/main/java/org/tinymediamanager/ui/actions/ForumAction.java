@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -34,7 +33,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
  */
 public class ForumAction extends TmmAction {
   private static final long           serialVersionUID = 1668251251156765161L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ForumAction.class);
 
   public ForumAction() {

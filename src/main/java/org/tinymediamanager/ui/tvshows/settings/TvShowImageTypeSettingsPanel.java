@@ -26,7 +26,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowBannerNaming;
@@ -58,7 +57,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowImageTypeSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private JCheckBox                   chckbxEpisodeThumb1;

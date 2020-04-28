@@ -52,7 +52,6 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -80,7 +79,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowInformationPanel extends JPanel {
   private static final long           serialVersionUID = 1911808562993073590L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowInformationPanel.class);
 
   private final TvShowSelectionModel  tvShowSelectionModel;

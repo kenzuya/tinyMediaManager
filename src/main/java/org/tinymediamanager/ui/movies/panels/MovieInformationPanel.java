@@ -51,7 +51,6 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.ColumnLayout;
@@ -83,7 +82,7 @@ public class MovieInformationPanel extends JPanel {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MovieInformationPanel.class);
   private static final long           serialVersionUID = -8527284262749511617L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSelectionModel   movieSelectionModel;
 

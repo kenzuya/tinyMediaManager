@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -38,7 +37,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  */
 public class TvShowRenameTask extends TmmThreadPool {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowRenameTask.class);
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private List<TvShow>                tvShowsToRename  = new ArrayList<>();
   private List<TvShowEpisode>         episodesToRename = new ArrayList<>();

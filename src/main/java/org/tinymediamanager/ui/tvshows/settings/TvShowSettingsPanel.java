@@ -31,7 +31,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -54,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -675729644848101096L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings               settings         = TvShowModuleManager.SETTINGS;
   private JCheckBox                    chckbxImageCache;

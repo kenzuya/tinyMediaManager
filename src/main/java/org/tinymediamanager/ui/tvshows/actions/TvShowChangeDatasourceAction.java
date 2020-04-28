@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -37,7 +36,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowChangeDatasourceDialog;
  */
 public class TvShowChangeDatasourceAction extends TmmAction {
   private static final long           serialVersionUID = -2731782311579049379L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowChangeDatasourceAction() {
     putValue(LARGE_ICON_KEY, IconManager.EDIT);

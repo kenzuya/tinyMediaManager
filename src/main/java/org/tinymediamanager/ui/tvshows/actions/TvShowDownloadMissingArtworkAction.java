@@ -24,7 +24,6 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -44,7 +43,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  */
 public class TvShowDownloadMissingArtworkAction extends TmmAction {
   private static final long           serialVersionUID = 6102632119900792735L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowDownloadMissingArtworkAction() {
     putValue(NAME, BUNDLE.getString("tvshow.downloadmissingartwork"));

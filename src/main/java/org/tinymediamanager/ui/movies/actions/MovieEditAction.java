@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -40,7 +39,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieEditorDialog;
  */
 public class MovieEditAction extends TmmAction {
   private static final long           serialVersionUID = -8473181347332963044L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   @Deprecated
   public MovieEditAction(boolean withTitle) {

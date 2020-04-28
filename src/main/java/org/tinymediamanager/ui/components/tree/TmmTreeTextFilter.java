@@ -27,7 +27,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 
@@ -40,7 +39,7 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
  */
 public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField implements ITmmTreeFilter<E> {
   private static final long           serialVersionUID = 8492300503787395800L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected String                    filterText       = "";
 

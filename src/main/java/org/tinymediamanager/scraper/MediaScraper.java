@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IKodiMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
@@ -41,7 +40,7 @@ import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
  * @author Manuel Laggner
  */
 public class MediaScraper {
-  private static final ResourceBundle BUNDLE  = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE  = ResourceBundle.getBundle("messages");
   private String id = "";
   private String                      version = "";
   private String                      name    = "";

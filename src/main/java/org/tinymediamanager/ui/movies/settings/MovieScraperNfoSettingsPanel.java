@@ -34,7 +34,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.DateField;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaCertification;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
@@ -56,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = -299825914193235308L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings                        settings         = MovieModuleManager.SETTINGS;
   private JComboBox<MovieConnectors>           cbNfoFormat;

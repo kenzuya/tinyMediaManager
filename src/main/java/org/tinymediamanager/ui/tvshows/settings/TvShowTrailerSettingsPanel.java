@@ -56,7 +56,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -77,7 +76,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class TvShowTrailerSettingsPanel extends JPanel {
 
-  private static final ResourceBundle                     BUNDLE   = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle                     BUNDLE   = ResourceBundle.getBundle("messages");
 
   private TvShowSettings settings = TvShowModuleManager.SETTINGS;
   private List<TvShowTrailerSettingsPanel.TrailerScraper> scrapers = ObservableCollections.observableList(new ArrayList<>());

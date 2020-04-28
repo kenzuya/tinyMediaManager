@@ -57,7 +57,6 @@ import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
@@ -87,7 +86,7 @@ import com.sun.jna.Platform;
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger         LOGGER         = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
 
   private static long                 preDir         = 0;
   private static long                 postDir        = 0;

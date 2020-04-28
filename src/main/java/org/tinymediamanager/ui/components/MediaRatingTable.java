@@ -24,7 +24,6 @@ import javax.swing.table.TableColumn;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.NumberCellEditor;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
@@ -41,7 +40,7 @@ import ca.odell.glazedlists.swing.DefaultEventTableModel;
 public class MediaRatingTable extends TmmTable {
   private static final long                                           serialVersionUID = 8010732881277204728L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle                                 BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle                                 BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Map<String, org.tinymediamanager.core.entities.MediaRating> ratingMap;
   private EventList<MediaRating>                                      mediaRatingList;

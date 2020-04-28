@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowSubtitleSearchAndDownloadTask;
@@ -38,7 +37,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowDownloadSubtitleDialog;
  */
 public class TvShowSubtitleDownloadAction extends TmmAction {
   private static final long           serialVersionUID = -6002932119900795735L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowSubtitleDownloadAction() {
     putValue(NAME, BUNDLE.getString("tvshow.download.subtitle"));

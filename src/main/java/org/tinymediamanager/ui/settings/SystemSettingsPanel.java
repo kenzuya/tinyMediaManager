@@ -46,7 +46,6 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -67,7 +66,7 @@ import net.miginfocom.swing.MigLayout;
 class SystemSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 500841588272296493L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Pattern        MEMORY_PATTERN   = Pattern.compile("-Xmx([0-9]*)(.)");
 
   private Settings                    settings         = Settings.getInstance();

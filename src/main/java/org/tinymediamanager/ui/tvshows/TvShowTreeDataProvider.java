@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -40,7 +39,7 @@ import org.tinymediamanager.ui.components.tree.TmmTreeNode;
  * @author Manuel Laggner
  */
 public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
-  protected static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
   private TmmTreeNode                   root           = new TmmTreeNode(new Object(), this);
   private RuleBasedCollator             stringCollator = (RuleBasedCollator) RuleBasedCollator.getInstance();
 

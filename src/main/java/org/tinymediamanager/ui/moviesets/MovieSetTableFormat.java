@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -38,7 +37,7 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class MovieSetTableFormat extends TmmTableFormat<TmmTreeNode> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieSetTableFormat() {
 

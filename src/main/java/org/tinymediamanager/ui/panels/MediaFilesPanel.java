@@ -37,7 +37,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmDateFormat;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
@@ -60,7 +59,7 @@ import net.miginfocom.swing.MigLayout;
 public abstract class MediaFilesPanel extends JPanel {
   private static final long           serialVersionUID = -4929581173434859034L;
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TmmTable                    tableFiles;
 

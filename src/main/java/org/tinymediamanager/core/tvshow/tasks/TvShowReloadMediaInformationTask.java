@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -39,7 +38,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  */
 public class TvShowReloadMediaInformationTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowReloadMediaInformationTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private List<TvShow>                tvShows;
   private List<TvShowEpisode>         episodes;

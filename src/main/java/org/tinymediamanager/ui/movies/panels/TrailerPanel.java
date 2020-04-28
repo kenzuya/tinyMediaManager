@@ -39,7 +39,6 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
@@ -70,7 +69,7 @@ public class TrailerPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
 
   private MovieSelectionModel         movieSelectionModel;

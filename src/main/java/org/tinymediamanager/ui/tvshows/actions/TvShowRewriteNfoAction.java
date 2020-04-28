@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -37,7 +36,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowRewriteNfoAction extends TmmAction {
   private static final long           serialVersionUID = -6575156436788397648L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowRewriteNfoAction() {
     putValue(NAME, BUNDLE.getString("tvshow.rewritenfo"));

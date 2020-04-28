@@ -19,7 +19,6 @@ import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.tasks.MovieFindMissingTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -34,7 +33,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  */
 public class MovieFindMissingAction extends TmmAction {
   private static final long           serialVersionUID = 7873846965534352231L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private String                      datasource       = null;
 

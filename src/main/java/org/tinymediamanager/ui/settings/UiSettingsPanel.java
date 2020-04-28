@@ -46,7 +46,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -67,7 +66,7 @@ class UiSettingsPanel extends JPanel {
   private static final long           serialVersionUID   = 6409982195347794360L;
 
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
   private static final Integer[]      DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 

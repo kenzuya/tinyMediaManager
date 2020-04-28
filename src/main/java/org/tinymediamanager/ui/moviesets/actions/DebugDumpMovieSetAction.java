@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.MainWindow;
@@ -31,7 +30,7 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 
 public class DebugDumpMovieSetAction extends TmmAction {
   private static final long           serialVersionUID = -8473181347332963044L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public DebugDumpMovieSetAction() {
     putValue(NAME, BUNDLE.getString("debug.entity.dump"));

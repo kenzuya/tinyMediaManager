@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -49,7 +48,7 @@ import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeScrapeTask extends TmmTask {
-  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowEpisodeScrapeTask.class);
 
   private final List<TvShowEpisode>                      episodes;

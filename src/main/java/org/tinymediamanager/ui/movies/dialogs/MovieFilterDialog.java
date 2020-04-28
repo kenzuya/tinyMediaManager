@@ -36,7 +36,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmWindowSaver;
 import org.tinymediamanager.ui.components.MainTabbedPane;
@@ -80,7 +79,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieFilterDialog extends TmmDialog {
   private static final long                      serialVersionUID = 2298540526428945319L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSelectionModel              selectionModel;
   private final JComboBox<SortColumn>            cbSortColumn;

@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -41,7 +40,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowRemoveAction extends TmmAction {
   private static final long           serialVersionUID = -2355545751433709417L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowRemoveAction() {
     putValue(NAME, BUNDLE.getString("tvshow.remove"));

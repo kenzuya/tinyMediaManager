@@ -36,7 +36,6 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaSource;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
@@ -62,7 +61,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieBulkEditorDialog extends TmmDialog {
   private static final long           serialVersionUID = -8515248604267310279L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieList                   movieList        = MovieList.getInstance();
   private List<Movie>                 moviesToEdit;

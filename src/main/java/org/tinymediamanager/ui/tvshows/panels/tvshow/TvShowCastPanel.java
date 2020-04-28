@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.ActorImageLabel;
@@ -48,7 +47,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowCastPanel extends JPanel {
   private static final long           serialVersionUID = 2374973082749248956L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TvShowSelectionModel  selectionModel;
   private EventList<Person>           actorEventList   = null;

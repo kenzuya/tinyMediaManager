@@ -28,7 +28,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.MovieList;
@@ -62,7 +61,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
  */
 public class MovieScrapeTask extends TmmThreadPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(MovieScrapeTask.class);
-  private static final ResourceBundle      BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle      BUNDLE = ResourceBundle.getBundle("messages");
 
   private List<Movie>                      moviesToScrape;
   private boolean                          doSearch;

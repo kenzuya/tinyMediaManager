@@ -59,7 +59,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -93,7 +92,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListener {
   private static final long              serialVersionUID = 5039498266207230875L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger            LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 
   private MovieSettings                  settings         = MovieModuleManager.SETTINGS;

@@ -34,7 +34,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.DateField;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaCertification;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
@@ -55,7 +54,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings                       settings         = TvShowModuleManager.SETTINGS;
   private JComboBox<TvShowConnectors>          cbNfoFormat;

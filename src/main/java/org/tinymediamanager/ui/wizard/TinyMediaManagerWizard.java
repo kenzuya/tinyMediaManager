@@ -27,7 +27,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -48,7 +47,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private List<JPanel>                panels;
   private int                         activePanelIndex = 0;

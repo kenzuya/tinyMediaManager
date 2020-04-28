@@ -46,7 +46,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -75,7 +74,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowImageSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private List<ScraperInTable>        artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());

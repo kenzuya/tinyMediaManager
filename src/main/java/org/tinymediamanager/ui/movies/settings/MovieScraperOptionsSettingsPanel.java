@@ -32,7 +32,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.entities.CountryCode;
@@ -54,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperOptionsSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -299825914193235308L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;
   private JSlider                     sliderThreshold;

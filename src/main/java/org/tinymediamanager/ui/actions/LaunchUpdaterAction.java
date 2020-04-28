@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.actions;
 import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.MainWindow;
 
@@ -29,7 +28,7 @@ import org.tinymediamanager.ui.MainWindow;
  */
 public class LaunchUpdaterAction extends TmmAction {
   private static final long           serialVersionUID = 3046686017542572465L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public LaunchUpdaterAction() {
     putValue(NAME, BUNDLE.getString("tmm.launchupdater"));

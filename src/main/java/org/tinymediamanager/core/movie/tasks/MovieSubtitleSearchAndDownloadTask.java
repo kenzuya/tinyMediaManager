@@ -29,7 +29,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -50,7 +49,7 @@ import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
  */
 public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieSubtitleSearchAndDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<Movie>           movies;
   private final List<MediaScraper>    subtitleScrapers;

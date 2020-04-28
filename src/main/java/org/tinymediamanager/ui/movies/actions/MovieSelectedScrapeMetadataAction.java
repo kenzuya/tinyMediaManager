@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -42,7 +41,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieScrapeMetadataDialog;
  */
 public class MovieSelectedScrapeMetadataAction extends TmmAction {
   private static final long           serialVersionUID = -4417368111497702010L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieSelectedScrapeMetadataAction() {
     putValue(NAME, BUNDLE.getString("movie.scrape.metadata"));

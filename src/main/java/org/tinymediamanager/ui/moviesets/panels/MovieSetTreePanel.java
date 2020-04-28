@@ -47,7 +47,6 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.AbstractSettings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -73,7 +72,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = 5889203009864512935L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TmmTreeTable                tree;
 

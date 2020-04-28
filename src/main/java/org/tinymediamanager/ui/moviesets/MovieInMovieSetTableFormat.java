@@ -20,7 +20,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
@@ -32,7 +31,7 @@ import org.tinymediamanager.ui.components.table.TmmTableFormat;
  * @author Manuel Laggner
  */
 public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieInMovieSetTableFormat() {
 

@@ -40,7 +40,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 
 /**
@@ -53,7 +52,7 @@ import org.tinymediamanager.ui.IconManager;
  */
 public class EnhancedTextField extends JTextField implements FocusListener {
   private static final long           serialVersionUID = 5397356153111919435L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected JLabel                    lblIcon;
   private String                      textWhenNotFocused;

@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.EmptyFileException;
 import org.tinymediamanager.core.ImageCache;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 
@@ -35,7 +34,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  */
 public class ImageCacheTask extends TmmThreadPool {
   private static final Logger         LOGGER       = LoggerFactory.getLogger(ImageCacheTask.class);
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
   private List<MediaFile>             filesToCache = new ArrayList<>();
 

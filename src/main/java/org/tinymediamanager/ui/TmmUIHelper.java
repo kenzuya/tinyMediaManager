@@ -41,7 +41,6 @@ import org.lwjgl.util.nfd.NativeFileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
@@ -53,7 +52,7 @@ import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
  */
 public class TmmUIHelper {
   private static final Logger           LOGGER = LoggerFactory.getLogger(TmmUIHelper.class);
-  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private TmmUIHelper() {
     // private constructor for utility classes

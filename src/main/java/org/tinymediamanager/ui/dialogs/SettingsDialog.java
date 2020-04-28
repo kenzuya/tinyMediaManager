@@ -38,7 +38,6 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmSplitPane;
@@ -58,7 +57,7 @@ import net.miginfocom.swing.MigLayout;
 public class SettingsDialog extends TmmDialog {
   private static final long              serialVersionUID = 2435834806519338339L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
   private static JDialog                 instance;
 
   private TmmTree<TmmTreeNode>           tree;

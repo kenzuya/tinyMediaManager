@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.UTF8Control;
 
 /**
  * The enum MovieScraperMetadataConfig is used to control which fields will be set after scraping
@@ -67,7 +66,7 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   EXTRAFANART(Type.ARTWORK),
   EXTRATHUMB(Type.ARTWORK);
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private Type                        type;
   private String                      description;

@@ -48,7 +48,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -81,7 +80,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = 5889203009864512935L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowList                  tvShowList       = TvShowList.getInstance();
 

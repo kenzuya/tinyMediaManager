@@ -31,7 +31,6 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -51,7 +50,7 @@ public class TvShowScraperMetadataPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle                        BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle                        BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings                                     settings         = TvShowModuleManager.SETTINGS;
   private Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowCheckboxes;

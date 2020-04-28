@@ -44,7 +44,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -68,7 +67,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -299825914193235308L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;
   private List<MovieScraper>          scrapers         = ObservableCollections.observableList(new ArrayList<>());

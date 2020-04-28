@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
@@ -52,7 +51,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieImageTypeSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 7312645402037806284L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;
   private JCheckBox                   chckbxMoviePosterFilename2;

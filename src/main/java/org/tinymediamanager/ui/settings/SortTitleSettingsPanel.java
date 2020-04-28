@@ -35,7 +35,6 @@ import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.ui.IconManager;
@@ -53,7 +52,7 @@ import net.miginfocom.swing.MigLayout;
 class SortTitleSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 1857926059556024932L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Settings                    settings         = Settings.getInstance();
 

@@ -23,7 +23,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -41,7 +40,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowScrapeMissingEpisodesAction extends TmmAction {
   private static final long           serialVersionUID = -389165862194237592L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowScrapeMissingEpisodesAction() {
     putValue(NAME, BUNDLE.getString("tvshow.scrape.missingepisodes"));

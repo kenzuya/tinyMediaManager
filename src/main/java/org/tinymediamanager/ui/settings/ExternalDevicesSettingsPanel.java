@@ -41,7 +41,6 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
 import org.tinymediamanager.jsonrpc.io.ApiException;
@@ -65,7 +64,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
 
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Settings                    settings         = Settings.getInstance();
 

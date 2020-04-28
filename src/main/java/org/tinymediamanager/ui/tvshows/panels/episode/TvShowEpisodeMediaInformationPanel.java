@@ -32,7 +32,6 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
@@ -50,7 +49,7 @@ import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
   private static final long           serialVersionUID = 2513029074142934502L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowEpisodeSelectionModel selectionModel;
 

@@ -54,7 +54,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 
 /**
@@ -64,7 +63,7 @@ import org.tinymediamanager.ui.IconManager;
  */
 public class TmmTable extends JTable {
   private static final long             serialVersionUID = 6150939811851709115L;
-  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static final CellRendererPane CELL_RENDER_PANE = new CellRendererPane();
 

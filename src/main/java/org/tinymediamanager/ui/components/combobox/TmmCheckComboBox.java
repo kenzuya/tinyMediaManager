@@ -43,7 +43,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.WrapLayout;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -57,7 +56,7 @@ import org.tinymediamanager.ui.components.FlatButton;
  */
 public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
   private static final long                         serialVersionUID = -7796247854176782396L;
-  protected static final ResourceBundle             BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle             BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected List<TmmCheckComboBoxItem<E>>           checkBoxes;
   protected Map<E, Boolean>                         selectedItems;

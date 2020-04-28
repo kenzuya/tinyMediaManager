@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -35,7 +34,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieRenamerPreviewDialog;
  */
 public class MovieRenamePreviewAction extends TmmAction {
   private static final long           serialVersionUID = 5158514686702295145L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieRenamePreviewAction() {
     putValue(NAME, BUNDLE.getString("movie.renamepreview"));

@@ -60,7 +60,6 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -82,7 +81,7 @@ import net.miginfocom.swing.MigLayout;
 public class MediaFileEditorPanel extends JPanel {
   private static final long               serialVersionUID = -2416409052145301941L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle     BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle     BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static final Map<Float, String> ASPECT_RATIOS    = createAspectRatios();
 

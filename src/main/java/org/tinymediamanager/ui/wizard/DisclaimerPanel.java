@@ -24,7 +24,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 
@@ -38,7 +37,7 @@ import net.miginfocom.swing.MigLayout;
 class DisclaimerPanel extends JPanel {
   private static final long           serialVersionUID = -4743134514329815273L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public DisclaimerPanel() {
     initComponents();

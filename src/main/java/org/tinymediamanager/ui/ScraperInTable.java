@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.imgscalr.Scalr;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 
@@ -38,7 +37,7 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
  */
 public class ScraperInTable extends AbstractModelObject {
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   protected MediaScraper                scraper;
   protected Icon                        scraperLogo;

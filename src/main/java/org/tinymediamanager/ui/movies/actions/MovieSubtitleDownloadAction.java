@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -39,7 +38,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieDownloadSubtitleDialog;
  */
 public class MovieSubtitleDownloadAction extends TmmAction {
   private static final long           serialVersionUID = -6002932119900795735L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieSubtitleDownloadAction() {
     putValue(NAME, BUNDLE.getString("movie.download.subtitle"));

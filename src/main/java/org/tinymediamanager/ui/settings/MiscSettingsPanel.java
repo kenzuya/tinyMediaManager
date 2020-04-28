@@ -31,7 +31,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.ImageCache.CacheType;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -46,7 +45,7 @@ import net.miginfocom.swing.MigLayout;
 class MiscSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 500841588272296493L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Settings                    settings         = Settings.getInstance();
   private JComboBox                   cbImageCacheQuality;

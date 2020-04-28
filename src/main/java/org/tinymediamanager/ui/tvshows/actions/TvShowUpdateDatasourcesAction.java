@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
@@ -36,7 +35,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  */
 public class TvShowUpdateDatasourcesAction extends TmmAction {
   private static final long           serialVersionUID = 5704371143505653741L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowUpdateDatasourcesAction() {
     putValue(NAME, BUNDLE.getString("update.datasource"));
