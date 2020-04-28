@@ -74,7 +74,9 @@ allow_offline = true
 # and all other launchers too
 #####################################################################################
 jvmarg = -XX:+IgnoreUnrecognizedVMOptions
-jvmarg = -XX:+UseG1GC
+jvmarg = -XX:+UnlockExperimentalVMOptions
+jvmarg = -XX:+EnableJVMCI
+jvmarg = -XX:+UseJVMCICompiler
 jvmarg = -XX:+UseStringDeduplication
 jvmarg = -Xms64m
 jvmarg = -Xmx512m
