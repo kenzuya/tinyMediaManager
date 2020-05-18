@@ -32,10 +32,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -46,12 +42,12 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -70,7 +66,6 @@ import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
-import ca.odell.glazedlists.swing.TableComparatorChooser;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 import net.miginfocom.swing.MigLayout;
 
@@ -118,44 +113,12 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
     // build the table
     movieTable = new TmmTable(movieTableModel);
+    movieTable.setName("movies.movieTable");
+    movieTable.installComparatorChooser(sortedMovies);
+    movieTable.getTableComparatorChooser().appendComparator(0, 0, false);
 
-    // install on the Table
-    TableComparatorChooser.install(movieTable, sortedMovies, TableComparatorChooser.MULTIPLE_COLUMN_KEYBOARD).appendComparator(0, 0, false);
-
-    // restore hidden columns
-    movieTable.readHiddenColumns(MovieModuleManager.SETTINGS.getMovieTableHiddenColumns());
-    movieTable.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
-      @Override
-      public void columnAdded(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnRemoved(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnMoved(TableColumnModelEvent e) {
-      }
-
-      @Override
-      public void columnMarginChanged(ChangeEvent e) {
-
-      }
-
-      @Override
-      public void columnSelectionChanged(ListSelectionEvent e) {
-      }
-
-      private void writeSettings() {
-        movieTable.writeHiddenColumns(cols -> {
-          MovieModuleManager.SETTINGS.setMovieTableHiddenColumns(cols);
-          MovieModuleManager.SETTINGS.saveSettings();
-        });
-      }
-    });
     movieTable.adjustColumnPreferredWidths(3);
+    TmmUILayoutStore.getInstance().install(movieTable);
 
     movieTableModel.addTableModelListener(arg0 -> {
       lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));

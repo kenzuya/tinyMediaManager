@@ -23,8 +23,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
@@ -42,21 +47,23 @@ public class TmmProperties {
   private static final String  PROPERTIES_FILE = "tmm.prop";
   private static TmmProperties instance;
 
-  private Properties           properties;
+  private final Properties     properties;
+  private boolean              dirty;
 
   private TmmProperties() {
-    properties = new Properties();
-
-    properties = new Properties();
+    properties = new SortedProperties();
 
     try (InputStream input = new FileInputStream(new File(Globals.settings.getSettingsFolder(), PROPERTIES_FILE))) {
       properties.load(input);
     }
     catch (FileNotFoundException ignored) {
+      // simply not here - ignore
     }
     catch (Exception e) {
       LOGGER.warn("unable to read properties file: {}", e.getMessage());
     }
+
+    dirty = false;
   }
 
   /**
@@ -64,40 +71,26 @@ public class TmmProperties {
    * 
    * @return an instance of this class
    */
-  public synchronized static TmmProperties getInstance() {
+  public static synchronized TmmProperties getInstance() {
     if (instance == null) {
       instance = new TmmProperties();
     }
     return instance;
   }
 
-  private void writeProperties() {
-    OutputStream output = null;
-    try {
-      output = new FileOutputStream(new File(Settings.getInstance().getSettingsFolder(), PROPERTIES_FILE));
-      Properties tmp = new Properties() {
-        private static final long serialVersionUID = 1L;
+  /**
+   * write the properties file to the disk
+   */
+  public void writeProperties() {
+    if (!dirty) {
+      return;
+    }
 
-        @Override
-        public synchronized Enumeration<Object> keys() {
-          return Collections.enumeration(new TreeSet<>(super.keySet()));
-        }
-      };
-      tmp.putAll(properties);
-      tmp.store(output, null);
+    try (OutputStream output = new FileOutputStream(new File(Settings.getInstance().getSettingsFolder(), PROPERTIES_FILE))) {
+      properties.store(output, null);
     }
     catch (IOException e) {
       LOGGER.warn("failed to store properties file: {}", e.getMessage());
-    }
-    finally {
-      if (output != null) {
-        try {
-          output.close();
-        }
-        catch (IOException e) {
-          LOGGER.warn("failed to store properties file: {}", e.getMessage());
-        }
-      }
     }
   }
 
@@ -115,7 +108,7 @@ public class TmmProperties {
     }
 
     properties.put(key, value);
-    writeProperties();
+    dirty = true;
   }
 
   /**
@@ -131,7 +124,7 @@ public class TmmProperties {
 
   /**
    * get the value as Boolean<br>
-   * if the value is not available or not parseable, this will return {@literal Boolean.FALSE}
+   * if the value is not available or not parsable, this will return {@literal Boolean.FALSE}
    *
    * @param key
    *          the key to search the value for
@@ -154,7 +147,7 @@ public class TmmProperties {
 
   /**
    * get the value as Integer<br>
-   * if the value is not available or not parseable, this will return zero
+   * if the value is not available or not parsable, this will return zero
    * 
    * @param key
    *          the key to search the value for
@@ -170,8 +163,35 @@ public class TmmProperties {
       return Integer.parseInt(value);
     }
     catch (Exception ignored) {
+      // ignored
     }
 
     return 0;
+  }
+
+  private static class SortedProperties extends Properties {
+    @Override
+    public Set<Object> keySet() {
+      return Collections.unmodifiableSet(new TreeSet<>(super.keySet()));
+    }
+
+    @Override
+    public Set<Map.Entry<Object, Object>> entrySet() {
+
+      Set<Map.Entry<Object, Object>> set1 = super.entrySet();
+      Set<Map.Entry<Object, Object>> set2 = new LinkedHashSet<>(set1.size());
+
+      Iterator<Map.Entry<Object, Object>> iterator = set1.stream().sorted(Comparator.comparing(o -> o.getKey().toString())).iterator();
+
+      while (iterator.hasNext())
+        set2.add(iterator.next());
+
+      return set2;
+    }
+
+    @Override
+    public synchronized Enumeration<Object> keys() {
+      return Collections.enumeration(new TreeSet<>(super.keySet()));
+    }
   }
 }

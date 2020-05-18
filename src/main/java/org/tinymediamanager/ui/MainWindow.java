@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tasks.UpdaterTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -201,6 +202,8 @@ public class MainWindow extends JFrame {
     getContentPane().add(rootLayer, BorderLayout.CENTER);
 
     splitPane = new TmmSplitPane();
+    splitPane.setName("mainWindow.splitPane");
+    TmmUILayoutStore.getInstance().install(splitPane);
     rootPanel.add(splitPane, "cell 0 0, grow");
 
     tabbedPane = new MainTabbedPane() {
@@ -299,6 +302,9 @@ public class MainWindow extends JFrame {
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");
       try {
+        // persist all stored properties
+        TmmProperties.getInstance().writeProperties();
+
         // send shutdown signal
         TmmTaskManager.getInstance().shutdown();
         // save unsaved settings

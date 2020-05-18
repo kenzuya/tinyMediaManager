@@ -32,7 +32,7 @@ import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.TmmWindowSaver;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -168,6 +168,6 @@ public class MovieSetFilterDialog extends TmmDialog {
   @Override
   public void dispose() {
     // do not dispose (singleton), but save the size/position
-    TmmWindowSaver.getInstance().saveSettings(this);
+    TmmUILayoutStore.getInstance().saveSettings(this);
   }
 }

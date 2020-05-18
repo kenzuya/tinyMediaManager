@@ -62,8 +62,8 @@ import org.tinymediamanager.thirdparty.MediaInfoUtils;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.TmmUILogCollector;
-import org.tinymediamanager.ui.TmmWindowSaver;
 import org.tinymediamanager.ui.dialogs.MessageDialog;
 import org.tinymediamanager.ui.dialogs.WhatsNewDialog;
 import org.tinymediamanager.ui.plaf.TmmTheme;
@@ -175,7 +175,7 @@ public class TinyMediaManager {
             LOGGER.debug("starting without GUI...");
           }
           Toolkit tk = Toolkit.getDefaultToolkit();
-          tk.addAWTEventListener(TmmWindowSaver.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
+          tk.addAWTEventListener(TmmUILayoutStore.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
           if (!GraphicsEnvironment.isHeadless()) {
             setLookAndFeel();
           }
@@ -319,7 +319,7 @@ public class TinyMediaManager {
               splash.update();
             }
 
-            TmmWindowSaver.getInstance().loadSettings(window);
+            TmmUILayoutStore.getInstance().loadSettings(window);
             window.setVisible(true);
 
             // wizard for new user

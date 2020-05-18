@@ -46,6 +46,7 @@ import org.tinymediamanager.scraper.util.UrlUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
@@ -88,6 +89,9 @@ public class TrailerPanel extends JPanel {
 
     createLayout();
 
+    table.setName("movies.trailerTable");
+    TmmUILayoutStore.getInstance().install(table);
+
     // install the propertychangelistener
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
       String property = propertyChangeEvent.getPropertyName();
@@ -113,6 +117,9 @@ public class TrailerPanel extends JPanel {
     this.tvShowSelectionModel = model;
 
     createLayout();
+
+    table.setName("movies.trailerTable");
+    TmmUILayoutStore.getInstance().install(table);
 
     // install the propertychangelistener
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
@@ -155,9 +162,7 @@ public class TrailerPanel extends JPanel {
     table.addMouseMotionListener(linkListener);
   }
 
-  private class TrailerTableFormat implements AdvancedTableFormat<MediaTrailer> {
-    public TrailerTableFormat() {
-    }
+  private static class TrailerTableFormat implements AdvancedTableFormat<MediaTrailer> {
 
     @Override
     public int getColumnCount() {
@@ -185,9 +190,10 @@ public class TrailerPanel extends JPanel {
 
         case 6:
           return BUNDLE.getString("metatag.format");
-      }
 
-      throw new IllegalStateException();
+        default:
+          throw new IllegalStateException();
+      }
     }
 
     @Override
@@ -225,9 +231,10 @@ public class TrailerPanel extends JPanel {
             ext = "";
           }
           return ext;
-      }
 
-      throw new IllegalStateException();
+        default:
+          throw new IllegalStateException();
+      }
     }
 
     @SuppressWarnings("rawtypes")
@@ -246,9 +253,10 @@ public class TrailerPanel extends JPanel {
         case 5:
         case 6:
           return String.class;
-      }
 
-      throw new IllegalStateException();
+        default:
+          throw new IllegalStateException();
+      }
     }
 
     @SuppressWarnings("rawtypes")
@@ -340,7 +348,7 @@ public class TrailerPanel extends JPanel {
     }
   }
 
-  private class NullSelectionModel extends DefaultListSelectionModel {
+  private static class NullSelectionModel extends DefaultListSelectionModel {
     private static final long serialVersionUID = -1956483331520197616L;
 
     @Override
@@ -375,38 +383,47 @@ public class TrailerPanel extends JPanel {
 
     @Override
     public void setSelectionInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void setLeadSelectionIndex(int index) {
+      // nothing to do
     }
 
     @Override
     public void setAnchorSelectionIndex(int index) {
+      // nothing to do
     }
 
     @Override
     public void addSelectionInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void insertIndexInterval(int index, int length, boolean before) {
+      // nothing to do
     }
 
     @Override
     public void clearSelection() {
+      // nothing to do
     }
 
     @Override
     public void removeSelectionInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void removeIndexInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void setSelectionMode(int selectionMode) {
+      // nothing to do
     }
 
     @Override
@@ -416,14 +433,17 @@ public class TrailerPanel extends JPanel {
 
     @Override
     public void addListSelectionListener(ListSelectionListener lsl) {
+      // nothing to do
     }
 
     @Override
     public void removeListSelectionListener(ListSelectionListener lsl) {
+      // nothing to do
     }
 
     @Override
     public void setValueIsAdjusting(boolean valueIsAdjusting) {
+      // nothing to do
     }
 
     @Override

@@ -17,33 +17,24 @@
 package org.tinymediamanager.ui.movies.dialogs;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Box;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.TmmWindowSaver;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
-import org.tinymediamanager.ui.movies.MovieExtendedComparator;
-import org.tinymediamanager.ui.movies.MovieExtendedComparator.SortColumn;
-import org.tinymediamanager.ui.movies.MovieExtendedComparator.SortOrder;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAspectRatioFilter;
@@ -82,8 +73,6 @@ public class MovieFilterDialog extends TmmDialog {
   protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSelectionModel              selectionModel;
-  private final JComboBox<SortColumn>            cbSortColumn;
-  private final JComboBox<SortOrder>             cbSortOrder;
 
   // map for storing which filter is in which panel
   private final Map<JPanel, Set<IMovieUIFilter>> filterMap;
@@ -159,36 +148,6 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieMissingArtworkFilter(), panelMediaData);
         addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
       }
-
-      {
-        // panel sort
-        JPanel panelSort = new JPanel();
-        panelSort.setLayout(new MigLayout("insets n 0 n 0", "[5lp!][10lp][150lp,grow][5lp!]", "[]"));
-
-        JSeparator separator = new JSeparator();
-        panelSort.add(separator, "cell 0 1 4 1,growx,aligny top");
-
-        JLabel lblSortBy = new TmmLabel(BUNDLE.getString("movieextendedsearch.sortby"));
-        panelSort.add(lblSortBy, "cell 1 2,growx,aligny top");
-
-        cbSortColumn = new JComboBox();
-        for (MovieExtendedComparator.SortColumn column : MovieExtendedComparator.SortColumn.values()) {
-          cbSortColumn.addItem(column);
-        }
-
-        Action actionSort = new SortAction();
-        cbSortColumn.setAction(actionSort);
-        panelSort.add(cbSortColumn, "cell 1 3,growx,aligny top");
-
-        cbSortOrder = new JComboBox();
-        for (MovieExtendedComparator.SortOrder order : MovieExtendedComparator.SortOrder.values()) {
-          cbSortOrder.addItem(order);
-        }
-        cbSortOrder.setAction(actionSort);
-        panelSort.add(cbSortOrder, "cell 2 3,growx,aligny top");
-
-        getContentPane().add(panelSort, BorderLayout.SOUTH);
-      }
     }
   }
 
@@ -254,20 +213,6 @@ public class MovieFilterDialog extends TmmDialog {
     }
   }
 
-  private class SortAction extends AbstractAction {
-    private static final long serialVersionUID = -4057379119252539003L;
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      MovieExtendedComparator.SortColumn column = (MovieExtendedComparator.SortColumn) cbSortColumn.getSelectedItem();
-      MovieExtendedComparator.SortOrder order = (MovieExtendedComparator.SortOrder) cbSortOrder.getSelectedItem();
-      boolean ascending = order == MovieExtendedComparator.SortOrder.ASCENDING;
-
-      // sort
-      selectionModel.sortMovies(column, ascending);
-    }
-  }
-
   @Override
   protected void initBottomPanel() {
     // no bottom line needed
@@ -276,6 +221,6 @@ public class MovieFilterDialog extends TmmDialog {
   @Override
   public void dispose() {
     // do not dispose (singleton), but save the size/position
-    TmmWindowSaver.getInstance().saveSettings(this);
+    TmmUILayoutStore.getInstance().saveSettings(this);
   }
 }

@@ -48,6 +48,7 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
     mediaFileEventList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaFile.class));
 
     initComponents();
+    panelMediaFiles.installTmmUILayoutStore("tvshows.season");
 
     // manual coded binding
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {

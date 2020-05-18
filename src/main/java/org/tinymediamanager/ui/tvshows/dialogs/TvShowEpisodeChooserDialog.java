@@ -54,6 +54,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmSplitPane;
@@ -124,6 +125,8 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
     {
       JSplitPane splitPane = new TmmSplitPane();
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 0,grow");
 
       JPanel panelLeft = new JPanel();

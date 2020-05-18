@@ -15,10 +15,6 @@
  */
 package org.tinymediamanager.core.movie;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -117,9 +113,7 @@ public class MovieSettings extends AbstractSettings {
   private final List<String>               skipFolders                         = ObservableCollections.observableList(new ArrayList<>());
 
   private final List<UIFilters>            uiFilters                           = new ArrayList<>();
-  private final List<String>               movieTableHiddenColumns             = ObservableCollections.observableList(new ArrayList<>());
   private final List<UIFilters>            movieSetUiFilters                   = new ArrayList<>();
-  private final List<String>               movieSetTableHiddenColumns          = ObservableCollections.observableList(new ArrayList<>());
 
   // data sources / NFO settings
   private boolean                          buildImageCacheOnImport             = false;
@@ -287,11 +281,6 @@ public class MovieSettings extends AbstractSettings {
    */
   @Override
   protected void writeDefaultSettings() {
-    // hidden columns
-    setMovieTableHiddenColumns(Arrays.asList("originalTitle", "sortTitle", "dateAdded", "filename", "path", "movieset", "fileSize", "audio",
-        "video3d",
-        "videoFormat", "votes", "edition", "mediaSource", "certification"));
-
     addDefaultEntries();
 
     // set default languages based on java instance
@@ -306,23 +295,6 @@ public class MovieSettings extends AbstractSettings {
       }
     }
     saveSettings();
-
-    // V2-to-V3 datasource migration
-    Path mig = Paths.get("cache", "migv3movies.ds");
-    if (mig.toFile().exists()) {
-      try {
-        List<String> datasources = Files.readAllLines(mig);
-        for (String ds : datasources) {
-          addMovieDataSources(ds);
-        }
-        Files.delete(mig);
-        saveSettings();
-      }
-      catch (IOException e) {
-        LOGGER.warn("Could not migrate movie datasources! {}", e);
-      }
-    }
-
   }
 
   public void addMovieDataSources(String path) {
@@ -852,26 +824,6 @@ public class MovieSettings extends AbstractSettings {
 
   public List<String> getSkipFolder() {
     return skipFolders;
-  }
-
-  public void setMovieTableHiddenColumns(List<String> hiddenColumns) {
-    movieTableHiddenColumns.clear();
-    movieTableHiddenColumns.addAll(hiddenColumns);
-    firePropertyChange("movieTableHiddenColumns", null, movieTableHiddenColumns);
-  }
-
-  public List<String> getMovieTableHiddenColumns() {
-    return movieTableHiddenColumns;
-  }
-
-  public void setMovieSetTableHiddenColumns(List<String> hiddenColumns) {
-    movieSetTableHiddenColumns.clear();
-    movieSetTableHiddenColumns.addAll(hiddenColumns);
-    firePropertyChange("movieSetTableHiddenColumns", null, movieSetTableHiddenColumns);
-  }
-
-  public List<String> getMovieSetTableHiddenColumns() {
-    return movieSetTableHiddenColumns;
   }
 
   public void setUiFilters(List<UIFilters> filters) {

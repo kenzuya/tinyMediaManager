@@ -16,12 +16,14 @@
 package org.tinymediamanager.ui.components.table;
 
 import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JPopupMenu;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -41,6 +43,17 @@ public class TmmTableColumnSelectionPopup {
    */
   static void showColumnSelectionPopup(Component c, final TmmTable table) {
 
+    // use a JComboBox to prevent the close event on a JCheckBoxMenuItem click
+    JComboBox box = new JComboBox();
+
+    // collect all checkboxes to check that at least one is checked
+    final List<JCheckBoxMenuItem> checkBoxMenuItems = new ArrayList<>();
+
+    ActionListener actionListener = e -> {
+      checkCheckBoxStates(checkBoxMenuItems);
+    };
+
+    // build the popup menu
     JPopupMenu popup = new JPopupMenu();
     TableColumnModel columnModel = table.getColumnModel();
     if (!(columnModel instanceof TmmTableColumnModel)) {
@@ -81,6 +94,9 @@ public class TmmTableColumnSelectionPopup {
       JCheckBoxMenuItem checkBox = new JCheckBoxMenuItem();
       checkBox.setText(columnName);
       checkBox.setSelected(!tmmTableColumnModel.isColumnHidden(etc));
+      checkBox.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
+      checkBox.addActionListener(actionListener);
+      checkBoxMenuItems.add(checkBox);
       // checkBox.setEnabled(etc.isHidingAllowed());
 
       final JCheckBoxMenuItem checkBoxMenuItem = checkBox;
@@ -145,4 +161,29 @@ public class TmmTableColumnSelectionPopup {
     popup.show(c, 8, 8);
   }
 
+  private static void checkCheckBoxStates(List<JCheckBoxMenuItem> checkBoxMenuItems) {
+    int selectedCount = 0;
+    JCheckBoxMenuItem firstSelected = null;
+
+    for (JCheckBoxMenuItem item : checkBoxMenuItems) {
+      if (item.isSelected()) {
+        selectedCount++;
+
+        if (firstSelected == null) {
+          firstSelected = item;
+        }
+      }
+    }
+
+    if (selectedCount == 1) {
+      // only 1 selected, disable the last one from being enabled
+      firstSelected.setEnabled(false);
+    }
+    else {
+      // re-enable all
+      for (JCheckBoxMenuItem item : checkBoxMenuItems) {
+        item.setEnabled(true);
+      }
+    }
+  }
 }

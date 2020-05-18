@@ -38,10 +38,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -58,6 +54,7 @@ import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -153,40 +150,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
       }
     };
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
-
-    // restore hidden columns
-    tree.readHiddenColumns(TvShowModuleManager.SETTINGS.getTvShowTableHiddenColumns());
-    tree.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
-      @Override
-      public void columnAdded(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnRemoved(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnMoved(TableColumnModelEvent e) {
-      }
-
-      @Override
-      public void columnMarginChanged(ChangeEvent e) {
-
-      }
-
-      @Override
-      public void columnSelectionChanged(ListSelectionEvent e) {
-      }
-
-      private void writeSettings() {
-        tree.writeHiddenColumns(cols -> {
-          TvShowModuleManager.SETTINGS.setTvShowTableHiddenColumns(cols);
-          TvShowModuleManager.SETTINGS.saveSettings();
-        });
-      }
-    });
+    tree.setName("tvshows.tvshowTree");
+    TmmUILayoutStore.getInstance().install(tree);
 
     tree.addFilter(searchField);
     JScrollPane scrollPane = new JScrollPane(tree);

@@ -29,6 +29,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -135,6 +136,9 @@ public class TvShowEpisodeCastPanel extends JPanel {
       add(lblActorsT, "cell 0 2,aligny top");
 
       tableActors = new PersonTable(actorEventList);
+      tableActors.setName("tvshows.episode.actorTable");
+      TmmUILayoutStore.getInstance().install(tableActors);
+
       JScrollPane scrollPaneActors = new JScrollPane(tableActors);
       tableActors.configureScrollPane(scrollPaneActors);
       add(scrollPaneActors, "cell 1 2 1 2,grow");

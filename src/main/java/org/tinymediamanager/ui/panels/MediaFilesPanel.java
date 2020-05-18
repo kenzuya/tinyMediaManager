@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
@@ -43,6 +44,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
 import ca.odell.glazedlists.EventList;
@@ -89,6 +91,13 @@ public abstract class MediaFilesPanel extends JPanel {
     }
   }
 
+  public void installTmmUILayoutStore(String parentId) {
+    if (StringUtils.isNotBlank(parentId)) {
+      tableFiles.setName(parentId + ".mediaFilesTable");
+      TmmUILayoutStore.getInstance().install(tableFiles);
+    }
+  }
+
   public void adjustColumns() {
     TableColumnResizer.adjustColumnPreferredWidths(tableFiles, 6);
   }
@@ -98,7 +107,7 @@ public abstract class MediaFilesPanel extends JPanel {
    *
    * @return the media entity
    */
-  abstract public MediaEntity getMediaEntity();
+  public abstract MediaEntity getMediaEntity();
 
   private static class MediaTableFormat implements AdvancedTableFormat<MediaFile> {
     @Override

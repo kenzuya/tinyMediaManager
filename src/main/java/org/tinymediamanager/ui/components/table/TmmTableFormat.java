@@ -125,6 +125,10 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     return columns.get(i).maxWidth;
   }
 
+  public boolean isColumnDefaultHidden(int i) {
+    return columns.get(i).defaultHidden;
+  }
+
   protected class Column {
     private String              columnTitle;
     private String              columnIdentifier;
@@ -137,6 +141,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     private boolean             columnResizeable = true;
     private int                 minWidth         = 0;
     private int                 maxWidth         = 0;
+    private boolean             defaultHidden    = false;
 
     public Column(String title, String identifier, Function<E, ?> value, Class clazz) {
       columnTitle = title;
@@ -172,6 +177,10 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
 
     public void setColumnTooltip(Function<E, String> tooltip) {
       this.columnTooltip = tooltip;
+    }
+
+    public void setDefaultHidden(boolean defaultHidden) {
+      this.defaultHidden = defaultHidden;
     }
   }
 

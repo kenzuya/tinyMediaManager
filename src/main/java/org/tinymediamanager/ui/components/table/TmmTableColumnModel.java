@@ -251,6 +251,10 @@ public class TmmTableColumnModel extends DefaultTableColumnModel {
     }
   }
 
+  public void setDefaultHiddenColumns() {
+
+  }
+
   public List<TableColumn> getHiddenColumns() {
     return hiddenColumns;
   }

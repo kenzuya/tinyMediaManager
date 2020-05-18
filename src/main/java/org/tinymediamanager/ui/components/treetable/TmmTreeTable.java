@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableColumnModel;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeDataProvider;
@@ -171,6 +172,23 @@ public class TmmTreeTable extends TmmTable {
     }
     else {
       return null;
+    }
+  }
+
+  public void setDefaultHiddenColumns() {
+    if (getColumnModel() instanceof TmmTableColumnModel && getModel() instanceof TmmTreeTableModel) {
+      TmmTreeTableModel tableModel = (TmmTreeTableModel) getModel();
+      TmmTableFormat tableFormat = tableModel.getTableModel().getTableFormat();
+
+      List<String> hiddenColumns = new ArrayList<>();
+
+      for (int i = 0; i < tableFormat.getColumnCount(); i++) {
+        if (tableFormat.isColumnDefaultHidden(i)) {
+          hiddenColumns.add(tableFormat.getColumnIdentifier(i));
+        }
+      }
+
+      readHiddenColumns(hiddenColumns);
     }
   }
 

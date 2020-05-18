@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.components.table;
 
+import static ca.odell.glazedlists.gui.AbstractTableComparatorChooser.MULTIPLE_COLUMN_KEYBOARD;
+
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
@@ -29,7 +31,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
@@ -56,6 +57,9 @@ import javax.swing.table.TableModel;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.IconManager;
 
+import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.swing.TableComparatorChooser;
+
 /**
  * The Class TmmTable. It's being used to draw the tables like our designer designed it
  *
@@ -66,6 +70,7 @@ public class TmmTable extends JTable {
   private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static final CellRendererPane CELL_RENDER_PANE = new CellRendererPane();
+  private TableComparatorChooser<?>     tableComparatorChooser;
 
   public TmmTable() {
     super();
@@ -137,8 +142,17 @@ public class TmmTable extends JTable {
     });
   }
 
-  public void writeHiddenColumns(Consumer<List<String>> setting) {
+  public void installComparatorChooser(SortedList<?> sortedList) {
+    tableComparatorChooser = TableComparatorChooser.install(this, sortedList, MULTIPLE_COLUMN_KEYBOARD);
+  }
+
+  public TableComparatorChooser getTableComparatorChooser() {
+    return tableComparatorChooser;
+  }
+
+  public List<String> getHiddenColumns() {
     List<String> hiddenColumns = new ArrayList<>();
+
     if (getColumnModel() instanceof TmmTableColumnModel) {
       List<TableColumn> cols = ((TmmTableColumnModel) getColumnModel()).getHiddenColumns();
       for (TableColumn col : cols) {
@@ -147,12 +161,30 @@ public class TmmTable extends JTable {
         }
       }
     }
-    setting.accept(hiddenColumns);
+
+    return hiddenColumns;
   }
 
   public void readHiddenColumns(List<String> hiddenColumns) {
     if (getColumnModel() instanceof TmmTableColumnModel) {
       ((TmmTableColumnModel) getColumnModel()).setHiddenColumns(hiddenColumns);
+    }
+  }
+
+  public void setDefaultHiddenColumns() {
+    if (getColumnModel() instanceof TmmTableColumnModel && getModel() instanceof TmmTableModel) {
+      TmmTableModel tableModel = (TmmTableModel) getModel();
+      TmmTableFormat tableFormat = (TmmTableFormat) tableModel.getTableFormat();
+
+      List<String> hiddenColumns = new ArrayList<>();
+
+      for (int i = 0; i < tableFormat.getColumnCount(); i++) {
+        if (tableFormat.isColumnDefaultHidden(i)) {
+          hiddenColumns.add(tableFormat.getColumnIdentifier(i));
+        }
+      }
+
+      readHiddenColumns(hiddenColumns);
     }
   }
 

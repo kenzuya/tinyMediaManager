@@ -78,6 +78,7 @@ import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -226,7 +227,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     }
     {
       JSplitPane splitPane = new TmmSplitPane();
-      splitPane.setResizeWeight(0.5);
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 2,grow");
       {
         JPanel panelSearchResults = new JPanel();

@@ -36,7 +36,7 @@ import javax.swing.border.EmptyBorder;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.TmmWindowSaver;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -234,7 +234,7 @@ public abstract class TmmDialog extends JDialog {
   public void setVisible(boolean visible) {
     if (visible) {
       pack();
-      TmmWindowSaver.getInstance().loadSettings(this);
+      TmmUILayoutStore.getInstance().loadSettings(this);
       super.setVisible(true);
       toFront();
     }

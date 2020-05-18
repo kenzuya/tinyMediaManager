@@ -60,6 +60,7 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
   public MovieMediaInformationPanel(MovieSelectionModel model) {
     super();
     this.movieSelectionModel = model;
+    panelMediaFiles.installTmmUILayoutStore("movies");
 
     initDataBindings();
 

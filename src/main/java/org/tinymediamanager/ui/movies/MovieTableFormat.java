@@ -90,6 +90,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(originalTitleComparator);
     col.setCellRenderer(new MovieBorderTableCellRenderer());
     col.setColumnTooltip(Movie::getOriginalTitleSortable);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -99,6 +100,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
     col.setColumnTooltip(Movie::getSortTitle);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -117,6 +119,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
     col.setColumnTooltip(movie -> movie.getMainVideoFile().getFilename());
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -127,6 +130,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
     col.setColumnTooltip(pathFunction);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -137,6 +141,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
     col.setColumnTooltip(movieSetFunction);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -161,6 +166,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1000000") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -170,6 +176,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(certificationComparator);
     col.setHeaderIcon(IconManager.CERTIFICATION);
     col.setColumnResizeable(true);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -196,6 +203,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -214,6 +222,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.AUDIO);
     col.setMinWidth((int) (fontMetrics.stringWidth("DTS 7ch") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -231,6 +240,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -242,6 +252,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.EDITION);
     col.setColumnTooltip(movieEditionFunction);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -252,6 +263,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.SOURCE);
     col.setColumnTooltip(mediaSourceFunction);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -261,6 +273,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.VIDEO_3D);
     col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*

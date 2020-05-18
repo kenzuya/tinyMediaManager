@@ -31,7 +31,7 @@ import javax.swing.UIManager;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.ui.TmmWindowSaver;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.TaskListComponent;
 
 import net.miginfocom.swing.MigLayout;
@@ -91,7 +91,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
   @Override
   public void dispose() {
     // do not dispose (singleton), but save the size/position
-    TmmWindowSaver.getInstance().saveSettings(this);
+    TmmUILayoutStore.getInstance().saveSettings(this);
   }
 
   public static TaskListDialog getInstance() {

@@ -60,6 +60,7 @@ public class MovieSetTableFormat extends TmmTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*

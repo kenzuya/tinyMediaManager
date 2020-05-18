@@ -55,6 +55,7 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
 
   public TvShowEpisodeMediaInformationPanel(TvShowEpisodeSelectionModel model) {
     super();
+    panelMediaFiles.installTmmUILayoutStore("tvshows.episode");
 
     this.selectionModel = model;
 

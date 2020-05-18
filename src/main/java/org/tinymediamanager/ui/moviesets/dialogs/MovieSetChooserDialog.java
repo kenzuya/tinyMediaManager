@@ -66,6 +66,7 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -138,7 +139,8 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
       panelContent.setLayout(new MigLayout("", "[950lp,grow]", "[500,grow][][][]"));
 
       JSplitPane splitPane = new TmmSplitPane();
-      splitPane.setResizeWeight(0.5);
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       panelContent.add(splitPane, "cell 0 0,grow");
       {
         JPanel panelResults = new JPanel();

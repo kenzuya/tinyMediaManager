@@ -27,6 +27,7 @@ import javax.swing.JScrollPane;
 
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -119,6 +120,9 @@ public class TvShowCastPanel extends JPanel {
       add(lblActorImage, "cell 2 0,grow");
 
       tableActors = new PersonTable(actorEventList);
+      tableActors.setName("tvshows.tvshow.actorTable");
+      TmmUILayoutStore.getInstance().install(tableActors);
+
       JScrollPane scrollPaneActors = new JScrollPane(tableActors);
       tableActors.configureScrollPane(scrollPaneActors);
       scrollPaneActors.setViewportView(tableActors);

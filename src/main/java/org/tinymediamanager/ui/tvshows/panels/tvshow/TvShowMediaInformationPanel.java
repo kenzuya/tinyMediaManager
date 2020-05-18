@@ -80,6 +80,8 @@ public class TvShowMediaInformationPanel extends JPanel {
     initComponents();
     initDataBindings();
 
+    panelMediaFiles.installTmmUILayoutStore("tvshows.tvshow");
+
     lblTvShowPath.addActionListener(arg0 -> {
       if (StringUtils.isNotBlank(lblTvShowPath.getText())) {
         // get the location from the label

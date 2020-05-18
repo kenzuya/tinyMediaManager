@@ -49,6 +49,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -178,6 +179,8 @@ public class MovieSetInformationPanel extends JPanel {
 
         final DefaultEventTableModel<Movie> movieTableModel = new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat());
         tableAssignedMovies = new TmmTable(movieTableModel);
+        tableAssignedMovies.setName("movieSets.movieTable");
+        TmmUILayoutStore.getInstance().install(tableAssignedMovies);
         tableAssignedMovies.adjustColumnPreferredWidths(3);
         JScrollPane scrollPane = new JScrollPane(tableAssignedMovies);
         tableAssignedMovies.configureScrollPane(scrollPane);

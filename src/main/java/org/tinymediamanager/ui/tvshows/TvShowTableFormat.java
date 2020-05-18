@@ -100,6 +100,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -110,6 +111,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
