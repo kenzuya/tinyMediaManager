@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.ui.components.table;
 
-import static ca.odell.glazedlists.gui.AbstractTableComparatorChooser.MULTIPLE_COLUMN_KEYBOARD;
-
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
@@ -143,7 +141,7 @@ public class TmmTable extends JTable {
   }
 
   public void installComparatorChooser(SortedList<?> sortedList) {
-    tableComparatorChooser = TableComparatorChooser.install(this, sortedList, MULTIPLE_COLUMN_KEYBOARD);
+    tableComparatorChooser = TableComparatorChooser.install(this, sortedList, new MouseKeyboardSortingStrategy());
   }
 
   public TableComparatorChooser getTableComparatorChooser() {
