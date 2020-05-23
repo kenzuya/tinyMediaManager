@@ -67,7 +67,7 @@
 
 		<!-- JRE -->
 		<copy todir="${build.dir}/jre">
-			<fileset dir="jre"/>
+			<fileset dir="target/jre"/>
 		</copy>
 
 		<!-- ===================================================== -->
