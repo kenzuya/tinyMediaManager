@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -42,7 +43,6 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * The class MovieAssignMovieSetTask. A task to assign the movie set to the given movies
@@ -51,7 +51,7 @@ import org.tinymediamanager.ui.UTF8Control;
  */
 public class MovieAssignMovieSetTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieAssignMovieSetTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private List<Movie>                 moviesToScrape;
 
@@ -97,7 +97,13 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
         }
 
         MediaMetadata md = ((IMovieMetadataProvider) movieScraper.getMediaProvider()).getMetadata(movieOptions);
-        int collectionId = (int) md.getId(MediaMetadata.TMDB_SET);
+        int collectionId = 0;
+        try {
+          collectionId = (int) md.getId(MediaMetadata.TMDB_SET);
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not parse collectionId: {}", md.getId(MediaMetadata.TMDB_SET));
+        }
 
         if (collectionId > 0) {
           String collectionName = md.getCollectionName();

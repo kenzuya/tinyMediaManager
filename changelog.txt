@@ -1,9 +1,122 @@
+Version 3.1.6
+=======================
++ Further improve episode detection #824
++ added (internal) subtitle language information to the renamer tokens #855
++ added support for double digit stacking patterns (cd12, part12, ..)
++ (movie/TV show) better support for filtering movies by text (regular search, normalized search)
++ added zh_CN and zh_HK to scraper languages #885
+x fixed writing of multiple tags (date_added and user_note) in the NFO file
+x changed video codec HEVC/x265 to the more common name h265
+x fixed occasional UI glitches where artwork did not change
+x fixed occasional error messages when removing movies #857
+x fixed TMDB fallbackLanguages parsing #861
+x (movie) only provide ascending and descending sort order of table columns
+x (movie/TV show) provide tags (in dropdown lists) in a sorted order
+x (movie) do not move movie extras out of the "Extra(s)" folder upon renaming
+x force closing of files after subtitle hash calculation
+x (windows) call the default file manager rather than explorer.exe for opening folders
+x do not automatically scroll down in the image chooser
+x catch occasional hiccups in the trailer panel #864
+x fixed layout of the movie settings panel
+
+
+Version 3.1.5
+=======================
++ splitted space substitution in the TV show renamer into setting for TV show/season folder and episode filename (thx @dimitricappelle)
+  NOTE: you may have to review your renamer settings if you used space substitution in the TV show renamer
++ updated libmediainfo to 20.03
++ re-layouted information panels for better visibility on low resolution devices
++ preserve original file name in NFO (movie / tvshow)
++ added support CMYK JPEGs
++ remember last used rating id in the rating editor #788
++ show video bit depth and hdr format in the media files tab and in the editors
++ added Trakt.tv id (movies) and TMDB id (TV shows) with links to the UI
++ enabled scraping of tags from AniDB #836
++ make the scraped amount of keywords in IMDB and tags in AniDB configurable
++ added Kodi RPC call to clean video/audio libraries (thx @max3163)
+x (TVDB) catch even more connection problems #832
+x show medium dateformat and added date / time format in default Locale
+x store user notes in the NFO files
+x (TV show) catch occasional errors in NFO parsing #837
+x fixed calculation for file size in the renamer #843
+x fixed extracting of VSMETA artwork for some movies #760
+x fixed displaying of downloaded trailer #838
+x (AniDB) fixed reading of specials #827
+x Fix localization of Kodi plugins #848
+x do not generate trailing separators (space . - _) into subfolder names #853
+x enable UPPER, lower and Title renderer on all fields in the renamer
+
+
+Version 3.1.4
+=======================
++ added some more scraper languages #800
++ added a filter for common audio channel setups
++ (movie/TV show) option to extract artwork from VSMETA on "update data sources"
++ (movie) added an M3U export template (thx @maricn)
++ (movie) added column for sort title
+x (TVDB) fixed artwork scraping due to recently changed artwork url
+x (TV show) storing duplicate episodes filter
+x (movie/TV show) pre-set all artwork/trailer/subtitle scrapers on first start
+x (Trakt.tv) do not pass language to the search engine of Trakt.tv to improve the search result
+x (TV show) set TVDB id as default in NFO #810
+x (movies) removed storing of sort order (because we can not store it completely)
+x evaluate movie extras even deeper
+
+
+Version 3.1.3
+=======================
++ clean empty subfolders after renaming movies/TV shows
++ added "remove artwork" for TV show seasons too
++ (Movie) added a new export template: MoviePicker (thx @bastienpruvost) #763
++ (TV show) added filter for aired status #783
++ updated JMTE to 6.0.0 (IF tokens can now compare to another properties)
++ (movie/TV show) added and option to specify which date should be written into the dateadded field in the NFO #796
++ display file creation/modification date in the media files table
+x migrate existing movie set TMDB ids to the new form
+x do an artwork cleanup when changing the movie set name
+x do not count missing episodes several calculations #769
+x (TV show) moved name setting for special season to the image setting panel #775
+x (TV show) removed duplicate hotkey
+x (IMDB) enhanced parsing of release dates #777
+x (YouTube) fixed extraction of newer YouTube trailers
+x (TV show) fixed filtering for video format
+x better scrolling in the renamer settings
+x (IMDB) do not lock the UI if there are no episodes on IMDB #785
+x cleanup of artwork when removing movie sets #789
+x (TV show) fixed display of artwork size for season artwork #793
+x (Trakt.tv) better test routine to show if the connection works
+x remember last used folder when choosing files #791
+x (TV show) only offer artwork types in the "Download missing artwork" dialog #795
+x preserve file creation/modification date on renaming
+x (movie/TV show) try to preserve existing IDs when re-scraping with a different scraper
+
+
+Version 3.1.2
+=======================
+x reverted usage of NativeFileDialogs for macOS users #762 #764
+x fixed some issues in the file-/folder dialogs
+x fixed migration of movies from 3.0.x to 3.1.x style
+x fixed language detection
+
+
+Version 3.1.1
+=======================
++ re-added AniDB scraper to the ui #759
++ use another algorithm for title case rendering
+x fixed movie set name cleanup for file-/folder names
+x fixed Synology VSMETA parsing for backdrops
+
+
 Version 3.1
 =======================
++ added trailer support for TV shows
++ added experimental support for BluRay ISO reading
 + completely reworked scraper configuration: you now have a better control what scraper fetches/updates
   DUE TO THE MASSIVE REWORK YOU MAY NEED TO REVIEW YOUR SCRAPER SETTINGS
 + support for named seasons
 + support for rendering animated gifs
++ support for movie set artwork style of Kodi v19
++ added a movie set artwork cleanup function (to rename/cleanup) the movie set artwork in the right naming scheme) #715 #694 #511
 + updated libmediainfo to 19.09
 + changed to nativefiledialog to avoid usage of JavaFX (better compatibility across different systems/Java versions)
 + visually enhanced the CheckComboBox
@@ -15,6 +128,17 @@ Version 3.1
 + added the new note field to the bulk editors
 + enabled sorting by multiple columns in the movie table
 + enabled writing of subtitles without language code #621
++ added file size to the renamer patterns #691
++ (Movies) added a bulk editor function to write the languages of the audio streams into the spoken language field #714
++ added an option to delete artwork from within the editor (movies, TV shows, episodes) #367
++ (Movies) added a new export template: DarkTemplate (thx @maxburon)
++ added a aspect ratio filter for common aspect ratios #644
++ IMDB: added option to scrape keywords (tags) #666
++ added regexp support in badwords
++ added navigation in the TV show tree by typing
++ added seasonXX-landscape naming scheme
++ (Linux) added an action to create a desktop entry in ~/.local/share/applications
++ added bahasa Indonesia to scraper languages #757
 x NFO: always write at least one id entry with default="true"
 x do not move episode files if the episode and season renamer patterns are empty #667
 x use temp files to create backups #678
@@ -28,145 +152,20 @@ x IMDb: parse release date from releaseinfo page too #697
 x fixed TV show tag filter
 x downgrade TVDB search result score when not receiving any year to compare
 x changed writing of the outline in the NFO. It is now configurable how the outline should be written #630 #683
-
-
-Version 3.0.5
-=======================
-+ added a scraper for MPDb.tv (thx @wjanes)
-+ added an action to force deletion of all HTTP caches (on disk and in memory) #656
-+ added changing of the movie edition to the movie bulk editor
-+ added a custom note field for movies/TV shows/episodes
-+ added unwanted files dialog for TV shows
-x show popupmenu from text fields on macOS #637
-x crash on startup if some images could not be loaded
-x catch more exceptions on file download #642
-x do not try to open dialogs on disconnected screens #640
-x delete subtitle archive after extracting #641
-x fix update data sources from Google Drive
-x correct date format style in files
-x when unable to load the database, start over with a new/clean one rather than not starting tmm
-x fixed loading of the colon replacement in the renamer settings
-x enhanced detection of valid NFO files #638
-x write the plot content to the outline field in the NFO #630
-x ImageCache must not crash tmm on exceptions #659
-x enabled to explicitly filter for empty values #660
-x refactored the MediaPortal NFO format into 2 new formats for enhanced compatibility: MP MyVideos and MP Moving Pictures
-x do not crash tmm on startup on incomplete settings #663
-x remove a custom genre in the bulk editor does not throw an exception any more
-x do not overwrite user ratings on scrape
-x better logging of errors in the OpenSubtitles scraper #633
-x fixed movie in a movie set filter
-
-
-Version 3.0.4
-=======================
-+ changed "finding unwanted files" logic to use regular expressions
-+ show a warning what rename&cleanup does
-+ added a new export template (Mobile Movie Search, Soda's modifs) thx @Poka
-x fix missing replacement of path separators in movie/Tv show renamer tokens #618
-x fix parsing of episode vote count in the IMDB scraper
-x fetching artwork sometimes returned the wrong type #617
-x fixed wrong detection of user defined genres like Marvel
-x fixed detection of IMAX edition
-x renamed Trakt.tv scraper option "API key" to "Client ID"
-x detecting season poster from folder.jpg #626
-x fixed removing of an underscore at the beginning of the renamer token #619
-x added trailer file names to presets
-
-
-Version 3.0.3
-=======================
-+ reworked the YouTube download engine. Should now work for almost all trailers! (thx @wjanes)
-+ separated space substitution for filenames and foldernames (movies) #611
-+ added jump to movie by keystroke in the movie table
-+ added Mexican Spanish to scraper languages #570
-+ added Icelandic to scraper languages #574
-+ added a duplicate episode filter #578
-+ added a MovieEdition filter
-+ added option to store tmm data into another folders http://bit.ly/2JoUUeN
-+ added seconds to the runtime in the media files panel
-+ added an option to hide media logos (to save space for low resolution devices)
-+ reworked logic for finding the best artwork according to the settings #589
-+ added first aired to the TV show tree #557
-+ added a button to revert renamer template to the default value
-+ added option to explicitly rebuild the image cache for selected movies/TV shows
-+ added "Final Cut" to recognized movie edition patterns #612
-x fixed downloading movie set artwork in the right resolution #580
-x write user ratings to own tags in the NFO files
-x write correct trailer url to the NFO
-x do not write stream runtime for disc style movies to NFO
-x sort tags in the tag filter dropdown
-x enlarged the year column that occasional truncation should not happen again
-x the logos panel does not push other fields (like play button, plot, ..) out of the screen
-x removed duplicate shortcut CTRL+SHIFT+U #590
-x do not throw exception if a TV show has x*100 episodes #587
-x do not resize extrathumbs if the setting is deactivated #589
-x replace colons in the renamer patterns
-x enhanced the renamer replacements/cleanup #597
-x execute a copy&delete if a move fails #602
-x getMainVideoFile() now returns the first part of stacked movies/episodes rather than the biggest one
-x fixed regexp to find extra(s) in nested movie folders #603
-x fixed renaming of episodes with samples #601
-x fixed crash in the movie renamer settings when a movie was in a UNC root #561
-x fixed import of MediaInfo.xml files
-x fixed TV show renamer spaces substitution
-x fixed ${parent} processing in the renamer #609
-x fixed removing of audio streams/subtitles in the media file editor #610
-
-
-Version 3.0.2
-=======================
-+ added undo/redo for all text fields
-+ added renamer token for the current parent folder (to enable renaming of folders without moving them in the folder structure)
-x read/write TV show sorttitle from/to NFO #539
-x better detection of same named movies in different quality
-x fix bulk downloading images (AniDB, Kyra Animated)
-x better 3D detection from filename
-x fixed some scaling issues in the renamer settings panels
-x set episode year along with firstAired
-x writing of TV show actor images
-x fix an occasional crash when scraping movie sets #563
-x fixed language detection for Turkish subtitles #562
-x reworked KodiRPC connection (better datasource matching) #554 #549
-x fixed location for writing NFO and trailer files (for disc folders)
-x changed hotkey for deleting movies/TV shows to CTRL+SHIFT+DEL #568
-x fixed parsing of votes from IMDB in another notation #559
-x clean episode title upon importing
-
-
-Version 3.0.1
-=======================
-x fixed Fanart.tv reading personal clientKey
-x fixed Fanart.tv using TMDB id fallback
-x fixed TvShow exporter naming pattern #525
-x fixed TvShow renamer (Synology TvShow metadata overwriting videos) #527
-x fixed scraping of episode cast with IMDB
-x fixed displaying of episode director/writers in the episode editor
-x fixed downloading of season artwork #522
-x removed VIDEO_TS/BDMV NFO styles (integrated these into the other two styles)
-x updated JNA and libmediainfo
-x do not print "Unknown" for empty media sources
-x fixed artwork fetching with tvdb and removed bad thumb urls from the DB (you may need to re-write your NFO files)
-x fixed occasional Java crashes on OSX
-x fixed occasional error popup on start of tinyMediaManager
-x changed temporary artwork download to the systems temp folder
-
-
-Version 3.0
-=======================
-
-+ completely rewritten UI (thx to @joostzilla)
-  - new style and layout (better usage of the available space - especially for low screen devices)
-  - flexible and configurable tables
-  - improved filters (inclusive and exclusive filters)
-  - better UI scaling on high dpi screens
-+ added a dark theme
-+ removed donator version (but donations are still highly appreciated)
-+ completely rewritten the renamer engine
-+ completely rewritten NFO parsing and writing (much more flexible now)
-+ easier translation via weblate.org now (https://hosted.weblate.org/projects/tinymediamanager/)
-+ increased required Java version to Java 8+
-+ ability to mix in/search for missing episodes
-+ presets in settings for common media centers (Kodi, old XBMC, Plex, MediaPortal)
-+ added a feature to find "unwanted" files for cleanup (e.g. .txt, .url, ...)
-+ many enhancements under the hood
+x enhanced movie renamer pattern validation #709 #705
+x moved export logic into thread to do not block the UI while exporting
+x IMDB: use the first found release date
+x TMDB: show all search results (not only the first 20)
+x TMDB: add season cast/crew to the episodes too
+x TMDB: clean search string (move The, ... to the front on search)
+x fixed scraping with MovieMeter.nl scraper (API changes on their side)
+x updated the download missing artwork task to do a "light" cleanup of artwork files according to the settings
+x the rating in the details panel now updates correctly
+x fixed Youtube downloader
+x fixed Mpdb.tv scaper
+x do not open the image preview dialog multiple times #738
+x IMDB: fixed checking of IMDB id
+x parse plot/tagline from NFO respecting line breaks #742
+x allow choosing an episode of season 0 in the episode chooser
+x fixed exporting of artwork in the exporter under certain circumstances #756
+x (TMDB) pass full language tags to the API because of a bug at TMDB #708

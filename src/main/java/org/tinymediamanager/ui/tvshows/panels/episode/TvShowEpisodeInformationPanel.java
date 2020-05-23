@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,24 @@
  */
 package org.tinymediamanager.ui.tvshows.panels.episode;
 
+import static org.tinymediamanager.core.Constants.MEDIA_FILES;
+import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
+import static org.tinymediamanager.core.Constants.POSTER;
+import static org.tinymediamanager.core.Constants.SEASON_POSTER;
 import static org.tinymediamanager.core.Constants.THUMB;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.beans.PropertyChangeListener;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 
@@ -36,22 +43,23 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -71,7 +79,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
   private static final long           serialVersionUID = 2032708149757390567L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());     //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private TvShowEpisodeSelectionModel tvShowEpisodeSelectionModel;
@@ -91,6 +99,12 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private JLabel                      lblEpisodeThumbSize;
   private JLabel                      lblOriginalTitle;
   private JButton                     btnPlay;
+  private JLabel                      lblSeason;
+  private JLabel                      lblEpisode;
+  private JLabel                      lblAired;
+  private JTextArea                   taTags;
+  private LinkLabel                   lblPath;
+  private JLabel                      lblNote;
 
   /**
    * Instantiates a new tv show information panel.
@@ -108,27 +122,24 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
       String property = propertyChangeEvent.getPropertyName();
       Object source = propertyChangeEvent.getSource();
-      // react on selection of a movie and change of a movie
-      if (source instanceof TvShowEpisodeSelectionModel) {
-        TvShowEpisodeSelectionModel model = (TvShowEpisodeSelectionModel) source;
-        setSeasonPoster(model.getSelectedTvShowEpisode());
-        setEpisodeThumb(model.getSelectedTvShowEpisode());
-        panelLogos.setMediaInformationSource(model.getSelectedTvShowEpisode());
+      // react on selection/change of an episode
+      if (source.getClass() != TvShowEpisodeSelectionModel.class) {
+        return;
       }
-      if (source instanceof TvShowEpisode || source instanceof MediaFile) {
-        // if there is another change in the episode/media file, just update the logos to be sure
-        TvShowEpisode episode = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode();
-        if (episode != null) {
-          panelLogos.setMediaInformationSource(episode);
-        }
+
+      TvShowEpisodeSelectionModel model = (TvShowEpisodeSelectionModel) source;
+      TvShowEpisode episode = model.getSelectedTvShowEpisode();
+
+      if ("selectedTvShowEpisode".equals(property) || POSTER.equals(property) || SEASON_POSTER.equals(property)) {
+        setSeasonPoster(episode);
       }
-      if (source instanceof TvShowEpisode && THUMB.equals(property)) {
-        TvShowEpisode episode = (TvShowEpisode) source;
+
+      if ("selectedTvShowEpisode".equals(property) || THUMB.equals(property)) {
         setEpisodeThumb(episode);
       }
-      if (source instanceof TvShowEpisode && Constants.SEASON_POSTER.equals(property)) {
-        TvShowEpisode episode = (TvShowEpisode) source;
-        setSeasonPoster(episode);
+
+      if ("selectedTvShowEpisode".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
+        panelLogos.setMediaInformationSource(episode);
       }
     };
 
@@ -147,21 +158,40 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         }
       }
     });
+
+    lblPath.addActionListener(arg0 -> {
+      if (!StringUtils.isEmpty(lblPath.getText())) {
+        // get the location from the label
+        Path path = Paths.get(lblPath.getText());
+        try {
+          // check whether this location exists
+          if (Files.exists(path)) {
+            TmmUIHelper.openFile(path);
+          }
+        }
+        catch (Exception ex) {
+          LOGGER.error("open filemanager", ex);
+          MessageManager.instance
+              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+        }
+      }
+    });
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[100lp:100lp,grow][300lp:300lp,grow 250]", "[grow]"));
+    setLayout(new MigLayout("", "[100lp:100lp,grow][300lp:300lp,grow 250]", "[][grow]"));
+
     {
       JPanel panelLeft = new JPanel();
       panelLeft.setLayout(new ColumnLayout());
-      add(panelLeft, "cell 0 0,grow");
+      add(panelLeft, "cell 0 0 1 2,grow");
 
       lblSeasonPoster = new ImageLabel(false, false, true);
       lblSeasonPoster.setDesiredAspectRatio(2 / 3.0f);
       panelLeft.add(lblSeasonPoster);
       lblSeasonPoster.enableLightbox();
 
-      lblSeasonPosterSize = new JLabel(BUNDLE.getString("mediafiletype.season_poster")); //$NON-NLS-1$
+      lblSeasonPosterSize = new JLabel(BUNDLE.getString("mediafiletype.season_poster"));
       panelLeft.add(lblSeasonPosterSize);
       panelLeft.add(Box.createVerticalStrut(20));
 
@@ -170,73 +200,131 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       panelLeft.add(lblEpisodeThumb);
       lblEpisodeThumb.enableLightbox();
 
-      lblEpisodeThumbSize = new JLabel(BUNDLE.getString("mediafiletype.thumb")); //$NON-NLS-1$
+      lblEpisodeThumbSize = new JLabel(BUNDLE.getString("mediafiletype.thumb"));
       panelLeft.add(lblEpisodeThumbSize);
     }
     {
-      JPanel panelRight = new JPanel();
-      panelRight.setLayout(new MigLayout("insets 0 n n n, hidemode 2", "[grow][][]", "[][][][shrink 0][][shrink 0][][shrink 0][][shrink 0][][]"));
-      add(panelRight, "cell 1 0,grow");
+      JPanel panelTitle = new JPanel();
+      add(panelTitle, "cell 1 0,growx");
+      panelTitle.setLayout(new MigLayout("insets 0 0 n n", "[grow][]", "[][][][shrink 0]"));
 
       {
         lblTvShowName = new TmmLabel("", 1.33);
-        panelRight.add(lblTvShowName, "flowx,cell 0 0,growx,wmin 0");
+        panelTitle.add(lblTvShowName, "flowx,cell 0 0,growx,wmin 0");
       }
       {
         btnPlay = new FlatButton(IconManager.PLAY_LARGE);
-        panelRight.add(btnPlay, "cell 1 0 1 4,aligny top");
+        panelTitle.add(btnPlay, "cell 1 0 1 4,aligny top");
       }
       {
         lblEpisodeTitle = new TmmLabel("", 1.16);
-        panelRight.add(lblEpisodeTitle, "cell 0 1,growx, wmin 0");
+        panelTitle.add(lblEpisodeTitle, "cell 0 1,growx,wmin 0");
       }
       {
         lblOriginalTitle = new JLabel("");
-        panelRight.add(lblOriginalTitle, "cell 0 2,growx, wmin 0");
+        panelTitle.add(lblOriginalTitle, "cell 0 2,growx,wmin 0");
       }
       {
-        panelRight.add(new JSeparator(), "cell 0 3 2 1,growx,wmin 0");
+        panelTitle.add(new JSeparator(), "cell 0 3 2 1,growx");
+      }
+    }
+    {
+      JPanel panelRight = new JPanel();
+      panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[grow]", "[][shrink 0][][shrink 0][][shrink 0][][][][]"));
+      add(panelRight, "cell 1 1,grow");
+      {
+        JPanel panelTopDetails = new JPanel();
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][10lp][grow]", "[]2lp[][]"));
+
+        panelRight.add(panelTopDetails, "cell 0 0,grow");
+        {
+          JLabel lblSeasonT = new JLabel(BUNDLE.getString("metatag.season"));
+          TmmFontHelper.changeFont(lblSeasonT, 1.166, Font.BOLD);
+          panelTopDetails.add(lblSeasonT, "cell 0 0");
+
+          lblSeason = new JLabel("");
+          TmmFontHelper.changeFont(lblSeason, 1.166);
+          panelTopDetails.add(lblSeason, "cell 2 0");
+        }
+        {
+          JLabel lblEpisodeT = new JLabel(BUNDLE.getString("metatag.episode"));
+          TmmFontHelper.changeFont(lblEpisodeT, 1.166, Font.BOLD);
+          panelTopDetails.add(lblEpisodeT, "cell 0 1");
+
+          lblEpisode = new JLabel("");
+          TmmFontHelper.changeFont(lblEpisode, 1.166);
+          panelTopDetails.add(lblEpisode, "cell 2 1");
+        }
+        JLabel lblAiredT = new TmmLabel(BUNDLE.getString("metatag.aired"));
+        panelTopDetails.add(lblAiredT, "cell 0 2");
+        {
+
+          lblAired = new JLabel("");
+          panelTopDetails.add(lblAired, "cell 2 2");
+        }
       }
       {
-        JPanel panelDetails = new TvShowEpisodeDetailsPanel(tvShowEpisodeSelectionModel);
-        panelRight.add(panelDetails, "cell 0 4 2 1,growx");
-      }
-      {
-        panelRight.add(new JSeparator(), "cell 0 5 2 1,growx");
+        panelRight.add(new JSeparator(), "cell 0 1,growx");
       }
       {
         panelRatingStars = new StarRater(10, 1);
-        panelRight.add(panelRatingStars, "flowx,cell 0 6 2 1,aligny center");
+        panelRight.add(panelRatingStars, "flowx,cell 0 2,aligny center");
         panelRatingStars.setEnabled(false);
 
         lblRating = new JLabel("");
-        panelRight.add(lblRating, "cell 0 6 2 1,aligny center");
+        panelRight.add(lblRating, "cell 0 2,aligny center");
 
         lblVoteCount = new JLabel("");
-        panelRight.add(lblVoteCount, "cell 0 6 2 1,aligny center");
+        panelRight.add(lblVoteCount, "cell 0 2,aligny center");
       }
       {
         sepLogos = new JSeparator();
-        panelRight.add(sepLogos, "cell 0 7 2 1,growx");
+        panelRight.add(sepLogos, "cell 0 3,growx");
       }
       {
         panelLogos = new MediaInformationLogosPanel();
-        panelRight.add(panelLogos, "cell 0 8 2 1,wmin 0");
+        panelRight.add(panelLogos, "cell 0 4,wmin 0");
       }
       {
-        panelRight.add(new JSeparator(), "cell 0 9 2 1,growx");
+        panelRight.add(new JSeparator(), "cell 0 5,growx");
       }
       {
-        JLabel lblPlot = new TmmLabel(BUNDLE.getString("metatag.plot")); //$NON-NLS-1$
-        panelRight.add(lblPlot, "cell 0 10 2 1");
-
-        JScrollPane scrollPanePlot = new JScrollPane();
-        scrollPanePlot.setBorder(null);
+        JLabel lblPlot = new TmmLabel(BUNDLE.getString("metatag.plot"));
+        panelRight.add(lblPlot, "cell 0 6");
 
         taOverview = new ReadOnlyTextArea();
-        taOverview.setBorder(null);
-        scrollPanePlot.setViewportView(taOverview);
-        panelRight.add(scrollPanePlot, "cell 0 11 2 1,grow");
+        panelRight.add(taOverview, "cell 0 7,growx,wmin 0,aligny top");
+      }
+      {
+        panelRight.add(new JSeparator(), "cell 0 8,growx");
+      }
+      {
+        JPanel panelBottomDetails = new JPanel();
+        panelRight.add(panelBottomDetails, "cell 0 9,grow");
+        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][10lp][200lp,grow]", "[]2lp[]2lp[]"));
+        {
+          {
+            JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
+            panelBottomDetails.add(lblTagsT, "cell 0 0");
+
+            taTags = new ReadOnlyTextArea();
+            panelBottomDetails.add(taTags, "cell 2 0,growx,wmin 0");
+          }
+          {
+            JLabel lblPathT = new TmmLabel(BUNDLE.getString("metatag.path"));
+            panelBottomDetails.add(lblPathT, "cell 0 1");
+
+            lblPath = new LinkLabel("");
+            panelBottomDetails.add(lblPath, "cell 2 1,growx,wmin 0");
+          }
+          {
+            JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
+            panelBottomDetails.add(lblNoteT, "cell 0 2");
+
+            lblNote = new JLabel("");
+            panelBottomDetails.add(lblNote, "cell 2 2,growx,wmin 0");
+          }
+        }
       }
     }
   }
@@ -246,10 +334,10 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     lblSeasonPoster.setImagePath(tvShowEpisode.getTvShowSeason().getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER));
     Dimension posterSize = tvShowEpisode.getTvShowSeason().getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
     if (posterSize.width > 0 && posterSize.height > 0) {
-      lblSeasonPosterSize.setText(BUNDLE.getString("mediafiletype.season_poster") + " - " + posterSize.width + "x" + posterSize.height); //$NON-NLS-1$
+      lblSeasonPosterSize.setText(BUNDLE.getString("mediafiletype.season_poster") + " - " + posterSize.width + "x" + posterSize.height);
     }
     else {
-      lblSeasonPosterSize.setText(BUNDLE.getString("mediafiletype.season_poster")); //$NON-NLS-1$
+      lblSeasonPosterSize.setText(BUNDLE.getString("mediafiletype.season_poster"));
     }
   }
 
@@ -258,10 +346,10 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     lblEpisodeThumb.setImagePath(tvShowEpisode.getArtworkFilename(MediaFileType.THUMB));
     Dimension thumbSize = tvShowEpisode.getArtworkDimension(MediaFileType.THUMB);
     if (thumbSize.width > 0 && thumbSize.height > 0) {
-      lblEpisodeThumbSize.setText(BUNDLE.getString("mediafiletype.thumb") + " - " + thumbSize.width + "x" + thumbSize.height); //$NON-NLS-1$
+      lblEpisodeThumbSize.setText(BUNDLE.getString("mediafiletype.thumb") + " - " + thumbSize.width + "x" + thumbSize.height);
     }
     else {
-      lblEpisodeThumbSize.setText(BUNDLE.getString("mediafiletype.thumb")); //$NON-NLS-1$
+      lblEpisodeThumbSize.setText(BUNDLE.getString("mediafiletype.thumb"));
     }
   }
 
@@ -292,11 +380,10 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_4, panelRatingStars, starRaterBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<TvShowEpisodeSelectionModel, MediaRating> tvShowEpisodeSelectionModelBeanProperty_6 = BeanProperty
-        .create("selectedTvShowEpisode.rating");
-    AutoBinding<TvShowEpisodeSelectionModel, MediaRating, JLabel, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ,
+    BeanProperty<TvShowEpisodeSelectionModel, MediaEntity> tvShowEpisodeSelectionModelBeanProperty_6 = BeanProperty.create("selectedTvShowEpisode");
+    AutoBinding<TvShowEpisodeSelectionModel, MediaEntity, JLabel, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_6, lblRating, jLabelBeanProperty);
-    autoBinding_5.setConverter(new RatingConverter());
+    autoBinding_5.setConverter(new RatingConverter<>());
     autoBinding_5.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_2 = BeanProperty
@@ -322,5 +409,41 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     AutoBinding<TvShowSettings, Boolean, MediaInformationLogosPanel, Boolean> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ,
         settings, tvShowSettingsBeanProperty, panelLogos, mediaInformationLogosPanelBeanProperty);
     autoBinding_8.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, Integer> tvShowEpisodeSelectionModelBeanProperty_7 = BeanProperty
+        .create("selectedTvShowEpisode.season");
+    AutoBinding<TvShowEpisodeSelectionModel, Integer, JLabel, String> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_7, lblSeason, jLabelBeanProperty);
+    autoBinding_9.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, Integer> tvShowEpisodeSelectionModelBeanProperty_8 = BeanProperty
+        .create("selectedTvShowEpisode.episode");
+    AutoBinding<TvShowEpisodeSelectionModel, Integer, JLabel, String> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_8, lblEpisode, jLabelBeanProperty);
+    autoBinding_10.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_9 = BeanProperty
+        .create("selectedTvShowEpisode.firstAiredAsString");
+    AutoBinding<TvShowEpisodeSelectionModel, String, JLabel, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_9, lblAired, jLabelBeanProperty);
+    autoBinding_11.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_10 = BeanProperty
+        .create("selectedTvShowEpisode.tagsAsString");
+    BeanProperty<JTextArea, String> jTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, JTextArea, String> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_10, taTags, jTextAreaBeanProperty);
+    autoBinding_12.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShowEpisode.path");
+    BeanProperty<LinkLabel, String> linkLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_11, lblPath, linkLabelBeanProperty);
+    autoBinding_13.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShowEpisode.note");
+    AutoBinding<TvShowEpisodeSelectionModel, String, JLabel, String> autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_12, lblNote, jLabelBeanProperty);
+    autoBinding_14.bind();
   }
 }

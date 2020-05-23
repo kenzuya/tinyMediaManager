@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.AbstractSettings;
-import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
 
@@ -60,6 +61,8 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
    *          the matcher
    */
   public MovieSelectionModel(SortedList<Movie> sortedList, EventList<Movie> source, MovieMatcherEditor matcher) {
+    constructInitialMovie();
+
     this.sortedList = sortedList;
     this.selectionModel = new DefaultEventSelectionModel<>(source);
     this.selectionModel.addListSelectionListener(this);
@@ -68,7 +71,8 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
 
     propertyChangeListener = evt -> {
       if (evt.getSource() == selectedMovie) {
-        firePropertyChange(evt);
+        // wrap this event in a new event for listeners of the selection model
+        firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
       }
       if (evt.getSource() instanceof IMovieUIFilter) {
         firePropertyChange("filterChanged", null, evt.getSource());
@@ -80,7 +84,16 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
    * Instantiates a new movie selection model. Usage in MovieSetPanel
    */
   public MovieSelectionModel() {
+    constructInitialMovie();
+  }
 
+  /**
+   * the initial movie needs some things set
+   */
+  private void constructInitialMovie() {
+    MediaFile fakeVideo = new MediaFile();
+    fakeVideo.setType(MediaFileType.VIDEO);
+    initialMovie.addToMediaFiles(fakeVideo);
   }
 
   /**
@@ -208,13 +221,6 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
   public void sortMovies(MovieExtendedComparator.SortColumn column, boolean ascending) {
     Comparator<Movie> comparator = new MovieExtendedComparator(column, ascending);
     sortedList.setComparator(comparator);
-
-    // store sorting
-    if (MovieModuleManager.SETTINGS.isStoreUiSorting()) {
-      MovieModuleManager.SETTINGS.setSortColumn(column);
-      MovieModuleManager.SETTINGS.setSortAscending(ascending);
-      MovieModuleManager.SETTINGS.saveSettings();
-    }
   }
 
   /**

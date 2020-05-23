@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,12 @@ public class VideoFormat extends Format {
   private final String  qualityLabel;
   private final Integer width;
   private final Integer height;
+  private final VideoQuality videoQuality;
 
   public VideoFormat(JsonNode json, Itag itag) {
     super(json, itag);
     fps = YoutubeHelper.getInt(json, "fps");
-    qualityLabel = YoutubeHelper.getString(json, "quality_label");
+    qualityLabel = YoutubeHelper.getString(json, "qualityLabel");
     if (json.has("size")) {
       String[] split = YoutubeHelper.getString(json, "size").split("x");
       width = Integer.parseInt(split[0]);
@@ -46,6 +47,16 @@ public class VideoFormat extends Format {
       width = YoutubeHelper.getInt(json, "width");
       height = YoutubeHelper.getInt(json, "height");
     }
+
+    VideoQuality videoQuality = null;
+    if (json.has("quality")) {
+      try {
+        videoQuality = VideoQuality.valueOf(json.get("quality").asText());
+      } catch (IllegalArgumentException ignore) {
+      }
+    }
+    this.videoQuality = videoQuality;
+
   }
 
   @Override
@@ -58,7 +69,7 @@ public class VideoFormat extends Format {
   }
 
   public VideoQuality videoQuality() {
-    return itag.videoQuality();
+    return videoQuality != null ? videoQuality : itag.videoQuality();
   }
 
   public String qualityLabel() {

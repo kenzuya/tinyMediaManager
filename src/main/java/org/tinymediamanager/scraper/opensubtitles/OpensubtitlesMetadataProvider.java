@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.scraper.opensubtitles;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -352,38 +351,26 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
     long size = file.length();
     long chunkSizeForFile = Math.min(HASH_CHUNK_SIZE, size);
 
-    FileInputStream is = null;
-    FileChannel fileChannel = null;
-    try {
-      is = new FileInputStream(file);
-      fileChannel = is.getChannel();
-      long head = computeOpenSubtitlesHashForChunk(fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, chunkSizeForFile));
-      long tail = computeOpenSubtitlesHashForChunk(
-          fileChannel.map(FileChannel.MapMode.READ_ONLY, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile));
+    try (FileInputStream is = new FileInputStream(file); FileChannel fileChannel = is.getChannel()) {
+      // do not use FileChannel.map() here because it is not releasing resources
+      ByteBuffer buf = ByteBuffer.allocate((int) chunkSizeForFile);
+      fileChannel.read(buf);
+      long head = computeOpenSubtitlesHashForChunk(buf);
+
+      fileChannel.read(buf, Math.max(size - HASH_CHUNK_SIZE, 0));
+      long tail = computeOpenSubtitlesHashForChunk(buf);
 
       return String.format("%016x", size + head + tail);
     }
     catch (Exception e) {
       LOGGER.error("Error computing OpenSubtitles hash", e);
     }
-    finally {
-      try {
-        if (fileChannel != null) {
-          fileChannel.close();
-        }
-        if (is != null) {
-          is.close();
-        }
-      }
-      catch (IOException e) {
-        LOGGER.error("Error closing file stream", e);
-      }
-    }
     return "";
   }
 
   private static long computeOpenSubtitlesHashForChunk(ByteBuffer buffer) {
 
+    buffer.rewind();
     LongBuffer longBuffer = buffer.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
     long hash = 0;
 

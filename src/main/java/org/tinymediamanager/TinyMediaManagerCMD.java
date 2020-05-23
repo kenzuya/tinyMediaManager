@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,7 +186,7 @@ class TinyMediaManagerCMD {
     // @formatter:off
     System.out.println("\n" +
         "=====================================================\n" +
-        "=== tinyMediaManager (c) 2012-2019 Manuel Laggner ===\n" +
+        "=== tinyMediaManager (c) 2012-2020 Manuel Laggner ===\n" +
         "=====================================================\n" +
         "\n" +
         "SYNTAX:    Windows:   tinyMediaManagerCMD.exe <parameters>\n" +
@@ -293,7 +293,7 @@ class TinyMediaManagerCMD {
         if (scrapeNew) {
           LOGGER.info("Commandline - scraping new movies...");
           List<Movie> newMovies = MovieList.getInstance().getNewMovies();
-          if (newMovies.size() > 0) {
+          if (!newMovies.isEmpty()) {
             scrape.addAll(newMovies);
           }
         }

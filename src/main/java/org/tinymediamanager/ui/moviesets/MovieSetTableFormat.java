@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
@@ -145,7 +145,7 @@ public class MovieSetTableFormat extends TmmTableFormat<TmmTreeNode> {
         size += mf.getFilesize();
       }
 
-      return (int) (size / (1024.0 * 1024.0)) + " M";
+      return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return null;
   }

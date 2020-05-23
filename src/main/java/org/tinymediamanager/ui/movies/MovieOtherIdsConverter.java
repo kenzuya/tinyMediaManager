@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package org.tinymediamanager.ui.movies;
+
+import static org.tinymediamanager.core.Constants.TRAKT;
 
 import java.util.Map;
 
@@ -37,6 +39,7 @@ public class MovieOtherIdsConverter extends Converter<Map<String, Object>, Strin
       switch (entry.getKey()) {
         case MediaMetadata.IMDB:
         case MediaMetadata.TMDB:
+        case TRAKT:
           // already in UI - skip
           continue;
 

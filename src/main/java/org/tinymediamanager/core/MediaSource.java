@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class MediaSource extends DynaEnum<MediaSource> {
   public static final MediaSource              DVD         = new MediaSource("DVD", 4, "DVD", "(dvd|video_ts|dvdrip|dvdr)");
   public static final MediaSource              HDDVD       = new MediaSource("HDDVD", 6, "HDDVD", "(hddvd|hddvdrip)");
   public static final MediaSource              TV          = new MediaSource("TV", 8, "TV", "(hdtv|pdtv|dsr|dtb|dtt|dttv|dtv|hdtvrip|tvrip|dvbrip)");
-  public static final MediaSource              VHS         = new MediaSource("VHS", 10, "VHS", "(vhs)");
+  public static final MediaSource              VHS         = new MediaSource("VHS", 10, "VHS", "(vhs|vhsrip)");
   public static final MediaSource              LASERDISC   = new MediaSource("LASERDISC", 12, "LaserDisc", "(laserdisc|ldrip)");
   public static final MediaSource              D_VHS       = new MediaSource("D_VHS", 14, "D-VHS");
 

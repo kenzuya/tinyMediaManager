@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.movies;
 
 import java.awt.FontMetrics;
-import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieComparator;
@@ -37,7 +37,6 @@ import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
@@ -48,7 +47,7 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class MovieTableFormat extends TmmTableFormat<Movie> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
 
   public MovieTableFormat() {
 
@@ -57,8 +56,8 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
       @Override
       public int compare(Movie movie1, Movie movie2) {
         if (stringCollator != null) {
-          String titleMovie1 = Normalizer.normalize(movie1.getOriginalTitleSortable().toLowerCase(Locale.ROOT), Normalizer.Form.NFD);
-          String titleMovie2 = Normalizer.normalize(movie2.getOriginalTitleSortable().toLowerCase(Locale.ROOT), Normalizer.Form.NFD);
+          String titleMovie1 = StrgUtils.normalizeString(movie1.getOriginalTitleSortable().toLowerCase(Locale.ROOT));
+          String titleMovie2 = StrgUtils.normalizeString(movie2.getOriginalTitleSortable().toLowerCase(Locale.ROOT));
           return stringCollator.compare(titleMovie1, titleMovie2);
         }
         return movie1.getOriginalTitleSortable().toLowerCase(Locale.ROOT).compareTo(movie2.getOriginalTitleSortable().toLowerCase(Locale.ROOT));
@@ -91,6 +90,15 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnComparator(originalTitleComparator);
     col.setCellRenderer(new MovieBorderTableCellRenderer());
     col.setColumnTooltip(Movie::getOriginalTitleSortable);
+    addColumn(col);
+
+    /*
+     * sorttitle (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.sorttitle"), "sortTitle", Movie::getSortTitle, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setColumnTooltip(Movie::getSortTitle);
     addColumn(col);
 
     /*
@@ -174,7 +182,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setColumnResizeable(false);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.SHORT_DATE_FORMAT.format(date)) * 1.2f));
+      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f));
     }
     catch (Exception ignored) {
     }
@@ -195,7 +203,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(BUNDLE.getString("metatag.audio"), "audio", movie -> {
       List<MediaFile> videos = movie.getMediaFiles(MediaFileType.VIDEO);
-      if (videos.size() > 0) {
+      if (!videos.isEmpty()) {
         MediaFile mediaFile = videos.get(0);
         if (StringUtils.isNotBlank(mediaFile.getAudioCodec())) {
           return mediaFile.getAudioCodec() + " " + mediaFile.getAudioChannels();
@@ -216,7 +224,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
       }
-      return (int) (size / (1024.0 * 1024.0)) + " M";
+      return (int) (size / (1000.0 * 1000.0)) + " M";
     }, String.class);
     col.setColumnComparator(fileSizeComparator);
     col.setHeaderIcon(IconManager.FILE_SIZE);
@@ -285,7 +293,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * subtitles
      */
-    col = new Column(BUNDLE.getString("tmm.subtitles"), "subtitles", movie -> getCheckIcon(movie.hasSubtitles()), ImageIcon.class);
+    col = new Column(BUNDLE.getString("tmm.subtitles"), "subtitles", movie -> getCheckIcon(movie.getHasSubtitles()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.SUBTITLES);
     col.setColumnResizeable(false);

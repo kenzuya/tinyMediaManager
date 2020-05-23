@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,14 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.scraper.trakttv.ClearTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.ClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -54,10 +54,11 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -675729644848101096L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private TvShowSettings               settings         = TvShowModuleManager.SETTINGS;
   private JCheckBox                    chckbxImageCache;
+  private JCheckBox                    chckbxExtractArtworkFromVsmeta;
   private JCheckBox                    chckbxTraktTv;
   private JButton                      btnClearTraktTvShows;
   private JCheckBox                    chckbxPersistUiFilters;
@@ -103,7 +104,7 @@ class TvShowSettingsPanel extends JPanel {
     btnClearTraktTvShows.addActionListener(e -> {
       Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
       int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("Settings.trakt.cleartvshows.hint"),
-          BUNDLE.getString("Settings.trakt.cleartvshows"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null); //$NON-NLS-1$
+          BUNDLE.getString("Settings.trakt.cleartvshows"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
       if (confirm == JOptionPane.YES_OPTION) {
         TmmTask task = new ClearTraktTvTask(false, true);
         TmmTaskManager.getInstance().addUnnamedTask(task);
@@ -273,85 +274,88 @@ class TvShowSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3); //$NON-NLS-1$
+      JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
-        chckbxPersistUiFilters = new JCheckBox(BUNDLE.getString("Settings.movie.persistuifilter")); //$NON-NLS-1$
+        chckbxPersistUiFilters = new JCheckBox(BUNDLE.getString("Settings.movie.persistuifilter"));
         panelUiSettings.add(chckbxPersistUiFilters, "cell 1 0 2 1");
 
-        chckbxShowLogos = new JCheckBox(BUNDLE.getString("Settings.showlogos")); //$NON-NLS-1$
+        chckbxShowLogos = new JCheckBox(BUNDLE.getString("Settings.showlogos"));
         panelUiSettings.add(chckbxShowLogos, "cell 1 1 2 1");
 
-        chckbxShowMissingEpisodes = new JCheckBox(BUNDLE.getString("Settings.tvshow.missingepisodes")); //$NON-NLS-1$
+        chckbxShowMissingEpisodes = new JCheckBox(BUNDLE.getString("Settings.tvshow.missingepisodes"));
         panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 2 2 1");
 
-        chckbxShowMissingSpecials = new JCheckBox(BUNDLE.getString("Settings.tvshow.missingespecials")); //$NON-NLS-1$
+        chckbxShowMissingSpecials = new JCheckBox(BUNDLE.getString("Settings.tvshow.missingespecials"));
         panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 3");
 
-        JLabel lblRating = new JLabel(BUNDLE.getString("Settings.preferredrating")); //$NON-NLS-1$
+        JLabel lblRating = new JLabel(BUNDLE.getString("Settings.preferredrating"));
         panelUiSettings.add(lblRating, "flowx,cell 1 4 2 1");
 
         cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb"));
         panelUiSettings.add(cbRating, "cell 1 4");
 
-        chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst")); //$NON-NLS-1$
+        chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
         panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 5");
       }
     }
     {
       JPanel panelAutomaticTasks = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblAutomaticTasksT = new TmmLabel(BUNDLE.getString("Settings.automatictasks"), H3); //$NON-NLS-1$
+      JLabel lblAutomaticTasksT = new TmmLabel(BUNDLE.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
-        chckbxRenameAfterScrape = new JCheckBox(BUNDLE.getString("Settings.tvshow.automaticrename")); //$NON-NLS-1$
+        chckbxRenameAfterScrape = new JCheckBox(BUNDLE.getString("Settings.tvshow.automaticrename"));
         panelAutomaticTasks.add(chckbxRenameAfterScrape, "cell 1 0 2 1");
 
         JLabel lblAutomaticRenameHint = new JLabel(IconManager.HINT);
-        lblAutomaticRenameHint.setToolTipText(BUNDLE.getString("Settings.tvshow.automaticrename.desc")); //$NON-NLS-1$
+        lblAutomaticRenameHint.setToolTipText(BUNDLE.getString("Settings.tvshow.automaticrename.desc"));
         panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0");
 
-        chckbxTraktTv = new JCheckBox(BUNDLE.getString("Settings.trakt"));//$NON-NLS-1$
+        chckbxTraktTv = new JCheckBox(BUNDLE.getString("Settings.trakt"));
         panelAutomaticTasks.add(chckbxTraktTv, "cell 1 1 2 1");
 
-        btnClearTraktTvShows = new JButton(BUNDLE.getString("Settings.trakt.cleartvshows"));//$NON-NLS-1$
+        btnClearTraktTvShows = new JButton(BUNDLE.getString("Settings.trakt.cleartvshows"));
         panelAutomaticTasks.add(btnClearTraktTvShows, "cell 1 1");
       }
     }
     {
       JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3); //$NON-NLS-1$
+      JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
-        chckbxImageCache = new JCheckBox(BUNDLE.getString("Settings.imagecacheimport")); //$NON-NLS-1$
-        panelMisc.add(chckbxImageCache, "cell 1 0 2 1");
+        chckbxExtractArtworkFromVsmeta = new JCheckBox(BUNDLE.getString("Settings.extractartworkfromvsmeta"));
+        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 0 2 1");
+
+        chckbxImageCache = new JCheckBox(BUNDLE.getString("Settings.imagecacheimport"));
+        panelMisc.add(chckbxImageCache, "cell 1 1 2 1");
 
         JLabel lblBuildImageCacheHint = new JLabel(IconManager.HINT);
-        lblBuildImageCacheHint.setToolTipText(BUNDLE.getString("Settings.imagecacheimporthint")); //$NON-NLS-1$
-        panelMisc.add(lblBuildImageCacheHint, "cell 1 0");
+        lblBuildImageCacheHint.setToolTipText(BUNDLE.getString("Settings.imagecacheimporthint"));
+        panelMisc.add(lblBuildImageCacheHint, "cell 1 1");
 
-        JLabel lblCheckImages = new JLabel(BUNDLE.getString("Settings.checkimages")); //$NON-NLS-1$
-        panelMisc.add(lblCheckImages, "cell 1 1 2 1");
+        JLabel lblCheckImages = new JLabel(BUNDLE.getString("Settings.checkimages"));
+        panelMisc.add(lblCheckImages, "cell 1 2 2 1");
 
         {
           JPanel panelCheckImages = new JPanel();
           panelCheckImages.setLayout(new MigLayout("hidemode 1, insets 0", "[][][][]", ""));
-          panelMisc.add(panelCheckImages, "cell 2 2");
+          panelMisc.add(panelCheckImages, "cell 2 3");
 
-          JLabel lblTvShowCheckImages = new TmmLabel(BUNDLE.getString("metatag.tvshow"));//$NON-NLS-1$
+          JLabel lblTvShowCheckImages = new TmmLabel(BUNDLE.getString("metatag.tvshow"));
           panelCheckImages.add(lblTvShowCheckImages, "cell 0 0");
 
-          chckbxTvShowCheckPoster = new JCheckBox(BUNDLE.getString("mediafiletype.poster")); //$NON-NLS-1$
+          chckbxTvShowCheckPoster = new JCheckBox(BUNDLE.getString("mediafiletype.poster"));
           panelCheckImages.add(chckbxTvShowCheckPoster, "cell 1 0");
 
-          chckbxTvShowCheckFanart = new JCheckBox(BUNDLE.getString("mediafiletype.fanart")); //$NON-NLS-1$
+          chckbxTvShowCheckFanart = new JCheckBox(BUNDLE.getString("mediafiletype.fanart"));
           panelCheckImages.add(chckbxTvShowCheckFanart, "cell 2 0");
 
-          chckbxTvShowCheckBanner = new JCheckBox(BUNDLE.getString("mediafiletype.banner")); //$NON-NLS-1$
+          chckbxTvShowCheckBanner = new JCheckBox(BUNDLE.getString("mediafiletype.banner"));
           panelCheckImages.add(chckbxTvShowCheckBanner, "cell 3 0");
 
           chckbxTvShowCheckClearart = new JCheckBox(BUNDLE.getString("mediafiletype.clearart"));
@@ -366,22 +370,22 @@ class TvShowSettingsPanel extends JPanel {
           chckbxTvShowCheckClearlogo = new JCheckBox(BUNDLE.getString("mediafiletype.clearlogo"));
           panelCheckImages.add(chckbxTvShowCheckClearlogo, "cell 7 0");
 
-          JLabel lblTvShowSeasonCheckImages = new TmmLabel(BUNDLE.getString("metatag.season")); //$NON-NLS-1$
+          JLabel lblTvShowSeasonCheckImages = new TmmLabel(BUNDLE.getString("metatag.season"));
           panelCheckImages.add(lblTvShowSeasonCheckImages, "cell 0 1");
 
-          chckbxTvShowSeasonCheckPoster = new JCheckBox(BUNDLE.getString("mediafiletype.poster")); //$NON-NLS-1$
+          chckbxTvShowSeasonCheckPoster = new JCheckBox(BUNDLE.getString("mediafiletype.poster"));
           panelCheckImages.add(chckbxTvShowSeasonCheckPoster, "cell 1 1");
 
-          chckbxTvShowSeasonCheckBanner = new JCheckBox(BUNDLE.getString("mediafiletype.banner")); //$NON-NLS-1$
+          chckbxTvShowSeasonCheckBanner = new JCheckBox(BUNDLE.getString("mediafiletype.banner"));
           panelCheckImages.add(chckbxTvShowSeasonCheckBanner, "cell 2 1");
 
-          chckbxTvShowSeasonCheckThumb = new JCheckBox(BUNDLE.getString("mediafiletype.thumb")); //$NON-NLS-1$
+          chckbxTvShowSeasonCheckThumb = new JCheckBox(BUNDLE.getString("mediafiletype.thumb"));
           panelCheckImages.add(chckbxTvShowSeasonCheckThumb, "cell 3 1");
 
-          JLabel lblTvShowEpisodeCheckImages = new TmmLabel(BUNDLE.getString("metatag.episode")); //$NON-NLS-1$
+          JLabel lblTvShowEpisodeCheckImages = new TmmLabel(BUNDLE.getString("metatag.episode"));
           panelCheckImages.add(lblTvShowEpisodeCheckImages, "cell 0 2");
 
-          chckbxTvShowEpisodeCheckThumb = new JCheckBox(BUNDLE.getString("mediafiletype.thumb")); //$NON-NLS-1$
+          chckbxTvShowEpisodeCheckThumb = new JCheckBox(BUNDLE.getString("mediafiletype.thumb"));
           panelCheckImages.add(chckbxTvShowEpisodeCheckThumb, "cell 1 2");
         }
       }
@@ -389,13 +393,13 @@ class TvShowSettingsPanel extends JPanel {
     {
       JPanel panelPresets = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][][][grow]", "[]"));
 
-      JLabel lblPresets = new TmmLabel(BUNDLE.getString("Settings.preset"), H3); //$NON-NLS-1$
+      JLabel lblPresets = new TmmLabel(BUNDLE.getString("Settings.preset"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPresets, lblPresets, true);
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
 
         {
-          JLabel lblPresetHintT = new JLabel(BUNDLE.getString("Settings.preset.desc")); //$NON-NLS-1$
+          JLabel lblPresetHintT = new JLabel(BUNDLE.getString("Settings.preset.desc"));
           panelPresets.add(lblPresetHintT, "cell 1 0 3 1");
         }
         {
@@ -470,5 +474,10 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         tvShowSettingsBeanProperty_7, chckbxShowLogos, jCheckBoxBeanProperty);
     autoBinding_9.bind();
+    //
+    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_8 = BeanProperty.create("extractArtworkFromVsmeta");
+    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+        tvShowSettingsBeanProperty_8, chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
+    autoBinding_10.bind();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,18 +54,19 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
+import org.tinymediamanager.core.TrailerQuality;
+import org.tinymediamanager.core.TrailerSources;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
-import org.tinymediamanager.core.movie.MovieTrailerQuality;
-import org.tinymediamanager.core.movie.MovieTrailerSources;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -80,24 +81,26 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieTrailerSettingsPanel extends JPanel {
-  private static final long              serialVersionUID = -1607146878528487625L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final long serialVersionUID = -1607146878528487625L;
+  /**
+   * @wbp.nls.resourceBundle messages
+   */
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
-  private MovieSettings                  settings         = MovieModuleManager.SETTINGS;
-  private List<TrailerScraper>           scrapers         = ObservableCollections.observableList(new ArrayList<>());
-  private TmmTable                       tableTrailerScraper;
-  private JTextPane                      tpScraperDescription;
-  private JComboBox<MovieTrailerSources> cbTrailerSource;
-  private JComboBox<MovieTrailerQuality> cbTrailerQuality;
-  private JCheckBox                      checkBox;
-  private JCheckBox                      chckbxAutomaticTrailerDownload;
-  private JPanel                         panelScraperOptions;
-  private JCheckBox                      cbTrailerFilename1;
-  private JCheckBox                      cbTrailerFilename2;
+  private MovieSettings settings = MovieModuleManager.SETTINGS;
+  private List<TrailerScraper> scrapers = ObservableCollections.observableList(new ArrayList<>());
+  private TmmTable tableTrailerScraper;
+  private JTextPane tpScraperDescription;
+  private JComboBox<TrailerSources> cbTrailerSource;
+  private JComboBox<TrailerQuality> cbTrailerQuality;
+  private JCheckBox checkBox;
+  private JCheckBox chckbxAutomaticTrailerDownload;
+  private JPanel panelScraperOptions;
+  private JCheckBox cbTrailerFilename1;
+  private JCheckBox cbTrailerFilename2;
 
-  private ItemListener                   checkBoxListener;
-  private JLabel                         lblAutomaticTrailerDownloadHint;
+  private ItemListener checkBoxListener;
+  private JLabel lblAutomaticTrailerDownloadHint;
 
   MovieTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -226,7 +229,7 @@ class MovieTrailerSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.trailer"), H3); //$NON-NLS-1$
+      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.trailer"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
@@ -242,8 +245,7 @@ class MovieTrailerSettingsPanel extends JPanel {
         panelScraper.add(panelScraperDetails, "cell 1 2,grow");
         panelScraperDetails.setLayout(new MigLayout("insets 0", "[grow]", "[][grow]"));
 
-        tpScraperDescription = new JTextPane();
-        tpScraperDescription.setOpaque(false);
+        tpScraperDescription = new ReadOnlyTextPane();
         tpScraperDescription.setEditorKit(new HTMLEditorKit());
         panelScraperDetails.add(tpScraperDescription, "cell 0 0,grow");
 
@@ -255,31 +257,31 @@ class MovieTrailerSettingsPanel extends JPanel {
     {
       JPanel panelOptions = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3); //$NON-NLS-1$
+      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
-        checkBox = new JCheckBox(BUNDLE.getString("Settings.trailer.preferred")); //$NON-NLS-1$
+        checkBox = new JCheckBox(BUNDLE.getString("Settings.trailer.preferred"));
         panelOptions.add(checkBox, "cell 1 0 2 1");
 
-        JLabel lblTrailerSource = new JLabel(BUNDLE.getString("Settings.trailer.source")); //$NON-NLS-1$
+        JLabel lblTrailerSource = new JLabel(BUNDLE.getString("Settings.trailer.source"));
         panelOptions.add(lblTrailerSource, "cell 2 1");
 
         cbTrailerSource = new JComboBox();
-        cbTrailerSource.setModel(new DefaultComboBoxModel<>(MovieTrailerSources.values()));
+        cbTrailerSource.setModel(new DefaultComboBoxModel<>(TrailerSources.values()));
         panelOptions.add(cbTrailerSource, "cell 2 1");
 
-        JLabel lblTrailerQuality = new JLabel(BUNDLE.getString("Settings.trailer.quality")); //$NON-NLS-1$
+        JLabel lblTrailerQuality = new JLabel(BUNDLE.getString("Settings.trailer.quality"));
         panelOptions.add(lblTrailerQuality, "cell 2 2");
 
         cbTrailerQuality = new JComboBox();
-        cbTrailerQuality.setModel(new DefaultComboBoxModel<>(MovieTrailerQuality.values()));
+        cbTrailerQuality.setModel(new DefaultComboBoxModel<>(TrailerQuality.values()));
         panelOptions.add(cbTrailerQuality, "cell 2 2");
 
-        chckbxAutomaticTrailerDownload = new JCheckBox(BUNDLE.getString("Settings.trailer.automaticdownload")); //$NON-NLS-1$
+        chckbxAutomaticTrailerDownload = new JCheckBox(BUNDLE.getString("Settings.trailer.automaticdownload"));
         panelOptions.add(chckbxAutomaticTrailerDownload, "cell 2 3");
 
-        lblAutomaticTrailerDownloadHint = new JLabel(BUNDLE.getString("Settings.trailer.automaticdownload.hint")); //$NON-NLS-1$
+        lblAutomaticTrailerDownloadHint = new JLabel(BUNDLE.getString("Settings.trailer.automaticdownload.hint"));
         panelOptions.add(lblAutomaticTrailerDownloadHint, "cell 2 4");
         TmmFontHelper.changeFont(lblAutomaticTrailerDownloadHint, L2);
 
@@ -287,13 +289,13 @@ class MovieTrailerSettingsPanel extends JPanel {
         panelOptions.add(panelTrailerFilenames, "cell 1 5 2 1");
         panelTrailerFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][]"));
 
-        JLabel lblTrailerFileNaming = new JLabel(BUNDLE.getString("Settings.trailerFileNaming")); //$NON-NLS-1$
+        JLabel lblTrailerFileNaming = new JLabel(BUNDLE.getString("Settings.trailerFileNaming"));
         panelTrailerFilenames.add(lblTrailerFileNaming, "cell 0 0");
 
-        cbTrailerFilename1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-trailer.ext"); //$NON-NLS-1$
+        cbTrailerFilename1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-trailer.ext");
         panelTrailerFilenames.add(cbTrailerFilename1, "cell 1 0");
 
-        cbTrailerFilename2 = new JCheckBox("movie-trailer.ext"); //$NON-NLS-1$
+        cbTrailerFilename2 = new JCheckBox("movie-trailer.ext");
         panelTrailerFilenames.add(cbTrailerFilename2, "cell 1 1");
       }
     }
@@ -346,7 +348,7 @@ class MovieTrailerSettingsPanel extends JPanel {
       // first try to get the localized version
       String description = null;
       try {
-        description = BUNDLE.getString("scraper." + scraper.getId() + ".hint"); //$NON-NLS-1$
+        description = BUNDLE.getString("scraper." + scraper.getId() + ".hint");
       }
       catch (Exception ignored) {
       }
@@ -396,25 +398,25 @@ class MovieTrailerSettingsPanel extends JPanel {
     BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
     BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
     AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableTrailerScraper,
-        jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
+            jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<MovieSettings, MovieTrailerSources> movieSettingsBeanProperty = BeanProperty.create("trailerSource");
-    BeanProperty<JComboBox<MovieTrailerSources>, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, MovieTrailerSources, JComboBox<MovieTrailerSources>, Object> autoBinding_1 = Bindings
-        .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, cbTrailerSource, jComboBoxBeanProperty);
+    BeanProperty<MovieSettings, TrailerSources> movieSettingsBeanProperty = BeanProperty.create("trailerSource");
+    BeanProperty<JComboBox<TrailerSources>, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding<MovieSettings, TrailerSources, JComboBox<TrailerSources>, Object> autoBinding_1 = Bindings
+            .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, cbTrailerSource, jComboBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<MovieSettings, MovieTrailerQuality> movieSettingsBeanProperty_1 = BeanProperty.create("trailerQuality");
-    BeanProperty<JComboBox<MovieTrailerQuality>, Object> jComboBoxBeanProperty_1 = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, MovieTrailerQuality, JComboBox<MovieTrailerQuality>, Object> autoBinding_2 = Bindings
-        .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, cbTrailerQuality, jComboBoxBeanProperty_1);
+    BeanProperty<MovieSettings, TrailerQuality> movieSettingsBeanProperty_1 = BeanProperty.create("trailerQuality");
+    BeanProperty<JComboBox<TrailerQuality>, Object> jComboBoxBeanProperty_1 = BeanProperty.create("selectedItem");
+    AutoBinding<MovieSettings, TrailerQuality, JComboBox<TrailerQuality>, Object> autoBinding_2 = Bindings
+            .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, cbTrailerQuality, jComboBoxBeanProperty_1);
     autoBinding_2.bind();
     //
     BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_2 = BeanProperty.create("useTrailerPreference");
     BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
     AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_2, checkBox, jCheckBoxBeanProperty);
+            movieSettingsBeanProperty_2, checkBox, jCheckBoxBeanProperty);
     autoBinding_3.bind();
     //
     BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_3 = BeanProperty.create("automaticTrailerDownload");

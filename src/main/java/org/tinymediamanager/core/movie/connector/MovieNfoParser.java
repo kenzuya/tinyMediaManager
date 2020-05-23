@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,8 @@ public class MovieNfoParser {
   public MediaSource          source              = MediaSource.UNKNOWN;
   public MovieEdition         edition             = MovieEdition.NONE;
   public String               trailer             = "";
+  public String               originalFilename    = "";
+  public String               userNote            = "";
 
   public Map<String, Object>  ids                 = new HashMap<>();
   public Map<String, Rating>  ratings             = new HashMap<>();
@@ -168,6 +170,10 @@ public class MovieNfoParser {
     parseTag(MovieNfoParser::parseStatus);
     parseTag(MovieNfoParser::parseCode);
     parseTag(MovieNfoParser::parseDateadded);
+    parseTag(MovieNfoParser::parseOriginalFilename);
+    parseTag(MovieNfoParser::parseUserNote);
+
+    // MUST BE THE LAST ONE!
     parseTag(MovieNfoParser::findUnsupportedElements);
   }
 
@@ -497,7 +503,7 @@ public class MovieNfoParser {
 
     Element element = getSingleElement(root, "plot");
     if (element != null) {
-      plot = element.ownText();
+      plot = element.wholeText();
     }
 
     return null;
@@ -511,7 +517,7 @@ public class MovieNfoParser {
 
     Element element = getSingleElement(root, "outline");
     if (element != null) {
-      outline = element.ownText();
+      outline = element.wholeText();
     }
 
     return null;
@@ -525,7 +531,7 @@ public class MovieNfoParser {
 
     Element element = getSingleElement(root, "tagline");
     if (element != null) {
-      tagline = element.ownText();
+      tagline = element.wholeText();
     }
 
     return null;
@@ -1302,6 +1308,32 @@ public class MovieNfoParser {
   }
 
   /**
+   * the original filename is usually in the original_filename tag
+   */
+  private Void parseOriginalFilename() {
+    supportedElements.add("original_filename");
+
+    Element element = getSingleElement(root, "original_filename");
+    if (element != null) {
+      originalFilename = element.ownText();
+    }
+    return null;
+  }
+
+  /**
+   * the user note is usually in the user_note tag
+   */
+  private Void parseUserNote() {
+    supportedElements.add("user_note");
+
+    Element element = getSingleElement(root, "user_note");
+    if (element != null) {
+      userNote = element.ownText();
+    }
+    return null;
+  }
+
+  /**
    * a trailer is usually in the trailer tag
    */
   private Void parseTrailer() {
@@ -1598,6 +1630,9 @@ public class MovieNfoParser {
     for (String tag : tags) {
       movie.addToTags(tag);
     }
+
+    movie.setOriginalFilename(originalFilename);
+    movie.setNote(userNote);
 
     return movie;
   }

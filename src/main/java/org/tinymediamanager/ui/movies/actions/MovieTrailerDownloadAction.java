@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,30 +22,27 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 /**
  * The class MovieTrailerDownloadAction is used to trigger trailer download for selected movies
- * 
+ *
  * @author Manuel Laggner
  */
 public class MovieTrailerDownloadAction extends TmmAction {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(MovieTrailerDownloadAction.class);
-  private static final long           serialVersionUID = -8668265401054434251L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());  //$NON-NLS-1$
+  private static final long serialVersionUID = -8668265401054434251L;
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   public MovieTrailerDownloadAction() {
-    putValue(NAME, BUNDLE.getString("movie.downloadtrailer")); //$NON-NLS-1$
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.downloadtrailer")); //$NON-NLS-1$
+    putValue(NAME, BUNDLE.getString("movie.downloadtrailer"));
+    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.downloadtrailer"));
     putValue(SMALL_ICON, IconManager.DOWNLOAD);
     putValue(LARGE_ICON_KEY, IconManager.DOWNLOAD);
   }
@@ -55,7 +52,7 @@ public class MovieTrailerDownloadAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected")); //$NON-NLS-1$
+      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
@@ -87,7 +84,7 @@ public class MovieTrailerDownloadAction extends TmmAction {
       if (movie.getTrailer().isEmpty()) {
         continue;
       }
-      MovieHelpers.selectTrailerProvider(movie, LOGGER);
+      MovieHelpers.downloadBestTrailer(movie);
     }
   }
 }

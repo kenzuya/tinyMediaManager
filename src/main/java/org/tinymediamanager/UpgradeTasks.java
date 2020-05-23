@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager;
 
+import static org.tinymediamanager.core.MediaFileType.TRAILER;
+import static org.tinymediamanager.core.MediaFileType.VIDEO;
 import static org.tinymediamanager.core.Utils.deleteFileSafely;
 
 import java.io.File;
@@ -26,11 +28,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
@@ -41,12 +47,14 @@ import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jna.Platform;
 
 /**
@@ -91,6 +99,59 @@ public class UpgradeTasks {
       }
     }
 
+    // move old plugins to the backup folder
+    if (StrgUtils.compareVersion(v, "3.1") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 3.1");
+
+      Path pluginFolder = Paths.get("plugins");
+
+      // clear all files from /cache (except the all subfolders)
+      if (Files.exists(pluginFolder) && pluginFolder.toFile().isDirectory()) {
+        try {
+          Path backupFolder = Paths.get(Globals.BACKUP_FOLDER);
+          Utils.moveDirectorySafe(pluginFolder, backupFolder.resolve(pluginFolder.getFileName()));
+        }
+        catch (Exception e) {
+          LOGGER.warn("could not movie plugins folder to the backup folder: {}", e.getMessage());
+        }
+      }
+    }
+
+    // delete nfd on osx
+    if (StrgUtils.compareVersion(v, "3.1.2") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 3.1");
+
+      if (SystemUtils.IS_OS_MAC) {
+        Utils.deleteFileSafely(Paths.get("native", "mac", "liblwjgl.dylib"));
+        Utils.deleteFileSafely(Paths.get("native", "mac", "liblwjgl_nfd.dylib"));
+      }
+    }
+
+    // adopt space substitution settings for TV shows
+    if (StrgUtils.compareVersion(v, "3.1.5") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 3.1");
+
+      try {
+        ObjectMapper mapper = new ObjectMapper();
+        Map settingsMap = mapper.readValue(new File("data/tvShows.json"), Map.class);
+
+        Boolean renamerSpaceSubstitution = (Boolean) settingsMap.get("renamerSpaceSubstitution");
+        String renamerSpaceReplacement = (String) settingsMap.get("renamerSpaceReplacement");
+        if (renamerSpaceSubstitution != null && renamerSpaceReplacement != null) {
+          TvShowSettings.getInstance().setRenamerFilenameSpaceSubstitution(renamerSpaceSubstitution);
+          TvShowSettings.getInstance().setRenamerFilenameSpaceReplacement(renamerSpaceReplacement);
+          TvShowSettings.getInstance().setRenamerSeasonPathnameSpaceSubstitution(renamerSpaceSubstitution);
+          TvShowSettings.getInstance().setRenamerSeasonPathnameSpaceReplacement(renamerSpaceReplacement);
+          TvShowSettings.getInstance().setRenamerShowPathnameSpaceSubstitution(renamerSpaceSubstitution);
+          TvShowSettings.getInstance().setRenamerShowPathnameSpaceReplacement(renamerSpaceReplacement);
+          TvShowSettings.getInstance().saveSettings();
+        }
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not adopt space substitution settings: {}", e.getMessage());
+      }
+
+    }
   }
 
   /**
@@ -277,8 +338,12 @@ public class UpgradeTasks {
       for (Movie movie : MovieList.getInstance().getMovies()) {
         boolean dirty = false;
         for (MediaFile mf : movie.getMediaFiles()) {
-          if (mf.HDR && mf.getHdrFormat().isEmpty()) {
+          if (mf.isHDR() && StringUtils.isBlank(mf.getHdrFormat())) {
             mf.setHdrFormat("HDR10");
+            dirty = true;
+          }
+          if ("iso".equalsIgnoreCase(mf.getExtension()) && !mf.isISO()) {
+            mf.setIsISO(true);
             dirty = true;
           }
         }
@@ -291,9 +356,90 @@ public class UpgradeTasks {
         for (TvShowEpisode episode : tvShow.getEpisodes()) {
           boolean dirty = false;
           for (MediaFile mf : episode.getMediaFiles()) {
-            if (mf.HDR && mf.getHdrFormat().isEmpty()) {
+            if (mf.isHDR() && StringUtils.isBlank(mf.getHdrFormat())) {
               mf.setHdrFormat("HDR10");
               dirty = true;
+            }
+            if ("iso".equalsIgnoreCase(mf.getExtension()) && !mf.isISO()) {
+              mf.setIsISO(true);
+              dirty = true;
+            }
+          }
+          if (dirty) {
+            episode.saveToDb();
+          }
+        }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "3.1.3") < 0) {
+      LOGGER.info("Performing database upgrade tasks to version 3.1.3");
+
+      // remove legacy imdbId
+      for (Movie movie : MovieList.getInstance().getMovies()) {
+        movie.setId("imdbId", null);
+      }
+
+      // convert movie set ids from tmdb to tmdbSet
+      for (MovieSet movieSet : MovieList.getInstance().getMovieSetList()) {
+        if (movieSet.getId(Constants.TMDB) != null) {
+          // do not overwrite any existing new one
+          if (movieSet.getId(Constants.TMDB_SET) == null) {
+            movieSet.setId(Constants.TMDB_SET, movieSet.getId(Constants.TMDB));
+          }
+          // remove the old one
+          movieSet.setId(Constants.TMDB, null);
+          movieSet.saveToDb();
+        }
+      }
+    }
+
+    if (StrgUtils.compareVersion(v, "3.1.6") < 0) {
+      LOGGER.info("Performing database upgrade tasks to version 3.1.6");
+
+      for (Movie movie : MovieList.getInstance().getMovies()) {
+        boolean dirty = false;
+        for (MediaFile mediaFile : movie.getMediaFiles(VIDEO, TRAILER)) {
+          switch (mediaFile.getVideoCodec().toLowerCase(Locale.ROOT)) {
+            case "hevc":
+            case "x265":
+              mediaFile.setVideoCodec("h265");
+              dirty = true;
+              break;
+
+          }
+        }
+        if (dirty) {
+          movie.saveToDb();
+        }
+      }
+
+      for (TvShow tvShow : TvShowList.getInstance().getTvShows()) {
+        boolean dirty = false;
+        for (MediaFile mediaFile : tvShow.getMediaFiles(VIDEO, TRAILER)) {
+          switch (mediaFile.getVideoCodec().toLowerCase(Locale.ROOT)) {
+            case "hevc":
+            case "x265":
+              mediaFile.setVideoCodec("h265");
+              dirty = true;
+              break;
+
+          }
+        }
+        if (dirty) {
+          tvShow.saveToDb();
+        }
+
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          dirty = false;
+          for (MediaFile mediaFile : episode.getMediaFiles(VIDEO, TRAILER)) {
+            switch (mediaFile.getVideoCodec().toLowerCase(Locale.ROOT)) {
+              case "hevc":
+              case "x265":
+                mediaFile.setVideoCodec("h265");
+                dirty = true;
+                break;
+
             }
           }
           if (dirty) {

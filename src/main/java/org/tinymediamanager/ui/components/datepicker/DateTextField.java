@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,10 +130,11 @@ class DateTextField extends JFormattedTextField implements CaretListener, FocusL
 
   private void setDateFormatString(String dateFormatString) {
     try {
+      dateFormatter = new SimpleDateFormat();
       dateFormatter.applyPattern(dateFormatString);
     }
     catch (RuntimeException e) {
-      dateFormatter = (SimpleDateFormat) TmmDateFormat.SHORT_DATE_FORMAT;
+      dateFormatter = (SimpleDateFormat) TmmDateFormat.MEDIUM_DATE_FORMAT;
       dateFormatter.setLenient(false);
     }
     this.datePattern = dateFormatter.toPattern();

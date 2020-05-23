@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -52,9 +53,9 @@ import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.TmmListPanel;
+import org.tinymediamanager.ui.components.table.MouseKeyboardSortingStrategy;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.movies.MovieFilterator;
@@ -81,7 +82,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = -1681460428331929420L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   MovieSelectionModel                 selectionModel;
 
@@ -121,7 +122,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     movieTable = new TmmTable(movieTableModel);
 
     // install on the Table
-    TableComparatorChooser.install(movieTable, sortedMovies, TableComparatorChooser.MULTIPLE_COLUMN_KEYBOARD).appendComparator(0, 0, false);
+    TableComparatorChooser.install(movieTable, sortedMovies, new MouseKeyboardSortingStrategy()).appendComparator(0, 0, false);
 
     // restore hidden columns
     movieTable.readHiddenColumns(MovieModuleManager.SETTINGS.getMovieTableHiddenColumns());
@@ -171,8 +172,8 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     movieTable.configureScrollPane(scrollPane, new int[] { 0 });
     add(scrollPane, "cell 0 1 2 1,grow");
 
-    btnExtendedFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter")); //$NON-NLS-1$
-    btnExtendedFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options")); //$NON-NLS-1$
+    btnExtendedFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));
+    btnExtendedFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options"));
     btnExtendedFilter.addActionListener(e -> MovieUIModule.getInstance().setFilterDialogVisible(true));
     selectionModel.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
     add(btnExtendedFilter, "cell 1 0");
@@ -180,13 +181,13 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     JSeparator separator = new JSeparator();
     add(separator, "cell 0 2 2 1, growx");
 
-    JLabel lblMovieCount = new JLabel(BUNDLE.getString("tmm.movies") + ":"); //$NON-NLS-1$
+    JLabel lblMovieCount = new JLabel(BUNDLE.getString("tmm.movies") + ":");
     add(lblMovieCount, "flowx,cell 0 3 2 1");
 
     lblMovieCountFiltered = new JLabel("");
     add(lblMovieCountFiltered, "cell 0 3 2 1");
 
-    JLabel lblMovieCountOf = new JLabel(BUNDLE.getString("tmm.of")); //$NON-NLS-1$
+    JLabel lblMovieCountOf = new JLabel(BUNDLE.getString("tmm.of"));
     add(lblMovieCountOf, "cell 0 3 2 1");
 
     lblMovieCountTotal = new JLabel("");
@@ -231,7 +232,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     // set the initial selection
     movieTable.setSelectionModel(selectionModel.getSelectionModel());
     // selecting first movie at startup
-    if (MovieList.getInstance().getMovies() != null && MovieList.getInstance().getMovies().size() > 0) {
+    if (MovieList.getInstance().getMovies() != null && !MovieList.getInstance().getMovies().isEmpty()) {
       ListSelectionModel selectionModel = movieTable.getSelectionModel();
       if (selectionModel.isSelectionEmpty()) {
         int selectionIndex = movieTable.convertRowIndexToModel(0);
@@ -260,6 +261,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
         if (arg0.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
           searchTerm += arg0.getKeyChar();
+          searchTerm = searchTerm.toLowerCase();
         }
 
         if (StringUtils.isNotBlank(searchTerm)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,12 +97,12 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
         setBottomInformationPanel(infoPanel);
       }
       {
-        btnClean = new JButton(BUNDLE.getString("Button.deleteselected")); //$NON-NLS-1$
+        btnClean = new JButton(BUNDLE.getString("Button.deleteselected"));
         btnClean.setIcon(IconManager.DELETE_INV);
         btnClean.addActionListener(arg0 -> cleanFiles(table));
         addButton(btnClean);
 
-        JButton btnClose = new JButton(BUNDLE.getString("Button.close")); //$NON-NLS-1$
+        JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
         btnClose.setIcon(IconManager.APPLY_INV);
         btnClose.addActionListener(arg0 -> setVisible(false));
         addButton(btnClose);
@@ -158,7 +158,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
 
     String getFilesizeInKilobytes() {
       DecimalFormat df = new DecimalFormat("#0.00");
-      return df.format(filesize / (1024.0)) + " kB";
+      return df.format(filesize / (1000.0)) + " kB";
     }
 
     String getExtension() {

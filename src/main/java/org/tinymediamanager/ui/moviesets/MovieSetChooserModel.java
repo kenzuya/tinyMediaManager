@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,11 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
@@ -53,13 +54,12 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * The Class MovieSetChooserModel.
  */
 public class MovieSetChooserModel extends AbstractModelObject {
-  private static final ResourceBundle      BUNDLE      = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle      BUNDLE      = ResourceBundle.getBundle("messages", new UTF8Control());
   private static final Logger              LOGGER      = LoggerFactory.getLogger(MovieSetChooserModel.class);
   public static final MovieSetChooserModel emptyResult = new MovieSetChooserModel();
   private String                           name        = "";
@@ -96,7 +96,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private MovieSetChooserModel() {
-    setName(BUNDLE.getString("chooser.nothingfound")); //$NON-NLS-1$
+    setName(BUNDLE.getString("chooser.nothingfound"));
   }
 
   public String getName() {
@@ -272,15 +272,15 @@ public class MovieSetChooserModel extends AbstractModelObject {
     return movies;
   }
 
-  public void startArtworkScrapeTask(MovieSet movieSet, MovieScraperMetadataConfig config) {
+  public void startArtworkScrapeTask(MovieSet movieSet, List<MovieSetScraperMetadataConfig> config) {
     TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(movieSet, config));
   }
 
   private class ArtworkScrapeTask extends TmmTask {
     private MovieSet                   movieSetToScrape;
-    private MovieScraperMetadataConfig config;
+    private List<MovieSetScraperMetadataConfig> config;
 
-    public ArtworkScrapeTask(MovieSet movieSet, MovieScraperMetadataConfig config) {
+    public ArtworkScrapeTask(MovieSet movieSet, List<MovieSetScraperMetadataConfig> config) {
       super(BUNDLE.getString("message.scrape.artwork") + " " + movieSet.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieSetToScrape = movieSet;
       this.config = config;
@@ -334,6 +334,10 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
       movieSetToScrape.setArtwork(artwork, config);
     }
+  }
+
+  public MediaMetadata getMetadata() {
+    return metadata;
   }
 
   public static class MovieInSet extends AbstractModelObject implements Comparable<MovieInSet> {

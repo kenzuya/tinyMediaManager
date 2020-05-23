@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +36,8 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.jmte.HtmlEncoder;
 
 import com.floreysoft.jmte.Engine;
+import com.floreysoft.jmte.NamedRenderer;
+import com.floreysoft.jmte.RenderFormatInfo;
 import com.floreysoft.jmte.encoder.XMLEncoder;
 
 public abstract class MediaEntityExporter {
@@ -45,6 +50,7 @@ public abstract class MediaEntityExporter {
   protected String              listTemplate       = "";
   protected String              detailTemplate     = "";
   protected Path                templateDir;
+  protected boolean             cancel             = false;
 
   public enum TemplateType {
     MOVIE,
@@ -83,18 +89,17 @@ public abstract class MediaEntityExporter {
 
     // get other settings
     String detailTemplateFile = properties.getProperty("detail");
-    fileExtension = properties.getProperty("extension");
-    if (StringUtils.isBlank(fileExtension)) {
-      fileExtension = "html";
-    }
+    fileExtension = StringUtils.isBlank(properties.getProperty("extension")) 
+        ? "html" 
+        : properties.getProperty("extension").toLowerCase();
 
     // set up engine
     engine = Engine.createEngine();
 
-    if (fileExtension.equalsIgnoreCase("html")) {
+    if ("html".equals(fileExtension)) {
       engine.setEncoder(new HtmlEncoder()); // special char replacement
     }
-    if (fileExtension.equalsIgnoreCase("xml")) {
+    if ("xml".equals(fileExtension)) {
       engine.setEncoder(new XMLEncoder()); // special char replacement
     }
 
@@ -105,7 +110,14 @@ public abstract class MediaEntityExporter {
     }
   }
 
-  abstract public <T extends MediaEntity> void export(List<T> entitiesToExport, Path pathToExport) throws Exception;
+  public abstract <T extends MediaEntity> void export(List<T> entitiesToExport, Path pathToExport) throws Exception;
+
+  /**
+   * cancel the export
+   */
+  public void cancel() {
+    this.cancel = true;
+  }
 
   /**
    * Find templates for the given type.
@@ -175,5 +187,96 @@ public abstract class MediaEntityExporter {
     }
 
     return templatesFound;
+  }
+
+  /**
+   * this renderer is used to copy artwork into the exported template
+   *
+   * @author Manuel Laggner
+   */
+  protected abstract static class ArtworkCopyRenderer implements NamedRenderer {
+    protected Path pathToExport;
+
+    public ArtworkCopyRenderer(Path pathToExport) {
+      this.pathToExport = pathToExport;
+    }
+
+    @Override
+    public RenderFormatInfo getFormatInfo() {
+      return null;
+    }
+
+    @Override
+    public String getName() {
+      return "copyArtwork";
+    }
+
+    /**
+     * parse the parameters out of the parameters string
+     *
+     * @param parameters
+     *          the parameters as string
+     * @return a map containing all parameters
+     */
+    protected Map<String, Object> parseParameters(String parameters) {
+      Map<String, Object> parameterMap = new HashMap<>();
+
+      // defaults
+      parameterMap.put("thumb", Boolean.FALSE);
+      parameterMap.put("destination", "images");
+
+      String[] details = parameters.split(",");
+      for (String detail : details) {
+        String key = "";
+        String value = "";
+        try {
+          String[] d = detail.split("=");
+          key = d[0].trim();
+          value = d[1].trim();
+        }
+        catch (Exception ignored) {
+        }
+
+        if (StringUtils.isAnyBlank(key, value)) {
+          continue;
+        }
+
+        switch (key.toLowerCase(Locale.ROOT)) {
+          case "type":
+            try {
+              MediaFileType type = MediaFileType.valueOf(value.toUpperCase(Locale.ROOT));
+              parameterMap.put(key, type);
+            }
+            catch (Exception e) {
+              // do not let the exporter crash
+            }
+            break;
+
+          case "destination":
+          case "default":
+            parameterMap.put(key, value);
+            break;
+
+          case "thumb":
+          case "escape":
+            parameterMap.put(key, Boolean.parseBoolean(value));
+            break;
+
+          case "width":
+            try {
+              parameterMap.put(key, Integer.parseInt(value));
+            }
+            catch (Exception ignored) {
+              // do not let the exporter crash
+            }
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      return parameterMap;
+    }
   }
 }

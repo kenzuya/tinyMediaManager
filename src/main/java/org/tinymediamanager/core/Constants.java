@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,6 +77,7 @@ public final class Constants {
   public static final String NEWLY_ADDED            = "newlyAdded";
   public static final String NFO_FILENAME           = "nfoFilename";
   public static final String ORIGINAL_TITLE         = "originalTitle";
+  public static final String ORIGINAL_FILENAME      = "originalFilename";
   public static final String PATH                   = "path";
   public static final String PLOT                   = "plot";
   public static final String POSTER                 = "poster";
@@ -127,6 +128,7 @@ public final class Constants {
   // some hardcoded, well known meta data provider IDs
   // may add new ones in MediaEntity.setId()
   public static final String TMDB                   = "tmdb";
+  public static final String TMDB_SET               = "tmdbSet";
   public static final String IMDB                   = "imdb";
   public static final String TVDB                   = "tvdb";
   public static final String TRAKT                  = "trakt";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.mpdbtv;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class ITMpdbMetadataProviderTest {
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setSearchQuery("Batman");
     options.setLanguage(MediaLanguages.en);
-    List<MediaSearchResult> result = mp.search(options);
+    List<MediaSearchResult> result = new ArrayList<>(mp.search(options));
 
     assertThat(result).isNotNull();
     assertThat(result.size()).isGreaterThan(40);

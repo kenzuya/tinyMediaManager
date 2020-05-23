@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,10 +95,10 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class Utils {
   private static final Logger  LOGGER                = LoggerFactory.getLogger(Utils.class);
-  private static final Pattern localePattern         = Pattern.compile("messages_(.{2})_?(.{2}){0,1}\\.properties", Pattern.CASE_INSENSITIVE);
+  private static final Pattern localePattern         = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties", Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc> <0-N>
-  private static final Pattern stackingPattern1      = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9]{1})(\\.[^.]+)$",
+  private static final Pattern stackingPattern1      = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9]{1,2})(\\.[^.]+)$",
       Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc> <a-d>
@@ -109,11 +109,11 @@ public class Utils {
   private static final Pattern stackingPattern3      = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // moviename-1of2.avi, moviename-1 of 2.avi
-  private static final Pattern stackingPattern4      = Pattern.compile("(.*?)[ \\(_.-]+([1-9][ .]?of[ .]?[1-9])[ \\)_-]?(\\.[^.]+)$",
+  private static final Pattern stackingPattern4      = Pattern.compile("(.*?)[ \\(_.-]+([1-9]{1,2}[ .]?of[ .]?[1-9]{1,2})[ \\)_-]?(\\.[^.]+)$",
       Pattern.CASE_INSENSITIVE);
 
   // folder stacking marker <cd/dvd/part/pt/disk/disc> <0-N> - must be last part
-  private static final Pattern folderStackingPattern = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9]{1})$",
+  private static final Pattern folderStackingPattern = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9]{1,2})$",
       Pattern.CASE_INSENSITIVE);
 
   private static List<Locale>  availableLocales      = new ArrayList<>();
@@ -201,7 +201,9 @@ public class Utils {
    *          the object to dump
    */
   public static void dumpObject(Object o) {
-    System.out.println(ReflectionToStringBuilder.toString(o, new RecursiveToStringStyle(5))); // NOSONAR
+    RecursiveToStringStyle style = new RecursiveToStringStyle(5);
+    System.out.println(ReflectionToStringBuilder.toString(o, style)); // NOSONAR
+    style.cleanup();
   }
 
   /**
@@ -482,7 +484,7 @@ public class Utils {
       return false;
     }
 
-    return imdbId.matches("tt\\d{6,8}");
+    return imdbId.matches("tt\\d{6,}");
   }
 
   /**
@@ -875,7 +877,7 @@ public class Utils {
           break; // ok it worked, step out
         }
         try {
-          LOGGER.debug("rename did not work - sleep a while and try again..."); // NOSONAR
+          LOGGER.debug("copy did not work - sleep a while and try again..."); // NOSONAR
           Thread.sleep(1000);
         }
         catch (InterruptedException e) { // NOSONAR
@@ -886,12 +888,12 @@ public class Utils {
       }
 
       if (!rename) {
-        LOGGER.error("Failed to rename file {} to {}", srcFile, destFile);
+        LOGGER.error("Failed to copy file {} to {}", srcFile, destFile);
         MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, srcFile, "message.renamer.failedrename")); // NOSONAR
         return false;
       }
       else {
-        LOGGER.info("Successfully moved file from {} to {}", srcFile, destFile);
+        LOGGER.info("Successfully copied file from {} to {}", srcFile, destFile);
         return true;
       }
     }
@@ -919,6 +921,12 @@ public class Utils {
     if (Files.isDirectory(file)) {
       LOGGER.warn("could not delete file '{}': file is a directory!", file);
       return false;
+    }
+
+    // check if the file exists; if it does not exist any more we won't need to delete it ;)
+    if (!Files.exists(file)) {
+      // this file is no more here - just return "true"
+      return true;
     }
 
     // backup
@@ -1027,7 +1035,8 @@ public class Utils {
           parseLocaleFromFilename(resource);
         }
       }
-      else {
+
+      if (availableLocales.size() == 1) {
         // we may be in a .jar file
         CodeSource src = Utils.class.getProtectionDomain().getCodeSource();
         if (src != null) {
@@ -1245,7 +1254,7 @@ public class Utils {
    * @throws IOException
    */
   public static void deleteDirectoryRecursive(Path dir) throws IOException {
-    if (!Files.exists(dir)) {
+    if (!Files.exists(dir) || !Files.isDirectory(dir)) {
       return;
     }
 
@@ -1275,6 +1284,46 @@ public class Utils {
         return FileVisitResult.CONTINUE;
       }
 
+    });
+  }
+
+  /**
+   * Deletes a complete directory recursively, but checking if empty (from inside out) - using Java NIO
+   *
+   * @param dir
+   *          directory to delete
+   * @throws IOException
+   */
+  public static void deleteEmptyDirectoryRecursive(Path dir) throws IOException {
+    if (!Files.exists(dir) || !Files.isDirectory(dir)) {
+      return;
+    }
+
+    LOGGER.info("Deleting complete directory: {}", dir);
+    Files.walkFileTree(dir, new FileVisitor<Path>() {
+
+      @Override
+      public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        if (isFolderEmpty(dir)) {
+          Files.delete(dir);
+        }
+        return FileVisitResult.CONTINUE;
+      }
+
+      @Override
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        return FileVisitResult.CONTINUE;
+      }
+
+      @Override
+      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        return FileVisitResult.CONTINUE;
+      }
+
+      @Override
+      public FileVisitResult visitFileFailed(Path file, IOException exc) {
+        return FileVisitResult.CONTINUE;
+      }
     });
   }
 

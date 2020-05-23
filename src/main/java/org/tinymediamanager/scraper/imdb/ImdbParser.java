@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,11 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,8 +72,8 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Manuel Laggner
  */
 public abstract class ImdbParser {
-  protected static final Pattern IMDB_ID_PATTERN   = Pattern.compile("/title/(tt[0-9]{7})/");
-  protected static final Pattern PERSON_ID_PATTERN = Pattern.compile("/name/(nm[0-9]{7})/");
+  protected static final Pattern IMDB_ID_PATTERN   = Pattern.compile("/title/(tt[0-9]{6,})/");
+  protected static final Pattern PERSON_ID_PATTERN = Pattern.compile("/name/(nm[0-9]{6,})/");
   protected static final String  IMDB_SITE         = "http://www.imdb.com/";
 
   protected final MediaType      type;
@@ -86,15 +87,15 @@ public abstract class ImdbParser {
     this.type = type;
   }
 
-  abstract protected Pattern getUnwantedSearchResultPattern();
+  protected abstract Pattern getUnwantedSearchResultPattern();
 
-  abstract protected Logger getLogger();
+  protected abstract Logger getLogger();
 
-  abstract protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
+  protected abstract MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
 
-  abstract protected String getSearchCategory();
+  protected abstract String getSearchCategory();
 
-  abstract protected CountryCode getCountry();
+  protected abstract CountryCode getCountry();
 
   /**
    * scrape tmdb for movies too?
@@ -123,9 +124,18 @@ public abstract class ImdbParser {
     return ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeCollectionInfo");
   }
 
-  protected List<MediaSearchResult> search(MediaSearchAndScrapeOptions options) throws ScrapeException {
+  /**
+   * should we scrape the keywords page too
+   *
+   * @return true/false
+   */
+  protected boolean isScrapeKeywordsPage() {
+    return ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeKeywordsPage");
+  }
+
+  protected SortedSet<MediaSearchResult> search(MediaSearchAndScrapeOptions options) throws ScrapeException {
     getLogger().debug("search(): {}", options);
-    List<MediaSearchResult> result = new ArrayList<>();
+    SortedSet<MediaSearchResult> result = new TreeSet<>();
 
     /*
      * IMDb matches seem to come in several "flavours".
@@ -155,7 +165,6 @@ public abstract class ImdbParser {
 
     // parse out language and country from the scraper query
     String language = options.getLanguage().getLanguage();
-    int myear = options.getSearchYear();
     String country = getCountry().getAlpha2(); // for passing the country to the scrape
 
     searchTerm = MetadataUtil.removeNonSearchCharacters(searchTerm);
@@ -290,7 +299,7 @@ public abstract class ImdbParser {
         // is there a localized name? (aka)
         String localizedName = "";
         Elements italics = element.getElementsByTag("i");
-        if (italics.size() > 0) {
+        if (!italics.isEmpty()) {
           localizedName = italics.text().replace("\"", "");
         }
 
@@ -326,6 +335,7 @@ public abstract class ImdbParser {
                   break;
                 }
                 catch (Exception ignored) {
+                  // nothing to do here
                 }
               }
             }
@@ -363,29 +373,17 @@ public abstract class ImdbParser {
         sr.setScore(1);
       }
       else {
-        // compare score based on names
-        float score = MetadataUtil.calculateScore(searchTerm, movieName);
-        if (posterUrl.isEmpty() || posterUrl.contains("nopicture")) {
-          getLogger().debug("no poster - downgrading score by 0.01");
-          score = score - 0.01f;
-        }
-        if (yearDiffers(myear, year)) {
-          float diff = (float) Math.abs(year - myear) / 100;
-          getLogger().debug("parsed year does not match search result year - downgrading score by {}", diff);
-          score -= diff;
-        }
-        sr.setScore(score);
+        // calculate the score by comparing the search result with the search options
+        sr.calculateScore(options);
       }
 
       result.add(sr);
 
-      // only get 40 results
-      if (result.size() >= 40) {
+      // only get 80 results
+      if (result.size() >= 80) {
         break;
       }
     }
-    Collections.sort(result);
-    Collections.reverse(result);
 
     return result;
   }
@@ -404,11 +402,9 @@ public abstract class ImdbParser {
 
     // first: take the preferred language from settings,
     // but validate whether it is legal or not
-    if (StringUtils.isNotBlank(language) && StringUtils.isNotBlank(country)) {
-      if (LocaleUtils.isAvailableLocale(new Locale(language, country))) {
-        String combined = language + "-" + country;
-        languageString.add(combined.toLowerCase(Locale.ROOT));
-      }
+    if (StringUtils.isNotBlank(language) && StringUtils.isNotBlank(country) && LocaleUtils.isAvailableLocale(new Locale(language, country))) {
+      String combined = language + "-" + country;
+      languageString.add(combined.toLowerCase(Locale.ROOT));
     }
 
     // also build langu & default country
@@ -503,6 +499,7 @@ public abstract class ImdbParser {
               break;
             }
             catch (Exception ignored) {
+              // nothing to do here
             }
           }
         }
@@ -514,14 +511,13 @@ public abstract class ImdbParser {
     if (poster != null) {
       String posterUrl = poster.attr("content");
 
-      int fileStart = posterUrl.lastIndexOf("/");
+      int fileStart = posterUrl.lastIndexOf('/');
       if (fileStart > 0) {
-        int parameterStart = posterUrl.indexOf("_", fileStart);
+        int parameterStart = posterUrl.indexOf('_', fileStart);
         if (parameterStart > 0) {
-          int startOfExtension = posterUrl.lastIndexOf(".");
+          int startOfExtension = posterUrl.lastIndexOf('.');
           if (startOfExtension > parameterStart) {
             posterUrl = posterUrl.substring(0, parameterStart) + posterUrl.substring(startOfExtension);
-
           }
         }
       }
@@ -589,13 +585,15 @@ public abstract class ImdbParser {
 
       String elementText = element.ownText();
 
-      if (elementText.equals("Taglines")) {
-        if (!isUseTmdbForMovies()) {
-          Element taglineElement = element.nextElementSibling();
-          if (taglineElement != null) {
-            String tagline = cleanString(taglineElement.ownText().replace("»", ""));
-            md.setTagline(tagline);
-          }
+      if (elementText.equals("Plot Keywords")) {
+        parseKeywords(element, md);
+      }
+
+      if (elementText.equals("Taglines") && !isUseTmdbForMovies()) {
+        Element taglineElement = element.nextElementSibling();
+        if (taglineElement != null) {
+          String tagline = cleanString(taglineElement.ownText().replace("»", ""));
+          md.setTagline(tagline);
         }
       }
 
@@ -842,6 +840,42 @@ public abstract class ImdbParser {
     }
   }
 
+  private void parseKeywords(Element element, MediaMetadata md) {
+    // <td>
+    // <ul class="ipl-inline-list">
+    // <li class="ipl-inline-list__item"><a href="/keyword/male-alien">male-alien</a></li>
+    // <li class="ipl-inline-list__item"><a href="/keyword/planetary-romance">planetary-romance</a></li>
+    // <li class="ipl-inline-list__item"><a href="/keyword/female-archer">female-archer</a></li>
+    // <li class="ipl-inline-list__item"><a href="/keyword/warrioress">warrioress</a></li>
+    // <li class="ipl-inline-list__item"><a href="/keyword/original-story">original-story</a></li>
+    // <li class="ipl-inline-list__item"><a href="/title/tt0499549/keywords">See All (379) »</a></li>
+    // </ul>
+    // </td>
+
+    Element parent = element.nextElementSibling();
+    Elements keywords = parent.getElementsByClass("ipl-inline-list__item");
+    for (Element keyword : keywords) {
+      Element a = keyword.getElementsByTag("a").first();
+      if (a != null && !a.attr("href").contains("/keywords")) {
+        md.addTag(a.ownText());
+      }
+    }
+  }
+
+  protected void parseKeywordsPage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
+    Element div = doc.getElementById("keywords_content");
+    if (div == null) {
+      return;
+    }
+
+    Elements keywords = div.getElementsByClass("sodatext");
+    for (Element keyword : keywords) {
+      if (StringUtils.isNotBlank(keyword.text())) {
+        md.addTag(keyword.text());
+      }
+    }
+  }
+
   protected void parsePlotsummaryPage(Document doc, MediaSearchAndScrapeOptions options, MediaMetadata md) {
     // just take first summary
     // <li class="ipl-zebra-list__item" id="summary-ps21700000">
@@ -883,10 +917,21 @@ public abstract class ImdbParser {
         Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
         if (anchor != null) {
           Matcher matcher = pattern.matcher(anchor.attr("href"));
-          if (matcher.find() && getCountry().getAlpha2().equalsIgnoreCase(matcher.group(1))) {
+          if (matcher.find()) {
+            String country = matcher.group(1);
+
             Element column = row.getElementsByClass("release_date").first();
             if (column != null) {
-              releaseDate = parseDate(column.text());
+              Date parsedDate = parseDate(column.text());
+              // do not overwrite any parsed date with a null value!
+              if (parsedDate != null && (releaseDate == null || getCountry().getAlpha2().equalsIgnoreCase(country))) {
+                releaseDate = parsedDate;
+
+                // abort the loop if we have found a valid date in our desired language
+                if (getCountry().getAlpha2().equalsIgnoreCase(country)) {
+                  break;
+                }
+              }
             }
           }
         }
@@ -900,14 +945,23 @@ public abstract class ImdbParser {
         Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
         if (anchor != null) {
           Matcher matcher = pattern.matcher(anchor.attr("href"));
-          if (matcher.find() && getCountry().getAlpha2().equalsIgnoreCase(matcher.group(1))) {
+          // continue if we either do not have found any date yet or the country matches
+          if (matcher.find()) {
+            String country = matcher.group(1);
+
             Element column = row.getElementsByClass("release-date-item__date").first();
             if (column != null) {
-              releaseDate = parseDate(column.text());
+              Date parsedDate = parseDate(column.text());
+              // do not overwrite any parsed date with a null value!
+              if (parsedDate != null && (releaseDate == null || getCountry().getAlpha2().equalsIgnoreCase(country))) {
+                releaseDate = parsedDate;
+
+                // abort the loop if we have found a valid date in our desired language
+                if (getCountry().getAlpha2().equalsIgnoreCase(country)) {
+                  break;
+                }
+              }
             }
-          }
-          else {
-            getLogger().trace("country {} does not match ours {}", matcher.group(1), getCountry().getAlpha2());
           }
         }
       }
@@ -989,13 +1043,6 @@ public abstract class ImdbParser {
     return cm;
   }
 
-  /**
-   * Is i1 != i2 (when >0)
-   */
-  private boolean yearDiffers(int i1, int i2) {
-    return i1 > 0 && i2 > 0 && i1 != i2;
-  }
-
   protected Date parseDate(String dateAsSting) {
     try {
       return sdf1.parse(dateAsSting);
@@ -1028,7 +1075,7 @@ public abstract class ImdbParser {
    * local helper classes
    ****************************************************************************/
   protected class ImdbWorker implements Callable<Document> {
-    private String  url;
+    private String  pageUrl;
     private String  language;
     private String  country;
     private boolean useCachedUrl;
@@ -1038,7 +1085,7 @@ public abstract class ImdbParser {
     }
 
     ImdbWorker(String url, String language, String country, boolean useCachedUrl) {
-      this.url = url;
+      this.pageUrl = url;
       this.language = language;
       this.country = country;
       this.useCachedUrl = useCachedUrl;
@@ -1052,15 +1099,15 @@ public abstract class ImdbParser {
 
       try {
         if (useCachedUrl) {
-          url = new InMemoryCachedUrl(this.url);
+          url = new InMemoryCachedUrl(this.pageUrl);
         }
         else {
-          url = new Url(this.url);
+          url = new Url(this.pageUrl);
         }
         url.addHeader("Accept-Language", getAcceptLanguage(language, country));
       }
       catch (Exception e) {
-        getLogger().debug("tried to fetch imdb page {} - {}", this.url, e);
+        getLogger().debug("tried to fetch imdb page {} - {}", this.pageUrl, e);
         throw new ScrapeException(e);
       }
 
@@ -1072,7 +1119,7 @@ public abstract class ImdbParser {
         Thread.currentThread().interrupt();
       }
       catch (Exception e) {
-        getLogger().debug("tried to fetch imdb page {} - {}", this.url, e);
+        getLogger().debug("tried to fetch imdb page {} - {}", this.pageUrl, e);
         throw e;
       }
 

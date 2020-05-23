@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,7 +77,7 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "omdbapi.com",
-        "<html><h3>Omdbapi.com</h3><br />The OMDb API is a RESTful web service to obtain movie information, all content and images on the site are contributed and maintained by our users. <br /><br />This is a private meta data provider, you may need to become a member there to use this service (more infos at http://www.omdbapi.com/)<br /><br />TinyMediaManager offers a limited access to OMDb API (10 calls per 15 seconds)<br /><br />Available languages: EN</html>",
+        "<html><h3>Omdbapi.com</h3><br />The OMDb API is a RESTful web service to obtain movie information. All content and images on the site are contributed and maintained by our users. <br /><br />TinyMediaManager offers a limited access to OMDb (10 calls per 15 seconds). If you want to use OMDb with more than this restricted access, you should become a patron of OMDb (https://www.patreon.com/join/omdb)<br /><br />Available languages: EN</html>",
         OmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/omdbapi.png"));
 
     providerInfo.getConfig().addText("apiKey", "", true);
@@ -257,9 +259,9 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
   }
 
   @Override
-  public List<MediaSearchResult> search(MovieSearchAndScrapeOptions query) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions query) throws ScrapeException {
     LOGGER.debug("search(): {}", query);
-    List<MediaSearchResult> mediaResult = new ArrayList<>();
+    SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
 
     String apiKey = getApiKey();
     if (StringUtils.isBlank(apiKey)) {
@@ -298,6 +300,8 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
       }
       result.setPosterUrl(entity.poster);
 
+      // calcuate the result score
+      result.calculateScore(query);
       mediaResult.add(result);
     }
 

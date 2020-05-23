@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.actions;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -39,7 +41,6 @@ import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
@@ -50,12 +51,12 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowRenameAction extends TmmAction {
   private static final long           serialVersionUID = -8988748633666277616L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   public TvShowRenameAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.rename")); //$NON-NLS-1$
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.rename")); //$NON-NLS-1$
-    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
+    putValue(NAME, BUNDLE.getString("tvshow.rename"));
+    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.rename"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override
@@ -78,23 +79,23 @@ public class TvShowRenameAction extends TmmAction {
     }
 
     if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected")); //$NON-NLS-1$
+      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     // display warning and ask the user again
-    if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hiderenamehint")) { //$NON-NLS-1$
-      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain")); //$NON-NLS-1$
+    if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hiderenamehint")) {
+      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-      Object[] params = { BUNDLE.getString("tvshow.rename.desc"), checkBox }; //$NON-NLS-1$
+      Object[] params = { BUNDLE.getString("tvshow.rename.desc"), checkBox };
       Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("tvshow.rename"), //$NON-NLS-1$
-          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+      int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("tvshow.rename"), JOptionPane.YES_NO_OPTION,
+          JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again
       if (checkBox.isSelected()) {
-        TmmProperties.getInstance().putProperty("tvshow.hiderenamehint", String.valueOf(checkBox.isSelected())); //$NON-NLS-1$ )
+        TmmProperties.getInstance().putProperty("tvshow.hiderenamehint", String.valueOf(checkBox.isSelected()));
       }
 
       if (answer != JOptionPane.YES_OPTION) {

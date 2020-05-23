@@ -1,17 +1,40 @@
+/*
+ * Copyright 2012 - 2020 Manuel Laggner
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.tinymediamanager.ui.thirdparty;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.SplitUri;
 import org.tinymediamanager.ui.movies.actions.MovieKodiRefreshNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowKodiRefreshNfoAction;
 
 public class KodiRPCMenu {
+  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+
+  private KodiRPCMenu() {
+    // private constructor for utility classes
+  }
 
   /**
    * Adds Kodi RPC menu structure in right-click popup
@@ -53,13 +76,13 @@ public class KodiRPCMenu {
   }
 
   private static JMenu Application() {
-    JMenu m = new JMenu("Application");
+    JMenu m = new JMenu(BUNDLE.getString("kodi.rpc.application"));
 
-    JMenuItem i = new JMenuItem("Quit");
+    JMenuItem i = new JMenuItem(BUNDLE.getString("kodi.rpc.quit"));
     i.addActionListener(e -> KodiRPC.getInstance().ApplicationQuit());
     m.add(i);
 
-    i = new JMenuItem("Mute / UnMute");
+    i = new JMenuItem(BUNDLE.getString("kodi.rpc.mute"));
     i.addActionListener(e -> KodiRPC.getInstance().ApplicationMute());
     m.add(i);
 
@@ -69,17 +92,21 @@ public class KodiRPCMenu {
   }
 
   private static JMenu VideoDatasources() {
-    JMenu m = new JMenu("Video Library");
+    JMenu m = new JMenu(BUNDLE.getString("kodi.rpc.videolibrary"));
 
-    JMenu m2 = new JMenu("Scan for new content");
-    JMenuItem i = new JMenuItem("Scan ALL Datasources");
+    JMenuItem cleanLibraryMenuItem = new JMenuItem(BUNDLE.getString("kodi.rpc.cleanvideo"));
+    cleanLibraryMenuItem.addActionListener(new CleanVideoLibraryListener());
+    m.add(cleanLibraryMenuItem);
+
+    JMenu m2 = new JMenu(BUNDLE.getString("kodi.rpc.scan"));
+    JMenuItem i = new JMenuItem(BUNDLE.getString("kodi.rpc.scan.all"));
     i.addActionListener(new VideoDatasourceScanListener(null));
     i.setEnabled(false);
     m2.add(i);
-    if (KodiRPC.getInstance().getVideoDataSources().size() > 0) {
+    if (!KodiRPC.getInstance().getVideoDataSources().isEmpty()) {
       i.setEnabled(true);
       for (SplitUri ds : KodiRPC.getInstance().getVideoDataSources()) {
-        i = new JMenuItem("Scan " + ds.label + "  (" + ds.type + ")");
+        i = new JMenuItem(BUNDLE.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")");
         if ("UPNP".equals(ds.type)) {
           // cannot "scan" UPNP - always directly fetched and not in library
           i.setEnabled(false);
@@ -91,22 +118,25 @@ public class KodiRPCMenu {
       }
     }
     m.add(m2);
-
     return m;
   }
 
   private static JMenu AudioDatasources() {
-    JMenu m = new JMenu("Audio Library");
+    JMenu m = new JMenu(BUNDLE.getString("kodi.rpc.audiolibrary"));
 
-    JMenu m2 = new JMenu("Scan for new content");
-    JMenuItem i = new JMenuItem("Scan ALL Datasources");
+    JMenuItem cleanLibraryMenuItem = new JMenuItem(BUNDLE.getString("kodi.rpc.cleanaudio"));
+    cleanLibraryMenuItem.addActionListener(new CleanAudioLibraryListener());
+    m.add(cleanLibraryMenuItem);
+
+    JMenu m2 = new JMenu(BUNDLE.getString("kodi.rpc.scan"));
+    JMenuItem i = new JMenuItem(BUNDLE.getString("kodi.rpc.scan.all"));
     i.addActionListener(new AudioDatasourceScanListener(null));
     i.setEnabled(false);
     m2.add(i);
-    if (KodiRPC.getInstance().getAudioDataSources().size() > 0) {
+    if (!KodiRPC.getInstance().getAudioDataSources().isEmpty()) {
       i.setEnabled(true);
       for (SplitUri ds : KodiRPC.getInstance().getAudioDataSources()) {
-        i = new JMenuItem("Scan " + ds.label + "  (" + ds.type + ")");
+        i = new JMenuItem(BUNDLE.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")");
         if ("UPNP".equals(ds.type)) {
           // cannot "scan" UPNP - always directly fetched and not in library
           i.setEnabled(false);
@@ -123,7 +153,7 @@ public class KodiRPCMenu {
   }
 
   private static JMenu Volume() {
-    JMenu m = new JMenu("Volume");
+    JMenu m = new JMenu(BUNDLE.getString("kodi.rpc.volume"));
 
     JMenuItem i = new JMenuItem("100%");
     i.addActionListener(new ApplicationVolumeListener(100));
@@ -171,6 +201,18 @@ public class KodiRPCMenu {
     }
   }
 
+  private static class CleanAudioLibraryListener implements ActionListener {
+    public void actionPerformed(ActionEvent e) {
+      KodiRPC.getInstance().LibraryAudioClean();
+    }
+  }
+
+  private static class CleanVideoLibraryListener implements ActionListener {
+    public void actionPerformed(ActionEvent e) {
+      KodiRPC.getInstance().LibraryVideoClean();
+    }
+  }
+
   private static class VideoDatasourceScanListener implements ActionListener {
     private String datasource;
 
@@ -196,21 +238,21 @@ public class KodiRPCMenu {
   }
 
   private static JMenu System() {
-    JMenu m = new JMenu("System");
+    JMenu m = new JMenu(BUNDLE.getString("kodi.rpc.system"));
 
-    JMenuItem i = new JMenuItem("Hibernate");
+    JMenuItem i = new JMenuItem(BUNDLE.getString("kodi.rpc.hibernate"));
     i.addActionListener(e -> KodiRPC.getInstance().SystemHibernate());
     m.add(i);
 
-    i = new JMenuItem("Reboot");
+    i = new JMenuItem(BUNDLE.getString("kodi.rpc.reboot"));
     i.addActionListener(e -> KodiRPC.getInstance().SystemReboot());
     m.add(i);
 
-    i = new JMenuItem("Shutdown");
+    i = new JMenuItem(BUNDLE.getString("kodi.rpc.shutdown"));
     i.addActionListener(e -> KodiRPC.getInstance().SystemShutdown());
     m.add(i);
 
-    i = new JMenuItem("Suspend");
+    i = new JMenuItem(BUNDLE.getString("kodi.rpc.suspend"));
     i.addActionListener(e -> KodiRPC.getInstance().SystemSuspend());
     m.add(i);
 

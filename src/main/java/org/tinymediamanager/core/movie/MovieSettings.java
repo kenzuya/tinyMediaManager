@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.DateField;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.TrailerQuality;
+import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearartNaming;
@@ -53,7 +56,6 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
-import org.tinymediamanager.ui.movies.MovieExtendedComparator.SortColumn;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -124,6 +126,7 @@ public class MovieSettings extends AbstractSettings {
   private MovieConnectors                  movieConnector                      = MovieConnectors.KODI;
   private CertificationStyle               certificationStyle                  = CertificationStyle.LARGE;
   private boolean                          writeCleanNfo                       = false;
+  private DateField                        nfoDateAddedField                   = DateField.DATE_ADDED;
   private MediaLanguages                   nfoLanguage                         = MediaLanguages.en;
   private boolean                          createOutline                       = true;
   private boolean                          outlineFirstSentence                = false;
@@ -162,6 +165,8 @@ public class MovieSettings extends AbstractSettings {
   private boolean                          enableMovieSetArtworkMovieFolder    = true;
   private boolean                          enableMovieSetArtworkFolder         = false;
   private String                           movieSetArtworkFolder               = "MoviesetArtwork";
+  private boolean                          movieSetArtworkFolderStyleKodi      = true;
+  private boolean                          movieSetArtworkFolderStyleAutomator = false;
   private boolean                          scrapeBestImage                     = true;
   private MediaLanguages                   imageScraperLanguage                = MediaLanguages.en;
   private boolean                          imageLanguagePriority               = true;
@@ -170,8 +175,8 @@ public class MovieSettings extends AbstractSettings {
   // trailer scraper
   private boolean                          useTrailerPreference                = true;
   private boolean                          automaticTrailerDownload            = false;
-  private MovieTrailerQuality              trailerQuality                      = MovieTrailerQuality.HD_720;
-  private MovieTrailerSources              trailerSource                       = MovieTrailerSources.YOUTUBE;
+  private TrailerQuality                   trailerQuality                      = TrailerQuality.HD_720;
+  private TrailerSources                   trailerSource                       = TrailerSources.YOUTUBE;
 
   // subtitle scraper
   private MediaLanguages                   subtitleScraperLanguage             = MediaLanguages.en;
@@ -184,12 +189,10 @@ public class MovieSettings extends AbstractSettings {
   private boolean                          syncTrakt                           = false;
   private boolean                          preferPersonalRating                = true;
   private String                           preferredRating                     = "imdb";
+  private boolean                          extractArtworkFromVsmeta            = false;
 
   // ui
   private boolean                          storeUiFilters                      = false;
-  private boolean                          storeUiSorting                      = false;
-  private SortColumn                       sortColumn                          = SortColumn.TITLE;
-  private boolean                          sortAscending                       = true;
   private boolean                          showLogosPanel                      = true;
 
   public MovieSettings() {
@@ -239,22 +242,6 @@ public class MovieSettings extends AbstractSettings {
     addCheckImagesMovie(MediaArtworkType.POSTER);
     addCheckImagesMovie(MediaArtworkType.BACKGROUND);
 
-    // activate default scrapers
-    artworkScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_ARTWORK)) {
-      addMovieArtworkScraper(ms.getId());
-    }
-
-    trailerScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_TRAILER)) {
-      addMovieTrailerScraper(ms.getId());
-    }
-
-    subtitleScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
-      addMovieSubtitleScraper(ms.getId());
-    }
-
     scraperMetadataConfig.addAll(Arrays.asList(MovieScraperMetadataConfig.values()));
   }
 
@@ -301,7 +288,8 @@ public class MovieSettings extends AbstractSettings {
   @Override
   protected void writeDefaultSettings() {
     // hidden columns
-    setMovieTableHiddenColumns(Arrays.asList("originalTitle", "dateAdded", "filename", "path", "movieset", "fileSize", "audio", "video3d",
+    setMovieTableHiddenColumns(Arrays.asList("originalTitle", "sortTitle", "dateAdded", "filename", "path", "movieset", "fileSize", "audio",
+        "video3d",
         "videoFormat", "votes", "edition", "mediaSource", "certification"));
 
     addDefaultEntries();
@@ -351,11 +339,6 @@ public class MovieSettings extends AbstractSettings {
     movieDataSources.remove(path);
     firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
     firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
-
-    // if all datasources has been remove we can safely remove all movie sets too
-    if (movieDataSources.isEmpty()) {
-      movieList.removeMovieSets();
-    }
   }
 
   public List<String> getMovieDataSource() {
@@ -664,6 +647,26 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("movieSetArtworkFolder", oldValue, newValue);
   }
 
+  public boolean isMovieSetArtworkFolderStyleKodi() {
+    return movieSetArtworkFolderStyleKodi;
+  }
+
+  public void setMovieSetArtworkFolderStyleKodi(boolean newValue) {
+    boolean oldValue = this.movieSetArtworkFolderStyleKodi;
+    this.movieSetArtworkFolderStyleKodi = newValue;
+    firePropertyChange("movieSetArtworkFolderStyleKodi", oldValue, newValue);
+  }
+
+  public boolean isMovieSetArtworkFolderStyleAutomator() {
+    return movieSetArtworkFolderStyleAutomator;
+  }
+
+  public void setMovieSetArtworkFolderStyleAutomator(boolean newValue) {
+    boolean oldValue = this.movieSetArtworkFolderStyleAutomator;
+    this.movieSetArtworkFolderStyleAutomator = newValue;
+    firePropertyChange("movieSetArtworkFolderStyleAutomator", oldValue, newValue);
+  }
+
   public MovieConnectors getMovieConnector() {
     return movieConnector;
   }
@@ -903,38 +906,8 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("storeUiFilters", oldValue, newValue);
   }
 
-  public boolean isStoreUiSorting() {
-    return storeUiSorting;
-  }
-
-  public void setStoreUiSorting(boolean newValue) {
-    boolean oldValue = this.storeUiSorting;
-    this.storeUiSorting = newValue;
-    firePropertyChange("storeUiSorting", oldValue, newValue);
-  }
-
   public boolean isStoreUiFilters() {
     return storeUiFilters;
-  }
-
-  public SortColumn getSortColumn() {
-    return sortColumn;
-  }
-
-  public void setSortColumn(SortColumn newValue) {
-    SortColumn oldValue = this.sortColumn;
-    this.sortColumn = newValue;
-    firePropertyChange("sortColumn", oldValue, newValue);
-  }
-
-  public boolean isSortAscending() {
-    return sortAscending;
-  }
-
-  public void setSortAscending(boolean newValue) {
-    boolean oldValue = this.sortAscending;
-    this.sortAscending = newValue;
-    firePropertyChange("sortAscending", oldValue, newValue);
   }
 
   public boolean isWriteActorImages() {
@@ -1027,6 +1000,16 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("runtimeFromMediaInfo", oldValue, newValue);
   }
 
+  public boolean isExtractArtworkFromVsmeta() {
+    return extractArtworkFromVsmeta;
+  }
+
+  public void setExtractArtworkFromVsmeta(boolean newValue) {
+    boolean oldValue = this.extractArtworkFromVsmeta;
+    this.extractArtworkFromVsmeta = newValue;
+    firePropertyChange("extractArtworkFromVsmeta", oldValue, newValue);
+  }
+
   public boolean isIncludeExternalAudioStreams() {
     return includeExternalAudioStreams;
   }
@@ -1101,22 +1084,22 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("automaticTrailerDownload", oldValue, newValue);
   }
 
-  public MovieTrailerQuality getTrailerQuality() {
+  public TrailerQuality getTrailerQuality() {
     return trailerQuality;
   }
 
-  public void setTrailerQuality(MovieTrailerQuality newValue) {
-    MovieTrailerQuality oldValue = this.trailerQuality;
+  public void setTrailerQuality(TrailerQuality newValue) {
+    TrailerQuality oldValue = this.trailerQuality;
     this.trailerQuality = newValue;
     firePropertyChange("trailerQuality", oldValue, newValue);
   }
 
-  public MovieTrailerSources getTrailerSource() {
+  public TrailerSources getTrailerSource() {
     return trailerSource;
   }
 
-  public void setTrailerSource(MovieTrailerSources newValue) {
-    MovieTrailerSources oldValue = this.trailerSource;
+  public void setTrailerSource(TrailerSources newValue) {
+    TrailerSources oldValue = this.trailerSource;
     this.trailerSource = newValue;
     firePropertyChange("trailerSource", oldValue, newValue);
   }
@@ -1219,6 +1202,16 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = writeCleanNfo;
     this.writeCleanNfo = newValue;
     firePropertyChange("writeCleanNfo", oldValue, newValue);
+  }
+
+  public DateField getNfoDateAddedField() {
+    return nfoDateAddedField;
+  }
+
+  public void setNfoDateAddedField(DateField newValue) {
+    DateField oldValue = nfoDateAddedField;
+    this.nfoDateAddedField = newValue;
+    firePropertyChange("nfoDateAddedField", oldValue, newValue);
   }
 
   public MediaLanguages getNfoLanguage() {
@@ -1508,5 +1501,26 @@ public class MovieSettings extends AbstractSettings {
     setCertificationStyle(CertificationStyle.SHORT);
 
     firePropertyChange("preset", false, true);
+  }
+
+  /**
+   * set the default scrapers for the movie module
+   */
+  public void setDefaultScrapers() {
+    // activate default scrapers
+    artworkScrapers.clear();
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_ARTWORK)) {
+      addMovieArtworkScraper(ms.getId());
+    }
+
+    trailerScrapers.clear();
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_TRAILER)) {
+      addMovieTrailerScraper(ms.getId());
+    }
+
+    subtitleScrapers.clear();
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
+      addMovieSubtitleScraper(ms.getId());
+    }
   }
 }

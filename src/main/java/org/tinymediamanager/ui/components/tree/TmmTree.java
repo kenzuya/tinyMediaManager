@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,7 +158,7 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
     final TmmTreeState treeState = new TmmTreeState();
     final List<TmmTreeNode> elements = new ArrayList<>();
     elements.add((TmmTreeNode) root);
-    while (elements.size() > 0) {
+    while (!elements.isEmpty()) {
       final TmmTreeNode element = elements.get(0);
       final TreePath path = new TreePath(element.getPath());
       treeState.addState(element.getId(), isExpanded(path), isPathSelected(path));
@@ -189,7 +189,7 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
 
     final List<TmmTreeNode> elements = new ArrayList<>();
     elements.add((TmmTreeNode) root);
-    while (elements.size() > 0) {
+    while (!elements.isEmpty()) {
       final TmmTreeNode element = elements.get(0);
       final TreePath path = new TreePath(element.getPath());
 

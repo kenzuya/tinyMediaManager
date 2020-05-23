@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -57,6 +59,7 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -64,10 +67,10 @@ import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.ScrollingEventDelegator;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
@@ -90,7 +93,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListener {
   private static final long              serialVersionUID = 5039498266207230875L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
   private static final Logger            LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 
   private MovieSettings                  settings         = MovieModuleManager.SETTINGS;
@@ -229,9 +232,12 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${audioLanguage}"));
     exampleEventList.add(new MovieRenamerExample("${audioLanguageList}"));
     exampleEventList.add(new MovieRenamerExample("${audioLanguagesAsString}"));
+    exampleEventList.add(new MovieRenamerExample("${subtitleLanguageList}"));
+    exampleEventList.add(new MovieRenamerExample("${subtitleLanguagesAsString}"));
     exampleEventList.add(new MovieRenamerExample("${mediaSource}"));
     exampleEventList.add(new MovieRenamerExample("${3Dformat}"));
     exampleEventList.add(new MovieRenamerExample("${hdr}"));
+    exampleEventList.add(new MovieRenamerExample("${filesize}"));
     exampleEventList.add(new MovieRenamerExample("${edition}"));
     exampleEventList.add(new MovieRenamerExample("${parent}"));
     exampleEventList.add(new MovieRenamerExample("${note}"));
@@ -243,6 +249,9 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     chckbxAsciiReplacement.addActionListener(actionCreateRenamerExample);
     chckbxFilenameSpaceReplacement.addActionListener(actionCreateRenamerExample);
     chckbxFoldernameSpaceReplacement.addActionListener(actionCreateRenamerExample);
+
+    // force the size of the table
+    tableExamples.setPreferredScrollableViewportSize(tableExamples.getPreferredSize());
   }
 
   private void initComponents() {
@@ -250,15 +259,15 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     {
       JPanel panelPatterns = new JPanel(new MigLayout("insets 0, hidemode 1", "[20lp!][15lp][][300lp,grow]", "[][][][][][]"));
 
-      JLabel lblPatternsT = new TmmLabel(BUNDLE.getString("Settings.movie.renamer.title"), H3); //$NON-NLS-1$
+      JLabel lblPatternsT = new TmmLabel(BUNDLE.getString("Settings.movie.renamer.title"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPatterns, lblPatternsT, true);
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
-        JLabel lblMoviePath = new JLabel(BUNDLE.getString("Settings.renamer.folder")); //$NON-NLS-1$
+        JLabel lblMoviePath = new JLabel(BUNDLE.getString("Settings.renamer.folder"));
         panelPatterns.add(lblMoviePath, "cell 1 0 2 1,alignx right");
 
         tfMoviePath = new EnhancedTextField(IconManager.UNDO_GREY);
-        tfMoviePath.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault")); //$NON-NLS-1$
+        tfMoviePath.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault"));
         tfMoviePath.addIconMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
@@ -267,7 +276,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         });
         panelPatterns.add(tfMoviePath, "cell 3 0,growx");
 
-        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default")); //$NON-NLS-1$
+        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default"));
         panelPatterns.add(lblDefault, "cell 1 1 2 1,alignx right");
         TmmFontHelper.changeFont(lblDefault, L2);
 
@@ -276,11 +285,11 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         TmmFontHelper.changeFont(tpDefaultFolderPattern, L2);
       }
       {
-        JLabel lblMovieFilename = new JLabel(BUNDLE.getString("Settings.renamer.file")); //$NON-NLS-1$
+        JLabel lblMovieFilename = new JLabel(BUNDLE.getString("Settings.renamer.file"));
         panelPatterns.add(lblMovieFilename, "cell 1 2 2 1,alignx right");
 
         tfMovieFilename = new EnhancedTextField(IconManager.UNDO_GREY);
-        tfMovieFilename.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault")); //$NON-NLS-1$
+        tfMovieFilename.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault"));
         tfMovieFilename.addIconMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
@@ -289,7 +298,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         });
         panelPatterns.add(tfMovieFilename, "cell 3 2,growx");
 
-        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default")); //$NON-NLS-1$
+        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default"));
         panelPatterns.add(lblDefault, "cell 1 3 2 1,alignx right");
         TmmFontHelper.changeFont(lblDefault, L2);
 
@@ -299,10 +308,10 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       }
       {
 
-        JLabel lblRenamerHintT = new JLabel(BUNDLE.getString("Settings.movie.renamer.example")); //$NON-NLS-1$
+        JLabel lblRenamerHintT = new JLabel(BUNDLE.getString("Settings.movie.renamer.example"));
         panelPatterns.add(lblRenamerHintT, "cell 1 4 3 1");
 
-        JButton btnHelp = new JButton(BUNDLE.getString("tmm.help")); //$NON-NLS-1$
+        JButton btnHelp = new JButton(BUNDLE.getString("tmm.help"));
         btnHelp.addActionListener(e -> {
           String url = StringEscapeUtils.unescapeHtml4("https://gitlab.com/tinyMediaManager/tinyMediaManager/wikis/Movie-Settings#renamer");
           try {
@@ -325,27 +334,27 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     {
       JPanel panelAdvancedOptions = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3); //$NON-NLS-1$
+      JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
-        chckbxFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.folderspacereplacement")); //$NON-NLS-1$
-        chckbxFoldernameSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.folderspacereplacement.hint")); //$NON-NLS-1$
+        chckbxFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.folderspacereplacement"));
+        chckbxFoldernameSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.folderspacereplacement.hint"));
         panelAdvancedOptions.add(chckbxFoldernameSpaceReplacement, "cell 1 0 2 1");
 
         cbFoldernameSpaceReplacement = new JComboBox<>(spaceReplacement.toArray());
         panelAdvancedOptions.add(cbFoldernameSpaceReplacement, "cell 1 0");
       }
       {
-        chckbxFilenameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.spacereplacement")); //$NON-NLS-1$
-        chckbxFilenameSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.spacereplacement.hint")); //$NON-NLS-1$
+        chckbxFilenameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.spacereplacement"));
+        chckbxFilenameSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.spacereplacement.hint"));
         panelAdvancedOptions.add(chckbxFilenameSpaceReplacement, "cell 1 1 2 1");
 
         cbFilenameSpaceReplacement = new JComboBox<>(spaceReplacement.toArray());
         panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 1");
       }
       {
-        JLabel lblColonReplacement = new JLabel(BUNDLE.getString("Settings.renamer.colonreplacement")); //$NON-NLS-1$
+        JLabel lblColonReplacement = new JLabel(BUNDLE.getString("Settings.renamer.colonreplacement"));
         panelAdvancedOptions.add(lblColonReplacement, "cell 2 2");
         lblColonReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.colonreplacement.hint"));
 
@@ -373,11 +382,11 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       JPanel panelExample = new JPanel();
       panelExample.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][300lp,grow]", ""));
 
-      JLabel lblExampleHeader = new TmmLabel(BUNDLE.getString("Settings.example"), H3); //$NON-NLS-1$
+      JLabel lblExampleHeader = new TmmLabel(BUNDLE.getString("Settings.example"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExample, lblExampleHeader, true);
       add(collapsiblePanel, "cell 0 4, growx, wmin 0");
       {
-        JLabel lblExampleT = new JLabel(BUNDLE.getString("tmm.movie")); //$NON-NLS-1$
+        JLabel lblExampleT = new JLabel(BUNDLE.getString("tmm.movie"));
         panelExample.add(lblExampleT, "cell 1 0");
 
         cbMovieForPreview = new JComboBox();
@@ -391,7 +400,10 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         tableExamples = new TmmTable(exampleTableModel);
         JScrollPane scrollPaneExamples = new JScrollPane(tableExamples);
         tableExamples.configureScrollPane(scrollPaneExamples);
+        scrollPaneExamples.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        ScrollingEventDelegator.install(scrollPaneExamples);
         panelExample.add(scrollPaneExamples, "cell 1 2,grow");
+        tableExamples.setRowHeight(35);
       }
     }
   }
@@ -414,14 +426,6 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     // empty is valid (although not unique)
     if (!tfMoviePath.getText().isEmpty() && !MovieRenamer.isFolderPatternUnique(tfMoviePath.getText())) {
       warning = BUNDLE.getString("Settings.renamer.folder.warning");
-    }
-    String okFolder = MovieRenamer.isPatternValid(tfMoviePath.getText());
-    if (!okFolder.isEmpty()) {
-      warning = BUNDLE.getString("Settings.movie.renamer.folder.patterninvalid") + "  " + okFolder;
-    }
-    String okFile = MovieRenamer.isPatternValid(tfMovieFilename.getText());
-    if (!okFile.isEmpty()) {
-      warning = BUNDLE.getString("Settings.movie.renamer.file.patterninvalid") + "  " + okFile;
     }
     if (!warning.isEmpty()) {
       taWarning.setVisible(true);
@@ -450,7 +454,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
       if (StringUtils.isNotBlank(tfMovieFilename.getText())) {
         List<MediaFile> mediaFiles = movie.getMediaFiles(MediaFileType.VIDEO);
-        if (mediaFiles.size() > 0) {
+        if (!mediaFiles.isEmpty()) {
           String extension = FilenameUtils.getExtension(mediaFiles.get(0).getFilename());
           filename = MovieRenamer.createDestinationForFilename(tfMovieFilename.getText(), movie) + "." + extension;
         }
@@ -459,20 +463,21 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         filename = movie.getMediaFiles(MediaFileType.VIDEO).get(0).getFilename();
       }
 
-      lblExample.setText(Paths.get(path, filename).toString());
+      try {
+        lblExample.setText(Paths.get(path, filename).toString());
+      }
+      catch (Exception e) {
+        // not changing on errors
+      }
 
       // create examples
       for (MovieRenamerExample example : exampleEventList) {
         example.createExample(movie);
       }
-      try {
-        TableColumnResizer.adjustColumnPreferredWidths(tableExamples, 7);
-      }
-      catch (Exception ignored) {
-      }
+      TableColumnResizer.adjustColumnPreferredWidths(tableExamples, 7);
     }
     else {
-      lblExample.setText(BUNDLE.getString("Settings.movie.renamer.nomovie")); //$NON-NLS-1$
+      lblExample.setText(BUNDLE.getString("Settings.movie.renamer.nomovie"));
     }
   }
 
@@ -512,7 +517,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   /*****************************************************************************
    * helper classes
    *****************************************************************************/
-  private class MoviePreviewContainer {
+  private static class MoviePreviewContainer {
     Movie movie;
 
     @Override
@@ -521,7 +526,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     }
   }
 
-  private class MovieComparator implements Comparator<Movie> {
+  private static class MovieComparator implements Comparator<Movie> {
     @Override
     public int compare(Movie arg0, Movie arg1) {
       return arg0.getTitle().compareTo(arg1.getTitle());
@@ -529,19 +534,37 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   }
 
   @SuppressWarnings("unused")
-  private class MovieRenamerExample extends AbstractModelObject {
-    private String token;
-    private String description;
-    private String example = "";
+  private static class MovieRenamerExample extends AbstractModelObject {
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("^\\$\\{(.*?)([\\}\\[;\\.]+.*)");
+    private String               token;
+    private String               completeToken;
+    private String               description;
+    private String               example       = "";
 
     private MovieRenamerExample(String token) {
       this.token = token;
+      this.completeToken = createCompleteToken();
       try {
-        this.description = BUNDLE.getString("Settings.movie.renamer." + token); //$NON-NLS-1$
+        this.description = BUNDLE.getString("Settings.movie.renamer." + token);
       }
       catch (Exception e) {
         this.description = "";
       }
+    }
+
+    private String createCompleteToken() {
+      String result = token;
+
+      Matcher matcher = TOKEN_PATTERN.matcher(token);
+      if (matcher.find() && matcher.groupCount() > 1) {
+        String alias = matcher.group(1);
+        String sourceToken = MovieRenamer.TOKEN_MAP.get(alias);
+
+        if (StringUtils.isNotBlank(sourceToken)) {
+          result = "<html>" + token + "<br>${" + sourceToken + matcher.group(2) + "</html>";
+        }
+      }
+      return result;
     }
 
     public String getDescription() {
@@ -572,7 +595,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     }
   }
 
-  private class MovieRenamerExampleTableFormat implements TableFormat<MovieRenamerExample> {
+  private static class MovieRenamerExampleTableFormat implements TableFormat<MovieRenamerExample> {
     @Override
     public int getColumnCount() {
       return 3;
@@ -582,23 +605,24 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     public String getColumnName(int column) {
       switch (column) {
         case 0:
-          return BUNDLE.getString("Settings.renamer.token.name"); //$NON-NLS-1$
+          return BUNDLE.getString("Settings.renamer.token.name");
 
         case 1:
-          return BUNDLE.getString("Settings.renamer.token"); //$NON-NLS-1$
+          return BUNDLE.getString("Settings.renamer.token");
 
         case 2:
-          return BUNDLE.getString("Settings.renamer.value"); //$NON-NLS-1$
+          return BUNDLE.getString("Settings.renamer.value");
 
+        default:
+          return null;
       }
-      return null;
     }
 
     @Override
     public Object getColumnValue(MovieRenamerExample baseObject, int column) {
       switch (column) {
         case 0:
-          return baseObject.token;
+          return baseObject.completeToken;
 
         case 1:
           return baseObject.description;

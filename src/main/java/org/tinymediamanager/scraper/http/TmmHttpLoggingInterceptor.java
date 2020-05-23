@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.http;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ import okio.GzipSource;
  */
 public class TmmHttpLoggingInterceptor implements Interceptor {
   private static final Logger  LOGGER = LoggerFactory.getLogger(TmmHttpLoggingInterceptor.class);
-  private static final Charset UTF8   = Charset.forName("UTF-8");
+  private static final Charset UTF8   = StandardCharsets.UTF_8;
 
   @Override
   public Response intercept(Chain chain) throws IOException {
@@ -124,11 +125,14 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
     }
     long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
+    Buffer buffer = null;
+
     try {
       ResponseBody responseBody = response.body();
       long contentLength = responseBody.contentLength();
       String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
-      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + response.request().url() + " ("
+      String logUrl = response.request().url().toString().replaceAll("api_key=\\w+", "api_key=<API_KEY>").replaceAll("api/\\d+\\w+", "api/<API_KEY>");
+      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " ("
           + tookMs + "ms" + ", " + bodySize + " body" + ')');
 
       Headers headersResponse = response.headers();
@@ -142,7 +146,7 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       else if (isTextResponse(response)) {
         BufferedSource source = responseBody.source();
         source.request(Long.MAX_VALUE); // Buffer the entire body.
-        Buffer buffer = source.buffer();
+        buffer = source.buffer();
 
         Long gzippedLength = null;
         if ("gzip".equalsIgnoreCase(headersResponse.get("Content-Encoding"))) {
@@ -194,6 +198,11 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
     }
     catch (Exception e) {
       LOGGER.error("Problem in HTTP logging detected: {}", e.getMessage());
+    }
+    finally {
+      if (buffer != null) {
+        buffer.close();
+      }
     }
 
     return response;

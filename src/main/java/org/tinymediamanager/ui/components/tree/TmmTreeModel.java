@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,7 +199,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     readWriteLock.writeLock().unlock();
 
     // Checking if any nodes loaded
-    if (realChildren != null && realChildren.size() > 0) {
+    if (realChildren != null && !realChildren.isEmpty()) {
       // Inserting loaded nodes
       insertNodesInto(realChildren, parent, 0);
     }

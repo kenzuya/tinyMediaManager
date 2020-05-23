@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,6 +80,7 @@ public class TvShowNfoParser {
   public MediaAiredStatus           status              = MediaAiredStatus.UNKNOWN;
   public boolean                    watched             = false;
   public int                        playcount           = 0;
+  public String                     userNote            = "";
 
   public Map<String, Object>        ids                 = new HashMap<>();
   public Map<String, Rating>        ratings             = new HashMap<>();
@@ -157,6 +158,9 @@ public class TvShowNfoParser {
     parseTag(TvShowNfoParser::parseCode);
     parseTag(TvShowNfoParser::parseDateadded);
     parseTag(TvShowNfoParser::parseEpisodeguide);
+    parseTag(TvShowNfoParser::parseUserNote);
+
+    // MUST BE THE LAST ONE!
     parseTag(TvShowNfoParser::findUnsupportedElements);
   }
 
@@ -421,7 +425,7 @@ public class TvShowNfoParser {
 
     Element element = getSingleElement(root, "plot");
     if (element != null) {
-      plot = element.ownText();
+      plot = element.wholeText();
     }
 
     return null;
@@ -435,7 +439,7 @@ public class TvShowNfoParser {
 
     Element element = getSingleElement(root, "outline");
     if (element != null) {
-      outline = element.ownText();
+      outline = element.wholeText();
     }
 
     return null;
@@ -449,7 +453,7 @@ public class TvShowNfoParser {
 
     Element element = getSingleElement(root, "tagline");
     if (element != null) {
-      tagline = element.ownText();
+      tagline = element.wholeText();
     }
 
     return null;
@@ -1141,6 +1145,19 @@ public class TvShowNfoParser {
   }
 
   /**
+   * the user note is usually in the user_note tag
+   */
+  private Void parseUserNote() {
+    supportedElements.add("user_note");
+
+    Element element = getSingleElement(root, "user_note");
+    if (element != null) {
+      userNote = element.ownText();
+    }
+    return null;
+  }
+
+  /**
    * morph this instance to a TvShow object
    *
    * @return the TvShow object
@@ -1228,6 +1245,8 @@ public class TvShowNfoParser {
     for (String tag : tags) {
       show.addToTags(tag);
     }
+
+    show.setNote(userNote);
 
     return show;
   }

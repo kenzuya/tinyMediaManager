@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ public class StrgUtils {
     if (map == null) {
       return "null";
     }
-    if (map.size() == 0) {
+    if (map.isEmpty()) {
       return "empty";
     }
 
@@ -460,5 +460,18 @@ public class StrgUtils {
       return "";
     }
     return originalString;
+  }
+
+  /**
+   * normalizes the given {@link String}
+   * 
+   * @param original
+   *          the {@link String} to normalize
+   * @return the normalized {@link String}
+   */
+  public static String normalizeString(String original) {
+    String nfdNormalizedString = Normalizer.normalize(original, Normalizer.Form.NFD);
+    Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+    return pattern.matcher(nfdNormalizedString).replaceAll("");
   }
 }

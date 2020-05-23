@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.tinymediamanager.ui.panels;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -25,7 +24,6 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -36,13 +34,13 @@ import javax.swing.UIManager;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
 import org.tinymediamanager.ui.dialogs.TaskListDialog;
@@ -57,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 public class StatusBarPanel extends JPanel implements TmmTaskListener {
   private static final long           serialVersionUID = -6375900257553323558L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private Set<TmmTaskHandle>          taskSet;
   private TmmTaskHandle               activeTask;
@@ -68,12 +66,15 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
   private JLabel                      taskLabel;
   private JProgressBar                taskProgressBar;
   private JButton                     taskStopButton;
-  private Component                   spacer;
 
   public StatusBarPanel() {
     initComponents();
 
     // further initializations
+    btnNotifications.setVisible(false);
+    taskLabel.setVisible(false);
+    taskStopButton.setVisible(false);
+    taskProgressBar.setVisible(false);
 
     // task management
     taskSet = new HashSet<>();
@@ -121,23 +122,24 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     TmmUIMessageCollector.instance.addPropertyChangeListener(evt -> {
       if (Constants.MESSAGES.equals(evt.getPropertyName())) {
         if (TmmUIMessageCollector.instance.getNewMessagesCount() > 0) {
-          spacer.setVisible(true);
           btnNotifications.setVisible(true);
           btnNotifications.setEnabled(true);
           btnNotifications.setText("" + TmmUIMessageCollector.instance.getNewMessagesCount());
         }
         else {
-          spacer.setVisible(false);
           btnNotifications.setVisible(false);
           btnNotifications.setEnabled(false);
         }
         btnNotifications.repaint();
       }
     });
+
+    // pre-load the dialog (to fetch all events)
+    TaskListDialog.getInstance();
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("insets 0 n 0 n, hidemode 2", "[][50lp:n][grow][100lp][][15lp:n][]", "[20lp:n]"));
+    setLayout(new MigLayout("insets 0 n 0 n, hidemode 3", "[][50lp:n][grow][100lp][15lp:n][]", "[22lp:n]"));
     setOpaque(false);
     {
       lblMemory = new JLabel("");
@@ -164,18 +166,11 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
       add(taskStopButton, "cell 4 0");
     }
     {
-      spacer = Box.createVerticalStrut(Math.max(taskLabel.getPreferredSize().height, taskStopButton.getPreferredSize().height));
-      spacer.setVisible(false);
-      add(spacer, "cell 5 0");
-    }
-    {
       btnNotifications = new FlatButton(IconManager.WARN_INTENSIFIED);
-      btnNotifications.setVisible(false);
-
       btnNotifications.setEnabled(false);
       btnNotifications.setForeground(Color.RED);
-      btnNotifications.setToolTipText(BUNDLE.getString("notifications.new")); //$NON-NLS-1$
-      add(btnNotifications, "cell 6 0");
+      btnNotifications.setToolTipText(BUNDLE.getString("notifications.new"));
+      add(btnNotifications, "cell 5 0");
     }
   }
 

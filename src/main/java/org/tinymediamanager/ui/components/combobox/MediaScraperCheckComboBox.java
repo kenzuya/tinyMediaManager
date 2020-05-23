@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
       List<MediaScraper> objs = getSelectedItems();
       Vector<String> strs = new Vector<>();
       if (objs.isEmpty()) {
-        str = BUNDLE.getString("ComboBox.select.mediascraper"); //$NON-NLS-1$
+        str = BUNDLE.getString("ComboBox.select.mediascraper");
       }
       else {
         for (Object obj : objs) {

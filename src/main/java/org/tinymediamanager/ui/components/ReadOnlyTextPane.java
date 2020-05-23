@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.tinymediamanager.ui.components;
 
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
 
 /**
  * A readonly variant of the JTextPane
@@ -32,5 +33,7 @@ public class ReadOnlyTextPane extends JTextPane {
     setOpaque(false);
     setEditable(false);
     setText(text);
+    setFocusable(false);
+    setForeground(UIManager.getColor("Label.foreground"));
   }
 }

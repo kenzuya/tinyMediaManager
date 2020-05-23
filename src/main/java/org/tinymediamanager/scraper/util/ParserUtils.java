@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,10 +48,10 @@ public class ParserUtils {
       "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8", "disc9", "divx",
       "divx5", "dl", "docu", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8",
       "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment", "fs", "fps", "german", "h264", "hd", "hddvd",
-      "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "ma", "md", "multisubs", "nfo", "nfofix", "ntg",
+      "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "ma", "md", "multi", "multisubs", "nfo", "nfofix", "ntg",
       "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd",
-      "screener", "se", "subbed", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uncut", "unrated", "vcf", "webdl", "webrip",
-      "workprint", "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx" };
+      "screener", "se", "subbed", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip", 
+	  "webdl", "webrip", "workprint", "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx" };
 
   // clean before splitting (needs delimiter in front!)
   public static final String[] CLEANWORDS = { "24\\.000", "23\\.976", "23\\.98", "24\\.00" };
@@ -171,9 +171,16 @@ public class ParserUtils {
     // rebuild string, respecting bad words
     StringBuilder name = new StringBuilder();
     for (int i = 0; i < firstFoundStopwordPosition; i++) {
+      boolean badwordFound = false;
       if (!s[i].isEmpty()) {
         // check for bad words
-        if (!badWords.contains(s[i].toLowerCase(Locale.ROOT))) {
+        for (String badword : badWords) {
+          if (s[i].toLowerCase(Locale.ROOT).matches(badword)) {
+            badwordFound = true;
+            break;
+          }
+        }
+        if (!badwordFound) {
           String word = s[i];
           // roman characters such as "Part Iv" should not be camel-cased
           switch (word.toUpperCase(Locale.ROOT)) {
@@ -221,7 +228,7 @@ public class ParserUtils {
   public static String detectImdbId(String text) {
     String imdb = "";
     if (text != null && !text.isEmpty()) {
-      imdb = StrgUtils.substr(text, ".*(tt\\d{7}).*");
+      imdb = StrgUtils.substr(text, ".*(tt\\d{6,}).*");
       if (imdb.isEmpty()) {
         imdb = StrgUtils.substr(text, ".*imdb\\.com\\/Title\\?(\\d{7}).*");
         if (!imdb.isEmpty()) {

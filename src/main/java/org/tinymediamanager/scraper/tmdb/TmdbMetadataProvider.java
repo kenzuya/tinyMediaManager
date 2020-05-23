@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@ package org.tinymediamanager.scraper.tmdb;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedSet;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +36,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
@@ -43,9 +47,10 @@ import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
-import org.tinymediamanager.scraper.interfaces.ITrailerProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 import org.tinymediamanager.scraper.util.ApiKey;
 
 import com.uwetrottmann.tmdb2.Tmdb;
@@ -65,7 +70,7 @@ import okhttp3.OkHttpClient;
  * @author Manuel Laggner
  */
 public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMetadataProvider, ITvShowMetadataProvider, IMovieArtworkProvider,
-    ITvShowArtworkProvider, ITrailerProvider, IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider {
+    ITvShowArtworkProvider, IMovieTrailerProvider, ITvShowTrailerProvider, IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider {
   public static final String    ID           = "tmdb";
 
   private static final Logger   LOGGER       = LoggerFactory.getLogger(TmdbMetadataProvider.class);
@@ -125,6 +130,9 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
           @Override
           protected synchronized OkHttpClient okHttpClient() {
             OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
+            builder.connectTimeout(30, TimeUnit.SECONDS);
+            builder.writeTimeout(30, TimeUnit.SECONDS);
+            builder.readTimeout(30, TimeUnit.SECONDS);
             builder.addInterceptor(new TmdbInterceptor(this));
             return builder.build();
           }
@@ -137,6 +145,8 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
       }
       catch (Exception e) {
         LOGGER.error("could not initialize the API: {}", e.getMessage());
+        // force re-initialization the next time this will be called
+        api = null;
         throw new ScrapeException(e);
       }
     }
@@ -153,7 +163,7 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
   }
 
   @Override
-  public List<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
     // lazy initialization of the api
     initAPI();
@@ -161,7 +171,7 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
   }
 
   @Override
-  public List<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
     // lazy initialization of the api
     initAPI();
@@ -454,5 +464,40 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
       g = MediaGenres.getGenre(genre.name);
     }
     return g;
+  }
+
+  /**
+   * tmdb works better if we send a "real" language tag (containing language AND country); since we have only the language tag we do the same hack as
+   * described in the tmdb api (By default, a bare ISO-639-1 language will default to its matching pair, ie. pt-PT - source
+   * https://developers.themoviedb.org/3/getting-started/languages), but without the bug they have ;)
+   * 
+   * @param language
+   *          the {@link MediaLanguages} to parse
+   * @return a {@link String} containing the language and country code
+   */
+  static String getRequestLanguage(MediaLanguages language) {
+    String name = language.name();
+
+    Locale locale;
+
+    if (name.length() > 2) {
+      // language tag is longer than 2 characters -> we have the country
+      locale = language.toLocale();
+    }
+    else {
+      // try to get the right locale with the language tag in front an end (e.g. de-DE)
+      locale = new Locale(name, name.toUpperCase(Locale.ROOT));
+      // now check if the resulting locale is valid
+      if (!LocaleUtils.isAvailableLocale(locale)) {
+        // no => fallback to default
+        locale = language.toLocale();
+      }
+    }
+
+    if (locale == null) {
+      return null;
+    }
+
+    return locale.toLanguageTag();
   }
 }

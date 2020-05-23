@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -42,14 +43,14 @@ public class ITAniDBMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("Spider Riders");
     try {
-      List<MediaSearchResult> results = mp.search(options);
+      List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
 
       for (MediaSearchResult result : results) {
         System.out.println(result.getTitle() + " " + result.getId() + " " + result.getScore());
       }
 
       options.setSearchQuery("Spice and Wolf");
-      results = mp.search(options);
+      results = new ArrayList<>(mp.search(options));
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

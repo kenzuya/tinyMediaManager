@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,8 @@ import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.scraper.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -76,7 +77,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
    *          the episodes
    */
   public TvShowBulkEditorDialog(final List<TvShow> tvShows, final List<TvShowEpisode> episodes) {
-    super(BUNDLE.getString("tvshow.bulkedit"), "tvShowBulkEditor"); //$NON-NLS-1$
+    super(BUNDLE.getString("tvshow.bulkedit"), "tvShowBulkEditor");
 
     tvShowsToEdit = tvShows;
     tvShowEpisodesToEdit = episodes;
@@ -90,10 +91,10 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("", "[20lp:n][][200lp:350lp,grow][]", "[][][][][][][shrink 0][][][][][][][][][grow]"));
 
-    JLabel lblTvShowT = new TmmLabel(BUNDLE.getString("metatag.tvshow")); //$NON-NLS-1$
+    JLabel lblTvShowT = new TmmLabel(BUNDLE.getString("metatag.tvshow"));
     panelContent.add(lblTvShowT, "cell 0 0 4 1, growx");
     {
-      JLabel lblGenres = new TmmLabel(BUNDLE.getString("metatag.genre")); //$NON-NLS-1$
+      JLabel lblGenres = new TmmLabel(BUNDLE.getString("metatag.genre"));
       panelContent.add(lblGenres, "cell 1 1,alignx right");
 
       JComboBox<MediaGenres> cbGenres = new AutocompleteComboBox(MediaGenres.values());
@@ -147,7 +148,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       JLabel lblTags = new TmmLabel(BUNDLE.getString("metatag.tags"));
       panelContent.add(lblTags, "cell 1 2,alignx right");
 
-      JComboBox<String> cbTags = new AutocompleteComboBox<>(tvShowList.getTagsInTvShows());
+      JComboBox<String> cbTags = new AutocompleteComboBox<>(ListUtils.asSortedList(tvShowList.getTagsInTvShows()));
       panelContent.add(cbTags, "cell 2 2, growx, wmin 0");
       cbTags.setEditable(true);
 
@@ -247,7 +248,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     JSeparator separator = new JSeparator();
     panelContent.add(separator, "cell 0 6 4 1, growx");
 
-    JLabel lblEpisodeT = new TmmLabel(BUNDLE.getString("metatag.episode")); //$NON-NLS-1$
+    JLabel lblEpisodeT = new TmmLabel(BUNDLE.getString("metatag.episode"));
     panelContent.add(lblEpisodeT, "cell 0 7 4 1, growx");
 
     JTextArea textArea = new ReadOnlyTextArea(BUNDLE.getString("tvshow.bulkedit.episodesfromshows"));
@@ -255,7 +256,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     panelContent.add(textArea, "cell 1 8 2 1,grow, wmin 0");
 
     {
-      JLabel lblWatched = new TmmLabel(BUNDLE.getString("metatag.watched")); //$NON-NLS-1$
+      JLabel lblWatched = new TmmLabel(BUNDLE.getString("metatag.watched"));
       panelContent.add(lblWatched, "cell 1 9,alignx right");
 
       JCheckBox chckbxWatched = new JCheckBox("");
@@ -276,7 +277,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     }
 
     {
-      JLabel lblSeason = new TmmLabel(BUNDLE.getString("metatag.season")); //$NON-NLS-1$
+      JLabel lblSeason = new TmmLabel(BUNDLE.getString("metatag.season"));
       panelContent.add(lblSeason, "cell 1 10,alignx right");
 
       JSpinner spSeason = new JSpinner();
@@ -300,7 +301,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     }
 
     {
-      JLabel lblDvdOrder = new TmmLabel(BUNDLE.getString("metatag.dvdorder")); //$NON-NLS-1$
+      JLabel lblDvdOrder = new TmmLabel(BUNDLE.getString("metatag.dvdorder"));
       panelContent.add(lblDvdOrder, "cell 1 11,alignx right");
 
       final JCheckBox cbDvdOrder = new JCheckBox("");
@@ -359,7 +360,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     }
 
     {
-      JLabel lblMediasourceEpisode = new TmmLabel(BUNDLE.getString("metatag.source")); //$NON-NLS-1$
+      JLabel lblMediasourceEpisode = new TmmLabel(BUNDLE.getString("metatag.source"));
       panelContent.add(lblMediasourceEpisode, "cell 1 13,alignx right");
 
       JComboBox<MediaSource> cbMediaSourceEpisode = new JComboBox(MediaSource.values());
@@ -405,7 +406,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     }
 
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close")); //$NON-NLS-1$
+      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
       btnClose.setIcon(IconManager.APPLY_INV);
       btnClose.addActionListener(arg0 -> {
         // rewrite tv show if anything changed

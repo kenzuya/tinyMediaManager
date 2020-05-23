@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TMDB;
 import static org.tinymediamanager.core.Constants.TOP250;
 import static org.tinymediamanager.core.Constants.TRAILER;
+import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.VIDEO_IN_3D;
 import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
@@ -64,8 +65,6 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.annotation.XmlTransient;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -83,6 +82,8 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TrailerQuality;
+import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -98,8 +99,6 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
-import org.tinymediamanager.core.movie.MovieTrailerQuality;
-import org.tinymediamanager.core.movie.MovieTrailerSources;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.connector.MovieToKodiConnector;
@@ -135,7 +134,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * @author Manuel Laggner / Myron Boyle
  */
 public class Movie extends MediaEntity implements IMediaInformation {
-  @XmlTransient
   private static final Logger                   LOGGER                     = LoggerFactory.getLogger(Movie.class);
   private static final Comparator<MediaFile>    MEDIA_FILE_COMPARATOR      = new MovieMediaFileComparator();
   private static final Comparator<MediaTrailer> TRAILER_QUALITY_COMPARATOR = new MediaTrailer.QualityComparator();
@@ -152,8 +150,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private boolean                               isDisc                     = false;
   @JsonProperty
   private String                                spokenLanguages            = "";
-  @JsonProperty
-  private boolean                               subtitles                  = false;
   @JsonProperty
   private String                                country                    = "";
   @JsonProperty
@@ -285,6 +281,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return MEDIA_FILE_COMPARATOR;
   }
 
+  @Override
+  public void addToMediaFiles(MediaFile mediaFile) {
+    super.addToMediaFiles(mediaFile);
+
+    // if we have added a trailer, also update the trailer list
+    if (mediaFile.getType() == MediaFileType.TRAILER) {
+      mixinLocalTrailers();
+    }
+  }
+
   /**
    * checks if this movie has been scraped.<br>
    * On a fresh DB, just reading local files, everything is again "unscraped". <br>
@@ -357,7 +363,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public Boolean getHasNfoFile() {
     List<MediaFile> mf = getMediaFiles(MediaFileType.NFO);
 
-    return mf != null && mf.size() > 0;
+    return mf != null && !mf.isEmpty();
   }
 
   /**
@@ -391,7 +397,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the checks for trailer
    */
   public Boolean getHasTrailer() {
-    if (trailer != null && trailer.size() > 0) {
+    if (trailer != null && !trailer.isEmpty()) {
       return true;
     }
 
@@ -545,12 +551,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /** has movie local (or any mediafile inline) subtitles? */
-  public boolean hasSubtitles() {
-    if (this.subtitles) {
-      return true; // local ones found
-    }
-
-    if (getMediaFiles(MediaFileType.SUBTITLE).size() > 0) {
+  public boolean getHasSubtitles() {
+    if (!getMediaFiles(MediaFileType.SUBTITLE).isEmpty()) {
       return true;
     }
 
@@ -561,11 +563,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     return false;
-  }
-
-  /** set subtitles */
-  public void setSubtitles(boolean sub) {
-    this.subtitles = sub;
   }
 
   /**
@@ -594,6 +591,25 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   public void setTmdbId(int newValue) {
     this.setId(TMDB, newValue);
+  }
+
+  /**
+   * Gets the trakt.tv id.
+   *
+   * @return the trakt.tv id
+   */
+  public int getTraktTvId() {
+    return this.getIdAsInt(TRAKT);
+  }
+
+  /**
+   * Sets the trakt.tv id.
+   *
+   * @param newValue
+   *          the new trakt.tv id
+   */
+  public void setTraktTvId(int newValue) {
+    this.setId(TRAKT, newValue);
   }
 
   /**
@@ -710,6 +726,26 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     // populate ids
+
+    // here we have two flavors:
+    // a) we did a search, so all existing ids should be different to to new ones -> remove old ones
+    // b) we did just a scrape (probably with another scraper). we should have at least one id in the movie which matches the ids from the metadata ->
+    // merge ids
+
+    // search for existing ids
+    boolean matchFound = false;
+    for (Map.Entry<String, Object> entry : metadata.getIds().entrySet()) {
+      if (entry.getValue() != null && entry.getValue().equals(getId(entry.getKey()))) {
+        matchFound = true;
+        break;
+      }
+    }
+
+    if (!matchFound) {
+      // clear the old ids to set only the new ones
+      ids.clear();
+    }
+
     setIds(metadata.getIds());
 
     // set chosen metadata
@@ -912,8 +948,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     // set preferred trailer
     if (MovieModuleManager.SETTINGS.isUseTrailerPreference()) {
-      MovieTrailerQuality desiredQuality = MovieModuleManager.SETTINGS.getTrailerQuality();
-      MovieTrailerSources desiredSource = MovieModuleManager.SETTINGS.getTrailerSource();
+      TrailerQuality desiredQuality = MovieModuleManager.SETTINGS.getTrailerQuality();
+      TrailerSources desiredSource = MovieModuleManager.SETTINGS.getTrailerSource();
 
       // search for quality and provider
       for (MediaTrailer trailer : trailers) {
@@ -940,7 +976,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
         List<MediaTrailer> sortedTrailers = new ArrayList<>(trailers);
         sortedTrailers.sort(TRAILER_QUALITY_COMPARATOR);
         for (MediaTrailer trailer : sortedTrailers) {
-          if (desiredQuality.ordinal() >= MovieTrailerQuality.getMovieTrailerQuality(trailer.getQuality()).ordinal()) {
+          if (desiredQuality.ordinal() >= TrailerQuality.getTrailerQuality(trailer.getQuality()).ordinal()) {
             trailer.setInNfo(Boolean.TRUE);
             preferredTrailer = trailer;
             break;
@@ -968,12 +1004,15 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
 
       // if still no preferred trailer has been set, then mark the first one
-      if (preferredTrailer == null && this.trailer.size() == 0 && !trailer.getUrl().startsWith("file")) {
+      if (preferredTrailer == null && this.trailer.isEmpty() && !trailer.getUrl().startsWith("file")) {
         trailer.setInNfo(Boolean.TRUE);
       }
 
       addTrailer(trailer);
     }
+
+    // mix in local trailer
+    mixinLocalTrailers();
   }
 
   /**
@@ -1126,7 +1165,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   /**
    * all supported TRAILER names. (without path!)
-   * 
+   *
    * @param trailer
    *          trailer naming enum
    * @return the associated trailer filename
@@ -1645,7 +1684,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     // get the audio streams from the first video file
     List<MediaFile> videoFiles = getMediaFiles(MediaFileType.VIDEO);
-    if (videoFiles.size() > 0) {
+    if (!videoFiles.isEmpty()) {
       MediaFile videoFile = videoFiles.get(0);
       mediaFilesWithAudioStreams.add(videoFile);
     }
@@ -1765,7 +1804,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (this.releaseDate == null) {
       return "";
     }
-    return TmmDateFormat.SHORT_DATE_FORMAT.format(releaseDate);
+    return TmmDateFormat.MEDIUM_DATE_FORMAT.format(releaseDate);
   }
 
   /**
@@ -1838,7 +1877,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public boolean isVideoIn3D() {
     String video3DFormat = "";
     List<MediaFile> videos = getMediaFiles(MediaFileType.VIDEO);
-    if (videos.size() > 0) {
+    if (!videos.isEmpty()) {
       MediaFile mediaFile = videos.get(0);
       video3DFormat = mediaFile.getVideo3DFormat();
     }
@@ -2175,18 +2214,34 @@ public class Movie extends MediaEntity implements IMediaInformation {
         }
       }
     }
-    // no IFO? - might be bluray
-    if (vid == null) {
-      return vid;
-    }
-
     // find the vob matching to our ifo
-    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
-      if (mf.getExtension().equalsIgnoreCase("vob") && mf.getBasename().equalsIgnoreCase(vid.getBasename())) {
-        vid = mf;
-        break;
+    if (vid != null) {
+      // check DVD VOBs
+      String prefix = StrgUtils.substr(vid.getFilename(), "(?i)^(VTS_\\d+).*");
+      if (prefix.isEmpty()) {
+        // check HD-DVD
+        prefix = StrgUtils.substr(vid.getFilename(), "(?i)^(HV\\d+)I.*");
+      }
+      for (MediaFile mif : getMediaFiles(MediaFileType.VIDEO)) {
+        // TODO: check HD-DVD
+        if (mif.getFilename().startsWith(prefix) && !mif.getFilename().endsWith("IFO")) {
+          vid = mif;
+          // take last to not get the menu one...
+        }
       }
     }
+
+    // no IFO/VOB? - might be bluray
+    if (vid == null) {
+      for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
+        if (mf.getExtension().equalsIgnoreCase("m2ts")) {
+          if (vid == null || mf.getDuration() > vid.getDuration()) {
+            vid = mf;
+          }
+        }
+      }
+    }
+
     return vid;
   }
 
@@ -2251,6 +2306,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   @Override
+  public List<String> getMediaInfoSubtitleLanguageList() {
+    return getMainVideoFile().getSubtitleLanguagesList();
+  }
+
+  @Override
   public String getMediaInfoContainerFormat() {
     return getMainVideoFile().getContainerFormat();
   }
@@ -2258,6 +2318,15 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @Override
   public MediaSource getMediaInfoSource() {
     return getMediaSource();
+  }
+
+  @Override
+  public long getVideoFilesize() {
+    long filesize = 0;
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
+      filesize += mf.getFilesize();
+    }
+    return filesize;
   }
 
   public String getVideo3DFormat() {
@@ -2322,6 +2391,79 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     if (dirty) {
       firePropertyChange(TRAILER, null, trailer);
+    }
+  }
+
+  @Override
+  protected void fireAddedEventForMediaFile(MediaFile mediaFile) {
+    super.fireAddedEventForMediaFile(mediaFile);
+
+    // movie related media file types
+    switch (mediaFile.getType()) {
+      case TRAILER:
+        firePropertyChange(TRAILER, false, true);
+        break;
+
+      case SUBTITLE:
+        firePropertyChange("hasSubtitle", false, true);
+        break;
+
+      default:
+        break;
+
+    }
+  }
+
+  @Override
+  protected void fireRemoveEventForMediaFile(MediaFile mediaFile) {
+    super.fireRemoveEventForMediaFile(mediaFile);
+
+    // movie related media file types
+    switch (mediaFile.getType()) {
+      case TRAILER:
+        firePropertyChange(TRAILER, true, false);
+        break;
+
+      case SUBTITLE:
+        firePropertyChange("hasSubtitle", true, false);
+        break;
+
+      default:
+        break;
+
+    }
+  }
+
+  private void mixinLocalTrailers() {
+    // remove local ones
+    for (int i = trailer.size() - 1; i >= 0; i--) {
+      MediaTrailer mediaTrailer = trailer.get(i);
+      if ("downloaded".equalsIgnoreCase(mediaTrailer.getProvider())) {
+        trailer.remove(i);
+      }
+    }
+
+    // add local trailers (in the front)!
+    for (MediaFile mf : getMediaFiles(MediaFileType.TRAILER)) {
+      LOGGER.debug("adding local trailer {}", mf.getFilename());
+      MediaTrailer mt = new MediaTrailer();
+      mt.setName(mf.getFilename());
+      mt.setProvider("downloaded");
+      mt.setQuality(mf.getVideoFormat());
+      mt.setInNfo(false);
+      mt.setUrl(mf.getFile().toUri().toString());
+      trailer.add(0, mt);
+      firePropertyChange(TRAILER, null, trailer);
+    }
+  }
+
+  @Override
+  public void callbackForGatheredMediainformation(MediaFile mediaFile) {
+    super.callbackForGatheredMediainformation(mediaFile);
+
+    if (mediaFile.getType() == MediaFileType.TRAILER) {
+      // re-write the trailer list
+      mixinLocalTrailers();
     }
   }
 }

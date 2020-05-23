@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,11 @@ public class TvShowMissingSubtitlesFilter extends AbstractTvShowUIFilter {
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
     for (TvShowEpisode episode : episodes) {
-      if (invert ^ !episode.hasSubtitles()) {
+      if (episode.isDummy()) {
+        continue;
+      }
+
+      if (invert ^ !episode.getHasSubtitles()) {
         return true;
       }
     }
@@ -58,7 +62,7 @@ public class TvShowMissingSubtitlesFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.missingsubtitles")); //$NON-NLS-1$
+    return new TmmLabel(BUNDLE.getString("movieextendedsearch.missingsubtitles"));
   }
 
   @Override

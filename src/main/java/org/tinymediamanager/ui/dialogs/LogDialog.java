@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class LogDialog extends TmmDialog implements ActionListener {
   private final Timer         timerRefresh;
 
   public LogDialog() {
-    super(BUNDLE.getString("logwindow.title"), "log"); //$NON-NLS-1$
+    super(BUNDLE.getString("logwindow.title"), "log");
     setBounds(5, 5, 1000, 590);
 
     timerRefresh = new Timer(REFRESH_PERIOD, this);
@@ -66,7 +66,7 @@ public class LogDialog extends TmmDialog implements ActionListener {
 
     taLogs.setText(TmmUILogCollector.instance.getLogOutput().getContent());
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close")); //$NON-NLS-1$
+      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }

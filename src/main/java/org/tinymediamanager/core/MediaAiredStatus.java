@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.tinymediamanager.core;
 
+import java.util.ResourceBundle;
+
 /**
  * this enum is used to set different aired states
  *
@@ -26,8 +28,9 @@ public enum MediaAiredStatus {
   CONTINUING("Continuing", new String[] { "Continuing", "returning series" }),
   ENDED("Ended", new String[] { "Ended" });
 
-  private String   name;
-  private String[] possibleNotations;
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private String                      name;
+  private String[]                    possibleNotations;
 
   MediaAiredStatus(String name, String[] possibleNotations) {
     this.name = name;
@@ -55,5 +58,16 @@ public enum MediaAiredStatus {
 
   public String getName() {
     return this.name;
+  }
+
+  @Override
+  public String toString() {
+    try {
+      return BUNDLE.getString("MediaAiredStatus." + name());
+    }
+    catch (Exception ignored) {
+      // fallback
+      return this.name;
+    }
   }
 }

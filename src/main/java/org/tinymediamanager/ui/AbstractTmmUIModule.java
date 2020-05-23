@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,11 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.components.TmmListPanel;
 
 public abstract class AbstractTmmUIModule implements ITmmUIModule {
-  protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control());
 
   protected final Map<Class, Action>    actionMap    = new HashMap<>();
 

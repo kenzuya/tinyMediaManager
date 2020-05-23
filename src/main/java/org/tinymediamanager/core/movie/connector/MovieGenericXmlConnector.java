@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -536,8 +536,27 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addDateAdded() {
     Element dateadded = document.createElement("dateadded");
-    if (movie.getDateAdded() != null) {
-      dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.getDateAdded()));
+    switch (MovieModuleManager.SETTINGS.getNfoDateAddedField()) {
+      case DATE_ADDED:
+        if (movie.getDateAdded() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.getDateAdded()));
+        }
+        break;
+
+      case FILE_CREATION_DATE:
+        MediaFile mainMediaFile = movie.getMainFile();
+        if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
+        }
+        break;
+
+      case FILE_LAST_MODIFIED_DATE:
+        mainMediaFile = movie.getMainFile();
+        if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateLastModified()));
+        }
+        break;
+
     }
     root.appendChild(dateadded);
   }
@@ -729,6 +748,26 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     root.appendChild(document.createComment("tinyMediaManager meta data"));
     addSource();
     addEdition();
+    addOriginalFilename();
+    addUserNote();
+  }
+
+  /**
+   * add the user note in <user_note>xxx</user_note>
+   */
+  protected void addUserNote() {
+    Element user_note = document.createElement("user_note");
+    user_note.setTextContent(movie.getNote());
+    root.appendChild(user_note);
+  }
+
+  /**
+   * add the original filename (which we picked up in tmm before renaming) in <original_filename>xxx</original_filename>
+   */
+  protected void addOriginalFilename() {
+    Element originalFileName = document.createElement("original_filename");
+    originalFileName.setTextContent(movie.getMainFile().getFilename());
+    root.appendChild(originalFileName);
   }
 
   /**
@@ -772,7 +811,13 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
-    transformer.setOutputProperty(ORACLE_IS_STANDALONE, "yes");
+    // not supported in all JVMs
+    try {
+      transformer.setOutputProperty(ORACLE_IS_STANDALONE, "yes");
+    }
+    catch (Exception ignored) {
+      // okay, seems we're not on OracleJDK, OPenJDK or AdopOpenJDK
+    }
     transformer.setOutputProperty(OutputKeys.METHOD, "xml");
     transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 

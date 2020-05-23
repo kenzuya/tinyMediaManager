@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.components;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
@@ -23,8 +24,8 @@ import javax.swing.table.TableColumn;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.NumberCellEditor;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -40,7 +41,7 @@ import ca.odell.glazedlists.swing.DefaultEventTableModel;
 public class MediaRatingTable extends TmmTable {
   private static final long                                           serialVersionUID = 8010732881277204728L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle                                 BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle                                 BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private Map<String, org.tinymediamanager.core.entities.MediaRating> ratingMap;
   private EventList<MediaRating>                                      mediaRatingList;
@@ -109,6 +110,22 @@ public class MediaRatingTable extends TmmTable {
     return idList;
   }
 
+  public static EventList<MediaRating> convertRatingMapToEventList(List<org.tinymediamanager.core.entities.MediaRating> ratings) {
+    EventList<MediaRating> idList = new BasicEventList<>();
+    for (org.tinymediamanager.core.entities.MediaRating rating : ratings) {
+      MediaRating id = new MediaRating(rating.getId());
+      org.tinymediamanager.core.entities.MediaRating mediaRating = rating;
+
+      id.value = mediaRating.getRating();
+      id.votes = mediaRating.getVotes();
+      id.maxValue = mediaRating.getMaxValue();
+
+      idList.add(id);
+    }
+
+    return idList;
+  }
+
   public static class MediaRating {
     public String key;
     public float  value;
@@ -153,16 +170,16 @@ public class MediaRatingTable extends TmmTable {
     public String getColumnName(int column) {
       switch (column) {
         case 0:
-          return BUNDLE.getString("metatag.rating.source"); //$NON-NLS-1$
+          return BUNDLE.getString("metatag.rating.source");
 
         case 1:
-          return BUNDLE.getString("metatag.rating"); //$NON-NLS-1$
+          return BUNDLE.getString("metatag.rating");
 
         case 2:
-          return BUNDLE.getString("metatag.rating.maxvalue"); //$NON-NLS-1$
+          return BUNDLE.getString("metatag.rating.maxvalue");
 
         case 3:
-          return BUNDLE.getString("metatag.rating.votes"); //$NON-NLS-1$
+          return BUNDLE.getString("metatag.rating.votes");
       }
       return "";
     }

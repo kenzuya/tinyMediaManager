@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,8 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * The Class TmmTable. It's being used to draw the tables like our designer designed it
@@ -212,11 +212,13 @@ public class TmmTable extends JTable {
         super.paintComponent(g);
         // if this JTableHeader is parented in a JViewport, then paint the
         // table header background to the right of the last column if necessary.
-        JViewport viewport = (JViewport) table.getParent();
-        if (viewport != null && table.getWidth() < viewport.getWidth()) {
-          int x = table.getWidth();
-          int width = viewport.getWidth() - table.getWidth();
-          paintHeader(g, getTable(), x, width);
+        if (table.getParent() instanceof JViewport) {
+          JViewport viewport = (JViewport) table.getParent();
+          if (viewport != null && table.getWidth() < viewport.getWidth()) {
+            int x = table.getWidth();
+            int width = viewport.getWidth() - table.getWidth();
+            paintHeader(g, getTable(), x, width);
+          }
         }
       }
     };

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package org.tinymediamanager.core.movie;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.core.UTF8Control;
 
 /**
  * The enum MovieScraperMetadataConfig is used to control which fields will be set after scraping
@@ -66,7 +67,7 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   EXTRAFANART(Type.ARTWORK),
   EXTRATHUMB(Type.ARTWORK);
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private Type                        type;
   private String                      description;
@@ -129,5 +130,14 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
       // just not crash
     }
     return null;
+  }
+
+  /**
+   * get all artwork types
+   * 
+   * @return an array with all artwork types
+   */
+  public static MovieScraperMetadataConfig[] getArtworkTypes() {
+    return Arrays.stream(values()).filter(ScraperMetadataConfig::isArtwork).toArray(MovieScraperMetadataConfig[]::new);
   }
 }

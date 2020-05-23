@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,13 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.scraper.http.StreamingUrl;
 import org.tinymediamanager.scraper.util.UrlUtil;
-import org.tinymediamanager.ui.UTF8Control;
 
 import okhttp3.Headers;
 
@@ -51,7 +51,7 @@ import okhttp3.Headers;
  */
 public class DownloadTask extends TmmTask {
   private static final Logger         LOGGER    = LoggerFactory.getLogger(DownloadTask.class);
-  private static final ResourceBundle BUNDLE    = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE    = ResourceBundle.getBundle("messages", new UTF8Control());
 
   protected String                    url;
   protected Path                      file;
@@ -118,11 +118,11 @@ public class DownloadTask extends TmmTask {
 
       // try to get the file extension from the destination filename
       String ext = FilenameUtils.getExtension(file.getFileName().toString()).toLowerCase(Locale.ROOT);
-      if (ext != null && ext.length() > 4 || !Globals.settings.getAllSupportedFileTypes().contains("." + ext)) {
+      if (StringUtils.isNotBlank(ext) && ext.length() > 4 || !Globals.settings.getAllSupportedFileTypes().contains("." + ext)) {
         ext = ""; // no extension when longer than 4 chars!
       }
       // if file extension is empty, detect from url
-      if (ext == null || ext.isEmpty()) {
+      if (StringUtils.isBlank(ext)) {
         ext = UrlUtil.getExtension(url).toLowerCase(Locale.ROOT);
         if (!ext.isEmpty()) {
           if (Globals.settings.getAllSupportedFileTypes().contains("." + ext)) {
@@ -182,7 +182,7 @@ public class DownloadTask extends TmmTask {
 
       long length = u.getContentLength();
       String type = u.getContentEncoding();
-      if (ext.isEmpty()) {
+      if (StringUtils.isBlank(ext)) {
         // still empty? try to parse from mime header
         if (type.startsWith("video/") || type.startsWith("audio/") || type.startsWith("image/")) {
           ext = type.split("/")[1];
@@ -196,7 +196,7 @@ public class DownloadTask extends TmmTask {
       }
 
       // ext still empty?
-      if (ext.isEmpty()) {
+      if (StringUtils.isEmpty(ext)) {
         // fallback!
         ext = "dat";
       }
@@ -207,7 +207,7 @@ public class DownloadTask extends TmmTask {
 
       try (FileOutputStream outputStream = new FileOutputStream(tempFile.toFile(), resume)) {
         int count = 0;
-        byte buffer[] = new byte[2048];
+        byte[] buffer = new byte[2048];
         Long timestamp1 = System.nanoTime();
         Long timestamp2;
         long bytesDone = 0;
@@ -301,10 +301,10 @@ public class DownloadTask extends TmmTask {
   }
 
   private String formatBytesForOutput(long bytes) {
-    return String.format("%.2fM", (double) bytes / (1024d * 1024d));
+    return String.format("%.2fM", (double) bytes / (1000d * 1000d));
   }
 
   private String formatSpeedForOutput(double speed) {
-    return String.format("%.2fkB/s", speed / 1024d);
+    return String.format("%.2fkB/s", speed / 1000d);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class MovieTest extends BasicTest {
 
   @Test
   public void trailerDetection() {
-    String m = "So.Dark.the.Night.1946.720p.BluRay.x264-x0r[Trailer-Theatrical Trailer].mkv";
+    String m = "So.Dark.the.Night.1946.720p.BluRay.x264-x0r[Trailer-Theatrical-Trailer].mkv";
     MediaFile mf = new MediaFile(Paths.get(m));
     Assert.assertSame(MediaFileType.TRAILER, mf.getType());
 

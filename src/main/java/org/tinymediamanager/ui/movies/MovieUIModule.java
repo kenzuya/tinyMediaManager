@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
 import org.tinymediamanager.ui.movies.panels.MovieInformationPanel;
 import org.tinymediamanager.ui.movies.panels.MovieListPanel;
 import org.tinymediamanager.ui.movies.panels.MovieMediaInformationPanel;
-import org.tinymediamanager.ui.movies.panels.MovieTrailerPanel;
+import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.movies.settings.MovieSettingsNode;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
@@ -126,11 +126,11 @@ public class MovieUIModule extends AbstractTmmUIModule {
       }
     };
 
-    tabbedPane.add(BUNDLE.getString("metatag.details"), new MovieInformationPanel(selectionModel)); //$NON-NLS-1$
-    tabbedPane.add(BUNDLE.getString("metatag.cast"), new MovieCastPanel(selectionModel)); //$NON-NLS-1$
-    tabbedPane.add(BUNDLE.getString("metatag.mediafiles"), new MovieMediaInformationPanel(selectionModel)); //$NON-NLS-1$
-    tabbedPane.add(BUNDLE.getString("metatag.artwork"), new MovieArtworkPanel(selectionModel)); //$NON-NLS-1$
-    tabbedPane.add(BUNDLE.getString("metatag.trailer"), new MovieTrailerPanel(selectionModel)); //$NON-NLS-1$
+    tabbedPane.add(BUNDLE.getString("metatag.details"), new MovieInformationPanel(selectionModel));
+    tabbedPane.add(BUNDLE.getString("metatag.cast"), new MovieCastPanel(selectionModel));
+    tabbedPane.add(BUNDLE.getString("metatag.mediafiles"), new MovieMediaInformationPanel(selectionModel));
+    tabbedPane.add(BUNDLE.getString("metatag.artwork"), new MovieArtworkPanel(selectionModel));
+    tabbedPane.add(BUNDLE.getString("metatag.trailer"), new TrailerPanel(selectionModel));
     dataPanel.add(tabbedPane);
 
     movieFilterDialog = new MovieFilterDialog(selectionModel);
@@ -153,11 +153,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
         MovieList.getInstance().searchDuplicates();
         selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getUiFilters());
       });
-    }
-
-    // apply sorting
-    if (MovieModuleManager.SETTINGS.isStoreUiSorting()) {
-      selectionModel.sortMovies(MovieModuleManager.SETTINGS.getSortColumn(), MovieModuleManager.SETTINGS.isSortAscending());
     }
 
     // init the table panel
@@ -222,7 +217,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieDeleteAction.class));
 
     if (Globals.isDebug()) {
-      final JMenu debugMenu = new JMenu("Debug"); //$NON-NLS-1$
+      final JMenu debugMenu = new JMenu("Debug");
       debugMenu.add(new DebugDumpMovieAction());
       popupMenu.addSeparator();
       popupMenu.add(debugMenu);
@@ -326,7 +321,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
   @Override
   public String getTabTitle() {
-    return BUNDLE.getString("tmm.movies"); //$NON-NLS-1$ )
+    return BUNDLE.getString("tmm.movies");
   }
 
   @Override

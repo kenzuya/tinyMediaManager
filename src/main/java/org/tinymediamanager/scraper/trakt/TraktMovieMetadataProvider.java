@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,9 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,7 +40,6 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.CastMember;
@@ -65,26 +65,21 @@ class TraktMovieMetadataProvider {
     this.api = api;
   }
 
-  List<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
 
     String searchString = "";
     if (StringUtils.isEmpty(searchString) && StringUtils.isNotEmpty(options.getSearchQuery())) {
       searchString = options.getSearchQuery();
     }
 
-    String year = null;
-    if (options.getSearchYear() > 1800) {
-      year = String.valueOf(options.getSearchYear());
-    }
-
-    List<MediaSearchResult> results = new ArrayList<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
     List<SearchResult> searchResults = null;
-    String lang = options.getLanguage().getLanguage();
-    lang = lang + ",en"; // fallback search
+
+    // pass NO language here since trakt.tv returns less results when passing a language :(
 
     try {
       Response<List<SearchResult>> response;
-      response = api.search().textQueryMovie(searchString, year, null, lang, null, null, null, null, Extended.FULL, 1, 25).execute();
+      response = api.search().textQueryMovie(searchString, null, null, null, null, null, null, null, Extended.FULL, 1, 25).execute();
       if (!response.isSuccessful()) {
         LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
         throw new HttpException(response.code(), response.message());
@@ -103,7 +98,6 @@ class TraktMovieMetadataProvider {
 
     for (SearchResult result : searchResults) {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
-      m.setScore(MetadataUtil.calculateScore(searchString, m.getTitle()));
       results.add(m);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -34,6 +33,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
@@ -146,6 +146,12 @@ public class KodiScraper implements IMediaProvider {
           // }
         }
       }
+      if (this.scraperXml.toLowerCase(Locale.ROOT).endsWith(".py")) {
+        LOGGER.info("Found a python scraper {}, but we can only load XML based ones - sorry.", scraperFolder);
+        providerInfo = new MediaProviderInfo("", name, ""); // set blank ID, so the outer loop ignores
+        return;
+      }
+
       providerInfo = new MediaProviderInfo(id, "Kodi: " + name, "<h3>" + summary + "</h3><br>" + description);
       providerInfo.setVersion(version); // deprecated solely for Kodi, so ok
 
@@ -157,33 +163,18 @@ public class KodiScraper implements IMediaProvider {
       String lang = Locale.getDefault().getDisplayLanguage(Locale.ENGLISH);
       File langFolder = new File(scraperFolder, "resources/language/" + lang);
       if (!langFolder.exists()) {
-        langFolder = new File(scraperFolder, "resources/language/English");
+        lang = (Locale.getDefault().getCountry() + "_" + Locale.getDefault().getLanguage()).toLowerCase(Locale.ROOT);
+        langFolder = new File(scraperFolder, "resources/language/resource.language." + lang);
       }
 
-      File langFile = new File(langFolder, "strings.xml");
-      if (langFile.exists()) {
-        // parse XML
-        Document set = Jsoup.parse(langFile, "UTF-8", "");
-        Elements strings = set.getElementsByTag("string");
-        for (Element el : strings) {
-          labelmap.put(el.id(), el.text());
-        }
-      }
-      else {
-        langFile = new File(langFolder, "strings.po");
-        if (langFile.exists()) {
-          // parse PO
-          String labels = FileUtils.readFileToString(langFile);
-          Pattern p = Pattern.compile("msgctxt \"#(.*?)\"\nmsgid \"(.*?)\"\nmsgstr \"(.*?)\"");
-          Matcher m = p.matcher(labels);
-          while (m.find()) {
-            // msgctxt "#30030"
-            // msgid "Certification prefix"
-            // msgstr ""
-            labelmap.put(m.group(1), m.group(3).isEmpty() ? m.group(2) : m.group(3));
-          }
-        }
-      }
+      // put default names
+      labelmap.putAll(getLocalizationFromFile(new File(scraperFolder, "resources/language/English")));
+      labelmap.putAll(getLocalizationFromFile(new File(scraperFolder, "resources/language/English (GB)")));
+      labelmap.putAll(getLocalizationFromFile(new File(scraperFolder, "resources/language/English (US)")));
+      labelmap.putAll(getLocalizationFromFile(new File(scraperFolder, "resources/language/resource.language.en_gb")));
+      labelmap.putAll(getLocalizationFromFile(new File(scraperFolder, "resources/language/resource.language.en_us")));
+      // overwrite with localized ones
+      labelmap.putAll(getLocalizationFromFile(langFolder));
 
       // =====================================================
       // parse default settings and build TMM config
@@ -303,8 +294,39 @@ public class KodiScraper implements IMediaProvider {
       }
     }
     catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("Unable to generate Kodi scraper for folder {}", scraperFolder, e);
     }
+  }
+
+  private HashMap<String, String> getLocalizationFromFile(File langFolder) throws IOException {
+    HashMap<String, String> labelmap = new HashMap<>();
+    if (langFolder != null) {
+      File langFile = new File(langFolder, "strings.xml");
+      if (langFile.exists()) {
+        // parse XML
+        Document set = Jsoup.parse(langFile, "UTF-8", "");
+        Elements strings = set.getElementsByTag("string");
+        for (Element el : strings) {
+          labelmap.put(el.id(), el.text());
+        }
+      }
+      else {
+        langFile = new File(langFolder, "strings.po");
+        if (langFile.exists()) {
+          // parse PO
+          String labels = Utils.readFileToString(langFile.toPath());
+          Pattern p = Pattern.compile("msgctxt \"#(.*?)\"(?:\\r\\n|\\n|\\r)msgid \"(.*?)\"(?:\\r\\n|\\n|\\r)msgstr \"(.*?)\"");
+          Matcher m = p.matcher(labels);
+          while (m.find()) {
+            // msgctxt "#30030"
+            // msgid "Certification prefix"
+            // msgstr ""
+            labelmap.put(m.group(1), m.group(3).isEmpty() ? m.group(2) : m.group(3));
+          }
+        }
+      }
+    }
+    return labelmap;
   }
 
   /**

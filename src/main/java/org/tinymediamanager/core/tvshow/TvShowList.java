@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +52,6 @@ import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -136,7 +137,7 @@ public class TvShowList extends AbstractModelObject {
 
   /**
    * Gets the tv shows.
-   * 
+   *
    * @return the tv shows
    */
   public List<TvShow> getTvShows() {
@@ -144,8 +145,40 @@ public class TvShowList extends AbstractModelObject {
   }
 
   /**
+   * get all specified trailer scrapers.
+   *
+   * @param providerIds
+   *          the scrapers
+   * @return the trailer providers
+   */
+  public List<MediaScraper> getTrailerScrapers(List<String> providerIds) {
+    List<MediaScraper> trailerScrapers = new ArrayList<>();
+
+    for (String providerId : providerIds) {
+      if (StringUtils.isBlank(providerId)) {
+        continue;
+      }
+      MediaScraper trailerScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.TVSHOW_TRAILER);
+      if (trailerScraper != null) {
+        trailerScrapers.add(trailerScraper);
+      }
+    }
+
+    return trailerScrapers;
+  }
+
+  /**
+   * all available trailer scrapers.
+   *
+   * @return the trailer scrapers
+   */
+  public List<MediaScraper> getAvailableTrailerScrapers() {
+    return MediaScraper.getMediaScrapers(ScraperType.TVSHOW_TRAILER);
+  }
+
+  /**
    * Gets the unscraped TvShows
-   * 
+   *
    * @return the unscraped TvShows
    */
   public List<TvShow> getUnscrapedTvShows() {
@@ -319,12 +352,12 @@ public class TvShowList extends AbstractModelObject {
         tvShowList.add(tvShow);
       }
       catch (Exception e) {
-        LOGGER.warn("problem decoding TV show json string: " + e.getMessage());
+        LOGGER.warn("problem decoding TV show json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt TV show: {}", json);
         tvShowMap.remove(uuid);
       }
     }
-    LOGGER.info("found " + tvShowList.size() + " TV shows in database");
+    LOGGER.info("found {} TV shows in database", tvShowList.size());
   }
 
   /**
@@ -343,6 +376,13 @@ public class TvShowList extends AbstractModelObject {
         json = episodesMap.get(uuid);
         TvShowEpisode episode = episodeObjectReader.readValue(json);
         episode.setDbId(uuid);
+
+        // sanity check: only episodes with a video file are valid
+        if (episode.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+          // no video file? drop it
+          LOGGER.info("episode \"S{}E{}\" without video file - dropping", episode.getSeason(), episode.getEpisode());
+          episodesMap.remove(uuid);
+        }
 
         // check for orphaned episodes
         boolean found = false;
@@ -363,7 +403,7 @@ public class TvShowList extends AbstractModelObject {
         }
       }
       catch (Exception e) {
-        LOGGER.warn("problem decoding episode json string: " + e.getMessage());
+        LOGGER.warn("problem decoding episode json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt episode: {}", json);
         episodesMap.remove(uuid);
       }
@@ -374,7 +414,7 @@ public class TvShowList extends AbstractModelObject {
       episodesMap.remove(uuid);
     }
 
-    LOGGER.info("found " + episodeCount + " episodes in database");
+    LOGGER.info("found {} episodes in database", episodeCount);
   }
 
   void initDataAfterLoading() {
@@ -503,12 +543,16 @@ public class TvShowList extends AbstractModelObject {
    * 
    * @param searchTerm
    *          the search term
+   * @param year
+   *          the year of the movie (if available, otherwise <= 0)
+   * @param ids
+   *          a map of all available ids of the movie or null if no id based search is requested
    * @param mediaScraper
    *          the media scraper
    * @return the list
    */
-  public List<MediaSearchResult> searchTvShow(String searchTerm, TvShow show, MediaScraper mediaScraper) {
-    return searchTvShow(searchTerm, show, mediaScraper, TvShowModuleManager.SETTINGS.getScraperLanguage());
+  public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper) {
+    return searchTvShow(searchTerm, year, ids, mediaScraper, TvShowModuleManager.SETTINGS.getScraperLanguage());
   }
 
   /**
@@ -516,14 +560,19 @@ public class TvShowList extends AbstractModelObject {
    * 
    * @param searchTerm
    *          the search term
+   * @param year
+   *          the year of the movie (if available, otherwise <= 0)
+   * @param ids
+   *          a map of all available ids of the movie or null if no id based search is requested
    * @param mediaScraper
    *          the media scraper
    * @param language
    *          the language to search with
    * @return the list
    */
-  public List<MediaSearchResult> searchTvShow(String searchTerm, TvShow show, MediaScraper mediaScraper, MediaLanguages language) {
-    List<MediaSearchResult> searchResult = new ArrayList<>();
+  public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper,
+      MediaLanguages language) {
+    Set<MediaSearchResult> results = new TreeSet<>();
     try {
       ITvShowMetadataProvider provider;
 
@@ -538,21 +587,26 @@ public class TvShowList extends AbstractModelObject {
       options.setSearchQuery(searchTerm);
       options.setLanguage(language);
 
-      if (show != null) {
-        options.setIds(show.getIds());
-        options.setSearchQuery(show.getTitle());
-        if (show.getYear() > 0) {
-          options.setSearchYear(show.getYear());
+      if (ids != null) {
+        options.setIds(ids);
+      }
+
+      if (!searchTerm.isEmpty()) {
+        if (Utils.isValidImdbId(searchTerm)) {
+          options.setImdbId(searchTerm);
         }
+        options.setSearchQuery(searchTerm);
       }
-      if (Utils.isValidImdbId(searchTerm)) {
-        options.setImdbId(searchTerm);
+
+      if (year > 0) {
+        options.setSearchYear(year);
       }
+
       LOGGER.info("=====================================================");
       LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
       LOGGER.info(options.toString());
       LOGGER.info("=====================================================");
-      searchResult = provider.search(options);
+      results.addAll(provider.search(options));
 
       // if result is empty, try all scrapers
       // FIXME only needed if we have more "true" scrapers
@@ -576,7 +630,7 @@ public class TvShowList extends AbstractModelObject {
           .pushMessage(new Message(MessageLevel.ERROR, this, "message.tvshow.searcherror", new String[] { ":", e.getLocalizedMessage() }));
     }
 
-    return searchResult;
+    return new ArrayList<>(results);
   }
 
   private void updateTvShowTags(TvShow tvShow) {
@@ -654,13 +708,13 @@ public class TvShowList extends AbstractModelObject {
     for (MediaFile mf : episode.getMediaFiles(MediaFileType.VIDEO)) {
       // video codec
       String codec = mf.getVideoCodec();
-      if (!videoCodecsObservable.contains(codec)) {
+      if (StringUtils.isNotBlank(codec) && !videoCodecsObservable.contains(codec)) {
         addVideoCodec(codec);
       }
 
       // frame rate
       Double frameRate = mf.getFrameRate();
-      if (!frameRateObservable.contains(frameRate)) {
+      if (frameRate > 0 && !frameRateObservable.contains(frameRate)) {
         addFrameRate(frameRate);
       }
 
@@ -673,7 +727,7 @@ public class TvShowList extends AbstractModelObject {
       // audio codec
       for (MediaFileAudioStream audio : mf.getAudioStreams()) {
         String audioCodec = audio.getCodec();
-        if (!audioCodecsObservable.contains(audioCodec)) {
+        if (StringUtils.isNotBlank(audioCodec) && !audioCodecsObservable.contains(audioCodec)) {
           addAudioCodec(audioCodec);
         }
       }
@@ -863,7 +917,7 @@ public class TvShowList extends AbstractModelObject {
   }
 
   /**
-   * check if there are movies without (at least) one VIDEO mf
+   * check if there are episodes without (at least) one VIDEO mf
    */
   private void checkAndCleanupMediaFiles() {
     boolean problemsDetected = false;
@@ -912,7 +966,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified subtitle scrapers
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
-    return getSubtitleScrapers(MovieModuleManager.SETTINGS.getSubtitleScrapers());
+    return getSubtitleScrapers(TvShowModuleManager.SETTINGS.getSubtitleScrapers());
   }
 
   /**
@@ -921,8 +975,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified trailer scrapers
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
-    // TODO
-    return new ArrayList<>();
+    return getTrailerScrapers(TvShowModuleManager.SETTINGS.getTrailerScrapers());
   }
 
   /**

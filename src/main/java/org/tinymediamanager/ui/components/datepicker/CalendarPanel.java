@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SpinnerNumberModel;
 
-import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.core.UTF8Control;
 
 /**
  * The class CalendarPanel is used to display a calendar like panel for date choosing
@@ -40,7 +40,7 @@ import org.tinymediamanager.ui.UTF8Control;
  */
 class CalendarPanel extends JPanel implements PropertyChangeListener {
   private static final long           serialVersionUID = -1214699062624370112L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private Calendar                    calendar;
   protected Locale                    locale;

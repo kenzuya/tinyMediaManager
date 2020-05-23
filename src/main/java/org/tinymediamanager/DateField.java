@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.tinymediamanager;
 
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.core.UTF8Control;
 
 /**
  * the enum DateAdded is used to control which date should be taken for various parts of tinyMediaManager
@@ -30,7 +30,7 @@ public enum DateField {
   FILE_CREATION_DATE("metatag.filecreationdate"), // fileCreation date
   FILE_LAST_MODIFIED_DATE("metatag.filelastmodifieddate"); // fileLastModified date
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
   private final String                description;
 
   DateField(String description) {

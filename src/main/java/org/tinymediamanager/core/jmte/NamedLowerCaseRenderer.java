@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,11 @@ import com.floreysoft.jmte.RenderFormatInfo;
 public class NamedLowerCaseRenderer implements NamedRenderer {
   @Override
   public String render(Object o, String s, Locale locale, Map<String, Object> map) {
-    if (o instanceof String) {
-      return ((String) o).toLowerCase(Locale.ROOT);
+    if (o == null) {
+      return "";
     }
-    return "";
+
+    return o.toString().toLowerCase(Locale.ROOT);
   }
 
   @Override

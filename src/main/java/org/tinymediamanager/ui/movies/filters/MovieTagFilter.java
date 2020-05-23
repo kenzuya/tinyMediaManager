@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 package org.tinymediamanager.ui.movies.filters;
 
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 
@@ -35,6 +37,7 @@ import org.tinymediamanager.ui.components.table.TmmTableFormat;
 public class MovieTagFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
   private TmmTableFormat.StringComparator comparator;
   private MovieList                       movieList = MovieList.getInstance();
+  private Set<String>                     oldTags   = new HashSet<>();
 
   public MovieTagFilter() {
     super();
@@ -69,14 +72,29 @@ public class MovieTagFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.tag")); //$NON-NLS-1$
+    return new TmmLabel(BUNDLE.getString("movieextendedsearch.tag"));
   }
 
   private void buildAndInstallTagsArray() {
-    List<String> tags = new ArrayList<>(movieList.getTagsInMovies());
-    tags.sort(comparator);
+    // do it lazy because otherwise there is too much UI overhead
+    // also use a set for faster lookups
+    boolean dirty = false;
+    Set<String> tags = new HashSet<>(movieList.getTagsInMovies());
 
-    setValues(tags);
+    if (oldTags.size() != tags.size()) {
+      dirty = true;
+    }
+
+    if (!oldTags.containsAll(tags) || !tags.containsAll(oldTags)) {
+      dirty = true;
+    }
+
+    if (dirty) {
+      oldTags.clear();
+      oldTags.addAll(tags);
+
+      setValues(ListUtils.asSortedList(tags));
+    }
   }
 
   @Override

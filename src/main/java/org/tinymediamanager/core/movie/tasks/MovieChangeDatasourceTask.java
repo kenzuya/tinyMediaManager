@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * the class {@link MovieChangeDatasourceTask} is used to change a Data source of a movie including the move/copy of all files
@@ -40,7 +40,7 @@ import org.tinymediamanager.ui.UTF8Control;
  */
 public class MovieChangeDatasourceTask extends TmmThreadPool {
   private static final Logger         LOGGER         = LoggerFactory.getLogger(MovieChangeDatasourceTask.class);
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private final String                datasource;
   private final List<Movie>           moviesToChange = new ArrayList<>();

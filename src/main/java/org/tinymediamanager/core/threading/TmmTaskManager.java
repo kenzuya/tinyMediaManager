@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskState;
 import org.tinymediamanager.core.threading.TmmThreadPool.TmmThreadFactory;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * The class TmmTaskManager. Used to manage all tasks within tmm (except the helper tasks, e.g. scraper sub tasks)
@@ -38,7 +38,7 @@ import org.tinymediamanager.ui.UTF8Control;
  */
 public class TmmTaskManager implements TmmTaskListener {
   public final AtomicLong                GLOB_THRD_CNT    = new AtomicLong(1);
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
   private static final TmmTaskManager    instance         = new TmmTaskManager();
   private final Set<TmmTaskListener>     taskListener     = new CopyOnWriteArraySet<>();
   private final Set<TmmTaskHandle>       runningTasks     = new CopyOnWriteArraySet<>();
@@ -165,6 +165,19 @@ public class TmmTaskManager implements TmmTaskListener {
     task.addListener(this);
     // immediately inform this listener
     processTaskEvent(task);
+    unnamedTaskExecutor.execute(task);
+  }
+
+  /**
+   * add a tasks which does not fit in the named queues (like caching or TV show episode scraping task)
+   *
+   * @param task
+   *          the task to be added
+   */
+  public void addUnnamedTask(Runnable task) {
+    if (unnamedTaskExecutor == null || unnamedTaskExecutor.isShutdown()) {
+      unnamedTaskExecutor = createUnnamedTaskExecutor();
+    }
     unnamedTaskExecutor.execute(task);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.List;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -45,25 +47,11 @@ public class TvShowVideoFormatFilter extends AbstractCheckComboBoxTvShowUIFilter
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
     List<String> selectedValues = checkComboBox.getSelectedItems();
 
-    for (String videoFormat : selectedValues) {
-
-      for (TvShowEpisode episode : episodes) {
-        if (MediaFileHelper.VIDEO_FORMAT_UHD.equals(videoFormat) || MediaFileHelper.VIDEO_FORMAT_HD.equals(videoFormat)
-            || MediaFileHelper.VIDEO_FORMAT_SD.equals(videoFormat)) {
-          if (invert ^ (MediaFileHelper.VIDEO_FORMAT_UHD.equals(videoFormat) && isVideoUHD(episode.getMediaInfoVideoFormat()))) {
-            return true;
-          }
-          if (invert ^ (MediaFileHelper.VIDEO_FORMAT_HD.equals(videoFormat) && isVideoHD(episode.getMediaInfoVideoFormat()))) {
-            return true;
-          }
-          if (invert ^ (MediaFileHelper.VIDEO_FORMAT_SD.equals(videoFormat) && !isVideoHD(episode.getMediaInfoVideoFormat()))) {
-            return true;
-          }
-        }
-        else {
-          if (invert ^ videoFormat.equals(episode.getMediaInfoVideoFormat())) {
-            return true;
-          }
+    for (TvShowEpisode episode : episodes) {
+      List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
+      for (MediaFile mf : mfs) {
+        if (invert ^ (selectedValues.contains(mf.getVideoFormat()) || selectedValues.contains(mf.getVideoDefinitionCategory()))) {
+          return true;
         }
       }
     }
@@ -73,27 +61,7 @@ public class TvShowVideoFormatFilter extends AbstractCheckComboBoxTvShowUIFilter
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.resolution")); //$NON-NLS-1$
-  }
-
-  private boolean isVideoUHD(String videoFormat) {
-    if (videoFormat.equals(MediaFileHelper.VIDEO_FORMAT_2160P)) {
-      return true;
-    }
-    if (videoFormat.equals(MediaFileHelper.VIDEO_FORMAT_4320P)) {
-      return true;
-    }
-    return false;
-  }
-
-  private boolean isVideoHD(String videoFormat) {
-    if (videoFormat.equals(MediaFileHelper.VIDEO_FORMAT_720P)) {
-      return true;
-    }
-    if (videoFormat.equals(MediaFileHelper.VIDEO_FORMAT_1080P)) {
-      return true;
-    }
-    return false;
+    return new TmmLabel(BUNDLE.getString("metatag.resolution"));
   }
 
   @Override

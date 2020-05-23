@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +37,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,9 +57,10 @@ import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.entities.MediaTrailer;
+import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -67,11 +71,12 @@ import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.scraper.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.VSMeta;
-import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
 
 import com.sun.jna.Platform;
 
@@ -82,7 +87,7 @@ import com.sun.jna.Platform;
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger         LOGGER         = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages", new UTF8Control());                                  //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private static long                 preDir         = 0;
   private static long                 postDir        = 0;
@@ -102,7 +107,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private List<String>                dataSources;
   private List<Movie>                 movieFolders   = new ArrayList<>();
   private MovieList                   movieList;
-  private HashSet<Path>               filesFound     = new HashSet<>();
+  private Set<Path>                   filesFound     = ConcurrentHashMap.newKeySet();
+  private List<Runnable>              miTasks        = Collections.synchronizedList(new ArrayList<>());
 
   public MovieUpdateDatasourceTask() {
     super(BUNDLE.getString("update.datasource"));
@@ -154,6 +160,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (movieFolders.isEmpty()) {
         for (String ds : dataSources) {
           LOGGER.info("Start UDS on datasource: {}", ds);
+          miTasks.clear();
           initThreadPool(3, "update");
           setTaskName(BUNDLE.getString("update.datasource") + " '" + ds + "'");
           publishState();
@@ -208,11 +215,22 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           for (Path path : existingMovieDirs) {
             searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
           }
-          if (rootFiles.size() > 0) {
+          if (!rootFiles.isEmpty()) {
             submitTask(new parseMultiMovieDirTask(dsAsPath.toAbsolutePath(), dsAsPath.toAbsolutePath(), rootFiles));
           }
 
           waitForCompletionOrCancel();
+
+          // print stats
+          LOGGER.info("FilesFound: {}", filesFound.size());
+          LOGGER.info("moviesFound: {}", movieList.getMovieCount());
+          LOGGER.debug("PreDir: {}", preDir);
+          LOGGER.debug("PostDir: {}", postDir);
+          LOGGER.debug("VisFile: {}", visFile);
+          LOGGER.debug("PreDirAll: {}", preDirAll);
+          LOGGER.debug("PostDirAll: {}", postDirAll);
+          LOGGER.debug("VisFileAll: {}", visFileAll);
+
           newMovieDirs.clear();
           existingMovieDirs.clear();
           rootFiles.clear();
@@ -262,6 +280,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
         waitForCompletionOrCancel();
 
+        // print stats
+        LOGGER.info("FilesFound: {}", filesFound.size());
+        LOGGER.info("moviesFound: {}", movieList.getMovieCount());
+        LOGGER.debug("PreDir: {}", preDir);
+        LOGGER.debug("PostDir: {}", postDir);
+        LOGGER.debug("VisFile: {}", visFile);
+        LOGGER.debug("PreDirAll: {}", preDirAll);
+        LOGGER.debug("PostDirAll: {}", postDirAll);
+        LOGGER.debug("VisFileAll: {}", visFileAll);
+
         // cleanup
         cleanup(movieFolders);
 
@@ -269,7 +297,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         gatherMediainfo(movieFolders);
       }
 
-      if (imageFiles.size() > 0) {
+      if (!imageFiles.isEmpty()) {
         ImageCacheTask task = new ImageCacheTask(imageFiles);
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
@@ -280,16 +308,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       stopWatch.stop();
-      LOGGER.info("Done updating datasource :) - took " + stopWatch);
-
-      LOGGER.debug("FilesFound " + filesFound.size());
-      LOGGER.debug("moviesFound " + movieList.getMovieCount());
-      LOGGER.debug("PreDir " + preDir);
-      LOGGER.debug("PostDir " + postDir);
-      LOGGER.debug("VisFile " + visFile);
-      LOGGER.debug("PreDirAll " + preDirAll);
-      LOGGER.debug("PostDirAll " + postDirAll);
-      LOGGER.debug("VisFileAll " + visFileAll);
+      LOGGER.info("Done updating datasource :) - took {}", stopWatch);
     }
     catch (Exception e) {
       LOGGER.error("Thread crashed", e);
@@ -357,15 +376,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private void parseMovieDirectory(Path movieDir, Path dataSource) {
     List<Path> movieDirList = listFilesAndDirs(movieDir);
     ArrayList<Path> files = new ArrayList<>();
-    ArrayList<Path> dirs = new ArrayList<>(); // FIXME: what for....?
-    HashSet<String> normalizedVideoFiles = new HashSet<>(); // just for
-                                                            // identifying MMD
+    HashSet<String> normalizedVideoFiles = new HashSet<>(); // just for identifying MMD
 
     boolean isDiscFolder = false;
     boolean isMultiMovieDir = false;
     boolean videoFileFound = false;
-    Path movieRoot = movieDir; // root set to current dir - might be adjusted by
-                               // disc folders
+    Path movieRoot = movieDir; // root set to current dir - might be adjusted by disc folders
 
     for (Path path : movieDirList) {
       if (Utils.isRegularFile(path)) {
@@ -378,7 +394,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         mf.setFilename(path.getFileName().toString());
         mf.setType(MediaFileHelper.parseMediaFileType(path));
 
-        // System.out.println("************ " + mf);
         if (mf.getType() == MediaFileType.VIDEO) {
           videoFileFound = true;
           if (mf.isDiscFile()) {
@@ -392,14 +407,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
       }
-      else if (Files.isDirectory(path)) {
-        dirs.add(path.toAbsolutePath());
-      }
     }
 
     if (!videoFileFound) {
-      // hmm... we never found a video file (but maybe others, trailers) so NO
-      // need to parse THIS folder
+      // hmm... we never found a video file (but maybe others, trailers) so NO need to parse THIS folder
       return;
     }
 
@@ -414,11 +425,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
     else {
       // no VIDEO files in this dir - skip this folder
-      if (normalizedVideoFiles.size() == 0) {
+      if (normalizedVideoFiles.isEmpty()) {
         return;
       }
-      // more than one (unstacked) movie file in directory (or DS root) -> must
-      // parsed as multiMovieDir
+      // more than one (unstacked) movie file in directory (or DS root) -> must parsed as multiMovieDir
       if (normalizedVideoFiles.size() > 1 || movieDir.equals(dataSource)) {
         isMultiMovieDir = true;
       }
@@ -434,7 +444,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     else {
       createSingleMovieFromDir(dataSource, movieRoot, isDiscFolder);
     }
-
   }
 
   /**
@@ -466,13 +475,20 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
 
         // was NFO, but parsing exception. try to find at least imdb id within
-        if (movie.getImdbId().isEmpty()) {
+        if (movie.getImdbId().isEmpty() || movie.getTmdbId() == 0) {
           try {
-            String imdb = Utils.readFileToString(mf.getFileAsPath());
-            imdb = ParserUtils.detectImdbId(imdb);
-            if (!imdb.isEmpty()) {
+            String content = Utils.readFileToString(mf.getFileAsPath());
+
+            String imdb = ParserUtils.detectImdbId(content);
+            if (movie.getImdbId().isEmpty() && !imdb.isEmpty()) {
               LOGGER.debug("| Found IMDB id: {}", imdb);
               movie.setImdbId(imdb);
+            }
+
+            String tmdb = StrgUtils.substr(content, "themoviedb\\.org\\/movie\\/(\\d+)");
+            if (movie.getTmdbId() == 0 && !tmdb.isEmpty()) {
+              LOGGER.debug("| Found TMDB id: {}", tmdb);
+              movie.setTmdbId(MetadataUtil.parseInt(tmdb, 0));
             }
           }
           catch (IOException e) {
@@ -489,14 +505,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
         VSMeta vsmeta = new VSMeta(mf.getFileAsPath());
         vsmeta.parseFile();
-
-        if (!MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
-          // we want some poster scraped, so we also can extract them
-          List<MediaFile> generated = vsmeta.generateMediaFile(movie);
-          movie.addToMediaFiles(generated);
-        }
-
-        // extract and attach images
         movie.merge(vsmeta.getMovie());
       }
     }
@@ -515,7 +523,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          is the movie in a disc folder?
    */
   private void createSingleMovieFromDir(Path dataSource, Path movieDir, boolean isDiscFolder) {
-    LOGGER.info("Parsing single movie directory: " + movieDir + " (are we a disc folder? " + isDiscFolder + ")");
+    LOGGER.info("Parsing single movie directory: {}, (are we a disc folder? {})", movieDir, isDiscFolder);
 
     Path relative = dataSource.relativize(movieDir);
     // STACKED FOLDERS - go up ONE level (only when the stacked folder ==
@@ -523,17 +531,14 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // movie/CD1/ & /movie/CD2 -> go up
     // movie CD1/ & /movie CD2 -> NO - there could be other files/folders there
 
-    // if (!Utils.getFolderStackingMarker(relative.toString()).isEmpty() &&
-    // level > 1) {
     if (!Utils.getFolderStackingMarker(relative.toString()).isEmpty()
         && Utils.getFolderStackingMarker(relative.toString()).equals(movieDir.getFileName().toString())) {
       movieDir = movieDir.getParent();
     }
 
     Movie movie = movieList.getMovieByPath(movieDir);
-    HashSet<Path> allFiles = getAllFilesRecursive(movieDir, 3); // need 3 (was
-                                                                // 2) because
-                                                                // extracted BD
+    // need 5 levels (3 because of nested extras, 2 because extracted BD)
+    HashSet<Path> allFiles = getAllFilesRecursive(movieDir, 5);
     filesFound.add(movieDir.toAbsolutePath()); // our global cache
     filesFound.addAll(allFiles); // our global cache
 
@@ -568,18 +573,18 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
           String bdinfo = StrgUtils.substr(txtFile, ".*Disc Title:\\s+(.*?)[\\n\\r]");
           if (!bdinfo.isEmpty()) {
-            LOGGER.debug("| Found Disc Title in BDInfo.txt: " + bdinfo);
+            LOGGER.debug("| Found Disc Title in BDInfo.txt: {}", bdinfo);
             bdinfoTitle = WordUtils.capitalizeFully(bdinfo);
           }
 
           String imdb = ParserUtils.detectImdbId(txtFile);
           if (movie.getImdbId().isEmpty() && !imdb.isEmpty()) {
-            LOGGER.debug("| Found IMDB id: " + imdb);
+            LOGGER.debug("| Found IMDB id: {}", imdb);
             movie.setImdbId(imdb);
           }
         }
         catch (Exception e) {
-          LOGGER.warn("| couldn't read TXT " + mf.getFilename());
+          LOGGER.warn("| couldn't read TXT {}", mf.getFilename());
         }
       }
       else if (mf.getType().equals(MediaFileType.VIDEO)) {
@@ -589,9 +594,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     if (movie.getTitle().isEmpty()) {
       // get the "cleaner" name/year combo
-      // ParserUtils.ParserInfo video = ParserUtils.getCleanerString(new
-      // String[] { videoName, movieDir.getName(), bdinfoTitle });
-      // does not work reliable yet - user folder name
       String[] video = ParserUtils.detectCleanTitleAndYear(movieDir.getFileName().toString(), MovieModuleManager.SETTINGS.getBadWord());
       movie.setTitle(video[0]);
       if (!video[1].isEmpty()) {
@@ -599,10 +601,14 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           movie.setYear(Integer.parseInt(video[1]));
         }
         catch (Exception ignored) {
+          // nothing to be done here
         }
       }
     }
-    if (movie.getTitle().isEmpty()) {
+    if (StringUtils.isBlank(movie.getTitle()) && StringUtils.isNotBlank(bdinfoTitle)) {
+      movie.setTitle(bdinfoTitle);
+    }
+    else if (StringUtils.isBlank(movie.getTitle())) {
       // .45 for ex
       movie.setTitle(videoName);
     }
@@ -632,21 +638,26 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     movie.setPath(movieDir.toAbsolutePath().toString());
     movie.setDataSource(dataSource.toString());
 
-    // movie.findActorImages(); // TODO: find as MediaFiles
-    LOGGER.debug("| store movie into DB as: " + movie.getTitle());
-
-    movieList.addMovie(movie);
-
     if (movie.getMovieSet() != null) {
       LOGGER.debug("| movie is part of a movieset");
-      // movie.getMovieSet().addMovie(movie);
       movie.getMovieSet().insertMovie(movie);
       movieList.sortMoviesInMovieSet(movie.getMovieSet());
       movie.getMovieSet().saveToDb();
     }
 
     // ***************************************************************
-    // third round - now add all the other known files
+    // third round - check for UNKNOWN, if they match a video file name - we might keep them
+    // ***************************************************************
+    for (MediaFile mf : getMediaFiles(mfs, MediaFileType.UNKNOWN)) {
+      for (MediaFile vid : getMediaFiles(mfs, MediaFileType.VIDEO)) {
+        if (mf.getFilename().startsWith(vid.getFilename())) {
+          mf.setType(MediaFileType.DOUBLE_EXT);
+        }
+      }
+    }
+
+    // ***************************************************************
+    // fourth round - now add all the other known files
     // ***************************************************************
     addMediafilesToMovie(movie, mfs);
 
@@ -657,17 +668,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     if (movie.getArtworkFilename(MediaFileType.POSTER).isEmpty()) {
       for (MediaFile mf : mfs) {
         if (mf.getType().equals(MediaFileType.GRAPHIC)) {
-          LOGGER.debug("| parsing unknown graphic " + mf.getFilename());
+          LOGGER.debug("| parsing unknown graphic: {}", mf.getFilename());
           List<MediaFile> vid = movie.getMediaFiles(MediaFileType.VIDEO);
           if (vid != null && !vid.isEmpty()) {
             String vfilename = vid.get(0).getFilename();
-            if (FilenameUtils.getBaseName(vfilename).equals(FilenameUtils.getBaseName(mf.getFilename())) // basename
-                                                                                                         // match
+            if (FilenameUtils.getBaseName(vfilename).equals(FilenameUtils.getBaseName(mf.getFilename())) // basename match
                 || FilenameUtils.getBaseName(Utils.cleanStackingMarkers(vfilename)).trim().equals(FilenameUtils.getBaseName(mf.getFilename())) // basename
                                                                                                                                                // w/o
                                                                                                                                                // stacking
-                || movie.getTitle().equals(FilenameUtils.getBaseName(mf.getFilename()))) { // title
-                                                                                           // match
+                || movie.getTitle().equals(FilenameUtils.getBaseName(mf.getFilename()))) { // title match
               mf.setType(MediaFileType.POSTER);
               movie.addToMediaFiles(mf);
             }
@@ -680,15 +689,39 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // check if that movie is an offline movie
     // ***************************************************************
     boolean isOffline = false;
+    boolean videoAvailable = false;
     for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
+      videoAvailable = true;
       if ("disc".equalsIgnoreCase(mf.getExtension())) {
         isOffline = true;
       }
     }
-    movie.setOffline(isOffline);
+    if (videoAvailable) {
+      LOGGER.debug("| store movie into DB as: {}", movie.getTitle());
+      movieList.addMovie(movie);
 
-    movie.reEvaluateStacking();
-    movie.saveToDb();
+      movie.setOffline(isOffline);
+
+      movie.reEvaluateStacking();
+      movie.saveToDb();
+    }
+    else {
+      LOGGER.error("could not add '{}' because no VIDEO file found", movieDir);
+    }
+
+    // if there is missing artwork AND we do have a VSMETA file, we probably can extract an artwork from there
+    if (MovieModuleManager.SETTINGS.isExtractArtworkFromVsmeta()) {
+      List<MediaFile> vsmetas = movie.getMediaFiles(MediaFileType.VSMETA);
+
+      if (movie.getMediaFiles(MediaFileType.POSTER).isEmpty() && !vsmetas.isEmpty() && !MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+        LOGGER.debug("extracting POSTERs from VSMETA for {}", movie.getMainFile().getFileAsPath());
+        MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
+      }
+      if (movie.getMediaFiles(MediaFileType.FANART).isEmpty() && !vsmetas.isEmpty() && !MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+        LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
+        MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
+      }
+    }
   }
 
   /**
@@ -700,8 +733,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          the movie folder
    */
   private void createMultiMovieFromDir(Path dataSource, Path movieDir) {
-    List<Path> allFiles = listFilesOnly(movieDir);
-    createMultiMovieFromDir(dataSource, movieDir, allFiles);
+    createMultiMovieFromDir(dataSource, movieDir, listFilesOnly(movieDir));
   }
 
   /**
@@ -715,7 +747,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          just use this files, do not list again
    */
   private void createMultiMovieFromDir(Path dataSource, Path movieDir, List<Path> allFiles) {
-    LOGGER.info("Parsing multi  movie directory: " + movieDir); // double space is for log alignment ;)
+    LOGGER.info("Parsing multi  movie directory: {}", movieDir); // double space is for log alignment ;)
 
     List<Movie> movies = movieList.getMoviesByPath(movieDir);
 
@@ -733,13 +765,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     mfs.sort((file1, file2) -> file2.getFileAsPath().getFileName().toString().length() - file1.getFileAsPath().getFileName().toString().length());
 
     for (MediaFile mf : getMediaFiles(mfs, MediaFileType.VIDEO)) {
-
       Movie movie = null;
       String basename = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
 
       // get all MFs with same basename
       List<MediaFile> sameName = new ArrayList<>();
-      LOGGER.trace("UDS: basename: " + basename);
+      LOGGER.trace("UDS: basename: {}", basename);
       for (MediaFile sm : mfs) {
         String smBasename = FilenameUtils.getBaseName(sm.getFilename());
         String smNameRegexp = Pattern.quote(basename) + "[\\s.,_-].*";
@@ -749,7 +780,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             sm.setType(MediaFileType.POSTER);
           }
           sameName.add(sm);
-          LOGGER.trace("UDS: found matching MF: " + sm);
+          LOGGER.trace("UDS: found matching MF: {}", sm);
         }
       }
 
@@ -757,7 +788,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       for (Movie m : movies) {
         if (m.getMediaFiles(MediaFileType.VIDEO).contains(mf)) {
           // ok, our MF is already in an movie
-          LOGGER.debug("| found movie '" + m.getTitle() + "' from MediaFile " + mf);
+          LOGGER.debug("| found movie '{}' from MediaFile {}", m.getTitle(), mf);
           movie = m;
           break;
         }
@@ -804,7 +835,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         movie.setNewlyAdded(true);
         movie.setPath(mf.getPath());
 
-        movieList.addMovie(movie);
         movies.add(movie); // add to our cached copy
       }
 
@@ -814,33 +844,19 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (movie.getMediaSource() == MediaSource.UNKNOWN) {
         movie.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
       }
-      LOGGER.debug("| parsing video file " + mf.getFilename());
+      LOGGER.debug("| parsing video file {}", mf.getFilename());
       movie.setMultiMovieDir(true);
 
-      // 3) find additional files, which start with videoFileName
-      // List<MediaFile> existingMediaFiles = new ArrayList<>(movie.getMediaFiles());
-      // List<MediaFile> foundMediaFiles = new ArrayList<>();
-      // for (int i = allFiles.size() - 1; i >= 0; i--) {
-      // Path fileInDir = allFiles.get(i);
-      // if (fileInDir.getFileName().toString().startsWith(basename)) { // need
-      // // toString
-      // // b/c of
-      // // possible
-      // // spaces!!
-      // MediaFile mediaFile = new MediaFile(fileInDir);
-      // if (!existingMediaFiles.contains(mediaFile)) {
-      // if (mediaFile.getType() == MediaFileType.GRAPHIC) {
-      // // same named graphics (unknown, not detected without postfix)
-      // // treated as posters
-      // mediaFile.setType(MediaFileType.POSTER);
-      // }
-      // foundMediaFiles.add(mediaFile);
-      // }
-      // // started with basename, so remove it for others
-      // allFiles.remove(i);
-      // }
-      // }
-      // addMediafilesToMovie(movie, foundMediaFiles);
+      // ***************************************************************
+      // third round - check for UNKNOWN, if they match a video file name - we might keep them
+      // ***************************************************************
+      for (MediaFile unk : getMediaFiles(sameName, MediaFileType.UNKNOWN)) {
+        for (MediaFile vid : getMediaFiles(mfs, MediaFileType.VIDEO)) {
+          if (unk.getFilename().startsWith(vid.getFilename())) {
+            unk.setType(MediaFileType.DOUBLE_EXT);
+          }
+        }
+      }
       addMediafilesToMovie(movie, sameName);
       mfs.removeAll(sameName);
 
@@ -855,12 +871,28 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       if (movie.getMovieSet() != null) {
         LOGGER.debug("| movie is part of a movieset");
-        // movie.getMovieSet().addMovie(movie);
         movie.getMovieSet().insertMovie(movie);
         movieList.sortMoviesInMovieSet(movie.getMovieSet());
         movie.getMovieSet().saveToDb();
       }
 
+      // if there is missing artwork AND we do have a VSMETA file, we probably can extract an artwork from there
+      if (MovieModuleManager.SETTINGS.isExtractArtworkFromVsmeta()) {
+        List<MediaFile> vsmetas = movie.getMediaFiles(MediaFileType.VSMETA);
+
+        if (movie.getMediaFiles(MediaFileType.POSTER).isEmpty() && !vsmetas.isEmpty()
+            && !MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+          LOGGER.debug("extracting POSTERs from VSMETA for {}", movie.getMainFile().getFileAsPath());
+          MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
+        }
+        if (movie.getMediaFiles(MediaFileType.FANART).isEmpty() && !vsmetas.isEmpty()
+            && !MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+          LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
+          MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
+        }
+      }
+
+      movieList.addMovie(movie);
       movie.saveToDb();
     } // end foreach VIDEO MF
 
@@ -899,21 +931,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             break;
 
           case TRAILER:
-            mf.gatherMediaInformation(); // do this exceptionally here, to set
-                                         // quality in one rush
-            MediaTrailer mt = new MediaTrailer();
-            mt.setName(mf.getFilename());
-            mt.setProvider("downloaded");
-            mt.setQuality(mf.getVideoFormat());
-            mt.setInNfo(false);
-            mt.setUrl(mf.getFileAsPath().toUri().toString());
-            movie.addTrailer(mt);
             movie.addToMediaFiles(mf);
+
             break;
 
           case SUBTITLE:
             if (!mf.isPacked()) {
-              movie.setSubtitles(true);
               movie.addToMediaFiles(mf);
             }
             break;
@@ -955,6 +978,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           case THEME:
           case CHARACTERART:
           case KEYART:
+          case DOUBLE_EXT:
             movie.addToMediaFiles(mf);
             break;
 
@@ -1119,6 +1143,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     initThreadPool(1, "mediainfo");
 
     LOGGER.info("getting Mediainfo...");
+
+    // first insert all collected MI tasks
+    for (Runnable task : miTasks) {
+      submitTask(task);
+    }
+
+    // and now get all mediafile from the movies to gather
     for (int i = movieList.getMovies().size() - 1; i >= 0; i--) {
       if (cancel) {
         break;
@@ -1130,10 +1161,22 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
+      boolean dirty = false;
+
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MediaFileInformationFetcherTask(mf, movie, false));
         }
+        else {
+          // at least update the file dates
+          MediaFileHelper.gatherFileInformation(mf);
+          dirty = true;
+        }
+      }
+
+      // persist the movie
+      if (dirty) {
+        movie.saveToDb();
       }
     }
     waitForCompletionOrCancel();
@@ -1151,10 +1194,23 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (cancel) {
         break;
       }
+
+      boolean dirty = false;
+
       for (MediaFile mf : new ArrayList<>(movie.getMediaFiles())) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MediaFileInformationFetcherTask(mf, movie, false));
         }
+        else {
+          // at least update the file dates
+          MediaFileHelper.gatherFileInformation(mf);
+          dirty = true;
+        }
+      }
+
+      // persist the movie
+      if (dirty) {
+        movie.saveToDb();
       }
     }
     waitForCompletionOrCancel();
@@ -1364,11 +1420,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
           // check if file is a VIDEO type - only scan those folders (and not extras/trailer folders)!
           MediaFile mf = new MediaFile(file);
-          if (mf.getType() == MediaFileType.VIDEO && !datasource.relativize(file.getParent()).toString().matches("(?i).*[_.-]+extra[s]?$")) {
+          if (mf.getType() == MediaFileType.VIDEO) {
             videofolders.add(file.getParent());
           }
           else {
-            LOGGER.debug("no VIDEO or EXTRA - do not parse {}", file);
+            LOGGER.debug("no VIDEO (is {}) - do not parse {}", mf.getType(), file);
           }
         }
       }
@@ -1429,6 +1485,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
       return CONTINUE;
     }
+
   }
 
   /**

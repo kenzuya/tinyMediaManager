@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ class KodiUtil {
     // http://wiki.xbmc.org/?title=Userdata
     String[] appFolder = { "Kodi", ".kodi", "kodi", "XMBC", ".xbmc", "xbmc" };
     String[] userFolder = { System.getenv("APPDATA"), System.getProperty("user.home"),
-        "/Users/" + System.getProperty("user.name") + "/Library/Application Support" };
+        System.getProperty("user.home") + "/Library/Application Support" };
 
     for (String u : userFolder) {
       if (StringUtils.isEmpty(u)) {
@@ -356,7 +356,7 @@ class KodiUtil {
 
     common = getKodiAddons(dirFilter, fileFilter);
 
-    if (common.size() == 0) {
+    if (common.isEmpty()) {
       LOGGER.debug("Meh - could not find any common folders...");
     }
 
@@ -411,7 +411,7 @@ class KodiUtil {
       }
     }
 
-    if (common.size() == 0) {
+    if (common.isEmpty()) {
       LOGGER.debug("Meh - could not find any common function...");
     }
 

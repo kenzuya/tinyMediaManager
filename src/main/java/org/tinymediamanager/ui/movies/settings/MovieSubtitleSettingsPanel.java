@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -52,8 +53,8 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -70,7 +71,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieSubtitleSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -1607146878528487625L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$ @wbp.nls.resourceBundle
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;
   private List<ScraperInTable>        scrapers         = ObservableCollections.observableList(new ArrayList<>());
@@ -157,7 +158,7 @@ class MovieSubtitleSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.subtitle"), H3); //$NON-NLS-1$
+      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.subtitle"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
@@ -173,8 +174,7 @@ class MovieSubtitleSettingsPanel extends JPanel {
         panelScraper.add(panelScraperDetails, "cell 1 2,grow");
         panelScraperDetails.setLayout(new MigLayout("insets 0", "[grow]", "[][grow]"));
 
-        tpScraperDescription = new JTextPane();
-        tpScraperDescription.setOpaque(false);
+        tpScraperDescription = new ReadOnlyTextPane();
         tpScraperDescription.setEditorKit(new HTMLEditorKit());
         panelScraperDetails.add(tpScraperDescription, "cell 0 0,grow");
 
@@ -186,17 +186,17 @@ class MovieSubtitleSettingsPanel extends JPanel {
     {
       JPanel panelOptions = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3); //$NON-NLS-1$
+      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
-        JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage")); //$NON-NLS-1$
+        JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage"));
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
-        JLabel lblSubtitleLanguageStyle = new JLabel(BUNDLE.getString("Settings.renamer.language")); //$NON-NLS-1$
+        JLabel lblSubtitleLanguageStyle = new JLabel(BUNDLE.getString("Settings.renamer.language"));
         panelOptions.add(lblSubtitleLanguageStyle, "cell 1 1 2 1");
 
         cbSubtitleLanguageStyle = new JComboBox(LanguageStyle.values());

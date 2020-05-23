@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -64,8 +65,7 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "Trakt.tv",
-        "<html><h3>Trakt.tv</h3><br />Trakt.tv is a platform that does many things," + " but primarily keeps track of TV shows and movies you watch. "
-            + "It also provides meta data for movies and TV shows<br /><br />Available languages: EN</html>",
+        "<html><h3>Trakt.tv</h3><br />Trakt.tv is a platform that does many things, but primarily keeps track of TV shows and movies you watch. It also provides meta data for movies and TV shows<br /><br />Available languages: EN</html>",
         TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.png"));
 
     providerInfo.getConfig().addText("clientId", "", true);
@@ -191,7 +191,7 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
   }
 
   @Override
-  public List<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search() - {}", options);
 
     // lazy initialization of the api
@@ -200,7 +200,7 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
   }
 
   @Override
-  public List<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search() - {}", options);
 
     // lazy initialization of the api

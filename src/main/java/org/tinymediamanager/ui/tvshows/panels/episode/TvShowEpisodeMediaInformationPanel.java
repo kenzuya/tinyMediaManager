@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.panels.episode;
 
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
+import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -31,12 +32,12 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.panels.MediaInformationPanel;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
@@ -49,7 +50,7 @@ import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
   private static final long           serialVersionUID = 2513029074142934502L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private TvShowEpisodeSelectionModel selectionModel;
 
@@ -62,15 +63,17 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
       String property = propertyChangeEvent.getPropertyName();
       Object source = propertyChangeEvent.getSource();
-      // react on selection of a movie and change of media files
-      if ((source.getClass() == TvShowEpisodeSelectionModel.class && "selectedTvShowEpisode".equals(property))
-          || MEDIA_INFORMATION.equals(property)) {
+      // react on selection of an episode and change of media files
+      if (source.getClass() != TvShowEpisodeSelectionModel.class) {
+        return;
+      }
+
+      if ("selectedTvShowEpisode".equals(property) || MEDIA_INFORMATION.equals(property) || MEDIA_FILES.equals(property)
+          || MEDIA_SOURCE.equals(property)) {
         fillVideoStreamDetails();
         buildAudioStreamDetails();
         buildSubtitleStreamDetails();
-      }
-      if ((source.getClass() == TvShowEpisodeSelectionModel.class && "selectedTvShowEpisode".equals(property))
-          || (source.getClass() == TvShowEpisode.class && MEDIA_FILES.equals(property))) {
+
         // this does sometimes not work. simply wrap it
         try {
           mediaFileEventList.getReadWriteLock().writeLock().lock();
@@ -78,6 +81,7 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
           mediaFileEventList.addAll(selectionModel.getSelectedTvShowEpisode().getMediaFiles());
         }
         catch (Exception ignored) {
+          // nothing to do here
         }
         finally {
           mediaFileEventList.getReadWriteLock().writeLock().unlock();
@@ -129,6 +133,8 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
     lblVideoBitDepth.setText(mediaFile.getBitDepthString());
     lblSource.setText(tvShowEpisode.getMediaSource().toString());
     lblFrameRate.setText(String.format("%.2f fps", mediaFile.getFrameRate()));
+    lblOriginalFilename.setText(tvShowEpisode.getOriginalFilename());
+    lblHdrFormat.setText(mediaFile.getHdrFormat());
   }
 
   @Override
@@ -146,10 +152,10 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
         container.audioStream = audioStream;
 
         if (mediaFile.getType() == MediaFileType.VIDEO) {
-          container.source = BUNDLE.getString("metatag.internal"); //$NON-NLS-1$
+          container.source = BUNDLE.getString("metatag.internal");
         }
         else {
-          container.source = BUNDLE.getString("metatag.external"); //$NON-NLS-1$
+          container.source = BUNDLE.getString("metatag.external");
         }
 
         audioStreamEventList.add(container);
@@ -172,10 +178,10 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
         container.subtitle = subtitle;
 
         if (mediaFile.getType() == MediaFileType.VIDEO) {
-          container.source = BUNDLE.getString("metatag.internal"); //$NON-NLS-1$
+          container.source = BUNDLE.getString("metatag.internal");
         }
         else {
-          container.source = BUNDLE.getString("metatag.external"); //$NON-NLS-1$
+          container.source = BUNDLE.getString("metatag.external");
         }
 
         subtitleEventList.add(container);
@@ -203,5 +209,12 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
     AutoBinding<TvShowEpisodeSelectionModel, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ,
         selectionModel, tvShowEpisodeSelectionModelBeanProperty_2, this.chckbxWatched, jCheckBoxBeanProperty);
     autoBinding_2.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_3 = BeanProperty
+            .create("selectedTvShowEpisode.originalFilename");
+    BeanProperty<JLabel, String> jLabelBeanProperty_1 = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, JLabel, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, selectionModel,
+            tvShowEpisodeSelectionModelBeanProperty_3, this.lblOriginalFilename, jLabelBeanProperty_1);
+    autoBinding_3.bind();
   }
 }

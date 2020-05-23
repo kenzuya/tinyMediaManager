@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import static org.tinymediamanager.core.Constants.THUMB_URL;
 
 import java.awt.Dimension;
 import java.beans.PropertyChangeListener;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -168,7 +167,7 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     boolean watched = true;
 
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isWatched()) {
+      if (!episode.isDummy() && !episode.isWatched()) {
         watched = false;
         break;
       }
@@ -186,7 +185,7 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     boolean subtitles = true;
 
     for (TvShowEpisode episode : episodes) {
-      if (!episode.hasSubtitles()) {
+      if (!episode.isDummy() && !episode.getHasSubtitles()) {
         subtitles = false;
         break;
       }
@@ -216,7 +215,7 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
    */
   public Boolean getHasEpisodeImages() {
     for (TvShowEpisode episode : episodes) {
-      if (!episode.getHasImages()) {
+      if (!episode.isDummy() && !episode.getHasImages()) {
         return false;
       }
     }
@@ -231,7 +230,7 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
   public Boolean getHasEpisodeNfoFiles() {
     boolean nfo = true;
     for (TvShowEpisode episode : episodes) {
-      if (!episode.getHasNfoFile()) {
+      if (!episode.isDummy() && !episode.getHasNfoFile()) {
         nfo = false;
         break;
       }
@@ -252,9 +251,12 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     return episodes;
   }
 
-  public void setArtwork(Path newValue, MediaArtworkType artworkType) {
+  public void setArtwork(MediaFile mediaFile) {
+    MediaArtworkType artworkType = MediaFileType.getMediaArtworkType(mediaFile.getType());
     String oldValue = getArtworkFilename(artworkType);
-    tvShow.setSeasonArtwork(season, artworkType, newValue);
+    String newValue = mediaFile.getFile().toString();
+
+    tvShow.setSeasonArtwork(season, mediaFile);
 
     switch (artworkType) {
       case SEASON_POSTER:
@@ -302,6 +304,30 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
 
   public Dimension getArtworkSize(MediaArtworkType type) {
     return tvShow.getSeasonArtworkSize(season, type);
+  }
+
+  /**
+   * <b>PHYSICALLY</b> deletes all {@link MediaFile}s of the given type
+   *
+   * @param type
+   *          the {@link MediaArtworkType} for all {@link MediaFile}s to delete
+   */
+  public void deleteArtworkFiles(MediaArtworkType type) {
+    tvShow.deleteSeasonArtworkFiles(season, type);
+
+    switch (type) {
+      case SEASON_POSTER:
+        firePropertyChange(POSTER, null, "");
+        break;
+
+      case SEASON_BANNER:
+        firePropertyChange(BANNER, null, "");
+        break;
+
+      case SEASON_THUMB:
+        firePropertyChange(THUMB, null, "");
+        break;
+    }
   }
 
   public void setArtworkUrl(String newValue, MediaArtworkType artworkType) {

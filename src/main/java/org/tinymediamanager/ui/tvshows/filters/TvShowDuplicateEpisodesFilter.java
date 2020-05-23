@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class TvShowDuplicateEpisodesFilter extends AbstractTvShowUIFilter {
 
   @Override
   public String getId() {
-    return "tvShowNewEpisodes";
+    return "tvShowDuplicateEpisodes";
   }
 
   @Override
@@ -65,7 +65,7 @@ public class TvShowDuplicateEpisodesFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.duplicates")); //$NON-NLS-1$
+    return new TmmLabel(BUNDLE.getString("movieextendedsearch.duplicates"));
   }
 
   @Override

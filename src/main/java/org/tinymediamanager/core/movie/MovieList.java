@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -207,15 +208,6 @@ public class MovieList extends AbstractModelObject {
   }
 
   /**
-   * remove all movie sets
-   */
-  void removeMovieSets() {
-    for (MovieSet movieSet : movieSetList) {
-      removeMovieSet(movieSet);
-    }
-  }
-
-  /**
    * Gets the unscraped movies.
    * 
    * @return the unscraped movies
@@ -269,7 +261,7 @@ public class MovieList extends AbstractModelObject {
    *          list of movies to remove
    */
   public void removeMovies(List<Movie> movies) {
-    if (movies == null || movies.size() == 0) {
+    if (movies == null || movies.isEmpty()) {
       return;
     }
     Set<MovieSet> modifiedMovieSets = new HashSet<>();
@@ -290,7 +282,7 @@ public class MovieList extends AbstractModelObject {
         MovieModuleManager.getInstance().removeMovieFromDb(movie);
       }
       catch (Exception e) {
-        LOGGER.error("Error removing movie from DB: " + e.getMessage());
+        LOGGER.error("Error removing movie from DB: {}", e.getMessage());
       }
     }
 
@@ -305,7 +297,7 @@ public class MovieList extends AbstractModelObject {
    *          list of movies to delete
    */
   public void deleteMovies(List<Movie> movies) {
-    if (movies == null || movies.size() == 0) {
+    if (movies == null || movies.isEmpty()) {
       return;
     }
     Set<MovieSet> modifiedMovieSets = new HashSet<>();
@@ -326,7 +318,7 @@ public class MovieList extends AbstractModelObject {
         MovieModuleManager.getInstance().removeMovieFromDb(movie);
       }
       catch (Exception e) {
-        LOGGER.error("Error removing movie from DB: " + e.getMessage());
+        LOGGER.error("Error removing movie from DB: {}", e.getMessage());
       }
     }
 
@@ -356,16 +348,24 @@ public class MovieList extends AbstractModelObject {
         json = movieMap.get(uuid);
         Movie movie = movieObjectReader.readValue(json);
         movie.setDbId(uuid);
+
+        // sanity check: only movies with a video file are valid
+        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+          // no video file? drop it
+          LOGGER.info("movie \"{}\" without video file - dropping", movie.getTitle());
+          movieMap.remove(uuid);
+        }
+
         // for performance reasons we add movies directly
         movieList.add(movie);
       }
       catch (Exception e) {
-        LOGGER.warn("problem decoding movie json string: " + e.getMessage());
+        LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt movie: {}", json);
         movieMap.remove(uuid);
       }
     }
-    LOGGER.info("found " + movieList.size() + " movies in database");
+    LOGGER.info("found {} movies in database", movieList.size());
   }
 
   void loadMovieSetsFromDatabase(MVMap<UUID, String> movieSetMap, ObjectMapper objectMapper) {
@@ -380,13 +380,13 @@ public class MovieList extends AbstractModelObject {
         movieSetList.add(movieSet);
       }
       catch (Exception e) {
-        LOGGER.warn("problem decoding movie set json string: " + e.getMessage());
+        LOGGER.warn("problem decoding movie set json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt movie set");
         movieSetMap.remove(uuid);
       }
     }
 
-    LOGGER.info("found " + movieSetList.size() + " movieSets in database");
+    LOGGER.info("found {} movieSets in database", movieSetList.size());
   }
 
   void initDataAfterLoading() {
@@ -411,7 +411,7 @@ public class MovieList extends AbstractModelObject {
       MovieModuleManager.getInstance().persistMovie(movie);
     }
     catch (Exception e) {
-      LOGGER.error("failed to persist movie: " + movie.getTitle() + " ; " + e.getMessage());
+      LOGGER.error("failed to persist movie: {} - {}", movie.getTitle(), e.getMessage());
     }
   }
 
@@ -421,7 +421,7 @@ public class MovieList extends AbstractModelObject {
       MovieModuleManager.getInstance().removeMovieFromDb(movie);
     }
     catch (Exception e) {
-      LOGGER.error("failed to remove movie: " + movie.getTitle());
+      LOGGER.error("failed to remove movie: {}", movie.getTitle());
     }
   }
 
@@ -431,7 +431,7 @@ public class MovieList extends AbstractModelObject {
       MovieModuleManager.getInstance().persistMovieSet(movieSet);
     }
     catch (Exception e) {
-      LOGGER.error("failed to persist movie set: " + movieSet.getTitle());
+      LOGGER.error("failed to persist movie set: {}", movieSet.getTitle());
     }
   }
 
@@ -441,7 +441,7 @@ public class MovieList extends AbstractModelObject {
       MovieModuleManager.getInstance().removeMovieSetFromDb(movieSet);
     }
     catch (Exception e) {
-      LOGGER.error("failed to remove movie set: " + movieSet.getTitle());
+      LOGGER.error("failed to remove movie set: {}", movieSet.getTitle());
     }
   }
 
@@ -474,7 +474,7 @@ public class MovieList extends AbstractModelObject {
 
     for (Movie movie : movieList) {
       if (movie.getPathNIO().compareTo(path.toAbsolutePath()) == 0) {
-        LOGGER.debug("Ok, found already existing movie '" + movie.getTitle() + "' in DB (path: " + path + ")");
+        LOGGER.debug("Ok, found already existing movie '{}' in DB (path: {})", movie.getTitle(), path);
         return movie;
       }
     }
@@ -504,14 +504,16 @@ public class MovieList extends AbstractModelObject {
    * 
    * @param searchTerm
    *          the search term
-   * @param movie
-   *          the movie
+   * @param year
+   *          the year of the movie (if available, otherwise <= 0)
+   * @param ids
+   *          a map of all available ids of the movie or null if no id based search is requested
    * @param metadataScraper
    *          the media scraper
    * @return the list
    */
-  public List<MediaSearchResult> searchMovie(String searchTerm, Movie movie, MediaScraper metadataScraper) {
-    return searchMovie(searchTerm, movie, metadataScraper, movieSettings.getScraperLanguage());
+  public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper metadataScraper) {
+    return searchMovie(searchTerm, year, ids, metadataScraper, movieSettings.getScraperLanguage());
   }
 
   /**
@@ -519,16 +521,19 @@ public class MovieList extends AbstractModelObject {
    * 
    * @param searchTerm
    *          the search term
-   * @param movie
-   *          the movie
+   * @param year
+   *          the year of the movie (if available, otherwise <= 0)
+   * @param ids
+   *          a map of all available ids of the movie or null if no id based search is requested
    * @param mediaScraper
    *          the media scraper
-   * @param langu
+   * @param language
    *          the language to search with
    * @return the list
    */
-  public List<MediaSearchResult> searchMovie(String searchTerm, Movie movie, MediaScraper mediaScraper, MediaLanguages langu) {
-    List<MediaSearchResult> sr = new ArrayList<>();
+  public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper,
+      MediaLanguages language) {
+    Set<MediaSearchResult> sr = new TreeSet<>();
     try {
       IMovieMetadataProvider provider;
       if (mediaScraper == null) {
@@ -541,13 +546,11 @@ public class MovieList extends AbstractModelObject {
       boolean idFound = false;
       // set what we have, so the provider could chose from all :)
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
-      options.setLanguage(langu);
+      options.setLanguage(language);
       options.setMetadataScraper(mediaScraper);
 
-      if (movie != null) {
-        options.setIds(movie.getIds());
-        options.setSearchQuery(movie.getTitle());
-        options.setSearchYear(movie.getYear());
+      if (ids != null) {
+        options.setIds(ids);
       }
 
       if (!searchTerm.isEmpty()) {
@@ -557,11 +560,15 @@ public class MovieList extends AbstractModelObject {
         options.setSearchQuery(searchTerm);
       }
 
+      if (year > 0) {
+        options.setSearchYear(year);
+      }
+
       LOGGER.info("=====================================================");
       LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
       LOGGER.info(options.toString());
       LOGGER.info("=====================================================");
-      sr = provider.search(options);
+      sr.addAll(provider.search(options));
       // if result is empty, try all scrapers
       if (sr.isEmpty() && movieSettings.isScraperFallback()) {
         for (MediaScraper ms : getAvailableMediaScrapers()) {
@@ -576,12 +583,12 @@ public class MovieList extends AbstractModelObject {
                 + provider.getProviderInfo().getVersion());
             LOGGER.info(options.toString());
             LOGGER.info("=====================================================");
-            sr = ((IMovieMetadataProvider) ms.getMediaProvider()).search(options);
+            sr.addAll(((IMovieMetadataProvider) ms.getMediaProvider()).search(options));
           }
           catch (ScrapeException e) {
             LOGGER.error("searchMovieFallback", e);
             MessageManager.instance
-                .pushMessage(new Message(MessageLevel.ERROR, movie, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+                .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
           }
 
           if (!sr.isEmpty()) {
@@ -593,10 +600,10 @@ public class MovieList extends AbstractModelObject {
     catch (ScrapeException e) {
       LOGGER.error("searchMovie", e);
       MessageManager.instance
-          .pushMessage(new Message(MessageLevel.ERROR, movie, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+          .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
     }
 
-    return sr;
+    return new ArrayList<>(sr);
   }
 
   public List<MediaScraper> getAvailableMediaScrapers() {
@@ -763,8 +770,7 @@ public class MovieList extends AbstractModelObject {
    * @return the movie set count
    */
   public int getMovieSetCount() {
-    int size = movieSetList.size();
-    return size;
+    return movieSetList.size();
   }
 
   /**
@@ -822,12 +828,12 @@ public class MovieList extends AbstractModelObject {
   private void updateMediaInformationLists(Movie movie) {
     for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
       // video codec
-      if (videoCodecsInMovies.add(mf.getVideoCodec())) {
+      if (StringUtils.isNotBlank(mf.getVideoCodec()) && videoCodecsInMovies.add(mf.getVideoCodec())) {
         firePropertyChange(Constants.VIDEO_CODEC, null, videoCodecsInMovies);
       }
 
       // frame rate
-      if (frameRatesInMovies.add(mf.getFrameRate())) {
+      if (mf.getFrameRate() > 0 && frameRatesInMovies.add(mf.getFrameRate())) {
         firePropertyChange(Constants.FRAME_RATE, null, frameRatesInMovies);
       }
 
@@ -839,7 +845,7 @@ public class MovieList extends AbstractModelObject {
 
       // audio codec
       for (MediaFileAudioStream audio : mf.getAudioStreams()) {
-        if (audioCodecsInMovies.add(audio.getCodec())) {
+        if (StringUtils.isNotBlank(audio.getCodec()) && audioCodecsInMovies.add(audio.getCodec())) {
           firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInMovies);
         }
       }
@@ -996,11 +1002,13 @@ public class MovieList extends AbstractModelObject {
     movieSet.removePropertyChangeListener(movieSetListener);
 
     try {
+      // remove artwork
+      MovieSetArtworkHelper.removeMovieSetArtwork(movieSet);
       movieSetList.remove(movieSet);
       MovieModuleManager.getInstance().removeMovieSetFromDb(movieSet);
     }
     catch (Exception e) {
-      LOGGER.error("Error removing movie set from DB: " + e.getMessage());
+      LOGGER.error("Error removing movie set from DB: {}", e.getMessage());
     }
 
     firePropertyChange(Constants.REMOVED_MOVIE_SET, null, movieSet);

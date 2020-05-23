@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies;
 import java.util.List;
 
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.util.StrgUtils;
 
 import ca.odell.glazedlists.TextFilterator;
 
@@ -32,5 +33,7 @@ public class MovieFilterator implements TextFilterator<Movie> {
   public void getFilterStrings(List<String> baseList, Movie movie) {
     baseList.add(movie.getTitle());
     baseList.add(movie.getOriginalTitle());
+    baseList.add(StrgUtils.normalizeString(movie.getTitle()));
+    baseList.add(StrgUtils.normalizeString(movie.getOriginalTitle()));
   }
 }

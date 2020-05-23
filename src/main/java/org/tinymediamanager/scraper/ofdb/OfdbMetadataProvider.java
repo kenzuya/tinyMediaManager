@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 package org.tinymediamanager.scraper.ofdb;
-
-import java.io.InterruptedIOException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -45,27 +35,38 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.interfaces.ITrailerProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
+
+import java.io.InterruptedIOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The Class OfdbMetadataProvider. A meta data provider for the site ofdb.de
  *
  * @author Myron Boyle (myron0815@gmx.net)
  */
-public class OfdbMetadataProvider implements IMovieMetadataProvider, ITrailerProvider {
-  public static final String       ID           = "ofdb";
+public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrailerProvider {
+  public static final String ID = "ofdb";
 
-  private static final Logger      LOGGER       = LoggerFactory.getLogger(OfdbMetadataProvider.class);
-  private static final String      BASE_URL     = "http://www.ofdb.de";
+  private static final Logger LOGGER = LoggerFactory.getLogger(OfdbMetadataProvider.class);
+  private static final String BASE_URL = "http://www.ofdb.de";
 
   private static MediaProviderInfo providerInfo = createMediaProviderInfo();
 
   private static MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, "Online Filmdatenbank (OFDb.de)",
-        "<html><h3>Online Filmdatenbank (OFDb)</h3><br />A german movie database driven by the community.<br /><br />Available languages: DE</html>",
+            "<html><h3>Online Filmdatenbank (OFDb)</h3><br />A german movie database driven by the community.<br /><br />Available languages: DE</html>",
         OfdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/ofdb_de.png"));
   }
 
@@ -106,9 +107,9 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, ITrailerPro
     // case b)
     if (options.getSearchResult() == null && StringUtils.isNotBlank(options.getIdAsString(MediaMetadata.IMDB))) {
       try {
-        List<MediaSearchResult> results = search(options);
-        if (results != null && !results.isEmpty()) {
-          options.setSearchResult(results.get(0));
+        SortedSet<MediaSearchResult> results = search(options);
+        if (!results.isEmpty()) {
+          options.setSearchResult(results.first());
           detailUrl = options.getSearchResult().getUrl();
         }
       }
@@ -463,15 +464,14 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, ITrailerPro
   }
 
   @Override
-  public List<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
 
-    List<MediaSearchResult> resultList = new ArrayList<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
+
     String searchQuery = options.getSearchQuery();
     String imdb = "";
     Elements filme = null;
-    int myear = options.getSearchYear();
-
     Exception savedException = null;
     /*
      * Kat = All | Titel | Person | DTitel | OTitel | Regie | Darsteller | Song | Rolle | EAN| IMDb | Google
@@ -528,7 +528,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, ITrailerPro
 
     if (filme == null || filme.isEmpty()) {
       LOGGER.debug("nothing found :(");
-      return resultList;
+      return results;
     }
 
     // <a href="film/22523,Die-Bourne-Identität"
@@ -567,32 +567,22 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, ITrailerPro
         }
         foundResultUrls.add(sr.getUrl());
 
-        if (imdb.equals(sr.getIMDBId())) {
+        if (StringUtils.isNotBlank(sr.getIMDBId()) && imdb.equals(sr.getIMDBId())) {
           // perfect match
           sr.setScore(1);
         }
         else {
           // compare score based on names
-          float score = MetadataUtil.calculateScore(searchQuery, sr.getTitle());
-
-          if (yearDiffers(myear, sr.getYear())) {
-            float diff = (float) Math.abs(myear - sr.getYear()) / 100;
-            LOGGER.debug("parsed year does not match search result year - downgrading score by {}", diff);
-            score -= diff;
-          }
-          sr.setScore(score);
-
+          sr.calculateScore(options);
         }
-        resultList.add(sr);
+        results.add(sr);
       }
       catch (Exception e) {
         LOGGER.warn("error parsing movie result: {}", e.getMessage());
       }
     }
-    Collections.sort(resultList);
-    Collections.reverse(resultList);
 
-    return resultList;
+    return results;
   }
 
   @Override

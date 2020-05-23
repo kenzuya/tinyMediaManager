@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 - 2020 Manuel Laggner
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.tinymediamanager.ui.components.table;
 
 import java.awt.Canvas;
@@ -5,7 +21,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.nio.file.Path;
 import java.text.Collator;
-import java.text.Normalizer;
 import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 
 import ca.odell.glazedlists.gui.AdvancedTableFormat;
@@ -191,8 +207,8 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       }
 
       if (stringCollator != null) {
-        String first = Normalizer.normalize(arg0.toLowerCase(Locale.ROOT), Normalizer.Form.NFD);
-        String second = Normalizer.normalize(arg1.toLowerCase(Locale.ROOT), Normalizer.Form.NFD);
+        String first = StrgUtils.normalizeString(arg0.toLowerCase(Locale.ROOT));
+        String second = StrgUtils.normalizeString(arg1.toLowerCase(Locale.ROOT));
         return stringCollator.compare(first, second);
       }
 
@@ -280,10 +296,10 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
           float value = Float.parseFloat(matcher.group(1));
           String unit = matcher.group(2);
           if ("G".equals(unit)) {
-            size = (long) (value * 1024 * 1024 * 1024);
+            size = (long) (value * 1000 * 1000 * 1000);
           }
           else if ("M".equals(unit)) {
-            size = (long) (value * 1024 * 1024);
+            size = (long) (value * 1000 * 1000);
           }
           else {
             size = (long) value;

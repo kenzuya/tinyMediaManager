@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.panels;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -25,6 +26,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
@@ -40,10 +42,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -54,7 +59,6 @@ import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -77,7 +81,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = 5889203009864512935L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private TvShowList                  tvShowList       = TvShowList.getInstance();
 
@@ -120,8 +124,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     final TmmTreeTextFilter<TmmTreeNode> searchField = new TvShowTreeTextFilter<>();
     add(searchField, "cell 0 0,growx");
 
-    btnFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter")); //$NON-NLS-1$
-    btnFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options")); //$NON-NLS-1$
+    btnFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));
+    btnFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options"));
     btnFilter.addActionListener(e -> TvShowUIModule.getInstance().setFilterDialogVisible(true));
     add(btnFilter, "cell 1 0");
 
@@ -201,6 +205,9 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
       if (selectionModel1.isSelectionEmpty() && tree.getModel().getRowCount() > 0) {
         selectionModel1.setSelectionInterval(0, 0);
       }
+      else if (tree.getModel().getRowCount() == 0) {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+      }
     });
 
     tree.getSelectionModel().addListSelectionListener(arg0 -> {
@@ -235,11 +242,14 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           TvShowUIModule.getInstance().setSelectedTvShowEpisode(tvShowEpisode);
         }
       }
+      else {
+        TvShowUIModule.getInstance().setSelectedTvShow(null);
+      }
     });
 
     // selecting first TV show at startup
     TvShowList tvShowList = TvShowList.getInstance();
-    if (tvShowList.getTvShows() != null && tvShowList.getTvShows().size() > 0) {
+    if (tvShowList.getTvShows() != null && !tvShowList.getTvShows().isEmpty()) {
       SwingUtilities.invokeLater(() -> {
         ListSelectionModel selectionModel1 = tree.getSelectionModel();
         if (selectionModel1.isSelectionEmpty() && tree.getModel().getRowCount() > 0) {
@@ -261,14 +271,48 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
     // add key listener
     KeyListener keyListener = new KeyAdapter() {
+      private long   lastKeypress = 0;
+      private String searchTerm   = "";
+
       @Override
       public void keyPressed(KeyEvent e) {
-
         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
           tree.expandRow(tree.getSelectedRow());
         }
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
           tree.collapseRow(tree.getSelectedRow());
+        }
+      }
+
+      @Override
+      public void keyTyped(KeyEvent e) {
+        long now = System.currentTimeMillis();
+        if (now - lastKeypress > 500) {
+          searchTerm = "";
+        }
+        lastKeypress = now;
+
+        if (e.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
+          searchTerm += e.getKeyChar();
+          searchTerm = searchTerm.toLowerCase();
+        }
+
+        if (StringUtils.isNotBlank(searchTerm)) {
+          TableModel model = tree.getModel();
+
+          for (int i = 0; i < model.getRowCount(); i++) {
+            if (model.getValueAt(i, 0) instanceof TvShowTreeDataProvider.TvShowTreeNode) {
+              TvShowTreeDataProvider.TvShowTreeNode node = (TvShowTreeDataProvider.TvShowTreeNode) model.getValueAt(i, 0);
+
+              // search in the title
+              String title = node.toString().toLowerCase(Locale.ROOT);
+              if (title.startsWith(searchTerm)) {
+                tree.getSelectionModel().setSelectionInterval(i, i);
+                tree.scrollRectToVisible(new Rectangle(tree.getCellRect(i, 0, true)));
+                break;
+              }
+            }
+          }
         }
       }
     };
@@ -278,26 +322,26 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     add(separator, "cell 0 2 2 1,growx");
 
     {
-      JLabel lblTvShowCount = new JLabel(BUNDLE.getString("tmm.tvshows") + ":"); //$NON-NLS-1$
+      JLabel lblTvShowCount = new JLabel(BUNDLE.getString("tmm.tvshows") + ":");
       add(lblTvShowCount, "flowx,cell 0 3 2 1");
 
       lblTvShowCountFiltered = new JLabel("");
       add(lblTvShowCountFiltered, "cell 0 3 2 1");
 
-      JLabel lblTvShowCountOf = new JLabel(BUNDLE.getString("tmm.of")); //$NON-NLS-1$
+      JLabel lblTvShowCountOf = new JLabel(BUNDLE.getString("tmm.of"));
       add(lblTvShowCountOf, "cell 0 3 2 1");
 
       lblTvShowCountTotal = new JLabel("");
       add(lblTvShowCountTotal, "cell 0 3 2 1");
     }
     {
-      JLabel lblEpisodeCount = new JLabel(BUNDLE.getString("metatag.episodes") + ":"); //$NON-NLS-1$
+      JLabel lblEpisodeCount = new JLabel(BUNDLE.getString("metatag.episodes") + ":");
       add(lblEpisodeCount, "flowx,cell 0 4 2 1");
 
       lblEpisodeCountFiltered = new JLabel("");
       add(lblEpisodeCountFiltered, "cell 0 4 2 1");
 
-      JLabel lblEpisodeCountOf = new JLabel(BUNDLE.getString("tmm.of")); //$NON-NLS-1$
+      JLabel lblEpisodeCountOf = new JLabel(BUNDLE.getString("tmm.of"));
       add(lblEpisodeCountOf, "cell 0 4 2 1");
 
       lblEpisodeCountTotal = new JLabel("");
@@ -422,7 +466,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     private static final long serialVersionUID = -1444530142931061317L;
 
     public CollapseAllAction() {
-      putValue(NAME, BUNDLE.getString("tree.collapseall")); //$NON-NLS-1$
+      putValue(NAME, BUNDLE.getString("tree.collapseall"));
     }
 
     @Override
@@ -437,7 +481,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     private static final long serialVersionUID = 6191727607109012198L;
 
     public ExpandAllAction() {
-      putValue(NAME, BUNDLE.getString("tree.expandall")); //$NON-NLS-1$
+      putValue(NAME, BUNDLE.getString("tree.expandall"));
     }
 
     @Override

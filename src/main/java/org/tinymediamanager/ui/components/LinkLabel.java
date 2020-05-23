@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.util.Map;
 
-import javax.swing.JLabel;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,10 +35,11 @@ import org.tinymediamanager.ui.UIConstants;
  * @author Manuel Laggner
  */
 
-public class LinkLabel extends JLabel {
+public class LinkLabel extends ReadOnlyTextArea {
   private static final long serialVersionUID = 3762584745632060187L;
 
   protected String          link;
+  protected ActionListener  activeListener   = null;
 
   /**
    * Creates a new LinkLabel with the given text.
@@ -107,7 +107,7 @@ public class LinkLabel extends JLabel {
   @Override
   protected void processMouseEvent(MouseEvent evt) {
     super.processMouseEvent(evt);
-    if (evt.getID() == MouseEvent.MOUSE_CLICKED && StringUtils.isNotBlank(getLink()))
+    if ((evt.getID() == MouseEvent.MOUSE_CLICKED || evt.getID() == MouseEvent.MOUSE_PRESSED) && StringUtils.isNotBlank(getLink()))
       fireActionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, getLink()));
   }
 
@@ -118,7 +118,12 @@ public class LinkLabel extends JLabel {
    *          the listener
    */
   public void addActionListener(ActionListener listener) {
+    // remove any previous set listener
+    if (activeListener != null) {
+      removeActionListener(activeListener);
+    }
     listenerList.add(ActionListener.class, listener);
+    activeListener = listener;
   }
 
   /**

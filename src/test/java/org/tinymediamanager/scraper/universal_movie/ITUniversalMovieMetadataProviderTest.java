@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.universal_movie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
@@ -72,7 +73,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery(searchString);
       options.setLanguage(MediaLanguages.en);
-      List<MediaSearchResult> results = mp.search(options);
+      List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
       assertThat(results).isNotEmpty();

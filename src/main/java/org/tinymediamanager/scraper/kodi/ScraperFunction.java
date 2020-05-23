@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ class ScraperFunction implements RegExpContainer, Cloneable {
 
   @Override
   public boolean hasRegExps() {
-    return regexps != null && regexps.size() > 0;
+    return regexps != null && !regexps.isEmpty();
   }
 
   public boolean isAppendBuffer() {

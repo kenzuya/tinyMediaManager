@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.core.tasks;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -24,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.EmptyFileException;
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * The Class ImageCacheTask. Cache a bunch of images in a separate task
@@ -35,7 +36,7 @@ import org.tinymediamanager.ui.UTF8Control;
  */
 public class ImageCacheTask extends TmmThreadPool {
   private static final Logger         LOGGER       = LoggerFactory.getLogger(ImageCacheTask.class);
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private List<MediaFile>             filesToCache = new ArrayList<>();
 
@@ -85,8 +86,11 @@ public class ImageCacheTask extends TmmThreadPool {
       catch (EmptyFileException e) {
         LOGGER.warn("failed to cache file (file is empty): {}", fileToCache);
       }
+      catch (FileNotFoundException e) {
+        LOGGER.warn("file '{}' has not been found", fileToCache.getFilename());
+      }
       catch (Exception e) {
-        LOGGER.warn("failed to cache file: {} - {}", fileToCache, e);
+        LOGGER.warn("failed to cache file: {} - {}", fileToCache.getFile(), e.getMessage());
       }
       return null;
     }

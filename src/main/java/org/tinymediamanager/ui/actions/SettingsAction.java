@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 
 import javax.swing.JDialog;
 
-import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.dialogs.SettingsDialog;
 
 /**
@@ -30,10 +30,10 @@ import org.tinymediamanager.ui.dialogs.SettingsDialog;
  */
 public class SettingsAction extends TmmAction {
   private static final long           serialVersionUID = 8930602755330446751L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   public SettingsAction() {
-    putValue(NAME, BUNDLE.getString("tmm.settings")); //$NON-NLS-1$
+    putValue(NAME, BUNDLE.getString("tmm.settings"));
   }
 
   @Override

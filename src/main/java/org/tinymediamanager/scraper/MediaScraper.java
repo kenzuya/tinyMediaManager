@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,27 +21,28 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IKodiMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
-import org.tinymediamanager.scraper.interfaces.ITrailerProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
-import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 
 /**
  * Class representing a MediaScraper; (type, info, description...)<br>
  * replacement of MovieScrapers /TvShowScrapers ENUM
- * 
+ *
  * @author Manuel Laggner
  */
 public class MediaScraper {
-  private static final ResourceBundle BUNDLE  = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
-  private String                      id      = "";
+  private static final ResourceBundle BUNDLE  = ResourceBundle.getBundle("messages", new UTF8Control());
+  private String id = "";
   private String                      version = "";
   private String                      name    = "";
   private String                      summary = "";
@@ -153,7 +154,10 @@ public class MediaScraper {
         plugins.addAll(MediaProviders.getProvidersForInterface(ITvShowArtworkProvider.class));
         break;
       case MOVIE_TRAILER:
-        plugins.addAll(MediaProviders.getProvidersForInterface(ITrailerProvider.class));
+        plugins.addAll(MediaProviders.getProvidersForInterface(IMovieTrailerProvider.class));
+        break;
+      case TVSHOW_TRAILER:
+        plugins.addAll(MediaProviders.getProvidersForInterface(ITvShowTrailerProvider.class));
         break;
       case SUBTITLE:
         plugins.addAll(MediaProviders.getProvidersForInterface(ISubtitleProvider.class));

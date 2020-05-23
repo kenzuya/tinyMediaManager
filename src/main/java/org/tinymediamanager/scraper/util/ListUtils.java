@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -114,5 +116,20 @@ public class ListUtils {
    */
   public static <T> boolean isNotEmpty(List<T> list) {
     return list != null && !list.isEmpty();
+  }
+
+  /**
+   * return the provided collection as a sorted list (sorted by default sort algorithm)
+   * 
+   * @param collection
+   *          the collection to sort
+   * @param <T>
+   *          the type
+   * @return a sorted {@link ArrayList} of the given collection
+   */
+  public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> collection) {
+    List<T> list = new ArrayList<>(collection);
+    Collections.sort(list);
+    return list;
   }
 }

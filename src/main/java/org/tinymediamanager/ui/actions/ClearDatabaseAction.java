@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,10 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * The class ClearDatabaseAction. Used to clear the whole database (to start with a new one)
@@ -42,11 +43,11 @@ import org.tinymediamanager.ui.UTF8Control;
  */
 public class ClearDatabaseAction extends TmmAction {
   private static final long           serialVersionUID = 5840749350843921771L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearDatabaseAction.class);
 
   public ClearDatabaseAction() {
-    putValue(NAME, BUNDLE.getString("tmm.cleardatabase")); //$NON-NLS-1$
+    putValue(NAME, BUNDLE.getString("tmm.cleardatabase"));
   }
 
   @Override
@@ -65,10 +66,10 @@ public class ClearDatabaseAction extends TmmAction {
       TmmModuleManager.getInstance().shutDown();
       TmmModuleManager.getInstance().initializeDatabase();
       MainWindow.getActiveInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.cleardatabase.info")); //$NON-NLS-1$
+      JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.cleardatabase.info"));
     }
     catch (Exception e) {
-      JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.cleardatabase.error")); //$NON-NLS-1$
+      JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.cleardatabase.error"));
       // open the tmm folder
       Path path = Paths.get("");
       try {

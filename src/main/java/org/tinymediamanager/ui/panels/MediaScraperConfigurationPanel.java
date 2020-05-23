@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@ package org.tinymediamanager.ui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
@@ -31,7 +28,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.DocumentEvent;
@@ -40,12 +39,14 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.config.MediaProviderConfigObject;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class MediaScraperConfigurationPanel is used to display configurable scraper options
@@ -55,7 +56,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 public class MediaScraperConfigurationPanel extends JPanel {
   private static final long           serialVersionUID = -4120483383064864579L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());      //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
 
   private IMediaProvider              mediaProvider;
@@ -71,7 +72,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
     JPanel panelHead = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
     add(panelHead, BorderLayout.NORTH);
 
-    JLabel lblScraperOptions = new TmmLabel(BUNDLE.getString("Settings.scraper.options"), 1.2); //$NON-NLS-1$
+    JLabel lblScraperOptions = new TmmLabel(BUNDLE.getString("Settings.scraper.options"), 1.2);
     panelHead.add(lblScraperOptions);
 
     configPanel = createConfigPanel();
@@ -100,16 +101,9 @@ public class MediaScraperConfigurationPanel extends JPanel {
   }
 
   private JPanel createConfigPanel() {
-    JPanel panel = new JPanel();
-    GridBagLayout gridBagLayout = new GridBagLayout();
-    gridBagLayout.columnWidths = new int[] { 0 };
-    gridBagLayout.rowHeights = new int[] { 0 };
-    gridBagLayout.columnWeights = new double[] { Double.MIN_VALUE };
-    gridBagLayout.rowWeights = new double[] { Double.MIN_VALUE };
-    panel.setLayout(gridBagLayout);
+    JPanel panel = new JPanel(new MigLayout("gapy 0lp", "[][20lp!][]", ""));
 
-    GridBagConstraints constraints = new GridBagConstraints();
-    constraints.gridy = 0;
+    int row = 0;
 
     // build up the panel for being displayed in the popup
     MediaProviderConfig config = mediaProvider.getProviderInfo().getConfig();
@@ -118,12 +112,9 @@ public class MediaScraperConfigurationPanel extends JPanel {
         continue;
       }
 
-      constraints.anchor = GridBagConstraints.LINE_START;
-      constraints.ipadx = 20;
-
       // label
       // try different ways to get a meaningful key description
-      String keyDescription = getStringFromBundle("scraper." + mediaProvider.getProviderInfo().getId() + "." + entry.getKey());//$NON-NLS-1$
+      String keyDescription = getStringFromBundle("scraper." + mediaProvider.getProviderInfo().getId() + "." + entry.getKey());
       if (StringUtils.isBlank(keyDescription)) {
         keyDescription = getStringFromBundle(entry.getValue().getKeyDescription());
       }
@@ -131,8 +122,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
         keyDescription = entry.getValue().getKeyDescription();
       }
       JLabel label = new JLabel(keyDescription);
-      constraints.gridx = 0;
-      panel.add(label, constraints);
+      panel.add(label, "cell 0 " + row);
 
       JComponent comp;
       switch (entry.getValue().getType()) {
@@ -142,6 +132,15 @@ public class MediaScraperConfigurationPanel extends JPanel {
           checkbox.setSelected(entry.getValue().getValueAsBool());
           checkbox.addActionListener(e -> dirty = true);
           comp = checkbox;
+          break;
+
+        case INTEGER:
+          // display as a spinner
+          JSpinner spinner = new JSpinner(new SpinnerNumberModel(entry.getValue().getValueAsInteger().intValue(), 0, Integer.MAX_VALUE, 1));
+          spinner.addChangeListener(e -> dirty = true);
+          // make the spinner smaller
+          ((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().setColumns(5);
+          comp = spinner;
           break;
 
         case SELECT:
@@ -163,7 +162,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
             tf = new JTextField(config.getValue(entry.getKey()));
           }
 
-          tf.setPreferredSize(new Dimension(250, 24));
+          tf.setColumns(20);
           tf.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void removeUpdate(DocumentEvent e) {
@@ -185,24 +184,21 @@ public class MediaScraperConfigurationPanel extends JPanel {
       }
 
       comp.putClientProperty(entry.getKey(), entry.getKey());
-      constraints.ipadx = 0;
-      constraints.gridx = 1;
-      panel.add(comp, constraints);
+      panel.add(comp, "cell 3 " + row);
 
       // add a hint if a long text has been found
       try {
-        String desc = getStringFromBundle("scraper." + mediaProvider.getProviderInfo().getId() + "." + entry.getKey() + ".desc"); //$NON-NLS-1$
+        String desc = getStringFromBundle("scraper." + mediaProvider.getProviderInfo().getId() + "." + entry.getKey() + ".desc");
         if (StringUtils.isNotBlank(desc)) {
           JLabel lblHint = new JLabel(IconManager.HINT);
           lblHint.setToolTipText(desc);
-          constraints.gridx = 2;
-          panel.add(lblHint, constraints);
+          panel.add(lblHint, "cell 3 " + row);
         }
       }
       catch (Exception e) {
         LOGGER.debug("failed to add a hint: {}", e.getMessage());
       }
-      constraints.gridy++;
+      row++;
     }
     return panel;
   }
@@ -246,6 +242,9 @@ public class MediaScraperConfigurationPanel extends JPanel {
           }
           else if (comp instanceof JComboBox) {
             mediaProvider.getProviderInfo().getConfig().setValue(entry.getKey(), ((JComboBox) comp).getSelectedItem().toString());
+          }
+          else if (comp instanceof JSpinner) {
+            mediaProvider.getProviderInfo().getConfig().setValue(entry.getKey(), (Integer) (((JSpinner) comp).getValue()));
           }
           else {
             mediaProvider.getProviderInfo().getConfig().setValue(entry.getKey(), ((JTextField) comp).getText());

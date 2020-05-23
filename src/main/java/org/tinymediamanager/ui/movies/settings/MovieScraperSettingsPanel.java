@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,14 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.TableColumnResizer;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.movies.MovieScraper;
@@ -67,7 +68,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -299825914193235308L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;
   private List<MovieScraper>          scrapers         = ObservableCollections.observableList(new ArrayList<>());
@@ -76,6 +77,7 @@ class MovieScraperSettingsPanel extends JPanel {
    * UI Elements
    */
   private JPanel                      panelScraperOptions;
+  private JScrollPane                 scrollPaneScraperDetails;
   private JTextPane                   tpScraperDescription;
 
   private TmmTable                    tableScraper;
@@ -150,7 +152,8 @@ class MovieScraperSettingsPanel extends JPanel {
         if (scrapers.get(index).getMediaProvider().getProviderInfo().getConfig().hasConfig()) {
           panelScraperOptions.add(new MediaScraperConfigurationPanel(scrapers.get(index).getMediaProvider()));
         }
-        panelScraperOptions.revalidate();
+        scrollPaneScraperDetails.revalidate();
+        scrollPaneScraperDetails.repaint();
       }
     });
 
@@ -165,7 +168,7 @@ class MovieScraperSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][150lp:600lp,grow]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.metadata"), H3); //$NON-NLS-1$
+      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.metadata"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
@@ -177,7 +180,7 @@ class MovieScraperSettingsPanel extends JPanel {
         JSeparator separator = new JSeparator();
         panelScraper.add(separator, "cell 1 1,growx");
 
-        JScrollPane scrollPaneScraperDetails = new JScrollPane();
+        scrollPaneScraperDetails = new JScrollPane();
         panelScraper.add(scrollPaneScraperDetails, "cell 1 2,grow");
 
         scrollPaneScraperDetails.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -188,8 +191,7 @@ class MovieScraperSettingsPanel extends JPanel {
         scrollPaneScraperDetails.setViewportView(panelScraperDetails);
         panelScraperDetails.setLayout(new MigLayout("insets 0", "[grow]", "[][grow]"));
 
-        tpScraperDescription = new JTextPane();
-        tpScraperDescription.setOpaque(false);
+        tpScraperDescription = new ReadOnlyTextPane();
         tpScraperDescription.setEditorKit(new HTMLEditorKit());
         panelScraperDetails.add(tpScraperDescription, "cell 0 0,grow");
 

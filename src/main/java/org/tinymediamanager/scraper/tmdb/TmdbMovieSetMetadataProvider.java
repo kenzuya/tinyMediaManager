@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.scraper.tmdb;
 
+import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.getRequestLanguage;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -69,8 +71,8 @@ class TmdbMovieSetMetadataProvider {
     List<MediaSearchResult> movieSetsFound = new ArrayList<>();
 
     String searchString = "";
-    if (StringUtils.isEmpty(searchString) && StringUtils.isNotEmpty(query.getSearchQuery())) {
-      searchString = query.getSearchQuery();
+    if (StringUtils.isNotEmpty(query.getSearchQuery())) {
+      searchString = Utils.removeSortableName(query.getSearchQuery());
     }
 
     if (StringUtils.isEmpty(searchString)) {
@@ -78,10 +80,7 @@ class TmdbMovieSetMetadataProvider {
       return movieSetsFound;
     }
 
-    String language = query.getLanguage().getLanguage();
-    if (query.getLanguage().toLocale() != null && StringUtils.isNotBlank(query.getLanguage().toLocale().getCountry())) {
-      language += "-" + query.getLanguage().toLocale().getCountry();
-    }
+    String language = getRequestLanguage(query.getLanguage());
 
     synchronized (api) {
       try {
@@ -180,10 +179,7 @@ class TmdbMovieSetMetadataProvider {
       throw new MissingIdException(MediaMetadata.TMDB_SET);
     }
 
-    String language = options.getLanguage().getLanguage();
-    if (options.getLanguage().toLocale() != null && StringUtils.isNotBlank(options.getLanguage().toLocale().getCountry())) {
-      language += "-" + options.getLanguage().toLocale().getCountry();
-    }
+    String language = getRequestLanguage(options.getLanguage());
 
     Collection collection = null;
     synchronized (api) {

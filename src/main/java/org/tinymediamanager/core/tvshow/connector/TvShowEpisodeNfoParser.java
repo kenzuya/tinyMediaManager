@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,6 +164,7 @@ public class TvShowEpisodeNfoParser {
     public boolean                    watched             = false;
     public int                        playcount           = 0;
     public MediaSource                source              = MediaSource.UNKNOWN;
+    public String                     userNote            = "";
 
     public Map<String, Object>        ids                 = new HashMap<>();
     public Map<String, Rating>        ratings             = new HashMap<>();
@@ -189,6 +190,7 @@ public class TvShowEpisodeNfoParser {
     public Date                       lastplayed          = null;
     public String                     code                = "";
     public Date                       dateadded           = null;
+    public String                     originalFileName    = "";
 
     private Episode(Element root) {
       this.root = root;
@@ -227,6 +229,10 @@ public class TvShowEpisodeNfoParser {
       parseTag(Episode::parseLastplayed);
       parseTag(Episode::parseCode);
       parseTag(Episode::parseDateadded);
+      parseTag(Episode::parseOriginalFilename);
+      parseTag(Episode::parseUserNote);
+
+      // MUST BE THE LAST ONE!
       parseTag(Episode::findUnsupportedElements);
     }
 
@@ -241,7 +247,7 @@ public class TvShowEpisodeNfoParser {
         function.apply(this);
       }
       catch (Exception e) {
-        LOGGER.warn("problem parsing tag (line " + e.getStackTrace()[0].getLineNumber() + "):" + e.getMessage());
+        LOGGER.warn("problem parsing tag (line {}) - {}", e.getStackTrace()[0].getLineNumber(), e.getMessage());
       }
 
       return null;
@@ -514,7 +520,7 @@ public class TvShowEpisodeNfoParser {
 
       Element element = getSingleElement(root, "plot");
       if (element != null) {
-        plot = element.ownText();
+        plot = element.wholeText();
       }
 
       return null;
@@ -528,7 +534,7 @@ public class TvShowEpisodeNfoParser {
 
       Element element = getSingleElement(root, "outline");
       if (element != null) {
-        outline = element.ownText();
+        outline = element.wholeText();
       }
 
       return null;
@@ -542,7 +548,7 @@ public class TvShowEpisodeNfoParser {
 
       Element element = getSingleElement(root, "tagline");
       if (element != null) {
-        tagline = element.ownText();
+        tagline = element.wholeText();
       }
 
       return null;
@@ -1148,6 +1154,17 @@ public class TvShowEpisodeNfoParser {
       return null;
     }
 
+    private Void parseOriginalFilename() {
+      supportedElements.add("original_filename");
+
+      Element element = getSingleElement(root, "original_filename");
+
+      if (element != null) {
+        originalFileName = element.ownText();
+      }
+      return null;
+    }
+
     /**
      * a trailer is usually in the trailer tag
      */
@@ -1273,6 +1290,19 @@ public class TvShowEpisodeNfoParser {
     }
 
     /**
+     * the user note is usually in the user_note tag
+     */
+    private Void parseUserNote() {
+      supportedElements.add("user_note");
+
+      Element element = getSingleElement(root, "user_note");
+      if (element != null) {
+        userNote = element.ownText();
+      }
+      return null;
+    }
+
+    /**
      * morph this instance to a TvShowEpisode object
      *
      * @return the TvShowEpisode Object
@@ -1342,6 +1372,9 @@ public class TvShowEpisodeNfoParser {
       for (String tag : tags) {
         episode.addToTags(tag);
       }
+
+      episode.setOriginalFilename(originalFileName);
+      episode.setNote(userNote);
 
       return episode;
     }

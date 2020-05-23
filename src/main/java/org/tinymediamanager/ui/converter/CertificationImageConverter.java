@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class CertificationImageConverter extends Converter<MediaCertification, I
   @Override
   public Icon convertForward(MediaCertification cert) {
     // we have no certification here
-    if (cert == MediaCertification.UNKNOWN) {
+    if (cert == null || cert == MediaCertification.UNKNOWN) {
       return null;
     }
     // try to find an image for this genre

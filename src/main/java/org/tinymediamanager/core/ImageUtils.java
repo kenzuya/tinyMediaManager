@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,12 +238,28 @@ public class ImageUtils {
     return size;
   }
 
-  public static BufferedImage createImage(byte[] imageData) {
-    return createImage(Toolkit.getDefaultToolkit().createImage(imageData));
+  public static BufferedImage createImage(byte[] imageData) throws IOException {
+    try {
+      // try to read with the fast implementation
+      return createImage(Toolkit.getDefaultToolkit().createImage(imageData));
+    }
+    catch (Exception e) {
+      // did not work? try with ImageIO
+      try (ByteArrayInputStream bis = new ByteArrayInputStream(imageData)) {
+        return ImageIO.read(bis);
+      }
+    }
   }
 
-  public static BufferedImage createImage(Path file) {
-    return createImage(Toolkit.getDefaultToolkit().createImage(file.toFile().getAbsolutePath()));
+  public static BufferedImage createImage(Path file) throws IOException {
+    try {
+      // try to read with the fast implementation
+      return createImage(Toolkit.getDefaultToolkit().createImage(file.toFile().getAbsolutePath()));
+    }
+    catch (Exception e) {
+      // did not work? try with ImageIO
+      return ImageIO.read(file.toFile());
+    }
   }
 
   public static BufferedImage createImage(Image img) {

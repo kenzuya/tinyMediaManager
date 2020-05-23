@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.tmdb;
 
+import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.getRequestLanguage;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -73,22 +76,28 @@ class TmdbTrailerProvider {
       throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
     }
 
-    String language = options.getLanguage().getLanguage();
-    if (options.getLanguage().toLocale() != null && StringUtils.isNotBlank(options.getLanguage().toLocale().getCountry())) {
-      language += "-" + options.getLanguage().toLocale().getCountry();
-    }
+    String language = getRequestLanguage(options.getLanguage());
 
-    LOGGER.debug("TMDB: getTrailers(tmdbId): {}", +tmdbId);
+    LOGGER.debug("TMDB: getTrailers(tmdbId): {}", tmdbId);
 
     List<Video> videos = new ArrayList<>();
     synchronized (api) {
       // get trailers from tmdb (with specified langu and without)
       try {
-        Videos tmdbVideos = api.moviesService().videos(tmdbId, language).execute().body();
-        Videos tmdbVideosWoLang = api.moviesService().videos(tmdbId, "").execute().body();
+        if (options.getMediaType() == MediaType.MOVIE) {
+          Videos tmdbVideos = api.moviesService().videos(tmdbId, language).execute().body();
+          Videos tmdbVideosWoLang = api.moviesService().videos(tmdbId, "").execute().body();
 
-        videos.addAll(tmdbVideos.results);
-        videos.addAll(tmdbVideosWoLang.results);
+          videos.addAll(tmdbVideos.results);
+          videos.addAll(tmdbVideosWoLang.results);
+
+        } else if (options.getMediaType() == MediaType.TV_SHOW) {
+          Videos tmdbVideos = api.tvService().videos(tmdbId, language).execute().body();
+          Videos tmdbVideosWoLang = api.tvService().videos(tmdbId, "").execute().body();
+
+          videos.addAll(tmdbVideos.results);
+          videos.addAll(tmdbVideosWoLang.results);
+        }
       }
       catch (Exception e) {
         LOGGER.debug("failed to get trailer: {}", e.getMessage());

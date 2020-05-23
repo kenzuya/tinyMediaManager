@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
+import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.getRequestLanguage;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
 
 import java.io.IOException;
@@ -28,14 +29,16 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -96,16 +99,16 @@ class TmdbTvShowMetadataProvider {
    * @throws ScrapeException
    *           any exception which can be thrown while searching
    */
-  List<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     Exception savedException = null;
     LOGGER.debug("search(): {} ", options);
 
-    List<MediaSearchResult> resultList = new ArrayList<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     // detect the string to search
     String searchString = "";
     if (StringUtils.isNotEmpty(options.getSearchQuery())) {
-      searchString = options.getSearchQuery();
+      searchString = Utils.removeSortableName(options.getSearchQuery());
     }
     searchString = MetadataUtil.removeNonSearchCharacters(searchString);
 
@@ -119,12 +122,7 @@ class TmdbTvShowMetadataProvider {
 
     int tmdbId = options.getTmdbId();
 
-    Integer year = null;
-    if (options.getSearchYear() != 0) {
-      year = options.getSearchYear();
-    }
-
-    String language = options.getLanguage().toLocale().toLanguageTag();
+    String language = getRequestLanguage(options.getLanguage());
 
     // begin search
     LOGGER.info("========= BEGIN TMDB Scraper Search for: {}", searchString);
@@ -138,9 +136,9 @@ class TmdbTvShowMetadataProvider {
             throw new HttpException(httpResponse.code(), httpResponse.message());
           }
           TvShow show = httpResponse.body();
-          verifyTvShowLanguageTitle(options.getLanguage().toLocale(), show);
-          resultList.add(morphTvShowToSearchResult(show, options));
-          LOGGER.debug("found {} results with TMDB id", resultList.size());
+          verifyTvShowLanguageTitle(Locale.forLanguageTag(language), show);
+          results.add(morphTvShowToSearchResult(show, options));
+          LOGGER.debug("found {} results with TMDB id", results.size());
         }
         catch (Exception e) {
           LOGGER.warn("problem getting data from tmdb: {}", e.getMessage());
@@ -149,7 +147,7 @@ class TmdbTvShowMetadataProvider {
       }
 
       // 2. try with IMDBid
-      if (resultList.isEmpty() && StringUtils.isNotEmpty(imdbId)) {
+      if (results.isEmpty() && StringUtils.isNotEmpty(imdbId)) {
         LOGGER.debug("found IMDB ID {} - getting direct", imdbId);
         try {
           Response<FindResults> httpResponse = api.findService().find(imdbId, ExternalSource.IMDB_ID, language).execute();
@@ -157,10 +155,10 @@ class TmdbTvShowMetadataProvider {
             throw new HttpException(httpResponse.code(), httpResponse.message());
           }
           for (BaseTvShow show : httpResponse.body().tv_results) { // should be only one
-            verifyTvShowLanguageTitle(options.getLanguage().toLocale(), show);
-            resultList.add(morphTvShowToSearchResult(show, options));
+            verifyTvShowLanguageTitle(Locale.forLanguageTag(language), show);
+            results.add(morphTvShowToSearchResult(show, options));
           }
-          LOGGER.debug("found {} results with IMDB id", resultList.size());
+          LOGGER.debug("found {} results with IMDB id", results.size());
         }
         catch (Exception e) {
           LOGGER.warn("problem getting data from tmdb: {}", e.getMessage());
@@ -169,17 +167,28 @@ class TmdbTvShowMetadataProvider {
       }
 
       // 3. try with search string and year
-      if (resultList.isEmpty()) {
+      if (results.isEmpty()) {
         try {
-          Response<TvShowResultsPage> httpResponse = api.searchService().tv(searchString, 1, language, year, "phrase").execute();
-          if (!httpResponse.isSuccessful()) {
-            throw new HttpException(httpResponse.code(), httpResponse.message());
-          }
-          for (BaseTvShow show : ListUtils.nullSafe(httpResponse.body().results)) {
-            verifyTvShowLanguageTitle(options.getLanguage().toLocale(), show);
-            resultList.add(morphTvShowToSearchResult(show, options));
-          }
-          LOGGER.debug("found {} results with search string", resultList.size());
+          int page = 1;
+          int maxPage = 1;
+
+          // get all result pages
+          do {
+            Response<TvShowResultsPage> httpResponse = api.searchService().tv(searchString, page, language, null).execute();
+            if (!httpResponse.isSuccessful() || httpResponse.body() == null) {
+              throw new HttpException(httpResponse.code(), httpResponse.message());
+            }
+
+            for (BaseTvShow show : ListUtils.nullSafe(httpResponse.body().results)) {
+              verifyTvShowLanguageTitle(Locale.forLanguageTag(language), show);
+              results.add(morphTvShowToSearchResult(show, options));
+            }
+
+            maxPage = httpResponse.body().total_pages;
+            page++;
+          } while (page <= maxPage);
+
+          LOGGER.debug("found {} results with search string", results.size());
         }
         catch (Exception e) {
           LOGGER.warn("problem getting data from tmdb: {}", e.getMessage());
@@ -189,14 +198,11 @@ class TmdbTvShowMetadataProvider {
     }
 
     // if we have not found anything and there is a saved Exception, throw it to indicate a problem
-    if (resultList.isEmpty() && savedException != null) {
+    if (results.isEmpty() && savedException != null) {
       throw new ScrapeException(savedException);
     }
 
-    Collections.sort(resultList);
-    Collections.reverse(resultList);
-
-    return resultList;
+    return results;
   }
 
   /**
@@ -222,7 +228,7 @@ class TmdbTvShowMetadataProvider {
       throw new MissingIdException(MediaMetadata.TMDB);
     }
 
-    String language = options.getLanguage().toLocale().toLanguageTag();
+    String language = getRequestLanguage(options.getLanguage());
 
     // the API does not provide a complete access to all episodes, so we have to
     // fetch the show summary first and every season afterwards..
@@ -277,7 +283,7 @@ class TmdbTvShowMetadataProvider {
       throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
     }
 
-    String language = options.getLanguage().toLocale().toLanguageTag();
+    String language = getRequestLanguage(options.getLanguage());
 
     TvShow complete = null;
     synchronized (api) {
@@ -288,7 +294,7 @@ class TmdbTvShowMetadataProvider {
           throw new HttpException(httpResponse.code(), httpResponse.message());
         }
         complete = httpResponse.body();
-        verifyTvShowLanguageTitle(options.getLanguage().toLocale(), complete);
+        verifyTvShowLanguageTitle(Locale.forLanguageTag(language), complete);
       }
       catch (TmdbNotFoundException e) {
         LOGGER.info("nothing found");
@@ -452,17 +458,20 @@ class TmdbTvShowMetadataProvider {
       throw new MissingIdException(MediaMetadata.SEASON_NR, MediaMetadata.EPISODE_NR);
     }
 
-    String language = options.getLanguage().toLocale().toLanguageTag();
+    String language = getRequestLanguage(options.getLanguage());
+
     // get the data from tmdb
     TvEpisode episode = null;
+    TvSeason fullSeason = null;
     synchronized (api) {
       // get episode via season listing -> improves caching performance
       try {
-        Response<TvSeason> httpResponse = api.tvSeasonsService().season(tmdbId, seasonNr, language).execute();
+        Response<TvSeason> httpResponse = api.tvSeasonsService()
+            .season(tmdbId, seasonNr, language, new AppendToResponse(AppendToResponseItem.CREDITS)).execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
         }
-        TvSeason fullSeason = httpResponse.body();
+        fullSeason = httpResponse.body();
         for (TvEpisode ep : ListUtils.nullSafe(fullSeason.episodes)) {
           if (ep.season_number == seasonNr && ep.episode_number == episodeNr) {
             episode = ep;
@@ -495,7 +504,7 @@ class TmdbTvShowMetadataProvider {
       }
     }
 
-    if (episode == null) {
+    if (episode == null || fullSeason == null) {
       throw new NothingFoundException();
     }
 
@@ -532,6 +541,57 @@ class TmdbTvShowMetadataProvider {
 
     md.setReleaseDate(episode.air_date);
 
+    if (fullSeason.credits != null) {
+      // season cast
+      for (CastMember castMember : ListUtils.nullSafe(fullSeason.credits.cast)) {
+        Person cm = new Person(ACTOR);
+        cm.setId(providerInfo.getId(), castMember.id);
+        cm.setName(castMember.name);
+        cm.setRole(castMember.character);
+        if (castMember.id != null) {
+          cm.setProfileUrl("https://www.themoviedb.org/person/" + castMember.id);
+        }
+
+        if (StringUtils.isNotBlank(castMember.profile_path)) {
+          cm.setThumbUrl(TmdbMetadataProvider.configuration.images.base_url + "h632" + castMember.profile_path);
+        }
+
+        md.addCastMember(cm);
+      }
+
+      // season crew
+      for (CrewMember crewMember : ListUtils.nullSafe(fullSeason.credits.crew)) {
+        Person cm = new Person();
+        if ("Director".equals(crewMember.job)) {
+          cm.setType(DIRECTOR);
+          cm.setRole(crewMember.department);
+        }
+        else if ("Writing".equals(crewMember.department)) {
+          cm.setType(WRITER);
+          cm.setRole(crewMember.department);
+        }
+        else if ("Production".equals(crewMember.department)) {
+          cm.setType(PRODUCER);
+          cm.setRole(crewMember.job);
+        }
+        else {
+          continue;
+        }
+        cm.setId(providerInfo.getId(), crewMember.id);
+        cm.setName(crewMember.name);
+
+        if (StringUtils.isNotBlank(crewMember.profile_path)) {
+          cm.setThumbUrl(TmdbMetadataProvider.configuration.images.base_url + "h632" + crewMember.profile_path);
+        }
+        if (crewMember.id != null) {
+          cm.setProfileUrl("https://www.themoviedb.org/person/" + crewMember.id);
+        }
+
+        md.addCastMember(cm);
+      }
+    }
+
+    // episode guests
     for (CastMember castMember : ListUtils.nullSafe(episode.guest_stars)) {
       Person cm = new Person(ACTOR);
       cm.setId(providerInfo.getId(), castMember.id);
@@ -611,7 +671,7 @@ class TmdbTvShowMetadataProvider {
       }
     }
     catch (Exception e) {
-      LOGGER.debug("failed to get tmdb id: " + e.getMessage());
+      LOGGER.debug("failed to get tmdb id: {}" + e.getMessage());
     }
 
     return 0;
@@ -834,22 +894,8 @@ class TmdbTvShowMetadataProvider {
       result.setScore(1);
     }
     else {
-      // since we're dealing with translated content, also checkoriginal title!!
-      float score = Math.max(MetadataUtil.calculateScore(query.getSearchQuery(), result.getTitle()),
-          MetadataUtil.calculateScore(query.getSearchQuery(), result.getOriginalTitle()));
-
-      if (query.getSearchYear() > 0 && yearDiffers(query.getSearchYear(), result.getYear())) {
-        float diff = (float) Math.abs(query.getSearchYear() - result.getYear()) / 100;
-        LOGGER.debug("parsed year does not match search result year - downgrading score by {}", diff);
-        score -= diff;
-      }
-
-      if (result.getPosterUrl() == null || result.getPosterUrl().isEmpty()) {
-        LOGGER.debug("no poster - downgrading score by 0.01");
-        score -= 0.01f;
-      }
-
-      result.setScore(score);
+      // calculate the score by comparing the search result with the search options
+      result.calculateScore(query);
     }
 
     return result;

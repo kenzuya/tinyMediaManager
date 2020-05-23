@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.imdb;
 
 import java.util.List;
+import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -56,7 +57,7 @@ public class ImdbMetadataProvider implements IMovieMetadataProvider, ITvShowMeta
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "IMDb.com",
-        "<html><h3>Internet Movie Database (IMDB)</h3><br />The most used database for movies all over the world.<br />Does not contain plot/title/tagline in every language. You may choose to download these texts from TMDB<br /><br />Available languages: multiple</html>",
+        "<html><h3>Internet Movie Database (IMDb)</h3><br />The most used database for movies all over the world.<br />Does not contain plot/title/tagline in every language. You may choose to download these texts from TMDb<br /><br />Available languages: multiple</html>",
         ImdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/imdb_com.png"));
 
     // configure/load settings
@@ -66,6 +67,8 @@ public class ImdbMetadataProvider implements IMovieMetadataProvider, ITvShowMeta
     providerInfo.getConfig().addBoolean("scrapeCollectionInfo", false);
     providerInfo.getConfig().addBoolean("localReleaseDate", true);
     providerInfo.getConfig().addBoolean("scrapeLanguageNames", true);
+    providerInfo.getConfig().addBoolean("scrapeKeywordsPage", false);
+    providerInfo.getConfig().addInteger("maxKeywordCount", 10);
 
     providerInfo.getConfig().load();
 
@@ -83,7 +86,7 @@ public class ImdbMetadataProvider implements IMovieMetadataProvider, ITvShowMeta
   }
 
   @Override
-  public List<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     return (new ImdbMovieParser()).search(options);
   }
 
@@ -103,7 +106,7 @@ public class ImdbMetadataProvider implements IMovieMetadataProvider, ITvShowMeta
   }
 
   @Override
-  public List<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     return (new ImdbTvShowParser()).search(options);
   }
 

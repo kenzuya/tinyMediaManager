@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,10 +41,10 @@ public abstract class Format {
     this.itag = itag;
 
     url = Objects.requireNonNull(YoutubeHelper.getString(json, "url")).replace("\\u0026", "&");
-    mimeType = YoutubeHelper.getString(json, "type");
-    bitrate = Integer.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "bitrate")));
-    contentLength = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "clen")));
-    lastModified = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "lmt")));
+    mimeType = YoutubeHelper.getString(json, "mimeType");
+    bitrate = YoutubeHelper.getInt(json, "bitrate");
+    contentLength = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "contentLength")));
+    lastModified = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "lastModified")));
 
     if (Objects.requireNonNull(mimeType).contains(Extension.MP4.getText())) {
       extension = Extension.MP4;

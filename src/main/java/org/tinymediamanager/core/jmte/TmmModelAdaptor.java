@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class TmmModelAdaptor extends DefaultModelAdaptor {
         try {
           final int index;
           if (arrayIndex.equalsIgnoreCase("last")) {
-            if (arrayAsList.size() > 0) {
+            if (!arrayAsList.isEmpty()) {
               index = arrayAsList.size() - 1;
               return arrayAsList.get(index);
             }

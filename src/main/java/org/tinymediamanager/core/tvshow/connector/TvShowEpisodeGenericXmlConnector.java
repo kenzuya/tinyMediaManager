@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -472,8 +472,27 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addDateAdded(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element dateadded = document.createElement("dateadded");
-    if (episode.getDateAdded() != null) {
-      dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getDateAdded()));
+    switch (TvShowModuleManager.SETTINGS.getNfoDateAddedField()) {
+      case DATE_ADDED:
+        if (episode.getDateAdded() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getDateAdded()));
+        }
+        break;
+
+      case FILE_CREATION_DATE:
+        MediaFile mainMediaFile = episode.getMainFile();
+        if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
+        }
+        break;
+
+      case FILE_LAST_MODIFIED_DATE:
+        mainMediaFile = episode.getMainFile();
+        if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {
+          dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateLastModified()));
+        }
+        break;
+
     }
     root.appendChild(dateadded);
   }
@@ -612,6 +631,8 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
   protected void addTinyMediaManagerTags(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     root.appendChild(document.createComment("tinyMediaManager meta data"));
     addSource(episode, parser);
+    addOriginalFilename(episode, parser);
+    addUserNote(episode, parser);
   }
 
   /**
@@ -621,6 +642,24 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     Element source = document.createElement("source");
     source.setTextContent(episode.getMediaSource().name());
     root.appendChild(source);
+  }
+
+  /**
+   * add the original filename (which we picked up in tmm before renaming) in <original_filename>xxx</original_filename>
+   */
+  protected void addOriginalFilename(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element originalFilename = document.createElement("original_filename");
+    originalFilename.setTextContent(episode.getMainFile().getFilename());
+    root.appendChild(originalFilename);
+  }
+
+  /**
+   * add the user note in <user_note>xxx</user_note>
+   */
+  protected void addUserNote(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element user_note = document.createElement("user_note");
+    user_note.setTextContent(episode.getNote());
+    root.appendChild(user_note);
   }
 
   /**
@@ -674,7 +713,13 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
-    transformer.setOutputProperty(ORACLE_IS_STANDALONE, "yes");
+    // not supported in all JVMs
+    try {
+      transformer.setOutputProperty(ORACLE_IS_STANDALONE, "yes");
+    }
+    catch (Exception ignored) {
+      // okay, seems we're not on OracleJDK, OPenJDK or AdopOpenJDK
+    }
     transformer.setOutputProperty(OutputKeys.METHOD, "xml");
     transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 

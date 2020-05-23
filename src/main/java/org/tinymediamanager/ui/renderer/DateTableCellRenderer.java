@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
    * Create a new DateTableCellRenderer that renders Dates as formatted Strings.
    */
   public DateTableCellRenderer() {
-    this.dateFormat = TmmDateFormat.SHORT_DATE_FORMAT;
+    this.dateFormat = TmmDateFormat.MEDIUM_DATE_FORMAT;
   }
 
   /**

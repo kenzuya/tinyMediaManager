@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   protected Date                     dateCreated       = null;
   @JsonProperty
   protected Date                     dateLastModified  = null;
+  @JsonProperty
+  private boolean                    isISO             = false;
+  @JsonProperty
+  private boolean                    isAnimatedGraphic = false;
+  @JsonProperty
+  private String                     hdrFormat         = "";
 
   @JsonProperty
   private List<MediaFileAudioStream> audioStreams      = null;
@@ -105,19 +111,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   private List<MediaFileSubtitle>    subtitles         = null;
 
   private Path                       file              = null;
-  private boolean                    isISO             = false;
-  @JsonProperty
-  private boolean                    isAnimatedGraphic = false;
-  @Deprecated
-  @JsonProperty
-  public boolean                     HDR               = false;
-  @JsonProperty
-  private String                     hdrFormat         = "";
 
   /**
    * "clones" a new media file.
    */
   public MediaFile(MediaFile clone) {
+    this.type = clone.type;
     this.path = clone.path;
     this.filename = clone.filename;
     this.filesize = clone.filesize;
@@ -129,19 +128,23 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoHeight = clone.videoHeight;
     this.videoWidth = clone.videoWidth;
     this.aspectRatio = clone.aspectRatio;
-    this.frameRate = clone.frameRate;
     this.overallBitRate = clone.overallBitRate;
     this.bitDepth = clone.bitDepth;
+    this.frameRate = clone.frameRate;
     this.durationInSecs = clone.durationInSecs;
     this.stacking = clone.stacking;
     this.stackingMarker = clone.stackingMarker;
-    this.type = clone.type;
     this.title = clone.title;
+    this.dateCreated = clone.dateCreated;
+    this.dateLastModified = clone.dateLastModified;
+    this.isISO = clone.isISO;
+    this.isAnimatedGraphic = clone.isAnimatedGraphic;
+    this.hdrFormat = clone.hdrFormat;
 
-    if (clone.audioStreams != null && !clone.audioStreams.isEmpty()) {
+    if (ListUtils.isNotEmpty(clone.audioStreams)) {
       audioStreams = new CopyOnWriteArrayList<>(clone.audioStreams);
     }
-    if (clone.subtitles != null && !clone.subtitles.isEmpty()) {
+    if (ListUtils.isNotEmpty(clone.subtitles)) {
       subtitles = new CopyOnWriteArrayList<>(clone.subtitles);
     }
   }
@@ -477,7 +480,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public String getFilesizeInMegabytes() {
     DecimalFormat df = new DecimalFormat("#0.00");
-    return df.format(filesize / (1024.0 * 1024.0)) + " M";
+    return df.format(filesize / (1000.0 * 1000.0)) + " M";
   }
 
   public MediaFileType getType() {
@@ -506,6 +509,10 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public boolean isISO() {
     return isISO;
+  }
+
+  public void setIsISO(boolean newValue) {
+    this.isISO = newValue;
   }
 
   /**
@@ -537,6 +544,23 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
       return new ArrayList<>();
     }
     return subtitles;
+  }
+
+  /**
+   * gets the subtitle language from all streams as List
+   *
+   * @return the subtitle languages as List
+   */
+  public List<String> getSubtitleLanguagesList() {
+    List<String> subtitleLanguages = new ArrayList<>();
+    for (MediaFileSubtitle stream : ListUtils.nullSafe(subtitles)) {
+      // just in case we couldn't detect the language name
+      if (StringUtils.isBlank(stream.getLanguage())) {
+        continue;
+      }
+      subtitleLanguages.add(stream.getLanguage());
+    }
+    return subtitleLanguages;
   }
 
   public String getSubtitlesAsString() {
@@ -642,6 +666,10 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     if ("avc".equalsIgnoreCase(newValue) || "x264".equalsIgnoreCase(newValue)) {
       newValue = "h264";
     }
+    // HEVC = h265 = x265; display as h265
+    if ("hevc".equalsIgnoreCase(newValue) || "x265".equalsIgnoreCase(newValue)) {
+      newValue = "h265";
+    }
 
     String oldValue = this.videoCodec;
     this.videoCodec = newValue;
@@ -723,6 +751,10 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   public List<String> getAudioLanguagesList() {
     List<String> audioLanguages = new ArrayList<>();
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
+      // just in case we couldn't detect the language name
+      if (StringUtils.isBlank(stream.getLanguage())) {
+        continue;
+      }
       audioLanguages.add(stream.getLanguage());
     }
     return audioLanguages;
@@ -890,7 +922,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    *          the aspect ratio to be forced
    */
   public void setAspectRatio(float newValue) {
-    if (newValue == getAspectRatioCalculated()) {
+    if (newValue == this.aspectRatio) {
       return;
     }
 
@@ -908,35 +940,43 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   public float getAspectRatio() {
     // check whether the aspect ratio has been overridden
     if (aspectRatio > 0) {
-      return aspectRatio;
+      return getCommonAspectRatio(aspectRatio);
     }
 
-    // no -> calculate it
-    return getAspectRatioCalculated();
+    if (this.videoWidth == 0 || this.videoHeight == 0) {
+      return 0f;
+    }
+
+    float ar = (float) this.videoWidth / (float) this.videoHeight;
+    return getCommonAspectRatio(ar);
   }
 
   /**
-   * get the calculated aspect ratio
+   * get the "common" (nearest) aspect ratio
    *
-   * @return the calculated aspect ratio
+   * @return the common aspect ratio
    */
-  public float getAspectRatioCalculated() {
-    float ret = 0f;
-    if (this.videoWidth == 0 || this.videoHeight == 0) {
-      return ret;
-    }
-    float ar = (float) this.videoWidth / (float) this.videoHeight;
+  private float getCommonAspectRatio(Float ar) {
+    float ret;
 
     // https://github.com/xbmc/xbmc/blob/master/xbmc/utils/StreamDetails.cpp#L538
     // Given that we're never going to be able to handle every single possibility in
     // aspect ratios, particularly when cropping prior to video encoding is taken into account
     // the best we can do is take the "common" aspect ratios, and return the closest one available.
     // The cutoffs are the geometric mean of the two aspect ratios either side.
+
+    // the original list of kodi has been enhanced by some other common resolutions
     if (ar < 1.3499f) { // sqrt(1.33*1.37)
       ret = 1.33F;
     }
-    else if (ar < 1.5080f) { // sqrt(1.37*1.66)
+    else if (ar < 1.3997f) { // sqrt(1.37*1.43)
       ret = 1.37F;
+    }
+    else if (ar < 1.4935f) { // sqrt(1.43*1.56)
+      ret = 1.43F;
+    }
+    else if (ar < 1.6092f) { // sqrt(1.56*1.66)
+      ret = 1.56F;
     }
     else if (ar < 1.7190f) { // sqrt(1.66*1.78)
       ret = 1.66F;
@@ -944,8 +984,11 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     else if (ar < 1.8147f) { // sqrt(1.78*1.85)
       ret = 1.78F;
     }
-    else if (ar < 2.0174f) { // sqrt(1.85*2.20)
+    else if (ar < 1.8748f) { // sqrt(1.85*1.90)
       ret = 1.85F;
+    }
+    else if (ar < 2.0445f) { // sqrt(1.90*2.20)
+      ret = 1.90F;
     }
     else if (ar < 2.2738f) { // sqrt(2.20*2.35)
       ret = 2.20F;
@@ -1284,15 +1327,30 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.isAnimatedGraphic = isAnimatedGraphic;
   }
 
-  @Deprecated
+  /**
+   * is this file in HDR format? (checks only if the HdrFormat has been set)
+   *
+   * @return true/false
+   */
   public boolean isHDR() {
-    return HDR;
+    return StringUtils.isNotBlank(hdrFormat);
   }
 
+  /**
+   * set the HDR format
+   * 
+   * @param format
+   *          the HDR format
+   */
   public void setHdrFormat(String format) {
     this.hdrFormat = format;
   }
 
+  /**
+   * get the HDR format (HDR10, HDR10+, ...) what has been reported by libmediainfo
+   * 
+   * @return the HDR format or an empty String
+   */
   public String getHdrFormat() {
     return this.hdrFormat;
   }

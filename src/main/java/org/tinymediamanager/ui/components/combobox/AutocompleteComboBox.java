@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ public class AutocompleteComboBox<E> extends JComboBox<E> {// implements JComboB
     super();
     this.items = new BasicEventList<>();
     this.items.addAll(items);
+    this.items.sort((o1, o2) -> o1.toString().compareToIgnoreCase(o2.toString()));
     init();
   }
 

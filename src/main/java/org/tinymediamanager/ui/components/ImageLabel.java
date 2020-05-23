@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,6 +180,9 @@ public class ImageLabel extends JComponent {
   public void clearImage() {
     imagePath = "";
     imageUrl = "";
+    if (worker != null && !worker.isDone()) {
+      worker.cancel(true);
+    }
     clearImageData();
     this.repaint();
   }
@@ -189,6 +192,8 @@ public class ImageLabel extends JComponent {
     scaledImage = null;
     originalImageBytes = null;
     originalImageSize = EMPTY_SIZE;
+    firePropertyChange("originalImageSize", null, 0);
+    firePropertyChange("originalImageBytes", null, new byte[] {});
   }
 
   public String getImageUrl() {
@@ -515,13 +520,15 @@ public class ImageLabel extends JComponent {
 
     @Override
     protected void done() {
-      if (isCancelled()) {
-        return;
+      if (isCancelled() || !ImageLabel.this.imageUrl.equals(imageUrl)) {
+        ImageLabel.this.imageUrl = "";
+        clearImageData();
       }
-
-      // fire events
-      ImageLabel.this.firePropertyChange("originalImageBytes", null, originalImageBytes);
-      ImageLabel.this.firePropertyChange("originalImageSize", null, originalImageSize);
+      else {
+        // fire events
+        ImageLabel.this.firePropertyChange("originalImageBytes", null, originalImageBytes);
+        ImageLabel.this.firePropertyChange("originalImageSize", null, originalImageSize);
+      }
 
       revalidate();
       repaint();
@@ -579,13 +586,15 @@ public class ImageLabel extends JComponent {
 
     @Override
     protected void done() {
-      if (isCancelled()) {
-        return;
+      if (isCancelled() || !ImageLabel.this.imagePath.equals(imagePath)) {
+        ImageLabel.this.imagePath = "";
+        clearImageData();
       }
-
-      // fire events
-      ImageLabel.this.firePropertyChange("originalImageBytes", null, originalImageBytes);
-      ImageLabel.this.firePropertyChange("originalImageSize", null, originalImageSize);
+      else {
+        // fire events
+        ImageLabel.this.firePropertyChange("originalImageBytes", null, originalImageBytes);
+        ImageLabel.this.firePropertyChange("originalImageSize", null, originalImageSize);
+      }
 
       revalidate();
       repaint();

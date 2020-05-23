@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -64,7 +65,6 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUILogCollector;
 import org.tinymediamanager.ui.TmmWindowSaver;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.dialogs.MessageDialog;
 import org.tinymediamanager.ui.dialogs.WhatsNewDialog;
 import org.tinymediamanager.ui.plaf.TmmTheme;
@@ -133,7 +133,7 @@ public class TinyMediaManager {
     }
 
     LOGGER.info("=====================================================");
-    LOGGER.info("=== tinyMediaManager (c) 2012-2019 Manuel Laggner ===");
+    LOGGER.info("=== tinyMediaManager (c) 2012-2020 Manuel Laggner ===");
     LOGGER.info("=====================================================");
     LOGGER.info("tmm.version      : {}", ReleaseInfo.getRealVersion());
     LOGGER.info("os.name          : {}", System.getProperty("os.name"));
@@ -241,6 +241,7 @@ public class TinyMediaManager {
             updateProgress(g2, "loading MediaInfo libs", 20);
             splash.update();
           }
+
           MediaInfoUtils.loadMediaInfo();
 
           // load modules //////////////////////////////////////////////////
@@ -265,6 +266,12 @@ public class TinyMediaManager {
           }
           // just instantiate static - will block (takes a few secs)
           MediaProviders.loadMediaProviders();
+
+          if (Globals.settings.isNewConfig()) {
+            // add/set default scrapers
+            MovieModuleManager.SETTINGS.setDefaultScrapers();
+            TvShowModuleManager.SETTINGS.setDefaultScrapers();
+          }
 
           if (g2 != null) {
             updateProgress(g2, "starting services", 60);
@@ -322,8 +329,6 @@ public class TinyMediaManager {
               wizard.setVisible(true);
             }
 
-            TmmTaskManager.getInstance().addUnnamedTask(new PreloadTask());
-
             // show changelog
             if (newVersion && !ReleaseInfo.getVersion().equals(oldVersion)) {
               // special case nightly/git: if same snapshot version, do not display changelog
@@ -360,11 +365,11 @@ public class TinyMediaManager {
           LOGGER.error("IllegalStateException", e);
           if (!GraphicsEnvironment.isHeadless() && e.getMessage().contains("file is locked")) {
             // MessageDialog.showExceptionWindow(e);
-            ResourceBundle bundle = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
-            MessageDialog dialog = new MessageDialog(null, bundle.getString("tmm.problemdetected")); //$NON-NLS-1$
+            ResourceBundle bundle = ResourceBundle.getBundle("messages", new UTF8Control());
+            MessageDialog dialog = new MessageDialog(null, bundle.getString("tmm.problemdetected"));
             dialog.setImage(IconManager.ERROR);
-            dialog.setText(bundle.getString("tmm.nostart"));//$NON-NLS-1$
-            dialog.setDescription(bundle.getString("tmm.nostart.instancerunning"));//$NON-NLS-1$
+            dialog.setText(bundle.getString("tmm.nostart"));
+            dialog.setDescription(bundle.getString("tmm.nostart.instancerunning"));
             dialog.setResizable(true);
             dialog.pack();
             dialog.setLocationRelativeTo(MainWindow.getActiveInstance());

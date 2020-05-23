@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.tinymediamanager.ui.tvshows.panels.tvshow;
 
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
+import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 
 import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
@@ -27,6 +28,7 @@ import java.util.ResourceBundle;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -38,11 +40,10 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.panels.MediaFilesPanel;
@@ -62,7 +63,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowMediaInformationPanel extends JPanel {
   private static final long           serialVersionUID = 1610264727610254912L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());   //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
   private TvShowSelectionModel        selectionModel;
@@ -103,14 +104,18 @@ public class TvShowMediaInformationPanel extends JPanel {
       String property = propertyChangeEvent.getPropertyName();
       Object source = propertyChangeEvent.getSource();
       // react on selection of a tv show and change of media files
-      if ((source.getClass() == TvShowSelectionModel.class && "selectedTvShow".equals(property))
-          || (source.getClass() == TvShow.class && MEDIA_FILES.equals(property))) {
+      if (source.getClass() != TvShowSelectionModel.class) {
+        return;
+      }
+
+      if ("selectedTvShow".equals(property) || MEDIA_INFORMATION.equals(property) || MEDIA_FILES.equals(property)) {
         try {
           mediaFileEventList.getReadWriteLock().writeLock().lock();
           mediaFileEventList.clear();
           mediaFileEventList.addAll(selectionModel.getSelectedTvShow().getMediaFiles());
         }
         catch (Exception ignored) {
+          // nothing to do here
         }
         finally {
           mediaFileEventList.getReadWriteLock().writeLock().unlock();
@@ -124,7 +129,7 @@ public class TvShowMediaInformationPanel extends JPanel {
 
   private void initComponents() {
     setLayout(new MigLayout("", "[][150lp][grow]", "[][][80lp,grow]"));
-    JLabel lblTvShowPathT = new TmmLabel(BUNDLE.getString("metatag.path")); //$NON-NLS-1$
+    JLabel lblTvShowPathT = new TmmLabel(BUNDLE.getString("metatag.path"));
     add(lblTvShowPathT, "cell 0 0");
     {
 
@@ -132,14 +137,14 @@ public class TvShowMediaInformationPanel extends JPanel {
       add(lblTvShowPath, "cell 1 0 2 1,growx,wmin 0");
     }
     {
-      JLabel lblDateAddedT = new TmmLabel(BUNDLE.getString("metatag.dateadded")); //$NON-NLS-1$
+      JLabel lblDateAddedT = new TmmLabel(BUNDLE.getString("metatag.dateadded"));
       add(lblDateAddedT, "cell 0 1");
 
       lblDateAdded = new JLabel("");
       add(lblDateAdded, "cell 1 1");
     }
     {
-      JLabel lblWatchedT = new TmmLabel(BUNDLE.getString("metatag.watched")); //$NON-NLS-1$
+      JLabel lblWatchedT = new TmmLabel(BUNDLE.getString("metatag.watched"));
       add(lblWatchedT, "flowx,cell 2 1");
     }
     {
@@ -181,8 +186,9 @@ public class TvShowMediaInformationPanel extends JPanel {
     autoBinding_3.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShow.path");
-    AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ, selectionModel,
-        tvShowSelectionModelBeanProperty_13, lblTvShowPath, jLabelBeanProperty);
+    BeanProperty<JTextArea, String> jTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ, selectionModel,
+        tvShowSelectionModelBeanProperty_13, lblTvShowPath, jTextAreaBeanProperty);
     autoBinding_19.bind();
   }
 }

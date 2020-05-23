@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,6 +47,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -56,6 +59,7 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -64,10 +68,10 @@ import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.ScrollingEventDelegator;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
@@ -90,14 +94,14 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListener {
-  private static final long                        serialVersionUID = 5189531235704401313L;
+  private static final long                        serialVersionUID  = 5189531235704401313L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle              BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());  //$NON-NLS-1$
-  private static final Logger                      LOGGER           = LoggerFactory.getLogger(TvShowRenamerSettingsPanel.class);
+  private static final ResourceBundle              BUNDLE            = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final Logger                      LOGGER            = LoggerFactory.getLogger(TvShowRenamerSettingsPanel.class);
 
-  private TvShowSettings                           settings         = TvShowModuleManager.SETTINGS;
-  private List<String>                             spaceReplacement = new ArrayList<>(Arrays.asList("_", ".", "-"));
-  private List<String>                             colonReplacement = new ArrayList<>(Arrays.asList(" ", "-"));
+  private TvShowSettings                           settings          = TvShowModuleManager.SETTINGS;
+  private List<String>                             spaceReplacements = new ArrayList<>(Arrays.asList("_", ".", "-"));
+  private List<String>                             colonReplacements = new ArrayList<>(Arrays.asList(" ", "-"));
   private EventList<TvShowRenamerExample>          exampleEventList;
 
   /*
@@ -107,13 +111,16 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   private JComboBox<TvShowPreviewContainer>        cbTvShowForPreview;
   private EnhancedTextField                        tfSeasonFolderName;
   private JCheckBox                                chckbxAsciiReplacement;
-  private JComboBox<String>                        cbSpaceReplacement;
-  private JCheckBox                                chckbxSpaceReplacement;
+  private JCheckBox                                chckbxShowFoldernameSpaceReplacement;
+  private JComboBox                                cbShowFoldernameSpaceReplacement;
+  private JCheckBox                                chckbxSeasonFoldernameSpaceReplacement;
+  private JComboBox                                cbSeasonFoldernameSpaceReplacement;
+  private JCheckBox                                chckbxFilenameSpaceReplacement;
+  private JComboBox                                cbFilenameSpaceReplacement;
   private JComboBox<TvShowEpisodePreviewContainer> cbEpisodeForPreview;
   private TmmTable                                 tableExamples;
   private EnhancedTextField                        tfTvShowFolder;
   private EnhancedTextField                        tfEpisodeFilename;
-  private JCheckBox                                chckbxSpecialSeason;
   private JComboBox                                cbColonReplacement;
 
   public TvShowRenamerSettingsPanel() {
@@ -152,16 +159,30 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
       createRenamerExample();
     });
 
-    // space replacement
-    String spaceReplacement = settings.getRenamerSpaceReplacement();
-    int index = this.spaceReplacement.indexOf(spaceReplacement);
+    // show folder name space replacement
+    String replacement = settings.getRenamerShowPathnameSpaceReplacement();
+    int index = spaceReplacements.indexOf(replacement);
     if (index >= 0) {
-      cbSpaceReplacement.setSelectedIndex(index);
+      cbShowFoldernameSpaceReplacement.setSelectedIndex(index);
+    }
+
+    // season folder name space replacement
+    replacement = settings.getRenamerSeasonPathnameSpaceReplacement();
+    index = spaceReplacements.indexOf(replacement);
+    if (index >= 0) {
+      cbSeasonFoldernameSpaceReplacement.setSelectedIndex(index);
+    }
+
+    // filename space replacement
+    replacement = settings.getRenamerFilenameSpaceReplacement();
+    index = spaceReplacements.indexOf(replacement);
+    if (index >= 0) {
+      cbFilenameSpaceReplacement.setSelectedIndex(index);
     }
 
     // colon replacement
     String colonReplacement = settings.getRenamerColonReplacement();
-    index = this.colonReplacement.indexOf(colonReplacement);
+    index = this.colonReplacements.indexOf(colonReplacement);
     if (index >= 0) {
       cbColonReplacement.setSelectedIndex(index);
     }
@@ -200,8 +221,11 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${audioLanguage}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguageList}"));
     exampleEventList.add(new TvShowRenamerExample("${audioLanguagesAsString}"));
+    exampleEventList.add(new TvShowRenamerExample("${subtitleLanguageList}"));
+    exampleEventList.add(new TvShowRenamerExample("${subtitleLanguagesAsString}"));
     exampleEventList.add(new TvShowRenamerExample("${mediaSource}"));
     exampleEventList.add(new TvShowRenamerExample("${hdr}"));
+    exampleEventList.add(new TvShowRenamerExample("${filesize}"));
     exampleEventList.add(new TvShowRenamerExample("${parent}"));
     exampleEventList.add(new TvShowRenamerExample("${showNote}"));
     exampleEventList.add(new TvShowRenamerExample("${note}"));
@@ -211,12 +235,19 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
       checkChanges();
       createRenamerExample();
     };
-    chckbxSpaceReplacement.addActionListener(renamerActionListener);
+
+    chckbxShowFoldernameSpaceReplacement.addActionListener(renamerActionListener);
+    chckbxSeasonFoldernameSpaceReplacement.addActionListener(renamerActionListener);
+    chckbxFilenameSpaceReplacement.addActionListener(renamerActionListener);
     chckbxAsciiReplacement.addActionListener(renamerActionListener);
-    chckbxSpecialSeason.addActionListener(renamerActionListener);
     cbEpisodeForPreview.addActionListener(arg0 -> createRenamerExample());
-    cbSpaceReplacement.addActionListener(renamerActionListener);
+    cbShowFoldernameSpaceReplacement.addActionListener(renamerActionListener);
+    cbSeasonFoldernameSpaceReplacement.addActionListener(renamerActionListener);
+    cbFilenameSpaceReplacement.addActionListener(renamerActionListener);
     cbColonReplacement.addActionListener(renamerActionListener);
+
+    // force the size of the table
+    tableExamples.setPreferredScrollableViewportSize(tableExamples.getPreferredSize());
   }
 
   private void initComponents() {
@@ -224,16 +255,16 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     {
       JPanel panelPatterns = new JPanel(new MigLayout("insets 0, hidemode 1", "[20lp!][15lp][][300lp,grow]", "[][][][][][][]"));
 
-      JLabel lblPatternsT = new TmmLabel(BUNDLE.getString("Settings.tvshow.renamer.title"), H3); //$NON-NLS-1$
+      JLabel lblPatternsT = new TmmLabel(BUNDLE.getString("Settings.tvshow.renamer.title"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPatterns, lblPatternsT, true);
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
 
       {
-        JLabel lblTvShowFolder = new JLabel(BUNDLE.getString("Settings.tvshowfoldername")); //$NON-NLS-1$
+        JLabel lblTvShowFolder = new JLabel(BUNDLE.getString("Settings.tvshowfoldername"));
         panelPatterns.add(lblTvShowFolder, "cell 1 0 2 1,alignx right");
 
         tfTvShowFolder = new EnhancedTextField(IconManager.UNDO_GREY);
-        tfTvShowFolder.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault")); //$NON-NLS-1$
+        tfTvShowFolder.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault"));
         tfTvShowFolder.addIconMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
@@ -242,7 +273,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         });
         panelPatterns.add(tfTvShowFolder, "cell 3 0 2 1,growx");
 
-        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default")); //$NON-NLS-1$
+        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default"));
         panelPatterns.add(lblDefault, "cell 1 1 2 1,alignx right");
         TmmFontHelper.changeFont(lblDefault, L2);
 
@@ -251,11 +282,11 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         TmmFontHelper.changeFont(tpDefaultFolderPattern, L2);
       }
       {
-        JLabel lblSeasonFolderName = new JLabel(BUNDLE.getString("Settings.tvshowseasonfoldername")); //$NON-NLS-1$
+        JLabel lblSeasonFolderName = new JLabel(BUNDLE.getString("Settings.tvshowseasonfoldername"));
         panelPatterns.add(lblSeasonFolderName, "cell 1 2 2 1,alignx right");
 
         tfSeasonFolderName = new EnhancedTextField(IconManager.UNDO_GREY);
-        tfSeasonFolderName.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault")); //$NON-NLS-1$
+        tfSeasonFolderName.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault"));
         tfSeasonFolderName.addIconMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
@@ -264,7 +295,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         });
         panelPatterns.add(tfSeasonFolderName, "cell 3 2 2 1,growx");
 
-        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default")); //$NON-NLS-1$
+        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default"));
         panelPatterns.add(lblDefault, "cell 1 3 2 1,alignx right");
         TmmFontHelper.changeFont(lblDefault, L2);
 
@@ -277,7 +308,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         panelPatterns.add(lblEpisodeFileName, "cell 1 4 2 1,alignx right");
 
         tfEpisodeFilename = new EnhancedTextField(IconManager.UNDO_GREY);
-        tfEpisodeFilename.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault")); //$NON-NLS-1$
+        tfEpisodeFilename.setIconToolTipText(BUNDLE.getString("Settings.renamer.reverttodefault"));
         tfEpisodeFilename.addIconMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
@@ -286,7 +317,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         });
         panelPatterns.add(tfEpisodeFilename, "cell 3 4 2 1,growx");
 
-        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default")); //$NON-NLS-1$
+        JLabel lblDefault = new JLabel(BUNDLE.getString("Settings.default"));
         panelPatterns.add(lblDefault, "cell 1 5 2 1,alignx right");
         TmmFontHelper.changeFont(lblDefault, L2);
 
@@ -295,10 +326,10 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         TmmFontHelper.changeFont(tpDefaultFilePattern, L2);
       }
       {
-        JLabel lblRenamerHintT = new JLabel(BUNDLE.getString("Settings.tvshow.renamer.hint")); //$NON-NLS-1$
+        JLabel lblRenamerHintT = new JLabel(BUNDLE.getString("Settings.tvshow.renamer.hint"));
         panelPatterns.add(lblRenamerHintT, "cell 1 6 3 1");
 
-        JButton btnHelp = new JButton(BUNDLE.getString("tmm.help")); //$NON-NLS-1$
+        JButton btnHelp = new JButton(BUNDLE.getString("tmm.help"));
         btnHelp.addActionListener(e -> {
           String url = StringEscapeUtils.unescapeHtml4("https://gitlab.com/tinyMediaManager/tinyMediaManager/wikis/TV-Show-Settings#renamer");
           try {
@@ -316,36 +347,48 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     {
       JPanel panelAdvancedOptions = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3); //$NON-NLS-1$
+      JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
       add(collapsiblePanel, "cell 0 2,growx");
       {
-        chckbxSpecialSeason = new JCheckBox(BUNDLE.getString("tvshow.renamer.specialseason")); //$NON-NLS-1$
-        panelAdvancedOptions.add(chckbxSpecialSeason, "cell 1 0 2 1");
-      }
-      {
-        chckbxSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.spacereplacement")); //$NON-NLS-1$
-        chckbxSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.spacereplacement.hint")); //$NON-NLS-1$
-        panelAdvancedOptions.add(chckbxSpaceReplacement, "cell 1 1 2 1");
+        chckbxShowFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.showfolderspacereplacement"));
+        chckbxShowFoldernameSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.folderspacereplacement.hint"));
+        panelAdvancedOptions.add(chckbxShowFoldernameSpaceReplacement, "cell 1 0 2 1");
 
-        cbSpaceReplacement = new JComboBox(spaceReplacement.toArray());
-        panelAdvancedOptions.add(cbSpaceReplacement, "cell 1 1");
+        cbShowFoldernameSpaceReplacement = new JComboBox(spaceReplacements.toArray());
+        panelAdvancedOptions.add(cbShowFoldernameSpaceReplacement, "cell 1 0");
       }
       {
-        JLabel lblColonReplacement = new JLabel(BUNDLE.getString("Settings.renamer.colonreplacement")); //$NON-NLS-1$
-        panelAdvancedOptions.add(lblColonReplacement, "cell 2 2");
+        chckbxSeasonFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.seasonfolderspacereplacement"));
+        chckbxSeasonFoldernameSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.folderspacereplacement.hint"));
+        panelAdvancedOptions.add(chckbxSeasonFoldernameSpaceReplacement, "cell 1 1 2 1");
+
+        cbSeasonFoldernameSpaceReplacement = new JComboBox(spaceReplacements.toArray());
+        panelAdvancedOptions.add(cbSeasonFoldernameSpaceReplacement, "cell 1 1");
+      }
+      {
+        chckbxFilenameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.spacereplacement"));
+        chckbxFilenameSpaceReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.spacereplacement.hint"));
+        panelAdvancedOptions.add(chckbxFilenameSpaceReplacement, "cell 1 2 2 1");
+
+        cbFilenameSpaceReplacement = new JComboBox(spaceReplacements.toArray());
+        panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 2");
+      }
+      {
+        JLabel lblColonReplacement = new JLabel(BUNDLE.getString("Settings.renamer.colonreplacement"));
+        panelAdvancedOptions.add(lblColonReplacement, "cell 2 3");
         lblColonReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.colonreplacement.hint"));
 
-        cbColonReplacement = new JComboBox(colonReplacement.toArray());
-        panelAdvancedOptions.add(cbColonReplacement, "cell 2 2");
+        cbColonReplacement = new JComboBox(colonReplacements.toArray());
+        panelAdvancedOptions.add(cbColonReplacement, "cell 2 3");
       }
 
       {
         chckbxAsciiReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.asciireplacement"));
-        panelAdvancedOptions.add(chckbxAsciiReplacement, "cell 1 3 2 1");
+        panelAdvancedOptions.add(chckbxAsciiReplacement, "cell 1 4 2 1");
 
-        JLabel lblAsciiHint = new JLabel(BUNDLE.getString("Settings.renamer.asciireplacement.hint")); //$NON-NLS-1$
-        panelAdvancedOptions.add(lblAsciiHint, "cell 2 4");
+        JLabel lblAsciiHint = new JLabel(BUNDLE.getString("Settings.renamer.asciireplacement.hint"));
+        panelAdvancedOptions.add(lblAsciiHint, "cell 2 5");
         TmmFontHelper.changeFont(lblAsciiHint, L2);
       }
     }
@@ -353,7 +396,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
       JPanel panelExample = new JPanel();
       panelExample.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][300lp,grow]", ""));
 
-      JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.example"), H3); //$NON-NLS-1$
+      JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.example"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExample, lblAdvancedOptions, true);
       add(collapsiblePanel, "cell 0 4,growx, wmin 0");
       {
@@ -382,8 +425,11 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         tableExamples = new TmmTable(exampleTableModel);
         JScrollPane scrollPane = new JScrollPane(tableExamples);
         tableExamples.configureScrollPane(scrollPane);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        ScrollingEventDelegator.install(scrollPane);
         panelExample.add(scrollPane, "cell 1 2,grow");
         scrollPane.setViewportView(tableExamples);
+        tableExamples.setRowHeight(35);
       }
     }
   }
@@ -460,11 +506,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         for (TvShowRenamerExample example : exampleEventList) {
           example.createExample(episode);
         }
-        try {
-          TableColumnResizer.adjustColumnPreferredWidths(tableExamples, 7);
-        }
-        catch (Exception ignored) {
-        }
+        TableColumnResizer.adjustColumnPreferredWidths(tableExamples, 7);
       }
       else {
         lblExample.setText("");
@@ -473,8 +515,17 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   }
 
   private void checkChanges() {
-    String spaceReplacement = (String) cbSpaceReplacement.getSelectedItem();
-    settings.setRenamerSpaceReplacement(spaceReplacement);
+    // show folder name space replacement
+    String spaceReplacement = (String) cbShowFoldernameSpaceReplacement.getSelectedItem();
+    settings.setRenamerShowPathnameSpaceReplacement(spaceReplacement);
+
+    // season folder name space replacement
+    spaceReplacement = (String) cbSeasonFoldernameSpaceReplacement.getSelectedItem();
+    settings.setRenamerSeasonPathnameSpaceReplacement(spaceReplacement);
+
+    // filename space replacement
+    spaceReplacement = (String) cbFilenameSpaceReplacement.getSelectedItem();
+    settings.setRenamerFilenameSpaceReplacement(spaceReplacement);
 
     String colonReplacement = (String) cbColonReplacement.getSelectedItem();
     settings.setRenamerColonReplacement(colonReplacement);
@@ -483,7 +534,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   /*************************************************************
    * helper classes
    *************************************************************/
-  private class TvShowPreviewContainer {
+  private static class TvShowPreviewContainer {
     TvShow tvShow;
 
     @Override
@@ -492,7 +543,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     }
   }
 
-  private class TvShowEpisodePreviewContainer {
+  private static class TvShowEpisodePreviewContainer {
     TvShowEpisode episode;
 
     @Override
@@ -501,7 +552,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     }
   }
 
-  private class TvShowComparator implements Comparator<TvShow> {
+  private static class TvShowComparator implements Comparator<TvShow> {
     @Override
     public int compare(TvShow arg0, TvShow arg1) {
       return arg0.getTitle().compareTo(arg1.getTitle());
@@ -509,19 +560,37 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   }
 
   @SuppressWarnings("unused")
-  private class TvShowRenamerExample extends AbstractModelObject {
-    private String token;
-    private String description;
-    private String example = "";
+  private static class TvShowRenamerExample extends AbstractModelObject {
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("^\\$\\{(.*?)([\\}\\[;\\.]+.*)");
+    private String               token;
+    private String               completeToken;
+    private String               description;
+    private String               example       = "";
 
     public TvShowRenamerExample(String token) {
       this.token = token;
+      this.completeToken = createCompleteToken();
       try {
-        this.description = BUNDLE.getString("Settings.tvshow.renamer." + token); //$NON-NLS-1$
+        this.description = BUNDLE.getString("Settings.tvshow.renamer." + token);
       }
       catch (Exception e) {
         this.description = "";
       }
+    }
+
+    private String createCompleteToken() {
+      String result = token;
+
+      Matcher matcher = TOKEN_PATTERN.matcher(token);
+      if (matcher.find() && matcher.groupCount() > 1) {
+        String alias = matcher.group(1);
+        String sourceToken = TvShowRenamer.TOKEN_MAP.get(alias);
+
+        if (StringUtils.isNotBlank(sourceToken)) {
+          result = "<html>" + token + "<br>${" + sourceToken + matcher.group(2) + "</html>";
+        }
+      }
+      return result;
     }
 
     public String getDescription() {
@@ -552,7 +621,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     }
   }
 
-  private class TvShowRenamerExampleTableFormat implements TableFormat<TvShowRenamerExample> {
+  private static class TvShowRenamerExampleTableFormat implements TableFormat<TvShowRenamerExample> {
     @Override
     public int getColumnCount() {
       return 3;
@@ -562,23 +631,24 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     public String getColumnName(int column) {
       switch (column) {
         case 0:
-          return BUNDLE.getString("Settings.renamer.token.name"); //$NON-NLS-1$
+          return BUNDLE.getString("Settings.renamer.token.name");
 
         case 1:
-          return BUNDLE.getString("Settings.renamer.token"); //$NON-NLS-1$
+          return BUNDLE.getString("Settings.renamer.token");
 
         case 2:
-          return BUNDLE.getString("Settings.renamer.value"); //$NON-NLS-1$
+          return BUNDLE.getString("Settings.renamer.value");
 
+        default:
+          return null;
       }
-      return null;
     }
 
     @Override
     public Object getColumnValue(TvShowRenamerExample baseObject, int column) {
       switch (column) {
         case 0:
-          return baseObject.token;
+          return baseObject.completeToken;
 
         case 1:
           return baseObject.description;
@@ -600,10 +670,20 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         settingsBeanProperty_6, chckbxAsciiReplacement, jCheckBoxBeanProperty);
     autoBinding_5.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty = BeanProperty.create("renamerSpaceSubstitution");
+    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty = BeanProperty.create("renamerShowPathnameSpaceSubstitution");
     AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty, chckbxSpaceReplacement, jCheckBoxBeanProperty);
+        tvShowSettingsBeanProperty, chckbxShowFoldernameSpaceReplacement, jCheckBoxBeanProperty);
     autoBinding_4.bind();
+    //
+    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_7 = BeanProperty.create("renamerSeasonPathnameSpaceSubstitution");
+    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+        tvShowSettingsBeanProperty_7, chckbxSeasonFoldernameSpaceReplacement, jCheckBoxBeanProperty);
+    autoBinding_6.bind();
+    //
+    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_8 = BeanProperty.create("renamerFilenameSpaceSubstitution");
+    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+        tvShowSettingsBeanProperty_8, chckbxFilenameSpaceReplacement, jCheckBoxBeanProperty);
+    autoBinding_7.bind();
     //
     BeanProperty<TvShowSettings, String> tvShowSettingsBeanProperty_1 = BeanProperty.create("renamerTvShowFoldername");
     BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty.create("text");
@@ -622,10 +702,5 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     AutoBinding<TvShowSettings, String, JTextField, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         tvShowSettingsBeanProperty_3, tfSeasonFolderName, jTextFieldBeanProperty);
     autoBinding_2.bind();
-    //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_4 = BeanProperty.create("specialSeason");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_4, chckbxSpecialSeason, jCheckBoxBeanProperty);
-    autoBinding_3.bind();
   }
 }

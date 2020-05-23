@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,8 @@ import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter.TemplateType;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.tasks.ExportTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowExporter;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
@@ -85,7 +87,7 @@ public class TvShowExporterDialog extends TmmDialog {
    *          the movies to export
    */
   public TvShowExporterDialog(List<TvShow> tvShowsToExport) {
-    super(BUNDLE.getString("tvshow.export"), DIALOG_ID); //$NON-NLS-1$
+    super(BUNDLE.getString("tvshow.export"), DIALOG_ID);
     {
       JPanel panelContent = new JPanel();
       getContentPane().add(panelContent);
@@ -115,7 +117,7 @@ public class TvShowExporterDialog extends TmmDialog {
       chckbxTemplateWithDetail.setEnabled(false);
       panelExporterDetails.add(chckbxTemplateWithDetail, "flowx,cell 0 2");
 
-      JLabel lblDetails = new TmmLabel(BUNDLE.getString("export.detail")); //$NON-NLS-1$
+      JLabel lblDetails = new TmmLabel(BUNDLE.getString("export.detail"));
       panelExporterDetails.add(lblDetails, "cell 0 2,growx,aligny center");
 
       JScrollPane scrollPaneDescription = new JScrollPane();
@@ -129,11 +131,11 @@ public class TvShowExporterDialog extends TmmDialog {
       panelContent.add(tfExportDir, "flowx,cell 0 1,growx");
       tfExportDir.setColumns(10);
 
-      JButton btnSetDestination = new JButton(BUNDLE.getString("export.setdestination")); //$NON-NLS-1$
+      JButton btnSetDestination = new JButton(BUNDLE.getString("export.setdestination"));
       panelContent.add(btnSetDestination, "cell 0 1");
       btnSetDestination.addActionListener(e -> {
         String path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
-        Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("export.selectdirectory"), path); //$NON-NLS-1$
+        Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("export.selectdirectory"), path);
         if (file != null) {
           tfExportDir.setText(file.toAbsolutePath().toString());
           TmmProperties.getInstance().putProperty(DIALOG_ID + ".path", file.toAbsolutePath().toString());
@@ -141,7 +143,7 @@ public class TvShowExporterDialog extends TmmDialog {
       });
     }
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel")); //$NON-NLS-1$
+      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(arg0 -> setVisible(false));
       addButton(btnCancel);
@@ -164,7 +166,7 @@ public class TvShowExporterDialog extends TmmDialog {
           Path exportPath = Paths.get(tfExportDir.getText());
           if (!Files.exists(exportPath)) {
             // export dir does not exist
-            JOptionPane.showMessageDialog(TvShowExporterDialog.this, BUNDLE.getString("export.foldernotfound")); //$NON-NLS-1$
+            JOptionPane.showMessageDialog(TvShowExporterDialog.this, BUNDLE.getString("export.foldernotfound"));
             return;
           }
 
@@ -178,13 +180,13 @@ public class TvShowExporterDialog extends TmmDialog {
             }
           }
           catch (IOException e) {
-            LOGGER.warn("could not open folder: " + e.getMessage());
+            LOGGER.warn("could not open folder: {}", e.getMessage());
             return;
           }
 
           try {
             TvShowExporter exporter = new TvShowExporter(Paths.get(selectedTemplate.getPath()));
-            exporter.export(tvShows, exportPath);
+            TmmTaskManager.getInstance().addMainTask(new ExportTask(BUNDLE.getString("tvshow.export"), exporter, tvShows, exportPath));
           }
           catch (Exception e) {
             LOGGER.error("Error exporting tv shows: ", e);
@@ -200,7 +202,7 @@ public class TvShowExporterDialog extends TmmDialog {
     bindingGroup = initDataBindings();
 
     // set the last used template as default
-    String lastTemplateName = TmmProperties.getInstance().getProperty(DIALOG_ID + ".template"); //$NON-NLS-1$
+    String lastTemplateName = TmmProperties.getInstance().getProperty(DIALOG_ID + ".template");
     if (StringUtils.isNotBlank(lastTemplateName)) {
       list.setSelectedValue(lastTemplateName, true);
     }

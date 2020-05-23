@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.core.movie.entities;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TMDB;
+import static org.tinymediamanager.core.Constants.TMDB_SET;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +31,9 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
@@ -39,8 +43,9 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
+import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 
@@ -52,6 +57,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Manuel Laggner
  */
 public class MovieSet extends MediaEntity {
+  private static final Logger                LOGGER                = LoggerFactory.getLogger(MovieSet.class);
   private static final Comparator<Movie>     MOVIE_SET_COMPARATOR  = new MovieInMovieSetComparator();
   private static final Comparator<MediaFile> MEDIA_FILE_COMPARATOR = new MovieMediaFileComparator();
 
@@ -108,7 +114,7 @@ public class MovieSet extends MediaEntity {
 
     if (!StringUtils.equals(oldValue, newValue)) {
       // update artwork
-      MovieSetArtworkHelper.renameArtwork(this);
+      MovieSetArtworkHelper.cleanupArtwork(this);
 
       synchronized (movies) {
         for (Movie movie : movies) {
@@ -134,7 +140,7 @@ public class MovieSet extends MediaEntity {
   public int getTmdbId() {
     int id;
     try {
-      id = (Integer) ids.get(TMDB);
+      id = (Integer) ids.get(TMDB_SET);
     }
     catch (Exception e) {
       return 0;
@@ -144,7 +150,7 @@ public class MovieSet extends MediaEntity {
 
   public void setTmdbId(int newValue) {
     int oldValue = getTmdbId();
-    ids.put(TMDB, newValue);
+    ids.put(TMDB_SET, newValue);
     firePropertyChange(TMDB, oldValue, newValue);
   }
 
@@ -155,6 +161,19 @@ public class MovieSet extends MediaEntity {
   }
 
   /**
+   * <b>PHYSICALLY</b> deletes all {@link MediaFile}s of the given type
+   *
+   * @param type
+   *          the {@link MediaFileType} for all {@link MediaFile}s to delete
+   */
+  public void deleteMediaFiles(MediaFileType type) {
+    getMediaFiles(type).forEach(mediaFile -> {
+      Utils.deleteFileSafely(mediaFile.getFile());
+      removeFromMediaFiles(mediaFile);
+    });
+  }
+
+  /**
    * Sets the artwork.
    *
    * @param artwork
@@ -162,10 +181,8 @@ public class MovieSet extends MediaEntity {
    * @param config
    *          the config
    */
-  public void setArtwork(List<MediaArtwork> artwork, MovieScraperMetadataConfig config) {
-    if (config.isArtwork()) {
-      MovieSetArtworkHelper.setArtwork(this, artwork);
-    }
+  public void setArtwork(List<MediaArtwork> artwork, List<MovieSetScraperMetadataConfig> config) {
+    MovieSetArtworkHelper.setArtwork(this, artwork, config);
   }
 
   @Override
@@ -282,8 +299,8 @@ public class MovieSet extends MediaEntity {
       saveToDb();
     }
 
-    firePropertyChange("movies", null, movies);
     firePropertyChange(Constants.REMOVED_MOVIE, null, movie);
+    firePropertyChange("movies", null, movies);
     firePropertyChange(Constants.WATCHED, null, movies);
   }
 
@@ -333,8 +350,8 @@ public class MovieSet extends MediaEntity {
       saveToDb();
     }
 
-    firePropertyChange("movies", null, movies);
     firePropertyChange("removedAllMovies", oldValue, movies);
+    firePropertyChange("movies", null, movies);
   }
 
   /**
@@ -453,6 +470,51 @@ public class MovieSet extends MediaEntity {
       }
     }
     return false;
+  }
+
+  /**
+   * Sets the metadata.
+   *
+   * @param metadata
+   *          the new metadata
+   * @param config
+   *          the config
+   */
+  public void setMetadata(MediaMetadata metadata, List<MovieSetScraperMetadataConfig> config) {
+    if (metadata == null) {
+      LOGGER.error("metadata was null");
+      return;
+    }
+
+    // check if metadata has at least an id (aka it is not empty)
+    if (metadata.getIds().isEmpty()) {
+      LOGGER.warn("wanted to save empty metadata for {}", getTitle());
+      return;
+    }
+
+    // populate ids (and remove old ones)
+    ids.clear();
+    setIds(metadata.getIds());
+
+    // set chosen metadata
+    if (config.contains(MovieSetScraperMetadataConfig.TITLE)) {
+      // Capitalize first letter of title if setting is set!
+      if (MovieModuleManager.SETTINGS.getCapitalWordsInTitles()) {
+        setTitle(WordUtils.capitalize(metadata.getTitle()));
+      }
+      else {
+        setTitle(metadata.getTitle());
+      }
+    }
+
+    if (config.contains(MovieSetScraperMetadataConfig.PLOT)) {
+      setPlot(metadata.getPlot());
+    }
+
+    // set scraped
+    setScraped(true);
+
+    saveToDb();
   }
 
   /*******************************************************************************

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,14 @@ public class ImdbMovieParser extends ImdbParser {
     worker = new ImdbWorker(url, options.getLanguage().getLanguage(), getCountry().getAlpha2());
     futureReleaseinfo = compSvcImdb.submit(worker);
 
+    // worker for imdb keywords (/keywords)
+    Future<Document> futureKeywords = null;
+    if (isScrapeKeywordsPage()) {
+      url = IMDB_SITE + "title/" + imdbId + "/keywords";
+      worker = new ImdbWorker(url, options.getLanguage().getLanguage(), getCountry().getAlpha2());
+      futureKeywords = compSvcImdb.submit(worker);
+    }
+
     // worker for tmdb request
     Future<MediaMetadata> futureTmdb = null;
     if (isUseTmdbForMovies() || isScrapeCollectionInfo()) {
@@ -165,6 +173,11 @@ public class ImdbMovieParser extends ImdbParser {
           String movieTitle = cleanString(element.ownText());
           md.setTitle(movieTitle);
         }
+      }
+
+      if (futureKeywords != null) {
+        doc = futureKeywords.get();
+        parseKeywordsPage(doc, options, md);
       }
 
       // get the release info page

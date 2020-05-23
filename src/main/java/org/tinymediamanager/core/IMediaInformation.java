@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,13 @@ public interface IMediaInformation {
    * @return a MediaFile representing the main video file or an empty MediaFile
    */
   MediaFile getMainVideoFile();
+
+  /**
+   * get the accumulated file size of all video files
+   * 
+   * @return the accumulated file size of all video files
+   */
+  long getVideoFilesize();
 
   /**
    * gets the video format (e.g. 720p).
@@ -134,9 +141,16 @@ public interface IMediaInformation {
   /**
    * gets the audio language (e.g, de) from the all audio streams as List
    *
-   * @return the audio language from all streams with a trailing ch as List
+   * @return the audio language from all streams
    */
   List<String> getMediaInfoAudioLanguageList();
+
+  /**
+   * gets all subtitle languages (e.g, de) from the subtitle streams as List
+   *
+   * @return the subtitle languages from all streams
+   */
+  List<String> getMediaInfoSubtitleLanguageList();
 
   /**
    * gets the container format

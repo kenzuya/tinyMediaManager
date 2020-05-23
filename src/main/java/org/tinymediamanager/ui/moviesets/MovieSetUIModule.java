@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,29 +36,31 @@ import org.tinymediamanager.ui.movies.panels.MovieArtworkPanel;
 import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
 import org.tinymediamanager.ui.movies.panels.MovieInformationPanel;
 import org.tinymediamanager.ui.movies.panels.MovieMediaInformationPanel;
-import org.tinymediamanager.ui.movies.panels.MovieTrailerPanel;
+import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.moviesets.actions.DebugDumpMovieSetAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieEditAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetAddAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetCleanupArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRemoveAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRenameAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSearchAction;
 import org.tinymediamanager.ui.moviesets.dialogs.MovieSetFilterDialog;
+import org.tinymediamanager.ui.moviesets.panels.MovieSetArtworkPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetInformationPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetTreePanel;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 
 public class MovieSetUIModule extends AbstractTmmUIModule {
-  private static final String          ID       = "movieSets";
+  private static final String ID = "movieSets";
 
-  private static MovieSetUIModule      instance = null;
+  private static MovieSetUIModule instance = null;
 
   private final MovieSetSelectionModel selectionModel;
-  private final MovieSelectionModel    movieSelectionModel;
+  private final MovieSelectionModel movieSelectionModel;
 
-  private final MovieSetTreePanel      treePanel;
+  private final MovieSetTreePanel treePanel;
   private final JPanel                 dataPanel;
   private final MovieSetFilterDialog   movieSetFilterDialog;
 
@@ -92,7 +94,8 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
       }
     };
 
-    movieSetDetailPanel.addTab(BUNDLE.getString("metatag.details"), new MovieSetInformationPanel(selectionModel));//$NON-NLS-1$
+    movieSetDetailPanel.addTab(BUNDLE.getString("metatag.details"), new MovieSetInformationPanel(selectionModel));
+    movieSetDetailPanel.addTab(BUNDLE.getString("metatag.artwork"), new MovieSetArtworkPanel(selectionModel));
     dataPanel.add(movieSetDetailPanel, "movieSet");
 
     // panel for movies
@@ -106,11 +109,11 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
         super.updateUI();
       }
     };
-    movieDetailPanel.addTab("Details", new MovieInformationPanel(movieSelectionModel));
-    movieDetailPanel.addTab("Cast", new MovieCastPanel(movieSelectionModel));
-    movieDetailPanel.addTab("Media files", new MovieMediaInformationPanel(movieSelectionModel));
-    movieDetailPanel.addTab("Artwork", new MovieArtworkPanel(movieSelectionModel));
-    movieDetailPanel.addTab("Trailer", new MovieTrailerPanel(movieSelectionModel));
+    movieDetailPanel.addTab(BUNDLE.getString("metatag.details"), new MovieInformationPanel(movieSelectionModel));
+    movieDetailPanel.addTab(BUNDLE.getString("metatag.cast"), new MovieCastPanel(movieSelectionModel));
+    movieDetailPanel.addTab(BUNDLE.getString("metatag.mediafiles"), new MovieMediaInformationPanel(movieSelectionModel));
+    movieDetailPanel.addTab(BUNDLE.getString("metatag.artwork"), new MovieArtworkPanel(movieSelectionModel));
+    movieDetailPanel.addTab(BUNDLE.getString("metatag.trailer"), new TrailerPanel(movieSelectionModel));
     dataPanel.add(movieDetailPanel, "movie");
 
     movieSetFilterDialog = new MovieSetFilterDialog(treePanel.getTreeTable());
@@ -157,6 +160,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetRemoveAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetEditAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetSearchAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetCleanupArtworkAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetMissingArtworkAction.class));
 
     // movie actions
@@ -168,7 +172,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetRenameAction.class));
 
     if (Globals.isDebug()) {
-      final JMenu debugMenu = new JMenu("Debug"); //$NON-NLS-1$
+      final JMenu debugMenu = new JMenu("Debug");
       debugMenu.add(new DebugDumpMovieSetAction());
       popupMenu.addSeparator();
       popupMenu.add(debugMenu);
@@ -188,7 +192,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
   @Override
   public String getTabTitle() {
-    return BUNDLE.getString("tmm.moviesets"); //$NON-NLS-1$
+    return BUNDLE.getString("tmm.moviesets");
   }
 
   @Override

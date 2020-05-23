@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
+import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
@@ -144,8 +145,11 @@ public class TvShowRenamer {
     tokenMap.put("audioLanguage", "episode.mediaInfoAudioLanguage");
     tokenMap.put("audioLanguageList", "episode.mediaInfoAudioLanguageList");
     tokenMap.put("audioLanguagesAsString", "episode.mediaInfoAudioLanguageList;array");
+    tokenMap.put("subtitleLanguageList", "episode.mediaInfoSubtitleLanguageList");
+    tokenMap.put("subtitleLanguagesAsString", "episode.mediaInfoSubtitleLanguageList;array");
     tokenMap.put("3Dformat", "episode.video3DFormat");
     tokenMap.put("hdr", "episode.videoHDRFormat");
+    tokenMap.put("filesize", "episode.videoFilesize;filesize");
 
     tokenMap.put("mediaSource", "episode.mediaSource");
     tokenMap.put("note", "episode.note");
@@ -274,9 +278,8 @@ public class TvShowRenamer {
    */
   private static void renameSeasonArtwork(TvShow tvShow) {
     // all the good & needed mediafiles
-    ArrayList<MediaFile> needed = new ArrayList<>();
+    Set<MediaFile> needed = new LinkedHashSet<>();
     ArrayList<MediaFile> cleanup = new ArrayList<>();
-    cleanup.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
 
     List<MediaArtworkType> types = Arrays.asList(SEASON_POSTER, SEASON_BANNER, SEASON_THUMB);
 
@@ -345,11 +348,6 @@ public class TvShowRenamer {
       ImageCache.invalidateCachedImage(gfx);
     }
 
-    // remove duplicate MediaFiles
-    Set<MediaFile> newMFs = new LinkedHashSet<>(needed);
-    needed.clear();
-    needed.addAll(newMFs);
-
     // ######################################################################
     // ## CLEANUP - delete all files marked for cleanup, which are not "needed"
     // ######################################################################
@@ -377,6 +375,14 @@ public class TvShowRenamer {
       }
     }
 
+    // delete empty subfolders
+    try {
+      Utils.deleteEmptyDirectoryRecursive(tvShow.getPathNIO());
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not delete empty subfolders: {}", e.getMessage());
+    }
+
     // ######################################################################
     // ## build up image cache
     // ######################################################################
@@ -386,7 +392,7 @@ public class TvShowRenamer {
       }
     }
 
-    tvShow.addToMediaFiles(needed);
+    tvShow.addToMediaFiles(new ArrayList<>(needed));
     tvShow.saveToDb();
   }
 
@@ -521,7 +527,7 @@ public class TvShowRenamer {
           // when having a .sub, also rename .idx (don't care if error)
           try {
             Path oldidx = subtitle.getFileAsPath().resolveSibling(subtitle.getFilename().replaceFirst("sub$", "idx"));
-            Path newidx = sub.getFileAsPath().resolveSibling(sub.getFilename().toString().replaceFirst("sub$", "idx"));
+            Path newidx = sub.getFileAsPath().resolveSibling(sub.getFilename().replaceFirst("sub$", "idx"));
             Utils.moveFileSafe(oldidx, newidx);
           }
           catch (Exception e) {
@@ -591,7 +597,7 @@ public class TvShowRenamer {
           }
         }
         catch (IOException e) {
-          LOGGER.error("cleanup of {} - {}", cl.getFileAsPath().toString(), e.getMessage());
+          LOGGER.error("cleanup of {} - {}", cl.getFileAsPath(), e.getMessage());
         }
       }
     }
@@ -840,7 +846,7 @@ public class TvShowRenamer {
       case SUBTITLE:
         List<MediaFileSubtitle> subtitles = mf.getSubtitles();
         String subtitleFilename = "";
-        if (subtitles != null && subtitles.size() > 0) {
+        if (subtitles != null && !subtitles.isEmpty()) {
           MediaFileSubtitle mfs = mf.getSubtitles().get(0);
           if (mfs != null) {
             if (!mfs.getLanguage().isEmpty()) {
@@ -982,7 +988,10 @@ public class TvShowRenamer {
         result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(mf.getFilename(), tvShow.getTitle());
 
         MediaFile other = new MediaFile(mf);
-        other.setFile(seasonFolder.resolve(cleanupDestination(newFilename + "-" + result.cleanedName) + "." + mf.getExtension()));
+        boolean spaceSubstitution = SETTINGS.isRenamerFilenameSpaceSubstitution();
+        String spaceReplacement = SETTINGS.getRenamerFilenameSpaceReplacement();
+        String destination = cleanupDestination(newFilename + "-" + result.cleanedName, spaceSubstitution, spaceReplacement);
+        other.setFile(seasonFolder.resolve(destination + "." + mf.getExtension()));
         newFiles.add(other);
         break;
 
@@ -1053,7 +1062,7 @@ public class TvShowRenamer {
 
     // only allow empty season dir if the season is in the filename (aka recommended)
     if (StringUtils.isBlank(seasonFolderName) && !TvShowRenamer.isRecommended(template, TvShowModuleManager.SETTINGS.getRenamerFilename())) {
-      seasonFolderName = "Season " + String.valueOf(tvShowSeason.getSeason());
+      seasonFolderName = "Season " + tvShowSeason.getSeason();
     }
 
     return seasonFolderName;
@@ -1114,6 +1123,7 @@ public class TvShowRenamer {
       engine.registerNamedRenderer(new NamedTitleCaseRenderer());
       engine.registerNamedRenderer(new TvShowNamedFirstCharacterRenderer());
       engine.registerNamedRenderer(new NamedArrayRenderer());
+      engine.registerNamedRenderer(new NamedFilesizeRenderer());
       engine.setModelAdaptor(new TvShowRenamerModelAdaptor());
       Map<String, Object> root = new HashMap<>();
       if (episode != null) {
@@ -1143,7 +1153,10 @@ public class TvShowRenamer {
       return "";
     }
 
-    return cleanupDestination(getTokenValue(show, null, template));
+    boolean spaceSubstitution = SETTINGS.isRenamerShowPathnameSpaceSubstitution();
+    String spaceReplacement = SETTINGS.getRenamerShowPathnameSpaceReplacement();
+
+    return cleanupDestination(getTokenValue(show, null, template), spaceSubstitution, spaceReplacement);
   }
 
   /**
@@ -1161,7 +1174,10 @@ public class TvShowRenamer {
     }
 
     String newDestination = getTokenValue(season.getTvShow(), episode, template);
-    newDestination = cleanupDestination(newDestination);
+    boolean spaceSubstitution = SETTINGS.isRenamerSeasonPathnameSpaceSubstitution();
+    String spaceReplacement = SETTINGS.getRenamerSeasonPathnameSpaceReplacement();
+
+    newDestination = cleanupDestination(newDestination, spaceSubstitution, spaceReplacement);
     return newDestination;
   }
 
@@ -1278,7 +1294,10 @@ public class TvShowRenamer {
       newDestination = getTokenValue(firstEp.getTvShow(), firstEp, newDestination);
     } // end multi episodes
 
-    newDestination = cleanupDestination(newDestination);
+    boolean spaceSubstitution = SETTINGS.isRenamerFilenameSpaceSubstitution();
+    String spaceReplacement = SETTINGS.getRenamerFilenameSpaceReplacement();
+
+    newDestination = cleanupDestination(newDestination, spaceSubstitution, spaceReplacement);
 
     return newDestination;
   }
@@ -1288,9 +1307,13 @@ public class TvShowRenamer {
    * 
    * @param destination
    *          the string to be cleaned up
+   * @param spaceSubstitution
+   *          replace spaces (=true)? or not (=false)
+   * @param spaceReplacement
+   *          the replacement string for spaces
    * @return the cleaned up string
    */
-  private static String cleanupDestination(String destination) {
+  private static String cleanupDestination(String destination, Boolean spaceSubstitution, String spaceReplacement) {
     // replace empty brackets
     destination = destination.replaceAll("\\([ ]?\\)", "");
     destination = destination.replaceAll("\\[[ ]?\\]", "");
@@ -1304,6 +1327,8 @@ public class TvShowRenamer {
       // trim whitespace around directory sep
       destination = destination.replaceAll("\\s+\\\\", "\\\\");
       destination = destination.replaceAll("\\\\\\s+", "\\\\");
+      // remove separators in front of path separators
+      destination = destination.replaceAll("[ \\.\\-_]+\\\\", "\\\\");
     }
     else {
       destination = destination.replaceAll(File.separator + "{2,}", File.separator);
@@ -1311,17 +1336,18 @@ public class TvShowRenamer {
       // trim whitespace around directory sep
       destination = destination.replaceAll("\\s+/", "/");
       destination = destination.replaceAll("/\\s+", "/");
+      // remove separators in front of path separators
+      destination = destination.replaceAll("[ \\.\\-_]+/", "/");
     }
 
     // replace spaces with underscores if needed (filename only)
-    if (SETTINGS.isRenamerSpaceSubstitution()) {
-      String replacement = SETTINGS.getRenamerSpaceReplacement();
-      destination = destination.replace(" ", replacement);
+    if (spaceSubstitution) {
+      destination = destination.replace(" ", spaceReplacement);
 
       // also replace now multiple replacements with one to avoid strange looking results
       // example:
-      // Abraham Lincoln - Vapire Hunter -> Abraham-Lincoln---Vampire-Hunter
-      destination = destination.replaceAll(Pattern.quote(replacement) + "+", replacement);
+      // Abraham Lincoln - Vampire Hunter -> Abraham-Lincoln---Vampire-Hunter
+      destination = destination.replaceAll(Pattern.quote(spaceReplacement) + "+", spaceReplacement);
     }
 
     // ASCII replacement
@@ -1338,8 +1364,8 @@ public class TvShowRenamer {
     destination = destination.replaceAll("[ \\.\\-_]+$", "");
 
     // the colon is handled by JMTE but it looks like some users are stupid enough to add this to the pattern itself
-    destination = destination.replaceAll(": ", " - "); // nicer
-    destination = destination.replaceAll(":", "-"); // nicer
+    destination = destination.replace(": ", " - "); // nicer
+    destination = destination.replace(":", "-"); // nicer
 
     return destination.trim();
   }
@@ -1538,6 +1564,9 @@ public class TvShowRenamer {
    */
   private static String getStackingString(MediaFile mf) {
     String delimiter = ".";
+    if (TvShowModuleManager.SETTINGS.isRenamerFilenameSpaceSubstitution()) {
+      delimiter = TvShowModuleManager.SETTINGS.getRenamerFilenameSpaceReplacement();
+    }
     if (!mf.getStackingMarker().isEmpty()) {
       return delimiter + mf.getStackingMarker();
     }

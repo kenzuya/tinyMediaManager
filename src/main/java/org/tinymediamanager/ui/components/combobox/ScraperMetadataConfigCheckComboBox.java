@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,11 +86,11 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
       checkBoxes.add(cb);
     }
 
-    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall")); //$NON-NLS-1$
+    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
     cb.setSelected(selectedAll);
     checkBoxes.add(cb);
 
-    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone")); //$NON-NLS-1$
+    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
     cb.setSelected(selectedNone);
     checkBoxes.add(cb);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
+import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
@@ -69,6 +70,7 @@ import org.tinymediamanager.core.movie.filenaming.MoviePosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.floreysoft.jmte.Engine;
@@ -85,7 +87,11 @@ import com.floreysoft.jmte.token.Token;
 public class MovieRenamer {
   private static final Logger             LOGGER                      = LoggerFactory.getLogger(MovieRenamer.class);
   private static final List<String>       KNOWN_IMAGE_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "bmp", "tbn", "gif");
-  private static final Pattern            ALPHANUM                    = Pattern.compile(".*?([a-zA-Z0-9]{1}).*$");               // to not use posix
+
+  // to not use posix here
+  private static final Pattern            ALPHANUM                    = Pattern.compile(".*?([a-zA-Z0-9]{1}).*$");
+  private static final Pattern            TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern            YEAR_ID_PATTERN             = Pattern.compile("\\$\\{.*?(year|imdb|tmdb).*?\\}", Pattern.CASE_INSENSITIVE);
 
   public static final Map<String, String> TOKEN_MAP                   = createTokenMap();
 
@@ -132,8 +138,11 @@ public class MovieRenamer {
     tokenMap.put("audioLanguage", "movie.mediaInfoAudioLanguage");
     tokenMap.put("audioLanguageList", "movie.mediaInfoAudioLanguageList");
     tokenMap.put("audioLanguagesAsString", "movie.mediaInfoAudioLanguageList;array");
+    tokenMap.put("subtitleLanguageList", "movie.mediaInfoSubtitleLanguageList");
+    tokenMap.put("subtitleLanguagesAsString", "movie.mediaInfoSubtitleLanguageList;array");
     tokenMap.put("3Dformat", "movie.video3DFormat");
     tokenMap.put("hdr", "movie.videoHDRFormat");
+    tokenMap.put("filesize", "movie.videoFilesize;filesize");
 
     tokenMap.put("mediaSource", "movie.mediaSource");
     tokenMap.put("edition", "movie.edition");
@@ -200,7 +209,7 @@ public class MovieRenamer {
         // remove the filename of movie from subtitle, to ease parsing
         List<MediaFile> mfs = m.getMediaFiles(MediaFileType.VIDEO);
         String shortname = sub.getBasename().toLowerCase(Locale.ROOT);
-        if (mfs != null && mfs.size() > 0) {
+        if (ListUtils.isNotEmpty(mfs)) {
           shortname = sub.getBasename().toLowerCase(Locale.ROOT).replace(m.getVideoBasenameWithoutStacking(), "");
         }
 
@@ -297,6 +306,26 @@ public class MovieRenamer {
       }
     } // end MF loop
     m.saveToDb();
+  }
+
+  /**
+   * remove empty subfolders in this folder after renaming; only valid if we're in a single movie folder!
+   * 
+   * @param movie
+   *          the movie to clean
+   */
+  private static void removeEmptySubfolders(Movie movie) {
+    if (movie.isMultiMovieDir()) {
+      return;
+    }
+
+    // check all subfolders if they're empty (recursively)
+    try {
+      Utils.deleteEmptyDirectoryRecursive(movie.getPathNIO());
+    }
+    catch (IOException e) {
+      LOGGER.warn("could not delete empty subfolders: {}", e.getMessage());
+    }
   }
 
   /**
@@ -672,6 +701,10 @@ public class MovieRenamer {
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           Utils.deleteFileWithBackup(cl.getFileAsPath(), movie.getDataSource());
+          // also cleanup the cache for deleted mfs
+          if (cl.isGraphic()) {
+            ImageCache.invalidateCachedImage(cl);
+          }
         }
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(cl.getFileAsPath().getParent())) {
@@ -687,9 +720,13 @@ public class MovieRenamer {
       }
     }
 
+    removeEmptySubfolders(movie);
+
     if (downloadMissingArtworks) {
       LOGGER.debug("Yay - movie upgrade :) download missing artworks");
       MovieArtworkHelper.downloadMissingArtwork(movie);
+      // also trigger a download of actor images
+      movie.writeActorImages();
     }
   }
 
@@ -732,18 +769,15 @@ public class MovieRenamer {
       newFilename = MovieRenamer.createDestinationForFilename(MovieModuleManager.SETTINGS.getRenamerFilename(), movie);
     }
 
+    // extra clone, just for easy adding the "default" ones ;)
+    MediaFile defaultMF = new MediaFile(mf);
+    defaultMF.replacePathForRenamedFolder(movie.getPathNIO(), newMovieDir);
+
     if (!isFilePatternValid() && !movie.isDisc()) {
       // not renaming files, but IF we have a folder pattern, we need to move around! (but NOT disc movies!)
-      MediaFile newMF = new MediaFile(mf);
-      newMF.setPath(newMovieDir.toString());
-      newFiles.add(newMF);
+      newFiles.add(defaultMF);
       return newFiles;
     }
-
-    // extra clone, just for easy adding the "default" ones ;)
-    MediaFile defaultMF = null;
-    defaultMF = new MediaFile(mf);
-    defaultMF.replacePathForRenamedFolder(movie.getPathNIO(), newMovieDir);
 
     switch (mf.getType()) {
       case VIDEO:
@@ -997,13 +1031,9 @@ public class MovieRenamer {
       // OK, from here we check only the settings
       // *************
       case EXTRAFANART:
-        if (MovieModuleManager.SETTINGS.isImageExtraFanart() && !newDestIsMultiMovieDir) {
-          newFiles.add(defaultMF);
-        }
-        break;
-
       case EXTRATHUMB:
-        if (MovieModuleManager.SETTINGS.isImageExtraThumbs() && !newDestIsMultiMovieDir) {
+        // pass the file regardless of the settings (they're her so we just rename them)
+        if (!newDestIsMultiMovieDir) {
           newFiles.add(defaultMF);
         }
         break;
@@ -1135,6 +1165,7 @@ public class MovieRenamer {
       engine.registerNamedRenderer(new NamedTitleCaseRenderer());
       engine.registerNamedRenderer(new MovieNamedFirstCharacterRenderer());
       engine.registerNamedRenderer(new NamedArrayRenderer());
+      engine.registerNamedRenderer(new NamedFilesizeRenderer());
       engine.setModelAdaptor(new MovieRenamerModelAdaptor());
       Map<String, Object> root = new HashMap<>();
       root.put("movie", movie);
@@ -1196,6 +1227,8 @@ public class MovieRenamer {
         // trim whitespace around directory sep
         newDestination = newDestination.replaceAll("\\s+\\\\", "\\\\");
         newDestination = newDestination.replaceAll("\\\\\\s+", "\\\\");
+        // remove separators in front of path separators
+        newDestination = newDestination.replaceAll("[ \\.\\-_]+\\\\", "\\\\");
       }
       // we need to mask it in windows
       newDestination = newDestination.replaceAll("\\\\{2,}", "\\\\");
@@ -1206,6 +1239,8 @@ public class MovieRenamer {
         // trim whitespace around directory sep
         newDestination = newDestination.replaceAll("\\s+/", "/");
         newDestination = newDestination.replaceAll("/\\s+", "/");
+        // remove separators in front of path separators
+        newDestination = newDestination.replaceAll("[ \\.\\-_]+/", "/");
       }
       newDestination = newDestination.replaceAll("/{2,}", "/");
       newDestination = newDestination.replaceAll("^/", "");
@@ -1213,8 +1248,7 @@ public class MovieRenamer {
 
     // replace ALL directory separators, if we generate this for filenames!
     if (forFilename) {
-      newDestination = newDestination.replaceAll("\\/", " ");
-      newDestination = newDestination.replaceAll("\\\\", " ");
+      newDestination = replacePathSeparators(newDestination);
     }
 
     // replace multiple spaces with a single one
@@ -1250,8 +1284,8 @@ public class MovieRenamer {
     }
 
     // the colon is handled by JMTE but it looks like some users are stupid enough to add this to the pattern itself
-    newDestination = newDestination.replaceAll(": ", " - "); // nicer
-    newDestination = newDestination.replaceAll(":", "-"); // nicer
+    newDestination = newDestination.replace(": ", " - "); // nicer
+    newDestination = newDestination.replace(":", "-"); // nicer
 
     return newDestination.trim();
   }
@@ -1265,7 +1299,7 @@ public class MovieRenamer {
    *          the new filename
    * @return true, when we moved file
    */
-  private static boolean moveFile(Path oldFilename, Path newFilename) {
+  static boolean moveFile(Path oldFilename, Path newFilename) {
     try {
       // create parent if needed
       if (!Files.exists(newFilename.getParent())) {
@@ -1276,7 +1310,7 @@ public class MovieRenamer {
         return true;
       }
       else {
-        LOGGER.error("Could not move MF '" + oldFilename + "' to '" + newFilename + "'");
+        LOGGER.error("Could not move MF '{}' to '{}'", oldFilename, newFilename);
         return false; // rename failed
       }
     }
@@ -1297,7 +1331,7 @@ public class MovieRenamer {
    *          the new filename
    * @return true, when we copied file OR DEST IS EXISTING
    */
-  private static boolean copyFile(Path oldFilename, Path newFilename) {
+  static boolean copyFile(Path oldFilename, Path newFilename) {
     if (!oldFilename.toAbsolutePath().toString().equals(newFilename.toAbsolutePath().toString())) {
       LOGGER.info("copy file {} to {}", oldFilename, newFilename);
       if (oldFilename.equals(newFilename)) {
@@ -1331,9 +1365,7 @@ public class MovieRenamer {
    * @return true/false
    */
   public static boolean isFolderPatternUnique(String pattern) {
-    pattern = pattern.toLowerCase(Locale.ROOT);
-    return ((pattern.contains("${title}") || pattern.contains("${originaltitle}") || pattern.contains("${titlesortable}"))
-        && pattern.contains("${year}")) || pattern.contains("${imdb}");
+    return TITLE_PATTERN.matcher(pattern).find() && YEAR_ID_PATTERN.matcher(pattern).find();
   }
 
   /**
@@ -1344,57 +1376,18 @@ public class MovieRenamer {
    * @return true/false
    */
   public static boolean isFilePatternValid() {
-    String pattern = MovieModuleManager.SETTINGS.getRenamerFilename().toLowerCase(Locale.ROOT);
-    return pattern.contains("${title}") || pattern.contains("${originaltitle}") || pattern.contains("${titlesortable}");
+    return isFilePatternValid(MovieModuleManager.SETTINGS.getRenamerFilename());
   }
 
   /**
-   * checks supplied renamer pattern against our tokenmap, if everything could be found
-   * 
-   * @param pattern
-   * @return error string, what token(s) are wrong
+   * Check if the FILE rename pattern is valid<br>
+   * What means, pattern has at least title set (${title}|${originalTitle}|${titleSortable})<br>
+   * "empty" is considered as invalid - so not renaming files
+   *
+   * @return true/false
    */
-  public static String isPatternValid(String pattern) {
-    String err = "";
-    Pattern p = Pattern.compile("\\$\\{(.*?)\\}");
-    Matcher matcher = p.matcher(pattern);
-    while (matcher.find()) {
-      String fulltoken = matcher.group(1);
-      String token = "";
-      if (fulltoken.contains(",")) {
-        // split additional like ${-,token,replace}
-        String[] split = fulltoken.split(",");
-        token = split[1];
-      }
-      else if (fulltoken.contains("[")) {
-        // strip all after parenthesis
-        token = fulltoken.substring(0, fulltoken.indexOf('['));
-      }
-      else if (fulltoken.contains(";")) {
-        // strip all after semicolon like ${title;first}
-        token = fulltoken.substring(0, fulltoken.indexOf(';'));
-        String first = fulltoken.substring(fulltoken.indexOf(';') + 1);
-        if (!first.equals("first")) {
-          err += "  " + matcher.group(); // "first" is missing
-        }
-      }
-      else if (fulltoken.startsWith("movie.")) {
-        // ex: ${movie.year}
-        token = fulltoken.substring(6);
-        // String mapped = getTokenValue(movie, token)
-        // TODO: check via JMTE, if this is a valid token?
-        // currently ignore
-        continue;
-      }
-      else {
-        token = fulltoken;
-      }
-      String tok = TOKEN_MAP.get(token.trim());
-      if (tok == null) {
-        err += "  " + matcher.group(); // complete token with ${}
-      }
-    }
-    return err;
+  public static boolean isFilePatternValid(String pattern) {
+    return TITLE_PATTERN.matcher(pattern).find();
   }
 
   /**
@@ -1409,14 +1402,26 @@ public class MovieRenamer {
     String result = source;
 
     if ("-".equals(MovieModuleManager.SETTINGS.getRenamerColonReplacement())) {
-      result = result.replaceAll(": ", " - "); // nicer
-      result = result.replaceAll(":", "-"); // nicer
+      result = result.replace(": ", " - "); // nicer
+      result = result.replace(":", "-"); // nicer
     }
     else {
-      result = result.replaceAll(":", MovieModuleManager.SETTINGS.getRenamerColonReplacement());
+      result = result.replace(":", MovieModuleManager.SETTINGS.getRenamerColonReplacement());
     }
 
     return result.replaceAll("([\":<>|?*])", "");
+  }
+
+  /**
+   * replace all path separators in the given {@link String} with a space
+   * 
+   * @param source
+   *          the the original {@link String}
+   * @return the cleaned {@link String}
+   */
+  public static String replacePathSeparators(String source) {
+    String result = source.replaceAll("\\/", " ");
+    return result.replaceAll("\\\\", " ");
   }
 
   public static class MovieRenamerModelAdaptor extends TmmModelAdaptor {
@@ -1440,8 +1445,7 @@ public class MovieRenamer {
 
         // do not replace path separators on the .parent token
         if (!token.getText().contains("parent")) {
-          value = ((String) value).replaceAll("\\/", " ");
-          value = ((String) value).replaceAll("\\\\", " ");
+          value = replacePathSeparators((String) value);
 
         }
       }

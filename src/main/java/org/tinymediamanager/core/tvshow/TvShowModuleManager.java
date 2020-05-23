@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,13 @@ import org.tinymediamanager.core.CustomNullStringSerializerProvider;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.NullKeySerializer;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.UTF8Control;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -53,7 +54,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author Manuel Laggner
  */
 public class TvShowModuleManager implements ITmmModule {
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control());
   public static final TvShowSettings  SETTINGS     = TvShowSettings.getInstance();
 
   private static final String         MODULE_TITLE = "TV show management";
@@ -127,6 +128,7 @@ public class TvShowModuleManager implements ITmmModule {
     objectMapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
     objectMapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
     objectMapper.configure(MapperFeature.AUTO_DETECT_FIELDS, false);
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     objectMapper.setTimeZone(TimeZone.getDefault());
     objectMapper.setSerializationInclusion(Include.NON_DEFAULT);
     objectMapper.setSerializerProvider(new CustomNullStringSerializerProvider());

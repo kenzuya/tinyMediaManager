@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -171,6 +172,9 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
 
         // add unsupported tags
         addUnsupportedTags();
+
+        // add tinyMediaManagers own data
+        addTinyMediaManagerTags();
 
         // serialize to string
         Writer out = new StringWriter();
@@ -702,8 +706,11 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    */
   protected void addTrailer() {
     Element trailer = document.createElement("trailer");
-    if (parser != null && StringUtils.isNotBlank(parser.trailer)) {
-      trailer.setTextContent(parser.trailer);
+    for (MediaTrailer mediaTrailer : new ArrayList<>(tvShow.getTrailer())) {
+      if (mediaTrailer.getInNfo() && !mediaTrailer.getUrl().startsWith("file")) {
+        trailer.setTextContent(mediaTrailer.getUrl());
+        break;
+      }
     }
     root.appendChild(trailer);
   }
@@ -725,6 +732,23 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         }
       }
     }
+  }
+
+  /**
+   * add the missing meta data for tinyMediaManager to this NFO
+   */
+  protected void addTinyMediaManagerTags() {
+    root.appendChild(document.createComment("tinyMediaManager meta data"));
+    addUserNote();
+  }
+
+  /**
+   * add the user note in <user_note>xxx</user_note>
+   */
+  protected void addUserNote() {
+    Element user_note = document.createElement("user_note");
+    user_note.setTextContent(tvShow.getNote());
+    root.appendChild(user_note);
   }
 
   /**
@@ -759,7 +783,13 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
-    transformer.setOutputProperty(ORACLE_IS_STANDALONE, "yes");
+    // not supported in all JVMs
+    try {
+      transformer.setOutputProperty(ORACLE_IS_STANDALONE, "yes");
+    }
+    catch (Exception ignored) {
+      // okay, seems we're not on OracleJDK, OPenJDK or AdopOpenJDK
+    }
     transformer.setOutputProperty(OutputKeys.METHOD, "xml");
     transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
@@ -772,14 +802,14 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * @return the scraper where the default should be set
    */
   private String detectDefaultScraper() {
-    // IMDB first
-    if (tvShow.getIds().containsKey(MediaMetadata.IMDB)) {
-      return MediaMetadata.IMDB;
-    }
-
-    // TVDB second
+    // TVDB first
     if (tvShow.getIds().containsKey(MediaMetadata.TVDB)) {
       return MediaMetadata.TVDB;
+    }
+
+    // IMDB second
+    if (tvShow.getIds().containsKey(MediaMetadata.IMDB)) {
+      return MediaMetadata.IMDB;
     }
 
     // TMDB third

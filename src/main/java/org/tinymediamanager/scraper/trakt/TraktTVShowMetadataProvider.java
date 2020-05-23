@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,7 +46,6 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.TvUtils;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -74,26 +75,21 @@ class TraktTVShowMetadataProvider {
   }
 
   // Search
-  List<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     String searchString = "";
     if (StringUtils.isNotEmpty(options.getSearchQuery())) {
       searchString = options.getSearchQuery();
     }
 
-    String year = null;
-    if (options.getSearchYear() > 1800) {
-      year = String.valueOf(options.getSearchYear());
-    }
-
-    List<MediaSearchResult> results = new ArrayList<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
     List<SearchResult> searchResults = null;
-    String lang = options.getLanguage().getLanguage();
-    lang = lang + ",en"; // fallback search (does this still work?)
+
+    // pass NO language here since trakt.tv returns less results when passing a language :(
 
     synchronized (api) {
       try {
         Response<List<SearchResult>> response = api.search()
-            .textQueryShow(searchString, year, null, lang, null, null, null, null, null, null, Extended.FULL, 1, 25).execute();
+            .textQueryShow(searchString, null, null, null, null, null, null, null, null, null, Extended.FULL, 1, 25).execute();
         if (!response.isSuccessful()) {
           LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
           throw new HttpException(response.code(), response.message());
@@ -114,7 +110,6 @@ class TraktTVShowMetadataProvider {
 
     for (SearchResult result : searchResults) {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
-      m.setScore(MetadataUtil.calculateScore(searchString, m.getTitle()));
       results.add(m);
     }
 

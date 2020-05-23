@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import java.io.InterruptedIOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,9 +84,16 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   private HashMap<String, List<AniDBShow>> showsForLookup    = new HashMap<>();
 
   private static MediaProviderInfo createMediaProviderInfo() {
-    return new MediaProviderInfo(ID, "aniDB",
+    MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "aniDB",
         "<html><h3>aniDB</h3><br />AniDB stands for Anime DataBase. AniDB is a non-profit anime database that is open freely to the public.</html>",
         AniDBMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png"));
+
+    // configure/load settings
+    providerInfo.getConfig().addInteger("numberOfTags", 10);
+    providerInfo.getConfig().addInteger("minimumTagsWeight", 200);
+    providerInfo.getConfig().load();
+
+    return providerInfo;
   }
 
   @Override
@@ -124,9 +132,11 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
       throw new ScrapeException(e);
     }
 
-    trackConnections();
-    try (InputStream is = cachedUrl.getInputStream()) {
-      doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
+    try {
+      trackConnections();
+      try (InputStream is = cachedUrl.getInputStream()) {
+        doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
+      }
     }
     catch (InterruptedException | InterruptedIOException e) {
       // do not swallow these Exceptions
@@ -170,6 +180,10 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
 
       if ("ratings".equalsIgnoreCase(e.tagName())) {
         getRating(md, e);
+      }
+
+      if ("tags".equalsIgnoreCase(e.tagName())) {
+        getTags(md, e);
       }
 
       if ("picture".equalsIgnoreCase(e.tagName())) {
@@ -261,6 +275,27 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     }
   }
 
+  private void getTags(MediaMetadata md, Element e) {
+    Integer maxTags = providerInfo.getConfig().getValueAsInteger("numberOfTags");
+    Integer minWeight = providerInfo.getConfig().getValueAsInteger("minimumTagsWeight");
+    for (Element tag : e.children()) {
+      Element name = tag.getElementsByTag("name").first();
+      int weight = 0;
+      try {
+        weight = Integer.parseInt(tag.attr("weight"));
+      }
+      catch (Exception ex) {
+        LOGGER.trace("Could not parse tags weight: {}", ex.getMessage());
+      }
+      if (name != null && weight >= minWeight) {
+        md.addTag(name.text());
+        if (md.getTags().size() >= maxTags) {
+          break;
+        }
+      }
+    }
+  }
+
   private void parseTitle(MediaMetadata md, String langu, Element e) {
     String titleEN = "";
     String titleScraperLangu = "";
@@ -324,16 +359,16 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
         for (Element episodeInfo : e.children()) {
           if ("epno".equalsIgnoreCase(episodeInfo.tagName())) {
             try {
-              episode.episode = Integer.parseInt(episodeInfo.text());
-
               // looks like anidb is storing anything in a single season, so put
               // 1 to season, if type = 1
               if ("1".equals(episodeInfo.attr("type"))) {
                 episode.season = 1;
+                episode.episode = Integer.parseInt(episodeInfo.text());
               }
               else {
                 // else - we see them as "specials"
                 episode.season = 0;
+                episode.episode = Integer.parseInt(episodeInfo.text().replaceAll("[^0-9]+", ""));
               }
 
             }
@@ -392,17 +427,17 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   }
 
   @Override
-  public List<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) {
+  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) {
     LOGGER.debug("search(): {}", options);
 
     synchronized (AniDBMetadataProvider.class) {
       // first run: build up the anime name list
-      if (showsForLookup.size() == 0) {
+      if (showsForLookup.isEmpty()) {
         buildTitleHashMap();
       }
     }
 
-    List<MediaSearchResult> results = new ArrayList<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     // detect the string to search
     String searchString = "";
@@ -425,17 +460,13 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
             MediaSearchResult result = new MediaSearchResult(providerInfo.getId(), MediaType.TV_SHOW);
             result.setId(String.valueOf(show.aniDbId));
             result.setTitle(show.title);
-            results.add(result);
             result.setScore(score);
+            results.add(result);
             foundIds.add(show.aniDbId);
           }
         }
       }
     }
-
-    // sort
-    Collections.sort(results);
-    Collections.reverse(results);
 
     return results;
   }
@@ -472,9 +503,11 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
       throw new ScrapeException(e);
     }
 
-    trackConnections();
-    try (InputStream is = url.getInputStream()) {
-      doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
+    try {
+      trackConnections();
+      try (InputStream is = url.getInputStream()) {
+        doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
+      }
     }
     catch (InterruptedException | InterruptedIOException e) {
       // do not swallow these Exceptions
@@ -572,19 +605,16 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   /*
    * Track connections and throttle if needed.
    */
-  private static synchronized void trackConnections() {
-    Long currentTime = System.currentTimeMillis();
+  private static synchronized void trackConnections() throws InterruptedException {
+    long currentTime = System.currentTimeMillis();
     if (connectionCounter.count() == connectionCounter.maxSize()) {
-      Long oldestConnection = connectionCounter.getTailItem();
+      long oldestConnection = connectionCounter.getTailItem();
       if (oldestConnection > (currentTime - 2000)) {
         LOGGER.debug("connection limit reached, throttling...");
-        try {
-          Thread.sleep(2000 - (currentTime - oldestConnection));
-        }
-        catch (InterruptedException e) {
-          LOGGER.debug("waiting interrupted");
-          Thread.currentThread().interrupt();
-        }
+        do {
+          AniDBMetadataProvider.class.wait(2000 - (currentTime - oldestConnection));
+          currentTime = System.currentTimeMillis();
+        } while (oldestConnection > (currentTime - 2000));
       }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,17 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmWindowSaver;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.tvshows.filters.ITvShowUIFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowAspectRatioFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowAudioChannelFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCastFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDatasourceFilter;
@@ -52,6 +54,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowMissingEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingMetadataFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingSubtitlesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowNewEpisodesFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowStatusFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowStudioFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowTagFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoCodecFilter;
@@ -64,7 +67,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowFilterDialog extends TmmDialog {
   private static final long                       serialVersionUID = 2298540526328945319L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle           BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  protected static final ResourceBundle           BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private TmmTreeTable                            treeTable;
 
@@ -107,6 +110,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowNewEpisodesFilter(), panelMain);
         addFilter(new TvShowDuplicateEpisodesFilter(), panelMain);
         addFilter(new TvShowWatchedFilter(), panelMain);
+        addFilter(new TvShowStatusFilter(), panelMain);
         addFilter(new TvShowGenreFilter(), panelMain);
         addFilter(new TvShowStudioFilter(), panelMain);
         addFilter(new TvShowCastFilter(), panelMain);
@@ -116,7 +120,7 @@ public class TvShowFilterDialog extends TmmDialog {
 
       {
         // panel media data
-        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
+        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][150lp:n,grow]", "[]"));
         JScrollPane scrollPaneMediaData = new JScrollPane(panelMediaData);
         scrollPaneMediaData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(BUNDLE.getString("metatag.mediainformation"), scrollPaneMediaData);
@@ -124,9 +128,11 @@ public class TvShowFilterDialog extends TmmDialog {
 
         addFilter(new TvShowVideoFormatFilter(), panelMediaData);
         addFilter(new TvShowVideoCodecFilter(), panelMediaData);
+        addFilter(new TvShowAspectRatioFilter(), panelMediaData);
         addFilter(new TvShowFrameRateFilter(), panelMediaData);
         addFilter(new TvShowVideoContainerFilter(), panelMediaData);
         addFilter(new TvShowAudioCodecFilter(), panelMediaData);
+        addFilter(new TvShowAudioChannelFilter(), panelMediaData);
         addFilter(new TvShowMediaSourceFilter(), panelMediaData);
         addFilter(new TvShowDatasourceFilter(), panelMediaData);
         addFilter(new TvShowMissingMetadataFilter(), panelMediaData);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,7 @@ public class IconManager {
   public static final ImageIcon            CLEAR_GREY                  = createFontAwesomeIcon('\uF057');
   public static final ImageIcon            COLLAPSED                   = createFontAwesomeIcon('\uF329');
   public static final ImageIcon            CONFIGURE                   = createFontAwesomeIcon('\uF0AD');
+  public static final ImageIcon            DELETE_GRAY                 = createFontAwesomeIcon('\uF2ED');
   public static final ImageIcon            ERROR                       = createFontAwesomeIcon('\uF057');
   public static final ImageIcon            EXPANDED                    = createFontAwesomeIcon('\uF32B');
   public static final ImageIcon            WARN                        = createFontAwesomeIcon('\uF071');

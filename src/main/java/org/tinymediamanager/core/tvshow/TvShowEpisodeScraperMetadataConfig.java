@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.ui.UTF8Control;
+import org.tinymediamanager.core.UTF8Control;
 
 /**
  * The enum TvShowEpisodeScraperMetadataConfig is used to control which episode fields should be set after scraping.
@@ -37,6 +37,7 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
   DISPLAY_SEASON_EPISODE(Type.METADATA, "tvshow.display.seasonepisode"),
   AIRED(Type.METADATA, "metatag.aired"),
   RATING(Type.METADATA),
+  TAGS(Type.METADATA),
 
   // cast
   ACTORS(Type.CAST),
@@ -47,7 +48,7 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
   // artwork
   THUMB(Type.ARTWORK);
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private Type                        type;
   private String                      description;

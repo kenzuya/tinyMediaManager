@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.tinymediamanager.ui.actions;
 import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.UTF8Control;
 
 /**
  * The CheckForUpdateAction is used to trigger an update check

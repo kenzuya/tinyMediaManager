@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +55,7 @@ import org.tinymediamanager.scraper.mpdbtv.entities.HDLogo;
 import org.tinymediamanager.scraper.mpdbtv.entities.MovieEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Poster;
 import org.tinymediamanager.scraper.mpdbtv.entities.Producer;
+import org.tinymediamanager.scraper.mpdbtv.entities.Release;
 import org.tinymediamanager.scraper.mpdbtv.entities.SearchEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Studio;
 import org.tinymediamanager.scraper.mpdbtv.entities.Trailer;
@@ -65,9 +68,9 @@ import org.tinymediamanager.scraper.util.ApiKey;
  * @author Wolfgang Janes
  */
 public class MpdbMetadataProvider implements IMovieMetadataProvider {
-  public static final String             ID           = "mpdbtv";
+  public static final String ID = "mpdbtv";
 
-  private static final Logger            LOGGER       = LoggerFactory.getLogger(MpdbMetadataProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MpdbMetadataProvider.class);
   private static final MediaProviderInfo providerInfo = createMediaProviderInfo();
   private static final String            API_KEY      = ApiKey.decryptApikey("DdSGUTZn24ml7rZRBihKb9ea3svKUDnU3GZdhgf+XMrfE8IdLinpy6eAPLrmkZWu");
   private static final String            FORMAT       = "json";
@@ -80,7 +83,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "mpdb.tv",
-        "<html><h3>MPDB.tv</h3><br />The MPDB.tv API is a RESTful web service to obtain movie information, all content and images on the site are contributed and maintained by our users. <br /><br />This is a private meta data provider, you may need to become a member there to use this service (more infos at http://www.mpdb.tv/)<br /><br />Available languages: FR</html>\"",
+        "<html><h3>MPDb.TV</h3><br />MPDb.TV is a private meta data provider for French speaking users - you may need to become a member there to use this service (more infos at http://www.mpdb.tv/)<br /><br />Available languages: FR</html>",
         MpdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/mpdbtv.png"));
 
     providerInfo.getConfig().addText("aboKey", "", false);
@@ -91,15 +94,24 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
   }
 
   @Override
-  public List<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
 
-    List<MediaSearchResult> mediaResult = new ArrayList<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
     List<SearchEntity> searchResult;
 
     if (StringUtils.isAnyBlank(getAboKey(), getUserName())) {
       LOGGER.warn("no username/ABO Key found");
       throw new ScrapeException(new HttpException(401, "Unauthorized"));
+    }
+
+    // due to the poor API of mpdb we have to check if the selected language is FR
+    // or EN.
+    if (!options.getLanguage().getLanguage().toUpperCase().equals("FR")) {
+
+      LOGGER.info("Scraper only supports Language FR");
+      return results;
+
     }
 
     LOGGER.info("========= BEGIN MPDB.tv Scraper Search for Movie: {} ", options.getSearchQuery());
@@ -115,7 +127,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
 
     if (searchResult == null) {
       LOGGER.warn("no result from MPDB.tv");
-      return mediaResult;
+      return results;
     }
 
     for (SearchEntity entity : searchResult) {
@@ -135,10 +147,12 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
       result.setUrl(entity.url);
       result.setPosterUrl(entity.posterUrl);
 
-      mediaResult.add(result);
+      // calcuate the result score
+      result.calculateScore(options);
+      results.add(result);
     }
 
-    return mediaResult;
+    return results;
   }
 
   @Override
@@ -170,7 +184,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
 
     // Rating
     if (scrapeResult.rating != null) {
-      MediaRating rating = new MediaRating(providerInfo.getId());
+      MediaRating rating = new MediaRating("mpdb.tv");
       rating.setRating(scrapeResult.rating.floatValue());
       rating.setVotes(scrapeResult.ratingVotes);
       rating.setMaxValue(10);
@@ -286,6 +300,15 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
       mediaArtwork.setPreviewUrl(hdLogo.preview);
       mediaArtwork.setDefaultUrl(hdLogo.original);
       mediaArtwork.setLikes(hdLogo.votes);
+    }
+
+    // Year
+    // Get Year from Release Information for given Language
+    // I see no other possibility :(
+    for (Release release : scrapeResult.releases) {
+      if (release.countryId.equals(mediaScrapeOptions.getLanguage().getLanguage().toUpperCase())) {
+        metadata.setYear(release.year);
+      }
     }
 
     metadata.setId("allocine", scrapeResult.idAllocine);

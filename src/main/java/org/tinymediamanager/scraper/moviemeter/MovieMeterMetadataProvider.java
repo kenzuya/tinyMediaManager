@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 package org.tinymediamanager.scraper.moviemeter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.moviemeter.entities.MMActor;
+import org.tinymediamanager.scraper.moviemeter.entities.MMDirector;
 import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
 import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.LanguageUtils;
@@ -210,8 +212,8 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
       md.addCastMember(cm);
     }
 
-    for (String d : fd.directors) {
-      Person cm = new Person(Person.Type.DIRECTOR, d);
+    for (MMDirector d : fd.directors) {
+      Person cm = new Person(Person.Type.DIRECTOR, d.name);
       md.addCastMember(cm);
     }
 
@@ -219,19 +221,20 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
   }
 
   @Override
-  public List<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     // lazy loading of the api
     initAPI();
 
-    LOGGER.debug("search(): ", options);
-    List<MediaSearchResult> resultList = new ArrayList<>();
+    LOGGER.debug("search(): {}", options);
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
+
     String imdb = options.getImdbId();
     String searchString = options.getSearchQuery();
     int myear = options.getSearchYear();
 
     if (StringUtils.isBlank(searchString) && !MetadataUtil.isValidImdbId(imdb)) {
       LOGGER.debug("cannot search without a search string");
-      return resultList;
+      return results;
     }
 
     searchString = MetadataUtil.removeNonSearchCharacters(searchString);
@@ -284,7 +287,7 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
       sr.setUrl(fd.url);
       sr.setYear(fd.year);
       sr.setScore(1);
-      resultList.add(sr);
+      results.add(sr);
     }
     for (MMFilm film : moviesFound) {
       MediaSearchResult sr = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
@@ -295,28 +298,11 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
       sr.setYear(film.year);
 
       // compare score based on names
-      float score = MetadataUtil.calculateScore(searchString, film.title);
-
-      if (yearDiffers(myear, sr.getYear())) {
-        float diff = (float) Math.abs(myear - sr.getYear()) / 100;
-        LOGGER.debug("parsed year does not match search result year - downgrading score by " + diff);
-        score -= diff;
-      }
-      sr.setScore(score);
-
-      resultList.add(sr);
+      sr.calculateScore(options);
+      results.add(sr);
     }
-    Collections.sort(resultList);
-    Collections.reverse(resultList);
 
-    return resultList;
-  }
-
-  /**
-   * Is i1 != i2 (when >0)
-   */
-  private boolean yearDiffers(int i1, int i2) {
-    return i1 > 0 && i2 > 0 && i1 != i2;
+    return results;
   }
 
   /*

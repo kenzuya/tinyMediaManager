@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -42,6 +43,7 @@ import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.thirdparty.KodiRPC;
@@ -49,12 +51,13 @@ import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
 import org.tinymediamanager.ui.actions.CheckForUpdateAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
+import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
+import org.tinymediamanager.ui.actions.DocsAction;
 import org.tinymediamanager.ui.actions.DonateAction;
 import org.tinymediamanager.ui.actions.ExportLogAction;
 import org.tinymediamanager.ui.actions.FaqAction;
@@ -64,7 +67,6 @@ import org.tinymediamanager.ui.actions.HomepageAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
-import org.tinymediamanager.ui.actions.WikiAction;
 import org.tinymediamanager.ui.dialogs.FullLogDialog;
 import org.tinymediamanager.ui.dialogs.LogDialog;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
@@ -186,7 +188,7 @@ public class ToolbarPanel extends JPanel {
 
     menu.addSeparator();
 
-    JMenuItem tmmLogs = new JMenuItem(BUNDLE.getString("tmm.errorlogs")); //$NON-NLS-1$
+    JMenuItem tmmLogs = new JMenuItem(BUNDLE.getString("tmm.errorlogs"));
     menu.add(tmmLogs);
     tmmLogs.addActionListener(arg0 -> {
       JDialog logDialog = new LogDialog();
@@ -194,14 +196,14 @@ public class ToolbarPanel extends JPanel {
       logDialog.setVisible(true);
     });
 
-    JMenuItem tmmMessages = new JMenuItem(BUNDLE.getString("tmm.messages")); //$NON-NLS-1$
+    JMenuItem tmmMessages = new JMenuItem(BUNDLE.getString("tmm.messages"));
     tmmMessages.setMnemonic(KeyEvent.VK_L);
     menu.add(tmmMessages);
     tmmMessages.addActionListener(arg0 -> {
       JDialog messageDialog = MessageHistoryDialog.getInstance();
       messageDialog.setVisible(true);
     });
-    JMenuItem tmmFolder = new JMenuItem(BUNDLE.getString("tmm.gotoinstalldir")); //$NON-NLS-1$
+    JMenuItem tmmFolder = new JMenuItem(BUNDLE.getString("tmm.gotoinstalldir"));
     menu.add(tmmFolder);
     tmmFolder.addActionListener(arg0 -> {
       Path path = Paths.get(System.getProperty("user.dir"));
@@ -220,7 +222,7 @@ public class ToolbarPanel extends JPanel {
 
     menu.addSeparator();
 
-    final JMenu menuWakeOnLan = new JMenu(BUNDLE.getString("tmm.wakeonlan")); //$NON-NLS-1$
+    final JMenu menuWakeOnLan = new JMenu(BUNDLE.getString("tmm.wakeonlan"));
     menuWakeOnLan.setMnemonic(KeyEvent.VK_W);
     menuWakeOnLan.addMenuListener(new MenuListener() {
       @Override
@@ -250,9 +252,9 @@ public class ToolbarPanel extends JPanel {
 
     // debug menu
     if (Globals.isDebug()) {
-      final JMenu debugMenu = new JMenu("Debug"); //$NON-NLS-1$
+      final JMenu debugMenu = new JMenu("Debug");
 
-      JMenuItem trace = new JMenuItem("set Console Logger to TRACE"); //$NON-NLS-1$
+      JMenuItem trace = new JMenuItem("set Console Logger to TRACE");
       trace.addActionListener(arg0 -> {
         System.setProperty("tmm.consoleloglevel", "TRACE");
         TinyMediaManager.setConsoleLogLevel();
@@ -261,7 +263,7 @@ public class ToolbarPanel extends JPanel {
       });
       debugMenu.add(trace);
 
-      JMenuItem traceLogs = new JMenuItem("Show all logs from this session"); //$NON-NLS-1$
+      JMenuItem traceLogs = new JMenuItem("Show all logs from this session");
       debugMenu.add(traceLogs);
       traceLogs.addActionListener(arg0 -> {
         JDialog logDialog = new FullLogDialog();
@@ -280,7 +282,7 @@ public class ToolbarPanel extends JPanel {
     menu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        if (Globals.settings.getWolDevices().size() > 0) {
+        if (!Globals.settings.getWolDevices().isEmpty()) {
           menuWakeOnLan.setEnabled(true);
         }
         else {
@@ -309,6 +311,11 @@ public class ToolbarPanel extends JPanel {
     menu.add(new BugReportAction());
     menu.add(new ExportLogAction());
 
+    if (SystemUtils.IS_OS_LINUX) {
+      menu.addSeparator();
+      menu.add(new CreateDesktopFileAction());
+    }
+
     return menu;
   }
 
@@ -316,7 +323,7 @@ public class ToolbarPanel extends JPanel {
     JPopupMenu menu = new JPopupMenu();
 
     menu.add(new FaqAction());
-    menu.add(new WikiAction());
+    menu.add(new DocsAction());
     menu.add(new ForumAction());
     menu.add(new ShowChangelogAction());
     menu.addSeparator();

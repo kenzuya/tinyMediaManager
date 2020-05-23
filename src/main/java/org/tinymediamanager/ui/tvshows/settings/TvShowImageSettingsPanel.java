@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -56,8 +57,8 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -74,7 +75,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowImageSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private List<ScraperInTable>        artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
@@ -88,6 +89,7 @@ class TvShowImageSettingsPanel extends JPanel {
   private JComboBox<MediaLanguages>   cbScraperLanguage;
   private JComboBox                   cbImagePosterSize;
   private JComboBox                   cbImageFanartSize;
+  private JCheckBox                   chckbxSpecialSeason;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -165,7 +167,7 @@ class TvShowImageSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 
-      JLabel lblScraperT = new TmmLabel(BUNDLE.getString("scraper.artwork"), H3); //$NON-NLS-1$
+      JLabel lblScraperT = new TmmLabel(BUNDLE.getString("scraper.artwork"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraperT, true);
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
@@ -181,8 +183,7 @@ class TvShowImageSettingsPanel extends JPanel {
         panelScraper.add(panelScraperDetails, "cell 1 2,grow");
         panelScraperDetails.setLayout(new MigLayout("insets 0", "[grow]", "[][grow]"));
 
-        tpScraperDescription = new JTextPane();
-        tpScraperDescription.setOpaque(false);
+        tpScraperDescription = new ReadOnlyTextPane();
         tpScraperDescription.setEditorKit(new HTMLEditorKit());
         panelScraperDetails.add(tpScraperDescription, "cell 0 0,grow");
 
@@ -194,7 +195,7 @@ class TvShowImageSettingsPanel extends JPanel {
     {
       JPanel panelOptions = SettingsPanelFactory.createSettingsPanel();
 
-      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3); //$NON-NLS-1$
+      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
@@ -204,13 +205,13 @@ class TvShowImageSettingsPanel extends JPanel {
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0");
 
-        JLabel lblImageTmdbPosterSize = new JLabel(BUNDLE.getString("image.poster.size")); //$NON-NLS-1$
+        JLabel lblImageTmdbPosterSize = new JLabel(BUNDLE.getString("image.poster.size"));
         panelOptions.add(lblImageTmdbPosterSize, "cell 1 1 2 1");
 
         cbImagePosterSize = new JComboBox(MediaArtwork.PosterSizes.values());
         panelOptions.add(cbImagePosterSize, "cell 1 1");
 
-        JLabel lblImageTmdbFanartSize = new JLabel(BUNDLE.getString("image.fanart.size")); //$NON-NLS-1$
+        JLabel lblImageTmdbFanartSize = new JLabel(BUNDLE.getString("image.fanart.size"));
         panelOptions.add(lblImageTmdbFanartSize, "cell 1 2 2 1");
 
         cbImageFanartSize = new JComboBox(MediaArtwork.FanartSizes.values());
@@ -219,15 +220,18 @@ class TvShowImageSettingsPanel extends JPanel {
         cbActorImages = new JCheckBox(BUNDLE.getString("Settings.actor.download"));
         panelOptions.add(cbActorImages, "cell 1 3 2 1");
 
+        chckbxSpecialSeason = new JCheckBox(BUNDLE.getString("tvshow.renamer.specialseason"));
+        panelOptions.add(chckbxSpecialSeason, "cell 1 4 2 1");
+
         chckbxEnableExtrafanart = new JCheckBox(BUNDLE.getString("Settings.enable.extrafanart"));
-        panelOptions.add(chckbxEnableExtrafanart, "cell 1 4 2 1");
+        panelOptions.add(chckbxEnableExtrafanart, "cell 1 5 2 1");
 
         JLabel lblDownloadCount = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));
-        panelOptions.add(lblDownloadCount, "cell 2 5");
+        panelOptions.add(lblDownloadCount, "cell 2 6");
 
         spDownloadCountExtrafanart = new JSpinner();
         spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
-        panelOptions.add(spDownloadCountExtrafanart, "cell 2 5");
+        panelOptions.add(spDownloadCountExtrafanart, "cell 2 6");
       }
     }
   }
@@ -290,5 +294,10 @@ class TvShowImageSettingsPanel extends JPanel {
     AutoBinding<TvShowSettings, FanartSizes, JComboBox, Object> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         tvShowSettingsBeanProperty_5, cbImageFanartSize, jComboBoxBeanProperty);
     autoBinding_7.bind();
+    //
+    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_6 = BeanProperty.create("specialSeason");
+    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+        tvShowSettingsBeanProperty_6, chckbxSpecialSeason, jCheckBoxBeanProperty);
+    autoBinding_8.bind();
   }
 }

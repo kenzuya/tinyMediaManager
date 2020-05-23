@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import org.tinymediamanager.ui.components.TmmLabel;
  */
 public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
   private enum WatchedFlag {
-    WATCHED(BUNDLE.getString("metatag.watched")), //$NON-NLS-1$ ,
-    NOT_WATCHED(BUNDLE.getString("metatag.notwatched")); //$NON-NLS-1$ ,
+    WATCHED(BUNDLE.getString("metatag.watched")),
+    NOT_WATCHED(BUNDLE.getString("metatag.notwatched"));
 
     private String title;
 
@@ -82,7 +82,7 @@ public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.watched")); //$NON-NLS-1$
+    return new TmmLabel(BUNDLE.getString("metatag.watched"));
   }
 
   @Override
@@ -94,6 +94,10 @@ public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
     for (TvShowEpisode episode : episodes) {
+      if (episode.isDummy()) {
+        continue;
+      }
+
       if (invert ^ episode.isWatched() == (comboBox.getSelectedItem() == WatchedFlag.WATCHED)) {
         return true;
       }

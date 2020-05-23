@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
@@ -75,7 +76,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainWindow extends JFrame {
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MainWindow.class);
   private static final long           serialVersionUID = 1L;
 
@@ -257,7 +258,7 @@ public class MainWindow extends JFrame {
     // inform user that MI could not be loaded
     if (Platform.isLinux() && StringUtils.isBlank(MediaInfo.version())) {
       SwingUtilities.invokeLater(() -> {
-        JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux")); //$NON-NLS-1$
+        JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux"));
       });
     }
 

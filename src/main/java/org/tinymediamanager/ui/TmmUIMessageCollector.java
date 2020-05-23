@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.IMessageListener;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -38,7 +39,7 @@ import ca.odell.glazedlists.GlazedLists;
  */
 public class TmmUIMessageCollector extends AbstractModelObject implements IMessageListener {
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle       BUNDLE      = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle       BUNDLE      = ResourceBundle.getBundle("messages", new UTF8Control());
   public static final TmmUIMessageCollector instance    = new TmmUIMessageCollector();
 
   private final EventList<Message>          messages;

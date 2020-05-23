@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,13 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,7 +98,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
   public static final String                                  ID                  = "tvdb";
 
   private static final Logger                                 LOGGER              = LoggerFactory.getLogger(TheTvDbMetadataProvider.class);
-  private static final String                                 artworkUrl          = "http://thetvdb.com/banners/";
+  private static final String                                 ARTWORK_URL         = "https://artworks.thetvdb.com/banners/";
   private static final String                                 TMM_API_KEY         = ApiKey
       .decryptApikey("7bHHg4k0XhRERM8xd3l+ElhMUXOA5Ou4vQUEzYLGHt8=");
   private static final String                                 FALLBACK_LANGUAGE   = "fallbackLanguage";
@@ -152,6 +153,8 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       }
       catch (Exception e) {
         LOGGER.warn("could not initialize API: {}", e.getMessage());
+        // force re-initialization the next time this will be called
+        tvdb = null;
         throw new ScrapeException(e);
       }
     }
@@ -159,7 +162,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "thetvdb.com",
-        "<html><h3>The TV DB</h3><br />An open database for television fans. This scraper is able to scrape TV series metadata and artwork</html>",
+        "<html><h3>The TVDB</h3><br />An open database for television fans. This scraper is able to scrape TV series metadata and artwork</html>",
         TheTvDbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/thetvdb_com.png"));
 
     providerInfo.getConfig().addText("apiKey", "", true);
@@ -265,8 +268,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       md.setYear(y);
       if (y != 0 && md.getTitle().contains(String.valueOf(y))) {
         LOGGER.debug("Weird TVDB entry - removing date {} from title", y);
-        String t = show.seriesName.replace(String.valueOf(y), "").replaceAll("\\(\\)", "").trim();
-        md.setTitle(t);
+        md.setTitle(clearYearFromTitle(md.getTitle(), y));
       }
     }
     catch (Exception e) {
@@ -294,7 +296,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       member.setName(actor.name);
       member.setRole(actor.role);
       if (StringUtils.isNotBlank(actor.image)) {
-        member.setThumbUrl(artworkUrl + actor.image);
+        member.setThumbUrl(ARTWORK_URL + actor.image);
       }
 
       md.addCastMember(member);
@@ -383,12 +385,12 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
   }
 
   @Override
-  public List<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     // lazy initialization of the api
     initAPI();
 
     LOGGER.debug("search() {}", options);
-    List<MediaSearchResult> results = new ArrayList<>();
+    SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     // detect the string to search
     String searchString = "";
@@ -485,47 +487,28 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       result.setTitle(show.seriesName);
       result.setOverview(show.overview);
       try {
-        result.setYear(Integer.parseInt(show.firstAired.substring(0, 4)));
+        int year = Integer.parseInt(show.firstAired.substring(0, 4));
+        result.setYear(year);
+        if (year != 0 && result.getTitle().contains(String.valueOf(year))) {
+          LOGGER.debug("Weird TVDB entry - removing date {} from title", year);
+          result.setTitle(clearYearFromTitle(result.getTitle(), year));
+        }
       }
       catch (Exception ignored) {
         // ignore
       }
 
-      // for how the api responds only a banner - we would like to have a poster here
-      // just try to fetch the poster url
-      try {
-        Response<SeriesImageQueryResultResponse> httpResponse = tvdb.series().imagesQuery(show.id, "poster", null, null, null).execute();
-        if (httpResponse.isSuccessful()) {
-          SeriesImageQueryResultResponse response = httpResponse.body();
-          if (response != null && !response.data.isEmpty()) {
-            result.setPosterUrl(artworkUrl + response.data.get(0).fileName);
-          }
-        }
-      }
-      catch (Exception e) {
-        LOGGER.warn("could not get poster for search result: {}", e.getMessage());
+      if (StringUtils.isNotBlank(show.poster)) {
+        result.setPosterUrl(ARTWORK_URL + show.poster);
       }
 
-      float score = MetadataUtil.calculateScore(searchString, show.seriesName);
-      if (yearDiffers(options.getSearchYear(), result.getYear())) {
-        float diff = (float) Math.abs(options.getSearchYear() - result.getYear()) / 100;
-        LOGGER.debug("parsed year does not match search result year - downgrading score by {}", diff);
-        score -= diff;
-      }
-      else if (options.getSearchYear() != 0 && result.getYear() == 0) {
-        LOGGER.debug("search result does not include any year - downgrading score by 0.01");
-        score -= 0.01;
-      }
-      result.setScore(score);
+      // calculate score
+      result.calculateScore(options);
       resultMap.put(show.id, result);
     }
 
     // and convert all entries from the map to a list
     results.addAll(resultMap.values());
-
-    // sort
-    Collections.sort(results);
-    Collections.reverse(results);
 
     return results;
   }
@@ -601,8 +584,11 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     List<SeriesImageQueryResult> images = new ArrayList<>();
     try {
       // get all types of artwork we can get
-      SeriesImagesQueryParamResponse response = tvdb.series().imagesQueryParams(id).execute().body();
-      for (SeriesImagesQueryParam param : response.data) {
+      Response<SeriesImagesQueryParamResponse> response = tvdb.series().imagesQueryParams(id).execute();
+      if (!response.isSuccessful()) {
+        throw new HttpException(response.code(), response.message());
+      }
+      for (SeriesImagesQueryParam param : response.body().data) {
         if (options.getArtworkType() == ALL || ("fanart".equals(param.keyType) && options.getArtworkType() == BACKGROUND)
             || ("poster".equals(param.keyType) && options.getArtworkType() == POSTER)
             || ("season".equals(param.keyType) && options.getArtworkType() == SEASON_POSTER)
@@ -654,7 +640,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
             ma.setSeason(Integer.parseInt(image.subKey));
           }
           catch (Exception e) {
-            LOGGER.warn("could not parse season: {}", image.subKey);
+            LOGGER.trace("could not parse season: {}", image.subKey);
           }
           break;
 
@@ -664,7 +650,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
             ma.setSeason(Integer.parseInt(image.subKey));
           }
           catch (Exception e) {
-            LOGGER.warn("could not parse season: {}", image.subKey);
+            LOGGER.trace("could not parse season: {}", image.subKey);
           }
           break;
 
@@ -684,7 +670,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
           if (matcher.matches() && matcher.groupCount() > 1) {
             int width = Integer.parseInt(matcher.group(1));
             int height = Integer.parseInt(matcher.group(2));
-            ma.addImageSize(width, height, artworkUrl + image.fileName);
+            ma.addImageSize(width, height, ARTWORK_URL + image.fileName);
 
             // set image size
             switch (ma.getType()) {
@@ -736,15 +722,15 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
         ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
       }
 
-      ma.setDefaultUrl(artworkUrl + image.fileName);
+      ma.setDefaultUrl(ARTWORK_URL + image.fileName);
       if (StringUtils.isNotBlank(image.thumbnail)) {
-        ma.setPreviewUrl(artworkUrl + image.thumbnail);
+        ma.setPreviewUrl(ARTWORK_URL + image.thumbnail);
       }
       else {
         ma.setPreviewUrl(ma.getDefaultUrl());
       }
 
-      // ma.setLanguage(banner.getLanguage());
+      ma.setLanguage(ma.getLanguage());
 
       artwork.add(ma);
     }
@@ -830,7 +816,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
         episode.setReleaseDate(StrgUtils.parseDate(ep.firstAired));
       }
       catch (Exception ignored) {
-        LOGGER.warn("Could not parse date: {}", ep.firstAired);
+        LOGGER.trace("Could not parse date: {}", ep.firstAired);
       }
 
       try {
@@ -883,8 +869,8 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       // Thumb
       if (StringUtils.isNotBlank(ep.filename)) {
         MediaArtwork ma = new MediaArtwork(providerInfo.getId(), MediaArtworkType.THUMB);
-        ma.setPreviewUrl(artworkUrl + ep.filename);
-        ma.setDefaultUrl(artworkUrl + ep.filename);
+        ma.setPreviewUrl(ARTWORK_URL + ep.filename);
+        ma.setDefaultUrl(ARTWORK_URL + ep.filename);
         episode.addMediaArt(ma);
       }
 
@@ -975,5 +961,18 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
 
       return result;
     }
+  }
+
+  /**
+   * try to strip out the year from the title
+   * 
+   * @param title
+   *          the title to strip out the year
+   * @param year
+   *          the year to compare
+   * @return the cleaned title or the original title if there is nothing to clean
+   */
+  private String clearYearFromTitle(String title, int year) {
+    return title.replaceAll("\\(" + year + "\\)$", "").trim();
   }
 }

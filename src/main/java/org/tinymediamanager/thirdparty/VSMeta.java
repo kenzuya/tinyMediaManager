@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 - 2020 Manuel Laggner
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.tinymediamanager.thirdparty;
 
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
@@ -68,8 +84,7 @@ public class VSMeta {
   private static final byte             TAG_RATING                = 0x60;
   private static final int              TAG_POSTER_DATA           = 0x8a;
   private static final int              TAG_POSTER_MD5            = 0x92;
-  private static final int              TAG_BACKDROP_DATA         = 0xaa;
-  // private static final int TAG_BACKDROP_MD5 = 0x??;
+  private static final int              TAG_GROUP3                = 0xaa;                                 // on v1, the backdrop is in its own group
 
   private static final byte             TAG_GROUP1                = 0x52;
   private static final byte             TAG1_CAST                 = 0x0A;
@@ -170,7 +185,7 @@ public class VSMeta {
    * @return
    */
   public List<MediaFile> generateMediaFile(MediaEntity entity) {
-    List<MediaFile> mfs = new ArrayList<MediaFile>();
+    List<MediaFile> mfs = new ArrayList<>();
 
     if (info.images.poster != null) {
       MediaFile mf = null;
@@ -180,7 +195,7 @@ public class VSMeta {
       else if (entity instanceof TvShowEpisode) {
         mf = new MediaFile(vsMetaFile.getParent().resolve(basename + "-thumb.jpg"), MediaFileType.THUMB);
       }
-      if (mf != null && !mf.exists()) {
+      if (mf != null && !mf.exists() && !Files.exists(vsMetaFile.getParent().resolve("poster.jpg"))) {
         writeImage(mf.getFileAsPath(), info.images.poster);
         mfs.add(mf);
       }
@@ -194,7 +209,7 @@ public class VSMeta {
       if (entity instanceof TvShow) {
         mf = new MediaFile(entity.getPathNIO().resolve("fanart.jpg"), MediaFileType.FANART);
       }
-      if (mf != null && !mf.exists()) {
+      if (mf != null && !mf.exists() && !Files.exists(vsMetaFile.getParent().resolve("fanart.jpg"))) {
         writeImage(mf.getFileAsPath(), info.images.backdrop);
         mfs.add(mf);
       }
@@ -286,9 +301,13 @@ public class VSMeta {
           case TAG_POSTER_DATA:
             info.images.poster = fromBase64IgnoreSpaces(data.readStringVL());
             break;
-          case TAG_BACKDROP_DATA:
+          case TAG_GROUP3:
             // TODO: avatar (v1) fails, check with actual movie
-            info.images.backdrop = fromBase64IgnoreSpaces(data.readStringVL());
+            // info.images.backdrop = fromBase64IgnoreSpaces(data.readStringVL());
+            int data3Size = data.readU_VL_Int();
+            long pos3 = (int) data.position();
+            byte[] meta3 = data.readBytes(data3Size);
+            parseGroup3(openSync(meta3), info, (int) pos3);
             break;
           case TAG_POSTER_MD5:
             // assert (hex(md5(info.imagedata.episodeImage)).equals(data.readStringVL()));
@@ -555,6 +574,33 @@ public class VSMeta {
     }
   }
 
+  public byte[] getPosterBytes() {
+    // return an empty byte array if anything is null
+    if (info == null || info.images == null || info.images.poster == null) {
+      return new byte[0];
+    }
+
+    return info.images.poster;
+  }
+
+  public byte[] getBackdropBytes() {
+    // return an empty byte array if anything is null
+    if (info == null || info.images == null || info.images.backdrop == null) {
+      return new byte[0];
+    }
+
+    return info.images.backdrop;
+  }
+
+  public byte[] getShowImageBytes() {
+    // return an empty byte array if anything is null
+    if (info == null || info.images == null || info.images.showImage == null) {
+      return new byte[0];
+    }
+
+    return info.images.showImage;
+  }
+
   public Movie getMovie() {
     Movie m = new Movie();
     m.setIds(ids);
@@ -769,8 +815,8 @@ public class VSMeta {
         v = readU8();
         out = out | ((long) (v & 0x7F) << offset);
         offset += 7;
-      } while ((v & 0x80) != 0);
-      LOGGER.trace("SYNO int: {}", out);
+      } while ((v & 0x80) != 0 && hasMore());
+      LOGGER.trace("SYNO long  dec: {}  hex: {}", out, String.format("%02X", out));
       return out;
     }
 

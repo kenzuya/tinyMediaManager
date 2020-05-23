@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.anidb.AniDBMetadataProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMetadataProvider;
 import org.tinymediamanager.scraper.hdtrailersnet.HDTrailersNetTrailerProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMetadataProvider;
@@ -81,6 +82,7 @@ public class MediaProviders {
     // TV SHOWS
     /////////////////////////////////////////////
     loadProvider(TheTvDbMetadataProvider.class);
+    loadProvider(AniDBMetadataProvider.class);
     // tmdb, imdb and trakt are already loaded in the movie block
 
     /////////////////////////////////////////////

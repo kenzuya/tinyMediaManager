@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,8 +134,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private boolean                            multiEpisode          = false;
   @JsonProperty
   private boolean                            watched               = false;
-  @JsonProperty
-  private boolean                            subtitles             = false;
   @JsonProperty
   private boolean                            isDvdOrder            = false;
   @JsonProperty
@@ -290,7 +288,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     disc = source.disc;
     watched = source.watched;
-    subtitles = source.subtitles;
 
     for (Person actor : source.getActors()) {
       actors.add(new Person(actor));
@@ -407,7 +404,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (this.firstAired == null) {
       return "";
     }
-    return TmmDateFormat.SHORT_DATE_FORMAT.format(firstAired);
+    return TmmDateFormat.MEDIUM_DATE_FORMAT.format(firstAired);
   }
 
   /**
@@ -584,9 +581,26 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
+   * download the specified type of artwork for this episode
+   *
+   * @param type
+   *          the chosen artwork type to be downloaded
+   */
+  public void downloadArtwork(MediaFileType type) {
+    switch (type) {
+      case THUMB:
+        writeThumbImage();
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  /**
    * Write thumb image.
    */
-  public void writeThumbImage() {
+  private void writeThumbImage() {
     String thumbUrl = getArtworkUrl(MediaFileType.THUMB);
     if (StringUtils.isNotBlank(thumbUrl)) {
       boolean firstImage = false;
@@ -638,6 +652,27 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     boolean writeNewThumb = false;
 
     // populate ids
+
+    // here we have two flavors:
+    // a) we did a search, so all existing ids should be different to to new ones -> remove old ones
+    // b) we did just a scrape (probably with another scraper). we should have at least one id in the episode which matches the ids from the metadata
+    // ->
+    // merge ids
+
+    // search for existing ids
+    boolean matchFound = false;
+    for (Map.Entry<String, Object> entry : metadata.getIds().entrySet()) {
+      if (entry.getValue() != null && entry.getValue().equals(getId(entry.getKey()))) {
+        matchFound = true;
+        break;
+      }
+    }
+
+    if (!matchFound) {
+      // clear the old ids to set only the new ones
+      ids.clear();
+    }
+
     setIds(metadata.getIds());
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.TITLE)) {
@@ -689,6 +724,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         newRatings.put(mediaRating.getId(), mediaRating);
       }
       setRatings(newRatings);
+    }
+
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS)) {
+      setTags(metadata.getTags());
     }
 
     if (ScraperMetadataConfig.containsAnyCast(config)) {
@@ -779,7 +818,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public Boolean getHasNfoFile() {
     List<MediaFile> nfos = getMediaFiles(MediaFileType.NFO);
-    return nfos != null && nfos.size() > 0;
+    return nfos != null && !nfos.isEmpty();
   }
 
   /**
@@ -1020,7 +1059,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public String getMediaInfoAudioCodecAndChannels() {
     List<MediaFile> videos = getMediaFiles(MediaFileType.VIDEO);
-    if (videos.size() > 0) {
+    if (!videos.isEmpty()) {
       MediaFile mediaFile = videos.get(0);
       return mediaFile.getAudioCodec() + "_" + mediaFile.getAudioChannels();
     }
@@ -1096,7 +1135,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     // get the audio streams from the first video file
     List<MediaFile> videoFiles = getMediaFiles(MediaFileType.VIDEO);
-    if (videoFiles.size() > 0) {
+    if (!videoFiles.isEmpty()) {
       MediaFile videoFile = videoFiles.get(0);
       mediaFilesWithAudioStreams.add(videoFile);
     }
@@ -1119,12 +1158,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return mediaFilesWithSubtitles;
   }
 
-  public boolean hasSubtitles() {
-    if (this.subtitles) {
-      return true; // can be set in GUI
-    }
-
-    if (getMediaFiles(MediaFileType.SUBTITLE).size() > 0) {
+  public boolean getHasSubtitles() {
+    if (!getMediaFiles(MediaFileType.SUBTITLE).isEmpty()) {
       return true;
     }
 
@@ -1135,10 +1170,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     return false;
-  }
-
-  public void setSubtitles(boolean sub) {
-    this.subtitles = sub;
   }
 
   public int getRuntimeFromMediaFiles() {
@@ -1388,7 +1419,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   @Override
   public MediaCertification getCertification() {
-    return getTvShow().getCertification();
+    // we do not have a dedicated certification for the episode
+    return null;
   }
 
   @Override
@@ -1478,9 +1510,14 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   @Override
+  public List<String> getMediaInfoSubtitleLanguageList() {
+    return getMainVideoFile().getSubtitleLanguagesList();
+  }
+
+  @Override
   public String getMediaInfoContainerFormat() {
     List<MediaFile> videos = getMediaFiles(MediaFileType.VIDEO);
-    if (videos.size() > 0) {
+    if (!videos.isEmpty()) {
       MediaFile mediaFile = videos.get(0);
       return mediaFile.getContainerFormat();
     }
@@ -1502,12 +1539,21 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public boolean isVideoIn3D() {
     String video3DFormat = "";
     List<MediaFile> videos = getMediaFiles(MediaFileType.VIDEO);
-    if (videos.size() > 0) {
+    if (!videos.isEmpty()) {
       MediaFile mediaFile = videos.get(0);
       video3DFormat = mediaFile.getVideo3DFormat();
     }
 
     return StringUtils.isNotBlank(video3DFormat);
+  }
+
+  @Override
+  public long getVideoFilesize() {
+    long filesize = 0;
+    for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO)) {
+      filesize += mf.getFilesize();
+    }
+    return filesize;
   }
 
   public boolean isDummy() {
@@ -1610,6 +1656,26 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       for (MediaFile mf : getMediaFiles(MediaFileType.VIDEO, MediaFileType.AUDIO, MediaFileType.SUBTITLE)) {
         mf.removeStackingInformation();
       }
+    }
+  }
+
+  @Override
+  protected void fireAddedEventForMediaFile(MediaFile mediaFile) {
+    super.fireAddedEventForMediaFile(mediaFile);
+
+    // episode related media file types
+    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+      firePropertyChange("hasSubtitle", false, true);
+    }
+  }
+
+  @Override
+  protected void fireRemoveEventForMediaFile(MediaFile mediaFile) {
+    super.fireRemoveEventForMediaFile(mediaFile);
+
+    // episode related media file types
+    if (mediaFile.getType() == MediaFileType.SUBTITLE) {
+      firePropertyChange("hasSubtitle", true, false);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
  * @author Manuel Laggner
  */
 public class MovieSetSelectionModel extends AbstractModelObject {
-  private static final String    SELECTED_MOVIE_SET = "selectedMovieSet";
+  public static final String     SELECTED_MOVIE_SET = "selectedMovieSet";
 
   private MovieSet               selectedMovieSet;
   private MovieSet               initalMovieSet     = new MovieSet("");
@@ -44,7 +44,12 @@ public class MovieSetSelectionModel extends AbstractModelObject {
    */
   public MovieSetSelectionModel() {
     selectedMovieSet = initalMovieSet;
-    propertyChangeListener = this::firePropertyChange;
+    propertyChangeListener = evt -> {
+      if (evt.getSource() == selectedMovieSet) {
+        // wrap this event in a new event for listeners of the selection model
+        firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+      }
+    };
   }
 
   public void setTreeTable(TmmTreeTable treeTable) {

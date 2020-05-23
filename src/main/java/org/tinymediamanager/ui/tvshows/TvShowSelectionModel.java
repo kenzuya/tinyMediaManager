@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,19 +33,25 @@ import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
  * @author Manuel Laggner
  */
 public class TvShowSelectionModel extends AbstractModelObject {
-  private static final String    SELECTED_TV_SHOW = "selectedTvShow";
+  private static final String          SELECTED_TV_SHOW = "selectedTvShow";
 
-  private TvShow                 selectedTvShow;
-  private TvShow                 initalTvShow     = new TvShow();
-  private PropertyChangeListener propertyChangeListener;
-  private TmmTreeTable           treeTable;
+  private final TvShow                 initalTvShow     = new TvShow();
+  private final PropertyChangeListener propertyChangeListener;
+
+  private TvShow                       selectedTvShow;
+  private TmmTreeTable                 treeTable;
 
   /**
    * Instantiates a new tv show selection model. Usage in TvShowPanel
    */
   public TvShowSelectionModel() {
     selectedTvShow = initalTvShow;
-    propertyChangeListener = this::firePropertyChange;
+    propertyChangeListener = evt -> {
+      if (evt.getSource() == selectedTvShow) {
+        // wrap this event in a new event for listeners of the selection model
+        firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+      }
+    };
   }
 
   public void setTreeTable(TmmTreeTable treeTable) {
@@ -65,9 +71,13 @@ public class TvShowSelectionModel extends AbstractModelObject {
     }
 
     TvShow oldValue = this.selectedTvShow;
+    if (oldValue != null && oldValue != initalTvShow) {
+      oldValue.removePropertyChangeListener(propertyChangeListener);
+    }
 
     if (tvShow != null) {
       this.selectedTvShow = tvShow;
+      selectedTvShow.addPropertyChangeListener(propertyChangeListener);
     }
     else {
       this.selectedTvShow = initalTvShow;

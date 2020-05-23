@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmWindowSaver;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -47,6 +47,8 @@ import org.tinymediamanager.ui.movies.MovieExtendedComparator.SortColumn;
 import org.tinymediamanager.ui.movies.MovieExtendedComparator.SortOrder;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
+import org.tinymediamanager.ui.movies.filters.MovieAspectRatioFilter;
+import org.tinymediamanager.ui.movies.filters.MovieAudioChannelFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioCodecFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCastFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCertificationFilter;
@@ -78,7 +80,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieFilterDialog extends TmmDialog {
   private static final long                      serialVersionUID = 2298540526428945319L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private final MovieSelectionModel              selectionModel;
   private final JComboBox<SortColumn>            cbSortColumn;
@@ -145,10 +147,12 @@ public class MovieFilterDialog extends TmmDialog {
 
         addFilter(new MovieVideoFormatFilter(), panelMediaData);
         addFilter(new MovieVideoCodecFilter(), panelMediaData);
+        addFilter(new MovieAspectRatioFilter(), panelMediaData);
         addFilter(new MovieFrameRateFilter(), panelMediaData);
         addFilter(new MovieVideo3DFilter(), panelMediaData);
         addFilter(new MovieVideoContainerFilter(), panelMediaData);
         addFilter(new MovieAudioCodecFilter(), panelMediaData);
+        addFilter(new MovieAudioChannelFilter(), panelMediaData);
         addFilter(new MovieDatasourceFilter(), panelMediaData);
         addFilter(new MovieMediaSourceFilter(), panelMediaData);
         addFilter(new MovieVideoExtrasFilter(), panelMediaData);
@@ -160,12 +164,12 @@ public class MovieFilterDialog extends TmmDialog {
       {
         // panel sort
         JPanel panelSort = new JPanel();
-        panelSort.setLayout(new MigLayout("insets n 0 n 0", "[5lp!][10lp][100lp,grow][5lp!]", "[]"));
+        panelSort.setLayout(new MigLayout("insets n 0 n 0", "[5lp!][10lp][150lp,grow][5lp!]", "[]"));
 
         JSeparator separator = new JSeparator();
         panelSort.add(separator, "cell 0 1 4 1,growx,aligny top");
 
-        JLabel lblSortBy = new TmmLabel(BUNDLE.getString("movieextendedsearch.sortby")); //$NON-NLS-1$
+        JLabel lblSortBy = new TmmLabel(BUNDLE.getString("movieextendedsearch.sortby"));
         panelSort.add(lblSortBy, "cell 1 2,growx,aligny top");
 
         cbSortColumn = new JComboBox();

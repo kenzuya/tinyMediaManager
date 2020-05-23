@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ class RegExp implements RegExpContainer, Cloneable {
 
   @Override
   public boolean hasRegExps() {
-    return children != null && children.size() > 0;
+    return children != null && !children.isEmpty();
   }
 
   public String getInput() {

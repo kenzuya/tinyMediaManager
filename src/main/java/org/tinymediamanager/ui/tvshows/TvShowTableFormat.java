@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -32,7 +33,6 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
@@ -88,7 +88,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
-      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.SHORT_DATE_FORMAT.format(date)) * 1.2f));
+      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f));
     }
     catch (Exception ignored) {
     }
@@ -162,7 +162,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return String.valueOf(((TvShow) userObject).getEpisodeCount());
     }
     if (userObject instanceof TvShowSeason) {
-      if (((TvShowSeason) userObject).getEpisodes().size() > 0) {
+      if (!((TvShowSeason) userObject).getEpisodes().isEmpty()) {
         return String.valueOf(((TvShowSeason) userObject).getEpisodes().size());
       }
     }
@@ -219,7 +219,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         size += mf.getFilesize();
       }
 
-      return (int) (size / (1024.0 * 1024.0)) + " M";
+      return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return "";
   }
@@ -274,7 +274,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     else if (userObject instanceof TvShowEpisode) {
       TvShowEpisode episode = ((TvShowEpisode) userObject);
-      return getCheckIcon(episode.hasSubtitles());
+      return getCheckIcon(episode.getHasSubtitles());
     }
     return null;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package org.tinymediamanager.core.jmte;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
@@ -32,10 +32,11 @@ import com.floreysoft.jmte.RenderFormatInfo;
 public class NamedTitleCaseRenderer implements NamedRenderer {
   @Override
   public String render(Object o, String s, Locale locale, Map<String, Object> map) {
-    if (o instanceof String && StringUtils.isNotBlank((String) o)) {
-      return StringUtils.capitalize(((String) o).toLowerCase(Locale.ROOT));
+    if (o == null) {
+      return "";
     }
-    return "";
+
+    return WordUtils.capitalizeFully(o.toString());
   }
 
   @Override

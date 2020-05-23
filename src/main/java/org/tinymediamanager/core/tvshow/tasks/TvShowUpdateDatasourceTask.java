@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,16 +46,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractFileVisitor;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
+import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatchingResult;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -63,9 +67,9 @@ import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeNfoParser;
 import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.thirdparty.VSMeta;
-import org.tinymediamanager.ui.UTF8Control;
 
 import com.sun.jna.Platform;
 
@@ -77,7 +81,7 @@ import com.sun.jna.Platform;
 
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger         LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE        = ResourceBundle.getBundle("messages", new UTF8Control());                                  //$NON-NLS-1$
+  private static final ResourceBundle BUNDLE        = ResourceBundle.getBundle("messages", new UTF8Control());
 
   // constants
   private static final String         VIDEO_TS      = "VIDEO_TS";
@@ -100,7 +104,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   private List<String>                dataSources;
   private List<Path>                  tvShowFolders = new ArrayList<>();
   private TvShowList                  tvShowList;
-  private HashSet<Path>               filesFound    = new HashSet<>();
+  private Set<Path>                   filesFound    = ConcurrentHashMap.newKeySet();
 
   /**
    * Instantiates a new scrape task - to update all datasources
@@ -246,6 +250,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             submitTask(new FindTvShowTask(subdir, dsAsPath.toAbsolutePath()));
           }
           waitForCompletionOrCancel();
+
+          // print stats
+          LOGGER.info("FilesFound: {}", filesFound.size());
+          LOGGER.info("tvShowsFound: {}", tvShowList.getTvShowCount());
+          LOGGER.info("episodesFound: {}", tvShowList.getEpisodeCount());
+          LOGGER.debug("PreDir: {}", preDir);
+          LOGGER.debug("PostDir: {}", postDir);
+          LOGGER.debug("VisFile: {}", visFile);
+
           if (cancel) {
             break;
           }
@@ -265,8 +278,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         for (Path path : tvShowFolders) {
           // first of all check if the DS is available; we can take the
           // Files.exist here:
-          // if the DS exists (and we have access to read it): Files.exist =
-          // true
+          // if the DS exists (and we have access to read it): Files.exist = true
           if (!Files.exists(path)) {
             // error - continue with next datasource
             LOGGER.warn("Datasource not available/empty - {}", path.toAbsolutePath());
@@ -277,6 +289,14 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           submitTask(new FindTvShowTask(path, path.getParent().toAbsolutePath()));
         }
         waitForCompletionOrCancel();
+
+        // print stats
+        LOGGER.info("FilesFound: {}", filesFound.size());
+        LOGGER.info("tvShowsFound: {}", tvShowList.getTvShowCount());
+        LOGGER.info("episodesFound: {}", tvShowList.getEpisodeCount());
+        LOGGER.debug("PreDir: {}", preDir);
+        LOGGER.debug("PostDir: {}", postDir);
+        LOGGER.debug("VisFile: {}", visFile);
 
         if (!cancel) {
           cleanupShows();
@@ -322,12 +342,6 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       stopWatch.stop();
       LOGGER.info("Done updating datasource :) - took {}", stopWatch);
 
-      LOGGER.debug("FilesFound: {}", filesFound.size());
-      LOGGER.debug("tvShowsFound: {}", tvShowList.getTvShowCount());
-      LOGGER.debug("episodesFound: {}", tvShowList.getEpisodeCount());
-      LOGGER.debug("PreDir: {}", preDir);
-      LOGGER.debug("PostDir: {}", postDir);
-      LOGGER.debug("VisFile: {}", visFile);
       resetCounters();
     }
     catch (
@@ -444,19 +458,41 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    * detect which mediafiles has to be parsed and start a thread to do that
    */
   private void gatherMediaInformationForUngatheredMediaFiles(TvShow tvShow) {
+    boolean dirty = false;
     // get mediainfo for tv show (fanart/poster..)
     for (MediaFile mf : tvShow.getMediaFiles()) {
       if (StringUtils.isBlank(mf.getContainerFormat())) {
         submitTask(new MediaFileInformationFetcherTask(mf, tvShow, false));
       }
+      else {
+        // at least update the file dates
+        MediaFileHelper.gatherFileInformation(mf);
+        dirty = true;
+      }
+    }
+
+    // persist the TV show
+    if (dirty) {
+      tvShow.saveToDb();
     }
 
     // get mediainfo for all episodes within this tv show
     for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
+      dirty = false;
       for (MediaFile mf : episode.getMediaFiles()) {
         if (StringUtils.isBlank(mf.getContainerFormat())) {
           submitTask(new MediaFileInformationFetcherTask(mf, episode, false));
         }
+        else {
+          // at least update the file dates
+          MediaFileHelper.gatherFileInformation(mf);
+          dirty = true;
+        }
+      }
+
+      // persist the episode
+      if (dirty) {
+        episode.saveToDb();
       }
     }
   }
@@ -581,6 +617,21 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
 
+        // was NFO, but parsing exception. try to find at least imdb id within
+        if (tvShow.getImdbId().isEmpty() && Files.exists(showNFO.getFileAsPath())) {
+          try {
+            String content = Utils.readFileToString(showNFO.getFileAsPath());
+            String imdb = ParserUtils.detectImdbId(content);
+            if (!imdb.isEmpty()) {
+              LOGGER.debug("| Found IMDB id: {}", imdb);
+              tvShow.setImdbId(imdb);
+            }
+          }
+          catch (IOException e) {
+            LOGGER.warn("| couldn't read NFO {}", showNFO);
+          }
+        }
+
         tvShow.setPath(showDir.toAbsolutePath().toString());
         tvShow.setDataSource(datasource.toString());
         tvShow.setNewlyAdded(true);
@@ -659,15 +710,6 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             VSMeta vsmeta = new VSMeta(meta.getFileAsPath());
             vsmeta.parseFile();
             vsMetaEP = vsmeta.getTvShowEpisode();
-
-            if (!TvShowModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
-              // we want some poster scraped, so we also can extract them
-              List<MediaFile> generated = vsmeta.generateMediaFile(vsMetaEP);
-              epFiles.addAll(generated);
-
-              List<MediaFile> generatedShow = vsmeta.generateMediaFile(tvShow);
-              tvShow.addToMediaFiles(generatedShow);
-            }
           }
 
           MediaFile epNfo = getMediaFile(epFiles, MediaFileType.NFO);
@@ -675,9 +717,14 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             LOGGER.info("found episode NFO - try to parse '{}'", showDir.relativize(epNfo.getFileAsPath()));
             List<TvShowEpisode> episodesInNfo = new ArrayList<>();
 
-            TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(epNfo.getFileAsPath());
-            if (parser.isValidNfo()) {
-              episodesInNfo.addAll(parser.toTvShowEpisodes());
+            try {
+              TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(epNfo.getFileAsPath());
+              if (parser.isValidNfo()) {
+                episodesInNfo.addAll(parser.toTvShowEpisodes());
+              }
+            }
+            catch (Exception e) {
+              LOGGER.debug("could not parse episode NFO: {}", e.getMessage());
             }
 
             // did we find any episodes in the NFO?
@@ -903,6 +950,44 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.reEvaluateStacking();
         episode.saveToDb();
+      }
+
+      // if there is missing artwork AND we do have a VSMETA file, we probably can extract an artwork from there
+      if (!TvShowModuleManager.SETTINGS.isExtractArtworkFromVsmeta()) {
+        // TV show
+        boolean missingTvShowPosters = tvShow.getMediaFiles(MediaFileType.POSTER).isEmpty();
+        boolean missingTvShowFanarts = tvShow.getMediaFiles(MediaFileType.FANART).isEmpty();
+
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          List<MediaFile> episodeVsmetas = episode.getMediaFiles(MediaFileType.VSMETA);
+          if (episodeVsmetas.isEmpty()) {
+            continue;
+          }
+
+          if (episode.getMediaFiles(MediaFileType.THUMB).isEmpty() && !TvShowModuleManager.SETTINGS.getSeasonThumbFilenames().isEmpty()) {
+            LOGGER.debug("extracting episode THUMBs from VSMETA for {}", episode.getMainFile().getFileAsPath());
+            boolean ok = TvShowArtworkHelper.extractArtworkFromVsmeta(episode, episodeVsmetas.get(0), MediaArtwork.MediaArtworkType.THUMB);
+            if (ok) {
+              episode.saveToDb();
+            }
+          }
+
+          if (missingTvShowFanarts && !TvShowModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+            LOGGER.debug("extracting TV show FANARTs from VSMETA for {}", episode.getMainFile().getFileAsPath());
+            boolean ok = TvShowArtworkHelper.extractArtworkFromVsmeta(tvShow, episodeVsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
+            if (ok) {
+              missingTvShowFanarts = false;
+            }
+          }
+
+          if (missingTvShowPosters && !TvShowModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+            LOGGER.debug("extracting TV show POSTERs from VSMETA for {}", episode.getMainFile().getFileAsPath());
+            boolean ok = TvShowArtworkHelper.extractArtworkFromVsmeta(tvShow, episodeVsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
+            if (ok) {
+              missingTvShowPosters = false;
+            }
+          }
+        }
       }
 
       tvShow.saveToDb();

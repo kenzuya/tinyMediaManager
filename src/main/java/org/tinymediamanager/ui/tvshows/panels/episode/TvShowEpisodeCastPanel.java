@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2019 Manuel Laggner
+ * Copyright 2012 - 2020 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,8 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -51,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEpisodeCastPanel extends JPanel {
   private static final long                 serialVersionUID = 4712144916016763491L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control()); //$NON-NLS-1$
+  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private final TvShowEpisodeSelectionModel selectionModel;
   private EventList<Person>                 actorEventList   = null;
@@ -84,12 +83,16 @@ public class TvShowEpisodeCastPanel extends JPanel {
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
       String property = propertyChangeEvent.getPropertyName();
       Object source = propertyChangeEvent.getSource();
-      // react on selection of a movie and change of an episode
-      if ((source.getClass() == TvShowEpisodeSelectionModel.class && "selectedTvShowEpisode".equals(property))
-          || (source.getClass() == TvShowEpisode.class && ACTORS.equals(property))) {
+      // react on selection/change of an episode
+
+      if (source.getClass() != TvShowEpisodeSelectionModel.class) {
+        return;
+      }
+
+      if ("selectedTvShowEpisode".equals(property) || ACTORS.equals(property)) {
         actorEventList.clear();
         actorEventList.addAll(selectionModel.getSelectedTvShowEpisode().getActors());
-        if (actorEventList.size() > 0) {
+        if (!actorEventList.isEmpty()) {
           tableActors.getSelectionModel().setSelectionInterval(0, 0);
         }
       }
@@ -115,21 +118,21 @@ public class TvShowEpisodeCastPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[][400lp,grow][150lp,grow]", "[][][200lp,grow][grow]"));
     {
-      JLabel lblDirectorT = new TmmLabel(BUNDLE.getString("metatag.director")); //$NON-NLS-1$
+      JLabel lblDirectorT = new TmmLabel(BUNDLE.getString("metatag.director"));
       add(lblDirectorT, "cell 0 0");
 
       lblDirector = new JLabel("");
       add(lblDirector, "cell 1 0 2 1,growx,wmin 0");
     }
     {
-      JLabel lblWriterT = new TmmLabel(BUNDLE.getString("metatag.writer")); //$NON-NLS-1$
+      JLabel lblWriterT = new TmmLabel(BUNDLE.getString("metatag.writer"));
       add(lblWriterT, "cell 0 1");
 
       lblWriter = new JLabel("");
       add(lblWriter, "cell 1 1 2 1,growx,wmin 0");
     }
     {
-      JLabel lblActorsT = new TmmLabel(BUNDLE.getString("metatag.actors")); //$NON-NLS-1$
+      JLabel lblActorsT = new TmmLabel(BUNDLE.getString("metatag.actors"));
       add(lblActorsT, "cell 0 2,aligny top");
 
       tableActors = new PersonTable(actorEventList);
