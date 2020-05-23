@@ -32,10 +32,6 @@ public class MediaInfoUtils {
 
   private static final Logger LOGGER           = LoggerFactory.getLogger(MediaInfoUtils.class);
 
-  private MediaInfoUtils() {
-    // private constructor for utility classes
-  }
-
   /**
    * checks if we should use libMediaInfo
    * 

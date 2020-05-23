@@ -36,10 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.tinymediamanager.TmmOsUtils;
+import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.UTF8Control;
 import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
 import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
 
