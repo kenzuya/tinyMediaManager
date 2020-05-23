@@ -46,8 +46,6 @@ resource = [windows] native/windows/MediaInfo.dll
 # nativefiledialogs native libs
 resource = [windows] native/windows/lwjgl.dll
 resource = [windows] native/windows/lwjgl_nfd.dll
-resource = [mac os x] native/mac/liblwjgl.dylib
-resource = [mac os x] native/mac/liblwjgl_nfd.dylib
 resource = [linux] native/linux/liblwjgl.so
 resource = [linux] native/linux/liblwjgl_nfd.so
 
