@@ -17,26 +17,36 @@
 package org.tinymediamanager.updater.getdown;
 
 import static com.threerings.getdown.Log.log;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.security.MessageDigest;
 import java.util.EnumSet;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.tinymediamanager.core.Utils;
+
 import com.threerings.getdown.data.Resource;
 import com.threerings.getdown.util.FileUtil;
+import com.threerings.getdown.util.ProgressObserver;
 
 public class TmmGetdownResource extends Resource {
+  boolean _isBrotli = false;
 
   public TmmGetdownResource(String path, URL remote, File local, EnumSet<Attr> attrs) {
     super(path, remote, local, attrs);
     this._localNew = new File(UPDATE_FOLDER + File.separator + path);
     this._marker = new File(UPDATE_FOLDER + File.separator + ".getdown", path + "v");
 
+    _isBrotli = isBrotli(_local);
+
     boolean unpack = attrs.contains(Attr.UNPACK);
-    if (unpack && _isZip) {
+    if (unpack && (_isZip || _isBrotli)) {
       _unpacked = _localNew.getParentFile();
     }
     else if (unpack && _isPacked200Jar) {
@@ -44,6 +54,18 @@ public class TmmGetdownResource extends Resource {
       String uname = lname.substring(0, lname.lastIndexOf(dotJar) + dotJar.length());
       _unpacked = new File(_localNew.getParent(), uname);
     }
+  }
+
+  @Override
+  public String computeDigest(int version, MessageDigest md, ProgressObserver obs) throws IOException {
+    // check if there is a .md5 file containing the digest (useful for uresources, where the main file gets deleted after extracting)
+    String baseName = FilenameUtils.getBaseName(_local.getName());
+    File file = new File(_local.getParent(), baseName + ".md5");
+    if (file.exists()) {
+      return FileUtils.readFileToString(file, UTF_8);
+    }
+
+    return super.computeDigest(version, md, obs);
   }
 
   @Override
@@ -75,16 +97,27 @@ public class TmmGetdownResource extends Resource {
   @Override
   public void unpack() throws IOException {
     // sanity check
-    if (!_isZip && !_isPacked200Jar) {
-      throw new IOException("Requested to unpack non-jar file '" + _localNew + "'.");
+    if (!_isZip && !_isPacked200Jar && !_isBrotli) {
+      throw new IOException("Requested to unpack not supported archive file '" + _localNew + "'.");
     }
     if (_isZip) {
       try (ZipFile jar = new ZipFile(_localNew)) {
         FileUtil.unpackJar(jar, _unpacked, _attrs.contains(Attr.CLEAN));
       }
     }
-    else {
+    else if (_isPacked200Jar) {
       FileUtil.unpackPacked200Jar(_localNew, _unpacked);
     }
+    else if (_isBrotli) {
+      Utils.unpackBrotli(_localNew, _unpacked);
+    }
+  }
+
+  /**
+   * Returns whether {@code file} is a {@code brotli} file.
+   */
+  public static boolean isBrotli(File file) {
+    String path = file.getName();
+    return path.endsWith(".tar.br");
   }
 }

@@ -17,12 +17,16 @@ package org.tinymediamanager.core;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -66,12 +70,18 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
+import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -1649,6 +1659,51 @@ public class Utils {
         }
       }
       return CONTINUE;
+    }
+  }
+
+  /**
+   * unpack the given brotli archive ({code .tar.br}) to the given path
+   * 
+   * @param archive
+   *          the brotli archive
+   * @param targetPath
+   *          the path to extract
+   * @throws IOException
+   *           any {@link IOException} thrown while extracting
+   */
+  public static void unpackBrotli(File archive, File targetPath) throws IOException {
+    try (FileInputStream fis = new FileInputStream(archive);
+        InputStream buis = new BufferedInputStream(fis);
+        BrotliInputStream bris = new BrotliInputStream(buis);
+        InputStream bis = new BufferedInputStream(bris);
+        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(bis)) {
+      ArchiveEntry entry = null;
+      while ((entry = ais.getNextEntry()) != null) {
+        if (!ais.canReadEntryData(entry)) {
+          // log something?
+          continue;
+        }
+
+        File f = new File(targetPath, entry.getName());
+        if (entry.isDirectory()) {
+          if (!f.isDirectory() && !f.mkdirs()) {
+            throw new IOException("failed to create directory " + f);
+          }
+        }
+        else {
+          File parent = f.getParentFile();
+          if (!parent.isDirectory() && !parent.mkdirs()) {
+            throw new IOException("failed to create directory " + parent);
+          }
+          try (OutputStream o = Files.newOutputStream(f.toPath())) {
+            IOUtils.copy(ais, o);
+          }
+        }
+      }
+    }
+    catch (ArchiveException e) {
+      throw new IOException("Could not extract archive", e);
     }
   }
 }

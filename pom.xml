@@ -207,13 +207,23 @@
 			<version>3.2.3</version>
 		</dependency>
 
-        <dependency>
-            <groupId>com.threerings.getdown</groupId>
-            <artifactId>getdown-core</artifactId>
-            <version>1.8.6</version>
-        </dependency>
+		<dependency>
+			<groupId>com.threerings.getdown</groupId>
+			<artifactId>getdown-core</artifactId>
+			<version>1.8.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.20</version>
+		</dependency>
+		<dependency>
+			<groupId>org.brotli</groupId>
+			<artifactId>dec</artifactId>
+			<version>0.1.2</version>
+		</dependency>
 
-        <!-- for score testing -->
+		<!-- for score testing -->
 		<dependency>
 			<groupId>info.debatty</groupId>
 			<artifactId>java-string-similarity</artifactId>
