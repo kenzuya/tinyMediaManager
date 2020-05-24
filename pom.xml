@@ -614,6 +614,7 @@
 									<outputDirectory>${project.build.directory}/jre</outputDirectory>
 									<overWriteReleases>false</overWriteReleases>
 									<overWriteSnapshots>true</overWriteSnapshots>
+									<stripVersion>true</stripVersion>
 								</configuration>
 							</execution>
 						</executions>

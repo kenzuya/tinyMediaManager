@@ -22,11 +22,14 @@ import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.EnumSet;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.tinymediamanager.core.Utils;
@@ -100,6 +103,13 @@ public class TmmGetdownResource extends Resource {
     if (!_isZip && !_isPacked200Jar && !_isBrotli) {
       throw new IOException("Requested to unpack not supported archive file '" + _localNew + "'.");
     }
+
+    // first create a .md5 file since we delete the archive afterwards
+    try (InputStream is = Files.newInputStream(_localNew.toPath())) {
+      String newFileName = _localNew.getName() + ".md5";
+      Utils.writeStringToFile(_localNew.toPath().resolve(newFileName), DigestUtils.md5Hex(is));
+    }
+
     if (_isZip) {
       try (ZipFile jar = new ZipFile(_localNew)) {
         FileUtil.unpackJar(jar, _unpacked, _attrs.contains(Attr.CLEAN));
