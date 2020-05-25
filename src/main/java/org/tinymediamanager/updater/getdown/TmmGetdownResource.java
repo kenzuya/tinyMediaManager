@@ -39,7 +39,7 @@ import com.threerings.getdown.util.FileUtil;
 import com.threerings.getdown.util.ProgressObserver;
 
 public class TmmGetdownResource extends Resource {
-  boolean _isBrotli = false;
+  boolean _isBrotli;
 
   public TmmGetdownResource(String path, URL remote, File local, EnumSet<Attr> attrs) {
     super(path, remote, local, attrs);
@@ -65,7 +65,7 @@ public class TmmGetdownResource extends Resource {
     String baseName = FilenameUtils.getBaseName(_local.getName());
     File file = new File(_local.getParent(), baseName + ".md5");
     if (file.exists()) {
-      return FileUtils.readFileToString(file, UTF_8);
+      return FileUtils.readFileToString(file, UTF_8).trim();
     }
 
     return super.computeDigest(version, md, obs);
