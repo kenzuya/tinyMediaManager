@@ -15,13 +15,13 @@
  */
 package org.tinymediamanager.ui.components.table;
 
+import static javax.swing.ScrollPaneConstants.UPPER_RIGHT_CORNER;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS;
+
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
@@ -34,12 +34,9 @@ import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -92,10 +89,10 @@ public class TmmTable extends JTable {
 
   @Override
   public void addColumn(TableColumn aColumn) {
-    // disable grid in header
-    if (!(aColumn.getHeaderRenderer() instanceof BottomBorderHeaderRenderer)) {
-      aColumn.setHeaderRenderer(new BottomBorderHeaderRenderer());
-    }
+    // // disable grid in header
+    // if (!(aColumn.getHeaderRenderer() instanceof BottomBorderHeaderRenderer)) {
+    // aColumn.setHeaderRenderer(new BottomBorderHeaderRenderer());
+    // }
 
     if (aColumn.getIdentifier() == null && getModel() instanceof TmmTableModel) {
       TmmTableModel tableModel = ((TmmTableModel) getModel());
@@ -105,13 +102,11 @@ public class TmmTable extends JTable {
   }
 
   private void init() {
-    setTableHeader(createTableHeader());
+    // setTableHeader(createTableHeader());
     getTableHeader().setReorderingAllowed(false);
-    getTableHeader().setOpaque(false);
-    setOpaque(false);
-    setRowHeight(22);
+    // getTableHeader().setOpaque(false);
     // setGridColor(TABLE_GRID_COLOR);
-    setIntercellSpacing(new Dimension(0, 0));
+    // setIntercellSpacing(new Dimension(0, 0));
     // turn off grid painting as we'll handle this manually in order to paint grid lines over the entire viewport.
     setShowGrid(false);
 
@@ -232,53 +227,16 @@ public class TmmTable extends JTable {
     }
   }
 
-  protected JTableHeader createTableHeader() {
-    return new JTableHeader(getColumnModel()) {
-      private static final long serialVersionUID = 1652463935117013248L;
-
-      @Override
-      protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        // if this JTableHeader is parented in a JViewport, then paint the
-        // table header background to the right of the last column if necessary.
-        if (table.getParent() instanceof JViewport) {
-          JViewport viewport = (JViewport) table.getParent();
-          if (viewport != null && table.getWidth() < viewport.getWidth()) {
-            int x = table.getWidth();
-            int width = viewport.getWidth() - table.getWidth();
-            paintHeader(g, getTable(), x, width);
-          }
-        }
-      }
-    };
-  }
-
-  public void setNewFontSize(float size) {
-    setFont(getFont().deriveFont(size));
-    FontMetrics fm = getFontMetrics(getFont());
-    setRowHeight(fm.getHeight() + 4);
-  }
-
-  protected static void paintHeader(Graphics g, JTable table, int x, int width) {
-    TableCellRenderer renderer = new BottomBorderHeaderRenderer();
-    Component component = renderer.getTableCellRendererComponent(table, "", false, false, -1, 2);
-
-    component.setBounds(0, 0, width, table.getTableHeader().getHeight());
-
-    ((JComponent) component).setOpaque(false);
-    CELL_RENDER_PANE.paintComponent(g, component, null, x, 0, width, table.getTableHeader().getHeight(), true);
-  }
-
-  @Override
-  public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-    Component component = super.prepareRenderer(renderer, row, column);
-    // if the renderer is a JComponent and the given row isn't part of a
-    // selection, make the renderer non-opaque so that striped rows show through.
-    if (component instanceof JComponent) {
-      ((JComponent) component).setOpaque(getSelectionModel().isSelectedIndex(row));
-    }
-    return component;
-  }
+  // @Override
+  // public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+  // Component component = super.prepareRenderer(renderer, row, column);
+  // // if the renderer is a JComponent and the given row isn't part of a
+  // // selection, make the renderer non-opaque so that striped rows show through.
+  // if (component instanceof JComponent) {
+  // ((JComponent) component).setOpaque(getSelectionModel().isSelectedIndex(row));
+  // }
+  // return component;
+  // }
 
   /**
    * Overridden to install special button into the upper right hand corner.
@@ -294,6 +252,9 @@ public class TmmTable extends JTable {
       Container parent = p.getParent();
       if (parent instanceof JScrollPane) {
         JScrollPane scrollPane = (JScrollPane) parent;
+        scrollPane.setBorder(null);
+        scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
+
         // Make certain we are the viewPort's view and not, for
         // example, the rowHeaderView of the scrollPane -
         // an implementor of fixed columns might do this.
@@ -302,14 +263,20 @@ public class TmmTable extends JTable {
           return;
         }
 
-        final JButton b = new JButton(IconManager.CONFIGURE);
-        b.setOpaque(false);
+        scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
+
+        final JButton b = new JButton(IconManager.CONFIGURE) {
+          @Override
+          public void updateUI() {
+            super.updateUI();
+            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIManager.getColor("TableHeader.bottomSeparatorColor")));
+          }
+        };
+        b.setContentAreaFilled(false);
         b.putClientProperty("flatButton", Boolean.TRUE);
         b.setToolTipText(BUNDLE.getString("Button.selectvisiblecolumns"));
-        b.setBorder(BorderFactory.createEmptyBorder());
         b.updateUI();
-        // b.getAccessibleContext().setAccessibleName(selectVisibleColumnsLabel);
-        // b.getAccessibleContext().setAccessibleDescription(selectVisibleColumnsLabel);
+
         b.addActionListener(evt -> TmmTableColumnSelectionPopup.showColumnSelectionPopup(b, TmmTable.this));
         b.addMouseListener(new MouseAdapter() {
           @Override
@@ -328,35 +295,32 @@ public class TmmTable extends JTable {
           }
         });
         b.setFocusable(false);
-        scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, b);
+        scrollPane.setCorner(UPPER_RIGHT_CORNER, b);
       }
     }
   }
 
   public void configureScrollPane(JScrollPane scrollPane) {
-    int[] columnsWithoutRightVerticalGrid = {};
+    // per default exclude the rightmost
+    int[] columnsWithoutRightVerticalGrid = { getColumnCount() - 1 };
     configureScrollPane(scrollPane, columnsWithoutRightVerticalGrid);
   }
 
   public void configureScrollPane(JScrollPane scrollPane, int[] columnsWithoutRightVerticalGrid) {
-    if (!(scrollPane.getViewport() instanceof TmmViewport)) {
-      scrollPane.setViewport(new TmmViewport(this, columnsWithoutRightVerticalGrid));
-      scrollPane.getViewport().setView(this);
-    }
-    // scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, TABLE_GRID_COLOR));
-    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    // if (!(scrollPane.getViewport() instanceof TmmViewport)) {
+    // scrollPane.setViewport(new TmmViewport(this, columnsWithoutRightVerticalGrid));
+    // scrollPane.getViewport().setView(this);
+    // }
+    // scrollPane.setBorder(null);
+    // scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
   }
 
-  protected static class BottomBorderHeaderRenderer extends DefaultTableCellRenderer {
+  protected static class IconHeaderRenderer extends DefaultTableCellRenderer {
     private static final long serialVersionUID = 7963585655106103415L;
 
-    public BottomBorderHeaderRenderer() {
-      setHorizontalAlignment(SwingConstants.CENTER);
+    public IconHeaderRenderer() {
+      setHorizontalAlignment(CENTER);
       setOpaque(true);
-
-      // This call is needed because DefaultTableCellRenderer calls setBorder()
-      // in its constructor, which is executed after updateUI()
-      // setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, TABLE_GRID_COLOR));
     }
 
     @Override
@@ -394,7 +358,7 @@ public class TmmTable extends JTable {
       else {
         setText((value == null) ? "" : value.toString());
         setIcon(null);
-        setHorizontalAlignment(JLabel.CENTER);
+        setHorizontalAlignment(CENTER);
       }
 
       return this;

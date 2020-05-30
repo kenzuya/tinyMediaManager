@@ -84,12 +84,12 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.ToggleButtonUI;
 import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.WrapLayout;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -132,10 +132,9 @@ public class ImageChooserDialog extends TmmDialog {
   private JLabel              lblProgressAction;
   private JPanel              panelImages;
   private JScrollPane         scrollPane;
-  private ButtonGroup         buttonGroup    = new ButtonGroup();
-  private List<JToggleButton> buttons        = new ArrayList<>();
+  private ButtonGroup         buttonGroup = new ButtonGroup();
+  private List<JToggleButton> buttons     = new ArrayList<>();
   private JTextField          tfImageUrl;
-  private ToggleButtonUI      toggleButtonUI = new ToggleButtonUI();
 
   private DownloadTask        task;
 
@@ -303,7 +302,7 @@ public class ImageChooserDialog extends TmmDialog {
     getContentPane().add(contentPanel, BorderLayout.CENTER);
     contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[500lp,grow][shrink 0][][][]"));
     {
-      scrollPane = new JScrollPane();
+      scrollPane = new NoBorderScrollPane();
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
       contentPanel.add(scrollPane, "cell 0 0 2 1,grow");
       {
@@ -492,7 +491,6 @@ public class ImageChooserDialog extends TmmDialog {
 
     JToggleButton button = new JToggleButton();
     button.setBackground(Color.white);
-    button.setUI(toggleButtonUI);
     button.setMargin(new Insets(10, 10, 10, 10));
     if (artwork.isAnimated()) {
       button.setText("<html><img width=\"" + size.x + "\" height=\"" + size.y + "\" src='" + artwork.getPreviewUrl() + "'/></html>");

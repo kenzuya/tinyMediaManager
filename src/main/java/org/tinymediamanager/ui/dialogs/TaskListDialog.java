@@ -16,6 +16,9 @@
 
 package org.tinymediamanager.ui.dialogs;
 
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+
 import java.awt.BorderLayout;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -32,6 +35,7 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TaskListComponent;
 
 import net.miginfocom.swing.MigLayout;
@@ -64,11 +68,11 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
       panelContent.setLayout(new MigLayout("wrap 1"));
       panelContent.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 
-      JScrollPane scrollPane = new JScrollPane();
+      JScrollPane scrollPane = new NoBorderScrollPane();
       scrollPane.setOpaque(false);
       scrollPane.getViewport().setOpaque(false);
-      scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-      scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
+      scrollPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
       scrollPane.setViewportView(panelContent);
 
       JPanel rootPanel = new JPanel();

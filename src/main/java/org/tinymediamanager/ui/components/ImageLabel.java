@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.components;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
@@ -27,9 +26,9 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,10 +44,12 @@ import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.plaf.TmmTheme;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
 import org.tinymediamanager.ui.thirdparty.ShadowRenderer;
 
+import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.madgag.gif.fmsware.GifDecoder;
 
 /**
@@ -68,6 +69,8 @@ public class ImageLabel extends JComponent {
   private static final long         serialVersionUID       = -2524445544386464158L;
   private static final char         ICON_ID                = '\uF03E';
   private static final Color        EMPTY_BACKGROUND_COLOR = new Color(141, 165, 179);
+
+  private static final TmmSvgIcon   NO_IMAGE               = createNoImageIcon();
   private static final Dimension    EMPTY_SIZE             = new Dimension(0, 0);
 
   protected byte[]                  originalImageBytes;
@@ -92,6 +95,17 @@ public class ImageLabel extends JComponent {
   protected ShadowRenderer          shadowRenderer;
   protected SwingWorker<Void, Void> worker                 = null;
   protected MouseListener           lightboxListener       = null;
+
+  private static TmmSvgIcon createNoImageIcon() {
+    try {
+      // create the icon
+      URI uri = IconManager.class.getResource("images/svg/image.svg").toURI();
+      return new TmmSvgIcon(uri);
+    }
+    catch (Exception e) {
+      return null;
+    }
+  }
 
   public ImageLabel() {
     this(true, false);
@@ -395,36 +409,38 @@ public class ImageLabel extends JComponent {
 
       // calculate the optimal font size; the pt is about 0.75 * the needed px
       // we draw that icon at max 50% of the available space
-      float fontSize = (float) (Math.min(newWidth, newHeight) * 0.5 / 0.75);
+      int imageSize = (int) (Math.min(newWidth, newHeight) * 0.5 / 0.75);
 
       // draw the _no image found_ icon
-      Font font = TmmTheme.FONT_AWESOME.deriveFont(fontSize);
-      BufferedImage tmp = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-      Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment().createGraphics(tmp);
-      g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      if (NO_IMAGE != null) {
+        BufferedImage tmp = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment().createGraphics(tmp);
 
-      g2.setColor(EMPTY_BACKGROUND_COLOR);
-      g2.fillRect(0, 0, newWidth, newHeight);
+        try {
+          FlatUIUtils.setRenderingHints(g2);
 
-      g2.setFont(font);
-      g2.setColor(UIManager.getColor("Panel.background"));
-      Rectangle2D bounds = font.createGlyphVector(g2.getFontRenderContext(), String.valueOf(ICON_ID)).getVisualBounds();
-      int iconWidth = (int) Math.ceil(bounds.getWidth()) + 2; // +2 to avoid clipping problems
-      int iconHeight = (int) Math.ceil(bounds.getHeight()) + 2; // +2 to avoid clipping problems
-      g2.drawString(String.valueOf(ICON_ID), (newWidth - iconWidth) / 2, (newHeight + iconHeight) / 2);
+          g2.setColor(EMPTY_BACKGROUND_COLOR);
+          g2.fillRect(0, 0, newWidth, newHeight);
 
-      g2.dispose();
+          NO_IMAGE.setPreferredSize(new Dimension(imageSize, imageSize));
+          NO_IMAGE.setColor(UIManager.getColor("Panel.background"));
 
-      if (drawShadow) {
-        BufferedImage shadowImage = shadowRenderer.createShadow(tmp);
+          if (drawShadow) {
+            BufferedImage shadowImage = shadowRenderer.createShadow(tmp);
 
-        // draw shadow
-        g.drawImage(shadowImage, 8, 8, newWidth, newHeight, this);
+            // draw shadow
+            g.drawImage(shadowImage, 8, 8, newWidth, newHeight, this);
+          }
+
+          g2.drawImage(NO_IMAGE.getImage(), (newWidth - NO_IMAGE.getIconWidth()) / 2, (newHeight - NO_IMAGE.getIconHeight()) / 2, null);
+        }
+        finally {
+          g2.dispose();
+        }
+
+        // draw image
+        g.drawImage(tmp, 0, 0, newWidth, newHeight, this);
       }
-
-      // draw image
-      g.drawImage(tmp, 0, 0, newWidth, newHeight, this);
     }
   }
 

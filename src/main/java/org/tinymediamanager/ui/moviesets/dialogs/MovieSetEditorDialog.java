@@ -71,8 +71,9 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
-import org.tinymediamanager.ui.components.MainTabbedPane;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
@@ -103,7 +104,7 @@ public class MovieSetEditorDialog extends TmmDialog {
 
   /** UI components */
   private JTextField          tfName;
-  private JTable              tableMovies;
+  private TmmTable            tableMovies;
   private ImageLabel          lblPoster;
   private ImageLabel          lblFanart;
   private JTextPane           tpOverview;
@@ -157,15 +158,7 @@ public class MovieSetEditorDialog extends TmmDialog {
     }
 
     {
-      JTabbedPane tabbedPane = new MainTabbedPane() {
-        private static final long serialVersionUID = 71548865608767532L;
-
-        @Override
-        public void updateUI() {
-          putClientProperty("bottomBorder", Boolean.FALSE);
-          super.updateUI();
-        }
-      };
+      JTabbedPane tabbedPane = new TmmTabbedPane();
       getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
       JPanel panelContent = new JPanel();
@@ -217,7 +210,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       JLabel lblOverview = new TmmLabel(BUNDLE.getString("metatag.plot"));
       panelContent.add(lblOverview, "cell 0 2,alignx right,aligny top");
 
-      JScrollPane scrollPaneOverview = new JScrollPane();
+      JScrollPane scrollPaneOverview = new NoBorderScrollPane();
       panelContent.add(scrollPaneOverview, "cell 1 2,grow");
 
       tpOverview = new JTextPane();
@@ -231,6 +224,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       panelContent.add(scrollPaneMovies, "cell 1 4 1 3,grow");
 
       tableMovies = new TmmTable();
+      tableMovies.configureScrollPane(scrollPaneMovies);
       scrollPaneMovies.setViewportView(tableMovies);
 
       lblFanart = new ImageLabel();

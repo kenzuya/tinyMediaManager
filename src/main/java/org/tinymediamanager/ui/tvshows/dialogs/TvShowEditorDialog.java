@@ -93,12 +93,12 @@ import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
-import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.MediaIdTable;
 import org.tinymediamanager.ui.components.MediaIdTable.MediaId;
 import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.datepicker.YearSpinner;
@@ -343,15 +343,7 @@ public class TvShowEditorDialog extends TmmDialog {
   }
 
   private void initComponents() {
-    JTabbedPane tabbedPane = new MainTabbedPane() {
-      private static final long serialVersionUID = 71548865608767532L;
-
-      @Override
-      public void updateUI() {
-        putClientProperty("bottomBorder", Boolean.FALSE);
-        super.updateUI();
-      }
-    };
+    JTabbedPane tabbedPane = new TmmTabbedPane();
 
     // to draw the shadow beneath window frame, encapsulate the panel
     JLayer<JComponent> rootLayer = new JLayer(tabbedPane, new ShadowLayerUI()); // removed <> because this leads WBP to crash

@@ -50,6 +50,7 @@ import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -176,12 +177,11 @@ class TvShowScraperSettingsPanel extends JPanel {
         JSeparator separator = new JSeparator();
         panelScraper.add(separator, "cell 1 1,growx");
 
-        scrollPaneScraperDetails = new JScrollPane();
+        scrollPaneScraperDetails = new NoBorderScrollPane();
         panelScraper.add(scrollPaneScraperDetails, "cell 1 2,grow");
 
         scrollPaneScraperDetails.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPaneScraperDetails.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPaneScraperDetails.setBorder(null);
 
         JPanel panelScraperDetails = new ScrollablePanel();
         scrollPaneScraperDetails.setViewportView(panelScraperDetails);

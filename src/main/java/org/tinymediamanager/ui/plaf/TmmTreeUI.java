@@ -15,63 +15,59 @@
  */
 package org.tinymediamanager.ui.plaf;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
+import javax.swing.UIManager;
+import javax.swing.border.AbstractBorder;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.UIResource;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import com.jtattoo.plaf.AbstractLookAndFeel;
-import com.jtattoo.plaf.BaseTreeUI;
+import com.formdev.flatlaf.ui.FlatTreeUI;
+import com.formdev.flatlaf.ui.FlatUIUtils;
 
 /**
  * The class TmmTreeUI. Render the JTree nicely
  *
  * @author Manuel Laggner
  */
-public class TmmTreeUI extends BaseTreeUI {
+public class TmmTreeUI extends FlatTreeUI {
 
-  private RowSelectionListener sf = new RowSelectionListener();
+  private Color  gridColor;
+  private Color  gridColor2;
+  private Insets margins;
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmTreeUI();
   }
 
-  public TmmTreeUI() {
+  @Override
+  protected void installDefaults() {
+    super.installDefaults();
+    gridColor = UIManager.getColor("Table.gridColor");
+    gridColor2 = UIManager.getColor("Table.gridColor2");
+    margins = UIManager.getInsets("Tree.rendererMargins");
   }
 
-  @Override
-  public void paint(Graphics g, JComponent c) {
+  protected TreeCellRenderer createDefaultCellRenderer() {
+    // inject the border
+    return new TmmTreeCellRenderer();
+  }
 
-    final Insets insets = tree.getInsets();
-    final int w = tree.getWidth() - insets.left - insets.right;
-    final int h = tree.getHeight() - insets.top - insets.bottom;
-    final int x = insets.left;
-    int y = insets.top;
-
-    // paint row background across the whole tree
-    final int nItems = tree.getRowCount();
-    int rowHeight = 17; // A default for empty trees
-    for (int i = 0; i < nItems; i++, y += rowHeight) {
-      Rectangle rect = tree.getRowBounds(i);
-      rowHeight = rect != null ? rect.height : rowHeight;
-      g.setColor(getSelectionModel().isRowSelected(i) ? AbstractLookAndFeel.getSelectionBackgroundColor() : AbstractLookAndFeel.getBackgroundColor());
-      g.fillRect(x, y, w, rowHeight);
+  private class TmmTreeCellRenderer extends DefaultTreeCellRenderer {
+    @Override
+    public void updateUI() {
+      super.updateUI();
+      setBorder(new BottomBorderBorder());
     }
-
-    final int remainder = insets.top + h - y;
-    if (remainder > 0) {
-      g.setColor(AbstractLookAndFeel.getBackgroundColor());
-      g.fillRect(x, y, w, remainder);
-    }
-
-    tree.setOpaque(false);
-    super.paint(g, c);
-    tree.setOpaque(true);
   }
 
   /*
@@ -88,56 +84,32 @@ public class TmmTreeUI extends BaseTreeUI {
     super.paintRow(g, clipBounds, insets, bounds, path, row, isExpanded, hasBeenExpanded, isLeaf);
   }
 
-  @Override
-  protected void paintVerticalLine(Graphics g, JComponent c, int x, int top, int bottom) {
-    // we do not need any tree lines
-  }
-
-  @Override
-  protected void paintHorizontalLine(Graphics g, JComponent c, int y, int left, int right) {
-    // we do not need any tree lines
-  }
-
-  @Override
-  protected void installListeners() {
-    super.installListeners();
-    tree.addMouseListener(sf);
-  }
-
-  @Override
-  protected void uninstallListeners() {
-    tree.removeMouseListener(sf);
-    super.uninstallListeners();
-  }
-
-  /**
-   * The listener interface for receiving rowSelection events. The class that is interested in processing a rowSelection event implements this
-   * interface, and the object created with that class is registered with a component using the component's <code>addRowSelectionListener <code>
-   * method. When the rowSelection event occurs, that object's appropriate method is invoked.
-   */
-  private class RowSelectionListener extends MouseAdapter {
+  private class BottomBorderBorder extends AbstractBorder implements UIResource {
     @Override
-    public void mousePressed(MouseEvent e) {
-      if (!tree.isEnabled()) {
-        return;
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+      Graphics2D g2d = (Graphics2D) g.create();
+      try {
+        FlatUIUtils.setRenderingHints(g2d);
+
+        g.setColor(gridColor);
+        g.drawLine(g.getClipBounds().x, height - 2, g.getClipBounds().width, height - 2);
+
+        g.setColor(gridColor2);
+        g.drawLine(g.getClipBounds().x, height - 1, g.getClipBounds().width, height - 1);
       }
-
-      TreePath closestPath = tree.getClosestPathForLocation(e.getX(), e.getY());
-      if (closestPath == null) {
-        return;
-      }
-
-      Rectangle bounds = tree.getPathBounds(closestPath);
-      // Process events outside the immediate bounds - This properly handles Ctrl and Shift
-      // selections on trees.
-      if ((e.getY() >= bounds.y) && (e.getY() < (bounds.y + bounds.height)) && ((e.getX() < bounds.x) || (e.getX() > (bounds.x + bounds.width)))) {
-        // fix - don't select a node if the click was on the expand control
-        if (isLocationInExpandControl(closestPath, e.getX(), e.getY())) {
-          return;
-        }
-
-        selectPathForEvent(closestPath, e);
+      finally {
+        g2d.dispose();
       }
     }
-  }
+
+    @Override
+    public Insets getBorderInsets(Component c) {
+      if (margins != null) {
+        return margins;
+      }
+      else {
+        return super.getBorderInsets(c);
+      }
+    }
+  } // class BottomBorderBorder
 }

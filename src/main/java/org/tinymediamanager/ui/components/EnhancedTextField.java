@@ -17,15 +17,7 @@
 package org.tinymediamanager.ui.components;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -34,13 +26,13 @@ import java.util.ResourceBundle;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.IconManager;
+
+import com.formdev.flatlaf.FlatClientProperties;
 
 /**
  * The class EnhancedTextField is used to create a JTextField with<br>
@@ -50,13 +42,11 @@ import org.tinymediamanager.ui.IconManager;
  * 
  * @author Manuel Laggner
  */
-public class EnhancedTextField extends JTextField implements FocusListener {
+public class EnhancedTextField extends JTextField {
   private static final long           serialVersionUID = 5397356153111919435L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected JLabel                    lblIcon;
-  private String                      textWhenNotFocused;
-  private Insets                      dummyInsets;
 
   /**
    * just create a simple JTextField
@@ -102,58 +92,9 @@ public class EnhancedTextField extends JTextField implements FocusListener {
       add(lblIcon, BorderLayout.EAST);
     }
 
-    if (textWhenNotFocused != null) {
-      this.textWhenNotFocused = textWhenNotFocused;
-    }
-    else {
-      this.textWhenNotFocused = "";
-    }
-
     if (StringUtils.isNotBlank(textWhenNotFocused)) {
-      this.addFocusListener(this);
+      putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, textWhenNotFocused);
     }
-
-    Border border = UIManager.getBorder("TextField.border");
-    JTextField dummy = new JTextField();
-    this.dummyInsets = border.getBorderInsets(dummy);
-  }
-
-  @Override
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-
-    int textX = 2;
-
-    setMargin(new Insets(2, textX, 2, 2));
-
-    if (!this.hasFocus() && StringUtils.isEmpty(this.getText())) {
-      int height = this.getHeight();
-      Font prev = g.getFont();
-      Font italic = prev.deriveFont(Font.ITALIC);
-      Color prevColor = g.getColor();
-      g.setFont(italic);
-      g.setColor(UIManager.getColor("textInactiveText"));
-      int h = g.getFontMetrics().getHeight();
-      int textBottom = (height - h) / 2 + h - 4;
-      int x = this.getInsets().left;
-      Graphics2D g2d = (Graphics2D) g;
-      RenderingHints hints = g2d.getRenderingHints();
-      g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-      g2d.drawString(textWhenNotFocused, x, textBottom);
-      g2d.setRenderingHints(hints);
-      g.setFont(prev);
-      g.setColor(prevColor);
-    }
-  }
-
-  @Override
-  public void focusGained(FocusEvent e) {
-    this.repaint();
-  }
-
-  @Override
-  public void focusLost(FocusEvent e) {
-    this.repaint();
   }
 
   /**

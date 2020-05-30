@@ -32,7 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
@@ -56,8 +55,8 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.EnhancedTextField;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeChooserModel;
@@ -93,7 +92,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   private final SortedList<TvShowEpisodeChooserModel>      sortedEpisodes;
 
   private JLabel                                           lblPath;
-  private JTable                                           table;
+  private TmmTable                                         table;
   private JTextArea                                        taPlot;
   private JTextField                                       textField;
 
@@ -124,7 +123,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     contentPanel.setLayout(new MigLayout("", "[700lp,grow]", "[500lp,grow]"));
 
     {
-      JSplitPane splitPane = new TmmSplitPane();
+      JSplitPane splitPane = new JSplitPane();
       splitPane.setName(getName() + ".splitPane");
       TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 0,grow");
@@ -165,12 +164,13 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       table = new TmmTable(episodeTableModel);
       table.setSelectionModel(selectionModel);
+      table.configureScrollPane(scrollPane);
       scrollPane.setViewportView(table);
 
       JPanel panelRight = new JPanel();
       panelRight.setLayout(new MigLayout("", "[400lp,grow]", "[400lp,grow]"));
 
-      JScrollPane scrollPane_1 = new JScrollPane();
+      JScrollPane scrollPane_1 = new NoBorderScrollPane();
       panelRight.add(scrollPane_1, "cell 0 0,grow");
       splitPane.setRightComponent(panelRight);
 

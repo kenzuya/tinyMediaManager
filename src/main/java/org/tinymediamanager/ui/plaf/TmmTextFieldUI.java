@@ -16,8 +16,6 @@
 package org.tinymediamanager.ui.plaf;
 
 import java.awt.Toolkit;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.ActionMap;
@@ -29,16 +27,14 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.undo.UndoManager;
 
-import com.jtattoo.plaf.BaseTextFieldUI;
-import com.jtattoo.plaf.JTattooUtilities;
+import com.formdev.flatlaf.ui.FlatTextFieldUI;
 
-public class TmmTextFieldUI extends BaseTextFieldUI {
-  private FocusListener focusListener = null;
+public class TmmTextFieldUI extends FlatTextFieldUI {
 
-  private UndoListener  undoListener;
-  private UndoManager   undoManager;
-  private UndoAction    undoAction;
-  private RedoAction    redoAction;
+  private UndoListener undoListener;
+  private UndoManager  undoManager;
+  private UndoAction   undoAction;
+  private RedoAction   redoAction;
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmTextFieldUI();
@@ -64,48 +60,9 @@ public class TmmTextFieldUI extends BaseTextFieldUI {
     am.put(UndoAction.UNDO, undoAction);
     am.put(RedoAction.REDO, redoAction);
 
-    if (JTattooUtilities.isMac()) {
-      int commandKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-      im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, commandKey), UndoAction.UNDO);
-      im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, commandKey), RedoAction.REDO);
-    }
-    else {
-      im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_MASK), UndoAction.UNDO);
-      im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_MASK), RedoAction.REDO);
-    }
-  }
-
-  @Override
-  protected void installListeners() {
-    super.installListeners();
-    focusListener = new FocusListener() {
-      @Override
-      public void focusGained(FocusEvent e) {
-        if (getComponent() != null) {
-          getComponent().invalidate();
-          getComponent().repaint();
-        }
-      }
-
-      @Override
-      public void focusLost(FocusEvent e) {
-        if (getComponent() != null) {
-          getComponent().invalidate();
-          getComponent().repaint();
-        }
-      }
-    };
-
-    getComponent().addFocusListener(focusListener);
-  }
-
-  @Override
-  protected void uninstallListeners() {
-    getComponent().removeFocusListener(focusListener);
-    focusListener = null;
-    getComponent().getDocument().removeUndoableEditListener(undoListener);
-    undoListener = null;
-    super.uninstallListeners();
+    int commandKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, commandKey), UndoAction.UNDO);
+    im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, commandKey), RedoAction.REDO);
   }
 
   @Override

@@ -50,6 +50,7 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.movies.MovieScraper;
 import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
@@ -179,10 +180,9 @@ class MovieScraperPanel extends JPanel {
     scrollPaneScraper.setViewportView(tableScraper);
 
     {
-      JScrollPane scrollPaneScraperDetails = new JScrollPane();
+      JScrollPane scrollPaneScraperDetails = new NoBorderScrollPane();
       panelMovieScrapers.add(scrollPaneScraperDetails, "cell 2 0 1 4,grow");
       scrollPaneScraperDetails.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-      scrollPaneScraperDetails.setBorder(null);
 
       JPanel panelScraperDetails = new ScrollablePanel();
       scrollPaneScraperDetails.setViewportView(panelScraperDetails);

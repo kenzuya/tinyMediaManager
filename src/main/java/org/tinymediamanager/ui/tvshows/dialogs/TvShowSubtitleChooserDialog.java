@@ -99,7 +99,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
   private boolean                                            continueQueue    = true;
 
   // UI components
-  private JTable                                             tableSubs;
+  private TmmTable                                           tableSubs;
   private JComboBox<MediaLanguages>                          cbLanguage;
   private MediaScraperCheckComboBox                          cbScraper;
   private JLabel                                             lblProgressAction;
@@ -212,6 +212,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       panelContent.add(scrollPaneSubs, "cell 0 6 3 1,grow");
 
       tableSubs = new TmmTable(subtitleTableModel);
+      tableSubs.configureScrollPane(scrollPaneSubs);
       scrollPaneSubs.setViewportView(tableSubs);
     }
 

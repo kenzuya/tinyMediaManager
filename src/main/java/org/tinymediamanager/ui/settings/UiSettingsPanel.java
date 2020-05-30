@@ -31,6 +31,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.UIManager;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,7 +75,6 @@ class UiSettingsPanel extends JPanel {
   private List<LocaleComboBox>        locales            = new ArrayList<>();
 
   private JComboBox                   cbLanguage;
-  private JLabel                      lblFontChangeHint;
   private LinkLabel                   lblLinkTranslate;
   private JComboBox                   cbFontSize;
   private JComboBox                   cbFontFamily;
@@ -214,11 +214,6 @@ class UiSettingsPanel extends JPanel {
         JTextArea tpFontHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.fonts.hint"));
         panelFont.add(tpFontHint, "cell 1 2 2 1,growx");
       }
-      {
-        lblFontChangeHint = new JLabel("");
-        TmmFontHelper.changeFont(lblFontChangeHint, Font.BOLD);
-        panelFont.add(lblFontChangeHint, "cell 0 3 3 1");
-      }
     }
     {
       JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
@@ -265,20 +260,28 @@ class UiSettingsPanel extends JPanel {
     String theme = (String) cbTheme.getSelectedItem();
     if (!theme.equals(Globals.settings.getTheme())) {
       Globals.settings.setTheme(theme);
-      lblThemeHint.setText(BUNDLE.getString("Settings.uitheme.hint"));
+      try {
+        TmmUIHelper.setTheme();
+        TmmUIHelper.updateUI();
+      }
+      catch (Exception e) {
+        lblThemeHint.setText(BUNDLE.getString("Settings.uitheme.hint"));
+      }
     }
 
     // fonts
-    Integer fontSize = (Integer) cbFontSize.getSelectedItem();
-    if (fontSize != null && fontSize != Globals.settings.getFontSize()) {
-      Globals.settings.setFontSize(fontSize);
-      lblFontChangeHint.setText(BUNDLE.getString("Settings.fontchangehint"));
-    }
-
     String fontFamily = (String) cbFontFamily.getSelectedItem();
-    if (fontFamily != null && !fontFamily.equals(Globals.settings.getFontFamily())) {
+    Integer fontSize = (Integer) cbFontSize.getSelectedItem();
+    if ((fontFamily != null && !fontFamily.equals(Globals.settings.getFontFamily()))
+        || (fontSize != null && fontSize != Globals.settings.getFontSize())) {
       Globals.settings.setFontFamily(fontFamily);
-      lblFontChangeHint.setText(BUNDLE.getString("Settings.fontchangehint"));
+      Globals.settings.setFontSize(fontSize);
+
+      Font font = UIManager.getFont("defaultFont");
+      Font newFont = new Font(fontFamily, font.getStyle(), fontSize);
+      UIManager.put("defaultFont", newFont);
+
+      TmmUIHelper.updateUI();
     }
   }
 

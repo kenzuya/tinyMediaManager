@@ -29,6 +29,11 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.ui.images.AspectRatioIcon;
+import org.tinymediamanager.ui.images.AudioChannelsIcon;
+import org.tinymediamanager.ui.images.GenericVideoCodecIcon;
+import org.tinymediamanager.ui.images.MediaInfoIcon;
+import org.tinymediamanager.ui.images.VideoFormatIcon;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -39,6 +44,7 @@ public class MediaInformationLogosPanel extends JPanel {
   private static final long   serialVersionUID = -3403472105793548302L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(MediaInformationLogosPanel.class);
 
+  private final String        basePath;
   private final String        imageSource;
 
   private IMediaInformation   mediaInformationSource;
@@ -52,24 +58,39 @@ public class MediaInformationLogosPanel extends JPanel {
   private JLabel              lblSource        = new JLabel();
 
   public MediaInformationLogosPanel() {
+    basePath = "/org/tinymediamanager/ui/images/mediainfo/";
     imageSource = "/org/tinymediamanager/ui/plaf/" + Settings.getInstance().getTheme().toLowerCase(Locale.ROOT) + "/images";
 
     setLayout(new MigLayout("hidemode 3", "[][][][][10lp][][][10lp][]", "[]"));
 
-    add(lblVideoFormat, "cell 0 0");
-    add(lblAspectRatio, "cell 1 0");
-    add(lblVideoCodec, "cell 2 0");
-    add(lblVideo3d, "cell 3 0");
+    add(lblVideoFormat, "cell 0 0, bottom");
+    add(lblAspectRatio, "cell 1 0, bottom");
+    add(lblVideoCodec, "cell 2 0, bottom");
+    add(lblVideo3d, "cell 3 0, bottom");
 
-    add(lblAudioChannels, "cell 5 0");
-    add(lblAudioCodec, "cell 6 0");
+    add(lblAudioChannels, "cell 5 0, bottom");
+    add(lblAudioCodec, "cell 6 0, bottom");
 
-    add(lblSource, "cell 8 0");
+    add(lblSource, "cell 8 0, bottom");
+
+    // listen to UI changes to re-set the icons
+  }
+
+  @Override
+  public void updateUI() {
+    super.updateUI();
+
+    if (mediaInformationSource != null) {
+      updateIcons();
+    }
   }
 
   public void setMediaInformationSource(IMediaInformation source) {
     this.mediaInformationSource = source;
+    updateIcons();
+  }
 
+  private void updateIcons() {
     setIcon(lblVideoFormat, getVideoFormatIcon());
     setIcon(lblAspectRatio, getAspectRatioIcon());
     setIcon(lblVideoCodec, getVideoCodecIcon());
@@ -98,28 +119,16 @@ public class MediaInformationLogosPanel extends JPanel {
     String videoFormat = mediaInformationSource.getMediaInfoVideoFormat();
 
     // a) return null if the Format is empty
-    if (StringUtils.isEmpty(videoFormat)) {
+    if (StringUtils.isBlank(videoFormat)) {
       return null;
     }
 
     try {
-      URL file = this.getClass().getResource(imageSource + "/video/format/" + videoFormat + ".png");
-
-      if (file == null) {
-        file = this.getClass().getResource(imageSource + "/video/format/" + videoFormat.replaceAll("[pi]", "") + ".png");
-      }
-
-      // return image
-      if (file != null) {
-        return new ImageIcon(file);
-      }
+      return new VideoFormatIcon(videoFormat);
     }
     catch (Exception e) {
-      LOGGER.warn(e.getMessage());
+      return null;
     }
-
-    // we did not get any file: return the empty
-    return null;
   }
 
   /**
@@ -129,27 +138,16 @@ public class MediaInformationLogosPanel extends JPanel {
    */
   private Icon getAspectRatioIcon() {
     float aspectRatio = mediaInformationSource.getMediaInfoAspectRatio();
-
-    // a) return null if the aspect ratio is zero
     if (aspectRatio == 0) {
       return null;
     }
 
     try {
-      String ratio = String.valueOf(aspectRatio);
-      // try to load image
-      URL file = this.getClass().getResource(imageSource + "/aspectratio/" + ratio + ".png");
-
-      // return image
-      if (file != null) {
-        return new ImageIcon(file);
-      }
+      return new AspectRatioIcon(String.valueOf(aspectRatio));
     }
-    catch (Exception e) {
-      LOGGER.warn(e.getMessage());
+    catch (Exception ignored) {
+      // ignore
     }
-
-    // we did not get any file: return the empty
     return null;
   }
 
@@ -162,22 +160,22 @@ public class MediaInformationLogosPanel extends JPanel {
     String videoCodec = mediaInformationSource.getMediaInfoVideoCodec();
 
     // a) return null if the Format is empty
-    if (StringUtils.isEmpty(videoCodec)) {
+    if (StringUtils.isBlank(videoCodec)) {
       return null;
     }
 
     try {
-      URL file = this.getClass().getResource(imageSource + "/video/codec/" + videoCodec.toLowerCase(Locale.ROOT) + ".png");
-      if (file != null) {
-        return new ImageIcon(file);
-      }
+      return new MediaInfoIcon("/video/codec/" + videoCodec.toLowerCase(Locale.ROOT) + ".svg");
     }
     catch (Exception e) {
-      LOGGER.warn(e.getMessage());
+      try {
+        // nothing found so far - maybe it is just a "generic" codec; try to return the generic one
+        return new GenericVideoCodecIcon(videoCodec);
+      }
+      catch (Exception e1) {
+        return null;
+      }
     }
-
-    // we did not get any file: return the empty
-    return null;
   }
 
   /**
@@ -189,25 +187,16 @@ public class MediaInformationLogosPanel extends JPanel {
     String audioCodec = mediaInformationSource.getMediaInfoAudioCodec();
 
     // a) return null if the codec is empty
-    if (StringUtils.isEmpty(audioCodec)) {
+    if (StringUtils.isBlank(audioCodec)) {
       return null;
     }
 
     try {
-      URL file = this.getClass().getResource(imageSource + "/audio/codec/" + audioCodec.toLowerCase(Locale.ROOT) + ".png");
-      if (file == null) {
-        file = this.getClass().getResource(imageSource + "/audio/codec/" + audioCodec.toLowerCase(Locale.ROOT).replaceAll("\\p{Punct}", "") + ".png");
-      }
-      if (file != null) {
-        return new ImageIcon(file);
-      }
+      return new MediaInfoIcon("/audio/codec/" + audioCodec.toLowerCase(Locale.ROOT) + ".svg");
     }
     catch (Exception e) {
-      LOGGER.warn(e.getMessage());
+      return null;
     }
-
-    // we did not get any file: return the empty
-    return null;
   }
 
   /**
@@ -216,43 +205,38 @@ public class MediaInformationLogosPanel extends JPanel {
    * @return the icon or null
    */
   private Icon getAudioChannelsIcon() {
-    String audioChannels = mediaInformationSource.getMediaInfoAudioChannels();
-
-    // a) return null if there are no channels
-    if (StringUtils.isBlank(audioChannels)) {
+    int audioChannelsInt;
+    try {
+      audioChannelsInt = Integer.parseInt(mediaInformationSource.getMediaInfoAudioChannels().replace("ch", ""));
+    }
+    catch (NumberFormatException ignored) {
       return null;
     }
 
-    int audioChannelsInt = 0;
-    try {
-      audioChannelsInt = Integer.parseInt(audioChannels.replace("ch", ""));
-    }
-    catch (NumberFormatException ignored) {
+    if (audioChannelsInt == 0) {
+      return null;
     }
 
-    try {
-      URL file = this.getClass().getResource(imageSource + "/audio/channels/" + audioChannels + ".png");
+    String text;
 
+    // mono?
+    if (audioChannelsInt == 1) {
+      text = "1.0";
+    }
+    else if (audioChannelsInt == 2) {
       // stereo?
-      if (audioChannelsInt == 2) {
-        file = this.getClass().getResource(imageSource + "/audio/channels/2.0ch.png");
-      }
+      text = "2.0";
+    }
+    else {
+      text = audioChannelsInt - 1 + ".1";
+    }
 
-      if (file == null && audioChannelsInt > 0) {
-        String channels = audioChannelsInt - 1 + ".1ch";
-        file = this.getClass().getResource(imageSource + "/audio/channels/" + channels + ".png");
-      }
-
-      if (file != null) {
-        return new ImageIcon(file);
-      }
+    try {
+      return new AudioChannelsIcon(text);
     }
     catch (Exception e) {
-      LOGGER.warn(e.getMessage());
+      return null;
     }
-
-    // we did not get any file: return the empty
-    return null;
   }
 
   /**
@@ -294,16 +278,10 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      URL file = this.getClass().getResource(imageSource + "/source/" + source.name().toLowerCase(Locale.ROOT) + ".png");
-      if (file != null) {
-        return new ImageIcon(file);
-      }
+      return new MediaInfoIcon("/source/" + source.name().toLowerCase(Locale.ROOT) + ".svg");
     }
     catch (Exception e) {
-      LOGGER.warn(e.getMessage());
+      return null;
     }
-
-    // we did not get any file: return the empty
-    return null;
   }
 }

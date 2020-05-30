@@ -21,13 +21,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 
-class ToolbarButton extends JButton {
+import org.tinymediamanager.ui.components.FlatButton;
+
+class ToolbarButton extends FlatButton {
   private Icon             baseIcon;
   private Icon             hoverIcon;
   private final JPopupMenu popupMenu;
@@ -44,9 +44,6 @@ class ToolbarButton extends JButton {
 
     setVerticalTextPosition(SwingConstants.BOTTOM);
     setHorizontalTextPosition(SwingConstants.CENTER);
-    setOpaque(false);
-    setBorder(BorderFactory.createEmptyBorder());
-    putClientProperty("flatButton", Boolean.TRUE);
     setHideActionText(true);
     updateUI();
 

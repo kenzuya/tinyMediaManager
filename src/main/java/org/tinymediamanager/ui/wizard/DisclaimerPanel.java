@@ -25,6 +25,7 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 
 import net.miginfocom.swing.MigLayout;
@@ -54,7 +55,7 @@ class DisclaimerPanel extends JPanel {
       add(lblDisclaimer, "cell 0 0,growx");
     }
     {
-      JScrollPane scrollPane = new JScrollPane();
+      JScrollPane scrollPane = new NoBorderScrollPane();
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
       add(scrollPane, "cell 0 1,grow");
 

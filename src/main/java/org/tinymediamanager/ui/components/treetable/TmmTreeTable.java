@@ -84,7 +84,7 @@ public class TmmTreeTable extends TmmTable {
   public void addColumn(TableColumn aColumn) {
     if (aColumn.getIdentifier() == null && getModel() instanceof TmmTreeTableModel) {
       // disable grid in header
-      aColumn.setHeaderRenderer(new BottomBorderHeaderRenderer());
+      aColumn.setHeaderRenderer(new IconHeaderRenderer());
 
       TmmTreeTableModel tableModel = ((TmmTreeTableModel) getModel());
       tableModel.setUpColumn(aColumn);
@@ -103,10 +103,10 @@ public class TmmTreeTable extends TmmTable {
       }
     });
 
-    setTableHeader(createTableHeader());
+    // setTableHeader(createTableHeader());
     getTableHeader().setReorderingAllowed(false);
-    getTableHeader().setOpaque(false);
-    setOpaque(false);
+    // getTableHeader().setOpaque(false);
+    // setOpaque(false);
     // turn off grid painting as we'll handle this manually in order to paint grid lines over the entire viewport.
     setShowGrid(false);
   }

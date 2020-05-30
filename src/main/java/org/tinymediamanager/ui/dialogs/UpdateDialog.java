@@ -36,6 +36,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 
 import net.miginfocom.swing.MigLayout;
@@ -64,7 +65,7 @@ public class UpdateDialog extends TmmDialog {
       JLabel lblChangelog = new JLabel(BUNDLE.getString("whatsnew.title"));
       panelContent.add(lblChangelog, "cell 0 2,growx");
 
-      JScrollPane scrollPane = new JScrollPane();
+      JScrollPane scrollPane = new NoBorderScrollPane();
       panelContent.add(scrollPane, "cell 0 3,grow");
       JTextPane textPane = new JTextPane();
       textPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, Globals.settings.getFontSize() + 1));

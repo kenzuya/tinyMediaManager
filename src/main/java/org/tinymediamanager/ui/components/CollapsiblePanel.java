@@ -124,10 +124,10 @@ public class CollapsiblePanel extends JPanel {
     btnToggle = new FlatButton(IconManager.COLLAPSED); // init with this icon; will be set by setCollapsed()
 
     if (collapseButtonAtLeft) {
-      panelTop.add(btnToggle, "cell 0 0, aligny top");
+      panelTop.add(btnToggle, "cell 0 0, aligny center");
     }
     else {
-      panelTop.add(btnToggle, "cell 1 0, aligny top");
+      panelTop.add(btnToggle, "cell 1 0, aligny center");
     }
 
     if (lblTitle != null) {

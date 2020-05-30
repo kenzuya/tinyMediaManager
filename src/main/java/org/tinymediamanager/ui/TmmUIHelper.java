@@ -17,6 +17,7 @@ package org.tinymediamanager.ui;
 
 import java.awt.Desktop;
 import java.awt.FileDialog;
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,8 @@ import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.FilenameUtils;
@@ -44,6 +47,8 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
+import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
+import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
 
 /**
  * The Class TmmUIHelper.
@@ -506,5 +511,32 @@ public class TmmUIHelper {
     });
 
     return linklabel;
+  }
+
+  /**
+   * Update UI of all application windows immediately. Invoke after changing anything in the LaF.
+   */
+  public static void updateUI() {
+    // update all visible components
+    for (Window w : Window.getWindows()) {
+      SwingUtilities.updateComponentTreeUI(w);
+    }
+
+    // update icons
+    IconManager.updateIcons();
+  }
+
+  public static void setTheme() throws Exception {
+
+    switch (Globals.settings.getTheme()) {
+      case "Dark":
+        UIManager.setLookAndFeel(new TmmDarkLaf());
+        break;
+
+      case "Light":
+      default:
+        UIManager.setLookAndFeel(new TmmLightLaf());
+        break;
+    }
   }
 }

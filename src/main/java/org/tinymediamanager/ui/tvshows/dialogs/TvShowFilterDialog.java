@@ -32,8 +32,9 @@ import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUILayoutStore;
-import org.tinymediamanager.ui.components.MainTabbedPane;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -84,23 +85,13 @@ public class TvShowFilterDialog extends TmmDialog {
     this.treeTable.addPropertyChangeListener("filterChanged", evt -> filterChanged());
 
     {
-      tabbedPane = new MainTabbedPane() {
-        private static final long serialVersionUID = 9041548865608767661L;
-
-        @Override
-        public void updateUI() {
-          putClientProperty("leftBorder", "half");
-          putClientProperty("rightBorder", "half");
-          putClientProperty("bottomBorder", Boolean.FALSE);
-          super.updateUI();
-        }
-      };
+      tabbedPane = new TmmTabbedPane();
       getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
       {
         // panel Main
         JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
-        JScrollPane scrollPaneMain = new JScrollPane(panelMain);
+        JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(BUNDLE.getString("metatag.details"), scrollPaneMain);
 
@@ -120,7 +111,8 @@ public class TvShowFilterDialog extends TmmDialog {
       {
         // panel media data
         JPanel panelMediaData = new JPanel(new MigLayout("", "[][][150lp:n,grow]", "[]"));
-        JScrollPane scrollPaneMediaData = new JScrollPane(panelMediaData);
+        JScrollPane scrollPaneMediaData = new NoBorderScrollPane(panelMediaData);
+
         scrollPaneMediaData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(BUNDLE.getString("metatag.mediainformation"), scrollPaneMediaData);
         panelMediaData.add(new TmmLabel(BUNDLE.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");

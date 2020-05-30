@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     id="vide_codec"
+     width="213"
+     height="75"
+     viewBox="-10 -10 221 75"
+     version="1.1">
+
+    <g transform="translate(-45,-32)">
+        <text id="text"
+              y="76"
+              style="font-size: 46px;
+                 text-anchor: middle;
+                 font-weight: bold;
+                 display:inline;
+                 stroke-width:2.85;"/>
+        <path id="Rounded_Rectangle_1"
+              d="m 43,25 h 205 a 4,4 0 0 1 4,4 v 61 a 4,4 0 0 1 -4,4 H 43 A 4,4 0 0 1 39,90 V 29 a 4,4 0 0 1 4,-4 z m 3,7 H 245 V 87 H 46 Z"
+              style="fill-rule:evenodd"/>
+    </g>
+</svg>

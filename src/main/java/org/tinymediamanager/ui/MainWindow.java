@@ -20,6 +20,7 @@ import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -41,6 +42,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
@@ -57,7 +59,6 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TextFieldPopupMenu;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.toolbar.ToolbarPanel;
 import org.tinymediamanager.ui.dialogs.UpdateDialog;
 import org.tinymediamanager.ui.images.LogoCircle;
@@ -194,14 +195,18 @@ public class MainWindow extends JFrame {
     getContentPane().add(toolbarPanel, BorderLayout.NORTH);
 
     JPanel rootPanel = new JPanel();
-    rootPanel.putClientProperty("class", "rootPanel");
+    Color color = UIManager.getColor("Panel.tmmAlternateBackground");
+    if (color != null) {
+      rootPanel.setBackground(color);
+    }
     rootPanel.setLayout(new MigLayout("insets 0", "[900lp:n,grow]", "[300lp:400lp,grow,shrink 0]0[shrink 0]"));
 
     // to draw the shadow beneath the toolbar, encapsulate the panel
     JLayer<JComponent> rootLayer = new JLayer<>(rootPanel, new ShadowLayerUI()); // $hide$ - do not parse this in wbpro
     getContentPane().add(rootLayer, BorderLayout.CENTER);
 
-    splitPane = new TmmSplitPane();
+    splitPane = new JSplitPane();
+    splitPane.setOneTouchExpandable(true);
     splitPane.setName("mainWindow.splitPane");
     TmmUILayoutStore.getInstance().install(splitPane);
     rootPanel.add(splitPane, "cell 0 0, grow");
@@ -212,7 +217,6 @@ public class MainWindow extends JFrame {
       @Override
       public void updateUI() {
         putClientProperty("rightBorder", "half");
-        putClientProperty("bottomBorder", Boolean.FALSE);
         super.updateUI();
       }
     };

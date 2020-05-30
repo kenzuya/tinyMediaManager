@@ -51,6 +51,7 @@ import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -165,11 +166,10 @@ public class MovieSetInformationPanel extends JPanel {
         panelRight.add(lblPlot, "cell 0 2");
         TmmFontHelper.changeFont(lblPlot, Font.BOLD);
 
-        JScrollPane scrollPaneOverview = new JScrollPane();
+        JScrollPane scrollPaneOverview = new NoBorderScrollPane();
         panelRight.add(scrollPaneOverview, "cell 0 3,grow");
 
         taOverview = new ReadOnlyTextArea();
-        taOverview.setBorder(null);
         scrollPaneOverview.setViewportView(taOverview);
       }
       {

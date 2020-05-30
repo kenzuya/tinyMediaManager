@@ -30,6 +30,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
@@ -94,7 +95,6 @@ public class ToolbarPanel extends JPanel {
   private ToolbarMenu                 menuRename;
 
   public ToolbarPanel() {
-    putClientProperty("class", "toolbarPanel");
     setLayout(new BorderLayout());
 
     JPanel panelCenter = new JPanel();
@@ -161,6 +161,12 @@ public class ToolbarPanel extends JPanel {
     add(panelEast, BorderLayout.EAST);
     panelEast.setOpaque(false);
     panelEast.setLayout(new MigLayout("insets 0", "[]", "[grow]"));
+  }
+
+  @Override
+  public void updateUI() {
+    super.updateUI();
+    setBackground(UIManager.getColor("Tmm.toolbar.background"));
   }
 
   public void setUIModule(ITmmUIModule module) {

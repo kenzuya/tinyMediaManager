@@ -137,9 +137,14 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     TaskListDialog.getInstance();
   }
 
+  @Override
+  public void updateUI() {
+    super.updateUI();
+    setBackground(UIManager.getColor("Panel.tmmAlternateBackground"));
+  }
+
   private void initComponents() {
     setLayout(new MigLayout("insets 0 n 0 n, hidemode 3", "[][50lp:n][grow][100lp][15lp:n][]", "[22lp:n]"));
-    setOpaque(false);
     {
       lblMemory = new JLabel("");
       add(lblMemory, "cell 0 0");
@@ -151,7 +156,8 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     }
     {
       taskProgressBar = new JProgressBar();
-      taskProgressBar.setBackground(UIManager.getColor("Panel.background"));
+      // taskProgressBar.setBackground(UIManager.getColor("Panel.background"));
+      taskProgressBar.setOpaque(false);
       taskProgressBar.addMouseListener(new MListener());
       add(taskProgressBar, "cell 3 0");
     }

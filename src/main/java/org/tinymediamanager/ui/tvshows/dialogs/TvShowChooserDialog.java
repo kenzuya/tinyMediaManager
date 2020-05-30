@@ -80,9 +80,9 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -226,7 +226,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(separator, "cell 0 1,growx");
     }
     {
-      JSplitPane splitPane = new TmmSplitPane();
+      JSplitPane splitPane = new JSplitPane();
       splitPane.setName(getName() + ".splitPane");
       TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 2,grow");
@@ -260,8 +260,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           panelSearchDetail.add(lblOriginalTitle, "cell 1 1,wmin 0");
         }
         {
-          JScrollPane scrollPane = new JScrollPane();
-          scrollPane.setBorder(null);
+          JScrollPane scrollPane = new NoBorderScrollPane();
           panelSearchDetail.add(scrollPane, "cell 1 2,grow");
 
           taOverview = new ReadOnlyTextArea();

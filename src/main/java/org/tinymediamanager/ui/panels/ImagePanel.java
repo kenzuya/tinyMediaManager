@@ -40,6 +40,7 @@ import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.WrapLayout;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -68,7 +69,7 @@ public class ImagePanel extends JPanel implements HierarchyListener {
     this.mediaFiles = mediaFiles;
     setLayout(new MigLayout("", "[400lp,grow]", "[300lp,grow]"));
 
-    scrollPane = new JScrollPane();
+    scrollPane = new NoBorderScrollPane();
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     scrollPane.getVerticalScrollBar().setUnitIncrement(16);
     add(scrollPane, "cell 0 0,grow");

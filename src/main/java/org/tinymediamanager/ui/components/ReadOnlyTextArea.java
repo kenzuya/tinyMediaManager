@@ -32,6 +32,11 @@ public class ReadOnlyTextArea extends JTextArea {
 
   public ReadOnlyTextArea(String text) {
     super(text);
+  }
+
+  @Override
+  public void updateUI() {
+    super.updateUI();
 
     setOpaque(false);
     setBorder(null);

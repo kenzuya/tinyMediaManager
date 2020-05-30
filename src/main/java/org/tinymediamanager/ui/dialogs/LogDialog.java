@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.ui.TmmUILogAppender.LogOutput;
 import org.tinymediamanager.ui.TmmUILogCollector;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -55,7 +56,7 @@ public class LogDialog extends TmmDialog implements ActionListener {
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("", "[600lp,grow]", "[400lp,grow]"));
 
-    JScrollPane scrollPane = new JScrollPane();
+    JScrollPane scrollPane = new NoBorderScrollPane();
     panelContent.add(scrollPane, "cell 0 0,grow");
 
     taLogs = new JTextArea();
