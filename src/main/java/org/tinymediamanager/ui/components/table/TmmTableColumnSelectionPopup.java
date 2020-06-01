@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JPopupMenu;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -65,16 +64,10 @@ public class TmmTableColumnSelectionPopup {
     Map<String, Object> displayNameToCheckBox = new HashMap<>();
     List<String> displayNames = new ArrayList<>();
 
+    TmmTableModel tableModel = (TmmTableModel) table.getModel();
+
     for (final TableColumn etc : columns) {
-      String columnName = "";
-      if (etc.getHeaderValue() instanceof String) {
-        columnName = etc.getHeaderValue().toString();
-      }
-      else {
-        if (etc.getHeaderRenderer() instanceof DefaultTableCellRenderer) {
-          columnName = ((DefaultTableCellRenderer) etc.getHeaderRenderer()).getToolTipText();
-        }
-      }
+      String columnName = tableModel.getColumnName(etc.getModelIndex());
 
       // prevent removing of the Nodes column in the Tree-Table
       if ("Nodes".equals(columnName) && etc.getModelIndex() == 0) {
