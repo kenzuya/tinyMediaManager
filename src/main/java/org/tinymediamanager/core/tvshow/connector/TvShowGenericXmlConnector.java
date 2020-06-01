@@ -70,13 +70,13 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
-  protected final String    ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
+  protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
-  protected final TvShow    tvShow;
-  protected TvShowNfoParser parser               = null;
+  protected final TvShow        tvShow;
+  protected TvShowNfoParser     parser               = null;
 
-  protected Document        document;
-  protected Element         root;
+  protected Document            document;
+  protected Element             root;
 
   public TvShowGenericXmlConnector(TvShow tvShow) {
     this.tvShow = tvShow;

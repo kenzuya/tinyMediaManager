@@ -210,7 +210,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
         || "nrg".equalsIgnoreCase(extension) || "disc".equalsIgnoreCase(extension)) {
       return false;
     }
-    else if ("iso".equalsIgnoreCase(extension)) {
+    else if ("iso".equalsIgnoreCase(extension) || isDiscFile()) {
       return true;
     }
 
@@ -296,38 +296,34 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isDiscFile() {
-    return isBlurayFile() || isDVDFile() || isHdDVDFile();
+    return isBlurayFile() || isDVDFile() || isHDDVDFile();
   }
 
   /**
-   * is this a DVD "disc file"? (video_ts, vts...) for movierenamer
+   * is this a DVD "disc file/folder"? (video_ts, vts...) for movierenamer
    *
    * @return true/false
    */
   public boolean isDVDFile() {
-    String name = getFilename().toLowerCase(Locale.ROOT);
-    return name.matches("(video_ts|vts_\\d\\d_\\d)\\.(vob|bup|ifo)");
+    return MediaFileHelper.isDVDFile(filename, path);
   }
 
   /**
-   * is this a HD-DVD "disc file"? (hvdvd_ts, hv...) for movierenamer
+   * is this a HD-DVD "disc file/folder"? (hvdvd_ts, hv...) for movierenamer
    *
    * @return true/false
    */
-  public boolean isHdDVDFile() {
-    String name = getFilename().toLowerCase(Locale.ROOT);
-    String foldername = FilenameUtils.getBaseName(getPath()).toLowerCase(Locale.ROOT);
-    return "hvdvd_ts".equals(foldername) && name.matches(".*(evo|bup|ifo|map)$");
+  public boolean isHDDVDFile() {
+    return MediaFileHelper.isHDDVDFile(filename, path);
   }
 
   /**
-   * is this a Bluray "disc file"? (index, movieobject, bdmv, ...) for movierenamer
+   * is this a Bluray "disc file/folder"? (index, movieobject, bdmv, ...) for movierenamer
    *
    * @return true/false
    */
   public boolean isBlurayFile() {
-    String name = getFilename().toLowerCase(Locale.ROOT);
-    return name.matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts)");
+    return MediaFileHelper.isBlurayFile(filename, path);
   }
 
   /**
@@ -916,16 +912,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
-   * override the calculated aspect ratio with this value (only if the values differ)
+   * override the calculated aspect ratio with this value
    *
    * @param newValue
    *          the aspect ratio to be forced
    */
   public void setAspectRatio(float newValue) {
-    if (newValue == this.aspectRatio) {
-      return;
-    }
-
     float oldValue = this.aspectRatio;
     this.aspectRatio = newValue;
     firePropertyChange("aspectRatio", oldValue, newValue);

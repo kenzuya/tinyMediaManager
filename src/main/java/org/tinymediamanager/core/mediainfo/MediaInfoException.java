@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2019 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.thirdparty;
+package org.tinymediamanager.core.mediainfo;
 
 import com.sun.jna.Platform;
 

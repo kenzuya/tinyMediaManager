@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2019 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.thirdparty;
+package org.tinymediamanager.core.mediainfo;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.thirdparty.MediaInfo;
 
 import com.sun.jna.Platform;
 
@@ -91,7 +92,7 @@ public class MediaInfoUtils {
 
         System.setProperty("jna.library.path", nativeDir.toString()); // MI
         System.setProperty("org.lwjgl.librarypath", nativeDir.toString()); // nfd
-        LOGGER.debug("Loading native libs from: {}", nativeDir.toString());
+        LOGGER.debug("Loading native libs from: {}", nativeDir);
       }
       else {
         System.setProperty("jna.library.path", nativepath); // MI

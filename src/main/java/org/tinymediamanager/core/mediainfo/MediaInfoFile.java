@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.thirdparty;
+package org.tinymediamanager.core.mediainfo;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.thirdparty.MediaInfo.StreamKind;
 
 /**
@@ -40,23 +44,37 @@ public class MediaInfoFile {
   private Map<StreamKind, List<Map<String, String>>> snapshot;
   private int                                        duration = 0;
   private long                                       filesize = 0;
+  private String                                     path     = "";
   private String                                     filename = "";
 
   public MediaInfoFile(String filename) {
-    this.filename = filename;
+    this.path = FilenameUtils.getFullPathNoEndSeparator(filename);
+    this.filename = FilenameUtils.getName(filename);
   }
 
   public MediaInfoFile(String filename, long filesize) {
-    this.filename = filename;
+    this(filename);
     this.filesize = filesize;
   }
 
   public void setFilename(String filename) {
-    this.filename = filename;
+    this.filename = FilenameUtils.getName(filename);
   }
 
   public String getFilename() {
     return filename;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
+
+  public String getFileExtenion() {
+    return FilenameUtils.getExtension(filename).toLowerCase(Locale.ROOT);
   }
 
   public void setFilesize(long filesize) {
@@ -77,7 +95,7 @@ public class MediaInfoFile {
 
   public Map<StreamKind, List<Map<String, String>>> getSnapshot() {
     if (snapshot == null) {
-      snapshot = new HashMap<StreamKind, List<Map<String, String>>>();
+      snapshot = Collections.emptyMap();
     }
     return snapshot;
   }
@@ -90,7 +108,7 @@ public class MediaInfoFile {
         this.duration = ((int) (Double.parseDouble(dur) / 1000));
       }
       catch (NumberFormatException e) {
-        LOGGER.warn("Could not parse duration: {}", dur);
+        LOGGER.debug("Could not parse duration: {}", dur);
       }
     }
 
@@ -101,7 +119,7 @@ public class MediaInfoFile {
           this.filesize = Long.parseLong(siz);
         }
         catch (NumberFormatException e) {
-          LOGGER.warn("Could not parse filezize: {}", siz);
+          LOGGER.debug("Could not parse filezize: {}", siz);
         }
       }
     }
@@ -120,7 +138,18 @@ public class MediaInfoFile {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public void mergeOtherSnapshot(Map<StreamKind, List<Map<String, String>>> other) {
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    MediaInfoFile that = (MediaInfoFile) o;
+    return Objects.equals(path, that.path) && Objects.equals(filename, that.filename);
+  }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(path, filename);
   }
 }

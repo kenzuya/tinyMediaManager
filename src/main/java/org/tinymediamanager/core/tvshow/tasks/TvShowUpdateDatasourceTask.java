@@ -79,31 +79,32 @@ import com.sun.jna.Platform;
  */
 
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE        = ResourceBundle.getBundle("messages");
+  private static final Logger         LOGGER            = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
+  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages");
 
   // constants
-  private static final String         VIDEO_TS      = "VIDEO_TS";
-  private static final String         BDMV          = "BDMV";
-  private static final String         HVDVD_TS      = "HVDVD_TS";
+  private static final String         VIDEO_TS          = "VIDEO_TS";
+  private static final String         BDMV              = "BDMV";
+  private static final String         HVDVD_TS          = "HVDVD_TS";
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String>   skipFolders   = Arrays.asList(".", "..", "CERTIFICATE", "BACKUP", "PLAYLIST", "CLPINF", "SSIF", "AUXDATA",
-      "AUDIO_TS", "$RECYCLE.BIN", "RECYCLER", "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB");
+  private static final List<String>   skipFolders       = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
+      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB");
 
   // skip folders starting with a SINGLE "." or "._"
-  private static final String         skipRegex     = "^[.][\\w@]+.*";
+  private static final String         SKIP_REGEX        = "^[.][\\w@]+.*";
+  private static final String         DISC_FOLDER_REGEX = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
 
-  private static final Pattern        seasonNumber  = Pattern.compile("(?i)season([0-9]{1,4}).*");
+  private static final Pattern        seasonNumber      = Pattern.compile("(?i)season([0-9]{1,4}).*");
 
-  private static long                 preDir        = 0;
-  private static long                 postDir       = 0;
-  private static long                 visFile       = 0;
+  private static long                 preDir            = 0;
+  private static long                 postDir           = 0;
+  private static long                 visFile           = 0;
 
   private List<String>                dataSources;
-  private List<Path>                  tvShowFolders = new ArrayList<>();
+  private List<Path>                  tvShowFolders     = new ArrayList<>();
   private TvShowList                  tvShowList;
-  private Set<Path>                   filesFound    = ConcurrentHashMap.newKeySet();
+  private Set<Path>                   filesFound        = ConcurrentHashMap.newKeySet();
 
   /**
    * Instantiates a new scrape task - to update all datasources
@@ -529,7 +530,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       name = name.replaceAll("\\-G\\d+", "-G" + uniqueId);
       Thread.currentThread().setName(name);
 
-      if (showDir.getFileName().toString().matches(skipRegex)) {
+      if (showDir.getFileName().toString().matches(SKIP_REGEX)) {
         LOGGER.debug("Skipping dir: {}", showDir);
         return "";
       }
@@ -548,7 +549,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // convert to MFs (we need it anyways at the end)
       ArrayList<MediaFile> mfs = new ArrayList<>();
       for (Path file : allFiles) {
-        if (!file.getFileName().toString().matches(skipRegex)) {
+        if (!file.getFileName().toString().matches(SKIP_REGEX)) {
           MediaFile mf = new MediaFile(file);
 
           // now check posters: if the poster is in s subfolder of the TV show, we assume it is a seaon poster
@@ -1111,7 +1112,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
       for (Path path : directoryStream) {
         String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
-        if (!skipFolders.contains(fn) && !fn.matches(skipRegex)
+        if (!skipFolders.contains(fn) && !fn.matches(SKIP_REGEX)
             && !TvShowModuleManager.SETTINGS.getSkipFolder().contains(path.toFile().getAbsolutePath())) {
           fileNames.add(path.toAbsolutePath());
         }
@@ -1134,7 +1135,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       incVisFile();
-      if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(skipRegex)) {
+      if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
         fFound.add(file.toAbsolutePath());
       }
       return CONTINUE;
@@ -1146,9 +1147,14 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // getFilename returns null on DS root!
       if (dir.getFileName() != null
           && (Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"))
-              || skipFolders.contains(dir.getFileName().toString().toUpperCase(Locale.ROOT)) || dir.getFileName().toString().matches(skipRegex))
+              || skipFolders.contains(dir.getFileName().toString().toUpperCase(Locale.ROOT)) || dir.getFileName().toString().matches(SKIP_REGEX))
           || TvShowModuleManager.SETTINGS.getSkipFolder().contains(dir.toFile().getAbsolutePath())) {
         LOGGER.debug("Skipping dir: {}", dir);
+        return SKIP_SUBTREE;
+      }
+      // if we're in a disc folder, don't walk further
+      if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+        fFound.add(dir.toAbsolutePath());
         return SKIP_SUBTREE;
       }
       return CONTINUE;

@@ -65,13 +65,13 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class MovieGenericXmlConnector implements IMovieConnector {
-  protected final String   ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
+  protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
-  protected final Movie    movie;
-  protected MovieNfoParser parser               = null;
+  protected final Movie         movie;
+  protected MovieNfoParser      parser               = null;
 
-  protected Document       document;
-  protected Element        root;
+  protected Document            document;
+  protected Element             root;
 
   public MovieGenericXmlConnector(Movie movie) {
     this.movie = movie;

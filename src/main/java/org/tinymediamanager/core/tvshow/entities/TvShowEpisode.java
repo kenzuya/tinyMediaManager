@@ -1576,7 +1576,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       if (firstMediaFile.isDVDFile()) {
         baseName = "VIDEO_TS.nfo";
       }
-      if (firstMediaFile.isHdDVDFile()) {
+      if (firstMediaFile.isHDDVDFile()) {
         baseName = "HVDVD_TS.nfo";
       }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2019 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.thirdparty;
+package org.tinymediamanager.core.mediainfo;
 
 import java.io.FileInputStream;
 import java.nio.file.Path;
@@ -54,7 +54,11 @@ public class MediaInfoXMLParser {
   public List<MediaInfoFile> parseXML() throws Exception {
     List<MediaInfoFile> files = new ArrayList<>();
 
-    Document document = Jsoup.parse(new FileInputStream(file.toFile()), "UTF-8", "", Parser.xmlParser());
+    Document document;
+    try (FileInputStream fis = new FileInputStream(file.toFile())) {
+      document = Jsoup.parse(fis, "UTF-8", "", Parser.xmlParser());
+    }
+
     // first check if there is a valid root object (old and new format)
     Elements rootElements = document.select("MediaInfo");
     if (rootElements.isEmpty()) {
@@ -78,7 +82,7 @@ public class MediaInfoXMLParser {
         miFile.setFilename(fileInXML.attr("ref"));
       }
 
-      List<MiTrack> tracks = new ArrayList<MiTrack>();
+      List<MiTrack> tracks = new ArrayList<>();
       // and add all tracks
       for (Element track : fileInXML.select("track")) {
         MiTrack miTrack = new MiTrack();

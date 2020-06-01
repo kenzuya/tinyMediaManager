@@ -51,6 +51,7 @@ class MiscSettingsPanel extends JPanel {
   private JComboBox                   cbImageCacheQuality;
   private JCheckBox                   chckbxImageCache;
   private JCheckBox                   chckbxDeleteTrash;
+  private JCheckBox                   chckbxMediaInfoXml;
 
   /**
    * Instantiates a new general settings panel.
@@ -81,6 +82,9 @@ class MiscSettingsPanel extends JPanel {
 
         chckbxDeleteTrash = new JCheckBox(BUNDLE.getString("Settings.deletetrash"));
         panelMisc.add(chckbxDeleteTrash, "cell 1 2 2 1");
+
+        chckbxMediaInfoXml = new JCheckBox(BUNDLE.getString("Settings.writemediainfoxml"));
+        panelMisc.add(chckbxMediaInfoXml, "cell 1 3 2 1");
       }
     }
   }
@@ -102,5 +106,10 @@ class MiscSettingsPanel extends JPanel {
     AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         settingsBeanProperty_10, chckbxDeleteTrash, jCheckBoxBeanProperty);
     autoBinding_10.bind();
+    //
+    BeanProperty<Settings, Boolean> settingsBeanProperty = BeanProperty.create("writeMediaInfoXml");
+    AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+        settingsBeanProperty, chckbxMediaInfoXml, jCheckBoxBeanProperty);
+    autoBinding.bind();
   }
 }
