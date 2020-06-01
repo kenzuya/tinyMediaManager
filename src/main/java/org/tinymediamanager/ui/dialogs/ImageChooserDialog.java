@@ -51,11 +51,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -132,6 +132,7 @@ public class ImageChooserDialog extends TmmDialog {
   private JLabel              lblProgressAction;
   private JPanel              panelImages;
   private JScrollPane         scrollPane;
+  private LockableViewPort    viewport;
   private ButtonGroup         buttonGroup = new ButtonGroup();
   private List<JToggleButton> buttons     = new ArrayList<>();
   private JTextField          tfImageUrl;
@@ -303,11 +304,13 @@ public class ImageChooserDialog extends TmmDialog {
     contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[500lp,grow][shrink 0][][][]"));
     {
       scrollPane = new NoBorderScrollPane();
+      viewport = new LockableViewPort();
+      scrollPane.setViewport(viewport);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
       contentPanel.add(scrollPane, "cell 0 0 2 1,grow");
       {
         panelImages = new JPanel();
-        scrollPane.setViewportView(panelImages);
+        viewport.setView(panelImages);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         panelImages.setLayout(new WrapLayout(FlowLayout.LEFT));
       }
@@ -580,8 +583,10 @@ public class ImageChooserDialog extends TmmDialog {
     imagePanel.add(lblShowImage, gbc);
 
     panelImages.add(imagePanel);
-    panelImages.validate();
-    panelImages.getParent().validate();
+
+    viewport.setLocked(true);
+    ImageChooserDialog.this.revalidate();
+    SwingUtilities.invokeLater(() -> viewport.setLocked(false));
   }
 
   private void downloadAndPreviewImage(String url) {
@@ -640,10 +645,6 @@ public class ImageChooserDialog extends TmmDialog {
 
         SwingUtilities.invokeLater(() -> {
           addImage(bufferedImage, art);
-
-          // scroll down
-          JScrollBar vertical = scrollPane.getVerticalScrollBar();
-          vertical.setValue(vertical.getMaximum());
         });
         tfImageUrl.setText("");
       }
@@ -1130,6 +1131,27 @@ public class ImageChooserDialog extends TmmDialog {
         TmmProperties.getInstance().putProperty(DIALOG_ID + ".path", file.getParent().toString());
         setVisible(false);
       }
+    }
+  }
+
+  private final class LockableViewPort extends JViewport {
+
+    private boolean locked = false;
+
+    @Override
+    public void setViewPosition(Point p) {
+      if (locked) {
+        return;
+      }
+      super.setViewPosition(p);
+    }
+
+    public boolean isLocked() {
+      return locked;
+    }
+
+    public void setLocked(boolean locked) {
+      this.locked = locked;
     }
   }
 }

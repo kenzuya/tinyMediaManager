@@ -103,8 +103,19 @@ public class TrailerPanel extends JPanel {
 
       // react on selection of a movie and change of a trailer
       if ("selectedMovie".equals(property) || "trailer".equals(property)) {
-        trailerEventList.clear();
-        trailerEventList.addAll(movieSelectionModel.getSelectedMovie().getTrailer());
+        // this does sometimes not work. simply wrap it
+        try {
+          trailerEventList.getReadWriteLock().writeLock().lock();
+          trailerEventList.clear();
+          trailerEventList.addAll(movieSelectionModel.getSelectedMovie().getTrailer());
+        }
+        catch (Exception ignored) {
+          // ignored
+        }
+        finally {
+          trailerEventList.getReadWriteLock().writeLock().unlock();
+        }
+
         TableColumnResizer.adjustColumnPreferredWidths(table, 7);
       }
     };
@@ -132,8 +143,19 @@ public class TrailerPanel extends JPanel {
 
       // react on selection of a movie and change of a trailer
       if ("selectedTvShow".equals(property) || "trailer".equals(property)) {
-        trailerEventList.clear();
-        trailerEventList.addAll(tvShowSelectionModel.getSelectedTvShow().getTrailer());
+        // this does sometimes not work. simply wrap it
+        try {
+          trailerEventList.getReadWriteLock().writeLock().lock();
+          trailerEventList.clear();
+          trailerEventList.addAll(tvShowSelectionModel.getSelectedTvShow().getTrailer());
+        }
+        catch (Exception ignored) {
+          // ignored
+        }
+        finally {
+          trailerEventList.getReadWriteLock().writeLock().unlock();
+        }
+
         TableColumnResizer.adjustColumnPreferredWidths(table, 7);
       }
     };
