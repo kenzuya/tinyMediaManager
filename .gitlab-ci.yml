@@ -1,4 +1,4 @@
-image: maven:3-jdk-8-alpine
+image: maven:3-jdk-11
 
 variables:
   MAVEN_CLI_OPTS: "-s .ci/settings.xml --batch-mode"
@@ -20,22 +20,6 @@ compile:
   stage: compile
   script:
     - mvn $MAVEN_CLI_OPTS -U clean compile  # re-fetch snapshots every time
-
-test:jdk8:
-  stage: test
-  image: maven:3-jdk-8
-  except:
-    - master@tinyMediaManager/tinyMediaManager
-  only:
-    - pushes
-  script:
-    # install libmediainfo for unit tests
-    - apt-get update && apt-get install -y --no-install-recommends libmms0 libglib2.0-0
-    - wget https://mediaarea.net/download/binary/libzen0/0.4.38/libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
-    - dpkg -i libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
-    - wget https://mediaarea.net/download/binary/libmediainfo0/20.03/libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
-    - dpkg -i libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
 
 test:jdk11:
   stage: test
