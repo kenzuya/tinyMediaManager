@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JPopupMenu;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -37,20 +36,18 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class TmmTableColumnSelectionPopup {
 
+  private TmmTableColumnSelectionPopup() {
+    // hide constructor for utility classes
+  }
+
   /**
    * Shows the popup allowing to show/hide columns.
    */
   static void showColumnSelectionPopup(Component c, final TmmTable table) {
-
-    // use a JComboBox to prevent the close event on a JCheckBoxMenuItem click
-    JComboBox box = new JComboBox();
-
     // collect all checkboxes to check that at least one is checked
     final List<JCheckBoxMenuItem> checkBoxMenuItems = new ArrayList<>();
 
-    ActionListener actionListener = e -> {
-      checkCheckBoxStates(checkBoxMenuItems);
-    };
+    ActionListener actionListener = e -> checkCheckBoxStates(checkBoxMenuItems);
 
     // build the popup menu
     JPopupMenu popup = new JPopupMenu();
@@ -64,7 +61,7 @@ public class TmmTableColumnSelectionPopup {
     Map<String, Object> displayNameToCheckBox = new HashMap<>();
     List<String> displayNames = new ArrayList<>();
 
-    TmmTableModel tableModel = (TmmTableModel) table.getModel();
+    TmmTableModel<?> tableModel = (TmmTableModel<?>) table.getModel();
 
     for (final TableColumn etc : columns) {
       String columnName = tableModel.getColumnName(etc.getModelIndex());
@@ -90,13 +87,9 @@ public class TmmTableColumnSelectionPopup {
       checkBox.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
       checkBox.addActionListener(actionListener);
       checkBoxMenuItems.add(checkBox);
-      // checkBox.setEnabled(etc.isHidingAllowed());
 
       final JCheckBoxMenuItem checkBoxMenuItem = checkBox;
-      checkBox.addActionListener(evt -> {
-        tmmTableColumnModel.setColumnHidden(etc, !checkBoxMenuItem.isSelected());
-        // table.updateColumnSelectionMouseListener();
-      });
+      checkBox.addActionListener(evt -> tmmTableColumnModel.setColumnHidden(etc, !checkBoxMenuItem.isSelected()));
 
       if (!displayNames.contains(columnName)) {
         // the expected case
@@ -126,7 +119,6 @@ public class TmmTableColumnSelectionPopup {
       displayNames.add(columnName);
     }
 
-    // Collections.sort(displayNames, Collator.getInstance());
     int index = 0;
     for (String displayName : displayNames) {
       Object obj = displayNameToCheckBox.get(displayName);
