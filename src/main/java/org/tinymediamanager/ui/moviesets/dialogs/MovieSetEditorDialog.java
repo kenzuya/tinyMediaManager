@@ -53,7 +53,6 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -66,6 +65,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -792,7 +792,7 @@ public class MovieSetEditorDialog extends TmmDialog {
         IMovieMetadataProvider mp = (IMovieMetadataProvider) scraper.getMediaProvider();
 
         for (Movie movie : moviesInSet) {
-          if (Utils.isValidImdbId(movie.getImdbId()) || movie.getTmdbId() > 0) {
+          if (MetadataUtil.isValidImdbId(movie.getImdbId()) || movie.getTmdbId() > 0) {
             MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
             options.setTmdbId(movie.getTmdbId());
             options.setImdbId(movie.getImdbId());

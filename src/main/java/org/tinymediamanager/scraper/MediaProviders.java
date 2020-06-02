@@ -38,6 +38,7 @@ import org.tinymediamanager.scraper.thetvdb.TheTvDbMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.trakt.TraktMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
+import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProvider;
 
 /**
  * the class {@link MediaProviders} is used to manage all loaded {@link IMediaProvider}s.
@@ -83,7 +84,12 @@ public class MediaProviders {
     /////////////////////////////////////////////
     loadProvider(TheTvDbMetadataProvider.class);
     loadProvider(AniDBMetadataProvider.class);
+    loadProvider(UniversalTvShowMetadataProvider.class);
     // tmdb, imdb and trakt are already loaded in the movie block
+
+    // register all compatible scrapers in the universal scraper
+    MEDIA_PROVIDERS.forEach((key, value) -> UniversalTvShowMetadataProvider.addProvider(value));
+    UniversalTvShowMetadataProvider.afterInitialization();
 
     /////////////////////////////////////////////
     // ARTWORK

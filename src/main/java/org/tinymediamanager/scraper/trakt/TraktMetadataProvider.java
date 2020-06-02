@@ -38,6 +38,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -52,7 +53,8 @@ import com.uwetrottmann.trakt5.enums.Type;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
-public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider {
+public class TraktMetadataProvider
+    implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider, ITvShowImdbMetadataProvider {
   public static final String     ID           = "trakt";
 
   private static final Logger    LOGGER       = LoggerFactory.getLogger(TraktMetadataProvider.class);

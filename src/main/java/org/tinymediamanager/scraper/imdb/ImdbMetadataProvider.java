@@ -35,6 +35,7 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
 /**
@@ -44,7 +45,8 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
  *
  * @author Manuel Laggner
  */
-public class ImdbMetadataProvider implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider {
+public class ImdbMetadataProvider
+    implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider, ITvShowImdbMetadataProvider {
   public static final String     USE_TMDB_FOR_MOVIES   = "useTmdbForMovies";
   public static final String     USE_TMDB_FOR_TV_SHOWS = "useTmdbForTvShows";
   public static final String     ID                    = "imdb";

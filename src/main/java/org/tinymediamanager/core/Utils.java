@@ -466,21 +466,6 @@ public class Utils {
   }
 
   /**
-   * Checks if is valid imdb id.
-   * 
-   * @param imdbId
-   *          the imdb id
-   * @return true, if is valid imdb id
-   */
-  public static boolean isValidImdbId(String imdbId) {
-    if (StringUtils.isEmpty(imdbId)) {
-      return false;
-    }
-
-    return imdbId.matches("tt\\d{6,}");
-  }
-
-  /**
    * Unquote.
    * 
    * @param str

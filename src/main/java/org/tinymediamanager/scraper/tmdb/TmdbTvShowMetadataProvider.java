@@ -23,6 +23,7 @@ import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.getRequestLanguage;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
+import static org.tinymediamanager.scraper.util.MetadataUtil.isValidImdbId;
 
 import java.io.IOException;
 import java.text.Format;
@@ -64,6 +65,7 @@ import org.tinymediamanager.scraper.util.TvUtils;
 import com.uwetrottmann.tmdb2.Tmdb;
 import com.uwetrottmann.tmdb2.entities.AppendToResponse;
 import com.uwetrottmann.tmdb2.entities.BaseCompany;
+import com.uwetrottmann.tmdb2.entities.BaseKeyword;
 import com.uwetrottmann.tmdb2.entities.BaseTvEpisode;
 import com.uwetrottmann.tmdb2.entities.BaseTvShow;
 import com.uwetrottmann.tmdb2.entities.CastMember;
@@ -113,21 +115,22 @@ class TmdbTvShowMetadataProvider {
     searchString = MetadataUtil.removeNonSearchCharacters(searchString);
 
     String imdbId = options.getImdbId();
-    if (!MetadataUtil.isValidImdbId(imdbId)) {
+    if (!isValidImdbId(imdbId)) {
       imdbId = "";
     }
-    if (MetadataUtil.isValidImdbId(searchString)) {
+    if (isValidImdbId(searchString)) {
       imdbId = searchString;
     }
 
     int tmdbId = options.getTmdbId();
+    int tvdbId = options.getIdAsInt(TVDB);
 
     String language = getRequestLanguage(options.getLanguage());
 
     // begin search
     LOGGER.info("========= BEGIN TMDB Scraper Search for: {}", searchString);
     synchronized (api) {
-      // 1. try with TMDBid
+      // 1. try with TMDB id
       if (tmdbId != 0) {
         LOGGER.debug("found TMDB ID {} - getting direct", tmdbId);
         try {
@@ -146,7 +149,7 @@ class TmdbTvShowMetadataProvider {
         }
       }
 
-      // 2. try with IMDBid
+      // 2. try with IMDB id
       if (results.isEmpty() && StringUtils.isNotEmpty(imdbId)) {
         LOGGER.debug("found IMDB ID {} - getting direct", imdbId);
         try {
@@ -166,7 +169,27 @@ class TmdbTvShowMetadataProvider {
         }
       }
 
-      // 3. try with search string and year
+      // 3. try with TVDB id
+      if (results.isEmpty() && tvdbId > 0) {
+        LOGGER.debug("found TVDB ID {} - getting direct", tvdbId);
+        try {
+          Response<FindResults> httpResponse = api.findService().find(tvdbId, ExternalSource.TVDB_ID, language).execute();
+          if (!httpResponse.isSuccessful()) {
+            throw new HttpException(httpResponse.code(), httpResponse.message());
+          }
+          for (BaseTvShow show : httpResponse.body().tv_results) { // should be only one
+            verifyTvShowLanguageTitle(options.getLanguage().toLocale(), show);
+            results.add(morphTvShowToSearchResult(show, options));
+          }
+          LOGGER.debug("found {} results with TVDB id", results.size());
+        }
+        catch (Exception e) {
+          LOGGER.warn("problem getting data from tvdb: {}", e.getMessage());
+          savedException = e;
+        }
+      }
+
+      // 4. try with search string and year
       if (results.isEmpty()) {
         try {
           int page = 1;
@@ -223,6 +246,26 @@ class TmdbTvShowMetadataProvider {
     // tmdbId from option
     int tmdbId = options.getTmdbId();
 
+    // try to get via imdb id
+    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not get tmdb id via imdb id - {}", e.getMessage());
+      }
+    }
+
+    // try to get via tvdb id
+    if (options.getIdAsIntOrDefault(TVDB, 0) > 0) {
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, options.getIdAsInteger(TVDB));
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not get tmdb id via tvdb id - {}", e.getMessage());
+      }
+    }
+
     // no tmdb id, no search..
     if (tmdbId == 0) {
       throw new MissingIdException(MediaMetadata.TMDB);
@@ -270,11 +313,24 @@ class TmdbTvShowMetadataProvider {
     // tmdbId from option
     int tmdbId = options.getTmdbId();
 
-    // imdbId from option
-    String imdbId = options.getImdbId();
-    if (tmdbId == 0 && MetadataUtil.isValidImdbId(imdbId)) {
-      // try to get the tmdb id via imdb id
-      tmdbId = getTmdbIdFromImdbId(imdbId);
+    // try to get via imdb id
+    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not get tmdb id via imdb id - {}", e.getMessage());
+      }
+    }
+
+    // try to get via tvdb id
+    if (options.getIdAsIntOrDefault(TVDB, 0) > 0) {
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, options.getIdAsInteger(TVDB));
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not get tmdb id via tvdb id - {}", e.getMessage());
+      }
     }
 
     // no tmdb id, no scrape..
@@ -289,7 +345,8 @@ class TmdbTvShowMetadataProvider {
     synchronized (api) {
       try {
         Response<TvShow> httpResponse = api.tvService().tv(tmdbId, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS,
-            AppendToResponseItem.CREDITS, AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.CONTENT_RATINGS)).execute();
+            AppendToResponseItem.CREDITS, AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.CONTENT_RATINGS, AppendToResponseItem.KEYWORDS))
+            .execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
         }
@@ -419,6 +476,14 @@ class TmdbTvShowMetadataProvider {
       }
     }
 
+    // add some special keywords as tags
+    // see http://forum.kodi.tv/showthread.php?tid=254004
+    if (complete.keywords != null) {
+      for (BaseKeyword kw : ListUtils.nullSafe(complete.keywords.keywords)) {
+        md.addTag(kw.name);
+      }
+    }
+
     return md;
   }
 
@@ -428,11 +493,24 @@ class TmdbTvShowMetadataProvider {
     // tmdbId from option
     int tmdbId = options.getTmdbId();
 
-    // imdbId from option
-    String imdbId = options.getImdbId();
-    if (tmdbId == 0 && MetadataUtil.isValidImdbId(imdbId)) {
-      // try to get the tmdb id via imdb id
-      tmdbId = getTmdbIdFromImdbId(imdbId);
+    // try to get via imdb id
+    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not get tmdb id via imdb id - {}", e.getMessage());
+      }
+    }
+
+    // try to get via tvdb id
+    if (options.getIdAsIntOrDefault(TVDB, 0) > 0) {
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, options.getIdAsInteger(TVDB));
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not get tmdb id via tvdb id - {}", e.getMessage());
+      }
     }
 
     // no tmdb id, no scrape..
@@ -648,33 +726,6 @@ class TmdbTvShowMetadataProvider {
     }
 
     return md;
-  }
-
-  /**
-   * get the tmdbId via the imdbId
-   *
-   * @param imdbId
-   *          the imdbId
-   * @return the tmdbId or 0 if nothing has been found
-   */
-  private int getTmdbIdFromImdbId(String imdbId) {
-    try {
-      FindResults findResults = api.findService().find(imdbId, ExternalSource.IMDB_ID, null).execute().body();
-      if (findResults != null) {
-        if (findResults.tv_results != null && !findResults.tv_results.isEmpty()) {
-          // and now get the full data
-          return findResults.tv_results.get(0).id;
-        }
-        else if (findResults.tv_episode_results != null && !findResults.tv_episode_results.isEmpty()) {
-          return findResults.tv_episode_results.get(0).id;
-        }
-      }
-    }
-    catch (Exception e) {
-      LOGGER.debug("failed to get tmdb id: {}" + e.getMessage());
-    }
-
-    return 0;
   }
 
   /**

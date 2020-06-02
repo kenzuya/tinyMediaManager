@@ -1,2 +1,10 @@
 Version 4.0
 =======================
+
++ real HiDPI support (slightly changed look and feel to achieve correct UI scaling)
++ universal TV show scraper
++ completely reworked libmediainfo usage:
+  - full support of reading/writing mediainfo XML files
+  - better support of disc structures (.iso and VIDEO_TS/BDMV/HVDVD_TS folders)
+  - several fixes for reading data out of libmediainfo
+

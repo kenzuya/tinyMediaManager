@@ -49,18 +49,19 @@ import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
 import org.tinymediamanager.scraper.util.ApiKey;
 
 import com.uwetrottmann.tmdb2.Tmdb;
 import com.uwetrottmann.tmdb2.TmdbInterceptor;
 import com.uwetrottmann.tmdb2.entities.Configuration;
-import com.uwetrottmann.tmdb2.entities.FindResults;
 import com.uwetrottmann.tmdb2.entities.Genre;
 import com.uwetrottmann.tmdb2.entities.Translations;
 import com.uwetrottmann.tmdb2.entities.Translations.Translation;
-import com.uwetrottmann.tmdb2.enumerations.ExternalSource;
 
 import okhttp3.OkHttpClient;
 
@@ -70,7 +71,8 @@ import okhttp3.OkHttpClient;
  * @author Manuel Laggner
  */
 public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMetadataProvider, ITvShowMetadataProvider, IMovieArtworkProvider,
-    ITvShowArtworkProvider, IMovieTrailerProvider, ITvShowTrailerProvider, IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider {
+    ITvShowArtworkProvider, IMovieTrailerProvider, ITvShowTrailerProvider, IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider,
+    ITvShowTmdbMetadataProvider, ITvShowImdbMetadataProvider, ITvShowTvdbMetadataProvider {
   public static final String    ID           = "tmdb";
 
   private static final Logger   LOGGER       = LoggerFactory.getLogger(TmdbMetadataProvider.class);
@@ -261,20 +263,7 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
     try {
       // lazy initialization of the api
       initAPI();
-
-      FindResults findResults = api.findService().find(imdbId, ExternalSource.IMDB_ID, null).execute().body();
-      // movie
-      if (findResults != null && findResults.movie_results != null && !findResults.movie_results.isEmpty()
-          && (type == MediaType.MOVIE || type == MediaType.MOVIE_SET)) {
-        return findResults.movie_results.get(0).id;
-      }
-
-      // tv show
-      if (findResults != null && findResults.tv_results != null && !findResults.tv_results.isEmpty()
-          && (type == MediaType.TV_SHOW || type == MediaType.TV_EPISODE)) {
-        return findResults.tv_results.get(0).id;
-      }
-
+      return TmdbUtils.getTmdbIdFromImdbId(api, type, imdbId);
     }
     catch (Exception e) {
       LOGGER.debug("failed to get tmdb id: {}", e.getMessage());

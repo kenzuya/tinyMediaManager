@@ -63,6 +63,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
 import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -94,7 +95,7 @@ import retrofit2.Response;
  *
  * @author Manuel Laggner
  */
-public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShowArtworkProvider {
+public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShowArtworkProvider, ITvShowTvdbMetadataProvider {
   public static final String                                  ID                  = "tvdb";
 
   private static final Logger                                 LOGGER              = LoggerFactory.getLogger(TheTvDbMetadataProvider.class);

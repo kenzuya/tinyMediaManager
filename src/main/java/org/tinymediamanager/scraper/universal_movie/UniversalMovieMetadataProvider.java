@@ -33,7 +33,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -48,7 +47,6 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
-import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
@@ -57,27 +55,33 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * @author Manuel Laggner
  */
 public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
-  public static final String                               ID                 = "universal_movie";
+  public static final String                               ID                  = "universal_movie";
 
-  private static final String                              UNDEFINED          = "-";
-  private static final String                              SEARCH             = "search";
-  private static final String                              RATINGS            = "ratings";
-  private static final Logger                              LOGGER             = LoggerFactory.getLogger(UniversalMovieMetadataProvider.class);
-  private static final MediaProviderInfo                   providerInfo       = createMediaProviderInfo();
-  private static final Map<String, IMovieMetadataProvider> compatibleScrapers = new HashMap<>();
+  private static final String                              UNDEFINED           = "-";
+  private static final String                              SEARCH              = "search";
+  private static final String                              RATINGS             = "ratings";
+  private static final Logger                              LOGGER              = LoggerFactory.getLogger(UniversalMovieMetadataProvider.class);
+  private static final MediaProviderInfo                   PROVIDER_INFO       = createMediaProviderInfo();
+  private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
+
+  private static MediaProviderInfo createMediaProviderInfo() {
+    return new MediaProviderInfo(ID, "Universal movie scraper",
+        "<html><h3>Universal movie scraper</h3><br />A meta scraper which allows to collect data from several other scrapers</html>",
+        UniversalMovieMetadataProvider.class.getResource("/logo.png"));
+  }
 
   public static void addProvider(IMediaProvider provider) {
     // called for each plugin implementing that interface
-    if (!provider.getProviderInfo().getId().equals(providerInfo.getId()) && !compatibleScrapers.containsKey(provider.getProviderInfo().getId())
+    if (!provider.getProviderInfo().getId().equals(PROVIDER_INFO.getId()) && !COMPATIBLE_SCRAPERS.containsKey(provider.getProviderInfo().getId())
         && (provider instanceof IMovieTmdbMetadataProvider || provider instanceof IMovieImdbMetadataProvider)) {
-      compatibleScrapers.put(provider.getProviderInfo().getId(), (IMovieMetadataProvider) provider);
+      COMPATIBLE_SCRAPERS.put(provider.getProviderInfo().getId(), (IMovieMetadataProvider) provider);
     }
   }
 
   public static void afterInitialization() {
-    MediaProviderConfig config = providerInfo.getConfig();
+    MediaProviderConfig config = PROVIDER_INFO.getConfig();
 
-    List<String> compatibleScraperIds = new ArrayList<>(compatibleScrapers.keySet());
+    List<String> compatibleScraperIds = new ArrayList<>(COMPATIBLE_SCRAPERS.keySet());
     compatibleScraperIds.add(0, UNDEFINED); // no scraper
 
     config.addSelect(SEARCH, compatibleScraperIds, UNDEFINED);
@@ -108,15 +112,9 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     config.load();
   }
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    return new MediaProviderInfo(ID, "Universal movie scraper",
-        "<html><h3>Universal movie scraper</h3><br />A meta scraper which allows to collect data from several other scrapers</html>",
-        UniversalMovieMetadataProvider.class.getResource("/logo.png"));
-  }
-
   @Override
   public MediaProviderInfo getProviderInfo() {
-    return providerInfo;
+    return PROVIDER_INFO;
   }
 
   @Override
@@ -130,14 +128,14 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
-    IMovieMetadataProvider mp = compatibleScrapers.get(providerInfo.getConfig().getValue(SEARCH));
+    IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(PROVIDER_INFO.getConfig().getValue(SEARCH));
     if (mp == null) {
       return results;
     }
 
     try {
       for (MediaSearchResult result : mp.search(options)) {
-        result.setProviderId(providerInfo.getId());
+        result.setProviderId(PROVIDER_INFO.getId());
         results.add(result);
       }
     }
@@ -153,19 +151,12 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws NothingFoundException {
     LOGGER.debug("getMetadata() - {}", options);
 
-    MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(PROVIDER_INFO.getId());
 
     // check which scrapers should be used
     Set<IMovieMetadataProvider> metadataProviders = getRelevantMetadataProviders();
     if (metadataProviders.isEmpty()) {
       return md;
-    }
-
-    if (!MetadataUtil.isValidImdbId(options.getImdbId()) && options.getTmdbId() > 0) {
-      String imdbId = MediaIdUtil.getImdbIdViaTmdbId(options.getTmdbId());
-      if (StringUtils.isNotBlank(imdbId)) {
-        options.setImdbId(imdbId);
-      }
     }
 
     // call all scrapers in different workers and wait for them to finish
@@ -183,9 +174,9 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
   private Set<IMovieMetadataProvider> getRelevantMetadataProviders() {
     Set<IMovieMetadataProvider> metadataProviders = new HashSet<>();
-    for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
+    for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (!UNDEFINED.equals(entry.getValue())) {
-        IMovieMetadataProvider mp = compatibleScrapers.get(entry.getValue());
+        IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(entry.getValue());
         if (mp != null) {
           metadataProviders.add(mp);
         }
@@ -221,7 +212,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
         MediaMetadata md = metadataMap.get(MediaMetadata.TMDB);
         if (md == null) {
           try {
-            IMovieMetadataProvider tmdb = compatibleScrapers.get(MediaMetadata.TMDB);
+            IMovieMetadataProvider tmdb = COMPATIBLE_SCRAPERS.get(MediaMetadata.TMDB);
             if (tmdb != null) {
               md = tmdb.getMetadata(options);
               if (md != null) {
@@ -237,11 +228,20 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
         // we got a response - parse out TMDB id and IMDB id if needed
         if (md != null) {
           if (tmdbId == 0) {
-            try {
-              tmdbId = Integer.parseInt((String) md.getId(MediaMetadata.TMDB));
-            }
-            catch (Exception ignored) {
-              LOGGER.trace("could not parse tmdb id: - {}", md.getId(MediaMetadata.TMDB));
+            Object id = md.getId(MediaMetadata.TMDB);
+            if (id != null) {
+              try {
+                if (id instanceof Integer) {
+                  // all good
+                  tmdbId = (int) id;
+                }
+                else {
+                  tmdbId = Integer.parseInt((String) md.getId(MediaMetadata.TMDB));
+                }
+              }
+              catch (Exception ignored) {
+                LOGGER.trace("could not parse tmdb id: - {}", md.getId(MediaMetadata.TMDB));
+              }
             }
           }
           if (!MetadataUtil.isValidImdbId(imdbId) && MetadataUtil.isValidImdbId((String) md.getId(MediaMetadata.IMDB))) {
@@ -294,7 +294,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     }
 
     // assign the requested metadata
-    for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
+    for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (!SEARCH.equals(entry.getKey()) && !UNDEFINED.equals(entry.getValue())) {
         // all specified fields should be filled from the desired scraper
         MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());

@@ -844,7 +844,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         movies.add(movie); // add to our cached copy
       }
 
-      if (!Utils.isValidImdbId(movie.getImdbId())) {
+      if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
         movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
       }
       if (movie.getMediaSource() == MediaSource.UNKNOWN) {
@@ -922,7 +922,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
 
-        if (!Utils.isValidImdbId(movie.getImdbId())) {
+        if (!MetadataUtil.isValidImdbId(movie.getImdbId())) {
           movie.setImdbId(ParserUtils.detectImdbId(mf.getFileAsPath().toString()));
         }
 

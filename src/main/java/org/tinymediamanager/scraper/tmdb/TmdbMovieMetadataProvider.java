@@ -415,14 +415,6 @@ class TmdbMovieMetadataProvider {
 
     md = morphMovieToMediaMetadata(movie, options);
 
-    // add some special keywords as tags
-    // see http://forum.kodi.tv/showthread.php?tid=254004
-    if (movie.keywords != null && movie.keywords.keywords != null) {
-      for (BaseKeyword kw : movie.keywords.keywords) {
-        md.addTag(kw.name);
-      }
-    }
-
     return md;
   }
 
@@ -603,6 +595,14 @@ class TmdbMovieMetadataProvider {
     if (movie.belongs_to_collection != null) {
       md.setId(MediaMetadata.TMDB_SET, movie.belongs_to_collection.id);
       md.setCollectionName(movie.belongs_to_collection.name);
+    }
+
+    // add some special keywords as tags
+    // see http://forum.kodi.tv/showthread.php?tid=254004
+    if (movie.keywords != null) {
+      for (BaseKeyword kw : ListUtils.nullSafe(movie.keywords.keywords)) {
+        md.addTag(kw.name);
+      }
     }
 
     return md;

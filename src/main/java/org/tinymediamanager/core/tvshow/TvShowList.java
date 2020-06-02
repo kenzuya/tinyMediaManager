@@ -49,7 +49,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -60,6 +59,7 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -592,7 +592,7 @@ public class TvShowList extends AbstractModelObject {
       }
 
       if (!searchTerm.isEmpty()) {
-        if (Utils.isValidImdbId(searchTerm)) {
+        if (MetadataUtil.isValidImdbId(searchTerm)) {
           options.setImdbId(searchTerm);
         }
         options.setSearchQuery(searchTerm);
