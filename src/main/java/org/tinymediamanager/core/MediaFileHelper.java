@@ -850,7 +850,7 @@ public class MediaFileHelper {
     if ("bdmv".equalsIgnoreCase(filename) || pathname.endsWith("bdmv")) {
       return true;
     }
-    return filename.toLowerCase(Locale.ROOT).matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi)");
+    return filename.toLowerCase(Locale.ROOT).matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi|\\d{5}\\.mpls)");
   }
 
   /**
@@ -1191,7 +1191,7 @@ public class MediaFileHelper {
     Map<String, Long> fileSizes = new HashMap<>();
 
     // a) find the "main" title (biggest coherent VOB files)
-    mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equalsIgnoreCase("vob")).forEach(mediaInfoFile -> {
+    mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("vob")).forEach(mediaInfoFile -> {
       String prefix = mediaInfoFile.getFilename().replaceAll("(?i)_\\d?\\.vob", "");
       Long size = fileSizes.getOrDefault(prefix, 0L) + mediaInfoFile.getFilesize();
       fileSizes.put(prefix, size);
@@ -1211,10 +1211,10 @@ public class MediaFileHelper {
         continue;
       }
 
-      if (file.getFileExtenion().equalsIgnoreCase("ifo")) {
+      if (file.getFileExtension().equalsIgnoreCase("ifo")) {
         ifo = file;
       }
-      else if (file.getFileExtenion().equalsIgnoreCase("vob")) {
+      else if (file.getFileExtension().equalsIgnoreCase("vob")) {
         if (vob == null || vob.getFilesize() < file.getFilesize()) {
           vob = file;
         }
@@ -1240,7 +1240,7 @@ public class MediaFileHelper {
    */
   private static List<MediaInfoFile> detectRelevantBlurayFiles(List<MediaInfoFile> mediaInfoFiles) {
     // a) find the "main" title (biggest m2ts file)
-    MediaInfoFile m2ts = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equalsIgnoreCase("m2ts"))
+    MediaInfoFile m2ts = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
         .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
 
     if (m2ts == null) {
@@ -1254,7 +1254,7 @@ public class MediaFileHelper {
 
     // b) check if there is a SSIF file with the same basename as the m2ts (this may contain the 3D information)
     MediaInfoFile ssif = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equalsIgnoreCase("ssif") && mediaInfoFile.getFilename().startsWith(basename))
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("ssif") && mediaInfoFile.getFilename().startsWith(basename))
         .findFirst().orElse(null);
 
     if (ssif != null) {
@@ -1263,7 +1263,7 @@ public class MediaFileHelper {
 
     // c) check if there is a CLPI (clipinf) file with the same basename as the m2ts (this may contain subtitle infos)
     MediaInfoFile clpi = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equalsIgnoreCase("clpi") && mediaInfoFile.getFilename().startsWith(basename))
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("clpi") && mediaInfoFile.getFilename().startsWith(basename))
         .findFirst().orElse(null);
 
     if (clpi != null) {
@@ -1282,7 +1282,7 @@ public class MediaFileHelper {
    */
   private static List<MediaInfoFile> detectRelevantHdDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
     // a) find the "main" title (biggest evo file)
-    MediaInfoFile evo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equalsIgnoreCase("evo"))
+    MediaInfoFile evo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("evo"))
         .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
 
     if (evo == null) {
@@ -2175,7 +2175,7 @@ public class MediaFileHelper {
 
   private static void gatherMediaInformationFromDvdFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
     // find the IFO with longest duration
-    MediaInfoFile ifo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equals("ifo"))
+    MediaInfoFile ifo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ifo"))
         .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
 
     if (ifo == null) {
@@ -2194,7 +2194,7 @@ public class MediaFileHelper {
 
     // get the biggest VOB
     MediaInfoFile vob = mediaInfoFiles.stream()
-        .filter(mediaInfoFile -> mediaInfoFile.getFilename().startsWith(prefix) && mediaInfoFile.getFileExtenion().equals("vob"))
+        .filter(mediaInfoFile -> mediaInfoFile.getFilename().startsWith(prefix) && mediaInfoFile.getFileExtension().equals("vob"))
         .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
 
     if (vob == null) {
@@ -2264,8 +2264,9 @@ public class MediaFileHelper {
   }
 
   private static void gatherMediaInformationFromBluRayFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
-    // find the M2TS with longest duration
-    MediaInfoFile m2ts = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equals("m2ts"))
+    // find the M2TS/MPLS with longest duration
+    MediaInfoFile m2ts = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("m2ts") || mediaInfoFile.getFileExtension().equals("mpls"))
         .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
 
     if (m2ts == null) {
@@ -2279,7 +2280,7 @@ public class MediaFileHelper {
     gatherMediaInformationFromFile(mediaFile, Collections.singletonList(m2ts));
 
     // get additional information of the clpi file
-    MediaInfoFile clpi = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equals("clpi"))
+    MediaInfoFile clpi = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("clpi"))
         .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
     if (clpi != null) {
       if (mediaFile.getDuration() == 0) {
@@ -2350,7 +2351,7 @@ public class MediaFileHelper {
     }
 
     // get additional information of the ssif file
-    MediaInfoFile ssif = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equals("ssif"))
+    MediaInfoFile ssif = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ssif"))
         .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
     if (ssif != null) {
       if (mediaFile.getDuration() == 0) {
@@ -2363,7 +2364,7 @@ public class MediaFileHelper {
 
   private static void gatherMediaInformationFromHdDvdFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
     // find the EVO with longest duration
-    MediaInfoFile evo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtenion().equals("evo"))
+    MediaInfoFile evo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("evo"))
         .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
 
     if (evo == null) {

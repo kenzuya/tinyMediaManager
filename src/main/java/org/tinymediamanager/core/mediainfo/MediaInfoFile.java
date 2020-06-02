@@ -73,7 +73,7 @@ public class MediaInfoFile {
     this.path = path;
   }
 
-  public String getFileExtenion() {
+  public String getFileExtension() {
     return FilenameUtils.getExtension(filename).toLowerCase(Locale.ROOT);
   }
 

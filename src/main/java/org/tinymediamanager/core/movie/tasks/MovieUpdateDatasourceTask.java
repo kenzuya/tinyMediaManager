@@ -423,7 +423,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       // if inside own DiscFolder, walk backwards till movieRoot folder
       Path relative = dataSource.relativize(movieDir);
       String folder = relative.toString().toUpperCase(Locale.ROOT); // relative
-      while (folder.contains(VIDEO_TS) || folder.contains(VIDEO_TS) || folder.contains(VIDEO_TS)) {
+      while (folder.contains(VIDEO_TS) || folder.contains(BDMV) || folder.contains(HVDVD_TS)) {
         movieDir = movieDir.getParent();
         relative = dataSource.relativize(movieDir);
         folder = relative.toString().toUpperCase(Locale.ROOT);

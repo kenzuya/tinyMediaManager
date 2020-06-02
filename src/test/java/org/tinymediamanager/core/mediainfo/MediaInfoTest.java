@@ -129,7 +129,7 @@ public class MediaInfoTest extends BasicTest {
   }
 
   @Test
-  public void testIsoXml() {
+  public void testIsoXmlOldFormat() {
     // DVD ISO - old format
     MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo.0.7.99.iso"));
     mf.gatherMediaInformation();
@@ -150,9 +150,12 @@ public class MediaInfoTest extends BasicTest {
     MediaFileSubtitle subtitle = mf.getSubtitles().get(0);
     assertThat(subtitle.getLanguage()).isEqualTo("eng");
     assertThat(subtitle.getCodec()).isEqualTo("RLE");
+  }
 
+  @Test
+  public void testIsoXmlNewFormat() {
     // DVD ISO - new format
-    mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo.17.10.iso"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo.17.10.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -162,18 +165,21 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(8);
     // first audio stream is AC-3 english/5.1
-    audioStream = mf.getAudioStreams().get(0);
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
     assertThat(audioStream.getAudioChannels()).isEqualTo(6);
     assertThat(audioStream.getCodec()).isEqualTo("AC3");
     assertThat(audioStream.getLanguage()).isEqualTo("eng");
 
     assertThat(mf.getSubtitles().size()).isEqualTo(32);
-    subtitle = mf.getSubtitles().get(0);
+    MediaFileSubtitle subtitle = mf.getSubtitles().get(0);
     assertThat(subtitle.getLanguage()).isEqualTo("eng");
     assertThat(subtitle.getCodec()).isEqualTo("RLE");
+  }
 
+  @Test
+  public void testBdIsoXml() {
     // BD ISO
-    mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD.iso"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
@@ -183,18 +189,21 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(1);
     // first audio stream is AC-3 english/5.1
-    audioStream = mf.getAudioStreams().get(0);
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
     assertThat(audioStream.getAudioChannels()).isEqualTo(6);
     assertThat(audioStream.getCodec()).isEqualTo("AC3");
     assertThat(audioStream.getLanguage()).isEqualTo("eng");
 
     assertThat(mf.getSubtitles().size()).isEqualTo(10);
-    subtitle = mf.getSubtitles().get(0);
+    MediaFileSubtitle subtitle = mf.getSubtitles().get(0);
     assertThat(subtitle.getLanguage()).isEqualTo("deu");
     assertThat(subtitle.getCodec()).isEqualTo("PGS");
+  }
 
+  @Test
+  public void testBdIsoMplsXml() {
     // BD-MPLS ISO
-    mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD-mpls.iso"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD-mpls.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
@@ -204,18 +213,21 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(4);
     // first audio stream is AC-3 english/5.1
-    audioStream = mf.getAudioStreams().get(0);
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
     assertThat(audioStream.getAudioChannels()).isEqualTo(8);
     assertThat(audioStream.getCodec()).isEqualTo("DTSHD-MA");
     assertThat(audioStream.getLanguage()).isEqualTo("eng");
 
     assertThat(mf.getSubtitles().size()).isEqualTo(7);
-    subtitle = mf.getSubtitles().get(0);
+    MediaFileSubtitle subtitle = mf.getSubtitles().get(0);
     assertThat(subtitle.getLanguage()).isEqualTo("eng");
     assertThat(subtitle.getCodec()).isEqualTo("PGS");
+  }
 
+  @Test
+  public void testBdIsoXmlNosize() {
     // BD ISO without size in xml
-    mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD-nosize.iso"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-BD-nosize.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(1920);
@@ -225,18 +237,21 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(1);
     // first audio stream is AC-3 english/5.1
-    audioStream = mf.getAudioStreams().get(0);
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
     assertThat(audioStream.getAudioChannels()).isEqualTo(6);
     assertThat(audioStream.getCodec()).isEqualTo("DTSHD-MA");
     assertThat(audioStream.getLanguage()).isEqualTo("deu");
 
     assertThat(mf.getSubtitles().size()).isEqualTo(3);
-    subtitle = mf.getSubtitles().get(0);
+    MediaFileSubtitle subtitle = mf.getSubtitles().get(0);
     assertThat(subtitle.getLanguage()).isEqualTo("deu");
     assertThat(subtitle.getCodec()).isEqualTo("PGS");
+  }
 
+  @Test
+  public void testCdIsoXml() {
     // CD ISO
-    mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-CD.iso"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-CD.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -246,15 +261,18 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(1);
     // first audio stream is AC-3 english/5.1
-    audioStream = mf.getAudioStreams().get(0);
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
     assertThat(audioStream.getAudioChannels()).isEqualTo(6);
     assertThat(audioStream.getCodec()).isEqualTo("AC3");
     assertThat(audioStream.getLanguage()).isEqualTo("deu");
 
     assertThat(mf.getSubtitles().size()).isEqualTo(0);
+  }
 
+  @Test
+  public void testCdIsoXmlWoLanguage() {
     // CD ISO without language information
-    mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-CD-nolang.iso"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo-CD-nolang.iso"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -264,15 +282,18 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(1);
     // first audio stream is AC-3 english/5.1
-    audioStream = mf.getAudioStreams().get(0);
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
     assertThat(audioStream.getAudioChannels()).isEqualTo(2);
-    assertThat(audioStream.getCodec()).isEqualTo("MPEG Audio");
+    assertThat(audioStream.getCodec()).isEqualTo("MP2");
     assertThat(audioStream.getLanguage()).isEmpty();
 
     assertThat(mf.getSubtitles().size()).isEqualTo(0);
+  }
 
+  @Test
+  public void testMkvXml() {
     // MKV FILE
-    mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfoMKV.mkv"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfoMKV.mkv"));
     mf.gatherMediaInformation();
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
@@ -282,7 +303,7 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(1);
     // first audio stream is AC-3 english/5.1
-    audioStream = mf.getAudioStreams().get(0);
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
     assertThat(audioStream.getAudioChannels()).isEqualTo(6);
     assertThat(audioStream.getCodec()).isEqualTo("AC3");
     assertThat(audioStream.getLanguage()).isEqualTo("deu");

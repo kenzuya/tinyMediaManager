@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +46,8 @@ public class MediaInfoXMLParser {
   private static final Pattern DURATION_HOUR_PATTERN   = Pattern.compile("(\\d*?) h");
   private static final Pattern DURATION_MINUTE_PATTERN = Pattern.compile("(\\d*?) min");
   private static final Pattern DURATION_SECOND_PATTERN = Pattern.compile("(\\d*?) s");
+  private static final String  DUMMY_FILENAME          = "/tmp/dummy.bdmv";
+
   private Path                 file                    = null;
 
   public MediaInfoXMLParser(Path file) {
@@ -77,7 +80,8 @@ public class MediaInfoXMLParser {
     for (Element fileInXML : fileElements) {
       LOGGER.trace("XML: ------------------");
 
-      MediaInfoFile miFile = new MediaInfoFile("/tmp/dummy.bdmv");
+      MediaInfoFile miFile = new MediaInfoFile(DUMMY_FILENAME);
+      miFile.setSnapshot(new EnumMap<>(StreamKind.class));
       if (StringUtils.isNotBlank(fileInXML.attr("ref")) && fileInXML.attr("ref").length() > 5) {
         miFile.setFilename(fileInXML.attr("ref"));
       }
@@ -159,7 +163,7 @@ public class MediaInfoXMLParser {
 
           // Width and Height sometimes comes with the string "pixels"
           if (key.equals("Width") || key.equals("Height")) {
-            value = value.replace("pixels", "").trim();
+            value = value.replace("pixels", "").replace(" ", "").trim();
           }
 
           // accumulate filesizes & duration /for multiple tracks)
@@ -231,6 +235,10 @@ public class MediaInfoXMLParser {
               catch (NumberFormatException ignored) {
               }
             }
+          }
+
+          if ("Source".equals(key) && "dummy.bdmv".equals(miFile.getFilename())) {
+            miFile.setFilename(value);
           }
 
           // push it twice; originating key AND possible new mapped key; to maintain the StringX ordering!
