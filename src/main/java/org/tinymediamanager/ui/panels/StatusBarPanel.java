@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.panels;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Taskbar;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmTaskbar;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
@@ -236,6 +238,9 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
         taskLabel.setVisible(false);
         taskStopButton.setVisible(false);
         taskProgressBar.setVisible(false);
+
+        TmmTaskbar.setProgressState(Taskbar.State.OFF);
+        TmmTaskbar.setProgressValue(-1);
       }
       else {
         // ensure everything is visible
@@ -254,9 +259,14 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
           taskProgressBar.setIndeterminate(false);
           taskProgressBar.setMaximum(activeTask.getWorkUnits());
           taskProgressBar.setValue(activeTask.getProgressDone());
+
+          TmmTaskbar.setProgressState(Taskbar.State.NORMAL);
+          TmmTaskbar.setProgressValue(100 * activeTask.getProgressDone() / activeTask.getWorkUnits());
         }
         else {
           taskProgressBar.setIndeterminate(true);
+
+          TmmTaskbar.setProgressState(Taskbar.State.INDETERMINATE);
         }
       }
     });

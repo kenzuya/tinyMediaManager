@@ -61,11 +61,13 @@ import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmTaskbar;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.TmmUILogCollector;
 import org.tinymediamanager.ui.dialogs.MessageDialog;
 import org.tinymediamanager.ui.dialogs.WhatsNewDialog;
+import org.tinymediamanager.ui.images.LogoCircle;
 import org.tinymediamanager.ui.wizard.TinyMediaManagerWizard;
 
 import com.sun.jna.Platform;
@@ -166,6 +168,7 @@ public class TinyMediaManager {
           Thread.setDefaultUncaughtExceptionHandler(new Log4jBackstop());
           if (!GraphicsEnvironment.isHeadless()) {
             Thread.currentThread().setName("main");
+            TmmTaskbar.setImage(new LogoCircle().getImage());
           }
           else {
             Thread.currentThread().setName("headless");
@@ -462,62 +465,7 @@ public class TinyMediaManager {
     });
   }
 
-  public static void setLookAndFeel() throws Exception {
-    // // preload LaF (to prevent chicken-egg problem with font-loading)
-    // String themeDefaultFont = TmmTheme.FONT;
-    //
-    // // get font from settings
-    // String fontFamily = Globals.settings.getFontFamily();
-    // try {// sanity check
-    // fontFamily = Font.decode(fontFamily).getFamily();
-    // }
-    // catch (Exception e) {
-    // try LaF font as fallback
-    // try {
-    // fontFamily = Font.decode(themeDefaultFont).getFamily();
-    // }
-    // catch (Exception e1) {
-    // // last resort fallback - default system font
-    // fontFamily = "Dialog";
-    // }
-    // }
-    //
-    // int fontSize = Globals.settings.getFontSize();
-    // if (fontSize < 12) {
-    // fontSize = 12;
-    // }
-    //
-    // String fontString = fontFamily + " " + fontSize;
-    //
-    // // Get the native look and feel class name
-    // Properties props = new Properties();
-    // props.setProperty("controlTextFont", fontString);
-    // props.setProperty("systemTextFont", fontString);
-    // props.setProperty("userTextFont", fontString);
-    // props.setProperty("menuTextFont", fontString);
-    // props.setProperty("defaultFontSize", Integer.toString(fontSize));
-    // props.setProperty("windowDecoration", "system");
-    //
-    // fontSize = Math.round((float) (fontSize * 0.833));
-    // fontString = fontFamily + " " + fontSize;
-    //
-    // props.setProperty("subTextFont", fontString);
-
-    // // Get the look and feel class name
-    // String themeName = Globals.settings.getTheme();
-    // String laf;
-    // if ("Dark".equals(themeName)) {
-    // TmmDarkLookAndFeel.setTheme(props);
-    // laf = "org.tinymediamanager.ui.plaf.dark.TmmDarkLookAndFeel";
-    // }
-    // else {
-    // TmmLightLookAndFeel.setTheme(props);
-    // laf = "org.tinymediamanager.ui.plaf.light.TmmLightLookAndFeel";
-    // }
-    //
-    // // Install the look and feel
-    // UIManager.setLookAndFeel(laf);
-
+  public static void setLookAndFeel() {
     // load font settings
     try {
       // sanity check
@@ -527,14 +475,14 @@ public class TinyMediaManager {
       }
     }
     catch (Exception e) {
-
+      LOGGER.warn("could not set default font - {}", e.getMessage());
     }
 
     try {
       TmmUIHelper.setTheme();
     }
-    catch (Exception ex) {
-      System.err.println("Failed to initialize LaF");
+    catch (Exception e) {
+      LOGGER.error("Failed to initialize LaF - {}", e.getMessage());
     }
   }
 

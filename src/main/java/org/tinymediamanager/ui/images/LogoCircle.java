@@ -38,14 +38,11 @@ import java.awt.image.BufferedImage;
  */
 public class LogoCircle implements javax.swing.Icon {
   // default values
-  private static int    DEFAULT_WIDTH  = 50;
-  private static int    DEFAULT_HEIGHT = 50;
+  private static final int DEFAULT_WIDTH  = 50;
+  private static final int DEFAULT_HEIGHT = 50;
 
-  /** The width of this icon. */
-  private int           width;
-
-  /** The height of this icon. */
-  private int           height;
+  private final int        width;
+  private final int        height;
 
   /** The rendered image. */
   private BufferedImage image;
