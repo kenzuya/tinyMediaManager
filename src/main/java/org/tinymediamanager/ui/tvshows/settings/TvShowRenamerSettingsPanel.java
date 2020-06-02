@@ -72,9 +72,9 @@ import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
@@ -256,6 +256,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
       JLabel lblPatternsT = new TmmLabel(BUNDLE.getString("Settings.tvshow.renamer.title"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPatterns, lblPatternsT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#renamer"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
 
       {
@@ -344,10 +345,12 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
       }
     }
     {
-      JPanel panelAdvancedOptions = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelAdvancedOptions = new JPanel();
+      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options-3"));
       add(collapsiblePanel, "cell 0 2,growx");
       {
         chckbxShowFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.showfolderspacereplacement"));
@@ -397,6 +400,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
       JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.example"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExample, lblAdvancedOptions, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#example"));
       add(collapsiblePanel, "cell 0 4,growx, wmin 0");
       {
         JLabel lblExampleTvShowT = new JLabel(BUNDLE.getString("metatag.tvshow"));

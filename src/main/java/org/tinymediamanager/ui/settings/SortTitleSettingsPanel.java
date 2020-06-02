@@ -39,6 +39,7 @@ import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -93,6 +94,7 @@ class SortTitleSettingsPanel extends JPanel {
 
       JLabel lblSorttitleT = new TmmLabel(BUNDLE.getString("Settings.sorting"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelSorttitle, lblSorttitleT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#title-sorting"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JTextArea tpSortingHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.sorting.info")); // $NON-NLS-1$

@@ -13,30 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.ui.actions;
+package org.tinymediamanager.ui.moviesets.settings;
 
-import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.ui.TmmUIHelper;
+import javax.swing.JPanel;
+
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSettings;
 
 /**
- * The DocsAction to redirect to the docs pages
+ * The class MovieSetSettingsPanel is used for displaying some movie set related settings
  * 
  * @author Manuel Laggner
  */
-public class DocsAction extends TmmAction {
-  private static final long           serialVersionUID = 1668251251156765161L;
+public class MovieSetSettingsPanel extends JPanel {
+  private static final long           serialVersionUID = -4173835431245178069L;
+  /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  public static final String          DOCS_URL         = "https://www.tinymediamanager.org/docs";
+  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
 
-  public DocsAction() {
-    putValue(NAME, BUNDLE.getString("tmm.docs"));
+  public MovieSetSettingsPanel() {
+
   }
 
-  @Override
-  protected void processAction(ActionEvent e) {
-    TmmUIHelper.browseUrlSilently(DOCS_URL);
+  private void initComponents() {
+
+  }
+
+  protected void initDataBindings() {
+
   }
 }

@@ -43,6 +43,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -148,6 +149,7 @@ class FileTypesSettingsPanel extends JPanel {
 
       JLabel lblVideoFiletypesT = new TmmLabel(BUNDLE.getString("Settings.videofiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelVideoFiletypes, lblVideoFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneVideoFiletypes = new JScrollPane();
@@ -173,6 +175,7 @@ class FileTypesSettingsPanel extends JPanel {
 
       JLabel lblSubtitleFiletypesT = new TmmLabel(BUNDLE.getString("Settings.extrafiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelSubtitleFiletypes, lblSubtitleFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         JScrollPane scrollPaneSubtitleFiletypes = new JScrollPane();
@@ -198,6 +201,7 @@ class FileTypesSettingsPanel extends JPanel {
 
       JLabel lblAudioFiletypesT = new TmmLabel(BUNDLE.getString("Settings.audiofiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAudioFiletypes, lblAudioFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JScrollPane scrollPaneAudioFiletypes = new JScrollPane();
@@ -224,6 +228,7 @@ class FileTypesSettingsPanel extends JPanel {
       JLabel lblCleanupFiletypesT = new TmmLabel(BUNDLE.getString("Settings.unwantedfiletypes"), H3);
       JLabel lblCleanupFiletypesHelpT = new TmmLabel(BUNDLE.getString("Settings.cleanupfiles.help"));
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelCleanupFiletypes, lblCleanupFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#unwanted-file-types"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JScrollPane scrollPaneCleanupFiletypes = new JScrollPane();

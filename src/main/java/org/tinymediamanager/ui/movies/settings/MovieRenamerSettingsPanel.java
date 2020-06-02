@@ -71,9 +71,9 @@ import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
@@ -260,6 +260,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
       JLabel lblPatternsT = new TmmLabel(BUNDLE.getString("Settings.movie.renamer.title"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPatterns, lblPatternsT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#renamer-pattern"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JLabel lblMoviePath = new JLabel(BUNDLE.getString("Settings.renamer.folder"));
@@ -331,10 +332,12 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       }
     }
     {
-      JPanel panelAdvancedOptions = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelAdvancedOptions = new JPanel();
+      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#advanced-options-4"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
         chckbxFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.folderspacereplacement"));
@@ -383,6 +386,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
       JLabel lblExampleHeader = new TmmLabel(BUNDLE.getString("Settings.example"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExample, lblExampleHeader, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#example"));
       add(collapsiblePanel, "cell 0 4, growx, wmin 0");
       {
         JLabel lblExampleT = new JLabel(BUNDLE.getString("tmm.movie"));

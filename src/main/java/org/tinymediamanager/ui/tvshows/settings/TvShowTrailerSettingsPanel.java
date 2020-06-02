@@ -65,8 +65,8 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
@@ -209,6 +209,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
 
       JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.trailer"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#trailer"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
         tableTrailerScraper = new TmmTable();
@@ -233,10 +234,12 @@ public class TvShowTrailerSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelOptions = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelOptions = new JPanel();
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options-2"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
         checkBox = new JCheckBox(BUNDLE.getString("Settings.trailer.preferred"));

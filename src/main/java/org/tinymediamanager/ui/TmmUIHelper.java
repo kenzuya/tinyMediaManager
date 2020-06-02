@@ -44,6 +44,8 @@ import org.lwjgl.util.nfd.NativeFileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
@@ -371,6 +373,14 @@ public class TmmUIHelper {
     }
   }
 
+  /**
+   * browse to the url
+   *
+   * @param url
+   *          the url to browse
+   * @throws Exception
+   *           any exception occurred
+   */
   public static void browseUrl(String url) throws Exception {
     if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
       Desktop.getDesktop().browse(new URI(url));
@@ -383,6 +393,7 @@ public class TmmUIHelper {
         started = true;
       }
       catch (IOException ignored) {
+        // no exception handling needed
       }
 
       if (!started) {
@@ -391,6 +402,7 @@ public class TmmUIHelper {
           started = true;
         }
         catch (IOException ignored) {
+          // no exception handling needed
         }
       }
 
@@ -400,6 +412,7 @@ public class TmmUIHelper {
           started = true;
         }
         catch (IOException ignored) {
+          // no exception handling needed
         }
       }
 
@@ -409,11 +422,29 @@ public class TmmUIHelper {
           started = true;
         }
         catch (IOException ignored) {
+          // no exception handling needed
         }
       }
     }
     else {
       throw new UnsupportedOperationException();
+    }
+  }
+
+  /**
+   * browse to the url without throwing any exception
+   *
+   * @param url
+   *          the url to browse
+   */
+  public static void browseUrlSilently(String url) {
+    try {
+      browseUrl(url);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not open url '{}' - {}", url, e.getMessage());
+      MessageManager.instance
+          .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
     }
   }
 

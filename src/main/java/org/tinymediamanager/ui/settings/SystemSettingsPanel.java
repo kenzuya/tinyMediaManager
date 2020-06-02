@@ -50,8 +50,8 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import com.sun.jna.Platform;
@@ -107,10 +107,12 @@ class SystemSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
-      JPanel panelMediaPlayer = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMediaPlayer = new JPanel();
+      panelMediaPlayer.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("Settings.mediaplayer"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaPlayer, lblLanguageT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#media-player"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         tfMediaPlayer = new JTextField();
@@ -130,6 +132,7 @@ class SystemSettingsPanel extends JPanel {
 
       JLabel lblMemoryT = new TmmLabel(BUNDLE.getString("Settings.memoryborder"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMemory, lblMemoryT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#memory-settings"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         lblMemoryT = new JLabel(BUNDLE.getString("Settings.memory"));
@@ -163,10 +166,12 @@ class SystemSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelProxy = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelProxy = new JPanel();
+      panelProxy.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblProxyT = new TmmLabel(BUNDLE.getString("Settings.proxy"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelProxy, lblProxyT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#proxy-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JLabel lblProxyHostT = new JLabel(BUNDLE.getString("Settings.proxyhost"));
@@ -203,10 +208,12 @@ class SystemSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-1"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblParallelDownloadCountT = new JLabel(BUNDLE.getString("Settings.paralleldownload"));

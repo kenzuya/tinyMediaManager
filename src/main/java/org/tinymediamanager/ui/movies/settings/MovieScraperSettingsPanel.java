@@ -50,6 +50,7 @@ import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -170,6 +171,7 @@ class MovieScraperSettingsPanel extends JPanel {
 
       JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.metadata"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
         tableScraper = new TmmTable();

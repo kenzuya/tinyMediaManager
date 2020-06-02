@@ -39,6 +39,7 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -95,6 +96,7 @@ class MovieImageExtraPanel extends JPanel {
 
       JLabel lblExtra = new TmmLabel(BUNDLE.getString("Settings.extraartwork"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExtra, lblExtra, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#enable-extra-artwork"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         chckbxEnableExtrathumbs = new JCheckBox(BUNDLE.getString("Settings.enable.extrathumbs"));

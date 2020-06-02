@@ -13,26 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.tinymediamanager.ui.components;
 
-import javax.swing.JPanel;
-
-import net.miginfocom.swing.MigLayout;
+import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.actions.DocsAction;
 
 /**
- * the class {@link SettingsPanelFactory} is a factory to create a bare bone settings panel with the right layout
+ * the class DocsButton is used to provide a navigation directly to the online docs for the given sub-path
+ *
+ * @author Manuel Laggner
  */
-public class SettingsPanelFactory {
+public class DocsButton extends FlatButton {
 
-  /**
-   * create a {@link JPanel} with the right layout for the settings dialog
-   * 
-   * @return the created {@link JPanel}
-   */
-  public static JPanel createSettingsPanel() {
-    JPanel panel = new JPanel();
-    panel.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the checkbox
-    return panel;
+  public DocsButton(String subPath) {
+    super(IconManager.HELP, (event) -> TmmUIHelper.browseUrlSilently(DocsAction.DOCS_URL + subPath));
   }
 }

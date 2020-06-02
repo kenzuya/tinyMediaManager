@@ -86,23 +86,17 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieUIModule extends AbstractTmmUIModule {
   private static final String       ID       = "movies";
-
   private static MovieUIModule      instance = null;
 
   private final MovieListPanel      listPanel;
-
+  private final JPanel              detailPanel;
   private final MovieSelectionModel selectionModel;
-
-  private TmmSettingsNode           settingsNode;
-
   private final MovieFilterDialog   movieFilterDialog;
+  private final TmmSettingsNode     settingsNode;
 
   private MovieUIModule() {
-
     listPanel = new MovieListPanel();
     selectionModel = listPanel.getSelectionModel();
-
-    super.listPanel = listPanel;
 
     detailPanel = new JPanel();
     detailPanel.setOpaque(false);

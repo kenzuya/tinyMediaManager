@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import org.tinymediamanager.ui.components.tree.TmmTreeDataProvider;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.movies.MovieUIModule;
+import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -50,6 +51,9 @@ public class TmmSettingsDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     // movie settings
     rootSettingsNode.addChild(MovieUIModule.getInstance().getSettingsNode());
+
+    // movie set settings
+    rootSettingsNode.addChild(MovieSetUIModule.getInstance().getSettingsNode());
 
     // TV show settings
     rootSettingsNode.addChild(TvShowUIModule.getInstance().getSettingsNode());

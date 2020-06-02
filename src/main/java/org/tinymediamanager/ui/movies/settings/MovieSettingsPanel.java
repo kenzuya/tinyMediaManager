@@ -39,7 +39,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.thirdparty.trakttv.ClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 
@@ -210,10 +210,12 @@ public class MovieSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
-      JPanel panelUiSettings = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelUiSettings = new JPanel();
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
         chckbxPersistUiFilters = new JCheckBox(BUNDLE.getString("Settings.movie.persistuifilter"));
@@ -236,10 +238,12 @@ public class MovieSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelAutomaticTasks = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelAutomaticTasks = new JPanel();
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblAutomaticTasksT = new TmmLabel(BUNDLE.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#automatic-tasks"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         chckbxRenameAfterScrape = new JCheckBox(BUNDLE.getString("Settings.movie.automaticrename"));
@@ -257,10 +261,12 @@ public class MovieSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         chckbxExtractArtworkFromVsmeta = new JCheckBox(BUNDLE.getString("Settings.extractartworkfromvsmeta"));
@@ -317,6 +323,7 @@ public class MovieSettingsPanel extends JPanel {
 
       JLabel lblPresets = new TmmLabel(BUNDLE.getString("Settings.preset"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPresets, lblPresets, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#media-center-presets"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblPresetHintT = new JLabel(BUNDLE.getString("Settings.preset.desc"));

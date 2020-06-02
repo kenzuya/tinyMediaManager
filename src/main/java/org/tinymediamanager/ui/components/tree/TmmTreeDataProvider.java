@@ -38,7 +38,7 @@ public abstract class TmmTreeDataProvider<E extends TmmTreeNode> extends Abstrac
   public static final String               NODE_REMOVED           = "nodeRemoved";
   public static final String               NODE_STRUCTURE_CHANGED = "nodeStructureChanged";
 
-  protected Set<ITmmTreeFilter<E>>         treeFilters;
+  protected Set<ITmmTreeFilter<E>>         treeFilters            = null;
   protected Comparator<E>                  treeComparator         = null;
   protected final ReadWriteLock            readWriteLock          = new ReentrantReadWriteLock();
   protected final Map<Object, TmmTreeNode> nodeMap                = new HashMap<>();

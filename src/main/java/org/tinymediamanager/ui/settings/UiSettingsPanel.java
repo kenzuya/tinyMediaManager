@@ -51,9 +51,9 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -148,10 +148,12 @@ class UiSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("hidemode 1", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
-      JPanel panelLanguage = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelLanguage = new JPanel();
+      panelLanguage.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("Settings.language"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelLanguage, lblLanguageT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#ui-language"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         cbLanguage = new JComboBox(locales.toArray());
@@ -172,10 +174,12 @@ class UiSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelTheme = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelTheme = new JPanel();
+      panelTheme.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblThemeT = new TmmLabel(BUNDLE.getString("Settings.uitheme"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelTheme, lblThemeT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#ui-theme"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         cbTheme = new JComboBox(new String[] { "Light", "Dark" });
@@ -188,10 +192,12 @@ class UiSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelFont = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelFont = new JPanel();
+      panelFont.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblFontT = new TmmLabel(BUNDLE.getString("Settings.font"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFont, lblFontT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#font"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JLabel lblFontFamilyT = new JLabel(BUNDLE.getString("Settings.fontfamily"));
@@ -216,10 +222,12 @@ class UiSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblDatefield = new JLabel(BUNDLE.getString("Settings.datefield"));

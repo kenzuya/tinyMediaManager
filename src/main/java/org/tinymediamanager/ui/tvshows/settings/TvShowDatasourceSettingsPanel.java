@@ -48,6 +48,7 @@ import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -148,6 +149,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
 
       JLabel lblDatasourcesT = new TmmLabel(BUNDLE.getString("Settings.source"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDatasources, lblDatasourcesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#data-sources-1"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneDataSources = new JScrollPane();
@@ -174,6 +176,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
 
       JLabel lblIgnoreT = new TmmLabel(BUNDLE.getString("Settings.ignore"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelIgnore, lblIgnoreT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#exclude-folders-from-scan"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         JScrollPane scrollPaneIgnore = new JScrollPane();
@@ -196,6 +199,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
 
       JLabel lblBadWordsT = new TmmLabel(BUNDLE.getString("Settings.movie.badwords"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelBadWords, lblBadWordsT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#bad-words"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JLabel lblBadWordsDesc = new JLabel(BUNDLE.getString("Settings.movie.badwords.hint"));

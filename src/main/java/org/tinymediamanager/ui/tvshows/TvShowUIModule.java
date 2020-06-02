@@ -95,6 +95,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
   final TvShowEpisodeSelectionModel tvShowEpisodeSelectionModel;
 
   private final TvShowTreePanel     listPanel;
+  private final JPanel              detailPanel;
   private final JPanel              dataPanel;
   private final TvShowFilterDialog  tvShowFilterDialog;
 
@@ -107,7 +108,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     tvShowEpisodeSelectionModel = new TvShowEpisodeSelectionModel();
 
     listPanel = new TvShowTreePanel(tvShowSelectionModel);
-    super.listPanel = listPanel;
 
     detailPanel = new JPanel();
     detailPanel.setOpaque(false);
@@ -215,6 +215,11 @@ public class TvShowUIModule extends AbstractTmmUIModule {
   @Override
   public String getTabTitle() {
     return BUNDLE.getString("tmm.tvshows");
+  }
+
+  @Override
+  public JPanel getDetailPanel() {
+    return detailPanel;
   }
 
   public TvShowSelectionModel getSelectionModel() {

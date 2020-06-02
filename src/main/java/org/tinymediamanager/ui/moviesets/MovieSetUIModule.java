@@ -50,19 +50,22 @@ import org.tinymediamanager.ui.moviesets.dialogs.MovieSetFilterDialog;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetArtworkPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetInformationPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetTreePanel;
+import org.tinymediamanager.ui.moviesets.settings.MovieSetSettingsNode;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 
 public class MovieSetUIModule extends AbstractTmmUIModule {
-  private static final String ID = "movieSets";
+  private static final String          ID       = "movieSets";
 
-  private static MovieSetUIModule instance = null;
+  private static MovieSetUIModule      instance = null;
 
   private final MovieSetSelectionModel selectionModel;
-  private final MovieSelectionModel movieSelectionModel;
+  private final MovieSelectionModel    movieSelectionModel;
 
-  private final MovieSetTreePanel treePanel;
+  private final MovieSetTreePanel      treePanel;
+  private final JPanel                 detailPanel;
   private final JPanel                 dataPanel;
   private final MovieSetFilterDialog   movieSetFilterDialog;
+  private final TmmSettingsNode        settingsNode;
 
   private JPopupMenu                   popupMenu;
 
@@ -71,7 +74,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     movieSelectionModel = new MovieSelectionModel();
 
     treePanel = new MovieSetTreePanel(selectionModel);
-    listPanel = treePanel;
 
     detailPanel = new JPanel();
     detailPanel.setOpaque(false);
@@ -122,6 +124,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     createActions();
     createPopupMenu();
     registerAccelerators();
+
+    // settings node
+    settingsNode = new MovieSetSettingsNode();
 
     // further initializations
     init();
@@ -178,7 +183,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
       popupMenu.add(debugMenu);
     }
 
-    listPanel.setPopupMenu(popupMenu);
+    treePanel.setPopupMenu(popupMenu);
 
     // dummy popupmenu to infer the text
     updatePopupMenu = new JPopupMenu(BUNDLE.getString("movieset.add"));
@@ -191,8 +196,18 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
   }
 
   @Override
+  public JPanel getTabPanel() {
+    return treePanel;
+  }
+
+  @Override
   public String getTabTitle() {
     return BUNDLE.getString("tmm.moviesets");
+  }
+
+  @Override
+  public JPanel getDetailPanel() {
+    return detailPanel;
   }
 
   @Override
@@ -211,7 +226,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
   @Override
   public TmmSettingsNode getSettingsNode() {
-    return null;
+    return settingsNode;
   }
 
   public void setSelectedMovieSet(MovieSet movieSet) {

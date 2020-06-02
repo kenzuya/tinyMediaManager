@@ -32,7 +32,7 @@ import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.ImageCache.CacheType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -65,10 +65,12 @@ class MiscSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[25lp:n,grow]", "[]"));
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         chckbxImageCache = new JCheckBox(BUNDLE.getString("Settings.imagecache"));

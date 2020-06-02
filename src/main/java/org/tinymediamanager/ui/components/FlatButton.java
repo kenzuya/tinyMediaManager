@@ -17,6 +17,7 @@
 package org.tinymediamanager.ui.components;
 
 import java.awt.Cursor;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -32,19 +33,35 @@ import javax.swing.JButton;
 public class FlatButton extends JButton {
 
   public FlatButton(Icon icon) {
-    this(null, icon);
+    this(null, icon, null);
+  }
+
+  public FlatButton(Icon icon, ActionListener actionListener) {
+    this(null, icon, actionListener);
   }
 
   public FlatButton(String text) {
-    this(text, null);
+    this(text, null, null);
+  }
+
+  public FlatButton(String text, ActionListener actionListener) {
+    this(text, null, actionListener);
   }
 
   public FlatButton(String text, Icon icon) {
+    this(text, icon, null);
+  }
+
+  public FlatButton(String text, Icon icon, ActionListener actionListener) {
     // Create the model
     setModel(new DefaultButtonModel());
 
     // initialize
     init(text, icon);
+
+    if (actionListener != null) {
+      addActionListener(actionListener);
+    }
   }
 
   @Override

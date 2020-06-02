@@ -20,7 +20,10 @@ import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -33,8 +36,10 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.IconManager;
@@ -53,14 +58,15 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class SettingsDialog extends TmmDialog {
-  private static final long              serialVersionUID = 2435834806519338339L;
+  private static final long             serialVersionUID = 2435834806519338339L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
-  private static JDialog                 instance;
+  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
+  private static JDialog                instance;
 
-  private TmmTree<TmmTreeNode>           tree;
+  private final TmmSettingsDataProvider dataProvider;
+  private TmmTree<TmmTreeNode>          tree;
   private JPanel                         rightPanel;
-  private TmmTreeTextFilter<TmmTreeNode> tfFilter;
+  private TmmSettingsTreeFilter         tfFilter;
 
   /**
    * Get the single instance of the settings dialog
@@ -76,6 +82,8 @@ public class SettingsDialog extends TmmDialog {
 
   private SettingsDialog() {
     super(BUNDLE.getString("tmm.settings"), "settings");
+
+    dataProvider = new TmmSettingsDataProvider();
 
     initComponents();
     initPanels();
@@ -144,7 +152,7 @@ public class SettingsDialog extends TmmDialog {
       splitPane.setLeftComponent(panelLeft);
       panelLeft.setLayout(new MigLayout("", "[200lp:200lp,grow]", "[][400lp,grow]"));
       {
-        tfFilter = new TmmTreeTextFilter<>();
+        tfFilter = new TmmSettingsTreeFilter();
         panelLeft.add(tfFilter, "cell 0 0,grow");
         tfFilter.setColumns(10);
       }
@@ -152,7 +160,7 @@ public class SettingsDialog extends TmmDialog {
       JScrollPane scrollPaneLeft = new NoBorderScrollPane();
       panelLeft.add(scrollPaneLeft, "cell 0 1,grow");
 
-      tree = new TmmTree<>(new TmmSettingsDataProvider());
+      tree = new TmmTree<>(dataProvider);
       scrollPaneLeft.setViewportView(tree);
       scrollPaneLeft.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
     }
@@ -199,5 +207,36 @@ public class SettingsDialog extends TmmDialog {
       TmmModuleManager.getInstance().saveSettings();
     }
     super.setVisible(visible);
+  }
+
+  private static class TmmSettingsTreeFilter extends TmmTreeTextFilter<TmmTreeNode> {
+    @Override
+    public boolean accept(TmmTreeNode node) {
+      if (StringUtils.isBlank(filterText)) {
+        return true;
+      }
+
+      Pattern pattern = Pattern.compile("(?i)" + Pattern.quote(filterText));
+
+      // first: filter on the node text
+      Matcher matcher = pattern.matcher(node.toString());
+      if (matcher.find()) {
+        return true;
+      }
+
+      // second: parse all children too
+      for (Enumeration<? extends TreeNode> e = node.children(); e.hasMoreElements();) {
+        if (accept((TmmTreeNode) e.nextElement())) {
+          return true;
+        }
+      }
+
+      // third: check the parent(s)
+      if (checkParent(node.getDataProvider().getParent(node), pattern)) {
+        return true;
+      }
+
+      return false;
+    }
   }
 }

@@ -47,7 +47,7 @@ import org.tinymediamanager.jsonrpc.io.ApiException;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.WolDeviceDialog;
@@ -129,6 +129,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
 
       JLabel lblWolT = new TmmLabel(BUNDLE.getString("tmm.wakeonlan"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelWol, lblWolT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#wake-on-lan"));
       add(collapsiblePanel, "growx,wmin 0");
       {
         JScrollPane spWolDevices = new JScrollPane();
@@ -152,6 +153,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
 
       JLabel lblKodiT = new TmmLabel("Kodi / XBMC", H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelKodi, lblKodiT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#kodixbmc"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         JLabel lblKodiHostT = new JLabel(BUNDLE.getString("Settings.kodi.host"));
@@ -209,10 +211,12 @@ class ExternalDevicesSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelUpnp = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelUpnp = new JPanel();
+      panelUpnp.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblUpnp = new TmmLabel("UPnP", H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUpnp, lblUpnp, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#upnp"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         chckbxUpnpShareLibrary = new JCheckBox(BUNDLE.getString("Settings.upnp.share"));

@@ -68,7 +68,9 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     super(null);
     this.tree = tree;
     this.dataProvider = dataProvider;
-    this.dataProvider.setTreeFilters(new HashSet<>());
+    if (dataProvider.getTreeFilters() == null) {
+      this.dataProvider.setTreeFilters(new HashSet<>());
+    }
     dataProvider.addPropertyChangeListener(evt -> {
       // a node has been inserted
       if (TmmTreeDataProvider.NODE_INSERTED.equals(evt.getPropertyName()) && evt.getNewValue() instanceof TmmTreeNode) {

@@ -23,19 +23,13 @@ import java.util.ResourceBundle;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
-
-import org.tinymediamanager.ui.components.TmmListPanel;
 
 public abstract class AbstractTmmUIModule implements ITmmUIModule {
   protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
   protected final Map<Class, Action>    actionMap    = new HashMap<>();
-
-  protected TmmListPanel                listPanel;
-  protected JPanel                      detailPanel;
 
   protected Action                      searchAction = null;
   protected Action                      editAction   = null;
@@ -88,16 +82,6 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
       catch (Exception ignored) {
       }
     }
-  }
-
-  @Override
-  public JPanel getTabPanel() {
-    return listPanel;
-  }
-
-  @Override
-  public JPanel getDetailPanel() {
-    return detailPanel;
   }
 
   @Override

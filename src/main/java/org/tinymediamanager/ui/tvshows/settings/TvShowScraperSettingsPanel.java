@@ -50,6 +50,7 @@ import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -167,6 +168,7 @@ class TvShowScraperSettingsPanel extends JPanel {
 
       JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.metadata"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
         tableScraper = new TmmTable();

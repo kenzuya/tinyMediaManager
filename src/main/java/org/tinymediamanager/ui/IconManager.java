@@ -106,6 +106,7 @@ public class IconManager {
   public static final ImageIcon              WARN                        = createSVGIcon("exclamation-triangle.svg");
   public static final ImageIcon              WARN_INTENSIFIED            = createSVGIcon("exclamation-triangle.svg", Color.RED);
   public static final ImageIcon              INFO                        = createSVGIcon("info-circle.svg");
+  public static final ImageIcon              HELP                        = createSVGIcon("question-circle.svg");
   public static final ImageIcon              FILTER_ACTIVE               = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
   public static final ImageIcon              NEW                         = createTextIcon("new", new Color(31, 187, 0));
   public static final ImageIcon              PLAY_LARGE                  = createSVGIcon("play-circle.svg", 2.33333);
