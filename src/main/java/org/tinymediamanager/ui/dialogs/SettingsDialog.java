@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -216,10 +215,8 @@ public class SettingsDialog extends TmmDialog {
         return true;
       }
 
-      Pattern pattern = Pattern.compile("(?i)" + Pattern.quote(filterText));
-
       // first: filter on the node text
-      Matcher matcher = pattern.matcher(node.toString());
+      Matcher matcher = filterPattern.matcher(node.toString());
       if (matcher.find()) {
         return true;
       }
@@ -232,7 +229,7 @@ public class SettingsDialog extends TmmDialog {
       }
 
       // third: check the parent(s)
-      if (checkParent(node.getDataProvider().getParent(node), pattern)) {
+      if (checkParent(node.getDataProvider().getParent(node), filterPattern)) {
         return true;
       }
 

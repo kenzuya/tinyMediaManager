@@ -37,6 +37,7 @@ public class StrgUtils {
   private static final String[]                  COMMON_TITLE_PREFIXES = buildCommonTitlePrefixes();
   private static final char[]                    HEX_ARRAY             = "0123456789ABCDEF".toCharArray();
   private static final Map<String, String>       DATE_FORMAT_REGEXPS   = new HashMap<>(30);
+  private static final Pattern                   NORMALIZE_PATTERN     = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
   static {
     DATE_FORMAT_REGEXPS.put("^\\d{8}$", "yyyyMMdd");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}-\\d{1,2}-\\d{4}$", "dd-MM-yyyy");
@@ -471,7 +472,6 @@ public class StrgUtils {
    */
   public static String normalizeString(String original) {
     String nfdNormalizedString = Normalizer.normalize(original, Normalizer.Form.NFD);
-    Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-    return pattern.matcher(nfdNormalizedString).replaceAll("");
+    return NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll("");
   }
 }
