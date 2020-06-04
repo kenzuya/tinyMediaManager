@@ -22,6 +22,8 @@ import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.REMOVED_EPISODE;
 import static org.tinymediamanager.core.Constants.THUMB;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -34,6 +36,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -66,10 +71,11 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowSeasonInformationPanel extends JPanel {
   private static final long                     serialVersionUID = 1911808562993073590L;
-  /**
-   * @wbp.nls.resourceBundle messages
-   */
+  /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle           BUNDLE           = ResourceBundle.getBundle("messages");
+
+  private Color                                 defaultColor;
+  private Color                                 dummyColor;
 
   private EventList<TvShowEpisode>              episodeEventList;
   private DefaultEventTableModel<TvShowEpisode> episodeTableModel;
@@ -98,6 +104,8 @@ public class TvShowSeasonInformationPanel extends JPanel {
 
     initComponents();
     initDataBindings();
+
+    tableEpisodes.setDefaultRenderer(String.class, new EpisodeTableCellRenderer());
 
     // manual coded binding
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
@@ -128,7 +136,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
         try {
           episodeEventList.getReadWriteLock().writeLock().lock();
           episodeEventList.clear();
-          episodeEventList.addAll(selectedSeason.getEpisodes());
+          episodeEventList.addAll(selectedSeason.getEpisodesForDisplay());
           tableEpisodes.adjustColumnPreferredWidths(6);
         }
         catch (Exception ignored) {
@@ -140,6 +148,14 @@ public class TvShowSeasonInformationPanel extends JPanel {
       }
     };
     tvShowSeasonSelectionModel.addPropertyChangeListener(propertyChangeListener);
+  }
+
+  @Override
+  public void updateUI() {
+    super.updateUI();
+
+    defaultColor = UIManager.getColor("Table.foreground");
+    dummyColor = UIManager.getColor("Component.linkColor");
   }
 
   private void initComponents() {
@@ -299,11 +315,6 @@ public class TvShowSeasonInformationPanel extends JPanel {
       throw new IllegalStateException();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ca.odell.glazedlists.gui.AdvancedTableFormat#getColumnClass(int)
-     */
     @SuppressWarnings("rawtypes")
     @Override
     public Class getColumnClass(int column) {
@@ -321,6 +332,24 @@ public class TvShowSeasonInformationPanel extends JPanel {
     @Override
     public Comparator getColumnComparator(int arg0) {
       return null;
+    }
+  }
+
+  private class EpisodeTableCellRenderer extends DefaultTableCellRenderer {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+      Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+      // Check if the episode is a dummy one
+      int dataRow = table.convertRowIndexToModel(row);
+      if (episodeEventList.get(dataRow).isDummy()) {
+        c.setForeground(dummyColor);
+      }
+      else {
+        c.setForeground(defaultColor);
+      }
+      return c;
     }
   }
 }
