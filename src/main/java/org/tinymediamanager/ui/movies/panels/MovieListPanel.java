@@ -52,10 +52,10 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
-import org.tinymediamanager.ui.movies.MovieFilterator;
 import org.tinymediamanager.ui.movies.MovieMatcherEditor;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.MovieTableFormat;
+import org.tinymediamanager.ui.movies.MovieTextMatcherEditor;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
@@ -66,7 +66,6 @@ import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
-import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -104,7 +103,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     searchField = EnhancedTextField.createSearchTextField();
     add(searchField, "cell 0 0,growx");
 
-    MatcherEditor<Movie> textMatcherEditor = new TextComponentMatcherEditor<>(searchField, new MovieFilterator());
+    MatcherEditor<Movie> textMatcherEditor = new MovieTextMatcherEditor(searchField);
     MovieMatcherEditor movieMatcherEditor = new MovieMatcherEditor();
     FilterList<Movie> extendedFilteredMovies = new FilterList<>(sortedMovies, movieMatcherEditor);
     FilterList<Movie> textFilteredMovies = new FilterList<>(extendedFilteredMovies, textMatcherEditor);
