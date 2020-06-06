@@ -49,8 +49,6 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_ABOUT_HOVER         = loadMultiResolutionImage("icn_about_hover.png");
   public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET       = loadMultiResolutionImage("icn_add_collection.png");
   public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER = loadMultiResolutionImage("icn_add_collection_hover.png");
-  public static final ImageIcon              TOOLBAR_DONATE              = loadMultiResolutionImage("icn_donate.png");
-  public static final ImageIcon              TOOLBAR_DONATE_HOVER        = loadMultiResolutionImage("icn_donate_hover.png");
   public static final ImageIcon              TOOLBAR_EDIT                = loadMultiResolutionImage("icn_edit.png");
   public static final ImageIcon              TOOLBAR_EDIT_HOVER          = loadMultiResolutionImage("icn_edit_hover.png");
   public static final ImageIcon              TOOLBAR_LOGO                = loadMultiResolutionImage("icn_logo_toolbar.png");
