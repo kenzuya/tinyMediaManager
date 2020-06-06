@@ -31,6 +31,7 @@ import javax.swing.CellRendererPane;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
@@ -93,6 +94,18 @@ public class TmmTableUI extends FlatTableUI {
       Rectangle clip = g2.getClipBounds();
       Rectangle bounds = table.getBounds();
 
+      // if we're in a JViewPort, draw the horizontal lines over the whole width
+      if (c.getParent() instanceof JViewport) {
+        int width = c.getParent().getWidth();
+        if (bounds.width < width) {
+          bounds.width = width;
+        }
+        if (clip.width < width) {
+          clip.width = width;
+          g2.setClip(clip);
+        }
+      }
+
       // account for the fact that the graphics has already been translated
       // into the table's bounds
       bounds.x = bounds.y = 0;
@@ -139,10 +152,6 @@ public class TmmTableUI extends FlatTableUI {
       // account for the fact that the graphics has already been translated
       // into the table's bounds
       bounds.x = bounds.y = 0;
-
-      // compute the visible part of table which needs to be painted
-      Rectangle visibleBounds = clip.intersection(bounds);
-      Point upperLeft = visibleBounds.getLocation();
 
       int drawColumnCountOffset = 1;
 

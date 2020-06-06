@@ -401,7 +401,6 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         tableExamples = new TmmTable(
             new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(exampleEventList), new MovieRenamerExampleTableFormat()));
         JScrollPane scrollPaneExamples = new JScrollPane(tableExamples);
-        tableExamples.configureScrollPane(scrollPaneExamples);
         scrollPaneExamples.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         ScrollingEventDelegator.install(scrollPaneExamples);
         panelExample.add(scrollPaneExamples, "cell 1 2,grow");

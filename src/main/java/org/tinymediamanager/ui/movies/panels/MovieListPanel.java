@@ -128,7 +128,6 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     });
 
     JScrollPane scrollPane = new JScrollPane(movieTable);
-    movieTable.configureScrollPane(scrollPane, new int[] { 0 });
     add(scrollPane, "cell 0 1 2 1,grow");
 
     btnExtendedFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));

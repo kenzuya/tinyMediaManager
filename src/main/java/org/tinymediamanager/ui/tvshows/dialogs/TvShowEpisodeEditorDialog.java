@@ -394,7 +394,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(scrollPaneRatings, "cell 1 10 5 2,grow");
 
         tableRatings = new MediaRatingTable(ratings);
-        tableRatings.configureScrollPane(scrollPaneRatings);
         scrollPaneRatings.setViewportView(tableRatings);
 
         JButton btnAddRating = new JButton(new AddRatingAction());
@@ -504,7 +503,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(scrollPane, "cell 1 0,grow");
 
         tableGuests = new PersonTable(guests, true);
-        tableGuests.configureScrollPane(scrollPane);
       }
       {
         JLabel lblDirectorsT = new TmmLabel(BUNDLE.getString("metatag.directors"));
@@ -514,7 +512,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(scrollPane, "cell 1 2,grow");
 
         tableDirectors = new PersonTable(directors, true);
-        tableDirectors.configureScrollPane(scrollPane);
       }
       {
         JLabel lblWritersT = new TmmLabel(BUNDLE.getString("metatag.writers"));
@@ -524,7 +521,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(scrollPane, "cell 4 2,grow");
 
         tableWriters = new PersonTable(writers, true);
-        tableWriters.configureScrollPane(scrollPane);
       }
       {
         JButton btnAddGuest = new JButton(new AddGuestAction());

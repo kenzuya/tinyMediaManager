@@ -164,7 +164,6 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       table = new TmmTable(episodeTableModel);
       table.setSelectionModel(selectionModel);
-      table.configureScrollPane(scrollPane);
       scrollPane.setViewportView(table);
 
       JPanel panelRight = new JPanel();

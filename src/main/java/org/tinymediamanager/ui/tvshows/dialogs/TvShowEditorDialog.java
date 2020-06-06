@@ -486,7 +486,6 @@ public class TvShowEditorDialog extends TmmDialog {
         details1Panel.add(scrollPaneRatings, "cell 1 10 4 1,growx");
 
         tableRatings = new MediaRatingTable(ratings);
-        tableRatings.configureScrollPane(scrollPaneRatings);
         scrollPaneRatings.setViewportView(tableRatings);
       }
       {
@@ -552,7 +551,6 @@ public class TvShowEditorDialog extends TmmDialog {
         JScrollPane scrollPaneActors = new JScrollPane();
         details2Panel.add(scrollPaneActors, "cell 1 0 1 2,grow");
         tableActors = new PersonTable(actors, true);
-        tableActors.configureScrollPane(scrollPaneActors);
 
         JButton btnAddActor = new JButton(new AddActorAction());
         btnAddActor.setMargin(BUTTON_MARGIN);
@@ -585,7 +583,6 @@ public class TvShowEditorDialog extends TmmDialog {
         details2Panel.add(scrollPaneIds, "cell 4 1,grow");
 
         tableIds = new MediaIdTable(ids);
-        tableIds.configureScrollPane(scrollPaneIds);
 
         JButton btnAddId = new JButton(new AddIdAction());
         btnAddId.setMargin(BUTTON_MARGIN);
@@ -978,7 +975,6 @@ public class TvShowEditorDialog extends TmmDialog {
         episodesPanel.add(scrollPaneEpisodes, "cell 1 0 1 2,grow");
 
         tableEpisodes = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(episodes), new EpisodeTableFormat()));
-        tableEpisodes.configureScrollPane(scrollPaneEpisodes);
       }
       {
         JButton btnRemoveEpisode = new JButton(new RemoveEpisodeAction());
@@ -1011,7 +1007,6 @@ public class TvShowEditorDialog extends TmmDialog {
         trailerPanel.add(scrollPaneTrailer, "cell 1 10 7 1,grow");
         tableTrailer = new TmmTable();
         tableTrailer.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        tableTrailer.configureScrollPane(scrollPaneTrailer);
         scrollPaneTrailer.setViewportView(tableTrailer);
       }
     }

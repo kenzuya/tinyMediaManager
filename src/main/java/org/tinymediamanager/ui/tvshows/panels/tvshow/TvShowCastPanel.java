@@ -124,7 +124,6 @@ public class TvShowCastPanel extends JPanel {
       TmmUILayoutStore.getInstance().install(tableActors);
 
       JScrollPane scrollPaneActors = new JScrollPane(tableActors);
-      tableActors.configureScrollPane(scrollPaneActors);
       scrollPaneActors.setViewportView(tableActors);
       add(scrollPaneActors, "cell 1 0 1 2,grow");
     }

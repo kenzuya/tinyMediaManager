@@ -131,7 +131,6 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
     tree.addFilter(searchField);
     JScrollPane scrollPane = new JScrollPane(tree);
-    tree.configureScrollPane(scrollPane, new int[] { 0 });
     add(scrollPane, "cell 0 1 2 1,grow");
     tree.adjustColumnPreferredWidths(3);
 

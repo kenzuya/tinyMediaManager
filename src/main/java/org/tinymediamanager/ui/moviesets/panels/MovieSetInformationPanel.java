@@ -180,7 +180,6 @@ public class MovieSetInformationPanel extends JPanel {
         TmmUILayoutStore.getInstance().install(tableAssignedMovies);
         tableAssignedMovies.adjustColumnPreferredWidths(3);
         JScrollPane scrollPane = new JScrollPane(tableAssignedMovies);
-        tableAssignedMovies.configureScrollPane(scrollPane);
         panelRight.add(scrollPane, "cell 0 7,grow");
       }
     }

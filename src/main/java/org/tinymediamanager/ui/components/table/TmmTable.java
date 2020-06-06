@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
-import javax.swing.CellRendererPane;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
@@ -65,7 +64,6 @@ public class TmmTable extends JTable {
   private static final long             serialVersionUID = 6150939811851709115L;
   private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private static final CellRendererPane CELL_RENDER_PANE = new CellRendererPane();
   private TableComparatorChooser<?>     tableComparatorChooser;
 
   public TmmTable() {
@@ -78,11 +76,6 @@ public class TmmTable extends JTable {
     init();
   }
 
-  /**
-   * Overridden to use TmmTableColumnModel as TableColumnModel.
-   *
-   * @see javax.swing.JTable#createDefaultColumnModel()
-   */
   @Override
   protected TableColumnModel createDefaultColumnModel() {
     return new TmmTableColumnModel();
@@ -90,26 +83,16 @@ public class TmmTable extends JTable {
 
   @Override
   public void addColumn(TableColumn aColumn) {
-    // // disable grid in header
-    // if (!(aColumn.getHeaderRenderer() instanceof BottomBorderHeaderRenderer)) {
-    // aColumn.setHeaderRenderer(new BottomBorderHeaderRenderer());
-    // }
-
     if (aColumn.getIdentifier() == null && getModel() instanceof TmmTableModel) {
-      TmmTableModel tableModel = ((TmmTableModel) getModel());
+      TmmTableModel<?> tableModel = ((TmmTableModel<?>) getModel());
       tableModel.setUpColumn(aColumn);
     }
     super.addColumn(aColumn);
   }
 
   private void init() {
-    // setTableHeader(createTableHeader());
     getTableHeader().setReorderingAllowed(false);
-    // getTableHeader().setOpaque(false);
-    // setGridColor(TABLE_GRID_COLOR);
-    // setIntercellSpacing(new Dimension(0, 0));
-    // turn off grid painting as we'll handle this manually in order to paint grid lines over the entire viewport.
-    setShowGrid(false);
+    setFillsViewportHeight(true);
 
     getColumnModel().addColumnModelListener(new TableColumnModelListener() {
       @Override
@@ -167,8 +150,8 @@ public class TmmTable extends JTable {
 
   public void setDefaultHiddenColumns() {
     if (getColumnModel() instanceof TmmTableColumnModel && getModel() instanceof TmmTableModel) {
-      TmmTableModel tableModel = (TmmTableModel) getModel();
-      TmmTableFormat tableFormat = (TmmTableFormat) tableModel.getTableFormat();
+      TmmTableModel<?> tableModel = (TmmTableModel<?>) getModel();
+      TmmTableFormat<?> tableFormat = (TmmTableFormat<?>) tableModel.getTableFormat();
 
       List<String> hiddenColumns = new ArrayList<>();
 
@@ -230,17 +213,6 @@ public class TmmTable extends JTable {
     resizeAndRepaint();
   }
 
-  // @Override
-  // public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-  // Component component = super.prepareRenderer(renderer, row, column);
-  // // if the renderer is a JComponent and the given row isn't part of a
-  // // selection, make the renderer non-opaque so that striped rows show through.
-  // if (component instanceof JComponent) {
-  // ((JComponent) component).setOpaque(getSelectionModel().isSelectedIndex(row));
-  // }
-  // return component;
-  // }
-
   /**
    * Overridden to install special button into the upper right hand corner.
    *
@@ -300,21 +272,6 @@ public class TmmTable extends JTable {
         scrollPane.setCorner(UPPER_RIGHT_CORNER, b);
       }
     }
-  }
-
-  public void configureScrollPane(JScrollPane scrollPane) {
-    // per default exclude the rightmost
-    int[] columnsWithoutRightVerticalGrid = { getColumnCount() - 1 };
-    configureScrollPane(scrollPane, columnsWithoutRightVerticalGrid);
-  }
-
-  public void configureScrollPane(JScrollPane scrollPane, int[] columnsWithoutRightVerticalGrid) {
-    // if (!(scrollPane.getViewport() instanceof TmmViewport)) {
-    // scrollPane.setViewport(new TmmViewport(this, columnsWithoutRightVerticalGrid));
-    // scrollPane.getViewport().setView(this);
-    // }
-    // scrollPane.setBorder(null);
-    // scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
   }
 
   protected static class IconHeaderRenderer extends DefaultTableCellRenderer {

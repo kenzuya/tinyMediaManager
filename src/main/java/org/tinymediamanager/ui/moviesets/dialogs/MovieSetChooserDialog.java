@@ -210,7 +210,6 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
           panelSearchDetail.add(scrollPane, "cell 0 2 2 1,grow");
 
           tableMovies = new TmmTable();
-          tableMovies.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableMovies);
         }
         {

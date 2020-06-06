@@ -167,7 +167,6 @@ public class TrailerPanel extends JPanel {
     table.setSelectionModel(new NullSelectionModel());
 
     JScrollPane scrollPane = new JScrollPane(table);
-    table.configureScrollPane(scrollPane);
     add(scrollPane, "cell 0 0,grow");
     scrollPane.setViewportView(table);
 

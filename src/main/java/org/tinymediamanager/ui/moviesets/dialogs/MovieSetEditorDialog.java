@@ -224,7 +224,6 @@ public class MovieSetEditorDialog extends TmmDialog {
       panelContent.add(scrollPaneMovies, "cell 1 4 1 3,grow");
 
       tableMovies = new TmmTable();
-      tableMovies.configureScrollPane(scrollPaneMovies);
       scrollPaneMovies.setViewportView(tableMovies);
 
       lblFanart = new ImageLabel();

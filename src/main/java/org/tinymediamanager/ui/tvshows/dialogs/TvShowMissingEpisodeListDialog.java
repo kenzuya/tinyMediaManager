@@ -82,7 +82,6 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
       tblMissingEpisodeList = new TmmTable(missingEpisodeListModel);
       JScrollPane scrollPane = new JScrollPane();
-      tblMissingEpisodeList.configureScrollPane(scrollPane);
       panelContent.add(scrollPane, "cell 0 0, grow");
     }
     {

@@ -82,7 +82,6 @@ public abstract class MediaFilesPanel extends JPanel {
       tableFiles.addMouseMotionListener(linkListener);
 
       JScrollPane scrollPaneFiles = new JScrollPane(tableFiles);
-      tableFiles.configureScrollPane(scrollPaneFiles);
       add(scrollPaneFiles, "cell 0 0,grow");
 
       scrollPaneFiles.setViewportView(tableFiles);

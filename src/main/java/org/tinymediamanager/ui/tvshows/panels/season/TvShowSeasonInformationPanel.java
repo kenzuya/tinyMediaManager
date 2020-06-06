@@ -220,7 +220,6 @@ public class TvShowSeasonInformationPanel extends JPanel {
         TmmUILayoutStore.getInstance().install(tableEpisodes);
         JScrollPane scrollPaneEpisodes = new JScrollPane(tableEpisodes);
         panelRight.add(scrollPaneEpisodes, "cell 0 4 2 1,grow");
-        tableEpisodes.configureScrollPane(scrollPaneEpisodes);
         scrollPaneEpisodes.setViewportView(tableEpisodes);
       }
     }

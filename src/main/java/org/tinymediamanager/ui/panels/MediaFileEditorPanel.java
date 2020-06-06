@@ -137,7 +137,6 @@ public class MediaFileEditorPanel extends JPanel {
         splitPane.setLeftComponent(panelMediaFiles);
 
         tableMediaFiles = new TmmTable();
-        tableMediaFiles.configureScrollPane(scrollPaneMediaFiles);
         scrollPaneMediaFiles.setViewportView(tableMediaFiles);
       }
       {
@@ -243,7 +242,6 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(scrollPane, "cell 1 5 8 1,grow");
 
           tableAudioStreams = new TmmTable();
-          tableAudioStreams.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableAudioStreams);
         }
         {
@@ -254,7 +252,6 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(scrollPane, "cell 1 6 8 1,grow");
 
           tableSubtitles = new TmmTable();
-          tableSubtitles.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableSubtitles);
         }
         {

@@ -257,7 +257,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchResults.add(scrollPane, "cell 0 0,grow");
           tableSearchResults = new TmmTable(new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat()));
-          tableSearchResults.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableSearchResults);
         }
       }
@@ -295,7 +294,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           panelSearchDetail.add(scrollPane, "cell 0 4 2 1,grow");
           {
             tableCastMembers = new TmmTable(new TmmTableModel<>(castMemberEventList, new CastMemberTableFormat()));
-            tableCastMembers.configureScrollPane(scrollPane);
             scrollPane.setViewportView(tableCastMembers);
           }
         }

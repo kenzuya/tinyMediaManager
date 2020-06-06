@@ -209,7 +209,6 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       panelContent.add(scrollPaneSubs, "cell 0 6 3 1,grow");
 
       tableSubs = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat()));
-      tableSubs.configureScrollPane(scrollPaneSubs);
       scrollPaneSubs.setViewportView(tableSubs);
     }
 

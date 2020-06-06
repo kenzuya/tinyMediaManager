@@ -426,7 +426,6 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         tableExamples = new TmmTable(
             new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(exampleEventList), new TvShowRenamerExampleTableFormat()));
         JScrollPane scrollPane = new JScrollPane(tableExamples);
-        tableExamples.configureScrollPane(scrollPane);
         scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_NEVER);
         ScrollingEventDelegator.install(scrollPane);
         panelExample.add(scrollPane, "cell 1 2,grow");

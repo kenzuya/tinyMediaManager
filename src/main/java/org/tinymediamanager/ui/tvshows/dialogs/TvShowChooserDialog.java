@@ -237,7 +237,6 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchResults.add(scrollPane, "cell 0 0,grow");
           tableSearchResults = new TmmTable(searchResultTableModel);
-          tableSearchResults.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableSearchResults);
         }
       }
