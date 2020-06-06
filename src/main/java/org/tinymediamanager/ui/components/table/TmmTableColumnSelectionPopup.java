@@ -26,6 +26,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -61,7 +62,7 @@ public class TmmTableColumnSelectionPopup {
     Map<String, Object> displayNameToCheckBox = new HashMap<>();
     List<String> displayNames = new ArrayList<>();
 
-    TmmTableModel<?> tableModel = (TmmTableModel<?>) table.getModel();
+    TableModel tableModel = table.getModel();
 
     for (final TableColumn etc : columns) {
       String columnName = tableModel.getColumnName(etc.getModelIndex());

@@ -28,7 +28,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
-import java.util.Comparator;
 import java.util.ResourceBundle;
 
 import javax.swing.Box;
@@ -53,14 +52,14 @@ import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.tvshows.TvShowSeasonSelectionModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -70,25 +69,25 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSeasonInformationPanel extends JPanel {
-  private static final long                     serialVersionUID = 1911808562993073590L;
+  private static final long            serialVersionUID = 1911808562993073590L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle           BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private Color                                 defaultColor;
-  private Color                                 dummyColor;
+  private Color                        defaultColor;
+  private Color                        dummyColor;
 
-  private EventList<TvShowEpisode>              episodeEventList;
-  private DefaultEventTableModel<TvShowEpisode> episodeTableModel;
-  private TvShowSeasonSelectionModel            tvShowSeasonSelectionModel;
-  private ImageLabel                            lblTvShowPoster;
-  private JLabel                                lblPosterSize;
-  private ImageLabel                            lblTvShowBanner;
-  private JLabel                                lblBannerSize;
-  private ImageLabel                            lblTvShowThumb;
-  private JLabel                                lblThumbSize;
-  private JLabel                                lblTvshowTitle;
-  private JLabel                                lblSeason;
-  private TmmTable                              tableEpisodes;
+  private EventList<TvShowEpisode>     episodeEventList;
+  private TmmTableModel<TvShowEpisode> episodeTableModel;
+  private TvShowSeasonSelectionModel   tvShowSeasonSelectionModel;
+  private ImageLabel                   lblTvShowPoster;
+  private JLabel                       lblPosterSize;
+  private ImageLabel                   lblTvShowBanner;
+  private JLabel                       lblBannerSize;
+  private ImageLabel                   lblTvShowThumb;
+  private JLabel                       lblThumbSize;
+  private JLabel                       lblTvshowTitle;
+  private JLabel                       lblSeason;
+  private TmmTable                     tableEpisodes;
 
   /**
    * Instantiates a new tv show information panel.
@@ -100,7 +99,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
     this.tvShowSeasonSelectionModel = tvShowSeasonSelectionModel;
     episodeEventList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()),
         GlazedLists.beanConnector(TvShowEpisode.class));
-    episodeTableModel = new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(episodeEventList), new EpisodeTableFormat());
+    episodeTableModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(episodeEventList), new EpisodeTableFormat());
 
     initComponents();
     initDataBindings();
@@ -137,13 +136,13 @@ public class TvShowSeasonInformationPanel extends JPanel {
           episodeEventList.getReadWriteLock().writeLock().lock();
           episodeEventList.clear();
           episodeEventList.addAll(selectedSeason.getEpisodesForDisplay());
-          tableEpisodes.adjustColumnPreferredWidths(6);
         }
         catch (Exception ignored) {
           // nothing to do here
         }
         finally {
           episodeEventList.getReadWriteLock().writeLock().unlock();
+          tableEpisodes.adjustColumnPreferredWidths(6);
         }
       }
     };
@@ -215,6 +214,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
       {
         JLabel lblEpisodelistT = new TmmLabel(BUNDLE.getString("metatag.episodes"));
         panelRight.add(lblEpisodelistT, "cell 0 3 2 1");
+
         tableEpisodes = new TmmTable(episodeTableModel);
         tableEpisodes.setName("tvshows.seaon.episodeTable");
         TmmUILayoutStore.getInstance().install(tableEpisodes);
@@ -277,61 +277,29 @@ public class TvShowSeasonInformationPanel extends JPanel {
 
   }
 
-  private static class EpisodeTableFormat implements AdvancedTableFormat<TvShowEpisode> {
-    @Override
-    public int getColumnCount() {
-      return 3;
-    }
+  private static class EpisodeTableFormat extends TmmTableFormat<TvShowEpisode> {
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("metatag.episode");
+    public EpisodeTableFormat() {
+      /*
+       * episode number
+       */
+      Column col = new Column(BUNDLE.getString("metatag.episode"), "episode", TvShowEpisode::getEpisode, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 1:
-          return BUNDLE.getString("metatag.title");
+      /*
+       * episode title
+       */
+      col = new Column(BUNDLE.getString("metatag.title"), "title", TvShowEpisode::getTitle, String.class);
+      col.setColumnTooltip(TvShowEpisode::getTitle);
+      addColumn(col);
 
-        case 2:
-          return BUNDLE.getString("metatag.aired");
-
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(TvShowEpisode episode, int column) {
-      switch (column) {
-        case 0:
-          return episode.getEpisode();
-
-        case 1:
-          return episode.getTitle();
-
-        case 2:
-          return episode.getFirstAiredAsString();
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Class getColumnClass(int column) {
-      switch (column) {
-        case 0:
-        case 1:
-        case 2:
-          return String.class;
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Comparator getColumnComparator(int arg0) {
-      return null;
+      /*
+       * aired date
+       */
+      col = new Column(BUNDLE.getString("metatag.aired"), "aired", TvShowEpisode::getFirstAiredAsString, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
     }
   }
 

@@ -54,7 +54,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -72,7 +71,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
     results = new SortedList<>(GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>())),
         new EpisodeContainerComparator());
-    DefaultEventTableModel<EpisodeContainer> missingEpisodeListModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(results),
+    TmmTableModel<EpisodeContainer> missingEpisodeListModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(results),
         new MissingEpisodeListTableFormat());
 
     // UI

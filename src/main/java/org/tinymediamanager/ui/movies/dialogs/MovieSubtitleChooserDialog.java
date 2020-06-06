@@ -26,7 +26,6 @@ import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -69,6 +68,8 @@ import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieSubtitleChooserModel;
 
@@ -76,8 +77,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -87,28 +86,27 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSubtitleChooserDialog extends TmmDialog {
-  private static final long                                 serialVersionUID = -3104541519073924724L;
-  private static final Logger                               LOGGER           = LoggerFactory.getLogger(MovieSubtitleChooserDialog.class);
+  private static final long                          serialVersionUID = -3104541519073924724L;
+  private static final Logger                        LOGGER           = LoggerFactory.getLogger(MovieSubtitleChooserDialog.class);
 
-  private final MovieList                                   movieList        = MovieList.getInstance();
-  private final Movie                                       movieToScrape;
-  private final MediaFile                                   fileToScrape;
-  private SearchTask                                        activeSearchTask = null;
+  private final MovieList                            movieList        = MovieList.getInstance();
+  private final Movie                                movieToScrape;
+  private final MediaFile                            fileToScrape;
+  private SearchTask                                 activeSearchTask = null;
 
-  private EventList<MovieSubtitleChooserModel>              subtitleEventList;
-  private DefaultEventTableModel<MovieSubtitleChooserModel> subtitleTableModel;
+  private final EventList<MovieSubtitleChooserModel> subtitleEventList;
 
-  private final boolean                                     inQueue;
-  private boolean                                           continueQueue    = true;
+  private final boolean                              inQueue;
+  private boolean                                    continueQueue    = true;
 
   // UI components
-  private JTable                                            tableSubs;
-  private JTextField                                        tfSearchQuery;
-  private JComboBox<MediaLanguages>                         cbLanguage;
-  private MediaScraperCheckComboBox                         cbScraper;
-  private JLabel                                            lblProgressAction;
-  private JProgressBar                                      progressBar;
-  private JButton                                           btnSearch;
+  private JTable                                     tableSubs;
+  private JTextField                                 tfSearchQuery;
+  private JComboBox<MediaLanguages>                  cbLanguage;
+  private MediaScraperCheckComboBox                  cbScraper;
+  private JLabel                                     lblProgressAction;
+  private JProgressBar                               progressBar;
+  private JButton                                    btnSearch;
 
   public MovieSubtitleChooserDialog(Movie movie, MediaFile mediaFile, boolean inQueue) {
     super(BUNDLE.getString("moviesubtitlechooser.search"), "movieSubtitleChooser");
@@ -119,7 +117,6 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
     subtitleEventList = GlazedLists
         .threadSafeList(new ObservableElementList<>(new BasicEventList<>(), GlazedLists.beanConnector(MovieSubtitleChooserModel.class)));
-    subtitleTableModel = new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat());
 
     initComponents();
 
@@ -216,7 +213,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
       final JScrollPane scrollPaneSubs = new JScrollPane();
       panelContent.add(scrollPaneSubs, "cell 0 5 5 1,grow");
 
-      tableSubs = new TmmTable(subtitleTableModel);
+      tableSubs = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat()));
       tableSubs.setDefaultRenderer(ImageIcon.class, new Renderer());
       scrollPaneSubs.setViewportView(tableSubs);
     }
@@ -372,69 +369,31 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
   }
 
-  private static class SubtitleTableFormat implements AdvancedTableFormat<MovieSubtitleChooserModel> {
-    @Override
-    public int getColumnCount() {
-      return 3;
-    }
+  private static class SubtitleTableFormat extends TmmTableFormat<MovieSubtitleChooserModel> {
+    public SubtitleTableFormat() {
+      /*
+       * download
+       */
+      Column col = new Column("", "icon", model -> IconManager.DOWNLOAD, ImageIcon.class);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return "";
+      /*
+       * title
+       */
+      col = new Column(BUNDLE.getString("metatag.title"), "title", MovieSubtitleChooserModel::getName, String.class);
+      col.setColumnTooltip(MovieSubtitleChooserModel::getName);
+      addColumn(col);
 
-        case 1:
-          return BUNDLE.getString("metatag.title");
-
-        case 2:
-          return BUNDLE.getString("metatag.releasename");
-
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(MovieSubtitleChooserModel model, int column) {
-      switch (column) {
-        case 0:
-          return IconManager.DOWNLOAD;
-
-        case 1:
-          return model.getName();
-
-        case 2:
-          return model.getReleaseName();
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Class getColumnClass(int column) {
-      switch (column) {
-        case 0:
-          return ImageIcon.class;
-
-        case 1:
-        case 2:
-          return String.class;
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Comparator getColumnComparator(int arg0) {
-      return null;
+      /*
+       * release name
+       */
+      col = new Column(BUNDLE.getString("metatag.releasename"), "releasename", MovieSubtitleChooserModel::getReleaseName, String.class);
+      col.setColumnTooltip(MovieSubtitleChooserModel::getReleaseName);
+      addColumn(col);
     }
   }
 
-  private class Renderer extends DefaultTableCellRenderer {
-
+  private static class Renderer extends DefaultTableCellRenderer {
     private final JLabel downloadLabel;
 
     Renderer() {

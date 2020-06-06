@@ -17,8 +17,10 @@ package org.tinymediamanager.ui.plaf;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -286,6 +288,17 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
       }
 
       return this;
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+      Dimension left = labelLeft.getPreferredSize();
+      Dimension right = labelRight.getPreferredSize();
+      Insets insets = getInsets();
+
+      int height = Math.max(left.height, right.height);
+
+      return new Dimension(left.width + right.width + insets.left + insets.right + 1, height + insets.top + insets.bottom);
     }
   }
 

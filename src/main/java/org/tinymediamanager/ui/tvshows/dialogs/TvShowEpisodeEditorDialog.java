@@ -136,7 +136,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private int                                     queueIndex;
   private int                                     queueSize;
 
-  private EventList<MediaRatingTable.MediaRating> ratings;
+  private EventList<MediaRatingTable.Rating> ratings;
   private EventList<Person>                       guests;
   private EventList<Person>                       directors;
   private EventList<Person>                       writers;
@@ -763,7 +763,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       }
 
       // other ratings
-      for (MediaRatingTable.MediaRating mediaRating : TvShowEpisodeEditorDialog.this.ratings) {
+      for (MediaRatingTable.Rating mediaRating : TvShowEpisodeEditorDialog.this.ratings) {
         if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0 && mediaRating.votes > 0) {
           MediaRating rating = new MediaRating(mediaRating.key, mediaRating.value, mediaRating.votes, mediaRating.maxValue);
           ratings.put(mediaRating.key, rating);
@@ -998,16 +998,16 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      MediaRatingTable.MediaRating mediaRating = new MediaRatingTable.MediaRating("");
+      MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
       // default values
-      mediaRating.maxValue = 10;
-      mediaRating.votes = 1;
+      rating.maxValue = 10;
+      rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), BUNDLE.getString("rating.add"), mediaRating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), BUNDLE.getString("rating.add"), rating);
       dialog.setVisible(true);
 
-      if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0 && mediaRating.maxValue > 0 && mediaRating.votes > 0) {
-        ratings.add(mediaRating);
+      if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+        ratings.add(rating);
       }
     }
   }

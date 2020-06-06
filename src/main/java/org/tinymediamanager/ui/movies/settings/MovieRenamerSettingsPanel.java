@@ -76,13 +76,13 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.gui.TableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -398,9 +398,8 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         lblExample = new TmmLabel("", L1);
         panelExample.add(lblExample, "cell 1 1, wmin 0");
 
-        DefaultEventTableModel<MovieRenamerExample> exampleTableModel = new DefaultEventTableModel<>(
-            GlazedListsSwing.swingThreadProxyList(exampleEventList), new MovieRenamerExampleTableFormat());
-        tableExamples = new TmmTable(exampleTableModel);
+        tableExamples = new TmmTable(
+            new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(exampleEventList), new MovieRenamerExampleTableFormat()));
         JScrollPane scrollPaneExamples = new JScrollPane(tableExamples);
         tableExamples.configureScrollPane(scrollPaneExamples);
         scrollPaneExamples.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -598,45 +597,25 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     }
   }
 
-  private static class MovieRenamerExampleTableFormat implements TableFormat<MovieRenamerExample> {
-    @Override
-    public int getColumnCount() {
-      return 3;
-    }
+  private static class MovieRenamerExampleTableFormat extends TmmTableFormat<MovieRenamerExample> {
+    public MovieRenamerExampleTableFormat() {
+      /*
+       * token name
+       */
+      Column col = new Column(BUNDLE.getString("Settings.renamer.token.name"), "name", token -> token.completeToken, String.class);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("Settings.renamer.token.name");
+      /*
+       * token description
+       */
+      col = new Column(BUNDLE.getString("Settings.renamer.token"), "description", token -> token.description, String.class);
+      addColumn(col);
 
-        case 1:
-          return BUNDLE.getString("Settings.renamer.token");
-
-        case 2:
-          return BUNDLE.getString("Settings.renamer.value");
-
-        default:
-          return null;
-      }
-    }
-
-    @Override
-    public Object getColumnValue(MovieRenamerExample baseObject, int column) {
-      switch (column) {
-        case 0:
-          return baseObject.completeToken;
-
-        case 1:
-          return baseObject.description;
-
-        case 2:
-          return baseObject.example;
-
-        default:
-          break;
-      }
-      return null;
+      /*
+       * token value
+       */
+      col = new Column(BUNDLE.getString("Settings.renamer.value"), "value", token -> token.example, String.class);
+      addColumn(col);
     }
   }
 

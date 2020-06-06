@@ -98,7 +98,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import net.miginfocom.swing.MigLayout;
 
@@ -161,7 +160,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(TvShowChooserModel.class)),
         new SearchResultScoreComparator());
 
-    DefaultEventTableModel<TvShowChooserModel> searchResultTableModel = new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat());
+    TmmTableModel<TvShowChooserModel> searchResultTableModel = new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat());
 
     {
       final JPanel panelPath = new JPanel();

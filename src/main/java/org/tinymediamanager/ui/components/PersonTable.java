@@ -41,7 +41,6 @@ import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 
 /**
@@ -74,9 +73,7 @@ public class PersonTable extends TmmTable {
   public PersonTable(EventList<Person> personEventList, boolean edit) {
     super();
 
-    DefaultEventTableModel<Person> personTableModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(personEventList),
-        new PersonTableFormat(edit));
-    setModel(personTableModel);
+    setModel(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(personEventList), new PersonTableFormat(edit)));
     // init();
 
     adjustColumnPreferredWidths(3);

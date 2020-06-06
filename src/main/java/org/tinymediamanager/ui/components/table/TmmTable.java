@@ -219,12 +219,14 @@ public class TmmTable extends JTable {
       }
 
       TableColumn column = columnModel.getColumn(col);
-      column.setPreferredWidth(maxWidth);
       if (!column.getResizable()) {
         column.setMinWidth(minWidth);
         column.setMaxWidth(maxWidth);
       }
+
+      column.setPreferredWidth(maxWidth);
     }
+    resizeAndRepaint();
   }
 
   // @Override

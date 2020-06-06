@@ -62,7 +62,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -176,9 +175,7 @@ public class MovieSetInformationPanel extends JPanel {
         panelRight.add(new JSeparator(), "cell 0 5,growx");
       }
       {
-
-        final DefaultEventTableModel<Movie> movieTableModel = new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat());
-        tableAssignedMovies = new TmmTable(movieTableModel);
+        tableAssignedMovies = new TmmTable(new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat()));
         tableAssignedMovies.setName("movieSets.movieTable");
         TmmUILayoutStore.getInstance().install(tableAssignedMovies);
         tableAssignedMovies.adjustColumnPreferredWidths(3);

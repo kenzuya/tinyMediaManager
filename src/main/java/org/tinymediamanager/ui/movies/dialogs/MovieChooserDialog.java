@@ -97,8 +97,6 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.gui.TableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import net.miginfocom.swing.MigLayout;
@@ -168,12 +166,9 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MovieChooserModel.class)),
         new SearchResultScoreComparator());
 
-    DefaultEventTableModel<MovieChooserModel> searchResultTableModel = new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat());
-
     // table format for the castmembers
-    castMemberEventList = GlazedLists.threadSafeList(new ObservableElementList<>(new BasicEventList<>(), GlazedLists.beanConnector(Person.class)));
-    DefaultEventTableModel<Person> castMemberTableModel = new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(castMemberEventList),
-        new CastMemberTableFormat());
+    castMemberEventList = GlazedListsSwing.swingThreadProxyList(
+        GlazedLists.threadSafeList(new ObservableElementList<>(new BasicEventList<>(), GlazedLists.beanConnector(Person.class))));
 
     {
       final JPanel panelPath = new JPanel();
@@ -261,7 +256,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchResults.add(scrollPane, "cell 0 0,grow");
-          tableSearchResults = new TmmTable(searchResultTableModel);
+          tableSearchResults = new TmmTable(new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat()));
           tableSearchResults.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableSearchResults);
         }
@@ -299,7 +294,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchDetail.add(scrollPane, "cell 0 4 2 1,grow");
           {
-            tableCastMembers = new TmmTable(castMemberTableModel);
+            tableCastMembers = new TmmTable(new TmmTableModel<>(castMemberEventList, new CastMemberTableFormat()));
             tableCastMembers.configureScrollPane(scrollPane);
             scrollPane.setViewportView(tableCastMembers);
           }
@@ -803,6 +798,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
        * title
        */
       Column col = new Column(BUNDLE.getString("chooser.searchresult"), "title", result -> result, MovieChooserModel.class);
+      col.setColumnTooltip(MovieChooserModel::getTitle);
       col.setColumnComparator(searchResultComparator);
       col.setCellRenderer(new SearchResultRenderer());
       addColumn(col);
@@ -861,34 +857,21 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   /**
    * inner class for representing the cast table
    */
-  private static class CastMemberTableFormat implements TableFormat<Person> {
-    @Override
-    public int getColumnCount() {
-      return 2;
-    }
+  private static class CastMemberTableFormat extends TmmTableFormat<Person> {
+    public CastMemberTableFormat() {
+      /*
+       * name
+       */
+      Column col = new Column(BUNDLE.getString("metatag.name"), "name", Person::getName, String.class);
+      col.setColumnTooltip(Person::getName);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("metatag.name");
-
-        case 1:
-          return BUNDLE.getString("metatag.role");
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(Person castMember, int column) {
-      switch (column) {
-        case 0:
-          return castMember.getName();
-
-        case 1:
-          return castMember.getRole();
-      }
-      throw new IllegalStateException();
+      /*
+       * role
+       */
+      col = new Column(BUNDLE.getString("metatag.role"), "role", Person::getRole, String.class);
+      col.setColumnTooltip(Person::getRole);
+      addColumn(col);
     }
   }
 

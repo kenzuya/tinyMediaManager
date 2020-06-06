@@ -20,7 +20,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -42,15 +41,13 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
-import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -65,7 +62,7 @@ public abstract class MediaFilesPanel extends JPanel {
 
   private TmmTable                    tableFiles;
 
-  private EventList<MediaFile>        mediaFileEventList;
+  private final EventList<MediaFile>  mediaFileEventList;
 
   public MediaFilesPanel(EventList<MediaFile> mediaFiles) {
     this.mediaFileEventList = mediaFiles;
@@ -76,7 +73,8 @@ public abstract class MediaFilesPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("insets 0", "[450lp,grow]", "[300lp,grow]"));
     {
-      tableFiles = new TmmTable(new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(mediaFileEventList), new MediaTableFormat()));
+      TmmTableModel<MediaFile> tableModel = new TmmTableModel<>(mediaFileEventList, new MediaTableFormat());
+      tableFiles = new TmmTable(tableModel);
       tableFiles.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
       LinkListener linkListener = new LinkListener();
@@ -99,7 +97,7 @@ public abstract class MediaFilesPanel extends JPanel {
   }
 
   public void adjustColumns() {
-    TableColumnResizer.adjustColumnPreferredWidths(tableFiles, 6);
+    tableFiles.adjustColumnPreferredWidths(6);
   }
 
   /**
@@ -109,119 +107,79 @@ public abstract class MediaFilesPanel extends JPanel {
    */
   public abstract MediaEntity getMediaEntity();
 
-  private static class MediaTableFormat implements AdvancedTableFormat<MediaFile> {
-    @Override
-    public int getColumnCount() {
-      return 10;
-    }
+  private static class MediaTableFormat extends TmmTableFormat<MediaFile> {
+    MediaTableFormat() {
+      /*
+       * play/view
+       */
+      Column col = new Column("", "open", mediaFile -> {
+        if (mediaFile.isVideo()) {
+          return IconManager.PLAY;
+        }
+        if (mediaFile.isGraphic()) {
+          return IconManager.SEARCH;
+        }
+        return null;
+      }, ImageIcon.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return "";
+      /*
+       * filename
+       */
+      col = new Column(BUNDLE.getString("metatag.filename"), "filename", MediaFile::getFilename, String.class);
+      addColumn(col);
 
-        case 1:
-          return BUNDLE.getString("metatag.filename");
+      /*
+       * filetype
+       */
+      col = new Column(BUNDLE.getString("metatag.mediafiletype"), "filetype", mediaFile -> getMediaFileTypeLocalized(mediaFile.getType()),
+          String.class);
+      addColumn(col);
 
-        case 2:
-          return BUNDLE.getString("metatag.size");
+      /*
+       * codec
+       */
+      col = new Column(BUNDLE.getString("metatag.codec"), "codec", MediaFile::getCombinedCodecs, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 3:
-          return BUNDLE.getString("metatag.mediafiletype");
+      /*
+       * resolution
+       */
+      col = new Column(BUNDLE.getString("metatag.resolution"), "resolution", MediaFile::getVideoResolution, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 4:
-          return BUNDLE.getString("metatag.codec");
+      /*
+       * runtime
+       */
+      col = new Column(BUNDLE.getString("metatag.runtime"), "runtime", MediaFile::getDurationHMS, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 5:
-          return BUNDLE.getString("metatag.resolution");
+      /*
+       * subtitle
+       */
+      col = new Column(BUNDLE.getString("metatag.subtitle"), "subtitle", MediaFile::getSubtitlesAsString, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 6:
-          return BUNDLE.getString("metatag.runtime");
+      /*
+       * creation date
+       */
+      col = new Column(BUNDLE.getString("metatag.filecreationdate"), "filecreationdate", mediaFile -> formatDate(mediaFile.getDateCreated()),
+          String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 7:
-          return BUNDLE.getString("metatag.subtitle");
-
-        case 8:
-          return BUNDLE.getString("metatag.filecreationdate");
-
-        case 9:
-          return BUNDLE.getString("metatag.filelastmodifieddate");
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(MediaFile mediaFile, int column) {
-      switch (column) {
-        case 0:
-          if (mediaFile.isVideo()) {
-            return IconManager.PLAY;
-          }
-          if (mediaFile.isGraphic()) {
-            return IconManager.SEARCH;
-          }
-          return null;
-
-        case 1:
-          return mediaFile.getFilename();
-
-        case 2:
-          return mediaFile.getFilesizeInMegabytes();
-
-        case 3:
-          return getMediaFileTypeLocalized(mediaFile.getType());
-
-        case 4:
-          return mediaFile.getCombinedCodecs();
-
-        case 5:
-          return mediaFile.getVideoResolution();
-
-        case 6:
-          return mediaFile.getDurationHMS();
-
-        case 7:
-          return mediaFile.getSubtitlesAsString();
-
-        case 8:
-          return formatDate(mediaFile.getDateCreated());
-
-        case 9:
-          return formatDate(mediaFile.getDateLastModified());
-
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Class getColumnClass(int column) {
-      switch (column) {
-        case 0:
-          return ImageIcon.class;
-
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-          return String.class;
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Comparator getColumnComparator(int arg0) {
-      return null;
+      /*
+       * last modified date
+       */
+      col = new Column(BUNDLE.getString("metatag.filelastmodifieddate"), "filelastmodifieddate",
+          mediaFile -> formatDate(mediaFile.getDateLastModified()), String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
     }
 
     private String getMediaFileTypeLocalized(MediaFileType type) {

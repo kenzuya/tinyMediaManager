@@ -119,7 +119,6 @@ import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.gui.WritableTableFormat;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -139,7 +138,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private EventList<Person>                       actors;
   private List<MediaGenres>                       genres              = ObservableCollections.observableList(new ArrayList<>());
   private EventList<MediaId>                      ids;
-  private EventList<MediaRatingTable.MediaRating> mediaRatings;
+  private EventList<MediaRatingTable.Rating> ratings;
   private List<String>                            tags                = ObservableCollections.observableList(new ArrayList<>());
   private EventList<EpisodeEditorContainer>       episodes;
   private List<String>                            extrafanarts        = null;
@@ -220,7 +219,7 @@ public class TvShowEditorDialog extends TmmDialog {
     this.queueIndex = queueIndex;
     this.queueSize = queueSize;
     ids = MediaIdTable.convertIdMapToEventList(tvShowToEdit.getIds());
-    mediaRatings = MediaRatingTable.convertRatingMapToEventList(tvShowToEdit.getRatings(), false);
+    ratings = MediaRatingTable.convertRatingMapToEventList(tvShowToEdit.getRatings(), false);
     userMediaRating = tvShowToEdit.getRating(MediaRating.USER);
 
     // creation of lists
@@ -486,7 +485,7 @@ public class TvShowEditorDialog extends TmmDialog {
         JScrollPane scrollPaneRatings = new JScrollPane();
         details1Panel.add(scrollPaneRatings, "cell 1 10 4 1,growx");
 
-        tableRatings = new MediaRatingTable(mediaRatings);
+        tableRatings = new MediaRatingTable(ratings);
         tableRatings.configureScrollPane(scrollPaneRatings);
         scrollPaneRatings.setViewportView(tableRatings);
       }
@@ -978,9 +977,7 @@ public class TvShowEditorDialog extends TmmDialog {
         JScrollPane scrollPaneEpisodes = new JScrollPane();
         episodesPanel.add(scrollPaneEpisodes, "cell 1 0 1 2,grow");
 
-        DefaultEventTableModel<EpisodeEditorContainer> episodeTableModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(episodes),
-            new EpisodeTableFormat());
-        tableEpisodes = new TmmTable(episodeTableModel);
+        tableEpisodes = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(episodes), new EpisodeTableFormat()));
         tableEpisodes.configureScrollPane(scrollPaneEpisodes);
       }
       {
@@ -1140,9 +1137,9 @@ public class TvShowEditorDialog extends TmmDialog {
       }
 
       // other ratings
-      for (MediaRatingTable.MediaRating mediaRating : TvShowEditorDialog.this.mediaRatings) {
-        if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0) {
-          newRatings.put(mediaRating.key, new MediaRating(mediaRating.key, mediaRating.value, mediaRating.votes, mediaRating.maxValue));
+      for (MediaRatingTable.Rating rating : TvShowEditorDialog.this.ratings) {
+        if (StringUtils.isNotBlank(rating.key) && rating.value > 0) {
+          newRatings.put(rating.key, new MediaRating(rating.key, rating.value, rating.votes, rating.maxValue));
         }
       }
       tvShowToEdit.setRatings(newRatings);
@@ -1274,16 +1271,16 @@ public class TvShowEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      MediaRatingTable.MediaRating mediaRating = new MediaRatingTable.MediaRating("");
+      MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
       // default values
-      mediaRating.maxValue = 10;
-      mediaRating.votes = 1;
+      rating.maxValue = 10;
+      rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableActors), BUNDLE.getString("rating.add"), mediaRating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableActors), BUNDLE.getString("rating.add"), rating);
       dialog.setVisible(true);
 
-      if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0 && mediaRating.maxValue > 0 && mediaRating.votes > 0) {
-        mediaRatings.add(mediaRating);
+      if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+        ratings.add(rating);
       }
     }
   }
@@ -1301,7 +1298,7 @@ public class TvShowEditorDialog extends TmmDialog {
       int row = tableRatings.getSelectedRow();
       if (row > -1) {
         row = tableRatings.convertRowIndexToModel(row);
-        mediaRatings.remove(row);
+        ratings.remove(row);
       }
     }
   }

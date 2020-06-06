@@ -139,7 +139,7 @@ public class MovieEditorDialog extends TmmDialog {
   private List<MediaTrailer>                      trailers            = ObservableCollections.observableList(new ArrayList<>());
   private List<String>                            tags                = ObservableCollections.observableList(new ArrayList<>());
   private EventList<MediaId>                      ids;
-  private EventList<MediaRatingTable.MediaRating> mediaRatings;
+  private EventList<MediaRatingTable.Rating> ratings;
   private List<MediaFile>                         mediaFiles          = new ArrayList<>();
   private List<String>                            extrathumbs         = null;
   private List<String>                            extrafanarts        = null;
@@ -238,7 +238,7 @@ public class MovieEditorDialog extends TmmDialog {
     this.queueIndex = queueIndex;
     this.queueSize = queueSize;
     this.ids = MediaIdTable.convertIdMapToEventList(movieToEdit.getIds());
-    this.mediaRatings = MediaRatingTable.convertRatingMapToEventList(movieToEdit.getRatings(), false);
+    this.ratings = MediaRatingTable.convertRatingMapToEventList(movieToEdit.getRatings(), false);
     this.userMediaRating = movieToEdit.getRating(MediaRating.USER);
 
     for (MediaFile mf : movie.getMediaFiles()) {
@@ -513,7 +513,7 @@ public class MovieEditorDialog extends TmmDialog {
         JScrollPane scrollPaneRatings = new JScrollPane();
         details1Panel.add(scrollPaneRatings, "cell 1 11 5 1,grow,wmin 0");
 
-        tableRatings = new MediaRatingTable(mediaRatings);
+        tableRatings = new MediaRatingTable(ratings);
         tableRatings.configureScrollPane(scrollPaneRatings);
         scrollPaneRatings.setViewportView(tableRatings);
       }
@@ -1393,9 +1393,9 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       // other ratings
-      for (MediaRatingTable.MediaRating mediaRating : MovieEditorDialog.this.mediaRatings) {
-        if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0) {
-          newRatings.put(mediaRating.key, new MediaRating(mediaRating.key, mediaRating.value, mediaRating.votes, mediaRating.maxValue));
+      for (MediaRatingTable.Rating rating : MovieEditorDialog.this.ratings) {
+        if (StringUtils.isNotBlank(rating.key) && rating.value > 0) {
+          newRatings.put(rating.key, new MediaRating(rating.key, rating.value, rating.votes, rating.maxValue));
         }
       }
       movieToEdit.setRatings(newRatings);
@@ -1455,16 +1455,16 @@ public class MovieEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      MediaRatingTable.MediaRating mediaRating = new MediaRatingTable.MediaRating("");
+      MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
       // default values
-      mediaRating.maxValue = 10;
-      mediaRating.votes = 1;
+      rating.maxValue = 10;
+      rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), BUNDLE.getString("rating.add"), mediaRating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), BUNDLE.getString("rating.add"), rating);
       dialog.setVisible(true);
 
-      if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0 && mediaRating.maxValue > 0 && mediaRating.votes > 0) {
-        mediaRatings.add(mediaRating);
+      if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+        ratings.add(rating);
       }
     }
   }
@@ -1482,7 +1482,7 @@ public class MovieEditorDialog extends TmmDialog {
       int row = tableRatings.getSelectedRow();
       if (row > -1) {
         row = tableRatings.convertRowIndexToModel(row);
-        mediaRatings.remove(row);
+        ratings.remove(row);
       }
     }
   }
