@@ -144,7 +144,7 @@ public class TmmTableUI extends FlatTableUI {
       Rectangle visibleBounds = clip.intersection(bounds);
       Point upperLeft = visibleBounds.getLocation();
 
-      int drawColumnCountOffset = 0;
+      int drawColumnCountOffset = 1;
 
       ArrayList<Integer> colsWoRightGrid = new ArrayList<>();
       if (table.getClientProperty("borderNotToDraw") != null) {

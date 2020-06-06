@@ -51,6 +51,7 @@ import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.FlatButton;
 
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
@@ -267,15 +268,14 @@ public class TmmTable extends JTable {
 
         scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
 
-        final JButton b = new JButton(IconManager.CONFIGURE) {
+        final JButton b = new FlatButton(IconManager.CONFIGURE) {
           @Override
           public void updateUI() {
             super.updateUI();
-            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIManager.getColor("TableHeader.bottomSeparatorColor")));
+            setBorder(BorderFactory.createMatteBorder(0, 1, 1, 0, UIManager.getColor("TableHeader.bottomSeparatorColor")));
           }
         };
         b.setContentAreaFilled(false);
-        b.putClientProperty("flatButton", Boolean.TRUE);
         b.setToolTipText(BUNDLE.getString("Button.selectvisiblecolumns"));
         b.updateUI();
 

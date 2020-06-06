@@ -29,6 +29,8 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 
+import org.tinymediamanager.ui.components.table.TmmTable;
+
 import com.formdev.flatlaf.ui.FlatScrollBarUI;
 import com.formdev.flatlaf.ui.FlatUIUtils;
 
@@ -115,7 +117,8 @@ public class TmmScrollBarUI extends FlatScrollBarUI {
       g.fillRoundRect(trackBounds.x, trackBounds.y + y, trackBounds.width, thumbWidth, thumbWidth, thumbWidth);
     }
 
-    if (c.getParent() instanceof JScrollPane && ((JScrollPane) c.getParent()).getBorder() != null) {
+    if (c.getParent() instanceof JScrollPane
+        && (((JScrollPane) c.getParent()).getBorder() != null || ((JScrollPane) c.getParent()).getViewport().getView() instanceof TmmTable)) {
       g.setColor(borderColor);
       if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
         g.drawLine(0, 0, 0, c.getHeight());

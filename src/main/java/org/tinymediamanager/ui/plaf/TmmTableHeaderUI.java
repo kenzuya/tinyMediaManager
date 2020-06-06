@@ -124,12 +124,10 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
       g2.setColor(this.bottomSeparatorColor);
       g2.fill(new Rectangle2D.Float(0.0F, (float) height - lineWidth, (float) width, lineWidth));
       g2.setColor(this.separatorColor);
-      int sepCount = columnCount;
-      if (this.header.getTable().getAutoResizeMode() != 0 && !this.isVerticalScrollBarVisible()) {
-        sepCount = columnCount - 1;
-      }
 
       // vertical
+      int sepCount = columnCount - 1; // do not draw the rightmost vertical border
+
       ArrayList<Integer> colsWoRightGrid = new ArrayList<>();
       if (this.header.getTable().getClientProperty("borderNotToDraw") != null) {
         colsWoRightGrid = (ArrayList<Integer>) this.header.getTable().getClientProperty("borderNotToDraw");
@@ -256,7 +254,6 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
       }
 
       JLabel label = (JLabel) c;
-      setBorder(label.getBorder());
       setForeground(label.getForeground());
       setBackground(label.getBackground());
       setFont(label.getFont());
