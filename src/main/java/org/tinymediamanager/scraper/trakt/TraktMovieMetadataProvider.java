@@ -33,13 +33,18 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.CastMember;
@@ -66,6 +71,8 @@ class TraktMovieMetadataProvider {
   }
 
   SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+
+    TmdbMetadataProvider tmdb = new TmdbMetadataProvider();
 
     String searchString = "";
     if (StringUtils.isEmpty(searchString) && StringUtils.isNotEmpty(options.getSearchQuery())) {
@@ -98,6 +105,24 @@ class TraktMovieMetadataProvider {
 
     for (SearchResult result : searchResults) {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
+
+      // also try to get the poster url from tmdb
+      if (MetadataUtil.isValidImdbId(m.getIMDBId()) || m.getIdAsInt(TMDB) > 0) {
+        try {
+          ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+          tmdbOptions.setIds(m.getIds());
+          tmdbOptions.setLanguage(options.getLanguage());
+          tmdbOptions.setArtworkType(MediaArtwork.MediaArtworkType.POSTER);
+          List<MediaArtwork> artworks = tmdb.getArtwork(tmdbOptions);
+          if (ListUtils.isNotEmpty(artworks)) {
+            m.setPosterUrl(artworks.get(0).getPreviewUrl());
+          }
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not get artwork from tmdb - {}", e.getMessage());
+        }
+      }
+
       results.add(m);
     }
 

@@ -10,5 +10,6 @@ Version 4.0
 + support for Windows taskbar / macOS dock access
 + added a true regular expression search for movies/movie set/TV show titles
 + display missing episodes in the season overview panel
++ provide artwork from TMDB for Trakt.tv search
 x better performance in regular expression searches
 x fixed handling of MP2/MP3 streams
