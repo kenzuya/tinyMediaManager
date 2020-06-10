@@ -40,7 +40,7 @@ public class TmmSvgIcon extends SVGIcon {
     setSvgUniverse(new SVGUniverse());
     setAutosize(AUTOSIZE_BESTFIT);
     setAntiAlias(true);
-    setInterpolation(INTERP_BILINEAR);
+    setInterpolation(INTERP_BICUBIC);
     setClipToViewbox(false);
   }
 
@@ -87,5 +87,4 @@ public class TmmSvgIcon extends SVGIcon {
       }
     }
   }
-
 }

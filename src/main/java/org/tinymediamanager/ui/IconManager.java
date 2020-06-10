@@ -38,6 +38,8 @@ import org.tinymediamanager.ui.images.TmmAwesomeIcon;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
 import org.tinymediamanager.ui.images.TmmTextIcon;
 
+import com.kitfox.svg.app.beans.SVGIcon;
+
 public class IconManager {
   public static final ImageIcon              EMPTY_IMAGE                 = new ImageIcon(IconManager.class.getResource("plaf/empty.png"));
   private static final Set<TmmSvgIconCache>  SVG_CACHE                   = new HashSet<>();
@@ -45,27 +47,27 @@ public class IconManager {
   private static final Map<URI, ImageIcon>   ICON_CACHE                  = new HashMap<>();
 
   // toolbar icons
-  public static final ImageIcon              TOOLBAR_ABOUT               = loadMultiResolutionImage("icn_about.png");
-  public static final ImageIcon              TOOLBAR_ABOUT_HOVER         = loadMultiResolutionImage("icn_about_hover.png");
-  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET       = loadMultiResolutionImage("icn_add_collection.png");
-  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER = loadMultiResolutionImage("icn_add_collection_hover.png");
-  public static final ImageIcon              TOOLBAR_EDIT                = loadMultiResolutionImage("icn_edit.png");
-  public static final ImageIcon              TOOLBAR_EDIT_HOVER          = loadMultiResolutionImage("icn_edit_hover.png");
-  public static final ImageIcon              TOOLBAR_LOGO                = loadMultiResolutionImage("icn_logo_toolbar.png");
-  public static final ImageIcon              TOOLBAR_REFRESH             = loadMultiResolutionImage("icn_refresh.png");
-  public static final ImageIcon              TOOLBAR_REFRESH_HOVER       = loadMultiResolutionImage("icn_refresh_hover.png");
-  public static final ImageIcon              TOOLBAR_RENAME              = loadMultiResolutionImage("icn_rename.png");
-  public static final ImageIcon              TOOLBAR_RENAME_HOVER        = loadMultiResolutionImage("icn_rename_hover.png");
-  public static final ImageIcon              TOOLBAR_SEARCH              = loadMultiResolutionImage("icn_search.png");
-  public static final ImageIcon              TOOLBAR_SEARCH_HOVER        = loadMultiResolutionImage("icn_search_hover.png");
-  public static final ImageIcon              TOOLBAR_SETTINGS            = loadMultiResolutionImage("icn_settings.png");
-  public static final ImageIcon              TOOLBAR_SETTINGS_HOVER      = loadMultiResolutionImage("icn_settings_hover.png");
-  public static final ImageIcon              TOOLBAR_TOOLS               = loadMultiResolutionImage("icn_tools.png");
-  public static final ImageIcon              TOOLBAR_TOOLS_HOVER         = loadMultiResolutionImage("icn_tools_hover.png");
+  public static final ImageIcon              TOOLBAR_ABOUT               = createSVGIcon("icn_about.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_ABOUT_HOVER         = createSVGIcon("icn_about_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET       = createSVGIcon("icn_add_collection.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER = createSVGIcon("icn_add_collection_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_EDIT                = createSVGIcon("icn_edit.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_EDIT_HOVER          = createSVGIcon("icn_edit_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_LOGO                = createSVGIcon("tmm_logo.svg", new Dimension(100, 50));
+  public static final ImageIcon              TOOLBAR_REFRESH             = createSVGIcon("icn_refresh.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_REFRESH_HOVER       = createSVGIcon("icn_refresh_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_RENAME              = createSVGIcon("icn_rename.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_RENAME_HOVER        = createSVGIcon("icn_rename_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SEARCH              = createSVGIcon("icn_search.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SEARCH_HOVER        = createSVGIcon("icn_search_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SETTINGS            = createSVGIcon("icn_settings.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_SETTINGS_HOVER      = createSVGIcon("icn_settings_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_TOOLS               = createSVGIcon("icn_tools.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_TOOLS_HOVER         = createSVGIcon("icn_tools_hover.svg", new Dimension(24, 24));
 
   // packaged icons
-  public static final ImageIcon              STAR_FILLED                 = createSVGIcon("star-filled.svg", new Dimension(24, 24));
-  public static final ImageIcon              STAR_EMPTY                  = createSVGIcon("star-empty.svg", new Dimension(24, 24));
+  public static final ImageIcon              STAR_FILLED                 = createSVGIcon("star-filled.svg", new Dimension(24, 24), true);
+  public static final ImageIcon              STAR_EMPTY                  = createSVGIcon("star-empty.svg", new Dimension(24, 24), true);
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                         = createMenuIcon("plus.svg");
@@ -262,11 +264,18 @@ public class IconManager {
   }
 
   private static ImageIcon createSVGIcon(String name, Dimension size) {
+    return createSVGIcon(name, size, false);
+  }
+
+  private static ImageIcon createSVGIcon(String name, Dimension size, boolean autoSize) {
     try {
       // create the icon
       URI uri = IconManager.class.getResource("images/svg/" + name).toURI();
       TmmSvgIcon icon = new TmmSvgIcon(uri);
       icon.setPreferredSize(size);
+      if (!autoSize) {
+        icon.setAutosize(SVGIcon.AUTOSIZE_NONE);
+      }
       return icon;
     }
     catch (Exception e) {

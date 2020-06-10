@@ -99,26 +99,26 @@ public class ToolbarPanel extends JPanel {
     JPanel panelCenter = new JPanel();
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
-    panelCenter.setLayout(new MigLayout("insets 0", "[5lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[]15lp[5lp:n]", "[]1lp[]5lp"));
+    panelCenter.setLayout(new MigLayout("insets 0", "[5lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[]15lp[5lp:n]", "[50lp]1lp[]5lp"));
 
-    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,alignx center");
+    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,center");
 
     btnUpdate = new ToolbarButton(IconManager.TOOLBAR_REFRESH, IconManager.TOOLBAR_REFRESH_HOVER);
-    panelCenter.add(btnUpdate, "cell 2 0,alignx center");
+    panelCenter.add(btnUpdate, "cell 2 0,grow, center");
 
     btnSearch = new ToolbarButton(IconManager.TOOLBAR_SEARCH, IconManager.TOOLBAR_SEARCH_HOVER);
-    panelCenter.add(btnSearch, "cell 3 0,alignx center");
+    panelCenter.add(btnSearch, "cell 3 0,grow, center");
 
     btnEdit = new ToolbarButton(IconManager.TOOLBAR_EDIT, IconManager.TOOLBAR_EDIT_HOVER);
-    panelCenter.add(btnEdit, "cell 4 0,alignx center");
+    panelCenter.add(btnEdit, "cell 4 0,grow, center");
 
     btnRename = new ToolbarButton(IconManager.TOOLBAR_RENAME, IconManager.TOOLBAR_RENAME_HOVER);
-    panelCenter.add(btnRename, "cell 5 0,alignx center");
+    panelCenter.add(btnRename, "cell 5 0,grow, center");
 
     JButton btnSettings = new ToolbarButton(IconManager.TOOLBAR_SETTINGS, IconManager.TOOLBAR_SETTINGS_HOVER);
     Action settingsAction = new SettingsAction();
     btnSettings.setAction(settingsAction);
-    panelCenter.add(btnSettings, "cell 8 0,alignx center,aligny bottom");
+    panelCenter.add(btnSettings, "cell 8 0,growx, alignx center,aligny bottom");
 
     JPopupMenu toolsPopupMenu = buildToolsMenu();
     JButton btnTools = new ToolbarButton(IconManager.TOOLBAR_TOOLS, IconManager.TOOLBAR_TOOLS_HOVER, toolsPopupMenu);

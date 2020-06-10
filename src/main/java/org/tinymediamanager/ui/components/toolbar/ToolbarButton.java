@@ -16,9 +16,8 @@
 
 package org.tinymediamanager.ui.components.toolbar;
 
-import java.awt.Cursor;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -28,9 +27,11 @@ import javax.swing.SwingConstants;
 import org.tinymediamanager.ui.components.FlatButton;
 
 class ToolbarButton extends FlatButton {
-  private Icon             baseIcon;
-  private Icon             hoverIcon;
   private final JPopupMenu popupMenu;
+
+  ToolbarButton(Icon baseIcon) {
+    this(baseIcon, null, null);
+  }
 
   ToolbarButton(Icon baseIcon, Icon hoverIcon) {
     this(baseIcon, hoverIcon, null);
@@ -38,36 +39,17 @@ class ToolbarButton extends FlatButton {
 
   ToolbarButton(Icon baseIcon, Icon hoverIcon, JPopupMenu popupMenu) {
     super(baseIcon);
-    this.baseIcon = baseIcon;
-    this.hoverIcon = hoverIcon;
     this.popupMenu = popupMenu;
 
-    setVerticalTextPosition(SwingConstants.BOTTOM);
+    setVerticalAlignment(CENTER);
+    setHorizontalAlignment(CENTER);
+    setVerticalTextPosition(SwingConstants.CENTER);
     setHorizontalTextPosition(SwingConstants.CENTER);
     setHideActionText(true);
+    setRolloverIcon(hoverIcon);
     updateUI();
 
-    addMouseListener(new MouseListener() {
-      @Override
-      public void mouseReleased(MouseEvent arg0) {
-      }
-
-      @Override
-      public void mousePressed(MouseEvent arg0) {
-      }
-
-      @Override
-      public void mouseExited(MouseEvent arg0) {
-        setIcon(ToolbarButton.this.baseIcon);
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      }
-
-      @Override
-      public void mouseEntered(MouseEvent arg0) {
-        setIcon(ToolbarButton.this.hoverIcon);
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-      }
-
+    addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent arg0) {
         if (ToolbarButton.this.popupMenu != null) {
@@ -92,7 +74,6 @@ class ToolbarButton extends FlatButton {
 
   void setIcons(Icon baseIcon, Icon hoverIcon) {
     setIcon(baseIcon);
-    this.baseIcon = baseIcon;
-    this.hoverIcon = hoverIcon;
+    setRolloverIcon(hoverIcon);
   }
 }
