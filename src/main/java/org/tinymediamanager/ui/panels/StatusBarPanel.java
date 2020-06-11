@@ -158,8 +158,7 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     }
     {
       taskProgressBar = new JProgressBar();
-      // taskProgressBar.setBackground(UIManager.getColor("Panel.background"));
-      taskProgressBar.setOpaque(false);
+      taskProgressBar.setBackground(UIManager.getColor("Panel.background"));
       taskProgressBar.addMouseListener(new MListener());
       add(taskProgressBar, "cell 3 0");
     }
