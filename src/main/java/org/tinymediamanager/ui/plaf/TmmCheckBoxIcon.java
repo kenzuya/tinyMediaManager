@@ -52,11 +52,10 @@ public class TmmCheckBoxIcon extends FlatCheckBoxIcon {
     paintBorder(g2);
 
     // paint background
-    FlatUIUtils.setColor(g2,
-        FlatButtonUI.buttonStateColor(c, selected ? selectedBackground : background, disabledBackground, focusedBackground,
-            selected && selectedHoverBackground != null ? selectedHoverBackground : hoverBackground,
-            selected && selectedPressedBackground != null ? selectedPressedBackground : pressedBackground),
-        background);
+    g2.setColor(
+        FlatUIUtils.deriveColor(FlatButtonUI.buttonStateColor(c, selected ? this.selectedBackground : this.background, this.disabledBackground,
+            this.focusedBackground, selected && this.selectedHoverBackground != null ? this.selectedHoverBackground : this.hoverBackground,
+            selected && this.selectedPressedBackground != null ? this.selectedPressedBackground : this.pressedBackground), this.background));
     paintBackground(g2);
 
     g2.setColor(c.isEnabled() ? checkmarkColor : disabledCheckmarkColor);

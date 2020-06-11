@@ -32,7 +32,6 @@ import javax.swing.plaf.ComponentUI;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
 import com.formdev.flatlaf.ui.FlatScrollBarUI;
-import com.formdev.flatlaf.ui.FlatUIUtils;
 
 /**
  * The Class TmmScrollBarUI.
@@ -89,13 +88,6 @@ public class TmmScrollBarUI extends FlatScrollBarUI {
 
     trackRect.setBounds(trackRect.x + gap, trackRect.y, trackRect.width - 2 * gap, trackRect.height);
     thumbRect.setBounds(thumbRect.x + gap, thumbRect.y, thumbRect.width - 2 * gap, thumbRect.height);
-  }
-
-  @Override
-  public void paint(Graphics g, JComponent c) {
-    // FIXME local fix until FlatLaf is using AA here
-    FlatUIUtils.setRenderingHints((Graphics2D) g);
-    super.paint(g, c);
   }
 
   @Override
