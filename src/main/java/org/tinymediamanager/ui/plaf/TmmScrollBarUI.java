@@ -100,13 +100,15 @@ public class TmmScrollBarUI extends FlatScrollBarUI {
     g.setColor(trackColor);
 
     // track
-    if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
-      int x = (width - thumbWidth) / 2;
-      g.fillRoundRect(trackBounds.x + x, trackBounds.y, thumbWidth, trackBounds.height, thumbWidth, thumbWidth);
-    }
-    else {
-      int y = (width - thumbWidth) / 2;
-      g.fillRoundRect(trackBounds.x, trackBounds.y + y, trackBounds.width, thumbWidth, thumbWidth, thumbWidth);
+    if (scrollbar.isEnabled()) {
+      if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
+        int x = (width - thumbWidth) / 2;
+        g.fillRoundRect(trackBounds.x + x, trackBounds.y, thumbWidth, trackBounds.height, thumbWidth, thumbWidth);
+      }
+      else {
+        int y = (width - thumbWidth) / 2;
+        g.fillRoundRect(trackBounds.x, trackBounds.y + y, trackBounds.width, thumbWidth, thumbWidth, thumbWidth);
+      }
     }
 
     if (c.getParent() instanceof JScrollPane

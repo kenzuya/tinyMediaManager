@@ -127,7 +127,9 @@ public class SettingsDialog extends TmmDialog {
     }
     JComponent component = ((TmmSettingsNode) node.getUserObject()).getComponent();
     if (component != null) {
-      rightPanel.add(component, ((TmmSettingsNode) node.getUserObject()).getId());
+      JScrollPane scrollPane = new NoBorderScrollPane(component);
+      scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+      rightPanel.add(scrollPane, ((TmmSettingsNode) node.getUserObject()).getId());
     }
     for (TmmTreeNode child : tree.getDataProvider().getChildren(node)) {
       addSettingsPanel(child);

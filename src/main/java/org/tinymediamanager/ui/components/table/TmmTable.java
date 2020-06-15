@@ -36,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -61,10 +62,10 @@ import ca.odell.glazedlists.swing.TableComparatorChooser;
  * @author Manuel Laggner
  */
 public class TmmTable extends JTable {
-  private static final long             serialVersionUID = 6150939811851709115L;
-  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long           serialVersionUID = 6150939811851709115L;
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TableComparatorChooser<?>     tableComparatorChooser;
+  private TableComparatorChooser<?>   tableComparatorChooser;
 
   public TmmTable() {
     super();
@@ -228,7 +229,6 @@ public class TmmTable extends JTable {
       if (parent instanceof JScrollPane) {
         JScrollPane scrollPane = (JScrollPane) parent;
         scrollPane.setBorder(null);
-        scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
 
         // Make certain we are the viewPort's view and not, for
         // example, the rowHeaderView of the scrollPane -
@@ -236,6 +236,11 @@ public class TmmTable extends JTable {
         JViewport viewport = scrollPane.getViewport();
         if (viewport == null || viewport.getView() != this) {
           return;
+        }
+
+        // just hide it to do not draw the scrollbar but preserve space for the button
+        if (scrollPane.getVerticalScrollBarPolicy() == ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER) {
+          scrollPane.getVerticalScrollBar().setEnabled(false);
         }
 
         scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);

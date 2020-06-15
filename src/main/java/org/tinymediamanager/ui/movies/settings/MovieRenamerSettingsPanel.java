@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.settings;
 
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
@@ -73,6 +74,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.EnhancedTextField;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -400,8 +402,8 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
         tableExamples = new TmmTable(
             new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(exampleEventList), new MovieRenamerExampleTableFormat()));
-        JScrollPane scrollPaneExamples = new JScrollPane(tableExamples);
-        scrollPaneExamples.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        JScrollPane scrollPaneExamples = new NoBorderScrollPane(tableExamples);
+        scrollPaneExamples.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_NEVER);
         ScrollingEventDelegator.install(scrollPaneExamples);
         panelExample.add(scrollPaneExamples, "cell 1 2,grow");
         tableExamples.setRowHeight(35);
