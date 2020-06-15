@@ -54,7 +54,6 @@ import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
-import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -94,8 +93,6 @@ public abstract class ImdbParser {
   protected abstract MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
 
   protected abstract String getSearchCategory();
-
-  protected abstract CountryCode getCountry();
 
   /**
    * scrape tmdb for movies too?
@@ -165,7 +162,7 @@ public abstract class ImdbParser {
 
     // parse out language and country from the scraper query
     String language = options.getLanguage().getLanguage();
-    String country = getCountry().getAlpha2(); // for passing the country to the scrape
+    String country = options.getCertificationCountry().getAlpha2(); // for passing the country to the scrape
 
     searchTerm = MetadataUtil.removeNonSearchCharacters(searchTerm);
 
@@ -682,7 +679,7 @@ public abstract class ImdbParser {
       if (elementText.equals("Certification")) {
         Element nextElement = element.nextElementSibling();
         if (nextElement != null) {
-          String languageCode = getCountry().getAlpha2();
+          String languageCode = options.getCertificationCountry().getAlpha2();
           Elements certificationElements = nextElement.getElementsByAttributeValueStarting("href", "/search/title?certificates=" + languageCode);
           boolean done = false;
           for (Element certificationElement : certificationElements) {
@@ -692,7 +689,7 @@ public abstract class ImdbParser {
               certText = certText.substring(startOfCert + 1);
             }
 
-            MediaCertification certification = MediaCertification.getCertification(getCountry(), certText);
+            MediaCertification certification = MediaCertification.getCertification(options.getCertificationCountry(), certText);
             if (certification != null) {
               md.addCertification(certification);
               done = true;
@@ -709,7 +706,7 @@ public abstract class ImdbParser {
                 certText = certText.substring(startOfCert + 1);
               }
 
-              MediaCertification certification = MediaCertification.getCertification(getCountry(), certText);
+              MediaCertification certification = MediaCertification.getCertification(options.getCertificationCountry(), certText);
               if (certification != null) {
                 md.addCertification(certification);
                 break;
@@ -924,11 +921,11 @@ public abstract class ImdbParser {
             if (column != null) {
               Date parsedDate = parseDate(column.text());
               // do not overwrite any parsed date with a null value!
-              if (parsedDate != null && (releaseDate == null || getCountry().getAlpha2().equalsIgnoreCase(country))) {
+              if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
                 releaseDate = parsedDate;
 
                 // abort the loop if we have found a valid date in our desired language
-                if (getCountry().getAlpha2().equalsIgnoreCase(country)) {
+                if (options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country)) {
                   break;
                 }
               }
@@ -953,11 +950,11 @@ public abstract class ImdbParser {
             if (column != null) {
               Date parsedDate = parseDate(column.text());
               // do not overwrite any parsed date with a null value!
-              if (parsedDate != null && (releaseDate == null || getCountry().getAlpha2().equalsIgnoreCase(country))) {
+              if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
                 releaseDate = parsedDate;
 
                 // abort the loop if we have found a valid date in our desired language
-                if (getCountry().getAlpha2().equalsIgnoreCase(country)) {
+                if (options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country)) {
                   break;
                 }
               }

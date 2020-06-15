@@ -18,6 +18,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
@@ -76,6 +77,8 @@ public class ITKodiMetadataProviderTest {
       searchOptions.setSearchQuery("21 Jump Street");
       searchOptions.setSearchYear(1987);
       searchOptions.setLanguage(MediaLanguages.de);
+      searchOptions.setCertificationCountry(CountryCode.US);
+
       List<MediaSearchResult> results = new ArrayList<>(show.search(searchOptions));
       for (MediaSearchResult mediaSearchResult : results) {
         System.out.println(mediaSearchResult);
@@ -129,6 +132,8 @@ public class ITKodiMetadataProviderTest {
       searchOptions.setSearchQuery("Harry Potter and the Philosopher's Stone");
       searchOptions.setSearchYear(2001);
       searchOptions.setLanguage(MediaLanguages.en);
+      searchOptions.setCertificationCountry(CountryCode.US);
+
       List<MediaSearchResult> results = new ArrayList<>(tmdb.search(searchOptions));
 
       assertThat(results).isNotNull();

@@ -796,6 +796,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             options.setTmdbId(movie.getTmdbId());
             options.setImdbId(movie.getImdbId());
             options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+            options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
 
             try {
               MediaMetadata md = mp.getMetadata(options);

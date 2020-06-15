@@ -586,6 +586,7 @@ public class TvShowList extends AbstractModelObject {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery(searchTerm);
       options.setLanguage(language);
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
       if (ids != null) {
         options.setIds(ids);

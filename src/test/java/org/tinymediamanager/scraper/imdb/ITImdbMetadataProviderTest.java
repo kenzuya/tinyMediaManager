@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
@@ -12,16 +11,14 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
-import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -30,7 +27,6 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.CountryCode;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
 public class ITImdbMetadataProviderTest {
@@ -49,25 +45,25 @@ public class ITImdbMetadataProviderTest {
       options.setSearchQuery("9");
       options.setSearchYear(2016);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
       assertNotNull("Result", results);
 
       // result count
-      assertEquals("Result count", 40, results.size());
+      assertThat(results.size()).isGreaterThanOrEqualTo(40);
 
-      // check first result (9 - 2016 - tt5719388)
-      MediaSearchResult result = results.get(0);
-      checkSearchResult("9", 2016, "tt5719388", result);
+      // check if the result is found (9 - 2016 - tt5719388)
+      checkSearchResult("9", 2016, "tt5719388", results);
 
       // check second result (9 - 2009 - tt0472033)
-      result = results.get(1);
-      checkSearchResult("9", 2009, "tt0472033", result);
+      checkSearchResult("9", 2009, "tt0472033", results);
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
 
     /*
@@ -78,6 +74,8 @@ public class ITImdbMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Inglorious Basterds");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
@@ -87,17 +85,15 @@ public class ITImdbMetadataProviderTest {
       assertThat(results.size()).isGreaterThanOrEqualTo(5);
 
       // check first result (Inglourious Basterds - 2009 - tt0361748)
-      MediaSearchResult result = results.get(0);
-      checkSearchResult("Inglourious Basterds", 2009, "tt0361748", result);
+      checkSearchResult("Inglourious Basterds", 2009, "tt0361748", results);
 
       // check second result (The Real Inglorious Bastards - 2012 - tt3320110)
-      result = results.get(1);
-      checkSearchResult("The Real Inglorious Bastards", 2012, "tt3320110", result);
+      checkSearchResult("The Real Inglorious Bastards", 2012, "tt3320110", results);
 
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
 
     /*
@@ -108,6 +104,8 @@ public class ITImdbMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Asterix der Gallier");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
@@ -117,12 +115,11 @@ public class ITImdbMetadataProviderTest {
       assertEquals("Result count", 1, results.size());
 
       // check first result (Asterix der Gallier - 1967 - tt0061369)
-      MediaSearchResult result = results.get(0);
-      checkSearchResult("Asterix der Gallier", 1967, "tt0061369", result);
+      checkSearchResult("Asterix der Gallier", 1967, "tt0061369", results);
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
@@ -139,22 +136,22 @@ public class ITImdbMetadataProviderTest {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery("Psych");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.US);
+
       results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
       assertNotNull("Result", results);
 
       // result count
-      assertEquals("Result count", 40, results.size());
+      assertThat(results.size()).isGreaterThanOrEqualTo(40);
 
       // check first result (Psych - 2006 - tt0491738)
-      MediaSearchResult result = results.get(0);
-      checkSearchResult("Psych", 2006, "tt0491738", result);
-
+      checkSearchResult("Psych", 2006, "tt0491738", results);
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
@@ -169,9 +166,9 @@ public class ITImdbMetadataProviderTest {
     try {
       mp = new ImdbMetadataProvider();
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
-      options.setLanguage(MediaLanguages.en);
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setId(mp.getProviderInfo().getId(), "tt0491738");
+      options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       episodes = mp.getEpisodeList(options);
 
@@ -184,7 +181,7 @@ public class ITImdbMetadataProviderTest {
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
@@ -201,8 +198,9 @@ public class ITImdbMetadataProviderTest {
       mp = new ImdbMetadataProvider();
       options = new TvShowSearchAndScrapeOptions();
       options.setImdbId("tt0491738");
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       md = mp.getMetadata(options);
 
       // did we get metadata?
@@ -212,7 +210,7 @@ public class ITImdbMetadataProviderTest {
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
 
     /*
@@ -222,19 +220,20 @@ public class ITImdbMetadataProviderTest {
       mp = new ImdbMetadataProvider();
       options = new TvShowSearchAndScrapeOptions();
       options.setImdbId("tt0303461");
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.DE);
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       md = mp.getMetadata(options);
 
       // did we get metadata?
       assertNotNull("MediaMetadata", md);
 
-      assertEquals("Firefly: Der Aufbruch der Serenity", md.getTitle());
+      assertThat(md.getTitle()).contains("Firefly", "Der Aufbruch der Serenity");
       assertEquals("Firefly", md.getOriginalTitle());
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
@@ -254,8 +253,9 @@ public class ITImdbMetadataProviderTest {
       mp.getProviderInfo().getConfig().setValue(ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
       options = new TvShowSearchAndScrapeOptions();
       options.setImdbId("tt0491738");
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.US);
+
       md = mp.getMetadata(options);
 
       // did we get metadata?
@@ -267,7 +267,7 @@ public class ITImdbMetadataProviderTest {
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
@@ -285,7 +285,7 @@ public class ITImdbMetadataProviderTest {
     try {
       mp = new ImdbMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
-      options.setImdbId("tt0491738");
+      options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
       TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
       options.setId(MediaMetadata.SEASON_NR, "1");
@@ -296,30 +296,32 @@ public class ITImdbMetadataProviderTest {
       assertNotNull("MediaMetadata", md);
 
       assertEquals("Pilot", md.getTitle());
-      assertEquals("The police department in Santa Barbara hires someone they think is a psychic detective.", md.getPlot());
-      assertEquals("30 October 2007", sdf.format(md.getReleaseDate()));
-      assertEquals(34, md.getCastMembers(ACTOR).size());
-      assertEquals(1, md.getCastMembers(DIRECTOR).size());
+      assertThat(md.getPlot()).contains("police", "Santa Barbara");
+      assertEquals("7 July 2006", sdf.format(md.getReleaseDate()));
+      assertThat(md.getCastMembers(ACTOR)).isNotEmpty();
+      assertThat(md.getCastMembers(DIRECTOR)).isNotEmpty();
       assertEquals("Michael Engler", md.getCastMembers(DIRECTOR).get(0).getName());
-      assertEquals(1, md.getCastMembers(WRITER).size());
+      assertThat(md.getCastMembers(WRITER)).isNotEmpty();
       assertEquals("Steve Franks", md.getCastMembers(WRITER).get(0).getName());
 
-      assertThat(md.getRatings().size()).isEqualTo(1);
+      assertThat(md.getRatings()).isNotEmpty();
       MediaRating mediaRating = md.getRatings().get(0);
       assertThat(mediaRating.getId()).isNotEmpty();
       assertThat(mediaRating.getRating()).isGreaterThan(0);
       assertThat(mediaRating.getVotes()).isGreaterThan(0);
       assertThat(mediaRating.getMaxValue()).isEqualTo(10);
+
+      assertThat(md.getIds()).containsKeys(MediaMetadata.IMDB);
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
     // S3E12
     try {
       mp = new ImdbMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
-      options.setImdbId("tt0491738");
+      options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
       TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
       options.setId(MediaMetadata.SEASON_NR, "3");
@@ -330,19 +332,21 @@ public class ITImdbMetadataProviderTest {
       assertNotNull("MediaMetadata", md);
 
       assertEquals("Earth, Wind and... Wait for It", md.getTitle());
-      assertEquals("An arson inspector reluctantly teams up with Shawn and Gus to find the perpetrator of a string of fires.", md.getPlot());
+      assertThat(md.getPlot()).isNotEmpty();
       assertEquals("23 January 2009", sdf.format(md.getReleaseDate()));
 
-      assertThat(md.getRatings().size()).isEqualTo(1);
+      assertThat(md.getRatings()).isNotEmpty();
       MediaRating mediaRating = md.getRatings().get(0);
       assertThat(mediaRating.getId()).isNotEmpty();
       assertThat(mediaRating.getRating()).isGreaterThan(0);
       assertThat(mediaRating.getVotes()).isGreaterThan(0);
       assertThat(mediaRating.getMaxValue()).isEqualTo(10);
+
+      assertThat(md.getIds()).containsKeys(MediaMetadata.IMDB);
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
@@ -363,7 +367,7 @@ public class ITImdbMetadataProviderTest {
       mp = new ImdbMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
       mp.getProviderInfo().getConfig().setValue(ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
-      options.setImdbId("tt0491738");
+      options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
       TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.de);
       options.setId(MediaMetadata.SEASON_NR, "1");
@@ -374,7 +378,7 @@ public class ITImdbMetadataProviderTest {
       assertNotNull("MediaMetadata", md);
 
       assertEquals("Mit einer Ausrede fängt es an", md.getTitle());
-      assertThat(md.getPlot()).startsWith("Als Shawn der Polizei eines Tages den entscheidenden");
+      assertThat(md.getPlot()).contains("Shawn", "Polizei");
       assertEquals("30 October 2007", sdf.format(md.getReleaseDate()));
       assertEquals(34, md.getCastMembers(ACTOR).size());
       assertEquals(1, md.getCastMembers(DIRECTOR).size());
@@ -382,26 +386,34 @@ public class ITImdbMetadataProviderTest {
       assertEquals(1, md.getCastMembers(WRITER).size());
       assertEquals("Steve Franks", md.getCastMembers(WRITER).get(0).getName());
       assertThat(md.getIds().size()).isGreaterThan(1);
-      assertThat(md.getRatings().size()).isEqualTo(1);
+
+      assertThat(md.getRatings()).isNotEmpty();
       MediaRating mediaRating = md.getRatings().get(0);
       assertThat(mediaRating.getId()).isNotEmpty();
       assertThat(mediaRating.getRating()).isGreaterThan(0);
       assertThat(mediaRating.getVotes()).isGreaterThan(0);
       assertThat(mediaRating.getMaxValue()).isEqualTo(10);
+
+      assertThat(md.getIds()).containsKeys(MediaMetadata.IMDB);
+      assertThat(md.getIds()).containsKeys(MediaMetadata.TMDB);
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
-  private void checkSearchResult(String title, int year, String imdbId, MediaSearchResult result) {
-    // title
-    assertEquals("title", title, result.getTitle());
-    // year
-    assertEquals("year", year, result.getYear());
-    // imdbId
-    assertEquals("imdbId", imdbId, result.getIMDBId());
+  private void checkSearchResult(String title, int year, String imdbId, List<MediaSearchResult> results) {
+    boolean found = true;
+
+    for (MediaSearchResult result : results) {
+      if (result.getTitle().equalsIgnoreCase(title) && result.getYear() == year && result.getIMDBId().equalsIgnoreCase(imdbId)) {
+        found = true;
+        break;
+      }
+    }
+
+    assertThat(found).isEqualTo(true);
   }
 
   @Test
@@ -419,58 +431,23 @@ public class ITImdbMetadataProviderTest {
       mp.getProviderInfo().getConfig().addBoolean("scrapeKeywordsPage", true);
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt0472033");
-      MovieModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       md = mp.getMetadata(options);
 
       // did we get metadata?
       assertNotNull("MediaMetadata", md);
 
       // check moviedetails
-      checkMovieDetails("9", 2009, "9", 7.0, 63365, "(1) To Protect Us...", 79, "Shane Acker", "Pamela Pettler, Shane Acker",
-          "PG-13", "09-09-2009", md);
-
-      // check poster
-      // checkMoviePoster("http://ia.media-imdb.com/images/M/MV5BMTY2ODE1MTgxMV5BMl5BanBnXkFtZTcwNTM1NTM2Mg@@._V1._SX195_SY195_.jpg",
-      // md);
-
-      // check genres
-      List<MediaGenres> genres = new ArrayList<>();
-      genres.add(MediaGenres.ANIMATION);
-      genres.add(MediaGenres.ACTION);
-      genres.add(MediaGenres.ADVENTURE);
-      genres.add(MediaGenres.SCIENCE_FICTION);
-      checkGenres(genres, md);
-
-      // check plot
-      checkPlot(
-          "A rag doll that awakens in a postapocalyptic future holds the key to humanity's salvation.",
+      checkMovieDetails("9", 2009, "9", 7.0, 63365, "(1) To Protect Us...", 79, "Shane Acker", "Pamela Pettler, Shane Acker", "PG-13", "09-09-2009",
           md);
 
-      // check cast
-      List<Person> castMembers = new ArrayList<>();
-      Person cm = new Person();
-      cm.setName("Christopher Plummer");
-      cm.setRole("#1");
-      cm.setThumbUrl("http://ia.media-imdb.com/images/M/MV5BMTU5MzQ5MDY3NF5BMl5BanBnXkFtZTcwNzMxOTU5Ng@@._V1._SX400_.jpg");
-      cm.setProfileUrl("http://www.imdb.com/name/nm0001626/");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      cm = new Person();
-      cm.setName("Martin Landau");
-      cm.setRole("#2");
-      cm.setThumbUrl("http://ia.media-imdb.com/images/M/MV5BMTI0MzkxNzg0OF5BMl5BanBnXkFtZTcwNDUzOTc5MQ@@._V1._SX400_.jpg");
-      cm.setProfileUrl("http://www.imdb.com/name/nm0001445/");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      checkCastMembers(castMembers, 10, md);
-
-      // check production company
-      checkProductionCompany(
-          Arrays.asList("Focus Features", "Relativity Media", "Arc Productions", "Starz Animation", "Tim Burton Productions"),
-          md);
+      assertThat(md.getGenres().size()).isGreaterThan(0);
+      assertThat(md.getPlot()).isNotEmpty();
+      checkCastMembers(md);
+      checkMoviePoster(md);
+      checkProductionCompany(md);
 
       // check localized values
       assertThat(md.getCountries()).containsOnly("US");
@@ -480,7 +457,7 @@ public class ITImdbMetadataProviderTest {
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
 
     /*
@@ -491,8 +468,8 @@ public class ITImdbMetadataProviderTest {
       mp.getProviderInfo().getConfig().addBoolean("localReleaseDate", true);
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt0114746");
-      MovieModuleManager.SETTINGS.setCertificationCountry(CountryCode.DE);
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
 
       md = mp.getMetadata(options);
 
@@ -503,44 +480,11 @@ public class ITImdbMetadataProviderTest {
       checkMovieDetails("12 Monkeys", 1995, "Twelve Monkeys", 8.1, 262821, "The future is history.", 129, "Terry Gilliam",
           "Chris Marker, David Webb Peoples, Janet Peoples", "16", "01-02-1996", md);
 
-      // check poster
-      // checkMoviePoster("http://ia.media-imdb.com/images/M/MV5BMTQ4OTM3NzkyN15BMl5BanBnXkFtZTcwMzIwMzgyMQ@@._V1._SX195_SY195_.jpg",
-      // md);
-
-      // check genres
-      List<MediaGenres> genres = new ArrayList<>();
-      genres.add(MediaGenres.MYSTERY);
-      genres.add(MediaGenres.SCIENCE_FICTION);
-      genres.add(MediaGenres.THRILLER);
-      checkGenres(genres, md);
-
-      // check plot
-      checkPlot(
-          "An unknown and lethal virus has wiped out five billion people in 1996. Only 1% of the population has survived by the year 2035, and is forced to live underground. A convict (James Cole) reluctantly volunteers to be sent back in time to 1996 to gather information about the origin of the epidemic (who he's told was spread by a mysterious \"Army of the Twelve Monkeys\") and locate the virus before it mutates so that scientists can study it. Unfortunately Cole is mistakenly sent to 1990, six years earlier than expected, and is arrested and locked up in a mental institution, where he meets Dr. Kathryn Railly, a psychiatrist, and Jeffrey Goines, the insane son of a famous scientist and virus expert.",
-          md);
-
-      // check cast
-      List<Person> castMembers = new ArrayList<>();
-      Person cm = new Person();
-      cm.setName("Joseph Melito");
-      cm.setRole("Young Cole");
-      cm.setThumbUrl("");
-      cm.setProfileUrl("http://www.imdb.com/name/nm0577828/");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      cm = new Person();
-      cm.setName("Bruce Willis");
-      cm.setRole("James Cole");
-      cm.setThumbUrl("http://ia.media-imdb.com/images/M/MV5BMjA0MjMzMTE5OF5BMl5BanBnXkFtZTcwMzQ2ODE3Mw@@._V1._SX400_.jpg");
-      cm.setProfileUrl("http://www.imdb.com/name/nm0000246/");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      checkCastMembers(castMembers, 86, md);
-
-      // check production company
-      checkProductionCompany(Arrays.asList("Universal Pictures", "Atlas Entertainment", "Classico"), md);
+      assertThat(md.getGenres()).isNotEmpty();
+      assertThat(md.getPlot()).contains("virus");
+      checkCastMembers(md);
+      checkProductionCompany(md);
+      checkMoviePoster(md);
 
       // check localized values
       assertThat(md.getCountries()).containsOnly("Vereinigte Staaten von Amerika");
@@ -550,7 +494,7 @@ public class ITImdbMetadataProviderTest {
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
 
     /*
@@ -560,8 +504,8 @@ public class ITImdbMetadataProviderTest {
       mp = new ImdbMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt1217209");
-      MovieModuleManager.SETTINGS.setCertificationCountry(CountryCode.GB);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.GB);
 
       md = mp.getMetadata(options);
 
@@ -572,51 +516,17 @@ public class ITImdbMetadataProviderTest {
       checkMovieDetails("Brave", 2012, "Brave", 7.3, 52871, "Change your fate.", 93, "Mark Andrews, Brenda Chapman, Steve Purcell",
           "Brenda Chapman, Mark Andrews, Steve Purcell, Irene Mecchi", "PG", "02-08-2012", md);
 
-      // check poster
-      // checkMoviePoster("http://ia.media-imdb.com/images/M/MV5BMzgwODk3ODA1NF5BMl5BanBnXkFtZTcwNjU3NjQ0Nw@@._V1._SX195_SY195_.jpg",
-      // md);
-
-      // check genres
-      List<MediaGenres> genres = new ArrayList<>();
-      genres.add(MediaGenres.ANIMATION);
-      genres.add(MediaGenres.ADVENTURE);
-      genres.add(MediaGenres.COMEDY);
-      genres.add(MediaGenres.FAMILY);
-      genres.add(MediaGenres.FANTASY);
-      checkGenres(genres, md);
-
-      // check plot
-      checkPlot(
-          "Set in Scotland in a rugged and mythical time, \"Brave\" features Merida, an aspiring archer and impetuous daughter of royalty. Merida makes a reckless choice that unleashes unintended peril and forces her to spring into action to set things right.",
-          md);
-
-      // check cast
-      List<Person> castMembers = new ArrayList<>();
-      Person cm = new Person();
-      cm.setName("Kelly Macdonald");
-      cm.setRole("Merida");
-      cm.setThumbUrl("http://ia.media-imdb.com/images/M/MV5BMjE0ODMzMjMyOV5BMl5BanBnXkFtZTcwMTYzNTA0NA@@._V1._SX400_.jpg");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      cm = new Person();
-      cm.setName("Billy Connolly");
-      cm.setRole("Fergus");
-      cm.setThumbUrl("http://ia.media-imdb.com/images/M/MV5BMTQzMzM2MTA4Ml5BMl5BanBnXkFtZTYwMzIxNTM1._V1._SX400_.jpg");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      checkCastMembers(castMembers, 16, md);
-
-      // check production company
-      checkProductionCompany(Arrays.asList("Walt Disney Pictures", "Pixar Animation Studios"), md);
-
+      assertThat(md.getGenres()).isNotEmpty();
+      assertThat(md.getPlot()).contains("Scotland", "Merida");
+      checkCastMembers(md);
+      checkProductionCompany(md);
+      checkMoviePoster(md);
       assertThat(md.getTags()).isNotEmpty();
 
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
 
     /*
@@ -626,8 +536,8 @@ public class ITImdbMetadataProviderTest {
       mp = new ImdbMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt1217209");
-      MovieModuleManager.SETTINGS.setCertificationCountry(CountryCode.DE);
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
 
       md = mp.getMetadata(options);
 
@@ -642,7 +552,7 @@ public class ITImdbMetadataProviderTest {
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
 
     /*
@@ -652,8 +562,8 @@ public class ITImdbMetadataProviderTest {
       mp = new ImdbMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt1396557");
-      MovieModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       md = mp.getMetadata(options);
 
@@ -664,47 +574,17 @@ public class ITImdbMetadataProviderTest {
       checkMovieDetails("Winnebago Man", 2009, "Winnebago Man", 7.2, 3890, "", 85, "Ben Steinbauer",
           "Malcolm Pullinger, Ben Steinbauer, Louisa Hall, Joel Heller, Berndt Mader, Natasha Rosow", "", "14-03-2009", md);
 
-      // check poster
-      // checkMoviePoster("http://ia.media-imdb.com/images/M/MV5BMzgwODk3ODA1NF5BMl5BanBnXkFtZTcwNjU3NjQ0Nw@@._V1._SX195_SY195_.jpg",
-      // md);
-
-      // check genres
-      List<MediaGenres> genres = new ArrayList<>();
-      genres.add(MediaGenres.DOCUMENTARY);
-      genres.add(MediaGenres.BIOGRAPHY);
-      genres.add(MediaGenres.COMEDY);
-
-      checkGenres(genres, md);
-
-      // check plot
-      checkPlot(
-          "Jack Rebney is the most famous man you've never heard of - after cursing his way through a Winnebago sales video, Rebney's outrageously funny outtakes became an underground sensation and made him an internet superstar. Filmmaker Ben Steinbauer journeys to the top of a mountain to find the recluse who unwittingly became the \"Winnebago Man.\"",
-          md);
-
-      // check cast
-      List<Person> castMembers = new ArrayList<>();
-      Person cm = new Person();
-      cm.setName("Jack Rebney");
-      cm.setRole("Himself");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      cm = new Person();
-      cm.setName("Ben Steinbauer");
-      cm.setRole("Himself");
-      cm.setType(ACTOR);
-      castMembers.add(cm);
-
-      checkCastMembers(castMembers, 14, md);
-
-      // check production company
-      checkProductionCompany(Arrays.asList("Bear Media, The", "Field Guide Media"), md);
+      assertThat(md.getGenres()).isNotEmpty();
+      assertThat(md.getPlot()).contains("Rebney", "Winnebago");
+      checkCastMembers(md);
+      checkProductionCompany(md);
+      checkMoviePoster(md);
 
       assertThat(md.getTags()).isNotEmpty();
     }
     catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(e.getMessage());
     }
   }
 
@@ -758,62 +638,22 @@ public class ITImdbMetadataProviderTest {
     // .getCertifications().get(0));
   }
 
-  private void checkMoviePoster(String url, MediaMetadata md) {
-    // check poster
-    List<MediaArtwork> mediaArt = md.getMediaArt();
-    assertEquals("fanart count", 1, mediaArt.size());
-    MediaArtwork art = mediaArt.get(0);
-    assertEquals("poster", url, art.getDefaultUrl());
+  private void checkMoviePoster(MediaMetadata md) {
+    assertThat(md.getMediaArt()).isNotEmpty();
+    assertThat(md.getMediaArt().get(0).getDefaultUrl()).isNotEmpty();
   }
 
-  private void checkGenres(List<MediaGenres> genres, MediaMetadata md) {
-    // cehck not null
-    assertNotNull("genres", md.getGenres());
-
-    // check the size
-    assertEquals("genres count", genres.size(), md.getGenres().size());
-
-    // check each genre if there is a counterpart in metadata
-    for (MediaGenres genre : genres) {
-      assertTrue("contains genre", md.getGenres().contains(genre));
+  private void checkCastMembers(MediaMetadata md) {
+    assertThat(md.getCastMembers(ACTOR)).isNotEmpty();
+    // at least the must have a name/role
+    for (Person member : md.getCastMembers(ACTOR)) {
+      assertThat(member.getName()).isNotEmpty();
+      assertThat(member.getRole()).isNotEmpty();
     }
   }
 
-  private void checkPlot(String plot, MediaMetadata md) {
-    // plot
-    assertEquals("plot", plot, md.getPlot());
-  }
-
-  private void checkCastMembers(List<Person> castMembers, int count, MediaMetadata md) {
-    // not null
-    assertNotNull(md.getCastMembers(ACTOR));
-    // count of castmembers
-    assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(count);
-    // check all defined members
-    for (int i = 0; i < castMembers.size(); i++) {
-      Person expected = castMembers.get(i);
-      Person actual = md.getCastMembers(ACTOR).get(i);
-
-      // name
-      assertEquals("name", expected.getName(), actual.getName());
-
-      // character
-      assertEquals("character", expected.getRole(), actual.getRole());
-
-      // thumb
-      if (StringUtils.isNotBlank(expected.getThumbUrl())) {
-        // image may be hosted on a differnent CDN; just check if it is not empty
-        assertNotEquals("thumb", "", actual.getThumbUrl());
-      }
-
-      // profile path
-      if (StringUtils.isNotBlank(expected.getProfileUrl())) {
-        assertEquals("profile", expected.getProfileUrl(), actual.getProfileUrl());
-      }
-    }
-  }
-
-  private void checkProductionCompany(List<String> companies, MediaMetadata md) {
-    assertThat(md.getProductionCompanies()).containsAll(companies);
+  private void checkProductionCompany(MediaMetadata md) {
+    assertThat(md.getProductionCompanies()).isNotEmpty();
+    assertThat(md.getProductionCompanies().get(0)).isNotEmpty();
   }
 }

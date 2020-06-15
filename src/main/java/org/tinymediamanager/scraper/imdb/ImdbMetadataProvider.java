@@ -117,11 +117,6 @@ public class ImdbMetadataProvider
     return new ImdbTvShowParser().getEpisodeList(options);
   }
 
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    return new ImdbTvShowParser().getEpisodeList(options);
-  }
-
   static void processMediaArt(MediaMetadata md, MediaArtworkType type, String image) {
     MediaArtwork ma = new MediaArtwork(providerInfo.getId(), type);
     ma.setPreviewUrl(image);

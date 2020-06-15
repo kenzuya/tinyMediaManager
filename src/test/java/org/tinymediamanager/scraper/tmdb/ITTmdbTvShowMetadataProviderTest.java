@@ -11,6 +11,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
@@ -26,6 +27,7 @@ public class ITTmdbTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setTmdbId(160);
     options.setLanguage(MediaLanguages.de);
+    options.setCertificationCountry(CountryCode.DE);
 
     MediaMetadata md = mp.getMetadata(options);
 
@@ -46,6 +48,7 @@ public class ITTmdbTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setTmdbId(160);
     options.setLanguage(MediaLanguages.sq); // unavailable
+    options.setCertificationCountry(CountryCode.US);
 
     MediaMetadata md = mp.getMetadata(options);
 
@@ -62,6 +65,7 @@ public class ITTmdbTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("Game Of Thrones");
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     List<MediaSearchResult> searchResults = new ArrayList<>(mp.search(options));
 
@@ -77,6 +81,7 @@ public class ITTmdbTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("2057");
     options.setLanguage(MediaLanguages.el);
+    options.setCertificationCountry(CountryCode.US);
 
     List<MediaSearchResult> searchResults = new ArrayList<>(mp.search(options));
 
@@ -95,6 +100,7 @@ public class ITTmdbTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("Band of Brothers");
     options.setLanguage(MediaLanguages.ar); // AR not available!
+    options.setCertificationCountry(CountryCode.US);
 
     List<MediaSearchResult> searchResults = new ArrayList<>(mp.search(options));
 
@@ -113,6 +119,7 @@ public class ITTmdbTvShowMetadataProviderTest {
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
+    options.setCertificationCountry(CountryCode.US);
     options.setId(mp.getId(), "456");
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);
@@ -139,6 +146,7 @@ public class ITTmdbTvShowMetadataProviderTest {
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
+    options.setCertificationCountry(CountryCode.US);
     options.setId(mp.getId(), "456"); // Simpsons
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);

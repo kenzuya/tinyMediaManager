@@ -204,6 +204,7 @@ public class MovieChooserModel extends AbstractModelObject {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchResult(result);
       options.setLanguage(language);
+      options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");

@@ -20,6 +20,7 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
+import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.getRequestLanguage;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
@@ -42,7 +43,6 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -57,6 +57,7 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -84,9 +85,10 @@ import com.uwetrottmann.tmdb2.exceptions.TmdbNotFoundException;
 import retrofit2.Response;
 
 class TmdbTvShowMetadataProvider {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TmdbTvShowMetadataProvider.class);
+  private static final Logger                                LOGGER                 = LoggerFactory.getLogger(TmdbTvShowMetadataProvider.class);
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
 
-  private final Tmdb          api;
+  private final Tmdb                                         api;
 
   TmdbTvShowMetadataProvider(Tmdb api) {
     this.api = api;
@@ -241,7 +243,6 @@ class TmdbTvShowMetadataProvider {
    */
   List<MediaMetadata> getEpisodeList(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     LOGGER.debug("getEpisodeList(): {} ", options);
-    List<MediaMetadata> episodes = new ArrayList<>();
 
     // tmdbId from option
     int tmdbId = options.getTmdbId();
@@ -273,6 +274,15 @@ class TmdbTvShowMetadataProvider {
 
     String language = getRequestLanguage(options.getLanguage());
 
+    // look in the cache map if there is an entry
+    List<MediaMetadata> episodes = EPISODE_LIST_CACHE_MAP.get(tmdbId + "_" + language);
+    if (ListUtils.isNotEmpty(episodes)) {
+      // cache hit!
+      return episodes;
+    }
+
+    episodes = new ArrayList<>();
+
     // the API does not provide a complete access to all episodes, so we have to
     // fetch the show summary first and every season afterwards..
     synchronized (api) {
@@ -303,8 +313,12 @@ class TmdbTvShowMetadataProvider {
       }
     }
 
-    return episodes;
+    // cache the episode list
+    if (!episodes.isEmpty()) {
+      EPISODE_LIST_CACHE_MAP.put(tmdbId + "_" + language, episodes);
+    }
 
+    return episodes;
   }
 
   MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
@@ -451,7 +465,7 @@ class TmdbTvShowMetadataProvider {
     // content ratings
     if (complete.content_ratings != null) {
       // only use the certification of the desired country (if any country has been chosen)
-      CountryCode countryCode = MovieModuleManager.SETTINGS.getCertificationCountry();
+      CountryCode countryCode = options.getCertificationCountry();
 
       for (ContentRating country : ListUtils.nullSafe(complete.content_ratings.results)) {
         if (countryCode == null || countryCode.getAlpha2().compareToIgnoreCase(country.iso_3166_1) == 0) {
@@ -490,26 +504,69 @@ class TmdbTvShowMetadataProvider {
   MediaMetadata getEpisodeMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     MediaMetadata md = new MediaMetadata(TmdbMetadataProvider.providerInfo.getId());
 
-    // tmdbId from option
-    int tmdbId = options.getTmdbId();
+    int tmdbId = 0;
 
-    // try to get via imdb id
-    if (MetadataUtil.isValidImdbId(options.getImdbId())) {
+    // ok, we have 2 flavors here:
+    // a) we get the season and episode number -> everything is fine
+    // b) we get the episode id (tmdb, imdb or tvdb) -> we need to do the lookup to get the season/episode number
+
+    // get episode number and season number
+    int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
+    int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
+
+    // if we don't have season/episode yet but a imdb id -> do the find lookup
+    if ((seasonNr == -1 || episodeNr == -1) && MetadataUtil.isValidImdbId(options.getImdbId())) {
       try {
-        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, options.getImdbId());
+        BaseTvEpisode baseTvEpisode = getBaseTvEpisodeByImdbId(options.getImdbId());
+        if (baseTvEpisode != null) {
+          tmdbId = MetadataUtil.unboxInteger(baseTvEpisode.show_id);
+          seasonNr = MetadataUtil.unboxInteger(baseTvEpisode.season_number, -1);
+          episodeNr = MetadataUtil.unboxInteger(baseTvEpisode.episode_number, -1);
+        }
       }
       catch (Exception e) {
-        LOGGER.warn("could not get tmdb id via imdb id - {}", e.getMessage());
+        LOGGER.debug("Could not get episode number by imdb id - {}", e.getMessage());
       }
     }
 
-    // try to get via tvdb id
-    if (options.getIdAsIntOrDefault(TVDB, 0) > 0) {
+    // if we don't have season/episode yet but a tvdb id -> do the find lookup
+    if ((seasonNr == -1 || episodeNr == -1) && options.getIds().containsKey(TVDB)) {
       try {
-        tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, options.getIdAsInteger(TVDB));
+        BaseTvEpisode baseTvEpisode = getBaseTvEpisodeByTvdbId(options.getIdAsString(TVDB));
+        if (baseTvEpisode != null) {
+          tmdbId = MetadataUtil.unboxInteger(baseTvEpisode.show_id);
+          seasonNr = MetadataUtil.unboxInteger(baseTvEpisode.season_number, -1);
+          episodeNr = MetadataUtil.unboxInteger(baseTvEpisode.episode_number, -1);
+        }
       }
       catch (Exception e) {
-        LOGGER.warn("could not get tmdb id via tvdb id - {}", e.getMessage());
+        LOGGER.debug("Could not get episode number by tvdb id - {}", e.getMessage());
+      }
+    }
+
+    // get the tv show ids
+    if (tmdbId == 0) {
+      TvShowSearchAndScrapeOptions tvShowSearchAndScrapeOptions = options.createTvShowSearchAndScrapeOptions();
+      tmdbId = tvShowSearchAndScrapeOptions.getTmdbId();
+
+      // try to get via imdb id
+      if (tmdbId == 0 && MetadataUtil.isValidImdbId(tvShowSearchAndScrapeOptions.getImdbId())) {
+        try {
+          tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, MediaType.TV_SHOW, tvShowSearchAndScrapeOptions.getImdbId());
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not get tmdb id via imdb id - {}", e.getMessage());
+        }
+      }
+
+      // try to get via tvdb id
+      if (tmdbId == 0 && tvShowSearchAndScrapeOptions.getIdAsIntOrDefault(TVDB, 0) > 0) {
+        try {
+          tmdbId = TmdbUtils.getTmdbIdFromTvdbId(api, tvShowSearchAndScrapeOptions.getIdAsInteger(TVDB));
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not get tmdb id via tvdb id - {}", e.getMessage());
+        }
       }
     }
 
@@ -519,9 +576,17 @@ class TmdbTvShowMetadataProvider {
       throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
     }
 
-    // get episode number and season number
-    int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
-    int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
+    // if we don't have season/episode yet but a tmdb id -> do the episodelist lookup
+    if ((seasonNr == -1 || episodeNr == -1) && options.getIds().containsKey(TMDB)) {
+      List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
+      for (MediaMetadata episode : episodes) {
+        if ((Integer) episode.getId(TMDB) == options.getIdAsInt(TMDB)) {
+          seasonNr = episode.getSeasonNumber();
+          episodeNr = episode.getEpisodeNumber();
+          break;
+        }
+      }
+    }
 
     // parsed valid episode number/season number?
     String aired = "";
@@ -544,14 +609,14 @@ class TmdbTvShowMetadataProvider {
     synchronized (api) {
       // get episode via season listing -> improves caching performance
       try {
-        Response<TvSeason> httpResponse = api.tvSeasonsService()
+        Response<TvSeason> seasonResponse = api.tvSeasonsService()
             .season(tmdbId, seasonNr, language, new AppendToResponse(AppendToResponseItem.CREDITS)).execute();
-        if (!httpResponse.isSuccessful()) {
-          throw new HttpException(httpResponse.code(), httpResponse.message());
+        if (!seasonResponse.isSuccessful()) {
+          throw new HttpException(seasonResponse.code(), seasonResponse.message());
         }
-        fullSeason = httpResponse.body();
+        fullSeason = seasonResponse.body();
         for (TvEpisode ep : ListUtils.nullSafe(fullSeason.episodes)) {
-          if (ep.season_number == seasonNr && ep.episode_number == episodeNr) {
+          if (MetadataUtil.unboxInteger(ep.season_number, -1) == seasonNr && MetadataUtil.unboxInteger(ep.episode_number, -1) == episodeNr) {
             episode = ep;
             break;
           }
@@ -571,13 +636,25 @@ class TmdbTvShowMetadataProvider {
           }
         }
 
-        verifyTvEpisodeTitleLanguage(episode, options);
+        // get full episode data
+        if (episode != null) {
+          Response<TvEpisode> episodeResponse = api.tvEpisodesService()
+              .episode(tmdbId, MetadataUtil.unboxInteger(episode.season_number, -1), MetadataUtil.unboxInteger(episode.episode_number, -1), language,
+                  new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS))
+              .execute();
+
+          if (!episodeResponse.isSuccessful()) {
+            throw new HttpException(seasonResponse.code(), seasonResponse.message());
+          }
+          episode = episodeResponse.body();
+          verifyTvEpisodeTitleLanguage(episode, options);
+        }
       }
       catch (TmdbNotFoundException e) {
         LOGGER.info("nothing found");
       }
       catch (Exception e) {
-        LOGGER.debug("failed to get meta data: " + e.getMessage());
+        LOGGER.debug("failed to get meta data: {}", e.getMessage());
         throw new ScrapeException(e);
       }
     }
@@ -592,13 +669,13 @@ class TmdbTvShowMetadataProvider {
 
     // external IDs
     if (episode.external_ids != null) {
-      if (episode.external_ids.tvdb_id != null && episode.external_ids.tvdb_id > 0) {
+      if (MetadataUtil.unboxInteger(episode.external_ids.tvdb_id) > 0) {
         md.setId(TVDB, episode.external_ids.tvdb_id);
       }
       if (StringUtils.isNotBlank(episode.external_ids.imdb_id)) {
         md.setId(IMDB, episode.external_ids.imdb_id);
       }
-      if (episode.external_ids.tvrage_id != null && episode.external_ids.tvrage_id > 0) {
+      if (MetadataUtil.unboxInteger(episode.external_ids.tvrage_id) > 0) {
         md.setId("tvrage", episode.external_ids.tvrage_id);
       }
     }
@@ -608,8 +685,8 @@ class TmdbTvShowMetadataProvider {
 
     try {
       MediaRating rating = new MediaRating("tmdb");
-      rating.setRating(episode.vote_average);
-      rating.setVotes(episode.vote_count);
+      rating.setRating(MetadataUtil.unboxDouble(episode.vote_average));
+      rating.setVotes(MetadataUtil.unboxInteger(episode.vote_count));
       rating.setMaxValue(10);
       md.addRating(rating);
     }
@@ -726,6 +803,24 @@ class TmdbTvShowMetadataProvider {
     }
 
     return md;
+  }
+
+  private BaseTvEpisode getBaseTvEpisodeByImdbId(String imdbId) throws IOException {
+    FindResults findResults = api.findService().find(imdbId, ExternalSource.IMDB_ID, null).execute().body();
+    if (findResults != null && ListUtils.isNotEmpty(findResults.tv_episode_results)) {
+      return findResults.tv_episode_results.get(0);
+    }
+
+    return null;
+  }
+
+  private BaseTvEpisode getBaseTvEpisodeByTvdbId(String tvdbId) throws IOException {
+    FindResults findResults = api.findService().find(tvdbId, ExternalSource.TVDB_ID, null).execute().body();
+    if (findResults != null && ListUtils.isNotEmpty(findResults.tv_episode_results)) {
+      return findResults.tv_episode_results.get(0);
+    }
+
+    return null;
   }
 
   /**

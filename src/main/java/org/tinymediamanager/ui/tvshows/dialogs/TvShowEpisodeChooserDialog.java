@@ -25,7 +25,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -43,8 +42,8 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
-import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -240,16 +239,14 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   private class SearchTask extends SwingWorker<Void, Void> {
     @Override
     public Void doInBackground() {
-      TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
-
-      for (Entry<String, Object> entry : episode.getTvShow().getIds().entrySet()) {
-        options.setId(entry.getKey(), entry.getValue().toString());
-      }
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
+      options.setIds(episode.getTvShow().getIds());
 
       try {
-        for (MediaMetadata episode : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
-          episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, episode));
+        for (MediaMetadata md : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
+          episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
         }
       }
       catch (ScrapeException e) {

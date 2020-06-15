@@ -32,6 +32,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
@@ -51,6 +52,8 @@ public class ITOfdbMetadataProviderTest {
         options = new MovieSearchAndScrapeOptions();
         options.setSearchQuery("Die Piefke Saga");
         options.setLanguage(MediaLanguages.de);
+        options.setCertificationCountry(CountryCode.DE);
+
         results = new ArrayList<>(mp.search(options));
         // did we get a result?
         assertNotNull("Result", results);
@@ -71,6 +74,8 @@ public class ITOfdbMetadataProviderTest {
         options = new MovieSearchAndScrapeOptions();
         options.setSearchQuery("Slevin");
         options.setLanguage(MediaLanguages.de);
+        options.setCertificationCountry(CountryCode.DE);
+
         results = new ArrayList<>(mp.search(options));
         // did we get a result?
         assertNotNull("Result", results);
@@ -104,6 +109,8 @@ public class ITOfdbMetadataProviderTest {
       mp = new OfdbMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       options.setId(mp.getProviderInfo().getId(), "226045");
 
       md = mp.getMetadata(options);

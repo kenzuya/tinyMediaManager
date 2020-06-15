@@ -87,17 +87,4 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    *           indicates that there was no usable id to scrape
    */
   List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException;
-
-  /**
-   * Gets an episode list through the given episode
-   *
-   * @param options
-   *          scrape options (containing the ID of the TV show)
-   * @return a list of episodes
-   * @throws ScrapeException
-   *           any exception which can be thrown while scraping
-   * @throws MissingIdException
-   *           indicates that there was no usable id to scrape
-   */
-  List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException;
 }

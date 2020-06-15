@@ -45,6 +45,7 @@ public class TvShowSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
   public void loadDefaults() {
     // language
     language = TvShowModuleManager.SETTINGS.getScraperLanguage();
+    certificationCountry = TvShowModuleManager.SETTINGS.getCertificationCountry();
 
     // metadata
     metadataScraper = TvShowList.getInstance().getDefaultMediaScraper();

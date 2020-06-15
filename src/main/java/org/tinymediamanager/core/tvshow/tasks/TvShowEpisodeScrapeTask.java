@@ -18,7 +18,6 @@ package org.tinymediamanager.core.tvshow.tasks;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -81,15 +80,13 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       }
 
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions(scrapeOptions);
+      options.setTvShowIds(episode.getTvShow().getIds());
 
       MediaScraper mediaScraper = scrapeOptions.getMetadataScraper();
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());
       md.setReleaseDate(episode.getFirstAired());
       options.setMetadata(md);
-
-      for (Entry<String, Object> entry : episode.getTvShow().getIds().entrySet()) {
-        options.setId(entry.getKey(), entry.getValue().toString());
-      }
+      options.setIds(episode.getIds());
 
       if (episode.isDvdOrder()) {
         options.setId(MediaMetadata.SEASON_NR_DVD, String.valueOf(episode.getDvdSeason()));

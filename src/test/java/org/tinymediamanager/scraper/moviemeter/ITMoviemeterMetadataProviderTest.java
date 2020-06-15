@@ -13,6 +13,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
@@ -44,7 +45,9 @@ public class ITMoviemeterMetadataProviderTest {
 
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.nl);
+      options.setCertificationCountry(CountryCode.US);
       options.setId(rt.getProviderInfo().getId(), "17552");
+
       MediaMetadata md = rt.getMetadata(options);
 
       assertThat(md).isNotNull();
@@ -63,9 +66,9 @@ public class ITMoviemeterMetadataProviderTest {
       assertThat(md.getProductionCompanies()).isEmpty();
       assertThat(md.getId(MediaMetadata.IMDB)).isEqualTo("tt0499549");
       assertThat(md.getRuntime()).isEqualTo(162);
-      assertThat(md.getGenres().size()).isEqualTo(2);
-      assertThat(md.getCastMembers(ACTOR).size()).isEqualTo(3);
-      assertThat(md.getCastMembers(DIRECTOR).size()).isEqualTo(1);
+      assertThat(md.getGenres().size()).isGreaterThanOrEqualTo(1);
+      assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(1);
+      assertThat(md.getCastMembers(DIRECTOR).size()).isGreaterThanOrEqualTo(1);
     } catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());

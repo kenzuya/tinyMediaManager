@@ -36,7 +36,6 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -516,7 +515,7 @@ class TmdbMovieMetadataProvider {
     // releases & certification
     if (movie.release_dates != null) {
       // only use the certification of the desired country (if any country has been chosen)
-      CountryCode countryCode = MovieModuleManager.SETTINGS.getCertificationCountry();
+      CountryCode countryCode = options.getCertificationCountry();
 
       for (ReleaseDatesResult countries : ListUtils.nullSafe(movie.release_dates.results)) {
         if (countryCode == null || countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0) {

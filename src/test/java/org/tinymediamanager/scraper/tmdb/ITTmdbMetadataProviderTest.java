@@ -8,6 +8,7 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -20,6 +21,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
@@ -44,6 +46,8 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
       assertNotNull("Result", results);
@@ -62,6 +66,8 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
       assertNotNull("Result", results);
@@ -87,6 +93,8 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
       assertNotNull("Result", results);
@@ -95,7 +103,7 @@ public class ITTmdbMetadataProviderTest {
       assertEquals("Result count", 1, results.size());
 
       assertEquals("Lucky # Slevin", results.get(0).getTitle());
-      assertEquals(2007, results.get(0).getYear());
+      assertEquals(2006, results.get(0).getYear());
     }
     catch (Exception e) {
       fail(e.getMessage());
@@ -113,6 +121,8 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Recrutas da Pesada"); // O Pelotão Chanfrado
       options.setLanguage(MediaLanguages.pt_BR);
+      options.setCertificationCountry(CountryCode.US);
+
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
       assertNotNull("Result", results);
@@ -144,6 +154,7 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSearchAndScrapeOptions();
       options.setId(mp.getProviderInfo().getId(), "63");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       md = mp.getMetadata(options);
 
@@ -167,6 +178,7 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSearchAndScrapeOptions();
       options.setId(mp.getProviderInfo().getId(), "671");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       md = mp.getMetadata(options);
 
@@ -195,16 +207,16 @@ public class ITTmdbMetadataProviderTest {
       mp = new TmdbMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       options.setId(mp.getProviderInfo().getId(), "62177");
 
       md = mp.getMetadata(options);
 
       assertEquals("Merida - Legende der Highlands", md.getTitle());
       assertEquals(2012, md.getYear());
-      assertEquals(
-          "Merida – Legende der Highlands spielt im Schottland des 10. Jahrhunderts. König Fergus und Königin Elinor haben es nicht leicht. Ihre Tochter Merida, ein Ass im Bogenschießen, ist ein echter Wildfang und Sturkopf. In ihrem Ungestüm verletzt die Prinzessin alte Traditionen, indem sie bei einem Turnier mit ihrer Schussfertigkeit auftrumpft, die offiziellen Teilnehmer brüskiert und damit den Zorn der schottischen Lords auf sich zieht. Als sie dadurch das Königreich in ein Chaos stürzt, bittet sie eine weise alte Frau um Hilfe, die ihr einen verhängnisvollen Wunsch gewährt. Um ihre Fehler wieder gut zu machen, muss Merida lernen, was wahrer Mut bedeutet und so den Fluch aufheben, bevor es zu spät ist.",
-          md.getPlot());
-      assertEquals("", md.getTagline());
+      assertThat(md.getPlot()).contains("Merida", "Schottland", "König", "Prinzessin");
+      assertThat(md.getTagline()).isNotEmpty();
 
       assertNotNull(md.getCastMembers(ACTOR));
       assertThat(md.getCastMembers(ACTOR).size()).isGreaterThan(0);
@@ -222,6 +234,8 @@ public class ITTmdbMetadataProviderTest {
       mp = new TmdbMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.pt_BR);
+      options.setCertificationCountry(CountryCode.US);
+
       options.setId(mp.getProviderInfo().getId(), "10890");
 
       md = mp.getMetadata(options);
@@ -251,6 +265,8 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSetSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       results = mp.search(options);
       // did we get a result?
       assertNotNull("Result", results);
@@ -273,6 +289,8 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSetSearchAndScrapeOptions();
       options.setSearchQuery("101 Dalmatiner");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       results = mp.search(options);
       // did we get a result?
       assertNotNull("Result", results);
@@ -304,6 +322,7 @@ public class ITTmdbMetadataProviderTest {
       options = new MovieSetSearchAndScrapeOptions();
       options.setId(mp.getProviderInfo().getId(), "1241");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       md = mp.getMetadata(options);
 
@@ -334,10 +353,12 @@ public class ITTmdbMetadataProviderTest {
       options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery("Psych");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       results = new ArrayList<>(metadataProvider.search(options));
 
       assertNotNull(results);
-      assertEquals(20, results.size());
+      assertThat(results.size()).isGreaterThanOrEqualTo(20);
       assertEquals("Psych", results.get(0).getTitle());
       assertEquals("1447", results.get(0).getId());
     }
@@ -354,6 +375,8 @@ public class ITTmdbMetadataProviderTest {
       options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery("Die Simpsons");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
+
       results = new ArrayList<>(metadataProvider.search(options));
 
       assertNotNull(results);
@@ -379,6 +402,7 @@ public class ITTmdbMetadataProviderTest {
       mp = new TmdbMetadataProvider();
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
       options.setId(mp.getProviderInfo().getId(), "1447");
 
       episodes = mp.getEpisodeList(options);
@@ -410,6 +434,8 @@ public class ITTmdbMetadataProviderTest {
       options = new TvShowSearchAndScrapeOptions();
       options.setTmdbId(1447);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       md = mp.getMetadata(options);
 
       // did we get metadata?
@@ -452,8 +478,10 @@ public class ITTmdbMetadataProviderTest {
     try {
       mp = new TmdbMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
-      options.setTmdbId(1447);
+      options.setTvShowIds(Collections.singletonMap(mp.getProviderInfo().getId(), "1447"));
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       options.setId(MediaMetadata.SEASON_NR, "1");
       options.setId(MediaMetadata.EPISODE_NR, "1");
       md = mp.getMetadata(options);

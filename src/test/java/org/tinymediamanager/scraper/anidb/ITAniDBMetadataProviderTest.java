@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -105,7 +106,7 @@ public class ITAniDBMetadataProviderTest {
     ITvShowMetadataProvider mp = new AniDBMetadataProvider();
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.en);
-    options.setId("anidb", "4242");
+    options.setTvShowIds(Collections.singletonMap("anidb", "4242"));
     options.setId("episodeNr", "1");
     options.setId("seasonNr", "1");
 

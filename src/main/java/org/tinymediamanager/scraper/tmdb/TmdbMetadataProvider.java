@@ -196,13 +196,6 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    // lazy initialization of the api
-    initAPI();
-    return new TmdbTvShowMetadataProvider(api).getEpisodeList(options);
-  }
-
-  @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getMetadata(): {}", options);
     // lazy initialization of the api

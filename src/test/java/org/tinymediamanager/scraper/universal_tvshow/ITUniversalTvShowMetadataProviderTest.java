@@ -19,6 +19,7 @@ package org.tinymediamanager.scraper.universal_tvshow;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -30,6 +31,7 @@ import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
@@ -70,6 +72,8 @@ public class ITUniversalTvShowMetadataProviderTest {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery(searchString);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
@@ -127,6 +131,7 @@ public class ITUniversalTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -186,6 +191,7 @@ public class ITUniversalTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -245,6 +251,7 @@ public class ITUniversalTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -271,6 +278,7 @@ public class ITUniversalTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setId("tmdb", "615");
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -419,6 +427,7 @@ public class ITUniversalTvShowMetadataProviderTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);
 
@@ -429,9 +438,10 @@ public class ITUniversalTvShowMetadataProviderTest {
     ITvShowMetadataProvider mp = new UniversalTvShowMetadataProvider();
     mp.getProviderInfo().getConfig().setValue("episodes", scraperId);
 
-    TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);
 
@@ -440,80 +450,84 @@ public class ITUniversalTvShowMetadataProviderTest {
 
   @Test
   public void testScrapeEpisodeFromTvdbWithTvdbId() throws Exception {
-    scrapeEpisode("tvdb", "tvdb", "73871");
+    scrapeEpisodeSimple("tvdb", "tvdb", "79335", "307505");
   }
 
   @Test
   public void testScrapeEpisodeFromTvdbWithTmdbId() throws Exception {
-    scrapeEpisode("tvdb", "tmdb", "615");
+    scrapeEpisodeSimple("tvdb", "tmdb", "1447", "66777");
   }
 
   @Test
   public void testScrapeEpisodeFromTvdbWithImdbId() throws Exception {
-    scrapeEpisode("tvdb", "imdb", "tt0149460");
+    scrapeEpisodeSimple("tvdb", "imdb", "tt0491738", "tt0836429");
   }
 
   @Test
   public void testScrapeEpisodeFromTmdbWithTvdbId() throws Exception {
-    scrapeEpisode("tmdb", "tvdb", "73871");
+    scrapeEpisodeSimple("tmdb", "tvdb", "79335", "307505");
   }
 
   @Test
   public void testScrapeEpisodeFromTmdbWithTmdbId() throws Exception {
-    scrapeEpisode("tmdb", "tmdb", "615");
+    scrapeEpisodeSimple("tmdb", "tmdb", "1447", "66777");
   }
 
   @Test
   public void testScrapeEpisodeFromTmdbWithImdbId() throws Exception {
-    scrapeEpisode("tmdb", "imdb", "tt0149460");
+    scrapeEpisodeSimple("tmdb", "imdb", "tt0491738", "tt0836429");
   }
 
   @Test
   public void testScrapeEpisodeFromImdbWithTvdbId() throws Exception {
-    scrapeEpisode("imdb", "tvdb", "73871");
+    scrapeEpisodeSimple("imdb", "tvdb", "79335", "307505");
   }
 
   @Test
   public void testScrapeEpisodeFromImdbWithTmdbId() throws Exception {
-    scrapeEpisode("imdb", "tmdb", "615");
+    scrapeEpisodeSimple("imdb", "tmdb", "1447", "66777");
   }
 
   @Test
   public void testScrapeEpisodeFromImdbWithImdbId() throws Exception {
-    scrapeEpisode("imdb", "imdb", "tt0149460");
+    scrapeEpisodeSimple("imdb", "imdb", "tt0491738", "tt0836429");
   }
 
   @Test
   public void testScrapeEpisodeFromTraktWithTvdbId() throws Exception {
-    scrapeEpisode("trakt", "tvdb", "73871");
+    scrapeEpisodeSimple("trakt", "tvdb", "79335", "307505");
   }
 
   @Test
   public void testScrapeEpisodeFromTraktWithTmdbId() throws Exception {
-    scrapeEpisode("trakt", "tmdb", "615");
+    scrapeEpisodeSimple("trakt", "tmdb", "1447", "66777");
   }
 
   @Test
   public void testScrapeEpisodeFromTraktWithImdbId() throws Exception {
-    scrapeEpisode("trakt", "imdb", "tt0149460");
+    scrapeEpisodeSimple("trakt", "imdb", "tt0491738", "tt0836429");
   }
 
-  private void scrapeEpisode(String scraperId, String providerId, String id) throws Exception {
+  private void scrapeEpisodeSimple(String scraperId, String providerId, String showId, String episodeId) throws Exception {
+    // check S01/E09
     ITvShowMetadataProvider mp = new UniversalTvShowMetadataProvider();
     mp.getProviderInfo().getConfig().setValue("episodes", scraperId);
+    mp.getProviderInfo().getConfig().setValue("episodeTitle", scraperId);
+    mp.getProviderInfo().getConfig().setValue("episodePlot", scraperId);
+    mp.getProviderInfo().getConfig().setValue("episodeCastMembers", scraperId);
+    mp.getProviderInfo().getConfig().setValue("episodeRatings", scraperId);
 
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
-    options.setId(providerId, id);
-    options.setId(MediaMetadata.SEASON_NR, "1");
-    options.setId(MediaMetadata.EPISODE_NR, "2");
+    options.getTvShowIds().putAll(Collections.singletonMap(providerId, showId));
+    options.setId(providerId, episodeId);
     options.setLanguage(MediaLanguages.en);
 
     MediaMetadata md = mp.getMetadata(options);
 
     assertThat(md).isNotNull();
     assertThat(md.getSeasonNumber()).isEqualTo(1);
-    assertThat(md.getEpisodeNumber()).isEqualTo(2);
-    assertThat(md.getTitle()).isNotEmpty();
+    assertThat(md.getEpisodeNumber()).isEqualTo(9);
+    assertThat(md.getTitle()).isEqualTo("Forget Me Not");
     assertThat(md.getPlot()).isNotEmpty();
     assertThat(md.getReleaseDate()).isNotNull();
     assertThat(md.getRatings()).isNotEmpty();
@@ -522,5 +536,32 @@ public class ITUniversalTvShowMetadataProviderTest {
       // trakt does not support episode guests
       assertThat(md.getCastMembers()).isNotEmpty();
     }
+  }
+
+  @Test
+  public void testScrapeEpisodeMixed() throws Exception {
+    // check S01/E09
+    ITvShowMetadataProvider mp = new UniversalTvShowMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("episodes", "tmdb");
+    mp.getProviderInfo().getConfig().setValue("episodeTitle", "trakt");
+    mp.getProviderInfo().getConfig().setValue("episodePlot", "tmdb");
+    mp.getProviderInfo().getConfig().setValue("episodeCastMembers", "imdb");
+    mp.getProviderInfo().getConfig().setValue("episodeRatings", "imdb");
+
+    TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+    options.getTvShowIds().putAll(Collections.singletonMap("imdb", "tt0491738"));
+    options.setId("tmdb", "66777");
+    options.setLanguage(MediaLanguages.en);
+
+    MediaMetadata md = mp.getMetadata(options);
+
+    assertThat(md).isNotNull();
+    assertThat(md.getSeasonNumber()).isEqualTo(1);
+    assertThat(md.getEpisodeNumber()).isEqualTo(9);
+    assertThat(md.getTitle()).isEqualTo("Forget Me Not");
+    assertThat(md.getPlot()).isNotEmpty();
+    assertThat(md.getReleaseDate()).isNotNull();
+    assertThat(md.getRatings()).isNotEmpty();
+    assertThat(md.getCastMembers()).isNotEmpty();
   }
 }

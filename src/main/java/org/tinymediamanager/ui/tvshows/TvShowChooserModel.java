@@ -198,6 +198,7 @@ public class TvShowChooserModel extends AbstractModelObject {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchResult(result);
       options.setLanguage(language);
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");
@@ -234,6 +235,7 @@ public class TvShowChooserModel extends AbstractModelObject {
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(language);
+    options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
     for (Entry<String, Object> entry : metadata.getIds().entrySet()) {
       options.setId(entry.getKey(), entry.getValue().toString());

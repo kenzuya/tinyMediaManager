@@ -33,6 +33,7 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.MainWindow;
@@ -88,7 +89,9 @@ public abstract class TmmDialog extends JDialog {
    */
   protected void init(String title, String id) {
     setTitle(title);
-    setName(id);
+    if (StringUtils.isNotBlank(id)) {
+      setName(id);
+    }
     setModal(true);
     setModalityType(ModalityType.APPLICATION_MODAL);
 

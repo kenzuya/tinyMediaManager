@@ -49,7 +49,6 @@ import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -221,7 +220,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     }
 
     // get full episode listing
-    List<MediaMetadata> episodes = getEpisodeList(options);
+    List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
 
     // filter out the wanted episode
     for (MediaMetadata episode : episodes) {
@@ -476,12 +475,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     return _getEpisodeList(options);
   }
 
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    return _getEpisodeList(options);
-  }
-
-  private List<MediaMetadata> _getEpisodeList(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  private List<MediaMetadata> _getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     List<MediaMetadata> episodes = new ArrayList<>();
     String langu = options.getLanguage().getLanguage();
 

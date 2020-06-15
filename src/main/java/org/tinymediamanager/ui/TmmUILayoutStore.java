@@ -169,7 +169,7 @@ public class TmmUILayoutStore implements AWTEventListener {
    *          the dialog
    */
   public void loadSettings(JDialog dialog) {
-    if (!Globals.settings.isStoreWindowPreferences()) {
+    if (!Globals.settings.isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
       dialog.pack();
       dialog.setLocationRelativeTo(dialog.getParent());
       return;
@@ -184,6 +184,10 @@ public class TmmUILayoutStore implements AWTEventListener {
         dialog.pack();
         dialog.setLocationRelativeTo(dialog.getParent());
       }
+    }
+    else {
+      dialog.pack();
+      dialog.setLocationRelativeTo(dialog.getParent());
     }
   }
 
@@ -252,7 +256,7 @@ public class TmmUILayoutStore implements AWTEventListener {
    *          the dialog
    */
   public void saveSettings(JDialog dialog) {
-    if (!Globals.settings.isStoreWindowPreferences()) {
+    if (!Globals.settings.isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
       return;
     }
 

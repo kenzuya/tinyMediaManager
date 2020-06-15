@@ -547,6 +547,7 @@ public class MovieList extends AbstractModelObject {
       // set what we have, so the provider could chose from all :)
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(language);
+      options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
       options.setMetadataScraper(mediaScraper);
 
       if (ids != null) {

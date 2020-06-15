@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -20,6 +21,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
 public class ITTraktMetadataProviderTest {
@@ -39,6 +41,7 @@ public class ITTraktMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter and the Philosopher's Stone");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
       options.setImdbId("tt0241527");
       options.setTmdbId(671);
       // options.setId("trakt", "-2");
@@ -60,6 +63,7 @@ public class ITTraktMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter and the Philosopher's Stone");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
       results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
@@ -84,6 +88,7 @@ public class ITTraktMetadataProviderTest {
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     TraktMetadataProvider mp = new TraktMetadataProvider();
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
     options.setId(mp.getProviderInfo().getId(), "545"); // Harry Potter and the Philosopher's Stone
 
     try {
@@ -127,7 +132,7 @@ public class ITTraktMetadataProviderTest {
 
   @Test
   public void testTvShowEpisodeList() {
-    TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     TraktMetadataProvider mp = new TraktMetadataProvider();
 
     // Game of Thrones
@@ -159,6 +164,7 @@ public class ITTraktMetadataProviderTest {
     // Game of Thrones
     options.setId(mp.getId(), "1390");
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     try {
       MediaMetadata md = mp.getMetadata(options);
@@ -180,8 +186,7 @@ public class ITTraktMetadataProviderTest {
       assertThat(mediaRating.getVotes()).isGreaterThan(0);
       assertThat(mediaRating.getMaxValue()).isEqualTo(10);
 
-      assertThat(md.getGenres()).containsOnly(MediaGenres.DRAMA, MediaGenres.FANTASY, MediaGenres.SCIENCE_FICTION, MediaGenres.ACTION,
-              MediaGenres.ADVENTURE);
+      assertThat(md.getGenres().size()).isGreaterThan(0);
 
       // ids
       assertThat(md.getId(TraktMetadataProvider.providerInfo.getId())).isEqualTo(1390);
@@ -206,7 +211,7 @@ public class ITTraktMetadataProviderTest {
     TraktMetadataProvider mp = new TraktMetadataProvider();
 
     // Game of Thrones
-    options.setId(mp.getProviderInfo().getId(), "1390");
+    options.setTvShowIds(Collections.singletonMap(mp.getProviderInfo().getId(), "1390"));
     options.setId(MediaMetadata.SEASON_NR, "1");
     options.setId(MediaMetadata.EPISODE_NR, "1");
 

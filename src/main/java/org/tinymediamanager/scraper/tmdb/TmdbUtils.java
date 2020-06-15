@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.tmdb;
 
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.util.ListUtils;
 
 import com.uwetrottmann.tmdb2.Tmdb;
 import com.uwetrottmann.tmdb2.entities.FindResults;
@@ -47,16 +48,24 @@ class TmdbUtils {
    */
   static int getTmdbIdFromImdbId(Tmdb api, MediaType type, String imdbId) throws Exception {
     FindResults findResults = api.findService().find(imdbId, ExternalSource.IMDB_ID, null).execute().body();
+
+    if (findResults == null) {
+      return 0;
+    }
+
     // movie
-    if (findResults != null && findResults.movie_results != null && !findResults.movie_results.isEmpty()
-        && (type == MediaType.MOVIE || type == MediaType.MOVIE_SET)) {
+    if (ListUtils.isNotEmpty(findResults.movie_results) && (type == MediaType.MOVIE || type == MediaType.MOVIE_SET)) {
       return findResults.movie_results.get(0).id;
     }
 
     // tv show
-    if (findResults != null && findResults.tv_results != null && !findResults.tv_results.isEmpty()
-        && (type == MediaType.TV_SHOW || type == MediaType.TV_EPISODE)) {
+    if (ListUtils.isNotEmpty(findResults.tv_results) && type == MediaType.TV_SHOW) {
       return findResults.tv_results.get(0).id;
+    }
+
+    // episode
+    if (ListUtils.isNotEmpty(findResults.tv_episode_results) && type == MediaType.TV_EPISODE) {
+      return findResults.tv_episode_results.get(0).id;
     }
 
     return 0;

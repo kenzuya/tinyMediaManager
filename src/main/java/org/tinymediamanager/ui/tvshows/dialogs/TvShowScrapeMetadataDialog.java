@@ -228,6 +228,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
    */
   public TvShowSearchAndScrapeOptions getTvShowSearchAndScrapeOptions() {
     TvShowSearchAndScrapeOptions tvShowSearchAndScrapeConfig = new TvShowSearchAndScrapeOptions();
+    tvShowSearchAndScrapeConfig.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
     // language
     tvShowSearchAndScrapeConfig.setLanguage((MediaLanguages) cbLanguage.getSelectedItem());
@@ -257,6 +258,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
    */
   public TvShowEpisodeSearchAndScrapeOptions getTvShowEpisodeSearchAndScrapeOptions() {
     TvShowEpisodeSearchAndScrapeOptions episodeSearchAndScrapeOptions = new TvShowEpisodeSearchAndScrapeOptions();
+    episodeSearchAndScrapeOptions.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
     // language
     episodeSearchAndScrapeOptions.setLanguage((MediaLanguages) cbLanguage.getSelectedItem());

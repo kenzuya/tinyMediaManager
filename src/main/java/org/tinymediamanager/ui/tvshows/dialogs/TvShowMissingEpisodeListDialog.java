@@ -195,6 +195,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     private List<MediaMetadata> getEpisodes(TvShow tvShow) {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(language);
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
       MediaScraper mediaScraper = TvShowList.getInstance().getDefaultMediaScraper();
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());

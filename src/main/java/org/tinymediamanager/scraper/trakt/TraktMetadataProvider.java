@@ -245,13 +245,4 @@ public class TraktMetadataProvider
     initAPI();
     return new TraktTVShowMetadataProvider(api).getEpisodeList(options);
   }
-
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    LOGGER.debug("getEpisodeList(): {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktTVShowMetadataProvider(api).getEpisodeList(options);
-  }
 }

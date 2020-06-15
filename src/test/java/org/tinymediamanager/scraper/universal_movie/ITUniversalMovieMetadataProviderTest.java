@@ -28,6 +28,7 @@ import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
@@ -73,6 +74,8 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery(searchString);
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
       List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
@@ -106,6 +109,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -145,6 +149,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId("tmdb", "20352");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -222,6 +227,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -279,6 +285,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId("tmdb", "20352");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -335,6 +342,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -391,6 +399,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.nl);
+      options.setCertificationCountry(CountryCode.US);
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -447,6 +456,7 @@ public class ITUniversalMovieMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId("imdb", "tt0114746");
       options.setLanguage(MediaLanguages.de);
+      options.setCertificationCountry(CountryCode.DE);
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 

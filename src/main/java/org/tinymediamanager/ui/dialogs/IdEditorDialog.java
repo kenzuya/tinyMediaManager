@@ -50,7 +50,7 @@ public class IdEditorDialog extends TmmDialog {
   private JTextField                 tfId;
 
   public IdEditorDialog(Window owner, String title, MediaIdTable.MediaId mediaId, ScraperType type) {
-    super(owner, title, "idEditor");
+    super(owner, title, null);
     idToEdit = mediaId;
 
     providerIds = new HashSet<>();

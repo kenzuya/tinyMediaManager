@@ -166,6 +166,8 @@ public class MovieSetChooserModel extends AbstractModelObject {
             MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
             options.setTmdbId(mis.tmdbId);
             options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+            options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+
             try {
               MediaScraper movieScraper = MediaScraper.getMediaScraperById(TmdbMetadataProvider.ID, ScraperType.MOVIE);
               MediaMetadata md = ((IMovieMetadataProvider) movieScraper.getMediaProvider()).getMetadata(options);

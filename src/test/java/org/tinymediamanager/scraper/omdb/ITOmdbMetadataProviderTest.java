@@ -16,6 +16,7 @@ import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -91,6 +92,8 @@ public class ITOmdbMetadataProviderTest {
 
       MovieSearchAndScrapeOptions scrapeOptions = new MovieSearchAndScrapeOptions();
       scrapeOptions.setLanguage(MediaLanguages.en);
+      scrapeOptions.setCertificationCountry(CountryCode.US);
+
       MediaMetadata md = null;
 
       // Matrix

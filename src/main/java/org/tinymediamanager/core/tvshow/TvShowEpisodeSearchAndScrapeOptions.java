@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager.core.tvshow;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaType;
 
@@ -24,9 +27,24 @@ import org.tinymediamanager.scraper.entities.MediaType;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
+  private final Map<String, Object> tvShowIds = new HashMap<>();
 
+  /**
+   * a minimal constructor for special cases. Do not forget to pass the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids via
+   * setTvShowIds()
+   */
   public TvShowEpisodeSearchAndScrapeOptions() {
     super(MediaType.TV_EPISODE);
+  }
+
+  /**
+   * the _main_ constructor to give all {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids to the options
+   * 
+   * @param tvShowIds
+   */
+  public TvShowEpisodeSearchAndScrapeOptions(final Map<String, Object> tvShowIds) {
+    super(MediaType.TV_EPISODE);
+    this.tvShowIds.putAll(tvShowIds);
   }
 
   /**
@@ -37,6 +55,42 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
    */
   public TvShowEpisodeSearchAndScrapeOptions(TvShowEpisodeSearchAndScrapeOptions original) {
     super(original);
+    setTvShowIds(original.tvShowIds);
+  }
+
+  /**
+   * get all set {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids
+   * 
+   * @return all set {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids
+   */
+  public Map<String, Object> getTvShowIds() {
+    return tvShowIds;
+  }
+
+  /**
+   * set the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids for this options
+   * 
+   * @param tvShowIds
+   *          a {@link Map} with the {@link org.tinymediamanager.core.tvshow.entities.TvShow} ids to set
+   */
+  public void setTvShowIds(final Map<String, Object> tvShowIds) {
+    this.tvShowIds.clear();
+    this.tvShowIds.putAll(tvShowIds);
+  }
+
+  /**
+   * create an instance of {@link TvShowSearchAndScrapeOptions} from this options for further usage
+   * 
+   * @return the created {@link TvShowSearchAndScrapeOptions}
+   */
+  public TvShowSearchAndScrapeOptions createTvShowSearchAndScrapeOptions() {
+    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+    // take all data from this
+    options.setDataFromOtherOptions(this);
+    // but the ids from the show
+    options.setIds(tvShowIds);
+
+    return options;
   }
 
   /**
