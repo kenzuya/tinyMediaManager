@@ -147,7 +147,6 @@ class KodiScraperParser {
       }
       else {
         // skip nodest that we don't know about
-        // System.out.println("Skipping Node: " + nn);
       }
     }
   }
@@ -174,7 +173,6 @@ class KodiScraperParser {
   private void readScraperFunctions(KodiScraper scraper, List<File> common) {
     // ALL common files
     for (File file : common) {
-      // System.out.println("parsing common file: " + file);
 
       // just filter only the needed ones!
       for (String imp : scraper.imports) {

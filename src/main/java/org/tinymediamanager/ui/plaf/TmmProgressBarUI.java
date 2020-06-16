@@ -145,7 +145,6 @@ public class TmmProgressBarUI extends FlatProgressBarUI {
 
         // Paint the striped box.
         boxRect = getBox(boxRect);
-        System.out.println(boxRect);
         if (boxRect != null) {
           w = UIScale.scale(20);
           int x = getAnimationIndex();

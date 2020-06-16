@@ -1906,7 +1906,6 @@ public class MediaFileHelper {
     // TODO: season/episode parsing
     // int season = parseToInt(getMediaInfo(StreamKind.General, 0, "Season"));
     // int part = parseToInt(getMediaInfo(StreamKind.General, 0, "Part"));
-    // System.out.println("*** S" + season + " E" + part);
     // #here are the "magic codes" to know where apple tag stores the metadata for each file.
     // $BOXTYPE_TVEN = "tven"; # episode name
     // $BOXTYPE_TVES = "tves"; # episode number
