@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.core.tvshow;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -127,5 +129,24 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
       // just not crash
     }
     return null;
+  }
+
+  /**
+   * get a {@link List} of all {@link TvShowScraperMetadataConfig} for the given {@link org.tinymediamanager.core.ScraperMetadataConfig.Type}
+   * 
+   * @param type
+   *          the {@link org.tinymediamanager.core.ScraperMetadataConfig.Type} to get all {@link TvShowScraperMetadataConfig}s for
+   * @return a {@link List} with all matching {@link TvShowScraperMetadataConfig}s
+   */
+  public static List<TvShowScraperMetadataConfig> valuesForType(Type type) {
+    List<TvShowScraperMetadataConfig> values = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig config : values()) {
+      if (config.type == type) {
+        values.add(config);
+      }
+    }
+
+    return values;
   }
 }

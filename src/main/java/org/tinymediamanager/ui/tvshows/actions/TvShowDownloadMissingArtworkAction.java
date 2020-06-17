@@ -62,9 +62,12 @@ public class TvShowDownloadMissingArtworkAction extends TmmAction {
       return;
     }
 
-    TvShowScrapeMetadataDialog dialog = new TvShowScrapeMetadataDialog(BUNDLE.getString("tvshow.downloadmissingartwork"), false, true, false, false,
-        false);
+    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createArtworkScrapeDialog(BUNDLE.getString("tvshow.downloadmissingartwork"));
     dialog.setVisible(true);
+
+    if (!dialog.shouldStartScrape()) {
+      return;
+    }
 
     // get options from dialog
     TvShowSearchAndScrapeOptions options = dialog.getTvShowSearchAndScrapeOptions();

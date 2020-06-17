@@ -63,20 +63,22 @@ public class TvShowSelectedScrapeAction extends TmmAction {
       return;
     }
 
-    TvShowScrapeMetadataDialog dialog = new TvShowScrapeMetadataDialog(BUNDLE.getString("tvshow.scrape.selected.force"));
+    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createScrapeDialog(BUNDLE.getString("tvshow.scrape.selected.force"));
     dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
     dialog.setVisible(true);
+
+    // do we want to scrape?
+    if (!dialog.shouldStartScrape()) {
+      return;
+    }
 
     // get options from dialog
     TvShowSearchAndScrapeOptions options = dialog.getTvShowSearchAndScrapeOptions();
     List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig = dialog.getTvShowScraperMetadataConfig();
     List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
 
-    // do we want to scrape?
-    if (dialog.shouldStartScrape()) {
-      // scrape
-      TmmThreadPool scrapeTask = new TvShowScrapeTask(selectedTvShows, true, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig);
-      TmmTaskManager.getInstance().addMainTask(scrapeTask);
-    }
+    // scrape
+    TmmThreadPool scrapeTask = new TvShowScrapeTask(selectedTvShows, true, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig);
+    TmmTaskManager.getInstance().addMainTask(scrapeTask);
   }
 }

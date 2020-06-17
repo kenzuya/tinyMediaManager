@@ -38,7 +38,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class TvShowScrapeEpisodesAction extends TmmAction {
-  private static final long serialVersionUID = -75916665265142730L;
+  private static final long           serialVersionUID = -75916665265142730L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowScrapeEpisodesAction() {
@@ -56,19 +56,20 @@ public class TvShowScrapeEpisodesAction extends TmmAction {
       return;
     }
 
-    TvShowScrapeMetadataDialog dialog = new TvShowScrapeMetadataDialog(BUNDLE.getString("tvshowepisode.scrape"), true, true, false, true, true);
+    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createEpisodeScrapeDialog(BUNDLE.getString("tvshowepisode.scrape"));
     dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
     dialog.setVisible(true);
+
+    if (!dialog.shouldStartScrape()) {
+      return;
+    }
 
     // get options from dialog
     TvShowEpisodeSearchAndScrapeOptions options = dialog.getTvShowEpisodeSearchAndScrapeOptions();
     List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
 
-    // do we want to scrape?
-    if (dialog.shouldStartScrape()) {
-      // scrape
-      TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodes, options, episodeScraperMetadataConfig);
-      TmmTaskManager.getInstance().addUnnamedTask(task);
-    }
+    // scrape
+    TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodes, options, episodeScraperMetadataConfig);
+    TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }
