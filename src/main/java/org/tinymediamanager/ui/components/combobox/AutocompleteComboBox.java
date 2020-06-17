@@ -31,7 +31,7 @@ import ca.odell.glazedlists.swing.AutoCompleteSupport;
  * 
  * @author Manuel Laggner
  */
-public class AutocompleteComboBox<E> extends JComboBox<E> {// implements JComboBox.KeySelectionManager {
+public class AutocompleteComboBox<E> extends JComboBox<E> {
   private static final long      serialVersionUID = 6366300597464784607L;
 
   private EventList<E>           items;
@@ -65,7 +65,7 @@ public class AutocompleteComboBox<E> extends JComboBox<E> {// implements JComboB
 
       @Override
       public void focusLost(FocusEvent e) {
-
+        // nothing to do
       }
     });
 

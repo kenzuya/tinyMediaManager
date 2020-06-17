@@ -410,7 +410,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
       setLayout(new WrapLayout(FlowLayout.LEFT, 5, 2));
       setOpaque(false);
-      setBorder(null);
+      setBorder(BorderFactory.createEmptyBorder(-2, -5, -2, 0)); // to avoid space of the first/last item
     }
 
     @Override
@@ -468,14 +468,14 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       super();
       putClientProperty("class", "roundedPanel");
       setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-      setBorder(BorderFactory.createEmptyBorder(1, 10, 1, 5));
+      setBorder(null);
 
       JLabel label = new JLabel(userObject.toString());
-      label.setBorder(BorderFactory.createEmptyBorder());
+      label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       add(label);
 
       JButton button = new FlatButton(IconManager.DELETE);
-      button.setBorder(BorderFactory.createEmptyBorder());
+      button.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       button.addActionListener(e -> {
         selectedItems.put(userObject, false);
         reset();
