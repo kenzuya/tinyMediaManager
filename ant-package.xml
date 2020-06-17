@@ -25,7 +25,6 @@
         <delete dir="${build.dir}"/>
         <mkdir dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
-        <mkdir dir="${dist.dir}/win"/>
 
         <!-- set SVN revision here - is not set anymore since nightly/prerel -->
         <!-- Only works, if rev is not set to nightly/prerel - so should be fine for release build -->
@@ -106,6 +105,8 @@
         <copy todir="${dist.dir}/mac/tinyMediaManager.app/Contents">
             <fileset dir="AppBundler/dist-mac"/>
         </copy>
+        <copy file="target/launcher/macos/tinyMediaManager"
+              tofile="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager"/>
         <replace file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" token="%VERSION%"
                  value="${tmmVersion}"/>
         <replace file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" token="%SVNREV%"
@@ -130,6 +131,8 @@
         <copy todir="${dist.dir}/win">
             <fileset dir="AppBundler/dist-windows"/>
         </copy>
+        <copy file="target/launcher/windows/tinyMediaManager.exe"
+              tofile="${dist.dir}/win/tinyMediaManager.exe"/>
         <copy todir="${dist.dir}/win">
             <fileset dir="${build.dir}">
                 <include name="**/*"/>
@@ -149,6 +152,8 @@
         <copy todir="${dist.dir}/linux">
             <fileset dir="AppBundler/dist-linux"/>
         </copy>
+        <copy file="target/launcher/linux/tinyMediaManager"
+              tofile="${dist.dir}/linux/tinyMediaManager"/>
         <chmod file="${dist.dir}/linux/tinyMediaManager" perm="ugo+rx"/>
         <copy todir="${dist.dir}/linux">
             <fileset dir="${build.dir}">
