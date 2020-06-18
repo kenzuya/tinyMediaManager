@@ -51,7 +51,7 @@ resource = [linux] native/linux/liblwjgl.so
 resource = [linux] native/linux/liblwjgl_nfd.so
 
 # templates
-uresource = templates/templates.tar.bz2
+resource = templates/templates.tar.bz2
 
 # The main entry point for the application (prefix needed for GD params)
 class = org.tinymediamanager.TinyMediaManager
