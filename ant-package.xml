@@ -128,9 +128,9 @@
         <echo message="====================================================="/>
         <echo message="prepare build for Windows"/>
         <echo message="====================================================="/>
-        <copy todir="${dist.dir}/win">
-            <fileset dir="AppBundler/dist-windows"/>
-        </copy>
+        <!--        <copy todir="${dist.dir}/win">-->
+        <!--            <fileset dir="AppBundler/dist-windows"/>-->
+        <!--        </copy>-->
         <copy file="target/launcher/windows/tinyMediaManager.exe"
               tofile="${dist.dir}/win/tinyMediaManager.exe"/>
         <copy todir="${dist.dir}/win">
@@ -149,9 +149,9 @@
         <echo message="====================================================="/>
         <echo message="prepare build for Linux"/>
         <echo message="====================================================="/>
-        <copy todir="${dist.dir}/linux">
-            <fileset dir="AppBundler/dist-linux"/>
-        </copy>
+        <!--        <copy todir="${dist.dir}/linux">-->
+        <!--            <fileset dir="AppBundler/dist-linux"/>-->
+        <!--        </copy>-->
         <copy file="target/launcher/linux/tinyMediaManager"
               tofile="${dist.dir}/linux/tinyMediaManager"/>
         <chmod file="${dist.dir}/linux/tinyMediaManager" perm="ugo+rx"/>
