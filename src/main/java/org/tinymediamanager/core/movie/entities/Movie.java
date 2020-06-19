@@ -75,6 +75,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
@@ -1875,14 +1876,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   public boolean isVideoIn3D() {
-    String video3DFormat = "";
-    List<MediaFile> videos = getMediaFiles(MediaFileType.VIDEO);
-    if (!videos.isEmpty()) {
-      MediaFile mediaFile = videos.get(0);
-      video3DFormat = mediaFile.getVideo3DFormat();
-    }
-
-    return videoIn3D || StringUtils.isNotBlank(video3DFormat);
+    return videoIn3D || StringUtils.isNotBlank(getMainVideoFile().getVideo3DFormat());
   }
 
   public void setTop250(int newValue) {
@@ -2336,7 +2330,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     if (isVideoIn3D()) { // no MI info, but flag set from user
-      return "3D";
+      return MediaFileHelper.VIDEO_3D;
     }
 
     return "";
