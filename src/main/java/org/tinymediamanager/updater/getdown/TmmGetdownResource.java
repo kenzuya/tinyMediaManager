@@ -22,18 +22,15 @@ import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.EnumSet;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.tinymediamanager.core.Utils;
 
+import com.threerings.getdown.data.Digest;
 import com.threerings.getdown.data.Resource;
 import com.threerings.getdown.util.FileUtil;
 import com.threerings.getdown.util.ProgressObserver;
@@ -61,9 +58,8 @@ public class TmmGetdownResource extends Resource {
 
   @Override
   public String computeDigest(int version, MessageDigest md, ProgressObserver obs) throws IOException {
-    // check if there is a .md5 file containing the digest (useful for uresources, where the main file gets deleted after extracting)
-    String baseName = FilenameUtils.getBaseName(_local.getName());
-    File file = new File(_local.getParent(), baseName + ".md5");
+    // check if there is a .md5 file containing the digest (useful for resources, where the main file gets deleted after extracting)
+    File file = new File(_local.getParent(), _local.getName() + ".sha256");
     if (file.exists()) {
       return FileUtils.readFileToString(file, UTF_8).trim();
     }
@@ -105,10 +101,9 @@ public class TmmGetdownResource extends Resource {
     }
 
     // first create a .md5 file since we delete the archive afterwards
-    try (InputStream is = Files.newInputStream(_localNew.toPath())) {
-      String newFileName = _localNew.getName() + ".md5";
-      Utils.writeStringToFile(_localNew.toPath().resolve(newFileName), DigestUtils.md5Hex(is));
-    }
+    String newFileName = _localNew.getName() + ".sha256";
+    MessageDigest digest = Digest.getMessageDigest(Digest.VERSION);
+    Utils.writeStringToFile(_localNew.toPath().resolve(newFileName), computeDigest(Digest.VERSION, _localNew, digest, null));
 
     if (_isZip) {
       try (ZipFile jar = new ZipFile(_localNew)) {
