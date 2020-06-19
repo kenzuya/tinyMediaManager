@@ -13,3 +13,4 @@ Version 4.0
 + provide artwork from TMDB for Trakt.tv search
 x better performance in regular expression searches
 x fixed handling of MP2/MP3 streams
+x enhanced downloading of youtube trailers

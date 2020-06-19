@@ -43,8 +43,8 @@ public abstract class Format {
     url = Objects.requireNonNull(YoutubeHelper.getString(json, "url")).replace("\\u0026", "&");
     mimeType = YoutubeHelper.getString(json, "mimeType");
     bitrate = YoutubeHelper.getInt(json, "bitrate");
-    contentLength = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "contentLength")));
-    lastModified = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "lastModified")));
+    contentLength = YoutubeHelper.getLong(json, "contentLength");
+    lastModified = YoutubeHelper.getLong(json, "lastModified");
 
     if (Objects.requireNonNull(mimeType).contains(Extension.MP4.getText())) {
       extension = Extension.MP4;
