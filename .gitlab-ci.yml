@@ -11,17 +11,17 @@ cache:
     - .m2/repository/
 
 stages:
-  - compile
-  - test
+  - build
   - deploy
 
 compile:
-  stage: compile
+  stage: build
   script:
     - mvn $MAVEN_CLI_OPTS -U clean compile  # re-fetch snapshots every time
 
 test:jdk11:
-  stage: test
+  stage: build
+  allow_failure: true
   image: maven:3-jdk-11
   except:
     - master@tinyMediaManager/tinyMediaManager
@@ -34,27 +34,29 @@ test:jdk11:
     - dpkg -i libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
     - wget https://mediaarea.net/download/binary/libmediainfo0/20.03/libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
     - dpkg -i libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
+    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean compile test
 
 test:jdk11_openj9:
-  stage: test
+  stage: build
+  allow_failure: true
   image: registry.gitlab.com/tinymediamanager/docker/jdk11_openj9
   except:
     - master@tinyMediaManager/tinyMediaManager
   only:
     - pushes
   script:
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
+    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean compile test
 
 test:jdk14_openj9:
-  stage: test
+  stage: build
+  allow_failure: true
   image: registry.gitlab.com/tinymediamanager/docker/jdk14_openj9
   except:
     - master@tinyMediaManager/tinyMediaManager
   only:
     - pushes
   script:
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
+    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean compile test
 
 # use dependency scanning (only on QA)
 include:
@@ -69,7 +71,7 @@ gemnasium-maven-dependency_scanning:
 
 # sonarqube analysis
 sonarqube-qa:
-  stage: test
+  stage: build
   only:
     variables:
       - $QA_BUILD == "true"
