@@ -12,6 +12,7 @@ cache:
 
 stages:
   - build
+  - test
   - deploy
 
 compile:
@@ -71,7 +72,7 @@ gemnasium-maven-dependency_scanning:
 
 # sonarqube analysis
 sonarqube-qa:
-  stage: build
+  stage: test
   only:
     variables:
       - $QA_BUILD == "true"
