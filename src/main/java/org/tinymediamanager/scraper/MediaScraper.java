@@ -41,7 +41,7 @@ import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
  */
 public class MediaScraper {
   private static final ResourceBundle BUNDLE  = ResourceBundle.getBundle("messages");
-  private String id = "";
+  private String                      id      = "";
   private String                      version = "";
   private String                      name    = "";
   private String                      summary = "";
@@ -49,7 +49,6 @@ public class MediaScraper {
   private URL                         logoUrl;
   private ScraperType                 type;
   private IMediaProvider              mediaProvider;
-  private boolean                     enabled = true;
 
   public MediaScraper(ScraperType type, IMediaProvider mediaProvider) {
     this.mediaProvider = mediaProvider;
@@ -223,9 +222,5 @@ public class MediaScraper {
     if (type != other.type)
       return false;
     return true;
-  }
-
-  public boolean isEnabled() {
-    return enabled;
   }
 }

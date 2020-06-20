@@ -54,7 +54,6 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.FlatButton;
 
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.swing.TableComparatorChooser;
 
 /**
  * The Class TmmTable. It's being used to draw the tables like our designer designed it
@@ -65,7 +64,7 @@ public class TmmTable extends JTable {
   private static final long           serialVersionUID = 6150939811851709115L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TableComparatorChooser<?>   tableComparatorChooser;
+  private TmmTableComparatorChooser<?> tableComparatorChooser;
 
   public TmmTable() {
     super();
@@ -121,10 +120,10 @@ public class TmmTable extends JTable {
   }
 
   public void installComparatorChooser(SortedList<?> sortedList) {
-    tableComparatorChooser = TableComparatorChooser.install(this, sortedList, new MouseKeyboardSortingStrategy());
+    tableComparatorChooser = TmmTableComparatorChooser.install(this, sortedList, new MouseKeyboardSortingStrategy());
   }
 
-  public TableComparatorChooser getTableComparatorChooser() {
+  public TmmTableComparatorChooser getTableComparatorChooser() {
     return tableComparatorChooser;
   }
 

@@ -78,7 +78,7 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "omdbapi.com",
         "<html><h3>Omdbapi.com</h3><br />The OMDb API is a RESTful web service to obtain movie information. All content and images on the site are contributed and maintained by our users. <br /><br />TinyMediaManager offers a limited access to OMDb (10 calls per 15 seconds). If you want to use OMDb with more than this restricted access, you should become a patron of OMDb (https://www.patreon.com/join/omdb)<br /><br />Available languages: EN</html>",
-        OmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/omdbapi.png"));
+        OmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/omdbapi.svg"));
 
     providerInfo.getConfig().addText("apiKey", "", true);
     providerInfo.getConfig().load();

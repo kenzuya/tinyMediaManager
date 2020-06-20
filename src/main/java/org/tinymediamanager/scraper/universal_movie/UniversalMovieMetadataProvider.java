@@ -67,7 +67,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   private static MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, "Universal movie scraper",
         "<html><h3>Universal movie scraper</h3><br />A meta scraper which allows to collect data from several other scrapers</html>",
-        UniversalMovieMetadataProvider.class.getResource("/logo.png"));
+        UniversalMovieMetadataProvider.class.getResource("/org/tinymediamanager/scraper/tmm_logo.svg"));
   }
 
   public static void addProvider(IMediaProvider provider) {

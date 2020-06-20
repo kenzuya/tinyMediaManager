@@ -19,6 +19,7 @@ import static org.tinymediamanager.ui.images.SvgIconHelper.getHexString;
 import static org.tinymediamanager.ui.images.SvgIconHelper.setFill;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.net.URI;
 
 import com.kitfox.svg.SVGDiagram;
@@ -47,6 +48,14 @@ public class TmmSvgIcon extends SVGIcon {
   public TmmSvgIcon(URI uri) {
     this();
     setSvgURI(uri);
+  }
+
+  public void setPreferredHeight(int height) {
+    SVGDiagram diagram = getSvgUniverse().getDiagram(getSvgURI());
+    if (diagram != null) {
+      // preferredSize = new Dimension((int)diagram.getWidth(), (int)diagram.getHeight());
+      setPreferredSize(new Dimension((int) (diagram.getWidth() * height / diagram.getHeight()), height));
+    }
   }
 
   /**

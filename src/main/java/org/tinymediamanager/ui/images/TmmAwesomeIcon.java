@@ -23,5 +23,6 @@ public class TmmAwesomeIcon extends TmmSvgIcon {
   public TmmAwesomeIcon(URI uri, Color color) {
     super(uri);
     setColor(color);
+    setAutosize(AUTOSIZE_STRETCH);
   }
 }

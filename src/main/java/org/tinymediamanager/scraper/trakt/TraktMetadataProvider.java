@@ -68,7 +68,7 @@ public class TraktMetadataProvider
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "Trakt.tv",
         "<html><h3>Trakt.tv</h3><br />Trakt.tv is a platform that does many things, but primarily keeps track of TV shows and movies you watch. It also provides meta data for movies and TV shows<br /><br />Available languages: EN</html>",
-        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.png"));
+        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.svg"));
 
     providerInfo.getConfig().addText("clientId", "", true);
     providerInfo.getConfig().load();

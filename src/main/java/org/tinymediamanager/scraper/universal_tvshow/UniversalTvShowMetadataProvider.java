@@ -70,7 +70,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   private static MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, "Universal TV show scraper",
         "<html><h3>Universal TV show scraper</h3><br />A meta scraper which allows to collect data from several other scrapers</html>",
-        UniversalTvShowMetadataProvider.class.getResource("/logo.png"));
+        UniversalTvShowMetadataProvider.class.getResource("/org/tinymediamanager/scraper/tmm_logo.svg"));
   }
 
   public static void addProvider(IMediaProvider provider) {

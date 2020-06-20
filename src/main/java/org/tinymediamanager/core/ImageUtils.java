@@ -19,6 +19,7 @@ package org.tinymediamanager.core;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.image.BaseMultiResolutionImage;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.ByteArrayInputStream;
@@ -36,6 +37,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.ImageOutputStream;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -360,5 +362,42 @@ public class ImageUtils {
     }
 
     return destFile;
+  }
+
+  /**
+   * create a {@link java.awt.image.MultiResolutionImage} off the given {@link ImageIcon} with the @param baseHeight as @1<br/>
+   * the image sizes will be
+   * <ul>
+   * <li>100%</li>
+   * <li>125%</li>
+   * <li>150%</li>
+   * <li>175%</li>
+   * <li>200%</li>
+   * </ul>
+   * 
+   * @param original
+   *          the original image to create the {@link java.awt.image.MultiResolutionImage} off
+   * @param baseHeight
+   *          the height for @1
+   * @return the created {@link java.awt.image.MultiResolutionImage}
+   */
+  public static ImageIcon createMultiResolutionImage(ImageIcon original, int baseHeight) {
+    Image[] images = new Image[5];
+
+    images[0] = getScaledIcon(original, baseHeight).getImage();
+    images[1] = getScaledIcon(original, (int) (baseHeight * 1.25f)).getImage();
+    images[2] = getScaledIcon(original, (int) (baseHeight * 1.5f)).getImage();
+    images[3] = getScaledIcon(original, (int) (baseHeight * 1.75f)).getImage();
+    images[4] = getScaledIcon(original, baseHeight * 2).getImage();
+
+    return new ImageIcon(new BaseMultiResolutionImage(images));
+  }
+
+  static ImageIcon getScaledIcon(ImageIcon original, int height) {
+    int width = original.getIconWidth() / original.getIconHeight() * height;
+
+    BufferedImage scaledImage = Scalr.resize(ImageUtils.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
+        Scalr.OP_ANTIALIAS);
+    return new ImageIcon(scaledImage);
   }
 }

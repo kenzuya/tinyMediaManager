@@ -19,13 +19,10 @@ package org.tinymediamanager.ui.tvshows.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -44,16 +41,12 @@ import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
-import org.apache.commons.lang3.StringUtils;
-import org.imgscalr.Scalr;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -61,7 +54,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
 import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -76,20 +69,20 @@ import net.miginfocom.swing.MigLayout;
 
 public class TvShowTrailerSettingsPanel extends JPanel {
 
-  private static final ResourceBundle                     BUNDLE   = ResourceBundle.getBundle("messages");
+  private static final ResourceBundle BUNDLE   = ResourceBundle.getBundle("messages");
 
-  private TvShowSettings settings = TvShowModuleManager.SETTINGS;
-  private List<TvShowTrailerSettingsPanel.TrailerScraper> scrapers = ObservableCollections.observableList(new ArrayList<>());
-  private TmmTable tableTrailerScraper;
-  private JTextPane tpScraperDescription;
-  private JComboBox<TrailerSources> cbTrailerSource;
-  private JComboBox<TrailerQuality> cbTrailerQuality;
-  private JCheckBox checkBox;
-  private JCheckBox chckbxAutomaticTrailerDownload;
-  private JPanel panelScraperOptions;
-  private JCheckBox cbTrailerFilename1;
+  private TvShowSettings              settings = TvShowModuleManager.SETTINGS;
+  private List<ScraperInTable>        scrapers = ObservableCollections.observableList(new ArrayList<>());
+  private TmmTable                    tableTrailerScraper;
+  private JTextPane                   tpScraperDescription;
+  private JComboBox<TrailerSources>   cbTrailerSource;
+  private JComboBox<TrailerQuality>   cbTrailerQuality;
+  private JCheckBox                   checkBox;
+  private JCheckBox                   chckbxAutomaticTrailerDownload;
+  private JPanel                      panelScraperOptions;
+  private JCheckBox                   cbTrailerFilename1;
 
-  private ItemListener checkBoxListener;
+  private ItemListener                checkBoxListener;
 
   TvShowTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -110,9 +103,9 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     int selectedIndex = -1;
     int counter = 0;
     for (MediaScraper scraper : TvShowList.getInstance().getAvailableTrailerScrapers()) {
-      TvShowTrailerSettingsPanel.TrailerScraper trailerScraper = new TvShowTrailerSettingsPanel.TrailerScraper(scraper);
+      ScraperInTable trailerScraper = new ScraperInTable(scraper);
       if (enabledTrailerProviders.contains(trailerScraper.getScraperId())) {
-        trailerScraper.active = true;
+        trailerScraper.setActive(true);
         if (selectedIndex < 0) {
           selectedIndex = counter;
         }
@@ -131,10 +124,11 @@ public class TvShowTrailerSettingsPanel extends JPanel {
       // click on the checkbox
       if (arg0.getColumn() == 0) {
         int row = arg0.getFirstRow();
-        TvShowTrailerSettingsPanel.TrailerScraper changedScraper = scrapers.get(row);
-        if (changedScraper.active) {
+        ScraperInTable changedScraper = scrapers.get(row);
+        if (changedScraper.getActive()) {
           settings.addTvShowTrailerScraper(changedScraper.getScraperId());
-        } else {
+        }
+        else {
           settings.removeTvShowTrailerScraper(changedScraper.getScraperId());
         }
       }
@@ -158,7 +152,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
       Font font = UIManager.getFont("Label.font");
       Color color = UIManager.getColor("Label.foreground");
       String bodyRule = "body { font-family: " + font.getFamily() + "; " + "font-size: " + font.getSize() + "pt; color: rgb(" + color.getRed() + ","
-              + color.getGreen() + "," + color.getBlue() + "); }";
+          + color.getGreen() + "," + color.getBlue() + "); }";
       tpScraperDescription.setEditorKit(new HTMLEditorKit());
       ((HTMLDocument) tpScraperDescription.getDocument()).getStyleSheet().addRule(bodyRule);
     }
@@ -280,16 +274,16 @@ public class TvShowTrailerSettingsPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    JTableBinding<TvShowTrailerSettingsPanel.TrailerScraper, List<TvShowTrailerSettingsPanel.TrailerScraper>, JTable> jTableBinding = SwingBindings
-            .createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, scrapers, tableTrailerScraper);
+    JTableBinding<ScraperInTable, List<ScraperInTable>, JTable> jTableBinding = SwingBindings
+        .createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, scrapers, tableTrailerScraper);
     //
-    BeanProperty<TvShowTrailerSettingsPanel.TrailerScraper, Boolean> trailerScraperBeanProperty = BeanProperty.create("active");
+    BeanProperty<ScraperInTable, Boolean> trailerScraperBeanProperty = BeanProperty.create("active");
     jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
     //
-    BeanProperty<TvShowTrailerSettingsPanel.TrailerScraper, Icon> trailerScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
+    BeanProperty<ScraperInTable, Icon> trailerScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
     jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
     //
-    BeanProperty<TvShowTrailerSettingsPanel.TrailerScraper, String> trailerScraperBeanProperty_2 = BeanProperty.create("scraperName");
+    BeanProperty<ScraperInTable, String> trailerScraperBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
     //
     jTableBinding.bind();
@@ -297,106 +291,30 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
     BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
     AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ, tableTrailerScraper,
-            jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
+        jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
     autoBinding.bind();
     //
     BeanProperty<TvShowSettings, TrailerSources> tvShowSettingsBeanProperty = BeanProperty.create("trailerSource");
     BeanProperty<JComboBox<TrailerSources>, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding<TvShowSettings, TrailerSources, JComboBox<TrailerSources>, Object> autoBinding_1 = Bindings
-            .createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, cbTrailerSource, jComboBoxBeanProperty);
+        .createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, cbTrailerSource, jComboBoxBeanProperty);
     autoBinding_1.bind();
     //
     BeanProperty<TvShowSettings, TrailerQuality> tvShowSettingsBeanProperty_1 = BeanProperty.create("trailerQuality");
     BeanProperty<JComboBox<TrailerQuality>, Object> jComboBoxBeanProperty_1 = BeanProperty.create("selectedItem");
     AutoBinding<TvShowSettings, TrailerQuality, JComboBox<TrailerQuality>, Object> autoBinding_2 = Bindings
-            .createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, cbTrailerQuality, jComboBoxBeanProperty_1);
+        .createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, cbTrailerQuality, jComboBoxBeanProperty_1);
     autoBinding_2.bind();
     //
     BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_2 = BeanProperty.create("useTrailerPreference");
     BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
     AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE,
-            settings, tvShowSettingsBeanProperty_2, checkBox, jCheckBoxBeanProperty);
+        settings, tvShowSettingsBeanProperty_2, checkBox, jCheckBoxBeanProperty);
     autoBinding_3.bind();
     //
     BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_3 = BeanProperty.create("automaticTrailerDownload");
     AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE,
-            settings, tvShowSettingsBeanProperty_3, chckbxAutomaticTrailerDownload, jCheckBoxBeanProperty);
+        settings, tvShowSettingsBeanProperty_3, chckbxAutomaticTrailerDownload, jCheckBoxBeanProperty);
     autoBinding_4.bind();
-  }
-
-  /*****************************************************************************************************
-   * helper classes
-   ****************************************************************************************************/
-  public class TrailerScraper extends AbstractModelObject {
-    private MediaScraper scraper;
-    private Icon scraperLogo;
-    private boolean active;
-
-    public TrailerScraper(MediaScraper scraper) {
-      this.scraper = scraper;
-      if (scraper.getMediaProvider().getProviderInfo().getProviderLogo() == null) {
-        scraperLogo = new ImageIcon();
-      } else {
-        scraperLogo = getScaledIcon(new ImageIcon(scraper.getMediaProvider().getProviderInfo().getProviderLogo()));
-      }
-    }
-
-    private ImageIcon getScaledIcon(ImageIcon original) {
-      try {
-        Canvas c = new Canvas();
-        FontMetrics fm = c.getFontMetrics(getFont());
-
-        int height = (int) (fm.getHeight() * 2f);
-        int width = original.getIconWidth() / original.getIconHeight() * height;
-
-        BufferedImage scaledImage = Scalr.resize(ImageUtils.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width,
-                height, Scalr.OP_ANTIALIAS);
-        return new ImageIcon(scaledImage);
-      } catch (Exception e) {
-        return new ImageIcon();
-      }
-    }
-
-    public String getScraperId() {
-      return scraper.getId();
-    }
-
-    public String getScraperName() {
-      return scraper.getName() + " - " + scraper.getVersion();
-    }
-
-    public String getScraperDescription() {
-      // first try to get the localized version
-      String description = null;
-      try {
-        description = BUNDLE.getString("scraper." + scraper.getId() + ".hint");
-      } catch (Exception ignored) {
-      }
-
-      if (StringUtils.isBlank(description)) {
-        // try to get a scraper text
-        description = scraper.getDescription();
-      }
-
-      return description;
-    }
-
-    public Icon getScraperLogo() {
-      return scraperLogo;
-    }
-
-    public Boolean getActive() {
-      return active;
-    }
-
-    public void setActive(Boolean newValue) {
-      Boolean oldValue = this.active;
-      this.active = newValue;
-      firePropertyChange("active", oldValue, newValue);
-    }
-
-    public IMediaProvider getMediaProvider() {
-      return scraper.getMediaProvider();
-    }
   }
 }

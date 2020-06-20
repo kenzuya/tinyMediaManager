@@ -15,12 +15,9 @@
  */
 package org.tinymediamanager.ui.components.combobox;
 
-import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
-import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
@@ -35,10 +32,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import org.imgscalr.Scalr;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
 
 /**
  * The class MediaScraperComboBox provides a combobox with the scraper logo next to the text
@@ -72,11 +69,10 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
   }
 
   @Override
-  public void setSelectedItem(Object anObject) {
-    MediaScraper ms = (MediaScraper) anObject;
-    if (ms != null && ms.isEnabled()) {
-      // only allow to choose scraper when active
-      super.setSelectedItem(anObject);
+  public void updateUI() {
+    super.updateUI();
+    if (imageCache != null) {
+      imageCache.clear();
     }
   }
 
@@ -110,12 +106,23 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
   }
 
   private ImageIcon getIcon(URL url) {
+    if (url == null) {
+      return null;
+    }
+
     try {
       URI uri = url.toURI();
       ImageIcon logo = imageCache.get(uri);
       if (logo == null) {
-        logo = getScaledIcon(IconManager.loadImageFromURL(url));
-        imageCache.put(uri, logo);
+        if (url.getFile().endsWith("svg")) {
+          TmmSvgIcon svgIcon = new TmmSvgIcon(uri);
+          svgIcon.setPreferredHeight(calculatePreferredHeight());
+          logo = svgIcon;
+        }
+        else {
+          logo = ImageUtils.createMultiResolutionImage(IconManager.loadImageFromURL(url), calculatePreferredHeight());
+          imageCache.put(uri, logo);
+        }
       }
       return logo;
     }
@@ -124,16 +131,9 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
     return null;
   }
 
-  private ImageIcon getScaledIcon(ImageIcon original) {
-    Canvas c = new Canvas();
-    FontMetrics fm = c.getFontMetrics(getFont());
-
-    int height = (int) (fm.getHeight() * 2f);
-    int width = original.getIconWidth() / original.getIconHeight() * height;
-
-    BufferedImage scaledImage = Scalr.resize(ImageUtils.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
-        Scalr.OP_ANTIALIAS);
-    return new ImageIcon(scaledImage);
+  private int calculatePreferredHeight() {
+    FontMetrics fm = getFontMetrics(getFont());
+    return (int) (fm.getHeight() * 2f);
   }
 
   class MediaScraperComboBoxRenderer extends JLabel implements ListCellRenderer<MediaScraper> {
@@ -174,13 +174,6 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
           MediaScraper ms = list.getModel().getElementAt(i);
           ImageIcon logo = MediaScraperComboBox.this.getIcon(ms.getLogoURL());
           maxWidth = Math.max(maxWidth, logo == null ? 0 : logo.getIconWidth());
-          if (!scraper.isEnabled()) {
-            setEnabled(false);
-            setBackground(Color.lightGray);
-          }
-          else {
-            setEnabled(true);
-          }
         }
 
         int currentWidth = 0;

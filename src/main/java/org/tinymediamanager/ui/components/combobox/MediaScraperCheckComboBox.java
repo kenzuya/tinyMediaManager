@@ -15,17 +15,15 @@
  */
 package org.tinymediamanager.ui.components.combobox;
 
-import java.awt.Canvas;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.FontMetrics;
-import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -34,12 +32,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
 
 /**
  * the class MediaScraperCheckComboBox is used to display a CheckCombBox with media scraper logos
@@ -50,6 +48,8 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
   private static final long   serialVersionUID = 8153649858409237947L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(MediaScraperCheckComboBox.class);
 
+  private Map<URI, ImageIcon> imageCache;
+
   public MediaScraperCheckComboBox(final List<MediaScraper> scrapers) {
     super(scrapers);
   }
@@ -59,13 +59,20 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
     setRenderer(new MediaScraperCheckBoxRenderer(checkBoxes));
   }
 
-  private class MediaScraperCheckBoxRenderer extends CheckBoxRenderer {
-    private JPanel              panel        = new JPanel();
-    private JCheckBox           checkBox     = new JCheckBox();
-    private JLabel              label        = new JLabel();
+  @Override
+  public void updateUI() {
+    super.updateUI();
+    if (imageCache != null) {
+      imageCache.clear();
+    }
+  }
 
-    private Map<URI, ImageIcon> imageCache;
-    private int                 maxIconWidth = 0;
+  private class MediaScraperCheckBoxRenderer extends CheckBoxRenderer {
+    private JPanel    panel        = new JPanel();
+    private JCheckBox checkBox     = new JCheckBox();
+    private JLabel    label        = new JLabel();
+
+    private int       maxIconWidth = 0;
 
     private MediaScraperCheckBoxRenderer(final List<TmmCheckComboBoxItem<MediaScraper>> items) {
       super(items);
@@ -127,7 +134,7 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
 
       String str;
       List<MediaScraper> objs = getSelectedItems();
-      Vector<String> strs = new Vector<>();
+      List<String> strs = new ArrayList<>();
       if (objs.isEmpty()) {
         str = BUNDLE.getString("ComboBox.select.mediascraper");
       }
@@ -141,12 +148,23 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
     }
 
     private ImageIcon getIcon(URL url) {
+      if (url == null) {
+        return null;
+      }
+
       try {
         URI uri = url.toURI();
         ImageIcon logo = imageCache.get(uri);
         if (logo == null) {
-          logo = getScaledIcon(IconManager.loadImageFromURL(url));
-          imageCache.put(uri, logo);
+          if (url.getFile().endsWith("svg")) {
+            TmmSvgIcon svgIcon = new TmmSvgIcon(uri);
+            svgIcon.setPreferredHeight(calculatePreferredHeight());
+            logo = svgIcon;
+          }
+          else {
+            logo = ImageUtils.createMultiResolutionImage(IconManager.loadImageFromURL(url), calculatePreferredHeight());
+            imageCache.put(uri, logo);
+          }
         }
         return logo;
       }
@@ -156,16 +174,9 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
       return null;
     }
 
-    private ImageIcon getScaledIcon(ImageIcon original) {
-      Canvas c = new Canvas();
-      FontMetrics fm = c.getFontMetrics(getFont());
-
-      int height = (int) (fm.getHeight() * 2f);
-      int width = original.getIconWidth() / original.getIconHeight() * height;
-
-      BufferedImage scaledImage = Scalr.resize(ImageUtils.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
-          Scalr.OP_ANTIALIAS);
-      return new ImageIcon(scaledImage);
+    private int calculatePreferredHeight() {
+      FontMetrics fm = getFontMetrics(getFont());
+      return (int) (fm.getHeight() * 2f);
     }
   }
 }

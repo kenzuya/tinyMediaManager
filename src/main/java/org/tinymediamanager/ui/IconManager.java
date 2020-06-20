@@ -34,6 +34,7 @@ import javax.swing.UIManager;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.ui.components.toolbar.ToolbarMenu;
 import org.tinymediamanager.ui.images.TmmAwesomeIcon;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
 import org.tinymediamanager.ui.images.TmmTextIcon;
@@ -41,119 +42,127 @@ import org.tinymediamanager.ui.images.TmmTextIcon;
 import com.kitfox.svg.app.beans.SVGIcon;
 
 public class IconManager {
-  public static final ImageIcon              EMPTY_IMAGE                 = new ImageIcon(IconManager.class.getResource("plaf/empty.png"));
-  private static final Set<TmmSvgIconCache>  SVG_CACHE                   = new HashSet<>();
-  private static final Set<TmmTextIconCache> TEXT_ICON_CACHE             = new HashSet<>();
-  private static final Map<URI, ImageIcon>   ICON_CACHE                  = new HashMap<>();
+  public static final ImageIcon              EMPTY_IMAGE                  = new ImageIcon(IconManager.class.getResource("plaf/empty.png"));
+  private static final Set<TmmSvgIconCache>  SVG_CACHE                    = new HashSet<>();
+  private static final Set<TmmTextIconCache> TEXT_ICON_CACHE              = new HashSet<>();
+  private static final Map<URI, ImageIcon>   ICON_CACHE                   = new HashMap<>();
 
   // toolbar icons
-  public static final ImageIcon              TOOLBAR_ABOUT               = createSVGIcon("icn_about.svg", new Dimension(24, 24));
-  public static final ImageIcon              TOOLBAR_ABOUT_HOVER         = createSVGIcon("icn_about_hover.svg", new Dimension(24, 24));
-  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET       = createSVGIcon("icn_add_collection.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER = createSVGIcon("icn_add_collection_hover.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_EDIT                = createSVGIcon("icn_edit.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_EDIT_HOVER          = createSVGIcon("icn_edit_hover.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_LOGO                = createSVGIcon("tmm_logo.svg", new Dimension(100, 50));
-  public static final ImageIcon              TOOLBAR_REFRESH             = createSVGIcon("icn_refresh.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_REFRESH_HOVER       = createSVGIcon("icn_refresh_hover.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_RENAME              = createSVGIcon("icn_rename.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_RENAME_HOVER        = createSVGIcon("icn_rename_hover.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_SEARCH              = createSVGIcon("icn_search.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_SEARCH_HOVER        = createSVGIcon("icn_search_hover.svg", new Dimension(36, 36));
-  public static final ImageIcon              TOOLBAR_SETTINGS            = createSVGIcon("icn_settings.svg", new Dimension(24, 24));
-  public static final ImageIcon              TOOLBAR_SETTINGS_HOVER      = createSVGIcon("icn_settings_hover.svg", new Dimension(24, 24));
-  public static final ImageIcon              TOOLBAR_TOOLS               = createSVGIcon("icn_tools.svg", new Dimension(24, 24));
-  public static final ImageIcon              TOOLBAR_TOOLS_HOVER         = createSVGIcon("icn_tools_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_ABOUT                = createSVGIcon("icn_about.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_ABOUT_HOVER          = createSVGIcon("icn_about_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET        = createSVGIcon("icn_add_collection.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER  = createSVGIcon("icn_add_collection_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_EDIT                 = createSVGIcon("icn_edit.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_EDIT_HOVER           = createSVGIcon("icn_edit_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_LOGO                 = createSVGIcon("tmm_logo.svg", new Dimension(100, 50));
+  public static final ImageIcon              TOOLBAR_REFRESH              = createSVGIcon("icn_refresh.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_REFRESH_HOVER        = createSVGIcon("icn_refresh_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_RENAME               = createSVGIcon("icn_rename.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_RENAME_HOVER         = createSVGIcon("icn_rename_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SEARCH               = createSVGIcon("icn_search.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SEARCH_HOVER         = createSVGIcon("icn_search_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SETTINGS             = createSVGIcon("icn_settings.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_SETTINGS_HOVER       = createSVGIcon("icn_settings_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_TOOLS                = createSVGIcon("icn_tools.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_TOOLS_HOVER          = createSVGIcon("icn_tools_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_MENU_INDICATOR       = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR);
+  public static final ImageIcon              TOOLBAR_MENU_INDICATOR_HOVER = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR_HOVER);
 
   // packaged icons
-  public static final ImageIcon              STAR_FILLED                 = createSVGIcon("star-filled.svg", new Dimension(24, 24), true);
-  public static final ImageIcon              STAR_EMPTY                  = createSVGIcon("star-empty.svg", new Dimension(24, 24), true);
+  public static final ImageIcon              STAR_FILLED                  = createSVGIcon("star-filled.svg", new Dimension(24, 24), true);
+  public static final ImageIcon              STAR_EMPTY                   = createSVGIcon("star-empty.svg", new Dimension(24, 24), true);
 
   // font awesome icons for actions in the popup menu
-  public static final ImageIcon              ADD                         = createMenuIcon("plus.svg");
-  public static final ImageIcon              BUG                         = createMenuIcon("bug.svg");
-  public static final ImageIcon              DELETE                      = createMenuIcon("times.svg");
-  public static final ImageIcon              DELETE_FOREVER              = createMenuIcon("trash-alt.svg");
-  public static final ImageIcon              DOWNLOAD                    = createMenuIcon("download.svg");
-  public static final ImageIcon              FEEDBACK                    = createMenuIcon("envelope.svg");
-  public static final ImageIcon              EDIT                        = createMenuIcon("edit.avg");
-  public static final ImageIcon              EXPORT                      = createMenuIcon("share-square.svg");
-  public static final ImageIcon              HINT                        = createMenuIcon("info-circle.svg");
-  public static final ImageIcon              IMAGE                       = createMenuIcon("image.svg");
-  public static final ImageIcon              MEDIAINFO                   = createMenuIcon("info.svg");
-  public static final ImageIcon              PLAY                        = createMenuIcon("play.svg");
-  public static final ImageIcon              REFRESH                     = createMenuIcon("redo.svg");
-  public static final ImageIcon              REMOVE                      = createMenuIcon("minus.svg");
-  public static final ImageIcon              SEARCH                      = createMenuIcon("search.svg");
-  public static final ImageIcon              SUBTITLE                    = createMenuIcon("comments.svg");
-  public static final ImageIcon              SYNC                        = createMenuIcon("sync.svg");
+  public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
+  public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
+  public static final ImageIcon              DELETE                       = createMenuIcon("times.svg");
+  public static final ImageIcon              DELETE_FOREVER               = createMenuIcon("trash-alt.svg");
+  public static final ImageIcon              DOWNLOAD                     = createMenuIcon("download.svg");
+  public static final ImageIcon              FEEDBACK                     = createMenuIcon("envelope.svg");
+  public static final ImageIcon              EDIT                         = createMenuIcon("edit.avg");
+  public static final ImageIcon              EXPORT                       = createMenuIcon("share-square.svg");
+  public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
+  public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
+  public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
+  public static final ImageIcon              PLAY                         = createMenuIcon("play.svg");
+  public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
+  public static final ImageIcon              REMOVE                       = createMenuIcon("minus.svg");
+  public static final ImageIcon              SEARCH                       = createMenuIcon("search.svg");
+  public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
+  public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
 
   // font awesome icons for the table/tree
-  public static final ImageIcon              TABLE_OK                    = createSVGIcon("check.svg", new Color(31, 187, 0));
-  public static final ImageIcon              TABLE_PROBLEM               = createSVGIcon("exclamation-triangle.svg", new Color(204, 120, 50));
-  public static final ImageIcon              TABLE_NOT_OK                = createSVGIcon("times.svg", new Color(204, 2, 2));
+  public static final ImageIcon              TABLE_OK                     = createSVGIcon("check.svg", new Color(31, 187, 0));
+  public static final ImageIcon              TABLE_PROBLEM                = createSVGIcon("exclamation-triangle.svg", new Color(204, 120, 50));
+  public static final ImageIcon              TABLE_NOT_OK                 = createSVGIcon("times.svg", new Color(204, 2, 2));
 
   // font awesome icons normal
-  public static final ImageIcon              CANCEL                      = createSVGIcon("times-circle.svg");
-  public static final ImageIcon              CARET_UP                    = createSVGIcon("chevron-up.svg");
-  public static final ImageIcon              CARET_DOWN                  = createSVGIcon("chevron-down.svg");
-  public static final ImageIcon              CLEAR_GREY                  = createSVGIcon("times-circle.svg");
-  public static final ImageIcon              COLLAPSED                   = createSVGIcon("chevron-square-down.svg");
-  public static final ImageIcon              CONFIGURE                   = createSVGIcon("wrench.svg");
-  public static final ImageIcon              DELETE_GRAY                 = createSVGIcon("trash-alt.svg");
-  public static final ImageIcon              ERROR                       = createSVGIcon("times-circle.svg");
-  public static final ImageIcon              EXPANDED                    = createSVGIcon("chevron-square-right.svg");
-  public static final ImageIcon              WARN                        = createSVGIcon("exclamation-triangle.svg");
-  public static final ImageIcon              WARN_INTENSIFIED            = createSVGIcon("exclamation-triangle.svg", Color.RED);
-  public static final ImageIcon              INFO                        = createSVGIcon("info-circle.svg");
-  public static final ImageIcon              HELP                        = createSVGIcon("question-circle.svg");
-  public static final ImageIcon              FILTER_ACTIVE               = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
-  public static final ImageIcon              NEW                         = createTextIcon("new", new Color(31, 187, 0));
-  public static final ImageIcon              PLAY_LARGE                  = createSVGIcon("play-circle.svg", 2.33333);
-  public static final ImageIcon              SEARCH_GREY                 = createSVGIcon("search.svg");
-  public static final ImageIcon              STOP                        = createSVGIcon("stop-circle.svg");
-  public static final ImageIcon              UNDO_GREY                   = createSVGIcon("undo.svg");
+  public static final ImageIcon              CANCEL                       = createSVGIcon("times-circle.svg");
+  public static final ImageIcon              CARET_UP                     = createSVGIcon("chevron-up.svg");
+  public static final ImageIcon              CARET_DOWN                   = createSVGIcon("chevron-down.svg");
+  public static final ImageIcon              CLEAR_GREY                   = createSVGIcon("times-circle.svg");
+  public static final ImageIcon              COLLAPSED                    = createSVGIcon("chevron-square-down.svg");
+  public static final ImageIcon              CONFIGURE                    = createSVGIcon("wrench.svg");
+  public static final ImageIcon              DELETE_GRAY                  = createSVGIcon("trash-alt.svg");
+  public static final ImageIcon              ERROR                        = createSVGIcon("times-circle.svg");
+  public static final ImageIcon              EXPANDED                     = createSVGIcon("chevron-square-right.svg");
+  public static final ImageIcon              WARN                         = createSVGIcon("exclamation-triangle.svg");
+  public static final ImageIcon              WARN_INTENSIFIED             = createSVGIcon("exclamation-triangle.svg", Color.RED);
+  public static final ImageIcon              INFO                         = createSVGIcon("info-circle.svg");
+  public static final ImageIcon              HELP                         = createSVGIcon("question-circle.svg");
+  public static final ImageIcon              FILTER_ACTIVE                = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
+  public static final ImageIcon              NEW                          = createTextIcon("new", new Color(31, 187, 0));
+  public static final ImageIcon              PLAY_LARGE                   = createSVGIcon("play-circle.svg", 2.33333);
+  public static final ImageIcon              SEARCH_GREY                  = createSVGIcon("search.svg");
+  public static final ImageIcon              STOP                         = createSVGIcon("stop-circle.svg");
+  public static final ImageIcon              UNDO_GREY                    = createSVGIcon("undo.svg");
 
   // font awesome icons light (button usage)
-  public static final ImageIcon              ADD_INV                     = createButtonIcon("plus.svg");
-  public static final ImageIcon              ARROW_UP_INV                = createButtonIcon("chevron-up.svg");
-  public static final ImageIcon              ARROW_DOWN_INV              = createButtonIcon("chevron-down.svg");
-  public static final ImageIcon              APPLY_INV                   = createButtonIcon("check-circle.svg");
-  public static final ImageIcon              BACK_INV                    = createButtonIcon("chevron-circle-left.svg");
-  public static final ImageIcon              CANCEL_INV                  = createButtonIcon("times-circle.svg");
-  public static final ImageIcon              CHECK_ALL                   = createButtonIcon("check-square.svg");
-  public static final ImageIcon              CLEAR_ALL                   = createButtonIcon("square.svg");
-  public static final ImageIcon              COPY_INV                    = createButtonIcon("clone.svg");
-  public static final ImageIcon              DATE_PICKER                 = createButtonIcon("calendar-alt.svg");
-  public static final ImageIcon              DELETE_INV                  = createButtonIcon("trash-alt.svg");
-  public static final ImageIcon              FILE_OPEN_INV               = createButtonIcon("folder-open.svg");
-  public static final ImageIcon              IMAGE_INV                   = createButtonIcon("image.svg");
-  public static final ImageIcon              PLAY_INV                    = createButtonIcon("play.svg");
-  public static final ImageIcon              REMOVE_INV                  = createButtonIcon("minus.svg");
-  public static final ImageIcon              SEARCH_INV                  = createButtonIcon("search.svg");
-  public static final ImageIcon              STOP_INV                    = createButtonIcon("stop-circle.svg");
+  public static final ImageIcon              ADD_INV                      = createButtonIcon("plus.svg");
+  public static final ImageIcon              ARROW_UP_INV                 = createButtonIcon("chevron-up.svg");
+  public static final ImageIcon              ARROW_DOWN_INV               = createButtonIcon("chevron-down.svg");
+  public static final ImageIcon              APPLY_INV                    = createButtonIcon("check-circle.svg");
+  public static final ImageIcon              BACK_INV                     = createButtonIcon("chevron-circle-left.svg");
+  public static final ImageIcon              CANCEL_INV                   = createButtonIcon("times-circle.svg");
+  public static final ImageIcon              CHECK_ALL                    = createButtonIcon("check-square.svg");
+  public static final ImageIcon              CLEAR_ALL                    = createButtonIcon("square.svg");
+  public static final ImageIcon              COPY_INV                     = createButtonIcon("clone.svg");
+  public static final ImageIcon              DATE_PICKER                  = createButtonIcon("calendar-alt.svg");
+  public static final ImageIcon              DELETE_INV                   = createButtonIcon("trash-alt.svg");
+  public static final ImageIcon              FILE_OPEN_INV                = createButtonIcon("folder-open.svg");
+  public static final ImageIcon              IMAGE_INV                    = createButtonIcon("image.svg");
+  public static final ImageIcon              PLAY_INV                     = createButtonIcon("play.svg");
+  public static final ImageIcon              REMOVE_INV                   = createButtonIcon("minus.svg");
+  public static final ImageIcon              SEARCH_INV                   = createButtonIcon("search.svg");
+  public static final ImageIcon              STOP_INV                     = createButtonIcon("stop-circle.svg");
 
   // font awesome icons - column headers
-  public static final ImageIcon              AUDIO                       = createTableHeaderIcon("volume-up.svg");
-  public static final ImageIcon              CERTIFICATION               = createTableHeaderIcon("universal-access.svg");
-  public static final ImageIcon              COUNT                       = createTableHeaderIcon("hashtag.svg");
-  public static final ImageIcon              DATE_ADDED                  = createTableHeaderIcon("calendar-plus.svg");
-  public static final ImageIcon              EDITION                     = createTableHeaderIcon("compact-disc.svg");
-  public static final ImageIcon              EDIT_HEADER                 = createTableHeaderIcon("edit.svg");
-  public static final ImageIcon              EPISODES                    = createTextIcon("E", 1.5);
-  public static final ImageIcon              FILE_SIZE                   = createTableHeaderIcon("save.svg");
-  public static final ImageIcon              IMAGES                      = createTableHeaderIcon("images.svg");
-  public static final ImageIcon              IDCARD                      = createTableHeaderIcon("id-card.svg");
-  public static final ImageIcon              NFO                         = createTableHeaderIcon("file-alt.svg");
-  public static final ImageIcon              RATING                      = createTableHeaderIcon("star.svg");
-  public static final ImageIcon              SEASONS                     = createTextIcon("S", 1.5);
-  public static final ImageIcon              SOURCE                      = createTableHeaderIcon("location");
-  public static final ImageIcon              SUBTITLES                   = createTableHeaderIcon("comments.svg");
-  public static final ImageIcon              TRAILER                     = createTableHeaderIcon("film.svg");
-  public static final ImageIcon              VIDEO_3D                    = createTableHeaderIcon("cube.svg");
-  public static final ImageIcon              VIDEO_FORMAT                = createTableHeaderIcon("expand-wide.svg");
-  public static final ImageIcon              VOTES                       = createTableHeaderIcon("thumbs-up.svg");
-  public static final ImageIcon              WATCHED                     = createTableHeaderIcon("play.svg");
+  public static final ImageIcon              AUDIO                        = createTableHeaderIcon("volume-up.svg");
+  public static final ImageIcon              CERTIFICATION                = createTableHeaderIcon("universal-access.svg");
+  public static final ImageIcon              COUNT                        = createTableHeaderIcon("hashtag.svg");
+  public static final ImageIcon              DATE_ADDED                   = createTableHeaderIcon("calendar-plus.svg");
+  public static final ImageIcon              EDITION                      = createTableHeaderIcon("compact-disc.svg");
+  public static final ImageIcon              EDIT_HEADER                  = createTableHeaderIcon("edit.svg");
+  public static final ImageIcon              EPISODES                     = createTextIcon("E", 1.5);
+  public static final ImageIcon              FILE_SIZE                    = createTableHeaderIcon("save.svg");
+  public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
+  public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
+  public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
+  public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
+  public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
+  public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location");
+  public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");
+  public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
+  public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");
+  public static final ImageIcon              VIDEO_FORMAT                 = createTableHeaderIcon("expand-wide.svg");
+  public static final ImageIcon              VOTES                        = createTableHeaderIcon("thumbs-up.svg");
+  public static final ImageIcon              WATCHED                      = createTableHeaderIcon("play.svg");
+
+  // sort icons for glazedlists
+  public static final ImageIcon              SORT_UP_PRIMARY              = createSVGIcon("chevron-up.svg", 0.833);
+  public static final ImageIcon              SORT_UP_SECONDARY            = createSVGIcon("chevron-double-up.svg", 0.833);
+  public static final ImageIcon              SORT_DOWN_PRIMARY            = createSVGIcon("chevron-down.svg", 0.833);
+  public static final ImageIcon              SORT_DOWN_SECONDARY          = createSVGIcon("chevron-double-down.svg", 0.833);
 
   private static ImageIcon loadImage(String name) {
     URL file = IconManager.class.getResource("images/interface/" + name);
@@ -244,6 +253,10 @@ public class IconManager {
     return createSVGIcon(name, "Label.foreground", TmmFontHelper.H3);
   }
 
+  private static ImageIcon createSVGIcon(String name, String colorReference) {
+    return createSVGIcon(name, colorReference, TmmFontHelper.H3);
+  }
+
   private static ImageIcon createSVGIcon(String name, double scaleFactor) {
     return createSVGIcon(name, "Label.foreground", scaleFactor);
   }
@@ -289,8 +302,7 @@ public class IconManager {
       URI uri = IconManager.class.getResource("images/svg/" + name).toURI();
       TmmAwesomeIcon icon = new TmmAwesomeIcon(uri, color);
 
-      int size = calculateFontIconSize(scaleFactor);
-      icon.setPreferredSize(new Dimension(size, size));
+      icon.setPreferredHeight(calculateFontIconSize(scaleFactor));
 
       SVG_CACHE.add(new TmmSvgIconCache(icon, scaleFactor, null));
       return icon;
