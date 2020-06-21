@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.Utils;
 
 public class TvShowExportTest extends BasicTest {
 
@@ -22,7 +21,6 @@ public class TvShowExportTest extends BasicTest {
 
     createFakeShow("ExportShow");
     createFakeShow("ExportShow 2");
-    Utils.extractTemplates();
   }
 
   @AfterClass

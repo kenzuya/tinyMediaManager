@@ -33,10 +33,6 @@ public class MediaInfoUtils {
 
   private static final Logger LOGGER           = LoggerFactory.getLogger(MediaInfoUtils.class);
 
-  private MediaInfoUtils() {
-    // private constructor for utility classes
-  }
-
   /**
    * checks if we should use libMediaInfo
    * 
@@ -44,6 +40,10 @@ public class MediaInfoUtils {
    */
   private static boolean useMediaInfo() {
     return Boolean.parseBoolean(System.getProperty("tmm.uselibmediainfo", "true"));
+  }
+
+  private MediaInfoUtils() {
+    // private constructor for utility classes
   }
 
   /**
@@ -55,7 +55,7 @@ public class MediaInfoUtils {
     }
 
     try {
-      String miv = "";
+      String miv;
       String nativepath = "native/";
 
       // windows
@@ -69,17 +69,6 @@ public class MediaInfoUtils {
       // osx
       else if (Platform.isMac()) {
         nativepath += "mac";
-      }
-
-      // mac uses the same lib for 32 and 64 bit
-      if (!Platform.isMac()) {
-        // https://en.wikipedia.org/wiki/X86-64
-        if (Platform.is64Bit()) {
-          nativepath += "-x64";
-        }
-        else {
-          nativepath += "-x86";
-        }
       }
 
       // need that, since we cannot try and reload/unload a Class

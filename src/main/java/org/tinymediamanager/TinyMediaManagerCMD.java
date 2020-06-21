@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.SwingWorker;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ExportTemplate;
@@ -43,7 +41,6 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieScrapeTask;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
-import org.tinymediamanager.core.tasks.UpdaterTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowComparator;
@@ -61,6 +58,7 @@ import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.scraper.util.StrgUtils;
+import org.tinymediamanager.updater.UpdateCheck;
 
 /**
  * The class TinyMediaManagerCMD - used for all logic for the command line tool
@@ -237,9 +235,8 @@ class TinyMediaManagerCMD {
       if (scrapeNew || scrapeUnscraped || scrapeAll) {
         // only do an update check when we are scraping online
         // no need for a "forced" check for just updating the datasource
-        final SwingWorker<Boolean, Void> updateWorker = new UpdaterTask();
-        updateWorker.run();
-        updateAvailable = updateWorker.get(); // blocking
+        updateAvailable = new UpdateCheck().isUpdateAvailable();
+
         if (updateAvailable) {
           LOGGER.warn("There's a new TMM update available!");
           LOGGER.warn("Please update to remove waiting time ;)");

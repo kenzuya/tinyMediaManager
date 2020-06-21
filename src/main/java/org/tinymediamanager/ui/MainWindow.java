@@ -40,7 +40,6 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker.StateValue;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
@@ -53,8 +52,6 @@ import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.tasks.UpdaterTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
@@ -66,6 +63,8 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.panels.StatusBarPanel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
+import org.tinymediamanager.updater.UpdateCheck;
+import org.tinymediamanager.updater.UpdaterTask;
 
 import com.sun.jna.Platform;
 
@@ -128,57 +127,52 @@ public class MainWindow extends JFrame {
     return logos;
   }
 
-  private void checkForUpdate() {
-    try {
-      final UpdaterTask updateWorker = new UpdaterTask();
+  public void checkForUpdate() {
+    Runnable runnable = () -> {
+      try {
+        UpdateCheck updateCheck = new UpdateCheck();
+        if (updateCheck.isUpdateAvailable()) {
+          LOGGER.info("update available");
 
-      updateWorker.addPropertyChangeListener(evt -> {
-        if ("state".equals(evt.getPropertyName()) && evt.getNewValue() == StateValue.DONE) {
-          try {
-            boolean update = updateWorker.get();
-            LOGGER.debug("update result was: " + update);
-            if (update) {
+          // we might need this somewhen...
+          if (updateCheck.isForcedUpdate()) {
+            LOGGER.info("Updating (forced)...");
+            // start the updater task
+            TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+            return;
+          }
 
-              // we might need this somewhen...
-              if (updateWorker.isForcedUpdate()) {
-                LOGGER.info("Updating (forced)...");
-                closeTmmAndStart(Utils.getPBforTMMupdate());
-                return;
-              }
+          // show whatsnewdialog with the option to update
+          SwingUtilities.invokeLater(() -> {
+            if (StringUtils.isNotBlank(updateCheck.getChangelog())) {
+              UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog());
+              dialog.setVisible(true);
+            }
+            else {
+              // do the update without changelog popup
+              Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+              int answer = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.update.message"), BUNDLE.getString("tmm.update.title"),
+                  JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+              if (answer == JOptionPane.YES_OPTION) {
+                LOGGER.info("Updating...");
 
-              // show whatsnewdialog with the option to update
-              if (StringUtils.isNotBlank(updateWorker.getChangelog())) {
-                UpdateDialog dialog = new UpdateDialog(updateWorker.getChangelog());
-                dialog.setVisible(true);
-              }
-              else {
-                // do the update without changelog popup
-                Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-                int answer = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.update.message"), BUNDLE.getString("tmm.update.title"),
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
-                if (answer == JOptionPane.YES_OPTION) {
-                  LOGGER.info("Updating...");
-
-                  // spawn getdown and exit TMM
-                  closeTmmAndStart(Utils.getPBforTMMupdate());
-                }
+                // start the updater task
+                TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
               }
             }
-          }
-          catch (Exception e) {
-            LOGGER.error("Update task failed!" + e.getMessage());
-          }
-        }
-      });
+          });
 
-      // update task start a few secs after GUI...
-      Timer timer = new Timer(5000, e -> updateWorker.execute());
-      timer.setRepeats(false);
-      timer.start();
-    }
-    catch (Exception e) {
-      LOGGER.error("Update task failed!" + e.getMessage());
-    }
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("Update check failed - {}", e.getMessage());
+      }
+    };
+
+    // update task start a few secs after GUI...
+    Timer timer = new Timer(5000, e -> runnable.run());
+    timer.setRepeats(false);
+    timer.start();
   }
 
   /**

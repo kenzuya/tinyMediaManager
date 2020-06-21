@@ -53,6 +53,7 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
+import org.tinymediamanager.ui.actions.CheckForUpdateAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
@@ -62,7 +63,6 @@ import org.tinymediamanager.ui.actions.FaqAction;
 import org.tinymediamanager.ui.actions.FeedbackAction;
 import org.tinymediamanager.ui.actions.ForumAction;
 import org.tinymediamanager.ui.actions.HomepageAction;
-import org.tinymediamanager.ui.actions.LaunchUpdaterAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
@@ -244,7 +244,7 @@ public class ToolbarPanel extends JPanel {
 
     if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) != true) {
       menu.addSeparator();
-      menu.add(new LaunchUpdaterAction());
+      menu.add(new CheckForUpdateAction());
     }
 
     // debug menu

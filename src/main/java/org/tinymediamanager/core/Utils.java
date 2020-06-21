@@ -17,15 +17,17 @@ package org.tinymediamanager.core;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -68,16 +70,21 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
+import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.LaunchUtil;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -1225,69 +1232,6 @@ public class Utils {
   }
 
   /**
-   * create a ProcessBuilder for restarting TMM
-   * 
-   * @return the process builder
-   */
-  public static ProcessBuilder getPBforTMMrestart() {
-    Path f = Paths.get("tmm.jar");
-    if (!Files.exists(f)) {
-      LOGGER.error("cannot restart TMM - tmm.jar not found.");
-      return null; // when we are in GIT, return null = normal close
-    }
-    List<String> arguments = getJVMArguments();
-    arguments.add(0, LaunchUtil.getJVMPath()); // java exe before JVM args
-    arguments.add("-Dsilent=noupdate"); // start GD.jar instead of TMM.jar, since we don't have the libs in manifest
-    arguments.add("-jar");
-    arguments.add("getdown.jar"); // NOSONAR
-    arguments.add(".");
-    ProcessBuilder pb = new ProcessBuilder(arguments);
-    pb.directory(Paths.get("").toAbsolutePath().toFile()); // set working directory (current TMM dir)
-    return pb;
-  }
-
-  /**
-   * create a ProcessBuilder for restarting TMM to the updater
-   * 
-   * @return the process builder
-   */
-  public static ProcessBuilder getPBforTMMupdate() {
-    Path f = Paths.get("getdown.jar");
-    if (!Files.exists(f)) {
-      LOGGER.error("cannot start updater - getdown.jar not found.");
-      return null; // when we are in GIT, return null = normal close
-    }
-    List<String> arguments = getJVMArguments();
-    arguments.add(0, LaunchUtil.getJVMPath()); // java exe before JVM args
-    arguments.add("-jar");
-    arguments.add("getdown.jar"); // NOSONAR
-    arguments.add(".");
-    ProcessBuilder pb = new ProcessBuilder(arguments);
-    pb.directory(Paths.get("").toAbsolutePath().toFile()); // set working directory (current TMM dir)
-    return pb;
-  }
-
-  /**
-   * gets all the JVM parameters used for starting TMM<br>
-   * like -Dfile.encoding=UTF8 or others<br>
-   * needed for restarting tmm :)
-   * 
-   * @return list of jvm parameters
-   */
-  private static List<String> getJVMArguments() {
-    RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-    List<String> arguments = new ArrayList<>(runtimeMxBean.getInputArguments());
-    // fixtate some
-    if (!arguments.contains("-Djava.net.preferIPv4Stack=true")) {
-      arguments.add("-Djava.net.preferIPv4Stack=true");
-    }
-    if (!arguments.contains("-Dfile.encoding=UTF-8")) {
-      arguments.add("-Dfile.encoding=UTF-8");
-    }
-    return arguments;
-  }
-
-  /**
    * Deletes a complete directory recursively, using Java NIO
    * 
    * @param dir
@@ -1497,39 +1441,6 @@ public class Utils {
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
-    }
-  }
-
-  /**
-   * extract our templates (only if non existing)
-   */
-  public static void extractTemplates() {
-    extractTemplates(false);
-  }
-
-  /**
-   * extract our templates (use force to overwrite)
-   */
-  public static void extractTemplates(boolean force) {
-    Path dest = Paths.get("templates");
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dest)) {
-      // count the directory amount if not forced
-      int dirCount = 0;
-      if (!force) {
-        for (Path path : directoryStream) {
-          if (Files.isDirectory(path)) {
-            dirCount++;
-          }
-        }
-      }
-
-      // if forced or the directory count is zero, we will extract the templates.zip
-      if (dirCount == 0 || force) {
-        Utils.unzip(dest.resolve("templates.jar"), dest);
-      }
-    }
-    catch (IOException e) {
-      LOGGER.warn("failed to extract templates: {}", e.getMessage());
     }
   }
 
@@ -1782,6 +1693,51 @@ public class Utils {
         }
       }
       return CONTINUE;
+    }
+  }
+
+  /**
+   * unpack the given brotli archive ({code .tar.br}) to the given path
+   * 
+   * @param archive
+   *          the brotli archive
+   * @param targetPath
+   *          the path to extract
+   * @throws IOException
+   *           any {@link IOException} thrown while extracting
+   */
+  public static void unpackBrotli(File archive, File targetPath) throws IOException {
+    try (FileInputStream fis = new FileInputStream(archive);
+        InputStream buis = new BufferedInputStream(fis);
+        BrotliInputStream bris = new BrotliInputStream(buis);
+        InputStream bis = new BufferedInputStream(bris);
+        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(bis)) {
+      ArchiveEntry entry = null;
+      while ((entry = ais.getNextEntry()) != null) {
+        if (!ais.canReadEntryData(entry)) {
+          // log something?
+          continue;
+        }
+
+        File f = new File(targetPath, entry.getName());
+        if (entry.isDirectory()) {
+          if (!f.isDirectory() && !f.mkdirs()) {
+            throw new IOException("failed to create directory " + f);
+          }
+        }
+        else {
+          File parent = f.getParentFile();
+          if (!parent.isDirectory() && !parent.mkdirs()) {
+            throw new IOException("failed to create directory " + parent);
+          }
+          try (OutputStream o = Files.newOutputStream(f.toPath())) {
+            IOUtils.copy(ais, o);
+          }
+        }
+      }
+    }
+    catch (ArchiveException e) {
+      throw new IOException("Could not extract archive", e);
     }
   }
 }

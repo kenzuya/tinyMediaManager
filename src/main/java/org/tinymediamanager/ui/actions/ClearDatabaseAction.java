@@ -26,11 +26,11 @@ import javax.swing.JOptionPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 
@@ -82,6 +82,6 @@ public class ClearDatabaseAction extends TmmAction {
             .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
       }
     }
-    MainWindow.getActiveInstance().closeTmmAndStart(Utils.getPBforTMMrestart());
+    MainWindow.getActiveInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
   }
 }
