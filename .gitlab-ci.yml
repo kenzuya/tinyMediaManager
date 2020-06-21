@@ -21,25 +21,17 @@ compile:
     - mvn $MAVEN_CLI_OPTS -U clean compile  # re-fetch snapshots every time
 
 test:jdk11:
-  stage: build
-  allow_failure: true
-  image: maven:3-jdk-11
+  stage: test
+  image: registry.gitlab.com/tinymediamanager/docker/jdk11
   except:
     - master@tinyMediaManager/tinyMediaManager
   only:
     - pushes
   script:
-    # install libmediainfo for unit tests
-    - apt-get update && apt-get install -y --no-install-recommends libmms0 libglib2.0-0
-    - wget https://mediaarea.net/download/binary/libzen0/0.4.38/libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
-    - dpkg -i libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
-    - wget https://mediaarea.net/download/binary/libmediainfo0/20.03/libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
-    - dpkg -i libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
     - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean compile test
 
 test:jdk11_openj9:
-  stage: build
-  allow_failure: true
+  stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk11_openj9
   except:
     - master@tinyMediaManager/tinyMediaManager
@@ -49,8 +41,7 @@ test:jdk11_openj9:
     - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean compile test
 
 test:jdk14_openj9:
-  stage: build
-  allow_failure: true
+  stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk14_openj9
   except:
     - master@tinyMediaManager/tinyMediaManager
@@ -99,7 +90,7 @@ deploy:nightly:
     # generate changelog.txt for nightly builds
     - ./generate_changelog.sh
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean compile package
 
     # trigger the deployment on nightly.tinymediamanager.org (new HP)
     - curl -X POST -F "token=${NIGHTLY_PIPELINE_TOKEN}" -F "ref=master" -F "variables[JOB_ID]=${CI_JOB_ID}" https://gitlab.com/api/v4/projects/7895208/trigger/pipeline
@@ -127,7 +118,7 @@ deploy:test:
     # generate changelog.txt for test builds
     - ./generate_changelog.sh
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-v4.txt -Dthread_pool_size=1 package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-v4.txt -Dthread_pool_size=1 clean compile package
 
     # trigger the deployment on test.tinymediamanager.org (new HP)
     - curl -X POST -F "token=${TEST_PIPELINE_TOKEN}" -F "ref=master" -F "variables[JOB_ID]=${CI_JOB_ID}" https://gitlab.com/api/v4/projects/18118695/trigger/pipeline
@@ -151,7 +142,7 @@ deploy:prerel:
     # update package sources and install ant + 32 bit libs
     - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 lftp curl
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean compile package
 
     # trigger the deployment on prerelease.tinymediamanager.org (new HP)
     - curl -X POST -F "token=${PREREL_PIPELINE_TOKEN}" -F "ref=master" -F "variables[JOB_ID]=${CI_JOB_ID}" https://gitlab.com/api/v4/projects/10869644/trigger/pipeline
