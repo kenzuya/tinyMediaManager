@@ -68,8 +68,8 @@ public class UtilsTest extends BasicTest {
   public void zip() {
     Path zip = Paths.get("target", "test.zip");
     Path add = Paths.get("pom.xml");
-    Utils.createZip(zip, add, "/pom.xml");
-    Utils.createZip(zip, add, "/sub/pom.xml");
+    Utils.createZip(zip, add);
+    Utils.createZip(zip, add);
   }
 
   @Test

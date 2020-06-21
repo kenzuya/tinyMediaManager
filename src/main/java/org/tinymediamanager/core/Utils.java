@@ -73,8 +73,11 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.io.FileExistsException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
@@ -1147,7 +1150,7 @@ public class Utils {
       String date = formatter.format(new Date());
       backup = backup.resolve(file.getFileName() + "." + date + ".zip");
       if (!Files.exists(backup) || overwrite) {
-        createZip(backup, file, "/" + file.getFileName().toString()); // just put in main dir
+        createZip(backup, file); // just put in main dir
       }
     }
     catch (IOException e) {
@@ -1244,7 +1247,7 @@ public class Utils {
     }
 
     LOGGER.info("Deleting complete directory: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<Path>() {
+    Files.walkFileTree(dir, new FileVisitor<>() {
 
       @Override
       public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
@@ -1285,7 +1288,7 @@ public class Utils {
     }
 
     LOGGER.info("Deleting complete directory: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<Path>() {
+    Files.walkFileTree(dir, new FileVisitor<>() {
 
       @Override
       public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
@@ -1333,61 +1336,53 @@ public class Utils {
    *          Path of zip file
    * @param toBeAdded
    *          Path to be added
-   * @param internalPath
-   *          the location inside the ZIP like /aa/a.txt
    */
-  public static void createZip(Path zipFile, Path toBeAdded, String internalPath) {
-    Map<String, String> env = new HashMap<>();
-    try {
-      // check if file exists
-      env.put("create", String.valueOf(!Files.exists(zipFile)));
-      // and use temp files rather than everything in memory
-      env.put("useTempFile", "true");
+  public static void createZip(Path zipFile, Path toBeAdded) {
+    List<File> filesToArchive = new ArrayList<>();
 
-      // use a Zip filesystem URI
-      URI fileUri = zipFile.toUri(); // here
-      URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
+    if (Files.isDirectory(toBeAdded)) {
+      filesToArchive.addAll(FileUtils.listFiles(toBeAdded.toFile(), null, true));
+    }
+    else {
+      filesToArchive.add(toBeAdded.toFile());
+    }
 
-      // zip
-      // try with resource
-      try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
-        // Create internal path in the zipfs
-        Path internalTargetPath = zipfs.getPath(internalPath);
-        if (!Files.exists(internalTargetPath)) {
-          // Create directory
-          Files.createDirectory(internalTargetPath);
-        }
-        // copy a file into the zip file
-        if (Files.isDirectory(toBeAdded)) {
-          try (Stream<Path> files = Files.walk(toBeAdded)) {
-            files.forEach(source -> {
-              try {
-                if (Files.isSameFile(source, toBeAdded)) {
-                  return;
-                }
+    try (FileOutputStream fos = new FileOutputStream(zipFile.toFile());
+        ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream("zip", fos)) {
+      for (File file : filesToArchive) {
+        String entryName = getEntryName(toBeAdded.toFile(), file);
+        ZipArchiveEntry entry = new ZipArchiveEntry(entryName);
+        archive.putArchiveEntry(entry);
 
-                if (Files.isDirectory(source)) {
-                  // Create directory
-                  Files.createDirectory(internalTargetPath.resolve(toBeAdded.relativize(source)));
-                }
-                else {
-                  Files.copy(source, internalTargetPath.resolve(toBeAdded.relativize(source).toString()), StandardCopyOption.REPLACE_EXISTING);
-                }
-              }
-              catch (Exception e) {
-                LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
-              }
-            });
-          }
-        }
-        else {
-          Files.copy(toBeAdded, internalTargetPath, StandardCopyOption.REPLACE_EXISTING);
-        }
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
+
+        IOUtils.copy(input, archive);
+        input.close();
+        archive.closeArchiveEntry();
       }
+      archive.finish();
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
     }
+  }
+
+  /**
+   * Remove the leading part of each entry that contains the source directory name
+   *
+   * @param source
+   *          the directory where the file entry is found
+   * @param file
+   *          the file that is about to be added
+   * @return the name of an archive entry
+   * @throws IOException
+   *           if the io fails
+   */
+  private static String getEntryName(File source, File file) throws IOException {
+    int index = source.getAbsoluteFile().getParentFile().getAbsolutePath().length() + 1;
+    String path = file.getCanonicalPath();
+
+    return path.substring(index);
   }
 
   /**
