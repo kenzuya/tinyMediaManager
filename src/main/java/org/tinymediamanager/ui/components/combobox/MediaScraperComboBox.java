@@ -121,8 +121,8 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
         }
         else {
           logo = ImageUtils.createMultiResolutionImage(IconManager.loadImageFromURL(url), calculatePreferredHeight());
-          imageCache.put(uri, logo);
         }
+        imageCache.put(uri, logo);
       }
       return logo;
     }
