@@ -65,7 +65,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
       noActiveTask.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
       panelContent.add(noActiveTask);
 
-      panelContent.setLayout(new MigLayout("wrap 1"));
+      panelContent.setLayout(new MigLayout("", "[grow]"));
       panelContent.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 
       JScrollPane scrollPane = new NoBorderScrollPane();
@@ -147,7 +147,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     panelContent.remove(noActiveTask);
 
     comp.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
-    panelContent.add(comp);
+    panelContent.add(comp, "wrap, growx");
     bottomPanel.setVisible(true);
 
     if (isShowing()) {
@@ -170,7 +170,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     }
 
     if (taskMap.isEmpty()) {
-      panelContent.add(noActiveTask);
+      panelContent.add(noActiveTask, "wrap, growx");
       bottomPanel.setVisible(false);
     }
 
