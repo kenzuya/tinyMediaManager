@@ -75,7 +75,7 @@ sonarqube-qa:
 
 deploy:nightly:
   stage: deploy
-  image: maven:3-jdk-8                                # stay with stretch
+  image: maven:3-jdk-11                                # stay with stretch
   environment:
     name: nightly
     url: https://nightly.tinymediamanager.org
@@ -103,7 +103,7 @@ deploy:nightly:
 
 deploy:test:
   stage: deploy
-  image: maven:3-jdk-8                                # stay with stretch
+  image: maven:3-jdk-11                                # stay with stretch
   environment:
     name: test
     url: https://test.tinymediamanager.org
@@ -131,7 +131,7 @@ deploy:test:
 
 deploy:prerel:
   stage: deploy
-  image: maven:3-jdk-8  # stay with stretch
+  image: maven:3-jdk-11  # stay with stretch
   environment:
     name: prerelease
     url: https://prerelease.tinymediamanager.org
@@ -155,7 +155,7 @@ deploy:prerel:
 
 deploy:RELEASE:
   stage: deploy
-  image: maven:3-jdk-8      # use stretch
+  image: maven:3-jdk-11      # use stretch
   environment:
     name: release
     url: https://release.tinymediamanager.org
