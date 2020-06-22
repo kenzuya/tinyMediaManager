@@ -15,17 +15,13 @@
  */
 package org.tinymediamanager.ui.converter;
 
-import java.awt.Dimension;
 import java.net.URI;
 import java.util.Locale;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 
 import org.jdesktop.beansbinding.Converter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
@@ -38,9 +34,6 @@ import com.kitfox.svg.app.beans.SVGIcon;
  * @author Manuel Laggner
  */
 public class CertificationImageConverter extends Converter<MediaCertification, Icon> {
-  private static final Logger   LOGGER     = LoggerFactory.getLogger(CertificationImageConverter.class);
-
-  public static final ImageIcon emptyImage = new ImageIcon();
 
   @Override
   public Icon convertForward(MediaCertification cert) {
@@ -52,9 +45,8 @@ public class CertificationImageConverter extends Converter<MediaCertification, I
     try {
       URI uri = getClass().getResource("/org/tinymediamanager/ui/images/certification/" + cert.name().toLowerCase(Locale.ROOT) + ".svg").toURI();
       TmmSvgIcon icon = new TmmSvgIcon(uri);
-
-      icon.setAutosize(SVGIcon.AUTOSIZE_VERT);
-      icon.setPreferredSize(new Dimension(32, 32));
+      icon.setPreferredHeight(32);
+      icon.setAutosize(SVGIcon.AUTOSIZE_STRETCH);
 
       // only color the monochrome ones
       if (cert.getCountry() != CountryCode.GB && cert.getCountry() != CountryCode.DE) {
