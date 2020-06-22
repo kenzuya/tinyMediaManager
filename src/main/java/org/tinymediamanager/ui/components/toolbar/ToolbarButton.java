@@ -47,6 +47,7 @@ class ToolbarButton extends FlatButton {
     setHorizontalTextPosition(SwingConstants.CENTER);
     setHideActionText(true);
     setRolloverIcon(hoverIcon);
+    setPressedIcon(hoverIcon);
     updateUI();
 
     addMouseListener(new MouseAdapter() {
@@ -75,5 +76,6 @@ class ToolbarButton extends FlatButton {
   void setIcons(Icon baseIcon, Icon hoverIcon) {
     setIcon(baseIcon);
     setRolloverIcon(hoverIcon);
+    setPressedIcon(hoverIcon);
   }
 }
