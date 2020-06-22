@@ -78,8 +78,6 @@ public class MediaInfoXMLParser {
 
     // process every file in the ISO
     for (Element fileInXML : fileElements) {
-      LOGGER.trace("XML: ------------------");
-
       MediaInfoFile miFile = new MediaInfoFile(DUMMY_FILENAME);
       miFile.setSnapshot(new EnumMap<>(StreamKind.class));
       if (StringUtils.isNotBlank(fileInXML.attr("ref")) && fileInXML.attr("ref").length() > 5) {
@@ -159,7 +157,6 @@ public class MediaInfoXMLParser {
           if (value.isEmpty()) {
             continue;
           }
-          LOGGER.trace("XML: Kind:{}  {}={}", currentKind, key, value);
 
           // Width and Height sometimes comes with the string "pixels"
           if (key.equals("Width") || key.equals("Height")) {
@@ -175,8 +172,8 @@ public class MediaInfoXMLParser {
               // and overwrite current value with accumulated (since we can only have one value/kind)
               value = String.valueOf(kindFilesize);
             }
-            catch (NumberFormatException ignored) {
-              LOGGER.trace("could not parse filesize", ignored);
+            catch (NumberFormatException e) {
+              LOGGER.trace("could not parse filesize - {}", e.getMessage());
             }
           }
           if (key.equals("Stream_size")) {
@@ -186,8 +183,8 @@ public class MediaInfoXMLParser {
               // and overwrite current value with accumulated (since we can only have one value/kind)
               value = String.valueOf(kindStreamsize);
             }
-            catch (NumberFormatException ignored) {
-              LOGGER.trace("could not parse streamsize", ignored);
+            catch (NumberFormatException e) {
+              LOGGER.trace("could not parse streamsize - {}", e.getMessage());
             }
           }
           if (key.equals("Complete_name") && StreamKind.General == currentKind && value.length() > 5) {
@@ -199,9 +196,9 @@ public class MediaInfoXMLParser {
               // comes in different favors
               // a) <Duration>5184.000</Duration> // 5184 secs
               // b) <Duration>888000</Duration> // 888 secs
-              Double d = Double.parseDouble(value.replace(".", ""));
+              double d = Double.parseDouble(value.replace(".", ""));
               // accumulate duration for same type of tracks
-              kindDuration += d.intValue() / 1000;
+              kindDuration += (int) d / 1000;
               // and overwrite current value with accumulated (since we can only have one value/kind)
               value = String.valueOf(kindDuration);
             }
@@ -233,6 +230,7 @@ public class MediaInfoXMLParser {
                 value = String.valueOf(kindDuration);
               }
               catch (NumberFormatException ignored) {
+                LOGGER.trace("could not parse duration - {}", e.getMessage());
               }
             }
           }

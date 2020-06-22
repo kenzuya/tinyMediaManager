@@ -752,6 +752,10 @@ public class MediaFileHelper {
       else if (isHDDVDStructure(mediaInfoFiles)) {
         gatherMediaInformationFromHdDvdFile(mediaFile, mediaInfoFiles);
       }
+      else {
+        // no file informations - just handle it as a normal file
+        gatherMediaInformationFromFile(mediaFile, mediaInfoFiles);
+      }
     }
     else {
       gatherMediaInformationFromFile(mediaFile, mediaInfoFiles);

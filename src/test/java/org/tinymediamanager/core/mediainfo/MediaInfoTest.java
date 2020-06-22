@@ -311,6 +311,31 @@ public class MediaInfoTest extends BasicTest {
     assertThat(mf.getSubtitles().size()).isEqualTo(0);
   }
 
+  @Test
+  public void testBdXml2003() {
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/MediaInfo.BD.20.03.iso"));
+    mf.gatherMediaInformation();
+
+    assertThat(mf.getVideoWidth()).isEqualTo(3840);
+    assertThat(mf.getVideoHeight()).isEqualTo(2160);
+    assertThat(mf.getVideoCodec()).isEqualTo("h265");
+    assertThat(mf.getDuration()).isEqualTo(7439);
+
+    assertThat(mf.getAudioStreams().size()).isEqualTo(3);
+    // first audio stream is DTSHD-MA english/7.1
+    MediaFileAudioStream audioStream = mf.getAudioStreams().get(0);
+    assertThat(audioStream.getAudioChannels()).isEqualTo(8);
+    assertThat(audioStream.getCodec()).isEqualTo("DTSHD-MA");
+    assertThat(audioStream.getLanguage()).isEqualTo("eng");
+    assertThat(audioStream.getBitrate()).isEqualTo(5847);
+
+    assertThat(mf.getSubtitles().size()).isEqualTo(3);
+    // first subtitle stream is en
+    MediaFileSubtitle subtitle = mf.getSubtitles().get(0);
+    assertThat(subtitle.getCodec()).isEqualTo("PGS");
+    assertThat(subtitle.getLanguage()).isEqualTo("eng");
+  }
+
   // @Test
   // public void displayVersion() {
   // System.out.println(MediaInfo.staticOption("Info_Version"));
