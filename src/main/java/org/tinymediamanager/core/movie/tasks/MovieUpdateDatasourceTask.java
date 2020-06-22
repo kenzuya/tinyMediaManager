@@ -85,8 +85,8 @@ import com.sun.jna.Platform;
  * @author Myron Boyle
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER         = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
+  private static final Logger         LOGGER            = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
+  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages");
 
   // constants
   private static final String         VIDEO_TS          = "VIDEO_TS";
@@ -1438,7 +1438,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
       incPreDir();
       String fn = dir.getFileName().toString().toUpperCase(Locale.ROOT);
-      String parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
+      String parent = "";
+      if (!dir.equals(datasource)) {
+        parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
+      }
 
       if (SKIP_FOLDERS.contains(fn) || fn.matches(SKIP_REGEX) || Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore"))
           || Files.exists(dir.resolve(".nomedia")) || MovieModuleManager.SETTINGS.getSkipFolder().contains(dir.toFile().getAbsolutePath())
