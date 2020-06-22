@@ -1439,7 +1439,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       incPreDir();
       String fn = dir.getFileName().toString().toUpperCase(Locale.ROOT);
       String parent = "";
-      if (!dir.equals(datasource)) {
+      if (!dir.equals(datasource) && !dir.getParent().equals(datasource)) {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
       }
 
