@@ -49,8 +49,8 @@ public class CertificationImageConverter extends Converter<MediaCertification, I
       icon.setAutosize(SVGIcon.AUTOSIZE_STRETCH);
 
       // only color the monochrome ones
-      if (cert.getCountry() != CountryCode.GB && cert.getCountry() != CountryCode.DE) {
-        icon.setColor(UIManager.getColor("Label.foreground"));
+      if (cert.getCountry() == CountryCode.US) {
+        icon.setColor(UIManager.getColor("Label.foreground"), "#000000");
       }
 
       return icon;

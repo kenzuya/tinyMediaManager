@@ -49,9 +49,14 @@ class SvgIconHelper {
    *           any {@link SVGException} thrown while setting the color
    */
   static void setFill(String toColor, SVGElement node) throws SVGException {
-    if (node.hasAttribute("fill", AnimationElement.AT_CSS)) {
+    if (node.hasAttribute("fill", AnimationElement.AT_XML)) {
+      StyleAttribute abs = node.getPresAbsolute("fill");
+      abs.setStringValue(toColor);
+    }
+    else if (node.hasAttribute("fill", AnimationElement.AT_CSS)) {
       StyleAttribute abs = node.getStyleAbsolute("fill");
       abs.setStringValue(toColor);
+
     }
     else {
       node.addAttribute("fill", AnimationElement.AT_CSS, toColor);
@@ -74,7 +79,13 @@ class SvgIconHelper {
    *           any {@link SVGException} thrown while setting the color
    */
   static void setFill(String toColor, String fromColor, SVGElement node) throws SVGException {
-    if (node.hasAttribute("fill", AnimationElement.AT_CSS)) {
+    if (node.hasAttribute("fill", AnimationElement.AT_XML)) {
+      StyleAttribute abs = node.getPresAbsolute("fill");
+      if (fromColor.equals(abs.getStringValue())) {
+        abs.setStringValue(toColor);
+      }
+    }
+    else if (node.hasAttribute("fill", AnimationElement.AT_CSS)) {
       StyleAttribute abs = node.getStyleAbsolute("fill");
       if (fromColor.equals(abs.getStringValue())) {
         abs.setStringValue(toColor);
