@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.wizard;
 import java.awt.Font;
 import java.util.ResourceBundle;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,11 +37,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class DisclaimerPanel extends JPanel {
-  private static final long           serialVersionUID = -4743134514329815273L;
+  private static final long            serialVersionUID = -4743134514329815273L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
 
-  public DisclaimerPanel() {
+  private final TinyMediaManagerWizard wizard;
+
+  private JCheckBox                    chckbxAccept;
+
+  public DisclaimerPanel(TinyMediaManagerWizard wizard) {
+    this.wizard = wizard;
     initComponents();
   }
 
@@ -48,7 +54,7 @@ class DisclaimerPanel extends JPanel {
    * init UI components
    */
   private void initComponents() {
-    setLayout(new MigLayout("", "[400lp:400lp,grow]", "[][150lp:200lp,grow]"));
+    setLayout(new MigLayout("", "[400lp:400lp,grow]", "[][150lp:200lp,grow][]"));
     {
       JLabel lblDisclaimer = new JLabel(BUNDLE.getString("wizard.disclaimer"));
       TmmFontHelper.changeFont(lblDisclaimer, 1.3333, Font.BOLD);
@@ -61,6 +67,33 @@ class DisclaimerPanel extends JPanel {
 
       JTextArea taDisclaimer = new ReadOnlyTextArea(BUNDLE.getString("wizard.disclaimer.long"));
       scrollPane.setViewportView(taDisclaimer);
+    }
+
+    chckbxAccept = new JCheckBox(BUNDLE.getString("wizard.disclaimer.accept"));
+    chckbxAccept.addActionListener(l -> {
+      if (chckbxAccept.isSelected()) {
+        wizard.getBtnNext().setEnabled(true);
+      }
+      else {
+        wizard.getBtnNext().setEnabled(false);
+      }
+    });
+    add(chckbxAccept, "cell 0 2");
+  }
+
+  @Override
+  public void setVisible(boolean aFlag) {
+    super.setVisible(aFlag);
+    if (aFlag) {
+      if (chckbxAccept.isSelected()) {
+        wizard.getBtnNext().setEnabled(true);
+      }
+      else {
+        wizard.getBtnNext().setEnabled(false);
+      }
+    }
+    else {
+      wizard.getBtnNext().setEnabled(true);
     }
   }
 }

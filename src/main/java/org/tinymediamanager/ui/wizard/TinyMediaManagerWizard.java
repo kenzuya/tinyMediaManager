@@ -18,6 +18,9 @@ package org.tinymediamanager.ui.wizard;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -27,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -44,12 +48,10 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TinyMediaManagerWizard extends TmmDialog {
   private static final long           serialVersionUID = 1112053710541745443L;
-  /**
-   * @wbp.nls.resourceBundle messages
-   */
+  /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private List<JPanel>                panels;
+  private final List<JPanel>          panels;
   private int                         activePanelIndex = 0;
 
   private JButton                     btnBack;
@@ -66,7 +68,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
     // data init
     panels = new ArrayList<>();
     panels.add(new EntrancePanel());
-    panels.add(new DisclaimerPanel());
+    panels.add(new DisclaimerPanel(this));
     panels.add(new UiSettingsPanel());
     panels.add(new MovieSourcePanel());
     panels.add(new MovieScraperPanel());
@@ -79,13 +81,23 @@ public class TinyMediaManagerWizard extends TmmDialog {
     }
 
     btnBack.setEnabled(false);
+    btnFinish.setVisible(false);
+
+    addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowClosing(WindowEvent e) {
+        Utils.deleteFileSafely(Paths.get("data", "tmm.json"));
+        System.exit(0);
+      }
+    });
   }
+
 
   private void initComponents() {
     {
       JPanel panelSizing = new JPanel();
       getContentPane().add(panelSizing, BorderLayout.CENTER);
-      panelSizing.setLayout(new MigLayout("", "[800lp,grow]", "[400lp,grow]"));
+      panelSizing.setLayout(new MigLayout("", "[750lp,grow]", "[350lp,grow]"));
 
       panelContent = new JPanel();
       panelContent.setLayout(new CardLayout());
@@ -111,6 +123,18 @@ public class TinyMediaManagerWizard extends TmmDialog {
     super.setVisible(visible);
   }
 
+  JButton getBtnBack() {
+    return btnBack;
+  }
+
+  JButton getBtnNext() {
+    return btnNext;
+  }
+
+  JButton getBtnFinish() {
+    return btnFinish;
+  }
+
   @Override
   public void pack() {
     // do not pack - it would look weird
@@ -130,7 +154,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
         btnBack.setEnabled(false);
       }
       btnNext.setEnabled(true);
-      btnFinish.setEnabled(false);
+      btnFinish.setVisible(false);
       CardLayout cl = (CardLayout) (panelContent.getLayout());
       cl.show(panelContent, "" + activePanelIndex);
     }
@@ -148,7 +172,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
       activePanelIndex++;
       if (panels.size() == activePanelIndex + 1) {
         btnNext.setEnabled(false);
-        btnFinish.setEnabled(true);
+        btnFinish.setVisible(true);
       }
       btnBack.setEnabled(true);
 
