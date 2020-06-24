@@ -25,7 +25,7 @@ import java.awt.Dimension;
 public class AspectRatioIcon extends MediaInfoIcon {
 
   public AspectRatioIcon(String text) throws Exception {
-    super("/video/aspect_ratio.svg");
+    super("video/aspect_ratio.svg");
     setPreferredSize(new Dimension(32, 32));
     setText(text, 100);
   }

@@ -15,11 +15,9 @@
  */
 package org.tinymediamanager.ui.panels;
 
-import java.net.URL;
 import java.util.Locale;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -28,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaSource;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.ui.images.AspectRatioIcon;
 import org.tinymediamanager.ui.images.AudioChannelsIcon;
 import org.tinymediamanager.ui.images.GenericVideoCodecIcon;
@@ -44,9 +41,6 @@ public class MediaInformationLogosPanel extends JPanel {
   private static final long   serialVersionUID = -3403472105793548302L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(MediaInformationLogosPanel.class);
 
-  private final String        basePath;
-  private final String        imageSource;
-
   private IMediaInformation   mediaInformationSource;
 
   private JLabel              lblVideoFormat   = new JLabel();
@@ -58,9 +52,6 @@ public class MediaInformationLogosPanel extends JPanel {
   private JLabel              lblSource        = new JLabel();
 
   public MediaInformationLogosPanel() {
-    basePath = "/org/tinymediamanager/ui/images/mediainfo/";
-    imageSource = "/org/tinymediamanager/ui/plaf/" + Settings.getInstance().getTheme().toLowerCase(Locale.ROOT) + "/images";
-
     setLayout(new MigLayout("hidemode 3", "[][][][][10lp][][][10lp][]", "[]"));
 
     add(lblVideoFormat, "cell 0 0, bottom");
@@ -165,7 +156,7 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      return new MediaInfoIcon("/video/codec/" + videoCodec.toLowerCase(Locale.ROOT) + ".svg");
+      return new MediaInfoIcon("video/codec/" + videoCodec.toLowerCase(Locale.ROOT) + ".svg");
     }
     catch (Exception e) {
       try {
@@ -192,7 +183,7 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      return new MediaInfoIcon("/audio/codec/" + audioCodec.toLowerCase(Locale.ROOT) + ".svg");
+      return new MediaInfoIcon("audio/codec/" + audioCodec.toLowerCase(Locale.ROOT) + ".svg");
     }
     catch (Exception e) {
       return null;
@@ -251,17 +242,11 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      URL file = this.getClass().getResource(imageSource + "/video/3d.png");
-      if (file != null) {
-        return new ImageIcon(file);
-      }
+      return new MediaInfoIcon("video/3d.svg");
     }
     catch (Exception e) {
-      LOGGER.warn(e.getMessage());
+      return null;
     }
-
-    // we did not get any file: return the empty
-    return null;
   }
 
   /**
@@ -278,7 +263,7 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      return new MediaInfoIcon("/source/" + source.name().toLowerCase(Locale.ROOT) + ".svg");
+      return new MediaInfoIcon("source/" + source.name().toLowerCase(Locale.ROOT) + ".svg");
     }
     catch (Exception e) {
       return null;
