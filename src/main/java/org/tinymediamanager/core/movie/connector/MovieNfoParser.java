@@ -96,6 +96,13 @@ public class MovieNfoParser {
   public Map<String, Rating>  ratings             = new HashMap<>();
 
   public List<String>         posters             = new ArrayList<>();
+  public List<String>         banners             = new ArrayList<>();
+  public List<String>         cleararts           = new ArrayList<>();
+  public List<String>         clearlogos          = new ArrayList<>();
+  public List<String>         discarts            = new ArrayList<>();
+  public List<String>         thumbs              = new ArrayList<>();
+  public List<String>         keyarts             = new ArrayList<>();
+  public List<String>         logos               = new ArrayList<>();
   public List<String>         fanarts             = new ArrayList<>();
   public List<MediaGenres>    genres              = new ArrayList<>();
   public List<String>         countries           = new ArrayList<>();
@@ -145,7 +152,7 @@ public class MovieNfoParser {
     parseTag(MovieNfoParser::parseOutline);
     parseTag(MovieNfoParser::parseTagline);
     parseTag(MovieNfoParser::parseRuntime);
-    parseTag(MovieNfoParser::parsePosters);
+    parseTag(MovieNfoParser::parseThumbs);
     parseTag(MovieNfoParser::parseFanarts);
     parseTag(MovieNfoParser::parseCertification);
     parseTag(MovieNfoParser::parseIds);
@@ -301,6 +308,7 @@ public class MovieNfoParser {
         r.rating = Float.parseFloat(element.ownText());
       }
       catch (Exception ignored) {
+        // ignored
       }
       element = getSingleElement(root, "votes");
       if (element != null) {
@@ -308,6 +316,7 @@ public class MovieNfoParser {
           r.votes = MetadataUtil.parseInt(element.ownText()); // replace thousands separator
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       if (r.rating > 0) {
@@ -328,7 +337,7 @@ public class MovieNfoParser {
         }
       }
       catch (Exception ignored) {
-        // just ignore
+        // ignored
       }
     }
 
@@ -557,23 +566,69 @@ public class MovieNfoParser {
   }
 
   /**
-   * posters can come in several different forms<br />
+   * artwork can come in several different forms<br />
+   * 
+   * Poster: <br />
    * - kodi usually puts it into thumb tags (multiple; in newer versions with an aspect attribute)<br />
    * - mediaportal puts it also in thumb tags (single)
+   * 
+   * Others: <br />
+   * - kodi usually puts it into thumb tags (with an aspect attribute)<br />
    */
-  private Void parsePosters() {
+  private Void parseThumbs() {
     supportedElements.add("thumb");
 
     // get all thumb elements
-    Elements thumbs = root.select(root.tagName() + " > thumb");
-    if (!thumbs.isEmpty()) {
-      for (Element element : thumbs) {
-        // if there is an aspect attribute, it has to be poster
-        if (element.hasAttr("aspect") && !element.attr("aspect").equals("poster")) {
-          continue;
-        }
-        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
-          posters.add(element.ownText());
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    for (Element element : thumb) {
+      String aspect = element.attr("aspect");
+      String url = element.ownText();
+
+      if (StringUtils.isBlank(url) || !url.matches("https?://.*")) {
+        continue;
+      }
+
+      if (StringUtils.isBlank(aspect)) {
+        // poster
+        posters.add(element.ownText());
+      }
+      else {
+        switch (aspect) {
+          case "poster":
+            posters.add(element.ownText());
+            break;
+
+          case "banner":
+            banners.add(element.ownText());
+            break;
+
+          case "clearart":
+            cleararts.add(element.ownText());
+            break;
+
+          case "clearlogo":
+            clearlogos.add(element.ownText());
+            break;
+
+          case "discart":
+            discarts.add(element.ownText());
+            break;
+
+          case "landscape":
+            this.thumbs.add(element.ownText());
+            break;
+
+          case "keyart":
+            keyarts.add(element.ownText());
+            break;
+
+          case "logo":
+            logos.add(element.ownText());
+            break;
+
+          default:
+            break;
+
         }
       }
     }
@@ -593,10 +648,10 @@ public class MovieNfoParser {
     // get all thumb elements
     Element fanart = getSingleElement(root, "fanart");
     if (fanart != null) {
-      Elements thumbs = fanart.select(fanart.tagName() + " > thumb");
+      Elements thumb = fanart.select(fanart.tagName() + " > thumb");
       // thumb children available
-      if (!thumbs.isEmpty()) {
-        for (Element element : thumbs) {
+      if (!thumb.isEmpty()) {
+        for (Element element : thumb) {
           if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
             fanarts.add(element.ownText());
           }
@@ -763,7 +818,7 @@ public class MovieNfoParser {
         countries.addAll(split(elements.get(0).ownText()));
       }
       catch (Exception ignored) {
-        // nothing to do here
+        // ignored here
       }
     }
     else {
@@ -793,6 +848,7 @@ public class MovieNfoParser {
         }
       }
       catch (ParseException ignored) {
+        // ignored
       }
     }
     // also look if there is an aired date
@@ -807,6 +863,7 @@ public class MovieNfoParser {
           }
         }
         catch (ParseException ignored) {
+          // ignored
         }
       }
     }
@@ -827,6 +884,7 @@ public class MovieNfoParser {
         watched = Boolean.parseBoolean(element.ownText());
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 
@@ -839,6 +897,7 @@ public class MovieNfoParser {
         }
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 
@@ -1401,6 +1460,7 @@ public class MovieNfoParser {
         }
       }
       catch (ParseException ignored) {
+        // ignored
       }
     }
 
@@ -1526,6 +1586,34 @@ public class MovieNfoParser {
       movie.setArtworkUrl(posters.get(0), MediaFileType.POSTER);
     }
 
+    if (!banners.isEmpty()) {
+      movie.setArtworkUrl(banners.get(0), MediaFileType.BANNER);
+    }
+
+    if (!cleararts.isEmpty()) {
+      movie.setArtworkUrl(cleararts.get(0), MediaFileType.CLEARART);
+    }
+
+    if (!clearlogos.isEmpty()) {
+      movie.setArtworkUrl(clearlogos.get(0), MediaFileType.CLEARLOGO);
+    }
+
+    if (!discarts.isEmpty()) {
+      movie.setArtworkUrl(discarts.get(0), MediaFileType.DISC);
+    }
+
+    if (!thumbs.isEmpty()) {
+      movie.setArtworkUrl(thumbs.get(0), MediaFileType.THUMB);
+    }
+
+    if (!keyarts.isEmpty()) {
+      movie.setArtworkUrl(keyarts.get(0), MediaFileType.KEYART);
+    }
+
+    if (!logos.isEmpty()) {
+      movie.setArtworkUrl(logos.get(0), MediaFileType.LOGO);
+    }
+
     if (!fanarts.isEmpty()) {
       movie.setArtworkUrl(fanarts.get(0), MediaFileType.FANART);
     }
@@ -1534,21 +1622,8 @@ public class MovieNfoParser {
       movie.setId(entry.getKey(), entry.getValue());
     }
 
-    String studio = StringUtils.join(studios, " / ");
-    if (studio == null) {
-      movie.setProductionCompany("");
-    }
-    else {
-      movie.setProductionCompany(studio);
-    }
-
-    String country = StringUtils.join(countries, "/");
-    if (country == null) {
-      movie.setCountry("");
-    }
-    else {
-      movie.setCountry(country);
-    }
+    movie.setProductionCompany(StringUtils.join(studios, " / "));
+    movie.setCountry(StringUtils.join(countries, "/"));
     movie.setCertification(certification);
 
     movie.setWatched(watched);
@@ -1651,47 +1726,47 @@ public class MovieNfoParser {
   /*
    * entity classes
    */
-  public static class Set {
-    public String name     = "";
-    public String overview = "";
+  static class Set {
+    String name     = "";
+    String overview = "";
   }
 
-  public static class Rating {
-    public String id       = "";
-    public float  rating   = 0;
-    public int    votes    = 0;
-    public int    maxValue = 10;
+  static class Rating {
+    String id       = "";
+    float  rating   = 0;
+    int    votes    = 0;
+    int    maxValue = 10;
   }
 
-  public static class Person {
-    public String name    = "";
-    public String role    = "";
-    public String thumb   = "";
-    public String profile = "";
+  static class Person {
+    String name    = "";
+    String role    = "";
+    String thumb   = "";
+    String profile = "";
   }
 
-  public static class Fileinfo {
-    public List<Video>    videos    = new ArrayList<>();
-    public List<Audio>    audios    = new ArrayList<>();
-    public List<Subtitle> subtitles = new ArrayList<>();
+  static class Fileinfo {
+    List<Video>    videos    = new ArrayList<>();
+    List<Audio>    audios    = new ArrayList<>();
+    List<Subtitle> subtitles = new ArrayList<>();
   }
 
-  public static class Video {
-    public String codec      = "";
-    public float  aspect     = 0f;
-    public int    width      = 0;
-    public int    height     = 0;
-    public int    durationinseconds;
-    public String stereomode = "";
+  static class Video {
+    String codec      = "";
+    float  aspect     = 0f;
+    int    width      = 0;
+    int    height     = 0;
+    int    durationinseconds;
+    String stereomode = "";
   }
 
-  public static class Audio {
-    public String codec    = "";
-    public String language = "";
-    public int    channels = 0;
+  static class Audio {
+    String codec    = "";
+    String language = "";
+    int    channels = 0;
   }
 
-  public static class Subtitle {
-    public String language;
+  static class Subtitle {
+    String language;
   }
 }

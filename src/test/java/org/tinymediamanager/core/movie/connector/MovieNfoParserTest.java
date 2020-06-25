@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.core.movie.tasks;
+package org.tinymediamanager.core.movie.connector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -32,8 +32,8 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
-import org.tinymediamanager.core.movie.connector.MovieNfoParser;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 
 public class MovieNfoParserTest extends BasicTest {
 
@@ -45,11 +45,10 @@ public class MovieNfoParserTest extends BasicTest {
 
   @Test
   public void testImdbUrl() {
-    MovieUpdateDatasourceTask uds = new MovieUpdateDatasourceTask();
     List<MediaFile> mfs = new ArrayList<>();
     mfs.add(new MediaFile(Paths.get("target/test-classes/movie_nfo/justImdbUrl.nfo")));
 
-    Movie m = uds.parseNFOs(mfs);
+    Movie m = MovieUpdateDatasourceTask.parseNFOs(mfs);
     assertThat(m.getImdbId()).isEqualTo("tt0499549");
   }
 

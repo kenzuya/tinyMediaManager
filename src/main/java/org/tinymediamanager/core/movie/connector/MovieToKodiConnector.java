@@ -19,6 +19,8 @@ package org.tinymediamanager.core.movie.connector;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,19 +87,39 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
 
   /**
    * the new thumb style<br />
-   * <thumb aspect="poster">xxx</thumb>
+   * 
+   * <thumb aspect="poster">xxx</thumb> <br />
+   * <thumb aspect="banner">xxx</thumb> <br />
+   * <thumb aspect="clearart">xxx</thumb> <br />
+   * <thumb aspect="clearlogo">xxx</thumb> <br />
+   * <thumb aspect="discart">xxx</thumb> <br />
+   * <thumb aspect="landscape">xxx</thumb> <br />
+   * <thumb aspect="keyart">xxx</thumb> //not yet supported by kodi <br />
+   * <thumb aspect="logo">xxx</thumb> //not yet supported by kodi
+   *
+   * we will write all supported artwork types here
    */
   @Override
   protected void addThumb() {
+    addThumb(MediaFileType.POSTER, "poster");
+    addThumb(MediaFileType.BANNER, "banner");
+    addThumb(MediaFileType.CLEARART, "clearart");
+    addThumb(MediaFileType.CLEARLOGO, "clearlogo");
+    addThumb(MediaFileType.DISC, "discart");
+    addThumb(MediaFileType.THUMB, "landscape");
+    addThumb(MediaFileType.KEYART, "keyart");
+    addThumb(MediaFileType.LOGO, "logo");
+  }
+
+  private void addThumb(MediaFileType type, String aspect) {
     Element thumb = document.createElement("thumb");
 
-    String posterUrl = movie.getArtworkUrl(MediaFileType.POSTER);
-    if (StringUtils.isNotBlank(posterUrl)) {
-      thumb.setAttribute("aspect", "poster");
-      thumb.setTextContent(posterUrl);
+    String artworkUrl = movie.getArtworkUrl(type);
+    if (StringUtils.isNotBlank(artworkUrl)) {
+      thumb.setAttribute("aspect", aspect);
+      thumb.setTextContent(artworkUrl);
+      root.appendChild(thumb);
     }
-
-    root.appendChild(thumb);
   }
 
   /**
@@ -108,14 +130,26 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   protected void addFanart() {
     Element fanart = document.createElement("fanart");
 
-    String fanarUrl = movie.getArtworkUrl(MediaFileType.FANART);
-    if (StringUtils.isNotBlank(fanarUrl)) {
+    Set<String> fanartUrls = new LinkedHashSet<>();
+
+    // main fanart
+    String fanartUrl = movie.getArtworkUrl(MediaFileType.FANART);
+    if (StringUtils.isNotBlank(fanartUrl)) {
+      fanartUrls.add(fanartUrl);
+    }
+
+    // extrafanart
+    fanartUrls.addAll(movie.getExtraFanarts());
+
+    for (String url : fanartUrls) {
       Element thumb = document.createElement("thumb");
-      thumb.setTextContent(fanarUrl);
+      thumb.setTextContent(url);
       fanart.appendChild(thumb);
     }
 
-    root.appendChild(fanart);
+    if (!fanartUrls.isEmpty()) {
+      root.appendChild(fanart);
+    }
   }
 
   @Override
