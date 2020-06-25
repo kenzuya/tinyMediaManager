@@ -520,28 +520,28 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         JLabel lblGuests = new TmmLabel(BUNDLE.getString("metatag.guests"));
         crewPanel.add(lblGuests, "flowy,cell 0 0,alignx right,aligny top");
 
-        JScrollPane scrollPane = new JScrollPane();
-        crewPanel.add(scrollPane, "cell 1 0,grow");
-
         tableGuests = new PersonTable(guests, true);
+
+        JScrollPane scrollPane = new JScrollPane(tableGuests);
+        crewPanel.add(scrollPane, "cell 1 0,grow");
       }
       {
         JLabel lblDirectorsT = new TmmLabel(BUNDLE.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
-        JScrollPane scrollPane = new JScrollPane();
-        crewPanel.add(scrollPane, "cell 1 2,grow");
-
         tableDirectors = new PersonTable(directors, true);
+
+        JScrollPane scrollPane = new JScrollPane(tableDirectors);
+        crewPanel.add(scrollPane, "cell 1 2,grow");
       }
       {
         JLabel lblWritersT = new TmmLabel(BUNDLE.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
-        JScrollPane scrollPane = new JScrollPane();
-        crewPanel.add(scrollPane, "cell 4 2,grow");
-
         tableWriters = new PersonTable(writers, true);
+
+        JScrollPane scrollPane = new JScrollPane(tableWriters);
+        crewPanel.add(scrollPane, "cell 4 2,grow");
       }
       {
         JButton btnAddGuest = new JButton(new AddGuestAction());
