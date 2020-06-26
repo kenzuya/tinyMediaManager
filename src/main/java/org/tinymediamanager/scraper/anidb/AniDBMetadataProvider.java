@@ -299,11 +299,18 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     String titleEN = "";
     String titleScraperLangu = "";
     String titleFirst = "";
+    String titleMain = "";
+
     for (Element title : e.children()) {
       // store first title if neither the requested one nor the english one
       // available
       if (StringUtils.isBlank(titleFirst)) {
         titleFirst = title.text();
+      }
+
+      // main title aka original title
+      if ("main".equalsIgnoreCase(title.attr("type"))) {
+        titleMain = title.text();
       }
 
       // store the english one for fallback
@@ -316,6 +323,10 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
         titleScraperLangu = title.text();
       }
 
+    }
+
+    if (StringUtils.isNotBlank(titleMain)) {
+      md.setOriginalTitle(titleMain);
     }
 
     if (StringUtils.isNotBlank(titleScraperLangu)) {
