@@ -1,6 +1,7 @@
 Version 4.0
 =======================
 
++ bundled JRE and rewritten launcher (no installed Java needed any more)
 + real HiDPI support (slightly changed look and feel to achieve correct UI scaling)
 + universal TV show scraper
 + completely reworked libmediainfo usage:

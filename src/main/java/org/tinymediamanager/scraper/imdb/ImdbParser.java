@@ -265,6 +265,8 @@ public abstract class ImdbParser {
       }
     }
 
+    Pattern unwantedSearchResultPattern = getUnwantedSearchResultPattern();
+
     // parse results
     elements = doc.getElementsByClass("findResult");
     for (Element tr : elements) {
@@ -285,7 +287,6 @@ public abstract class ImdbParser {
         }
 
         // filter out unwanted results
-        Pattern unwantedSearchResultPattern = getUnwantedSearchResultPattern();
         if (unwantedSearchResultPattern != null) {
           Matcher matcher = unwantedSearchResultPattern.matcher(element.text());
           if (matcher.find()) {
