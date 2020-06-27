@@ -26,6 +26,7 @@ import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInf
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -45,6 +46,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -61,6 +63,7 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
@@ -646,6 +649,38 @@ public class ImdbTvShowParser extends ImdbParser {
       }
     }
     return true;
+  }
+
+  public List<MediaArtwork> getTvShowArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+    String imdbId = "";
+
+    // imdbid from scraper option
+    if (!MetadataUtil.isValidImdbId(imdbId)) {
+      imdbId = options.getImdbId();
+    }
+
+    // imdbid via tmdbid
+    if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
+      imdbId = MediaIdUtil.getImdbIdViaTmdbId(options.getTmdbId());
+    }
+
+    if (!MetadataUtil.isValidImdbId(imdbId)) {
+      LOGGER.warn("not possible to scrape from IMDB - imdbId found");
+      throw new MissingIdException(MediaMetadata.IMDB);
+    }
+
+    // just get the MediaMetadata via normal scrape and pick the poster from the result
+    TvShowSearchAndScrapeOptions tvShowSearchAndScrapeOptions = new TvShowSearchAndScrapeOptions();
+    tvShowSearchAndScrapeOptions.setDataFromOtherOptions(options);
+
+    try {
+      return getMetadata(tvShowSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+    }
+    catch (NothingFoundException e) {
+      LOGGER.debug("nothing found");
+    }
+
+    return Collections.emptyList();
   }
 
   private static class TmdbTvShowWorker implements Callable<MediaMetadata> {

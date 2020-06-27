@@ -20,6 +20,8 @@ import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.cleanString
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.executor;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInfo;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -34,17 +36,20 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
@@ -102,6 +107,11 @@ public class ImdbMovieParser extends ImdbParser {
     // imdbid from scraper option
     if (!MetadataUtil.isValidImdbId(imdbId)) {
       imdbId = options.getImdbId();
+    }
+
+    // imdbid via tmdbid
+    if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
+      imdbId = MediaIdUtil.getImdbIdViaTmdbId(options.getTmdbId());
     }
 
     if (!MetadataUtil.isValidImdbId(imdbId)) {
@@ -290,6 +300,38 @@ public class ImdbMovieParser extends ImdbParser {
     }
 
     return md;
+  }
+
+  public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+    String imdbId = "";
+
+    // imdbid from scraper option
+    if (!MetadataUtil.isValidImdbId(imdbId)) {
+      imdbId = options.getImdbId();
+    }
+
+    // imdbid via tmdbid
+    if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
+      imdbId = MediaIdUtil.getImdbIdViaTmdbId(options.getTmdbId());
+    }
+
+    if (!MetadataUtil.isValidImdbId(imdbId)) {
+      LOGGER.warn("not possible to scrape from IMDB - imdbId found");
+      throw new MissingIdException(MediaMetadata.IMDB);
+    }
+
+    // just get the MediaMetadata via normal scrape and pick the poster from the result
+    MovieSearchAndScrapeOptions movieSearchAndScrapeOptions = new MovieSearchAndScrapeOptions();
+    movieSearchAndScrapeOptions.setDataFromOtherOptions(options);
+
+    try {
+      return getMetadata(movieSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+    }
+    catch (NothingFoundException e) {
+      LOGGER.debug("nothing found");
+    }
+
+    return Collections.emptyList();
   }
 
   private static class TmdbMovieWorker implements Callable<MediaMetadata> {

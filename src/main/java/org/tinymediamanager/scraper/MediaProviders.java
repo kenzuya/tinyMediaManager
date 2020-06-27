@@ -96,7 +96,8 @@ public class MediaProviders {
     loadProvider(FanartTvMetadataProvider.class);
     // loadProvider(KyradbMetadataProvider.class); EOL
     // tmdb is already loaded in the movie block
-    // tvdb is alrey loaded in the TV show block
+    // tvdb is already loaded in the TV show block
+    // imdb is already loaded in the movie block
 
     /////////////////////////////////////////////
     // TRAILER

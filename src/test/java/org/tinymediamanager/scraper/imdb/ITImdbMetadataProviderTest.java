@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
@@ -23,13 +24,22 @@ import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.CountryCode;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.interfaces.IMediaArtworkProvider;
 
 public class ITImdbMetadataProviderTest {
+
+  @Before
+  public void init() {
+    MediaProviders.loadMediaProviders();
+  }
 
   @Test
   public void testMovieSearch() {
@@ -487,8 +497,8 @@ public class ITImdbMetadataProviderTest {
       checkMoviePoster(md);
 
       // check localized values
-      assertThat(md.getCountries()).containsOnly("Vereinigte Staaten von Amerika");
-      assertThat(md.getSpokenLanguages()).containsOnly("Englisch", "Französisch");
+      assertThat(md.getCountries()).containsOnly("US");
+      assertThat(md.getSpokenLanguages()).containsOnly("en", "fr");
 
       assertThat(md.getTags()).isNotEmpty();
     }
@@ -517,7 +527,7 @@ public class ITImdbMetadataProviderTest {
           "Brenda Chapman, Mark Andrews, Steve Purcell, Irene Mecchi", "PG", "02-08-2012", md);
 
       assertThat(md.getGenres()).isNotEmpty();
-      assertThat(md.getPlot()).contains("Scotland", "Merida");
+      assertThat(md.getPlot()).contains("Merida");
       checkCastMembers(md);
       checkProductionCompany(md);
       checkMoviePoster(md);
@@ -576,6 +586,38 @@ public class ITImdbMetadataProviderTest {
 
       assertThat(md.getGenres()).isNotEmpty();
       assertThat(md.getPlot()).contains("Rebney", "Winnebago");
+      checkCastMembers(md);
+      checkProductionCompany(md);
+      checkMoviePoster(md);
+
+      assertThat(md.getTags()).isNotEmpty();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+
+    /*
+     * Despicable Me - tmdb id 20352
+     */
+    try {
+      mp = new ImdbMetadataProvider();
+      options = new MovieSearchAndScrapeOptions();
+      options.setTmdbId(20352);
+      options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
+
+      md = mp.getMetadata(options);
+
+      // did we get metadata?
+      assertNotNull("MediaMetadata", md);
+
+      // check moviedetails
+      checkMovieDetails("Despicable Me", 2010, "Despicable Me", 7.6, 488112, "Superbad. Superdad.", 95, "Pierre Coffin, Chris Renaud",
+          "Cinco Paul, Ken Daurio, Sergio Pablos", "", "09-07-2010", md);
+
+      assertThat(md.getGenres()).isNotEmpty();
+      assertThat(md.getPlot()).contains("Gru", "Margo");
       checkCastMembers(md);
       checkProductionCompany(md);
       checkMoviePoster(md);
@@ -655,5 +697,50 @@ public class ITImdbMetadataProviderTest {
   private void checkProductionCompany(MediaMetadata md) {
     assertThat(md.getProductionCompanies()).isNotEmpty();
     assertThat(md.getProductionCompanies().get(0)).isNotEmpty();
+  }
+
+  @Test
+  public void testMovieArtworkScrapeWithImdbId() throws Exception {
+    IMediaArtworkProvider mp = new ImdbMetadataProvider();
+
+    ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+    options.setImdbId("tt1217209");
+
+    List<MediaArtwork> artworks = mp.getArtwork(options);
+
+    assertThat(artworks).isNotEmpty();
+    assertThat(artworks.get(0).getType()).isEqualTo(MediaArtwork.MediaArtworkType.POSTER);
+    assertThat(artworks.get(0).getDefaultUrl()).isNotEmpty();
+    assertThat(artworks.get(0).getPreviewUrl()).isNotEmpty();
+  }
+
+  @Test
+  public void testMovieArtworkScrapeWithTmdbId() throws Exception {
+    IMediaArtworkProvider mp = new ImdbMetadataProvider();
+
+    ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+    options.setTmdbId(20352);
+
+    List<MediaArtwork> artworks = mp.getArtwork(options);
+
+    assertThat(artworks).isNotEmpty();
+    assertThat(artworks.get(0).getType()).isEqualTo(MediaArtwork.MediaArtworkType.POSTER);
+    assertThat(artworks.get(0).getDefaultUrl()).isNotEmpty();
+    assertThat(artworks.get(0).getPreviewUrl()).isNotEmpty();
+  }
+
+  @Test
+  public void testTvShowArtworkScrapeWithImdbId() throws Exception {
+    IMediaArtworkProvider mp = new ImdbMetadataProvider();
+
+    ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_SHOW);
+    options.setImdbId("tt0491738");
+
+    List<MediaArtwork> artworks = mp.getArtwork(options);
+
+    assertThat(artworks).isNotEmpty();
+    assertThat(artworks.get(0).getType()).isEqualTo(MediaArtwork.MediaArtworkType.POSTER);
+    assertThat(artworks.get(0).getDefaultUrl()).isNotEmpty();
+    assertThat(artworks.get(0).getPreviewUrl()).isNotEmpty();
   }
 }

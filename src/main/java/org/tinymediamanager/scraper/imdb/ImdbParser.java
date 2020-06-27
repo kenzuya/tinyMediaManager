@@ -186,7 +186,7 @@ public abstract class ImdbParser {
 
     Url url;
     try {
-      url = new Url(sb.toString());
+      url = new InMemoryCachedUrl(sb.toString());
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }
     catch (Exception e) {
@@ -1079,7 +1079,7 @@ public abstract class ImdbParser {
     private boolean useCachedUrl;
 
     ImdbWorker(String url, String language, String country) {
-      this(url, language, country, false);
+      this(url, language, country, true);
     }
 
     ImdbWorker(String url, String language, String country, boolean useCachedUrl) {

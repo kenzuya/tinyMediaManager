@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
@@ -25,6 +26,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -33,6 +35,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
@@ -46,7 +49,7 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
  * @author Manuel Laggner
  */
 public class ImdbMetadataProvider
-    implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider, ITvShowImdbMetadataProvider {
+    implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider, ITvShowImdbMetadataProvider, IMovieArtworkProvider {
   public static final String     USE_TMDB_FOR_MOVIES   = "useTmdbForMovies";
   public static final String     USE_TMDB_FOR_TV_SHOWS = "useTmdbForTvShows";
   public static final String     ID                    = "imdb";
@@ -95,6 +98,20 @@ public class ImdbMetadataProvider
   @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     return (new ImdbMovieParser()).getMovieMetadata(options);
+  }
+
+  @Override
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+    switch (options.getMediaType()) {
+      case MOVIE:
+        return (new ImdbMovieParser()).getMovieArtwork(options);
+
+      case TV_SHOW:
+        return (new ImdbTvShowParser()).getTvShowArtwork(options);
+
+      default:
+        return Collections.emptyList();
+    }
   }
 
   @Override
