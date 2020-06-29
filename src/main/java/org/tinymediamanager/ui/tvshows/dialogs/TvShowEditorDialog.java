@@ -22,7 +22,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -89,7 +88,6 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TableSpinnerEditor;
-import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
@@ -97,6 +95,7 @@ import org.tinymediamanager.ui.components.MediaIdTable;
 import org.tinymediamanager.ui.components.MediaIdTable.MediaId;
 import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.PersonTable;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
@@ -129,7 +128,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID    = 3270218410302989845L;
-  private static final Insets                BUTTON_MARGIN       = UIConstants.SMALL_BUTTON_MARGIN;
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String                SPACER              = "        ";
 
@@ -518,12 +516,10 @@ public class TvShowEditorDialog extends TmmDialog {
         lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, MediaFileType.FANART));
       }
 
-      JButton btnAddRating = new JButton(new AddRatingAction());
-      btnAddRating.setMargin(BUTTON_MARGIN);
+      JButton btnAddRating = new SquareIconButton(new AddRatingAction());
       details1Panel.add(btnAddRating, "cell 0 10,alignx right,aligny top");
 
-      JButton btnRemoveRating = new JButton(new RemoveRatingAction());
-      btnRemoveRating.setMargin(BUTTON_MARGIN);
+      JButton btnRemoveRating = new SquareIconButton(new RemoveRatingAction());
       details1Panel.add(btnRemoveRating, "cell 0 10,alignx right,aligny top");
 
       {
@@ -553,20 +549,16 @@ public class TvShowEditorDialog extends TmmDialog {
         JScrollPane scrollPaneActors = new JScrollPane(tableActors);
         details2Panel.add(scrollPaneActors, "cell 1 0 1 2,grow");
 
-        JButton btnAddActor = new JButton(new AddActorAction());
-        btnAddActor.setMargin(BUTTON_MARGIN);
+        JButton btnAddActor = new SquareIconButton(new AddActorAction());
         details2Panel.add(btnAddActor, "cell 0 0,alignx right");
 
-        JButton btnRemoveActor = new JButton(new RemoveActorAction()); // $NON-NLS-1$
-        btnRemoveActor.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveActor = new SquareIconButton(new RemoveActorAction()); // $NON-NLS-1$
         details2Panel.add(btnRemoveActor, "cell 0 0,alignx right,aligny top");
 
-        JButton btnMoveActorUp = new JButton(new MoveActorUpAction());
-        btnMoveActorUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveActorUp = new SquareIconButton(new MoveActorUpAction());
         details2Panel.add(btnMoveActorUp, "cell 0 0,alignx right");
 
-        JButton btnMoveActorDown = new JButton(new MoveActorDownAction());
-        btnMoveActorDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveActorDown = new SquareIconButton(new MoveActorDownAction());
         details2Panel.add(btnMoveActorDown, "cell 0 0,alignx right,aligny top");
       }
       {
@@ -585,12 +577,10 @@ public class TvShowEditorDialog extends TmmDialog {
         JScrollPane scrollPaneIds = new JScrollPane(tableIds);
         details2Panel.add(scrollPaneIds, "cell 4 1,grow");
 
-        JButton btnAddId = new JButton(new AddIdAction());
-        btnAddId.setMargin(BUTTON_MARGIN);
+        JButton btnAddId = new SquareIconButton(new AddIdAction());
         details2Panel.add(btnAddId, "cell 3 1,alignx right");
 
-        JButton btnRemoveId = new JButton(new RemoveIdAction());
-        btnRemoveId.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveId = new SquareIconButton(new RemoveIdAction());
         details2Panel.add(btnRemoveId, "cell 3 1,alignx right,aligny top");
       }
       {
@@ -603,20 +593,16 @@ public class TvShowEditorDialog extends TmmDialog {
         listGenres = new JList<>();
         scrollPaneGenres.setViewportView(listGenres);
 
-        JButton btnAddGenre = new JButton(new AddGenreAction());
-        btnAddGenre.setMargin(BUTTON_MARGIN);
+        JButton btnAddGenre = new SquareIconButton(new AddGenreAction());
         details2Panel.add(btnAddGenre, "cell 0 3,alignx right");
 
-        JButton btnRemoveGenre = new JButton(new RemoveGenreAction());
-        btnRemoveGenre.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveGenre = new SquareIconButton(new RemoveGenreAction());
         details2Panel.add(btnRemoveGenre, "cell 0 3,alignx right,aligny top");
 
-        JButton btnMoveGenreUp = new JButton(new MoveGenreUpAction());
-        btnMoveGenreUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveGenreUp = new SquareIconButton(new MoveGenreUpAction());
         details2Panel.add(btnMoveGenreUp, "cell 0 3,alignx right,aligny top");
 
-        JButton btnMoveGenreDown = new JButton(new MoveGenreDownAction());
-        btnMoveGenreDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveGenreDown = new SquareIconButton(new MoveGenreDownAction());
         details2Panel.add(btnMoveGenreDown, "cell 0 3,alignx right,aligny top");
 
         cbGenres = new AutocompleteComboBox(MediaGenres.values());
@@ -635,20 +621,16 @@ public class TvShowEditorDialog extends TmmDialog {
         listTags = new JList();
         scrollPaneTags.setViewportView(listTags);
 
-        JButton btnAddTag = new JButton(new AddTagAction());
-        btnAddTag.setMargin(BUTTON_MARGIN);
+        JButton btnAddTag = new SquareIconButton(new AddTagAction());
         details2Panel.add(btnAddTag, "cell 3 3,alignx right");
 
-        JButton btnRemoveTag = new JButton(new RemoveTagAction());
-        btnRemoveTag.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveTag = new SquareIconButton(new RemoveTagAction());
         details2Panel.add(btnRemoveTag, "cell 3 3,alignx right,aligny top");
 
-        JButton btnMoveTagUp = new JButton(new MoveTagUpAction());
-        btnMoveTagUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveTagUp = new SquareIconButton(new MoveTagUpAction());
         details2Panel.add(btnMoveTagUp, "cell 3 3,alignx right,aligny top");
 
-        JButton btnMoveTagDown = new JButton(new MoveTagDownAction());
-        btnMoveTagDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveTagDown = new SquareIconButton(new MoveTagDownAction());
         details2Panel.add(btnMoveTagDown, "cell 3 3,alignx right,aligny top");
 
         cbTags = new AutocompleteComboBox<>(tvShowList.getTagsInTvShows());
@@ -967,8 +949,7 @@ public class TvShowEditorDialog extends TmmDialog {
       tabbedPane.addTab(BUNDLE.getString("metatag.episodes"), episodesPanel);
       episodesPanel.setLayout(new MigLayout("", "[][grow]", "[][100px:n,grow]"));
       {
-        JButton btnCloneEpisode = new JButton(new CloneEpisodeAction());
-        btnCloneEpisode.setMargin(BUTTON_MARGIN);
+        JButton btnCloneEpisode = new SquareIconButton(new CloneEpisodeAction());
         episodesPanel.add(btnCloneEpisode, "cell 0 0");
       }
       {
@@ -978,8 +959,7 @@ public class TvShowEditorDialog extends TmmDialog {
         episodesPanel.add(scrollPaneEpisodes, "cell 1 0 1 2,grow");
       }
       {
-        JButton btnRemoveEpisode = new JButton(new RemoveEpisodeAction());
-        btnRemoveEpisode.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveEpisode = new SquareIconButton(new RemoveEpisodeAction());
         episodesPanel.add(btnRemoveEpisode, "cell 0 1,aligny top");
       }
     }
@@ -996,12 +976,10 @@ public class TvShowEditorDialog extends TmmDialog {
         JLabel lblTrailer = new TmmLabel(BUNDLE.getString("metatag.trailer"));
         trailerPanel.add(lblTrailer, "flowy,cell 0 10,alignx right,aligny top");
 
-        JButton btnAddTrailer = new JButton(new AddTrailerAction());
-        btnAddTrailer.setMargin(BUTTON_MARGIN);
+        JButton btnAddTrailer = new SquareIconButton(new AddTrailerAction());
         trailerPanel.add(btnAddTrailer, "cell 0 10,alignx right,aligny top");
 
-        JButton btnRemoveTrailer = new JButton(new RemoveTrailerAction());
-        btnRemoveTrailer.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveTrailer = new SquareIconButton(new RemoveTrailerAction());
         trailerPanel.add(btnRemoveTrailer, "cell 0 10,alignx right,aligny top");
 
         JScrollPane scrollPaneTrailer = new JScrollPane();

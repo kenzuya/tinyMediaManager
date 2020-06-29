@@ -44,6 +44,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -158,14 +159,14 @@ class FileTypesSettingsPanel extends JPanel {
         listVideoFiletypes = new JList<>();
         scrollPaneVideoFiletypes.setViewportView(listVideoFiletypes);
 
-        btnRemoveVideoFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveVideoFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelVideoFiletypes.add(btnRemoveVideoFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveVideoFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfVideoFiletype = new JTextField();
         panelVideoFiletypes.add(tfVideoFiletype, "cell 1 1,growx");
 
-        btnAddVideoFiletype = new JButton(IconManager.ADD_INV);
+        btnAddVideoFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelVideoFiletypes.add(btnAddVideoFiletype, "cell 2 1,growx");
         btnAddVideoFiletype.setToolTipText(BUNDLE.getString("Button.add"));
       }
@@ -184,14 +185,14 @@ class FileTypesSettingsPanel extends JPanel {
         listSubtitleFiletypes = new JList<>();
         scrollPaneSubtitleFiletypes.setViewportView(listSubtitleFiletypes);
 
-        btnRemoveSubtitleFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveSubtitleFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelSubtitleFiletypes.add(btnRemoveSubtitleFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveSubtitleFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfSubtitleFiletype = new JTextField();
         panelSubtitleFiletypes.add(tfSubtitleFiletype, "cell 1 1,growx");
 
-        btnAddSubtitleFiletype = new JButton(IconManager.ADD_INV);
+        btnAddSubtitleFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelSubtitleFiletypes.add(btnAddSubtitleFiletype, "cell 2 1");
         btnAddSubtitleFiletype.setToolTipText(BUNDLE.getString("Button.add"));
       }
@@ -210,14 +211,14 @@ class FileTypesSettingsPanel extends JPanel {
         listAudioFiletypes = new JList<>();
         scrollPaneAudioFiletypes.setViewportView(listAudioFiletypes);
 
-        btnRemoveAudioFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveAudioFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelAudioFiletypes.add(btnRemoveAudioFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveAudioFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfAudioFiletype = new JTextField();
         panelAudioFiletypes.add(tfAudioFiletype, "cell 1 1,growx");
 
-        btnAddAudioFiletype = new JButton(IconManager.ADD_INV);
+        btnAddAudioFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelAudioFiletypes.add(btnAddAudioFiletype, "cell 2 1, growx");
         btnAddAudioFiletype.setToolTipText(BUNDLE.getString("Button.add"));
       }
@@ -237,14 +238,14 @@ class FileTypesSettingsPanel extends JPanel {
         listCleanupFiletypes = new JList<>();
         scrollPaneCleanupFiletypes.setViewportView(listCleanupFiletypes);
 
-        btnRemoveCleanupFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveCleanupFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelCleanupFiletypes.add(btnRemoveCleanupFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveCleanupFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfCleanupFiletype = new JTextField();
         panelCleanupFiletypes.add(tfCleanupFiletype, "cell 1 1,growx");
 
-        btnAddCleanupFiletype = new JButton(IconManager.ADD_INV);
+        btnAddCleanupFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelCleanupFiletypes.add(btnAddCleanupFiletype, "cell 2 1, growx");
         btnAddCleanupFiletype.setToolTipText(BUNDLE.getString("Button.add"));
 

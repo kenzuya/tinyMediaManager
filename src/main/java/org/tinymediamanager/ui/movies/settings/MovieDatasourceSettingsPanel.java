@@ -46,6 +46,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -163,11 +164,11 @@ class MovieDatasourceSettingsPanel extends JPanel {
         listDatasources.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         scrollPaneDataSources.setViewportView(listDatasources);
 
-        btnAddDatasource = new JButton(IconManager.ADD_INV);
+        btnAddDatasource = new SquareIconButton(IconManager.ADD_INV);
         panelDatasources.add(btnAddDatasource, "flowy, cell 2 0, aligny top, growx");
         btnAddDatasource.setToolTipText(BUNDLE.getString("Button.add"));
 
-        btnRemoveDatasource = new JButton(IconManager.REMOVE_INV);
+        btnRemoveDatasource = new SquareIconButton(IconManager.REMOVE_INV);
         panelDatasources.add(btnRemoveDatasource, "flowy, cell 2 0, aligny top, growx");
         btnRemoveDatasource.setToolTipText(BUNDLE.getString("Button.remove"));
       }
@@ -187,11 +188,11 @@ class MovieDatasourceSettingsPanel extends JPanel {
         listSkipFolder = new JList();
         scrollPaneIgnore.setViewportView(listSkipFolder);
 
-        btnAddSkipFolder = new JButton(IconManager.ADD_INV);
+        btnAddSkipFolder = new SquareIconButton(IconManager.ADD_INV);
         panelIgnore.add(btnAddSkipFolder, "flowy, cell 2 0, aligny top, growx");
         btnAddSkipFolder.setToolTipText(BUNDLE.getString("Settings.addignore"));
 
-        btnRemoveSkipFolder = new JButton(IconManager.REMOVE_INV);
+        btnRemoveSkipFolder = new SquareIconButton(IconManager.REMOVE_INV);
         panelIgnore.add(btnRemoveSkipFolder, "flowy, cell 2 0, aligny top, growx");
         btnRemoveSkipFolder.setToolTipText(BUNDLE.getString("Settings.removeignore"));
       }
@@ -214,14 +215,14 @@ class MovieDatasourceSettingsPanel extends JPanel {
         listBadWords = new JList();
         scrollPaneBadWords.setViewportView(listBadWords);
 
-        btnRemoveBadWord = new JButton(IconManager.REMOVE_INV);
+        btnRemoveBadWord = new SquareIconButton(IconManager.REMOVE_INV);
         panelBadWords.add(btnRemoveBadWord, "cell 2 1,aligny bottom");
         btnRemoveBadWord.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfAddBadword = new JTextField();
         panelBadWords.add(tfAddBadword, "cell 1 2,growx");
 
-        btnAddBadWord = new JButton(IconManager.ADD_INV);
+        btnAddBadWord = new SquareIconButton(IconManager.ADD_INV);
         panelBadWords.add(btnAddBadWord, "cell 2 2, growx");
         btnAddBadWord.setToolTipText(BUNDLE.getString("Button.add"));
       }

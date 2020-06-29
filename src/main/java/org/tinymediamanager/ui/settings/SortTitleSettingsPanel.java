@@ -41,6 +41,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -106,14 +107,14 @@ class SortTitleSettingsPanel extends JPanel {
         listSortPrefixes = new JList<>();
         scrollPane.setViewportView(listSortPrefixes);
 
-        btnRemoveSortPrefix = new JButton(IconManager.REMOVE_INV);
+        btnRemoveSortPrefix = new SquareIconButton(IconManager.REMOVE_INV);
         btnRemoveSortPrefix.setToolTipText(BUNDLE.getString("Button.remove"));
         panelSorttitle.add(btnRemoveSortPrefix, "cell 2 1,aligny bottom, growx");
 
         tfSortPrefix = new JTextField();
         panelSorttitle.add(tfSortPrefix, "cell 1 2,growx");
 
-        btnAddSortPrefix = new JButton(IconManager.ADD_INV);
+        btnAddSortPrefix = new SquareIconButton(IconManager.ADD_INV);
         btnAddSortPrefix.setToolTipText(BUNDLE.getString("Button.add"));
         panelSorttitle.add(btnAddSortPrefix, "cell 2 2, growx");
       }

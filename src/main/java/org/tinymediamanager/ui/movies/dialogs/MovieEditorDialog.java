@@ -21,7 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -91,7 +90,6 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
@@ -99,6 +97,7 @@ import org.tinymediamanager.ui.components.MediaIdTable;
 import org.tinymediamanager.ui.components.MediaIdTable.MediaId;
 import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.PersonTable;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
@@ -128,7 +127,6 @@ import net.miginfocom.swing.MigLayout;
 public class MovieEditorDialog extends TmmDialog {
   private static final long                       serialVersionUID    = -286251957529920347L;
   private static final Logger                     LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
-  private static final Insets                     BUTTON_MARGIN       = UIConstants.SMALL_BUTTON_MARGIN;
   private static final String                     ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String                     SPACER              = "        ";
 
@@ -553,15 +551,13 @@ public class MovieEditorDialog extends TmmDialog {
         lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, MediaFileType.FANART));
       }
 
-      JButton btnAddRating = new JButton(new AddRatingAction());
-      btnAddRating.setMargin(BUTTON_MARGIN);
+      JButton btnAddRating = new SquareIconButton(new AddRatingAction());
       details1Panel.add(btnAddRating, "cell 0 11,alignx right,aligny top");
 
-      JButton btnRemoveRating = new JButton(new RemoveRatingAction());
-      btnRemoveRating.setMargin(BUTTON_MARGIN);
+      JButton btnRemoveRating = new SquareIconButton(new RemoveRatingAction());
       details1Panel.add(btnRemoveRating, "cell 0 11,alignx right,aligny top");
       {
-        final JButton btnPlay = new JButton(IconManager.PLAY_INV);
+        final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
         btnPlay.setFocusable(false);
         btnPlay.addActionListener(e -> {
           MediaFile mf = movieToEdit.getMainVideoFile();
@@ -687,54 +683,44 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       {
-        JButton btnAddGenre = new JButton(new AddGenreAction());
-        btnAddGenre.setMargin(BUTTON_MARGIN);
+        JButton btnAddGenre = new SquareIconButton(new AddGenreAction());
         details2Panel.add(btnAddGenre, "cell 0 7,alignx right,aligny top");
       }
 
       {
-        JButton btnRemoveGenre = new JButton(new RemoveGenreAction());
-        btnRemoveGenre.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveGenre = new SquareIconButton(new RemoveGenreAction());
         details2Panel.add(btnRemoveGenre, "cell 0 7,alignx right,aligny top");
       }
       {
-        JButton btnMoveGenreUp = new JButton(new MoveGenreUpAction());
-        btnMoveGenreUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveGenreUp = new SquareIconButton(new MoveGenreUpAction());
         details2Panel.add(btnMoveGenreUp, "cell 0 7,alignx right,aligny top");
       }
       {
-        JButton btnMoveGenreDown = new JButton(new MoveGenreDownAction());
-        btnMoveGenreDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveGenreDown = new SquareIconButton(new MoveGenreDownAction());
         details2Panel.add(btnMoveGenreDown, "cell 0 7,alignx right,aligny top");
       }
       {
-        JButton btnAddTag = new JButton(new AddTagAction());
-        btnAddTag.setMargin(BUTTON_MARGIN);
+        JButton btnAddTag = new SquareIconButton(new AddTagAction());
         details2Panel.add(btnAddTag, "cell 6 7,alignx right,aligny top");
       }
       {
-        JButton btnRemoveTag = new JButton(new RemoveTagAction());
-        btnRemoveTag.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveTag = new SquareIconButton(new RemoveTagAction());
         details2Panel.add(btnRemoveTag, "cell 6 7,alignx right,aligny top");
       }
       {
-        JButton btnMoveTagUp = new JButton(new MoveTagUpAction());
-        btnMoveTagUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveTagUp = new SquareIconButton(new MoveTagUpAction());
         details2Panel.add(btnMoveTagUp, "cell 6 7,alignx right,aligny top");
       }
       {
-        JButton btnMoveTagDown = new JButton(new MoveTagDownAction());
-        btnMoveTagDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveTagDown = new SquareIconButton(new MoveTagDownAction());
         details2Panel.add(btnMoveTagDown, "cell 6 7,alignx right,aligny top");
       }
       {
-        JButton btnAddId = new JButton(new AddIdAction());
-        btnAddId.setMargin(BUTTON_MARGIN);
+        JButton btnAddId = new SquareIconButton(new AddIdAction());
         details2Panel.add(btnAddId, "cell 6 0 1 3,alignx right,aligny top");
       }
       {
-        JButton btnRemoveId = new JButton(new RemoveIdAction());
-        btnRemoveId.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveId = new SquareIconButton(new RemoveIdAction());
         details2Panel.add(btnRemoveId, "cell 6 0 1 3,alignx right,aligny top");
       }
       {
@@ -792,83 +778,67 @@ public class MovieEditorDialog extends TmmDialog {
         crewPanel.add(scrollPane, "cell 4 2,grow");
       }
       {
-        JButton btnAddActor = new JButton(new AddActorAction());
-        btnAddActor.setMargin(BUTTON_MARGIN);
+        JButton btnAddActor = new SquareIconButton(new AddActorAction());
         crewPanel.add(btnAddActor, "cell 0 0,alignx right");
       }
       {
-        JButton btnRemoveActor = new JButton(new RemoveActorAction());
-        btnRemoveActor.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveActor = new SquareIconButton(new RemoveActorAction());
         crewPanel.add(btnRemoveActor, "cell 0 0,alignx right");
       }
       {
-        JButton btnMoveActorUp = new JButton(new MoveActorUpAction());
-        btnMoveActorUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveActorUp = new SquareIconButton(new MoveActorUpAction());
         crewPanel.add(btnMoveActorUp, "cell 0 0,alignx right");
       }
       {
-        JButton btnMoveActorDown = new JButton(new MoveActorDownAction());
-        btnMoveActorDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveActorDown = new SquareIconButton(new MoveActorDownAction());
         crewPanel.add(btnMoveActorDown, "cell 0 0,alignx right,aligny top");
       }
       {
-        JButton btnAddProducer = new JButton(new AddProducerAction());
-        btnAddProducer.setMargin(BUTTON_MARGIN);
+        JButton btnAddProducer = new SquareIconButton(new AddProducerAction());
         crewPanel.add(btnAddProducer, "cell 3 0,alignx right");
       }
       {
-        JButton btnRemoveProducer = new JButton(new RemoveProducerAction());
-        btnRemoveProducer.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveProducer = new SquareIconButton(new RemoveProducerAction());
         crewPanel.add(btnRemoveProducer, "cell 3 0,alignx right");
       }
       {
-        JButton btnMoveProducerUp = new JButton(new MoveProducerUpAction());
-        btnMoveProducerUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveProducerUp = new SquareIconButton(new MoveProducerUpAction());
         crewPanel.add(btnMoveProducerUp, "cell 3 0,alignx right");
       }
       {
-        JButton btnMoveProducerDown = new JButton(new MoveProducerDownAction());
-        btnMoveProducerDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveProducerDown = new SquareIconButton(new MoveProducerDownAction());
         crewPanel.add(btnMoveProducerDown, "cell 3 0,alignx right,aligny top");
       }
       {
-        JButton btnAddDirector = new JButton(new AddDirectorAction());
-        btnAddDirector.setMargin(BUTTON_MARGIN);
+        JButton btnAddDirector = new SquareIconButton(new AddDirectorAction());
         crewPanel.add(btnAddDirector, "cell 0 2,alignx right");
       }
       {
-        JButton btnRemoveDirector = new JButton(new RemoveDirectorAction());
-        btnRemoveDirector.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveDirector = new SquareIconButton(new RemoveDirectorAction());
         crewPanel.add(btnRemoveDirector, "cell 0 2,alignx right");
       }
       {
-        JButton btnMoveDirectorUp = new JButton(new MoveDirectorUpAction());
-        btnMoveDirectorUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveDirectorUp = new SquareIconButton(new MoveDirectorUpAction());
         crewPanel.add(btnMoveDirectorUp, "cell 0 2,alignx right");
       }
       {
-        JButton btnMoveDirectorDown = new JButton(new MoveDirectorDownAction());
-        btnMoveDirectorDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveDirectorDown = new SquareIconButton(new MoveDirectorDownAction());
         crewPanel.add(btnMoveDirectorDown, "cell 0 2,alignx right,aligny top");
       }
       {
-        JButton btnAddWriter = new JButton(new AddWriterAction());
-        btnAddWriter.setMargin(BUTTON_MARGIN);
+        JButton btnAddWriter = new SquareIconButton(new AddWriterAction());
         crewPanel.add(btnAddWriter, "cell 3 2,alignx right");
       }
       {
-        JButton btnRemoveWriter = new JButton(new RemoveWriterAction());
-        btnRemoveWriter.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveWriter = new SquareIconButton(new RemoveWriterAction());
         crewPanel.add(btnRemoveWriter, "cell 3 2,alignx right");
       }
       {
-        JButton btnMoveWriterUp = new JButton(new MoveWriterUpAction());
-        btnMoveWriterUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveWriterUp = new SquareIconButton(new MoveWriterUpAction());
         crewPanel.add(btnMoveWriterUp, "cell 3 2,alignx right");
       }
       {
-        JButton btnMoveWriterDown = new JButton(new MoveWriterDownAction());
-        btnMoveWriterDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveWriterDown = new SquareIconButton(new MoveWriterDownAction());
         crewPanel.add(btnMoveWriterDown, "cell 3 2,alignx right,aligny top");
       }
     }
@@ -1173,12 +1143,10 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblTrailer = new TmmLabel(BUNDLE.getString("metatag.trailer"));
         artworkAndTrailerPanel.add(lblTrailer, "flowy,cell 0 10,alignx right,aligny top");
 
-        JButton btnAddTrailer = new JButton(new AddTrailerAction());
-        btnAddTrailer.setMargin(BUTTON_MARGIN);
+        JButton btnAddTrailer = new SquareIconButton(new AddTrailerAction());
         artworkAndTrailerPanel.add(btnAddTrailer, "cell 0 10,alignx right,aligny top");
 
-        JButton btnRemoveTrailer = new JButton(new RemoveTrailerAction());
-        btnRemoveTrailer.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveTrailer = new SquareIconButton(new RemoveTrailerAction());
         artworkAndTrailerPanel.add(btnRemoveTrailer, "cell 0 10,alignx right,aligny top");
 
         JScrollPane scrollPaneTrailer = new JScrollPane();

@@ -22,7 +22,6 @@ import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +66,7 @@ import org.tinymediamanager.ui.DoubleInputVerifier;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
@@ -255,31 +255,19 @@ public class MediaFileEditorPanel extends JPanel {
           scrollPane.setViewportView(tableSubtitles);
         }
         {
-          btnAddAudioStream = new JButton("");
-          btnAddAudioStream.setAction(new AddAudioStreamAction());
-          btnAddAudioStream.setMargin(new Insets(2, 2, 2, 2));
-          btnAddAudioStream.setIcon(IconManager.ADD_INV);
+          btnAddAudioStream = new SquareIconButton(new AddAudioStreamAction());
           panelDetails.add(btnAddAudioStream, "cell 0 5,alignx right,aligny top");
         }
         {
-          btnRemoveAudioStream = new JButton("");
-          btnRemoveAudioStream.setAction(new RemoveAudioStreamAction());
-          btnRemoveAudioStream.setMargin(new Insets(2, 2, 2, 2));
-          btnRemoveAudioStream.setIcon(IconManager.REMOVE_INV);
+          btnRemoveAudioStream = new SquareIconButton(new RemoveAudioStreamAction());
           panelDetails.add(btnRemoveAudioStream, "cell 0 5,alignx right,aligny top");
         }
         {
-          btnAddSubtitle = new JButton("");
-          btnAddSubtitle.setAction(new AddSubtitleAction());
-          btnAddSubtitle.setMargin(new Insets(2, 2, 2, 2));
-          btnAddSubtitle.setIcon(IconManager.ADD_INV);
+          btnAddSubtitle = new SquareIconButton(new AddSubtitleAction());
           panelDetails.add(btnAddSubtitle, "cell 0 6,alignx right,aligny top");
         }
         {
-          btnRemoveSubtitle = new JButton("");
-          btnRemoveSubtitle.setAction(new RemoveSubtitleAction());
-          btnRemoveSubtitle.setMargin(new Insets(2, 2, 2, 2));
-          btnRemoveSubtitle.setIcon(IconManager.REMOVE_INV);
+          btnRemoveSubtitle = new SquareIconButton(new RemoveSubtitleAction());
           panelDetails.add(btnRemoveSubtitle, "cell 0 6,alignx right,aligny top");
         }
       }
@@ -295,7 +283,7 @@ public class MediaFileEditorPanel extends JPanel {
     // add selection listener to disable editing when needed
     tableMediaFiles.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-      private Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
+      private final Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
 
       @Override
       public void valueChanged(ListSelectionEvent arg0) {
@@ -337,6 +325,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public AddAudioStreamAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("audiostream.add"));
+      putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
@@ -355,6 +344,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public RemoveAudioStreamAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("audiostream.remove"));
+      putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
     @Override
@@ -379,6 +369,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public AddSubtitleAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("subtitle.add"));
+      putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
@@ -397,6 +388,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public RemoveSubtitleAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("subtitle.remove"));
+      putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
     @Override

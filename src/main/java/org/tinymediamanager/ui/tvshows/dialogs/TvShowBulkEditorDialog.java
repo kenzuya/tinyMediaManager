@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -48,6 +47,7 @@ import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -101,10 +101,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       panelContent.add(cbGenres, "cell 2 1, growx, wmin 0");
       cbGenres.setEditable(true);
 
-      JButton btnAddGenre = new JButton();
+      JButton btnAddGenre = new SquareIconButton(IconManager.ADD_INV);
       panelContent.add(btnAddGenre, "flowx,cell 3 1");
-      btnAddGenre.setIcon(IconManager.ADD_INV);
-      btnAddGenre.setMargin(new Insets(2, 2, 2, 2));
       btnAddGenre.addActionListener(e -> {
         tvShowsChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -129,10 +127,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       });
 
-      JButton btnRemoveGenre = new JButton();
+      JButton btnRemoveGenre = new SquareIconButton(IconManager.REMOVE_INV);
       panelContent.add(btnRemoveGenre, "cell 3 1");
-      btnRemoveGenre.setIcon(IconManager.REMOVE_INV);
-      btnRemoveGenre.setMargin(new Insets(2, 2, 2, 2));
       btnRemoveGenre.addActionListener(e -> {
         tvShowsChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -152,10 +148,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       panelContent.add(cbTags, "cell 2 2, growx, wmin 0");
       cbTags.setEditable(true);
 
-      JButton btnAddTag = new JButton();
+      JButton btnAddTag = new SquareIconButton(IconManager.ADD_INV);
       panelContent.add(btnAddTag, "flowx,cell 3 2");
-      btnAddTag.setIcon(IconManager.ADD_INV);
-      btnAddTag.setMargin(new Insets(2, 2, 2, 2));
       btnAddTag.addActionListener(e -> {
         tvShowsChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -166,10 +160,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       });
 
-      JButton btnRemoveTag = new JButton();
+      JButton btnRemoveTag = new SquareIconButton(IconManager.REMOVE_INV);
       panelContent.add(btnRemoveTag, "cell 3 2");
-      btnRemoveTag.setIcon(IconManager.REMOVE_INV);
-      btnRemoveTag.setMargin(new Insets(2, 2, 2, 2));
       btnRemoveTag.addActionListener(e -> {
         tvShowsChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -188,10 +180,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       JTextField tfCountry = new JTextField();
       panelContent.add(tfCountry, "cell 2 3, growx, wmin 0");
 
-      JButton btnChgCountry = new JButton();
+      JButton btnChgCountry = new SquareIconButton(IconManager.APPLY_INV);
       panelContent.add(btnChgCountry, "flowx, cell 3 3");
-      btnChgCountry.setIcon(IconManager.APPLY_INV);
-      btnChgCountry.setMargin(new Insets(2, 2, 2, 2));
       btnChgCountry.addActionListener(e -> {
         tvShowsChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -209,11 +199,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       JTextField tfStudio = new JTextField();
       panelContent.add(tfStudio, "cell 2 4, growx, wmin 0");
 
-      JButton btnChgStudio = new JButton();
+      JButton btnChgStudio = new SquareIconButton(IconManager.APPLY_INV);
       panelContent.add(btnChgStudio, "flowx, cell 3 4");
-      btnChgStudio.setIcon(IconManager.APPLY_INV);
-      btnChgStudio.setMargin(new Insets(2, 2, 2, 2));
-
       btnChgStudio.addActionListener(e -> {
         tvShowsChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -231,9 +218,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       JTextField tfTvShowNote = new JTextField();
       panelContent.add(tfTvShowNote, "cell 2 5,growx");
 
-      JButton btnTvShowNote = new JButton();
-      btnTvShowNote.setIcon(IconManager.APPLY_INV);
-      btnTvShowNote.setMargin(new Insets(2, 2, 2, 2));
+      JButton btnTvShowNote = new SquareIconButton(IconManager.APPLY_INV);
       btnTvShowNote.addActionListener(e -> {
         tvShowsChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -262,10 +247,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       JCheckBox chckbxWatched = new JCheckBox("");
       panelContent.add(chckbxWatched, "cell 2 9");
 
-      JButton btnWatched = new JButton();
+      JButton btnWatched = new SquareIconButton(IconManager.APPLY_INV);
       panelContent.add(btnWatched, "cell 3 9");
-      btnWatched.setMargin(new Insets(2, 2, 2, 2));
-      btnWatched.setIcon(IconManager.APPLY_INV);
       btnWatched.addActionListener(e -> {
         episodesChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -285,10 +268,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       spSeason.setPreferredSize(new Dimension(40, 20));
       spSeason.setMinimumSize(new Dimension(40, 20));
 
-      JButton btnSeason = new JButton();
+      JButton btnSeason = new SquareIconButton(IconManager.APPLY_INV);
       panelContent.add(btnSeason, "cell 3 10");
-      btnSeason.setIcon(IconManager.APPLY_INV);
-      btnSeason.setMargin(new Insets(2, 2, 2, 2));
       btnSeason.addActionListener(arg0 -> {
         episodesChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -307,10 +288,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       final JCheckBox cbDvdOrder = new JCheckBox("");
       panelContent.add(cbDvdOrder, "cell 2 11");
 
-      JButton btnDvdOrder = new JButton();
+      JButton btnDvdOrder = new SquareIconButton(IconManager.APPLY_INV);
       panelContent.add(btnDvdOrder, "cell 3 11");
-      btnDvdOrder.setIcon(IconManager.APPLY_INV);
-      btnDvdOrder.setMargin(new Insets(2, 2, 2, 2));
       btnDvdOrder.addActionListener(arg0 -> {
         episodesChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -330,10 +309,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       panelContent.add(cbTagsEpisode, "cell 2 12,growx,wmin 0");
       cbTagsEpisode.setEditable(true);
 
-      JButton btnAddTagEpisode = new JButton();
+      JButton btnAddTagEpisode = new SquareIconButton(IconManager.ADD_INV);
       panelContent.add(btnAddTagEpisode, "flowx,cell 3 12");
-      btnAddTagEpisode.setIcon(IconManager.ADD_INV);
-      btnAddTagEpisode.setMargin(new Insets(2, 2, 2, 2));
       btnAddTagEpisode.addActionListener(e -> {
         episodesChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -344,10 +321,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       });
 
-      JButton btnRemoveTagEpisode = new JButton();
+      JButton btnRemoveTagEpisode = new SquareIconButton(IconManager.REMOVE_INV);
       panelContent.add(btnRemoveTagEpisode, "cell 3 12");
-      btnRemoveTagEpisode.setIcon(IconManager.REMOVE_INV);
-      btnRemoveTagEpisode.setMargin(new Insets(2, 2, 2, 2));
       btnRemoveTagEpisode.addActionListener(e -> {
         episodesChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -366,10 +341,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       JComboBox<MediaSource> cbMediaSourceEpisode = new JComboBox(MediaSource.values());
       panelContent.add(cbMediaSourceEpisode, "cell 2 13,growx,wmin 0");
 
-      JButton btnMediaSourceEpisode = new JButton();
+      JButton btnMediaSourceEpisode = new SquareIconButton(IconManager.APPLY_INV);
       panelContent.add(btnMediaSourceEpisode, "cell 3 13");
-      btnMediaSourceEpisode.setMargin(new Insets(2, 2, 2, 2));
-      btnMediaSourceEpisode.setIcon(IconManager.APPLY_INV);
       btnMediaSourceEpisode.addActionListener(e -> {
         episodesChanged = true;
         Object obj = cbMediaSourceEpisode.getSelectedItem();
@@ -391,9 +364,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       JTextField tfEpisodeNote = new JTextField();
       panelContent.add(tfEpisodeNote, "cell 2 14,growx");
 
-      JButton btnEpisodeNote = new JButton();
-      btnEpisodeNote.setMargin(new Insets(2, 2, 2, 2));
-      btnEpisodeNote.setIcon(IconManager.APPLY_INV);
+      JButton btnEpisodeNote = new SquareIconButton(IconManager.APPLY_INV);
       btnEpisodeNote.addActionListener(e -> {
         episodesChanged = true;
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

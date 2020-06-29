@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.components.datepicker;
 
 import java.awt.BorderLayout;
-import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Calendar;
@@ -33,6 +32,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.SquareIconButton;
 
 /**
  * The class DatePicker is used to provide a HTML like date picker
@@ -87,9 +87,8 @@ public class DatePicker extends JPanel implements PropertyChangeListener {
 
     setDate(date);
 
-    calendarButton = new JButton(IconManager.DATE_PICKER);
+    calendarButton = new SquareIconButton(IconManager.DATE_PICKER);
     calendarButton.setFocusable(false);
-    calendarButton.setMargin(new Insets(0, 0, 0, 0));
     calendarButton.addActionListener(e -> {
       int x = -dateEditor.getWidth();
       int y = calendarButton.getHeight();

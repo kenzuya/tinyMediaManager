@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.movies.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
@@ -47,6 +46,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -92,9 +92,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         cbGenres.setEditable(true);
         panelContent.add(cbGenres, "cell 1 0, growx, wmin 0");
 
-        JButton btnAddGenre = new JButton();
-        btnAddGenre.setIcon(IconManager.ADD_INV);
-        btnAddGenre.setMargin(new Insets(2, 2, 2, 2));
+        JButton btnAddGenre = new SquareIconButton(IconManager.ADD_INV);
         btnAddGenre.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -120,9 +118,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnAddGenre, "cell 2 0");
 
-        JButton btnRemoveGenre = new JButton();
-        btnRemoveGenre.setIcon(IconManager.REMOVE_INV);
-        btnRemoveGenre.setMargin(new Insets(2, 2, 2, 2));
+        JButton btnRemoveGenre = new SquareIconButton(IconManager.REMOVE_INV);
         btnRemoveGenre.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -148,9 +144,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnRemoveGenre, "cell 3 0");
 
-        JButton btnRemoveAllGenres = new JButton();
-        btnRemoveAllGenres.setIcon(IconManager.DELETE);
-        btnRemoveAllGenres.setMargin(new Insets(2, 2, 2, 2));
+        JButton btnRemoveAllGenres = new SquareIconButton(IconManager.DELETE);
         btnRemoveAllGenres.addActionListener(e -> {
           if (isDeleteConfirmed(BUNDLE.getString("metatag.genre"))) {
             changed = true;
@@ -171,9 +165,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         cbTags.setEditable(true);
         panelContent.add(cbTags, "cell 1 1, growx, wmin 0");
 
-        JButton btnAddTag = new JButton();
-        btnAddTag.setIcon(IconManager.ADD_INV);
-        btnAddTag.setMargin(new Insets(2, 2, 2, 2));
+        JButton btnAddTag = new SquareIconButton(IconManager.ADD_INV);
         btnAddTag.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -189,9 +181,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnAddTag, "cell 2 1");
 
-        JButton btnRemoveTag = new JButton();
-        btnRemoveTag.setIcon(IconManager.REMOVE_INV);
-        btnRemoveTag.setMargin(new Insets(2, 2, 2, 2));
+        JButton btnRemoveTag = new SquareIconButton(IconManager.REMOVE_INV);
         btnRemoveTag.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -203,9 +193,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnRemoveTag, "cell 3 1");
 
-        JButton btnRemoveAllTags = new JButton();
-        btnRemoveAllTags.setIcon(IconManager.DELETE);
-        btnRemoveAllTags.setMargin(new Insets(2, 2, 2, 2));
+        JButton btnRemoveAllTags = new SquareIconButton(IconManager.DELETE);
         btnRemoveAllTags.addActionListener(e -> {
           if (isDeleteConfirmed(BUNDLE.getString("metatag.tags"))) {
             changed = true;
@@ -225,9 +213,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         JComboBox cbEdition = new AutocompleteComboBox(MovieEdition.values());
         panelContent.add(cbEdition, "cell 1 2,growx");
 
-        JButton btnMovieEdition = new JButton();
-        btnMovieEdition.setIcon(IconManager.APPLY_INV);
-        btnMovieEdition.setMargin(new Insets(2, 2, 2, 2));
+        JButton btnMovieEdition = new SquareIconButton(IconManager.APPLY_INV);
         btnMovieEdition.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -263,9 +249,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         }
         panelContent.add(cbCertification, "cell 1 3,growx");
 
-        JButton btnCertification = new JButton();
-        btnCertification.setMargin(new Insets(2, 2, 2, 2));
-        btnCertification.setIcon(IconManager.APPLY_INV);
+        JButton btnCertification = new SquareIconButton(IconManager.APPLY_INV);
         btnCertification.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -285,9 +269,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         cbMovieSet = new JComboBox();
         panelContent.add(cbMovieSet, "cell 1 4,growx,wmin 0");
 
-        JButton btnSetMovieSet = new JButton();
-        btnSetMovieSet.setMargin(new Insets(2, 2, 2, 2));
-        btnSetMovieSet.setIcon(IconManager.APPLY_INV);
+        JButton btnSetMovieSet = new SquareIconButton(IconManager.APPLY_INV);
         btnSetMovieSet.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -311,9 +293,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnSetMovieSet, "cell 2 4");
 
-        JButton btnNewMovieset = new JButton();
-        btnNewMovieset.setMargin(new Insets(2, 2, 2, 2));
-        btnNewMovieset.setAction(new MovieSetAddAction());
+        JButton btnNewMovieset = new JButton(new MovieSetAddAction());
         panelContent.add(btnNewMovieset, "cell 3 4 2 1,growx");
       }
       {
@@ -323,9 +303,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         JCheckBox chckbxWatched = new JCheckBox("");
         panelContent.add(chckbxWatched, "cell 1 5,aligny top");
 
-        JButton btnWatched = new JButton();
-        btnWatched.setMargin(new Insets(2, 2, 2, 2));
-        btnWatched.setIcon(IconManager.APPLY_INV);
+        JButton btnWatched = new SquareIconButton(IconManager.APPLY_INV);
         btnWatched.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -343,9 +321,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         final JCheckBox chckbxVideo3D = new JCheckBox("");
         panelContent.add(chckbxVideo3D, "cell 1 6");
 
-        JButton btnVideo3D = new JButton();
-        btnVideo3D.setMargin(new Insets(2, 2, 2, 2));
-        btnVideo3D.setIcon(IconManager.APPLY_INV);
+        JButton btnVideo3D = new SquareIconButton(IconManager.APPLY_INV);
         btnVideo3D.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -363,9 +339,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         final JComboBox cbMediaSource = new JComboBox(MediaSource.values());
         panelContent.add(cbMediaSource, "cell 1 7,growx");
 
-        JButton btnMediaSource = new JButton();
-        btnMediaSource.setMargin(new Insets(2, 2, 2, 2));
-        btnMediaSource.setIcon(IconManager.APPLY_INV);
+        JButton btnMediaSource = new SquareIconButton(IconManager.APPLY_INV);
         btnMediaSource.addActionListener(e -> {
           changed = true;
           Object obj = cbMediaSource.getSelectedItem();
@@ -387,9 +361,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         JTextField tfLanguage = new JTextField();
         panelContent.add(tfLanguage, "cell 1 8,growx");
 
-        JButton btnLanguage = new JButton();
-        btnLanguage.setMargin(new Insets(2, 2, 2, 2));
-        btnLanguage.setIcon(IconManager.APPLY_INV);
+        JButton btnLanguage = new SquareIconButton(IconManager.APPLY_INV);
         btnLanguage.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -407,9 +379,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         JTextField tfCountry = new JTextField();
         panelContent.add(tfCountry, "cell 1 9,growx");
 
-        JButton btnCountry = new JButton();
-        btnCountry.setMargin(new Insets(2, 2, 2, 2));
-        btnCountry.setIcon(IconManager.APPLY_INV);
+        JButton btnCountry = new SquareIconButton(IconManager.APPLY_INV);
         btnCountry.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -427,9 +397,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         JTextField tfNote = new JTextField();
         panelContent.add(tfNote, "cell 1 10,growx");
 
-        JButton btnNote = new JButton();
-        btnNote.setMargin(new Insets(2, 2, 2, 2));
-        btnNote.setIcon(IconManager.APPLY_INV);
+        JButton btnNote = new SquareIconButton(IconManager.APPLY_INV);
         btnNote.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

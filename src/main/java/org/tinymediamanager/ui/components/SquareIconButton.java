@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.tinymediamanager.ui.components;
 
-package org.tinymediamanager.ui;
-
-import java.awt.Insets;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JButton;
 
 /**
- * helper class for holding UI relevant constants
+ * this kind of button is intended to be drawn square with just a icon in it
  * 
  * @author Manuel Laggner
  */
-public class UIConstants {
-  /**
-   * this is the button margin for small buttons (like add actor, add tag, ..)
-   */
-  public static final Insets SMALL_BUTTON_MARGIN = new Insets(2, 2, 2, 2);
+public class SquareIconButton extends JButton {
+
+  public SquareIconButton(Icon icon) {
+    super(icon);
+    putClientProperty("JButton.squareSize", true);
+  }
+
+  public SquareIconButton(Action action) {
+    super(action);
+    putClientProperty("JButton.squareSize", true);
+  }
 }
