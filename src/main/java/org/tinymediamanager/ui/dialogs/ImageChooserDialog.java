@@ -84,12 +84,12 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.WrapLayout;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
+import org.tinymediamanager.ui.components.SquareIconButton;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -102,7 +102,6 @@ public class ImageChooserDialog extends TmmDialog {
   private static final long   serialVersionUID = 8193355920006275933L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
   private static final String DIALOG_ID        = "imageChooser";
-  private static final Insets BUTTON_MARGIN    = UIConstants.SMALL_BUTTON_MARGIN;
 
   public enum ImageType {
     POSTER,
@@ -338,10 +337,8 @@ public class ImageChooserDialog extends TmmDialog {
       JLabel labelThumbs = new JLabel("Extrathumbs:");
       contentPanel.add(labelThumbs, "flowx,cell 0 2");
 
-      JButton btnMarkExtrathumbs = new JButton("");
+      JButton btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
       contentPanel.add(btnMarkExtrathumbs, "cell 0 2");
-      btnMarkExtrathumbs.setMargin(BUTTON_MARGIN);
-      btnMarkExtrathumbs.setIcon(IconManager.CHECK_ALL);
       btnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.markall"));
       btnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
@@ -352,10 +349,8 @@ public class ImageChooserDialog extends TmmDialog {
         }
       });
 
-      JButton btnUnMarkExtrathumbs = new JButton("");
+      JButton btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
       contentPanel.add(btnUnMarkExtrathumbs, "cell 0 2");
-      btnUnMarkExtrathumbs.setMargin(BUTTON_MARGIN);
-      btnUnMarkExtrathumbs.setIcon(IconManager.CLEAR_ALL);
       btnUnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.unmarkall"));
       btnUnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
@@ -370,15 +365,12 @@ public class ImageChooserDialog extends TmmDialog {
       JLabel labelFanart = new JLabel("Extrafanart:");
       contentPanel.add(labelFanart, "flowx,cell 0 3");
 
-      JButton btnMarkExtrafanart = new JButton("");
+      JButton btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
       contentPanel.add(btnMarkExtrafanart, "cell 0 3");
-      btnMarkExtrafanart.setMargin(BUTTON_MARGIN);
-      btnMarkExtrafanart.setIcon(IconManager.CHECK_ALL);
       btnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.markall"));
-      JButton btnUnMarkExtrafanart = new JButton("");
+
+      JButton btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
       contentPanel.add(btnUnMarkExtrafanart, "cell 0 3");
-      btnUnMarkExtrafanart.setMargin(BUTTON_MARGIN);
-      btnUnMarkExtrafanart.setIcon(IconManager.CLEAR_ALL);
       btnUnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.unmarkall"));
       btnUnMarkExtrafanart.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {

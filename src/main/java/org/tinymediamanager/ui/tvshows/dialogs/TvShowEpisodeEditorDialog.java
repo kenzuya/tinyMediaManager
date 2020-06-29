@@ -21,7 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -91,13 +90,13 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.ShadowLayerUI;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.MediaIdTable;
 import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.PersonTable;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
@@ -125,7 +124,6 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEpisodeEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID    = 7702248909791283043L;
   private static final Logger                LOGGER              = LoggerFactory.getLogger(TvShowEpisodeEditorDialog.class);
-  private static final Insets                BUTTON_MARGIN       = UIConstants.SMALL_BUTTON_MARGIN;
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String                SPACER              = "        ";
   private static final String                DIALOG_ID           = "tvShowEpisodeEditor";
@@ -402,12 +400,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         tableRatings = new MediaRatingTable(ratings);
         scrollPaneRatings.setViewportView(tableRatings);
 
-        JButton btnAddRating = new JButton(new AddRatingAction());
-        btnAddRating.setMargin(BUTTON_MARGIN);
+        JButton btnAddRating = new SquareIconButton(new AddRatingAction());
         detailsPanel.add(btnAddRating, "cell 0 10,alignx right,aligny top");
 
-        JButton btnRemoveRating = new JButton(new RemoveRatingAction());
-        btnRemoveRating.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveRating = new SquareIconButton(new RemoveRatingAction());
         detailsPanel.add(btnRemoveRating, "cell 0 10,alignx right,aligny top");
       }
       {
@@ -457,20 +453,16 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         listTags = new JList();
         scrollPaneTags.setViewportView(listTags);
 
-        JButton btnAddTag = new JButton(new AddTagAction());
-        btnAddTag.setMargin(BUTTON_MARGIN);
+        JButton btnAddTag = new SquareIconButton(new AddTagAction());
         details2Panel.add(btnAddTag, "cell 0 3,alignx right,aligny top");
 
-        JButton btnRemoveTag = new JButton(new RemoveTagAction());
-        btnRemoveTag.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveTag = new SquareIconButton(new RemoveTagAction());
         details2Panel.add(btnRemoveTag, "cell 0 3,alignx right,aligny top");
 
-        JButton btnMoveTagUp = new JButton(new MoveTagUpAction());
-        btnMoveTagUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveTagUp = new SquareIconButton(new MoveTagUpAction());
         details2Panel.add(btnMoveTagUp, "cell 0 3,alignx right,aligny top");
 
-        JButton btnMoveTagDown = new JButton(new MoveTagDownAction());
-        btnMoveTagDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveTagDown = new SquareIconButton(new MoveTagDownAction());
         details2Panel.add(btnMoveTagDown, "cell 0 3,alignx right,aligny top");
 
         cbTags = new AutocompleteComboBox<>(tvShowList.getTagsInEpisodes());
@@ -544,63 +536,51 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(scrollPane, "cell 4 2,grow");
       }
       {
-        JButton btnAddGuest = new JButton(new AddGuestAction());
-        btnAddGuest.setMargin(BUTTON_MARGIN);
+        JButton btnAddGuest = new SquareIconButton(new AddGuestAction());
         crewPanel.add(btnAddGuest, "cell 0 0,alignx right");
       }
       {
-        JButton btnRemoveGuest = new JButton(new RemoveGuestAction());
-        btnRemoveGuest.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveGuest = new SquareIconButton(new RemoveGuestAction());
         crewPanel.add(btnRemoveGuest, "cell 0 0,alignx right");
       }
       {
-        JButton btnMoveGuestUp = new JButton(new MoveGuestUpAction());
-        btnMoveGuestUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveGuestUp = new SquareIconButton(new MoveGuestUpAction());
         crewPanel.add(btnMoveGuestUp, "cell 0 0,alignx right");
       }
       {
-        JButton btnMoveGuestDown = new JButton(new MoveGuestDownAction());
-        btnMoveGuestDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveGuestDown = new SquareIconButton(new MoveGuestDownAction());
         crewPanel.add(btnMoveGuestDown, "cell 0 0,alignx right,aligny top");
       }
       {
-        JButton btnAddDirector = new JButton(new AddDirectorAction());
-        btnAddDirector.setMargin(BUTTON_MARGIN);
+        JButton btnAddDirector = new SquareIconButton(new AddDirectorAction());
         crewPanel.add(btnAddDirector, "cell 0 2,alignx right");
       }
       {
-        JButton btnRemoveDirector = new JButton(new RemoveDirectorAction());
-        btnRemoveDirector.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveDirector = new SquareIconButton(new RemoveDirectorAction());
         crewPanel.add(btnRemoveDirector, "cell 0 2,alignx right");
       }
       {
-        JButton btnMoveDirectorUp = new JButton(new MoveDirectorUpAction());
-        btnMoveDirectorUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveDirectorUp = new SquareIconButton(new MoveDirectorUpAction());
         crewPanel.add(btnMoveDirectorUp, "cell 0 2,alignx right");
       }
       {
-        JButton btnMoveDirectorDown = new JButton(new MoveDirectorDownAction());
-        btnMoveDirectorDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveDirectorDown = new SquareIconButton(new MoveDirectorDownAction());
         crewPanel.add(btnMoveDirectorDown, "cell 0 2,alignx right,aligny top");
       }
       {
-        JButton btnAddWriter = new JButton(new AddWriterAction());
-        btnAddWriter.setMargin(BUTTON_MARGIN);
+        JButton btnAddWriter = new SquareIconButton(new AddWriterAction());
         crewPanel.add(btnAddWriter, "cell 3 2,alignx right");
       }
       {
-        JButton btnRemoveWriter = new JButton(new RemoveWriterAction());
-        btnRemoveWriter.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveWriter = new SquareIconButton(new RemoveWriterAction());
         crewPanel.add(btnRemoveWriter, "cell 3 2,alignx right");
       }
       {
-        JButton btnMoveWriterUp = new JButton(new MoveWriterUpAction());
-        btnMoveWriterUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveWriterUp = new SquareIconButton(new MoveWriterUpAction());
         crewPanel.add(btnMoveWriterUp, "cell 3 2,alignx right");
       }
       {
-        JButton btnMoveWriterDown = new JButton(new MoveWriterDownAction());
-        btnMoveWriterDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveWriterDown = new SquareIconButton(new MoveWriterDownAction());
         crewPanel.add(btnMoveWriterDown, "cell 3 2,alignx right,aligny top");
       }
     }
