@@ -80,6 +80,7 @@ import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
@@ -181,7 +182,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       }
 
       {
-        final JButton btnPlay = new JButton(IconManager.PLAY_INV);
+        final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
         btnPlay.setFocusable(false);
         btnPlay.addActionListener(e -> {
           MediaFile mf = movieToScrape.getMediaFiles(MediaFileType.VIDEO).get(0);
