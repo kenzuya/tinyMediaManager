@@ -92,6 +92,7 @@ public class ImageLabel extends JComponent {
   protected boolean                 isLightBox             = false;
   protected float                   desiredAspectRatio     = 0f;
   protected boolean                 cacheUrl               = false;
+  protected boolean                 scaleUpIfTooSmall      = true;
 
   protected ShadowRenderer          shadowRenderer;
   protected SwingWorker<Void, Void> worker                 = null;
@@ -253,6 +254,10 @@ public class ImageLabel extends JComponent {
     return desiredAspectRatio;
   }
 
+  public void setScaleUpIfTooSmall(boolean scaleUpIfTooSmall) {
+    this.scaleUpIfTooSmall = scaleUpIfTooSmall;
+  }
+
   /**
    * get a byte array of the original image.<br/>
    * WARNING: this array is only filled _after_ the image has been loaded!
@@ -275,15 +280,29 @@ public class ImageLabel extends JComponent {
 
   @Override
   public Dimension getPreferredSize() {
+    if (originalImageSize != EMPTY_SIZE) {
+      int parentWidth = getParent().getWidth();
+      int parentHeight = getParent().getHeight();
+      if (scaleUpIfTooSmall || parentWidth < originalImageSize.width || parentHeight < originalImageSize.height) {
+        // we maximize the image regardless of its size or if it is bigger than the parent
+        return new Dimension(getParent().getWidth(),
+            (int) ((getParent().getWidth() - getShadowSize()) / (float) originalImageSize.width * (float) originalImageSize.height)
+                + getShadowSize());
+      }
+      else {
+        // we wont scale up
+        return new Dimension(originalImageSize.width, originalImageSize.height + getShadowSize());
+      }
+
+    }
+
     if (desiredAspectRatio == 0) {
       // no desired aspect ratio; get the JLabel's preferred size
       return super.getPreferredSize();
     }
-    if (originalImageSize != EMPTY_SIZE) {
-      return new Dimension(getParent().getWidth(),
-          (int) ((getParent().getWidth() - getShadowSize()) / (float) originalImageSize.width * (float) originalImageSize.height) + getShadowSize());
+    else {
+      return new Dimension(getParent().getWidth(), (int) ((getParent().getWidth() - getShadowSize()) / desiredAspectRatio) + 1 + getShadowSize());
     }
-    return new Dimension(getParent().getWidth(), (int) ((getParent().getWidth() - getShadowSize()) / desiredAspectRatio) + 1 + getShadowSize());
   }
 
   private int getShadowSize() {
@@ -326,7 +345,7 @@ public class ImageLabel extends JComponent {
         Rectangle rectangle = new Rectangle();
 
         if (drawBorder && !drawFullWidth && !drawShadow) {
-          Point size = ImageUtils.calculateSize(this.getWidth() - 8, this.getHeight() - 8, originalImageSize.width, originalImageSize.height, true);
+          Point size = ImageUtils.calculateSize(getMaxWidth() - 8, getMaxHeight() - 8, originalImageSize.width, originalImageSize.height, true);
 
           // calculate offsets
           if (position == Position.TOP_RIGHT || position == Position.BOTTOM_RIGHT) {
@@ -363,7 +382,7 @@ public class ImageLabel extends JComponent {
           // g.drawImage(scaledImage, offsetX + 4, offsetY + 4, newWidth, newHeight, this);
         }
         else if (drawShadow && !drawFullWidth) {
-          Point size = ImageUtils.calculateSize(this.getWidth() - SHADOW_SIZE, this.getHeight() - SHADOW_SIZE, originalImageSize.width,
+          Point size = ImageUtils.calculateSize(this.getMaxWidth() - SHADOW_SIZE, this.getMaxHeight() - SHADOW_SIZE, originalImageSize.width,
               originalImageSize.height, true);
 
           rectangle.width = size.x;
@@ -393,10 +412,10 @@ public class ImageLabel extends JComponent {
         else {
           Point size = null;
           if (drawFullWidth) {
-            size = new Point(this.getWidth(), this.getWidth() * originalImageSize.height / originalImageSize.width);
+            size = new Point(this.getMaxWidth(), this.getMaxWidth() * originalImageSize.height / originalImageSize.width);
           }
           else {
-            size = ImageUtils.calculateSize(this.getWidth(), this.getHeight(), originalImageSize.width, originalImageSize.height, true);
+            size = ImageUtils.calculateSize(this.getMaxWidth(), this.getMaxHeight(), originalImageSize.width, originalImageSize.height, true);
           }
 
           // calculate offsets
@@ -430,12 +449,12 @@ public class ImageLabel extends JComponent {
         Rectangle rectangle = new Rectangle();
 
         if (drawShadow) {
-          rectangle.width = this.getWidth() - 8;
-          rectangle.height = this.getHeight() - 8;
+          rectangle.width = this.getMaxWidth() - 8;
+          rectangle.height = this.getMaxHeight() - 8;
         }
         else {
-          rectangle.width = this.getWidth();
-          rectangle.height = this.getHeight();
+          rectangle.width = this.getMaxWidth();
+          rectangle.height = this.getMaxHeight();
         }
 
         Rectangle hiDpi = scaleHiDpi(g2d.getTransform(), rectangle);
@@ -483,6 +502,20 @@ public class ImageLabel extends JComponent {
     finally {
       g2d.dispose();
     }
+  }
+
+  private int getMaxWidth() {
+    if (!scaleUpIfTooSmall && originalImageSize != null) {
+      return Math.min(getWidth(), originalImageSize.width);
+    }
+    return getWidth();
+  }
+
+  private int getMaxHeight() {
+    if (!scaleUpIfTooSmall && originalImageSize != null) {
+      return Math.min(originalImageSize.height, getHeight());
+    }
+    return getHeight();
   }
 
   /**
