@@ -47,6 +47,7 @@ import org.tinymediamanager.ui.movies.filters.MovieCountryFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDatasourceFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDuplicateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieEditionFilter;
+import org.tinymediamanager.ui.movies.filters.MovieFilenameFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFrameRateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieGenreFilter;
 import org.tinymediamanager.ui.movies.filters.MovieInMovieSetFilter;
@@ -125,6 +126,7 @@ public class MovieFilterDialog extends TmmDialog {
         tabbedPane.addTab(BUNDLE.getString("metatag.mediainformation"), scrollPaneMediaData);
         panelMediaData.add(new TmmLabel(BUNDLE.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
 
+        addFilter(new MovieFilenameFilter(), panelMediaData);
         addFilter(new MovieVideoFormatFilter(), panelMediaData);
         addFilter(new MovieVideoCodecFilter(), panelMediaData);
         addFilter(new MovieAspectRatioFilter(), panelMediaData);
