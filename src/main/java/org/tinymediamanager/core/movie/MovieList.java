@@ -135,6 +135,7 @@ public class MovieList extends AbstractModelObject {
 
           case GENRE:
             updateGenres(movie);
+            break;
 
           case TAG:
             updateTags(movie);
@@ -143,6 +144,9 @@ public class MovieList extends AbstractModelObject {
           case MEDIA_FILES:
           case MEDIA_INFORMATION:
             updateMediaInformationLists(movie);
+            break;
+
+          default:
             break;
         }
       }
@@ -168,7 +172,7 @@ public class MovieList extends AbstractModelObject {
    * 
    * @return single instance of MovieList
    */
-  public synchronized static MovieList getInstance() {
+  public static synchronized MovieList getInstance() {
     if (MovieList.instance == null) {
       MovieList.instance = new MovieList();
     }
