@@ -96,6 +96,8 @@ public class MovieList extends AbstractModelObject {
   private final Set<String>             audioCodecsInMovies;
   private final Set<MediaCertification> certificationsInMovies;
   private final Set<Double>             frameRatesInMovies;
+  private final Set<Integer>            audioStreamsInMovies;
+  private final Set<Integer>            subtitlesInMovies;
 
   private final PropertyChangeListener  movieListener;
   private final PropertyChangeListener  movieSetListener;
@@ -117,6 +119,8 @@ public class MovieList extends AbstractModelObject {
     audioCodecsInMovies = new CopyOnWriteArraySet<>();
     certificationsInMovies = new CopyOnWriteArraySet<>();
     frameRatesInMovies = new CopyOnWriteArraySet<>();
+    audioStreamsInMovies = new CopyOnWriteArraySet<>();
+    subtitlesInMovies = new CopyOnWriteArraySet<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -882,6 +886,15 @@ public class MovieList extends AbstractModelObject {
           firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInMovies);
         }
       }
+      // audio streams
+      if (!mf.getAudioStreams().isEmpty() && audioStreamsInMovies.add(mf.getAudioStreams().size())) {
+        firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInMovies);
+      }
+
+      // subtitles
+      if (!mf.getSubtitles().isEmpty() && subtitlesInMovies.add(mf.getSubtitles().size())) {
+        firePropertyChange(Constants.SUBTITLES_COUNT, null, subtitlesInMovies);
+      }
     }
   }
 
@@ -927,6 +940,14 @@ public class MovieList extends AbstractModelObject {
 
   public Set<Double> getFrameRatesInMovies() {
     return frameRatesInMovies;
+  }
+
+  public Set<Integer> getAudioStreamsInMovies() {
+    return audioStreamsInMovies;
+  }
+
+  public Set<Integer> getSubtitlesInMovies() {
+    return subtitlesInMovies;
   }
 
   private void addCertification(MediaCertification newCert) {
