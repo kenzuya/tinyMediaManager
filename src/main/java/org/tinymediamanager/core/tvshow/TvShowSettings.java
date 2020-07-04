@@ -393,6 +393,13 @@ public class TvShowSettings extends AbstractSettings {
     return tvShowDataSources;
   }
 
+  public void swapTvShowDataSource(int pos1, int pos2) {
+    String tmp = tvShowDataSources.get(pos1);
+    tvShowDataSources.set(pos1, tvShowDataSources.get(pos2));
+    tvShowDataSources.set(pos2, tmp);
+
+  }
+
   public String getScraper() {
     if (StringUtils.isBlank(scraper)) {
       return Constants.TVDB;

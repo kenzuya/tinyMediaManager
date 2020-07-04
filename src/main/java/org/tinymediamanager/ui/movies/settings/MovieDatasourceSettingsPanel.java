@@ -72,6 +72,8 @@ class MovieDatasourceSettingsPanel extends JPanel {
   private JButton                     btnRemoveSkipFolder;
   private JButton                     btnRemoveBadWord;
   private JButton                     btnAddBadWord;
+  private JButton                     btnMoveUpDatasoure;
+  private JButton                     btnMoveDownDatasource;
 
   /**
    * Instantiates a new movie settings panel.
@@ -145,6 +147,26 @@ class MovieDatasourceSettingsPanel extends JPanel {
         MovieModuleManager.SETTINGS.removeBadWord(badWord);
       }
     });
+
+    btnMoveUpDatasoure.addActionListener(arg0 -> {
+      int row = listDatasources.getSelectedIndex();
+      if (row != -1 && row != 0) {
+        settings.swapMovieDataSource(row, row - 1);
+        row = row - 1;
+        listDatasources.setSelectedIndex(row);
+        listDatasources.updateUI();
+      }
+    });
+
+    btnMoveDownDatasource.addActionListener(arg0 -> {
+      int row = listDatasources.getSelectedIndex();
+      if (row != -1 && row < listDatasources.getModel().getSize() - 1) {
+        settings.swapMovieDataSource(row, row + 1);
+        row = row + 1;
+        listDatasources.setSelectedIndex(row);
+        listDatasources.updateUI();
+      }
+    });
   }
 
   private void initComponents() {
@@ -171,6 +193,14 @@ class MovieDatasourceSettingsPanel extends JPanel {
         btnRemoveDatasource = new SquareIconButton(IconManager.REMOVE_INV);
         panelDatasources.add(btnRemoveDatasource, "flowy, cell 2 0, aligny top, growx");
         btnRemoveDatasource.setToolTipText(BUNDLE.getString("Button.remove"));
+
+        btnMoveUpDatasoure = new SquareIconButton(IconManager.ARROW_UP_INV);
+        panelDatasources.add(btnMoveUpDatasoure, "flowy, cell 2 0, aligny top, growx");
+        btnMoveUpDatasoure.setToolTipText(BUNDLE.getString("Button.moveup"));
+
+        btnMoveDownDatasource = new SquareIconButton(IconManager.ARROW_DOWN_INV);
+        panelDatasources.add(btnMoveDownDatasource, "flowy, cell 2 0, aligny top, growx");
+        btnMoveDownDatasource.setToolTipText(BUNDLE.getString("Button.movedown"));
       }
     }
 

@@ -317,6 +317,13 @@ public class MovieSettings extends AbstractSettings {
     return movieDataSources;
   }
 
+  public void swapMovieDataSource(int pos1, int pos2) {
+    String tmp = movieDataSources.get(pos1);
+    movieDataSources.set(pos1, movieDataSources.get(pos2));
+    movieDataSources.set(pos2, tmp);
+
+  }
+
   public void addNfoFilename(MovieNfoNaming filename) {
     if (!nfoFilenames.contains(filename)) {
       nfoFilenames.add(filename);
