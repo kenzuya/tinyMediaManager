@@ -47,6 +47,7 @@ import org.tinymediamanager.ui.movies.filters.MovieCountAudioStreamFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountSubtitleFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountryFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDatasourceFilter;
+import org.tinymediamanager.ui.movies.filters.MovieDifferentRuntimeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDuplicateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieEditionFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFilenameFilter;
@@ -117,6 +118,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieTagFilter(), panelMain);
         addFilter(new MovieEditionFilter(), panelMain);
         addFilter(new MovieInMovieSetFilter(), panelMain);
+        addFilter(new MovieDifferentRuntimeFilter(), panelMain);
       }
 
       {
