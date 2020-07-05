@@ -22,8 +22,6 @@ public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
   protected JComponent createFilterComponent() {
     SpinnerModel model = new SpinnerNumberModel(1, 1, 100, 1);
     spinner = new JSpinner(model);
-    spinner.setName("test");
-
     return spinner;
   }
 
@@ -47,8 +45,8 @@ public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
     int scrapedRuntimeInMinutes = movie.getRuntime();
     int mediaInfoRuntimeInMinutes = movie.getRuntimeFromMediaFilesInMinutes();
 
-    if ((scrapedRuntimeInMinutes - mediaInfoRuntimeInMinutes > (int) spinner.getValue())
-        || (mediaInfoRuntimeInMinutes - scrapedRuntimeInMinutes > (int) spinner.getValue())) {
+    if ((scrapedRuntimeInMinutes - mediaInfoRuntimeInMinutes >= (int) spinner.getValue())
+        || (mediaInfoRuntimeInMinutes - scrapedRuntimeInMinutes >= (int) spinner.getValue())) {
       return true;
     }
 
