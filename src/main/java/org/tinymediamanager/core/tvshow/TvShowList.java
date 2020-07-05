@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -84,6 +85,7 @@ public class TvShowList extends AbstractModelObject {
   private final List<String>     videoContainersObservable;
   private final List<String>     audioCodecsObservable;
   private final List<Double>     frameRateObservable;
+  private final List<MediaCertification> certificationObservable;
 
   private PropertyChangeListener propertyChangeListener;
 
@@ -99,6 +101,7 @@ public class TvShowList extends AbstractModelObject {
     videoContainersObservable = new ObservableCopyOnWriteArrayList<>();
     audioCodecsObservable = new ObservableCopyOnWriteArrayList<>();
     frameRateObservable = new ObservableCopyOnWriteArrayList<>();
+    certificationObservable = new ObservableCopyOnWriteArrayList<>();
 
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
@@ -425,6 +428,7 @@ public class TvShowList extends AbstractModelObject {
     for (TvShow tvShow : tvShowList) {
       tvShow.initializeAfterLoading();
       updateTvShowTags(tvShow);
+      updateCertification(tvShow);
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.initializeAfterLoading();
@@ -651,6 +655,12 @@ public class TvShowList extends AbstractModelObject {
     }
   }
 
+  private void updateCertification(TvShow tvShow) {
+    if (!certificationObservable.contains(tvShow.getCertification())) {
+      certificationObservable.add(tvShow.getCertification());
+    }
+  }
+
   private void addTvShowTag(String newTag) {
     if (StringUtils.isBlank(newTag)) {
       return;
@@ -809,6 +819,10 @@ public class TvShowList extends AbstractModelObject {
 
   public List<String> getAudioCodecsInEpisodes() {
     return audioCodecsObservable;
+  }
+
+  public List<MediaCertification> getCertification() {
+    return certificationObservable;
   }
 
   /**
