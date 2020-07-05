@@ -17,6 +17,7 @@
 package org.tinymediamanager.ui.movies.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -87,6 +88,7 @@ public class MovieFilterDialog extends TmmDialog {
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
     super(BUNDLE.getString("movieextendedsearch.options"), "movieFilter");
     setModalityType(ModalityType.MODELESS);
+    setMinimumSize(new Dimension(400, 0));
 
     this.selectionModel = selectionModel;
     this.filterMap = new HashMap<>();
@@ -98,7 +100,7 @@ public class MovieFilterDialog extends TmmDialog {
 
       {
         // panel Main
-        JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
+        JPanel panelMain = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
         JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(BUNDLE.getString("metatag.details"), scrollPaneMain);
@@ -123,7 +125,7 @@ public class MovieFilterDialog extends TmmDialog {
 
       {
         // panel media data
-        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
+        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
         JScrollPane scrollPaneMediaData = new NoBorderScrollPane(panelMediaData);
 
         scrollPaneMediaData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -161,7 +163,7 @@ public class MovieFilterDialog extends TmmDialog {
    */
   private void addFilter(IMovieUIFilter filter, JPanel panel) {
     panel.add(filter.getCheckBox(), "");
-    panel.add(filter.getLabel(), "right");
+    panel.add(filter.getLabel(), "");
 
     if (filter.getFilterComponent() != null) {
       panel.add(filter.getFilterComponent(), "wmin 100, grow, wrap");

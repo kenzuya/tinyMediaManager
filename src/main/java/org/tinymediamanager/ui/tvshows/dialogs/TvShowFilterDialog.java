@@ -93,7 +93,7 @@ public class TvShowFilterDialog extends TmmDialog {
 
       {
         // panel Main
-        JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
+        JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:150lp,grow]", "[]"));
         JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(BUNDLE.getString("metatag.details"), scrollPaneMain);
@@ -115,7 +115,7 @@ public class TvShowFilterDialog extends TmmDialog {
 
       {
         // panel media data
-        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][150lp:n,grow]", "[]"));
+        JPanel panelMediaData = new JPanel(new MigLayout("", "[][][150lp:150lp,grow]", "[]"));
         JScrollPane scrollPaneMediaData = new NoBorderScrollPane(panelMediaData);
 
         scrollPaneMediaData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -151,7 +151,7 @@ public class TvShowFilterDialog extends TmmDialog {
    */
   private void addFilter(ITvShowUIFilter<TmmTreeNode> filter, JPanel panel) {
     panel.add(filter.getCheckBox(), "");
-    panel.add(filter.getLabel(), "right");
+    panel.add(filter.getLabel(), "");
 
     if (filter.getFilterComponent() != null) {
       panel.add(filter.getFilterComponent(), "wmin 100, grow, wrap");
