@@ -128,7 +128,12 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
     chckbxWatched.setSelected(tvShowEpisode.isWatched());
 
     lblVideoCodec.setText(mediaFile.getVideoCodec());
-    lblVideoResolution.setText(mediaFile.getVideoResolution());
+    if (mediaFile.getAspectRatio() > 0) {
+      lblVideoResolution.setText(String.format("%s (%.2f:1)", mediaFile.getVideoResolution(), mediaFile.getAspectRatio()));
+    }
+    else {
+      lblVideoResolution.setText(mediaFile.getVideoResolution());
+    }
     lblVideoBitrate.setText(mediaFile.getBiteRateInKbps());
     lblVideoBitDepth.setText(mediaFile.getBitDepthString());
     lblSource.setText(tvShowEpisode.getMediaSource().toString());
@@ -211,10 +216,10 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
     autoBinding_2.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_3 = BeanProperty
-            .create("selectedTvShowEpisode.originalFilename");
+        .create("selectedTvShowEpisode.originalFilename");
     BeanProperty<JLabel, String> jLabelBeanProperty_1 = BeanProperty.create("text");
     AutoBinding<TvShowEpisodeSelectionModel, String, JLabel, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, selectionModel,
-            tvShowEpisodeSelectionModelBeanProperty_3, this.lblOriginalFilename, jLabelBeanProperty_1);
+        tvShowEpisodeSelectionModelBeanProperty_3, this.lblOriginalFilename, jLabelBeanProperty_1);
     autoBinding_3.bind();
   }
 }

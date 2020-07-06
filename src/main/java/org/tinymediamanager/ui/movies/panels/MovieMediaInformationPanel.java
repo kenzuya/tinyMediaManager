@@ -129,7 +129,12 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
     chckbxWatched.setSelected(movie.isWatched());
 
     lblVideoCodec.setText(mediaFile.getVideoCodec());
-    lblVideoResolution.setText(mediaFile.getVideoResolution());
+    if (mediaFile.getAspectRatio() > 0) {
+      lblVideoResolution.setText(String.format("%s (%.2f:1)", mediaFile.getVideoResolution(), mediaFile.getAspectRatio()));
+    }
+    else {
+      lblVideoResolution.setText(mediaFile.getVideoResolution());
+    }
     lblVideoBitrate.setText(mediaFile.getBiteRateInKbps());
     lblVideoBitDepth.setText(mediaFile.getBitDepthString());
     lblSource.setText(movie.getMediaSource().toString());
