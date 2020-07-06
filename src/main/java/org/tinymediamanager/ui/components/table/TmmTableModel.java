@@ -22,6 +22,7 @@ import javax.swing.table.TableColumn;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.DefaultEventTableModel;
+import ca.odell.glazedlists.swing.GlazedListsSwing;
 
 /**
  * The class TmmTableModel is used as a template for our table models
@@ -34,6 +35,10 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
   public TmmTableModel(EventList<E> source, TmmTableFormat<? super E> tableFormat) {
     super(source, tableFormat);
     tmmTableFormat = tableFormat;
+  }
+
+  public void setManyToOneTableModelEventAdapter() {
+    setEventAdapter(GlazedListsSwing.<E> manyToOneEventAdapterFactory().create(this));
   }
 
   /**

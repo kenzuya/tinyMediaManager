@@ -108,6 +108,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     FilterList<Movie> textFilteredMovies = new FilterList<>(extendedFilteredMovies, textMatcherEditor);
     selectionModel = new MovieSelectionModel(sortedMovies, textFilteredMovies, movieMatcherEditor);
     final TmmTableModel<Movie> movieTableModel = new TmmTableModel<>(textFilteredMovies, new MovieTableFormat());
+    movieTableModel.setManyToOneTableModelEventAdapter();
 
     // build the table
     movieTable = new TmmTable(movieTableModel);
