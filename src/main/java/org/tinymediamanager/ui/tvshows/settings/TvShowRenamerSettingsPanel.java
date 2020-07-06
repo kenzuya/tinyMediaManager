@@ -54,6 +54,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
@@ -122,6 +123,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   private EnhancedTextField                        tfTvShowFolder;
   private EnhancedTextField                        tfEpisodeFilename;
   private JComboBox                                cbColonReplacement;
+  private JTextField                               tfFirstCharacter;
 
   public TvShowRenamerSettingsPanel() {
 
@@ -153,6 +155,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     tfTvShowFolder.getDocument().addDocumentListener(documentListener);
     tfSeasonFolderName.getDocument().addDocumentListener(documentListener);
     tfEpisodeFilename.getDocument().addDocumentListener(documentListener);
+    tfFirstCharacter.getDocument().addDocumentListener(documentListener);
 
     cbTvShowForPreview.addActionListener(arg0 -> {
       buildAndInstallEpisodeArray();
@@ -347,7 +350,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     }
     {
       JPanel panelAdvancedOptions = new JPanel();
-      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
@@ -359,7 +362,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         panelAdvancedOptions.add(chckbxShowFoldernameSpaceReplacement, "cell 1 0 2 1");
 
         cbShowFoldernameSpaceReplacement = new JComboBox(spaceReplacements.toArray());
-        panelAdvancedOptions.add(cbShowFoldernameSpaceReplacement, "cell 1 0");
+        panelAdvancedOptions.add(cbShowFoldernameSpaceReplacement, "cell 1 0 2 1");
       }
       {
         chckbxSeasonFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.seasonfolderspacereplacement"));
@@ -367,7 +370,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         panelAdvancedOptions.add(chckbxSeasonFoldernameSpaceReplacement, "cell 1 1 2 1");
 
         cbSeasonFoldernameSpaceReplacement = new JComboBox(spaceReplacements.toArray());
-        panelAdvancedOptions.add(cbSeasonFoldernameSpaceReplacement, "cell 1 1");
+        panelAdvancedOptions.add(cbSeasonFoldernameSpaceReplacement, "cell 1 1 2 1");
       }
       {
         chckbxFilenameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.spacereplacement"));
@@ -375,17 +378,16 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         panelAdvancedOptions.add(chckbxFilenameSpaceReplacement, "cell 1 2 2 1");
 
         cbFilenameSpaceReplacement = new JComboBox(spaceReplacements.toArray());
-        panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 2");
+        panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 2 2 1");
       }
       {
         JLabel lblColonReplacement = new JLabel(BUNDLE.getString("Settings.renamer.colonreplacement"));
-        panelAdvancedOptions.add(lblColonReplacement, "cell 2 3");
+        panelAdvancedOptions.add(lblColonReplacement, "cell 1 3 2 1");
         lblColonReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.colonreplacement.hint"));
 
         cbColonReplacement = new JComboBox(colonReplacements.toArray());
-        panelAdvancedOptions.add(cbColonReplacement, "cell 2 3");
+        panelAdvancedOptions.add(cbColonReplacement, "cell 1 3");
       }
-
       {
         chckbxAsciiReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.asciireplacement"));
         panelAdvancedOptions.add(chckbxAsciiReplacement, "cell 1 4 2 1");
@@ -393,6 +395,14 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
         JLabel lblAsciiHint = new JLabel(BUNDLE.getString("Settings.renamer.asciireplacement.hint"));
         panelAdvancedOptions.add(lblAsciiHint, "cell 2 5");
         TmmFontHelper.changeFont(lblAsciiHint, L2);
+      }
+      {
+        JLabel lblFirstCharacterT = new JLabel(BUNDLE.getString("Settings.renamer.firstnumbercharacterreplacement"));
+        panelAdvancedOptions.add(lblFirstCharacterT, "flowx,cell 1 6 2 1");
+
+        tfFirstCharacter = new JTextField();
+        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 6");
+        tfFirstCharacter.setColumns(2);
       }
     }
     {
@@ -645,43 +655,49 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   }
 
   protected void initDataBindings() {
-    BeanProperty<TvShowSettings, Boolean> settingsBeanProperty_6 = BeanProperty.create("asciiReplacement");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_6, chckbxAsciiReplacement, jCheckBoxBeanProperty);
+    Property settingsBeanProperty_6 = BeanProperty.create("asciiReplacement");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_6, chckbxAsciiReplacement,
+        jCheckBoxBeanProperty);
     autoBinding_5.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty = BeanProperty.create("renamerShowPathnameSpaceSubstitution");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty, chckbxShowFoldernameSpaceReplacement, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty = BeanProperty.create("renamerShowPathnameSpaceSubstitution");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty,
+        chckbxShowFoldernameSpaceReplacement, jCheckBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_7 = BeanProperty.create("renamerSeasonPathnameSpaceSubstitution");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_7, chckbxSeasonFoldernameSpaceReplacement, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_7 = BeanProperty.create("renamerSeasonPathnameSpaceSubstitution");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7,
+        chckbxSeasonFoldernameSpaceReplacement, jCheckBoxBeanProperty);
     autoBinding_6.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_8 = BeanProperty.create("renamerFilenameSpaceSubstitution");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_8, chckbxFilenameSpaceReplacement, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_8 = BeanProperty.create("renamerFilenameSpaceSubstitution");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_8,
+        chckbxFilenameSpaceReplacement, jCheckBoxBeanProperty);
     autoBinding_7.bind();
     //
-    BeanProperty<TvShowSettings, String> tvShowSettingsBeanProperty_1 = BeanProperty.create("renamerTvShowFoldername");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty.create("text");
-    AutoBinding<TvShowSettings, String, JTextField, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_1, tfTvShowFolder, jTextFieldBeanProperty_1);
+    Property tvShowSettingsBeanProperty_1 = BeanProperty.create("renamerTvShowFoldername");
+    Property jTextFieldBeanProperty_1 = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, tfTvShowFolder,
+        jTextFieldBeanProperty_1);
     autoBinding.bind();
     //
-    BeanProperty<TvShowSettings, String> tvShowSettingsBeanProperty_2 = BeanProperty.create("renamerFilename");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_2 = BeanProperty.create("text");
-    AutoBinding<TvShowSettings, String, JTextField, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_2, tfEpisodeFilename, jTextFieldBeanProperty_2);
+    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("renamerFilename");
+    Property jTextFieldBeanProperty_2 = BeanProperty.create("text");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, tfEpisodeFilename,
+        jTextFieldBeanProperty_2);
     autoBinding_1.bind();
     //
-    BeanProperty<TvShowSettings, String> tvShowSettingsBeanProperty_3 = BeanProperty.create("renamerSeasonFoldername");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowSettings, String, JTextField, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_3, tfSeasonFolderName, jTextFieldBeanProperty);
+    Property tvShowSettingsBeanProperty_3 = BeanProperty.create("renamerSeasonFoldername");
+    Property jTextFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, tfSeasonFolderName,
+        jTextFieldBeanProperty);
     autoBinding_2.bind();
+    //
+    Property tvShowSettingsBeanProperty_4 = BeanProperty.create("renamerFirstCharacterNumberReplacement");
+    Property jTextFieldBeanProperty_3 = BeanProperty.create("text");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4, tfFirstCharacter,
+        jTextFieldBeanProperty_3);
+    autoBinding_3.bind();
   }
 }
