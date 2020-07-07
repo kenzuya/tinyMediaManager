@@ -120,6 +120,7 @@ public class MovieNfoParserTest extends BasicTest {
       assertThat(parser.unsupportedElements).hasSize(1);
       assertThat(parser.unsupportedElements.get(0)).isEqualTo("<resume><position>0.000000</position><total>0.000000</total></resume>");
       assertThat(parser.trailer).isNotEmpty();
+      assertThat(parser.showlinks).contains("Foo", "Foo2");
 
       // xbmc tags
       assertThat(parser.epbookmark).isEmpty();

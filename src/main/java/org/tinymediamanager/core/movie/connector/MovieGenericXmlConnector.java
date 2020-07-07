@@ -162,6 +162,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         addProducers();
         addTrailer();
         addLanguages();
+        addShowlink();
         addDateAdded();
 
         // add connector specific tags
@@ -697,6 +698,17 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     Element languages = document.createElement("languages");
     languages.setTextContent(movie.getSpokenLanguages());
     root.appendChild(languages);
+  }
+
+  /**
+   * add all linked TV shows to the <showlink>xxx</showlink> tags (mulitple)
+   */
+  protected void addShowlink() {
+    for (String showName : movie.getShowlinks()) {
+      Element showlink = document.createElement("showlink");
+      showlink.setTextContent(showName);
+      root.appendChild(showlink);
+    }
   }
 
   /**

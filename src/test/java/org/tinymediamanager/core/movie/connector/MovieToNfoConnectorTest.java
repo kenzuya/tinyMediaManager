@@ -287,6 +287,8 @@ public class MovieToNfoConnectorTest extends BasicTest {
     movie.setSpokenLanguages("de, fr, Englirsch");
     movie.setMediaSource(MediaSource.BLURAY);
     movie.setEdition(MovieEdition.DIRECTORS_CUT);
+    movie.addShowlink("Foo");
+    movie.addShowlink("Foo2");
     return movie;
   }
 

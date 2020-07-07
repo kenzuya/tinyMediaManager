@@ -112,6 +112,7 @@ public class MovieNfoParser {
   public List<Person>         producers           = new ArrayList<>();
   public List<Person>         directors           = new ArrayList<>();
   public List<Person>         credits             = new ArrayList<>();
+  public List<String>         showlinks           = new ArrayList<>();
 
   public List<String>         unsupportedElements = new ArrayList<>();
 
@@ -171,6 +172,7 @@ public class MovieNfoParser {
     parseTag(MovieNfoParser::parseSource);
     parseTag(MovieNfoParser::parseEdition);
     parseTag(MovieNfoParser::parseTrailer);
+    parseTag(MovieNfoParser::parseShowlink);
 
     parseTag(MovieNfoParser::parseEpbookmark);
     parseTag(MovieNfoParser::parseLastplayed);
@@ -1431,6 +1433,19 @@ public class MovieNfoParser {
   }
 
   /**
+   * the showlink is usually in the showlink tag (multiple)
+   */
+  private Void parseShowlink() {
+    supportedElements.add("showlink");
+
+    Elements elements = root.select(root.tagName() + " > showlink");
+    for (Element element : elements) {
+      showlinks.add(element.ownText());
+    }
+    return null;
+  }
+
+  /**
    * find epbookmark for xbmc related nfos
    */
   private Void parseEpbookmark() {
@@ -1704,6 +1719,10 @@ public class MovieNfoParser {
 
     for (String tag : tags) {
       movie.addToTags(tag);
+    }
+
+    for (String showlink : showlinks) {
+      movie.addShowlink(showlink);
     }
 
     movie.setOriginalFilename(originalFilename);

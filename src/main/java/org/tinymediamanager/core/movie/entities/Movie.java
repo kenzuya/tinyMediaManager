@@ -194,6 +194,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private List<Person>                          writers                    = new CopyOnWriteArrayList<>();
   @JsonProperty
   private List<MediaTrailer>                    trailer                    = new CopyOnWriteArrayList<>();
+  @JsonProperty
+  private List<String>                          showlinks                  = new CopyOnWriteArrayList<>();
 
   private MovieSet                              movieSet;
   private String                                titleSortable              = "";
@@ -269,6 +271,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     setDirectors(other.directors);
     setWriters(other.writers);
     setTags(other.tags);
+    setShowlinks(other.showlinks);
     setExtraFanarts(other.extraFanarts);
     setExtraThumbs(other.extraThumbs);
 
@@ -495,9 +498,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the remove tag
    */
   public void removeFromTags(String removeTag) {
-    tags.remove(removeTag);
-    firePropertyChange(TAG, null, removeTag);
-    firePropertyChange(TAGS_AS_STRING, null, removeTag);
+    if (tags.remove(removeTag)) {
+      firePropertyChange(TAG, null, removeTag);
+      firePropertyChange(TAGS_AS_STRING, null, removeTag);
+    }
   }
 
   /**
@@ -548,7 +552,60 @@ public class Movie extends MediaEntity implements IMediaInformation {
     tags.clear();
     firePropertyChange(TAG, null, tags);
     firePropertyChange(TAGS_AS_STRING, null, tags);
+  }
 
+  /**
+   * get all associated TV show names (showlinks)
+   * 
+   * @return a {@link List} of all associated TV show names
+   */
+  public List<String> getShowlinks() {
+    return showlinks;
+  }
+
+  /**
+   * set the associated TV show names (showlinks)
+   * 
+   * @param newShowlinks
+   *          a {@link List} of all associated TV show names to set
+   */
+  public void setShowlinks(List<String> newShowlinks) {
+    ListUtils.mergeLists(showlinks, newShowlinks);
+    Utils.removeEmptyStringsFromList(showlinks);
+
+    firePropertyChange("showlinks", null, showlinks);
+    firePropertyChange("showlinksAsString", null, showlinks);
+  }
+
+  /**
+   * add a single showlink (TV show name)
+   * 
+   * @param showlink
+   *          the TV show name
+   */
+  public void addShowlink(String showlink) {
+    if (!showlinks.contains(showlink)) {
+      showlinks.add(showlink);
+      firePropertyChange("showlinks", null, showlinks);
+      firePropertyChange("showlinksAsString", null, showlinks);
+    }
+  }
+
+  /**
+   * remove the given showlink (TV show name)
+   * 
+   * @param showlink
+   *          the TV show name
+   */
+  public void removeShowlink(String showlink) {
+    if (showlinks.remove(showlink)) {
+      firePropertyChange("showlinks", null, showlinks);
+      firePropertyChange("showlinksAsString", null, showlinks);
+    }
+  }
+
+  public String getShowlinksAsString() {
+    return String.join(", ", showlinks);
   }
 
   /** has movie local (or any mediafile inline) subtitles? */

@@ -27,6 +27,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -125,92 +126,95 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieEditorDialog extends TmmDialog {
-  private static final long                       serialVersionUID    = -286251957529920347L;
-  private static final Logger                     LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
-  private static final String                     ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String                     SPACER              = "        ";
+  private static final long                  serialVersionUID    = -286251957529920347L;
+  private static final Logger                LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
+  private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
+  private static final String                SPACER              = "        ";
 
-  private Movie                                   movieToEdit;
-  private MovieList                               movieList           = MovieList.getInstance();
+  private Movie                              movieToEdit;
+  private MovieList                          movieList           = MovieList.getInstance();
 
-  private List<MediaGenres>                       genres              = ObservableCollections.observableList(new ArrayList<>());
-  private List<MediaTrailer>                      trailers            = ObservableCollections.observableList(new ArrayList<>());
-  private List<String>                            tags                = ObservableCollections.observableList(new ArrayList<>());
-  private EventList<MediaId>                      ids;
+  private List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
+  private List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
+  private List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
+  private List<String>                       showlinks           = ObservableCollections.observableList(new ArrayList<>());
+  private EventList<MediaId>                 ids;
   private EventList<MediaRatingTable.Rating> ratings;
-  private List<MediaFile>                         mediaFiles          = new ArrayList<>();
-  private List<String>                            extrathumbs         = null;
-  private List<String>                            extrafanarts        = null;
-  private MediaRating                             userMediaRating;
-  private boolean                                 continueQueue       = true;
-  private boolean                                 navigateBack        = false;
-  private int                                     queueIndex;
-  private int                                     queueSize;
+  private List<MediaFile>                    mediaFiles          = new ArrayList<>();
+  private List<String>                       extrathumbs         = null;
+  private List<String>                       extrafanarts        = null;
+  private MediaRating                        userMediaRating;
+  private boolean                            continueQueue       = true;
+  private boolean                            navigateBack        = false;
+  private int                                queueIndex;
+  private int                                queueSize;
 
-  private EventList<Person>                       cast;
-  private EventList<Person>                       producers;
-  private EventList<Person>                       directors;
-  private EventList<Person>                       writers;
+  private EventList<Person>                  cast;
+  private EventList<Person>                  producers;
+  private EventList<Person>                  directors;
+  private EventList<Person>                  writers;
 
-  private JTextField                              tfTitle;
-  private JTextField                              tfOriginalTitle;
-  private YearSpinner                             spYear;
-  private JTextArea                               taPlot;
+  private JTextField                         tfTitle;
+  private JTextField                         tfOriginalTitle;
+  private YearSpinner                        spYear;
+  private JTextArea                          taPlot;
 
-  private ImageLabel                              lblPoster;
-  private ImageLabel                              lblFanart;
-  private JSpinner                                spRuntime;
-  private JTextField                              tfProductionCompanies;
-  private JList<MediaGenres>                      listGenres;
-  private AutocompleteComboBox<MediaGenres>       cbGenres;
-  private AutoCompleteSupport<MediaGenres>        cbGenresAutoCompleteSupport;
-  private JSpinner                                spRating;
-  private JComboBox<MediaCertification>           cbCertification;
-  private JCheckBox                               cbWatched;
-  private JTextField                              tfTagline;
-  private JTextField                              tfNote;
+  private ImageLabel                         lblPoster;
+  private ImageLabel                         lblFanart;
+  private JSpinner                           spRuntime;
+  private JTextField                         tfProductionCompanies;
+  private JList<MediaGenres>                 listGenres;
+  private AutocompleteComboBox               cbGenres;
+  private AutoCompleteSupport                cbGenresAutoCompleteSupport;
+  private JSpinner                           spRating;
+  private JComboBox<MediaCertification>      cbCertification;
+  private JCheckBox                          cbWatched;
+  private JTextField                         tfTagline;
+  private JTextField                         tfNote;
 
-  private JCheckBox                               chckbxVideo3D;
+  private JCheckBox                          chckbxVideo3D;
 
-  private AutocompleteComboBox<String>            cbTags;
-  private AutoCompleteSupport<String>             cbTagsAutoCompleteSupport;
-  private JList<String>                           listTags;
-  private JSpinner                                spDateAdded;
-  private JComboBox                               cbMovieSet;
-  private JTextField                              tfSorttitle;
-  private JTextField                              tfSpokenLanguages;
-  private JTextField                              tfCountry;
-  private DatePicker                              dpReleaseDate;
-  private JSpinner                                spTop250;
-  private AutocompleteComboBox<MediaSource>       cbSource;
-  private MediaFileEditorPanel                    mediaFilesPanel;
-  private AutocompleteComboBox<MovieEdition>      cbEdition;
+  private AutocompleteComboBox               cbTags;
+  private AutoCompleteSupport<String>        cbTagsAutoCompleteSupport;
+  private JList<String>                      listTags;
+  private JList<String>                      listShowlink;
+  private JSpinner                           spDateAdded;
+  private JComboBox                          cbMovieSet;
+  private JTextField                         tfSorttitle;
+  private JTextField                         tfSpokenLanguages;
+  private JTextField                         tfCountry;
+  private DatePicker                         dpReleaseDate;
+  private JSpinner                           spTop250;
+  private AutocompleteComboBox               cbSource;
+  private MediaFileEditorPanel               mediaFilesPanel;
+  private AutocompleteComboBox               cbEdition;
+  private JComboBox                          cbShowlink;
 
-  private JTextField                              tfPoster;
-  private JTextField                              tfFanart;
-  private JTextField                              tfLogo;
-  private JTextField                              tfClearLogo;
-  private JTextField                              tfBanner;
-  private JTextField                              tfClearArt;
-  private JTextField                              tfThumb;
-  private JTextField                              tfDisc;
-  private JTextField                              tfKeyart;
+  private JTextField                         tfPoster;
+  private JTextField                         tfFanart;
+  private JTextField                         tfLogo;
+  private JTextField                         tfClearLogo;
+  private JTextField                         tfBanner;
+  private JTextField                         tfClearArt;
+  private JTextField                         tfThumb;
+  private JTextField                         tfDisc;
+  private JTextField                         tfKeyart;
 
-  private ImageLabel                              lblLogo;
-  private ImageLabel                              lblClearlogo;
-  private ImageLabel                              lblBanner;
-  private ImageLabel                              lblClearart;
-  private ImageLabel                              lblThumb;
-  private ImageLabel                              lblDisc;
-  private ImageLabel                              lblKeyart;
+  private ImageLabel                         lblLogo;
+  private ImageLabel                         lblClearlogo;
+  private ImageLabel                         lblBanner;
+  private ImageLabel                         lblClearart;
+  private ImageLabel                         lblThumb;
+  private ImageLabel                         lblDisc;
+  private ImageLabel                         lblKeyart;
 
-  private TmmTable                                tableIds;
-  private TmmTable                                tableRatings;
-  private TmmTable                                tableTrailer;
-  private TmmTable                                tableActors;
-  private TmmTable                                tableProducers;
-  private TmmTable                                tableDirectors;
-  private TmmTable                                tableWriters;
+  private TmmTable                           tableIds;
+  private TmmTable                           tableRatings;
+  private TmmTable                           tableTrailer;
+  private TmmTable                           tableActors;
+  private TmmTable                           tableProducers;
+  private TmmTable                           tableDirectors;
+  private TmmTable                           tableWriters;
 
   /**
    * Create the dialog.
@@ -321,6 +325,8 @@ public class MovieEditorDialog extends TmmDialog {
           tags.add(tag);
         }
       }
+      showlinks.addAll(movieToEdit.getShowlinks());
+      showlinks.sort(Comparator.naturalOrder());
 
       if (MovieModuleManager.SETTINGS.isImageExtraThumbs()) {
         extrathumbs = new ArrayList<>(movieToEdit.getExtraThumbs());
@@ -333,6 +339,9 @@ public class MovieEditorDialog extends TmmDialog {
         if (movieToEdit.getMovieSet() == movieSet) {
           cbMovieSet.setSelectedItem(movieSet);
         }
+      }
+      for (String showTitle : movieList.getTvShowTitles()) {
+        cbShowlink.addItem(showTitle);
       }
     }
     // adjust columnn titles - we have to do it this way - thx to windowbuilder pro
@@ -588,8 +597,8 @@ public class MovieEditorDialog extends TmmDialog {
       JPanel details2Panel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details2"), details2Panel);
 
-      details2Panel.setLayout(
-          new MigLayout("", "[][][20lp:50lp][][50lp:100lp][20lp:n][][300lp:300lp]", "[][][][][][pref!][20lp:n][100lp:150lp,grow][][grow 200]"));
+      details2Panel.setLayout(new MigLayout("", "[][][20lp:50lp][][50lp:100lp][20lp:n][grow][300lp:300lp,grow]",
+          "[][][][][][75lp][pref!][20lp:n][100lp:150lp,grow][][grow]"));
       {
         JLabel lblDateAdded = new TmmLabel(BUNDLE.getString("metatag.dateadded"));
         details2Panel.add(lblDateAdded, "cell 0 0,alignx right");
@@ -600,16 +609,32 @@ public class MovieEditorDialog extends TmmDialog {
       {
         JLabel lblWatched = new TmmLabel(BUNDLE.getString("metatag.watched"));
         details2Panel.add(lblWatched, "flowx,cell 3 0");
+
+        cbWatched = new JCheckBox("");
+        details2Panel.add(cbWatched, "cell 3 0");
       }
       {
-        JLabel label = new TmmLabel(BUNDLE.getString("metatag.ids"));
-        details2Panel.add(label, "flowy,cell 6 0 1 3,alignx right,aligny top");
+        JLabel label = new TmmLabel("3D");
+        details2Panel.add(label, "flowx,cell 3 1");
+
+        chckbxVideo3D = new JCheckBox("");
+        details2Panel.add(chckbxVideo3D, "cell 3 1");
+      }
+      {
+        JLabel lblIds = new TmmLabel(BUNDLE.getString("metatag.ids"));
+        details2Panel.add(lblIds, "flowy,cell 6 0 1 3,alignx right,aligny top");
 
         JScrollPane scrollPaneIds = new JScrollPane();
-        details2Panel.add(scrollPaneIds, "cell 7 0 1 6,growx");
+        details2Panel.add(scrollPaneIds, "cell 7 0 1 7,growx");
 
         tableIds = new MediaIdTable(ids);
         scrollPaneIds.setViewportView(tableIds);
+
+        JButton btnAddId = new SquareIconButton(new AddIdAction());
+        details2Panel.add(btnAddId, "cell 6 0 1 3,alignx right,aligny top");
+
+        JButton btnRemoveId = new SquareIconButton(new RemoveIdAction());
+        details2Panel.add(btnRemoveId, "cell 6 0 1 3,alignx right,aligny top");
       }
       {
         JLabel lblSourceT = new TmmLabel(BUNDLE.getString("metatag.source"));
@@ -617,10 +642,6 @@ public class MovieEditorDialog extends TmmDialog {
 
         cbSource = new AutocompleteComboBox(MediaSource.values());
         details2Panel.add(cbSource, "cell 1 1,growx");
-      }
-      {
-        JLabel label = new TmmLabel("3D");
-        details2Panel.add(label, "flowx,cell 3 1");
       }
       {
         JLabel lblEditionT = new TmmLabel(BUNDLE.getString("metatag.edition"));
@@ -645,14 +666,26 @@ public class MovieEditorDialog extends TmmDialog {
 
         cbMovieSet = new JComboBox();
         cbMovieSet.addItem("");
-        details2Panel.add(cbMovieSet, "cell 1 4 4 1, growx, wmin 0");
+        details2Panel.add(cbMovieSet, "cell 1 4 4 1,growx,wmin 0");
+      }
+      {
+        JLabel lblShowlinkT = new TmmLabel(BUNDLE.getString("metatag.showlink"));
+        details2Panel.add(lblShowlinkT, "flowy,cell 0 5,alignx right,aligny top");
+
+        listShowlink = new JList();
+        JScrollPane scrollPaneShowlink = new JScrollPane();
+        scrollPaneShowlink.setViewportView(listShowlink);
+        details2Panel.add(scrollPaneShowlink, "cell 1 5 4 1,grow");
+
+        cbShowlink = new JComboBox();
+        details2Panel.add(cbShowlink, "cell 1 6 4 1,growx");
       }
       {
         JLabel lblGenres = new TmmLabel(BUNDLE.getString("metatag.genre"));
-        details2Panel.add(lblGenres, "flowy,cell 0 7,alignx right,aligny top");
+        details2Panel.add(lblGenres, "flowy,cell 0 8,alignx right,aligny top");
 
         JScrollPane scrollPaneGenres = new JScrollPane();
-        details2Panel.add(scrollPaneGenres, "cell 1 7 4 1,grow");
+        details2Panel.add(scrollPaneGenres, "cell 1 8 4 1,grow");
 
         listGenres = new JList();
         scrollPaneGenres.setViewportView(listGenres);
@@ -662,14 +695,26 @@ public class MovieEditorDialog extends TmmDialog {
         InputMap im = cbGenres.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         Object enterAction = im.get(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
         cbGenres.getActionMap().put(enterAction, new AddGenreAction());
-        details2Panel.add(cbGenres, "cell 1 8 4 1, growx, wmin 0");
+        details2Panel.add(cbGenres, "cell 1 9 4 1,growx,wmin 0");
+
+        JButton btnAddGenre = new SquareIconButton(new AddGenreAction());
+        details2Panel.add(btnAddGenre, "cell 0 8,alignx right,aligny top");
+
+        JButton btnRemoveGenre = new SquareIconButton(new RemoveGenreAction());
+        details2Panel.add(btnRemoveGenre, "cell 0 8,alignx right,aligny top");
+
+        JButton btnMoveGenreUp = new SquareIconButton(new MoveGenreUpAction());
+        details2Panel.add(btnMoveGenreUp, "cell 0 8,alignx right,aligny top");
+
+        JButton btnMoveGenreDown = new SquareIconButton(new MoveGenreDownAction());
+        details2Panel.add(btnMoveGenreDown, "cell 0 8,alignx right,aligny top");
       }
       {
         JLabel lblTags = new TmmLabel(BUNDLE.getString("metatag.tags"));
-        details2Panel.add(lblTags, "flowy,cell 6 7,alignx right,aligny top");
+        details2Panel.add(lblTags, "flowy,cell 6 8,alignx right,aligny top");
 
         JScrollPane scrollPaneTags = new JScrollPane();
-        details2Panel.add(scrollPaneTags, "cell 7 7,grow");
+        details2Panel.add(scrollPaneTags, "cell 7 8,grow");
 
         listTags = new JList();
         scrollPaneTags.setViewportView(listTags);
@@ -679,57 +724,25 @@ public class MovieEditorDialog extends TmmDialog {
         InputMap im = cbTags.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         Object enterAction = im.get(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
         cbTags.getActionMap().put(enterAction, new AddTagAction());
-        details2Panel.add(cbTags, "cell 7 8, growx, wmin 0");
-      }
+        details2Panel.add(cbTags, "cell 7 9,growx,wmin 0");
 
-      {
-        JButton btnAddGenre = new SquareIconButton(new AddGenreAction());
-        details2Panel.add(btnAddGenre, "cell 0 7,alignx right,aligny top");
-      }
-
-      {
-        JButton btnRemoveGenre = new SquareIconButton(new RemoveGenreAction());
-        details2Panel.add(btnRemoveGenre, "cell 0 7,alignx right,aligny top");
-      }
-      {
-        JButton btnMoveGenreUp = new SquareIconButton(new MoveGenreUpAction());
-        details2Panel.add(btnMoveGenreUp, "cell 0 7,alignx right,aligny top");
-      }
-      {
-        JButton btnMoveGenreDown = new SquareIconButton(new MoveGenreDownAction());
-        details2Panel.add(btnMoveGenreDown, "cell 0 7,alignx right,aligny top");
-      }
-      {
         JButton btnAddTag = new SquareIconButton(new AddTagAction());
-        details2Panel.add(btnAddTag, "cell 6 7,alignx right,aligny top");
-      }
-      {
+        details2Panel.add(btnAddTag, "cell 6 8,alignx right,aligny top");
+
         JButton btnRemoveTag = new SquareIconButton(new RemoveTagAction());
-        details2Panel.add(btnRemoveTag, "cell 6 7,alignx right,aligny top");
-      }
-      {
+        details2Panel.add(btnRemoveTag, "cell 6 8,alignx right,aligny top");
+
         JButton btnMoveTagUp = new SquareIconButton(new MoveTagUpAction());
-        details2Panel.add(btnMoveTagUp, "cell 6 7,alignx right,aligny top");
-      }
-      {
+        details2Panel.add(btnMoveTagUp, "cell 6 8,alignx right,aligny top");
+
         JButton btnMoveTagDown = new SquareIconButton(new MoveTagDownAction());
-        details2Panel.add(btnMoveTagDown, "cell 6 7,alignx right,aligny top");
-      }
-      {
-        JButton btnAddId = new SquareIconButton(new AddIdAction());
-        details2Panel.add(btnAddId, "cell 6 0 1 3,alignx right,aligny top");
-      }
-      {
-        JButton btnRemoveId = new SquareIconButton(new RemoveIdAction());
-        details2Panel.add(btnRemoveId, "cell 6 0 1 3,alignx right,aligny top");
-      }
-      {
-        cbWatched = new JCheckBox("");
-        details2Panel.add(cbWatched, "cell 3 0");
-      }
-      {
-        chckbxVideo3D = new JCheckBox("");
-        details2Panel.add(chckbxVideo3D, "cell 3 1");
+        details2Panel.add(btnMoveTagDown, "cell 6 8,alignx right,aligny top");
+
+        JButton btnAddShowlink = new SquareIconButton(new AddShowlinkAction());
+        details2Panel.add(btnAddShowlink, "cell 0 5,alignx right");
+
+        JButton btnRemoveShowlink = new SquareIconButton(new RemoveShowlinkAction());
+        details2Panel.add(btnRemoveShowlink, "cell 0 5,alignx right");
       }
     }
 
@@ -1328,6 +1341,7 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       movieToEdit.setTags(tags);
+      movieToEdit.setShowlinks(showlinks);
       movieToEdit.setDateAdded((Date) spDateAdded.getValue());
       movieToEdit.setSortTitle(tfSorttitle.getText());
 
@@ -1750,6 +1764,46 @@ public class MovieEditorDialog extends TmmDialog {
     }
   }
 
+  private class AddShowlinkAction extends AbstractAction {
+    private static final long serialVersionUID = 9160043031922897715L;
+
+    public AddShowlinkAction() {
+      putValue(SHORT_DESCRIPTION, BUNDLE.getString("showlink.add"));
+      putValue(SMALL_ICON, IconManager.ADD_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      String newShowlink = (String) cbShowlink.getSelectedItem();
+
+      // do not continue with empty showlinks
+      if (StringUtils.isBlank(newShowlink)) {
+        return;
+      }
+
+      if (!showlinks.contains(newShowlink)) {
+        showlinks.add(newShowlink);
+      }
+    }
+  }
+
+  private class RemoveShowlinkAction extends AbstractAction {
+    private static final long serialVersionUID = -1580945350962234215L;
+
+    public RemoveShowlinkAction() {
+      putValue(SHORT_DESCRIPTION, BUNDLE.getString("showlink.remove"));
+      putValue(SMALL_ICON, IconManager.REMOVE_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      List<String> selectedShowlinks = listShowlink.getSelectedValuesList();
+      for (String showlink : selectedShowlinks) {
+        showlinks.remove(showlink);
+      }
+    }
+  }
+
   private class AbortQueueAction extends AbstractAction {
     private static final long serialVersionUID = -7652218354710642510L;
 
@@ -2107,6 +2161,9 @@ public class MovieEditorDialog extends TmmDialog {
     //
     JListBinding<String, List<String>, JList> jListBinding_1 = SwingBindings.createJListBinding(UpdateStrategy.READ, tags, listTags);
     jListBinding_1.bind();
+    //
+    JListBinding<String, List<String>, JList> jListBinding_2 = SwingBindings.createJListBinding(UpdateStrategy.READ, showlinks, listShowlink);
+    jListBinding_2.bind();
     //
     BindingGroup bindingGroup = new BindingGroup();
     //
