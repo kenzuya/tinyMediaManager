@@ -293,6 +293,7 @@ public class MovieInformationPanel extends JPanel {
 
       scrollPane = new NoBorderScrollPane(panelRight);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+      scrollPane.getVerticalScrollBar().setUnitIncrement(8);
       add(scrollPane, "cell 1 1,grow, wmin 0");
 
       {
