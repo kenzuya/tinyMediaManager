@@ -31,6 +31,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.LocaleUtils;
@@ -137,7 +138,7 @@ class UiSettingsPanel extends JPanel {
       }
     });
 
-    ActionListener actionListener = e -> checkChanges();
+    ActionListener actionListener = e -> SwingUtilities.invokeLater(this::checkChanges);
     cbLanguage.addActionListener(actionListener);
     cbFontFamily.addActionListener(actionListener);
     cbFontSize.addActionListener(actionListener);
