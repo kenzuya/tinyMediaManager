@@ -129,7 +129,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID    = 3270218410302989845L;
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String                SPACER              = "        ";
+  private static final String                SPACER              = "    ";
 
   private TvShow                             tvShowToEdit;
   private TvShowList                         tvShowList          = TvShowList.getInstance();
@@ -353,7 +353,7 @@ public class TvShowEditorDialog extends TmmDialog {
       JPanel details1Panel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details"), details1Panel);
       details1Panel.setLayout(new MigLayout("", "[][grow][50lp:75lp][][60lp:75lp][100lp:n][][25lp:n][200lp:250lp,grow]",
-          "[][][][100lp:175lp][][][][][][][75lp:100lp][]"));
+          "[][][][100lp:25%:25%,grow][][][pref!][][][][75lp:20%:20%,grow][pref!]"));
 
       {
         JLabel lblTitle = new TmmLabel(BUNDLE.getString("metatag.title"));
@@ -648,8 +648,8 @@ public class TvShowEditorDialog extends TmmDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.extraartwork"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[200lp:300lp,grow][20lp:n][200lp:300lp,grow][20lp:n][100lp:200lp,grow]",
-          "[][100lp:125lp,grow][20lp:n][][100lp:125lp,grow][20lp:n][][100lp:150lp,grow]"));
+      artworkPanel.setLayout(new MigLayout("", "[25%:35%:35%,grow][20lp:n][15%:25%:25%,grow][20lp:n][15%:25%:25%,grow]",
+          "[][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow][20lp:n][][100lp:30%:30%,grow]"));
 
       {
         JLabel lblClearlogoT = new TmmLabel(BUNDLE.getString("mediafiletype.clearlogo"));

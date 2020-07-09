@@ -264,7 +264,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       {
         JPanel panelSearchDetail = new JPanel();
         splitPane.setRightComponent(panelSearchDetail);
-        panelSearchDetail.setLayout(new MigLayout("", "[150lp:n,grow][300lp:500lp,grow]", "[]2lp[]2lp[][150lp:n][50lp:100lp,grow]"));
+        panelSearchDetail.setLayout(new MigLayout("", "[100lp:15%:20%,grow][300lp:500lp,grow 3]", "[]2lp[]2lp[][150lp:25%:50%][50lp:100lp,grow]"));
         {
           lblTitle = new JLabel("");
           TmmFontHelper.changeFont(lblTitle, 1.167, Font.BOLD);
@@ -280,6 +280,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         }
         {
           lblMoviePoster = new ImageLabel(false);
+          lblMoviePoster.setDesiredAspectRatio(2 / 3f);
           panelSearchDetail.add(lblMoviePoster, "cell 0 0 1 4,grow");
         }
         {

@@ -163,7 +163,8 @@ public class MovieSetEditorDialog extends TmmDialog {
 
       JPanel panelContent = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details"), panelContent);
-      panelContent.setLayout(new MigLayout("", "[][400lp,grow 200][150lp:200lp,grow 50]", "[][][150lp:200lp,grow][20lp:n][][][50lp:100lp,grow]"));
+      panelContent
+          .setLayout(new MigLayout("", "[][400lp,grow 200][150lp:200lp,grow 50]", "[][][150lp:25%:40%,grow][20lp:n][pref!][][50lp:20%:30%,grow]"));
 
       JLabel lblName = new TmmLabel(BUNDLE.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");

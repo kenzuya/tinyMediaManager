@@ -243,7 +243,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       {
         JPanel panelSearchDetail = new JPanel();
         splitPane.setRightComponent(panelSearchDetail);
-        panelSearchDetail.setLayout(new MigLayout("", "[150lp:n,grow][300lp:500lp,grow]", "[][][150lp:200lp,grow]"));
+        panelSearchDetail.setLayout(new MigLayout("", "[150lp:15%:25%,grow][300lp:500lp,grow 3]", "[][][150lp:200lp,grow]"));
         {
           lblTtitle = new JLabel("");
           TmmFontHelper.changeFont(lblTtitle, 1.166, Font.BOLD);
@@ -251,6 +251,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         }
         {
           lblTvShowPoster = new ImageLabel(false);
+          lblTvShowPoster.setDesiredAspectRatio(2 / 3f);
           panelSearchDetail.add(lblTvShowPoster, "cell 0 0 1 3,grow");
         }
         {

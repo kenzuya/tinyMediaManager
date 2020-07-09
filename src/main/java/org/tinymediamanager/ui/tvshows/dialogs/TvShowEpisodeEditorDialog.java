@@ -255,7 +255,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       JPanel detailsPanel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details"), detailsPanel);
       detailsPanel.setLayout(new MigLayout("", "[][20lp:75lp,grow][50lp:75lp][][60lp:75lp][50lp:75lp][20lp:n][][25lp:n][200lp:250lp,grow]",
-          "[][][][][][][100lp:125lp,grow][][][][100lp][pref:pref:pref][]"));
+          "[][][][][][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][pref:pref:pref][]"));
 
       {
         JLabel lblTitle = new TmmLabel(BUNDLE.getString("metatag.title"));
@@ -365,6 +365,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(btnDeleteThumb, "cell 9 0");
 
         lblThumb = new ImageLabel();
+        lblThumb.setDesiredAspectRatio(16 / 9f);
         lblThumb.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {

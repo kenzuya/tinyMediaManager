@@ -129,7 +129,7 @@ public class MovieEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID    = -286251957529920347L;
   private static final Logger                LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String                SPACER              = "        ";
+  private static final String                SPACER              = "    ";
 
   private Movie                              movieToEdit;
   private MovieList                          movieList           = MovieList.getInstance();
@@ -389,7 +389,7 @@ public class MovieEditorDialog extends TmmDialog {
       JPanel details1Panel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details"), details1Panel);
       details1Panel.setLayout(new MigLayout("", "[][grow][50lp:75lp][][60lp:75lp][100lp:n][50lp:75lp,grow][25lp:n][200lp:250lp,grow]",
-          "[][][][][100lp:175lp][][][][][][][75lp:100lp][]"));
+          "[][][][][100lp:25%:25%,grow][][pref!][][][][][75lp:20%:20%,grow][pref!]"));
 
       {
         JLabel lblTitle = new TmmLabel(BUNDLE.getString("metatag.title"));
@@ -862,8 +862,8 @@ public class MovieEditorDialog extends TmmDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.extraartwork"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[200lp:300lp,grow][20lp:n][200lp:300lp,grow][20lp:n][100lp:200lp,grow]",
-          "[][100lp:125lp,grow][20lp:n][][100lp:125lp,grow][20lp:n][][100lp:150lp,grow]"));
+      artworkPanel.setLayout(new MigLayout("", "[20%:35%:35%,grow][20lp:n][20%:35%:35%,grow][20lp:n][15%:20%:20%,grow]",
+          "[][150lp:35%:35%,grow][20lp:n][][100lp:20%:20%,grow][20lp:n][][150lp:35%:35%,grow]"));
       {
         JLabel lblLogoT = new TmmLabel(BUNDLE.getString("mediafiletype.logo"));
         artworkPanel.add(lblLogoT, "cell 0 0");
