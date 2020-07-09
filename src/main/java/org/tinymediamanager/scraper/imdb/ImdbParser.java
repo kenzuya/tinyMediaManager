@@ -41,6 +41,7 @@ import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -251,9 +252,20 @@ public abstract class ImdbParser {
           Elements imgs = posters.get(0).getElementsByTag("img");
           for (Element img : imgs) {
             posterUrl = img.attr("src");
-            posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
-            posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
-            posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
+            int fileStart = posterUrl.lastIndexOf('/');
+            if (fileStart > 0) {
+              int parameterStart = posterUrl.indexOf('_', fileStart);
+              if (parameterStart > 0) {
+                int startOfExtension = posterUrl.lastIndexOf('.');
+                if (startOfExtension > parameterStart) {
+                  posterUrl = posterUrl.substring(0, parameterStart) + posterUrl.substring(startOfExtension);
+                }
+              }
+            }
+
+            // and resize to the default preview size
+            String extension = FilenameUtils.getExtension(posterUrl);
+            posterUrl = posterUrl.replace("." + extension, "_UX342." + extension);
           }
         }
         if (StringUtils.isNotBlank(posterUrl)) {

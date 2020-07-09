@@ -21,6 +21,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -136,9 +137,58 @@ public class ImdbMetadataProvider
 
   static void processMediaArt(MediaMetadata md, MediaArtworkType type, String image) {
     MediaArtwork ma = new MediaArtwork(providerInfo.getId(), type);
-    ma.setPreviewUrl(image);
+
     ma.setDefaultUrl(image);
+
+    // create preview url (width = 342 as in TMDB)
+    String extension = FilenameUtils.getExtension(image);
+    String previewUrl = image.replace("." + extension, "_UX342." + extension);
+    ma.setPreviewUrl(previewUrl);
+
     md.addMediaArt(ma);
+  }
+
+  static void adoptArtworkToOptions(MediaArtwork artwork, ArtworkSearchAndScrapeOptions options) {
+    int width = 0;
+    int height = 0;
+
+    switch (options.getPosterSize()) {
+      case SMALL:
+        width = 185;
+        height = 277;
+        break;
+
+      case MEDIUM:
+        width = 342;
+        height = 513;
+        break;
+
+      case BIG:
+        width = 500;
+        height = 750;
+        break;
+
+      case LARGE:
+        width = 1000;
+        height = 1500;
+        break;
+
+      case XLARGE:
+        width = 2000;
+        height = 3000;
+        break;
+    }
+
+    if (width > 0 && height > 0) {
+      String image = artwork.getDefaultUrl();
+      String extension = FilenameUtils.getExtension(image);
+      String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
+
+      artwork.setDefaultUrl(defaultUrl);
+
+      artwork.setSizeOrder(options.getPosterSize().getOrder());
+      artwork.addImageSize(width, height, defaultUrl);
+    }
   }
 
   static String cleanString(String oldString) {

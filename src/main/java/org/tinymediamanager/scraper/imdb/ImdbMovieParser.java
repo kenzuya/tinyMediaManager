@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.imdb;
 
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TITLE;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.adoptArtworkToOptions;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.cleanString;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.executor;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInfo;
@@ -325,7 +326,14 @@ public class ImdbMovieParser extends ImdbParser {
     movieSearchAndScrapeOptions.setDataFromOtherOptions(options);
 
     try {
-      return getMetadata(movieSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+      List<MediaArtwork> artworks = getMetadata(movieSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+
+      // adopt the url to the wanted size
+      for (MediaArtwork artwork : artworks) {
+        adoptArtworkToOptions(artwork, options);
+      }
+
+      return artworks;
     }
     catch (NothingFoundException e) {
       LOGGER.debug("nothing found");

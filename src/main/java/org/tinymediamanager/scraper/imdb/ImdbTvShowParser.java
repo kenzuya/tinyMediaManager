@@ -19,6 +19,7 @@ import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TV;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.adoptArtworkToOptions;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.cleanString;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.executor;
 import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInfo;
@@ -674,7 +675,14 @@ public class ImdbTvShowParser extends ImdbParser {
     tvShowSearchAndScrapeOptions.setDataFromOtherOptions(options);
 
     try {
-      return getMetadata(tvShowSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+      List<MediaArtwork> artworks = getMetadata(tvShowSearchAndScrapeOptions).getMediaArt(MediaArtwork.MediaArtworkType.POSTER);
+
+      // adopt the url to the wanted size
+      for (MediaArtwork artwork : artworks) {
+        adoptArtworkToOptions(artwork, options);
+      }
+
+      return artworks;
     }
     catch (NothingFoundException e) {
       LOGGER.debug("nothing found");
