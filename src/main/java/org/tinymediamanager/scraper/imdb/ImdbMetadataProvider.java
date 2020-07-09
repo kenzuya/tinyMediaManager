@@ -142,7 +142,7 @@ public class ImdbMetadataProvider
 
     // create preview url (width = 342 as in TMDB)
     String extension = FilenameUtils.getExtension(image);
-    String previewUrl = image.replace("." + extension, "_UX342." + extension);
+    String previewUrl = image.replace("." + extension, "_SX342." + extension);
     ma.setPreviewUrl(previewUrl);
 
     md.addMediaArt(ma);
@@ -182,7 +182,7 @@ public class ImdbMetadataProvider
     if (width > 0 && height > 0) {
       String image = artwork.getDefaultUrl();
       String extension = FilenameUtils.getExtension(image);
-      String defaultUrl = image.replace("." + extension, "_UX" + width + "." + extension);
+      String defaultUrl = image.replace("." + extension, "_SX" + width + "." + extension);
 
       artwork.setDefaultUrl(defaultUrl);
 
