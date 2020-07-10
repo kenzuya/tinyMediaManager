@@ -76,7 +76,7 @@ public class ImdbTvShowParser extends ImdbParser {
   private static final Logger                                LOGGER                  = LoggerFactory.getLogger(ImdbTvShowParser.class);
   private static final Pattern                               UNWANTED_SEARCH_RESULTS = Pattern
       .compile(".*\\((TV Movies|TV Episode|Short|Video Game)\\).*");                                                                   // stripped out
-  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP  = new CacheMap<>(600, 5);
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP  = new CacheMap<>(60, 10);
 
   ImdbTvShowParser() {
     super(MediaType.TV_SHOW);

@@ -41,7 +41,7 @@ import okhttp3.Headers;
  * @author Manuel Laggner
  */
 public class InMemoryCachedUrl extends Url {
-  public static final CacheMap<CachedRequest, CachedResponse> CACHE = new CacheMap<>(600, 5);
+  public static final CacheMap<CachedRequest, CachedResponse> CACHE = new CacheMap<>(60, 10);
 
   public InMemoryCachedUrl(String url) throws MalformedURLException {
     this.url = url;
