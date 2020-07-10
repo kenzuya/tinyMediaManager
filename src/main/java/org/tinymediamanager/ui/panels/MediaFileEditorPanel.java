@@ -639,5 +639,11 @@ public class MediaFileEditorPanel extends JPanel {
     AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_3, tfVideoBitrate,
         jTextFieldBeanProperty_3);
     autoBinding_9.bind();
+    //
+    Property tmmTableBeanProperty_4 = BeanProperty.create("selectedElement.mediaFile.hdrFormat");
+    Property jTextFieldBeanProperty_6 = BeanProperty.create("text");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_4, tfHdrFormat,
+        jTextFieldBeanProperty_6);
+    autoBinding_10.bind();
   }
 }
