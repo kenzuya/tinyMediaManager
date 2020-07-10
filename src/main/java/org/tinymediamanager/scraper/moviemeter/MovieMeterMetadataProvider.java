@@ -113,7 +113,7 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
 
     LOGGER.debug("getMetadata(): {}", options);
     // check if there is a md in the result
-    if (options.getMetadata() != null) {
+    if (options.getMetadata() != null && getId().equals(options.getMetadata().getProviderId())) {
       LOGGER.debug("MovieMeter: getMetadata from cache");
       return options.getMetadata();
     }

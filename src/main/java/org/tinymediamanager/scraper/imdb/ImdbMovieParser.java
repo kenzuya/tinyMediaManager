@@ -93,7 +93,7 @@ public class ImdbMovieParser extends ImdbParser {
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
     // check if there is a md in the result
-    if (options.getMetadata() != null) {
+    if (options.getMetadata() != null && providerInfo.getId().equals(options.getMetadata().getProviderId())) {
       LOGGER.debug("IMDB: got metadata from cache: {}", options.getMetadata());
       return options.getMetadata();
     }

@@ -633,7 +633,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     String id = "";
 
     // check if there is a metadata containing an id
-    if (options.getMetadata() != null) {
+    if (options.getMetadata() != null && getId().equals(options.getMetadata().getProviderId())) {
       id = (String) options.getMetadata().getId(providerInfo.getId());
     }
 
