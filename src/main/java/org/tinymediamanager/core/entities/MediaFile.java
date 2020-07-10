@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -537,7 +538,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public List<MediaFileSubtitle> getSubtitles() {
     if (this.subtitles == null) {
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
     return subtitles;
   }
@@ -1230,7 +1231,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public List<MediaFileAudioStream> getAudioStreams() {
     if (this.audioStreams == null) {
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
     return audioStreams;
   }

@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -809,7 +810,7 @@ public class TvShowSettings extends AbstractSettings {
     if (storeUiFilters) {
       return uiFilters;
     }
-    return new ArrayList<>();
+    return Collections.emptyList();
   }
 
   public void setStoreUiFilters(boolean newValue) {

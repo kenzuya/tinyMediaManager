@@ -118,7 +118,7 @@ class TmdbArtworkProvider {
 
         // if the thread has been interrupted, to no rethrow that exception
         if (e instanceof InterruptedException || e instanceof InterruptedIOException) {
-          return new ArrayList<>();
+          return Collections.emptyList();
         }
 
         throw new ScrapeException(e);
@@ -126,7 +126,7 @@ class TmdbArtworkProvider {
     }
 
     if (images == null) {
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
 
     List<MediaArtwork> artwork = prepareArtwork(images, artworkType, tmdbId, options);

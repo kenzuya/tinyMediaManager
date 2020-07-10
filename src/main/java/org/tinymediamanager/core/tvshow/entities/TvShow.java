@@ -2197,7 +2197,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   @Override
   public List<String> getMediaInfoAudioCodecList() {
-    return new ArrayList<>();
+    return Collections.emptyList();
   }
 
   @Override
