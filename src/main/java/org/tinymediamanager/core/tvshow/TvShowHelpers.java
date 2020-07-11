@@ -194,8 +194,10 @@ public class TvShowHelpers {
    * @param tvShow the TV show to download the trailer for
    */
   public static void downloadBestTrailer(TvShow tvShow) {
-    MediaTrailer trailer = tvShow.getTrailer().get(0);
-    downloadTrailer(tvShow, trailer);
+    if (!tvShow.getTrailer().isEmpty()) {
+      MediaTrailer trailer = tvShow.getTrailer().get(0);
+      downloadTrailer(tvShow, trailer);
+    }
   }
 
   /**

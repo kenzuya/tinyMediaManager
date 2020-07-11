@@ -17,6 +17,7 @@ package org.tinymediamanager.core.movie.tasks;
 
 import static org.tinymediamanager.scraper.entities.MediaType.MOVIE;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -35,6 +36,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -54,6 +56,21 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private final List<Movie>           movies;
   private final List<MediaScraper>    subtitleScrapers;
   private final MediaLanguages        language;
+
+  public MovieSubtitleSearchAndDownloadTask(List<Movie> movies, MediaLanguages language) {
+    super(BUNDLE.getString("movie.download.subtitles"));
+    this.movies = movies;
+    this.language = language;
+
+    // get scrapers
+    this.subtitleScrapers = new ArrayList<>();
+    for (String scraperId : MovieModuleManager.SETTINGS.getSubtitleScrapers()) {
+      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.SUBTITLE);
+      if (scraper != null) {
+        subtitleScrapers.add(scraper);
+      }
+    }
+  }
 
   public MovieSubtitleSearchAndDownloadTask(List<Movie> movies, List<MediaScraper> subtitleScrapers, MediaLanguages language) {
     super(BUNDLE.getString("movie.download.subtitles"));

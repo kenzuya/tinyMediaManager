@@ -39,8 +39,8 @@ public class TvShowRenameTask extends TmmThreadPool {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowRenameTask.class);
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private List<TvShow>                tvShowsToRename  = new ArrayList<>();
-  private List<TvShowEpisode>         episodesToRename = new ArrayList<>();
+  private final List<TvShow>          tvShowsToRename  = new ArrayList<>();
+  private final List<TvShowEpisode>   episodesToRename = new ArrayList<>();
   private boolean                     renameRoot       = true;
 
   /**

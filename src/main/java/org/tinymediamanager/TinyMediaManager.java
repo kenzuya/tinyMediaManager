@@ -49,6 +49,7 @@ import org.apache.commons.io.IOUtils;
 import org.jdesktop.beansbinding.ELProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.Utils;
@@ -97,8 +98,11 @@ public class TinyMediaManager {
 
     // simple parse command line
     if (args != null && args.length > 0) {
-      LOGGER.debug("TMM started with: " + Arrays.toString(args));
-      TinyMediaManagerCMD.parseParams(args);
+      LOGGER.debug("TMM started with: {}", Arrays.toString(args));
+      if (!TinyMediaManagerCLI.checkArgs(args)) {
+        shutdownLogger();
+        System.exit(0);
+      }
       System.setProperty("java.awt.headless", "true");
     }
     else {
@@ -106,7 +110,7 @@ public class TinyMediaManager {
       String head = System.getProperty("java.awt.headless");
       if (head != null && head.equals("true")) {
         LOGGER.info("TMM started 'headless', and without params -> displaying syntax ");
-        TinyMediaManagerCMD.printSyntax();
+        TinyMediaManagerCLI.printHelp();
         shutdownLogger();
         System.exit(0);
       }
@@ -311,6 +315,7 @@ public class TinyMediaManager {
             splash.update();
           }
           if (!GraphicsEnvironment.isHeadless()) {
+
             MainWindow window = new MainWindow("tinyMediaManager / " + ReleaseInfo.getRealVersion());
 
             // finished ////////////////////////////////////////////////////
@@ -335,14 +340,18 @@ public class TinyMediaManager {
             }
           }
           else {
-            TinyMediaManagerCMD.startCommandLineTasks();
+            TinyMediaManagerCLI.start(args);
             // wait for other tmm threads (artwork download et all)
             while (TmmTaskManager.getInstance().poolRunning()) {
-              Thread.sleep(2000);
+              try {
+                Thread.sleep(2000);
+              }
+              catch (InterruptedException e) {
+                // ignored, just shut down gracefully
+              }
             }
 
             LOGGER.info("bye bye");
-            // MainWindows.shutdown()
             try {
               // send shutdown signal
               TmmTaskManager.getInstance().shutdown();

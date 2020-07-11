@@ -8,6 +8,7 @@ Version 4.0
   - full support of reading/writing mediainfo XML files
   - better support of disc structures (.iso and VIDEO_TS/BDMV/HVDVD_TS folders)
   - several fixes for reading data out of libmediainfo
++ new command line interface
 + mediainfo integration for Trakt.tv
 + support for Windows taskbar / macOS dock access
 + added a true regular expression search for movies/movie set/TV show titles

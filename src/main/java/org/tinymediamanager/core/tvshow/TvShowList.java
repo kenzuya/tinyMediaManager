@@ -148,6 +148,33 @@ public class TvShowList extends AbstractModelObject {
   }
 
   /**
+   * Gets all episodes
+   *
+   * @return all episodes
+   */
+  public List<TvShowEpisode> getEpisodes() {
+    List<TvShowEpisode> newEp = new ArrayList<>();
+    for (TvShow show : tvShowList) {
+      for (TvShowEpisode ep : show.getEpisodes()) {
+        newEp.add(ep);
+      }
+    }
+    return newEp;
+  }
+
+  public List<TvShowEpisode> getEpisodesWithoutSubtitles() {
+    List<TvShowEpisode> subEp = new ArrayList<>();
+    for (TvShow show : tvShowList) {
+      for (TvShowEpisode ep : show.getEpisodes()) {
+        if (!ep.getHasSubtitles()) {
+          subEp.add(ep);
+        }
+      }
+    }
+    return subEp;
+  }
+
+  /**
    * get all specified trailer scrapers.
    *
    * @param providerIds
