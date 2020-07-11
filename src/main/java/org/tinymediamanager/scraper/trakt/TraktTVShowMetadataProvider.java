@@ -437,7 +437,7 @@ class TraktTVShowMetadataProvider {
       if (episode.ids.tmdb != null && episode.ids.tmdb > 0) {
         md.setId(TMDB, episode.ids.tmdb);
       }
-      if (StringUtils.isNotBlank(episode.ids.imdb)) {
+      if (MetadataUtil.isValidImdbId(episode.ids.imdb)) {
         md.setId(IMDB, episode.ids.imdb);
       }
       if (episode.ids.tvrage != null && episode.ids.tvrage > 0) {

@@ -126,7 +126,7 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     // imdbid
     String imdbId = options.getImdbId();
 
-    if (StringUtils.isBlank(imdbId) && mmId == 0) {
+    if (!MetadataUtil.isValidImdbId(imdbId) && mmId == 0) {
       LOGGER.warn("not possible to scrape from Moviemeter.bl - no mmId/imdbId found");
       throw new MissingIdException(MediaMetadata.IMDB, providerInfo.getId());
     }
@@ -167,7 +167,9 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
       throw new NothingFoundException();
     }
 
-    md.setId(MediaMetadata.IMDB, fd.imdb);
+    if (MetadataUtil.isValidImdbId(fd.imdb)) {
+      md.setId(MediaMetadata.IMDB, fd.imdb);
+    }
     md.setTitle(fd.title);
     md.setYear(fd.year);
     md.setPlot(fd.plot);
@@ -282,7 +284,9 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     if (fd != null) { // imdb film detail page
       MediaSearchResult sr = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
       sr.setId(String.valueOf(fd.id));
-      sr.setIMDBId(imdb);
+      if (MetadataUtil.isValidImdbId(fd.imdb)) {
+        sr.setIMDBId(fd.imdb);
+      }
       sr.setTitle(fd.title);
       sr.setUrl(fd.url);
       sr.setYear(fd.year);
@@ -292,7 +296,9 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     for (MMFilm film : moviesFound) {
       MediaSearchResult sr = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
       sr.setId(String.valueOf(film.id));
-      sr.setIMDBId(imdb);
+      if (MetadataUtil.isValidImdbId(film.imdb)) {
+        sr.setIMDBId(film.imdb);
+      }
       sr.setTitle(film.title);
       sr.setUrl(film.url);
       sr.setYear(film.year);

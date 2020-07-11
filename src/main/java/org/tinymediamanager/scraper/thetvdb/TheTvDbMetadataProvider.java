@@ -227,7 +227,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     // populate metadata
     md.setId(PROVIDER_INFO.getId(), show.id);
     md.setTitle(show.seriesName);
-    if (StringUtils.isNotBlank(show.imdbId)) {
+    if (MetadataUtil.isValidImdbId(show.imdbId)) {
       md.setId(MediaMetadata.IMDB, show.imdbId);
     }
     if (StringUtils.isNotBlank(show.zap2itId)) {
@@ -410,7 +410,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       imdbId = searchString; // search via IMDBid only
       searchString = null; // by setting empty searchterm
     }
-    if (!StringUtils.isEmpty(imdbId)) {
+    if (MetadataUtil.isValidImdbId(imdbId)) {
       searchString = null; // null-out search string, when searching with IMDB, else 405
     }
 

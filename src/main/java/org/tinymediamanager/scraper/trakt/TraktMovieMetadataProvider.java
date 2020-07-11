@@ -211,7 +211,7 @@ class TraktMovieMetadataProvider {
       if (movie.ids.tmdb != null && movie.ids.tmdb > 0) {
         md.setId(TMDB, movie.ids.tmdb);
       }
-      if (StringUtils.isNotBlank(movie.ids.imdb)) {
+      if (MetadataUtil.isValidImdbId(movie.ids.imdb)) {
         md.setId(IMDB, movie.ids.imdb);
       }
     }

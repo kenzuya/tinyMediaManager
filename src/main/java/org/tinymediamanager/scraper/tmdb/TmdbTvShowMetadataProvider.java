@@ -672,7 +672,7 @@ class TmdbTvShowMetadataProvider {
       if (MetadataUtil.unboxInteger(episode.external_ids.tvdb_id) > 0) {
         md.setId(TVDB, episode.external_ids.tvdb_id);
       }
-      if (StringUtils.isNotBlank(episode.external_ids.imdb_id)) {
+      if (MetadataUtil.isValidImdbId(episode.external_ids.imdb_id)) {
         md.setId(IMDB, episode.external_ids.imdb_id);
       }
       if (MetadataUtil.unboxInteger(episode.external_ids.tvrage_id) > 0) {

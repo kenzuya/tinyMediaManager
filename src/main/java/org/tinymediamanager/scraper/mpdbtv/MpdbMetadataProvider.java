@@ -61,6 +61,7 @@ import org.tinymediamanager.scraper.mpdbtv.entities.Studio;
 import org.tinymediamanager.scraper.mpdbtv.entities.Trailer;
 import org.tinymediamanager.scraper.mpdbtv.services.Controller;
 import org.tinymediamanager.scraper.util.ApiKey;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
  * The Class MpdbMetadataProvider. A meta data provider for the site ofdb.de
@@ -68,9 +69,9 @@ import org.tinymediamanager.scraper.util.ApiKey;
  * @author Wolfgang Janes
  */
 public class MpdbMetadataProvider implements IMovieMetadataProvider {
-  public static final String ID = "mpdbtv";
+  public static final String             ID           = "mpdbtv";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MpdbMetadataProvider.class);
+  private static final Logger            LOGGER       = LoggerFactory.getLogger(MpdbMetadataProvider.class);
   private static final MediaProviderInfo providerInfo = createMediaProviderInfo();
   private static final String            API_KEY      = ApiKey.decryptApikey("DdSGUTZn24ml7rZRBihKb9ea3svKUDnU3GZdhgf+XMrfE8IdLinpy6eAPLrmkZWu");
   private static final String            FORMAT       = "json";
@@ -142,7 +143,9 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
         result.setTitle(StringEscapeUtils.unescapeHtml4(entity.title));
       }
       result.setYear(entity.year);
-      result.setId("imdb_id", entity.id_imdb);
+      if (MetadataUtil.isValidImdbId(entity.id_imdb)) {
+        result.setId("imdb_id", entity.id_imdb);
+      }
       result.setId("allocine_id", entity.id_allocine);
       result.setUrl(entity.url);
       result.setPosterUrl(entity.posterUrl);
@@ -312,7 +315,9 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
     }
 
     metadata.setId("allocine", scrapeResult.idAllocine);
-    metadata.setId("imdb", scrapeResult.idImdb);
+    if (MetadataUtil.isValidImdbId(scrapeResult.idImdb)) {
+      metadata.setId("imdb", scrapeResult.idImdb);
+    }
     metadata.setId("tmdb", scrapeResult.idTmdb);
     metadata.setTagline(scrapeResult.tagline);
     metadata.setReleaseDate(new Date(scrapeResult.firstRelease));

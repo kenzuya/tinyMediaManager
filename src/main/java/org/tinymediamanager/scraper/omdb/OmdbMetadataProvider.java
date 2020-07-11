@@ -62,7 +62,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  *
  * @author Wolfgang Janes
  */
-public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider { // , ITvShowMetadataProvider {
+public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider {
   public static final String             ID           = "omdbapi";
 
   private static final Logger            LOGGER       = LoggerFactory.getLogger(OmdbMetadataProvider.class);
@@ -291,7 +291,9 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
       MediaSearchResult result = new MediaSearchResult(OmdbMetadataProvider.providerInfo.getId(), MediaType.MOVIE);
 
       result.setTitle(entity.title);
-      result.setIMDBId(entity.imdbID);
+      if (MetadataUtil.isValidImdbId(entity.imdbID)) {
+        result.setIMDBId(entity.imdbID);
+      }
       try {
         result.setYear(Integer.parseInt(entity.year));
       }
