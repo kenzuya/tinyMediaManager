@@ -150,7 +150,7 @@ public class IconManager {
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
   public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
-  public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location");
+  public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location.svg");
   public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");
   public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
   public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");
