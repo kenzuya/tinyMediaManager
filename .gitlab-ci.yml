@@ -124,7 +124,7 @@ deploy:test:
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new build\"}" https://gitlab.com/api/v4/projects/18118695/repository/files/v4_job_id.txt
 
     # trigger the deployment on test.tinymediamanager.org (new HP)
-    - curl -X POST -F "token=${TEST_PIPELINE_TOKEN}" -F "ref=master" -F "variables[JOB_ID]=${CI_JOB_ID}" https://gitlab.com/api/v4/projects/18118695/trigger/pipeline
+    - curl -X POST -F "token=${TEST_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/18118695/trigger/pipeline
 
   artifacts:
     paths:
