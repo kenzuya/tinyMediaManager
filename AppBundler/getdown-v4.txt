@@ -27,6 +27,7 @@ resource = [mac os x] macOS/Info.plist
 resource = [mac os x] macOS/Resources/tmm.icns
 resource = version
 resource = splashscreen.png
+resource = tmm.png
 resource = changelog.txt
 resource = launcher.yml
 
