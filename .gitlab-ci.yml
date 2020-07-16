@@ -174,8 +174,6 @@ deploy:RELEASE:
     ## (change apt-get to yum if you use an RPM-based image)
     ##
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-      https://gitlab:
-        com/api/v4/projects/18118695:
 
     ##
     ## Run ssh-agent (inside the build environment)
