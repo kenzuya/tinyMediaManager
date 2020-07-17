@@ -1890,15 +1890,24 @@ public class MediaFileHelper {
     String ar = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "DisplayAspectRatio", "Display_aspect_ratio", "DisplayAspectRatio/String",
         "DisplayAspectRatio_Origin");
     try {
-      if (ar.equals("16:9")) {
-        ar = "1.78";
+      // make it easier - replace all *:1 because there is no need to calculate
+      ar = ar.replace(":1", "");
+
+      // check if we still have a : in our aspect ratio
+      if (ar.contains(":")) {
+        String[] operands = ar.split(":");
+        if (operands.length == 2) {
+          // calculate
+          mediaFile.setAspectRatio(Float.parseFloat(operands[0]) / Float.parseFloat(operands[1]));
+        }
       }
-      ar = ar.replace(":1", ""); // eg 2.40:1
-      float arf = Float.parseFloat(ar);
-      mediaFile.setAspectRatio(arf);
+      else {
+        // just parse
+        mediaFile.setAspectRatio(Float.parseFloat(ar));
+      }
     }
     catch (Exception e) {
-      LOGGER.warn("Could not parse AspectRatio '{}'", ar);
+      LOGGER.trace("Could not parse AspectRatio '{}'", ar);
     }
 
     mediaFile.setVideo3DFormat(parse3DFormat(mediaFile, miSnapshot));
