@@ -57,12 +57,16 @@ public class UpdaterTask extends TmmTask {
   private static final Logger         LOGGER = LoggerFactory.getLogger(UpdaterTask.class);
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
+  boolean                             downloadSucessful;
+
   public UpdaterTask() {
     super(BUNDLE.getString("task.updater.prepare"), 100, TaskType.BACKGROUND_TASK);
   }
 
   @Override
   public void doInBackground() {
+    downloadSucessful = false;
+
     try {
       List<EnvConfig.Note> notes = new ArrayList<>();
 
@@ -126,6 +130,8 @@ public class UpdaterTask extends TmmTask {
           resource.install(true);
         }
 
+        downloadSucessful = true;
+
         // all files downloaded -> popup to inform the user (if we're in a UI environment)
         if (!GraphicsEnvironment.isHeadless()) {
           SwingUtilities.invokeLater(() -> {
@@ -141,6 +147,10 @@ public class UpdaterTask extends TmmTask {
     catch (Exception e) {
       LOGGER.error("could not download update: {}", e.getMessage());
     }
+  }
+
+  public boolean isDownloadSucessful() {
+    return downloadSucessful;
   }
 
   /**

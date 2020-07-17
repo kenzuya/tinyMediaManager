@@ -17,6 +17,8 @@ package org.tinymediamanager.cli;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.updater.UpdateCheck;
+import org.tinymediamanager.updater.UpdaterTask;
 
 import picocli.CommandLine;
 
@@ -100,9 +102,16 @@ public class TinyMediaManagerCLI implements Runnable {
     if (update) {
       LOGGER.info("Checking for new updates...");
 
-      // FIXME for v4
-      // UpdaterTask updaterTask = new UpdaterTask();
-      // Boolean updateAvailable = updaterTask.doInBackground();
+      if (new UpdateCheck().isUpdateAvailable()) {
+        LOGGER.info("New update available - downloading...");
+
+        UpdaterTask updaterTask = new UpdaterTask();
+        updaterTask.doInBackground();
+
+        if (updaterTask.isDownloadSucessful()) {
+          LOGGER.info("Update downloaded successful - restart to apply");
+        }
+      }
     }
   }
 }
