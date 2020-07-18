@@ -95,7 +95,7 @@ public class TmmOsUtils {
 
     if (SystemUtils.IS_OS_WINDOWS) {
       tmmExecutable = Paths.get("tinyMediaManager.exe");
-      pb = new ProcessBuilder("start", "/min", tmmExecutable.toAbsolutePath().toString());
+      pb = new ProcessBuilder("tinyMediaManager.exe");
     }
     else if (SystemUtils.IS_OS_MAC) {
       tmmExecutable = Paths.get("../../MacOS/tinyMediaManager");
