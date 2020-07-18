@@ -45,6 +45,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowChangeToDvdOrderAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowCleanUpFilesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowClearImageCacheAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteMediainfoXmlAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
@@ -264,10 +265,14 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     popupMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
     popupMenu.add(createAndRegisterAction(TvShowRenameAction.class));
-    popupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
     popupMenu.add(createAndRegisterAction(TvShowExportAction.class));
     popupMenu.add(createAndRegisterAction(TvShowCleanUpFilesAction.class));
     popupMenu.add(createAndRegisterAction(TvShowClearImageCacheAction.class));
+
+    popupMenu.addSeparator();
+
+    popupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
 
     popupMenu.addSeparator();
 
@@ -344,6 +349,9 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
+    editPopupMenu.addSeparator();
+    editPopupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowExportAction.class));
     editPopupMenu.addSeparator();
