@@ -1181,7 +1181,7 @@ public class MediaFileHelper {
       return detectRelevantHdDvdFiles(mediaInfoFiles);
     }
 
-    return Collections.emptyList();
+    return mediaInfoFiles;
   }
 
   /**

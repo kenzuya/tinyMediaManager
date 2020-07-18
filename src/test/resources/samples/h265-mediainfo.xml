@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<MediaInfo xmlns="https://mediaarea.net/mediainfo" version="2.0">
+  <media ref="/home/manuel/Dokumente/workspace_v4/tinyMediaManager/src/test/resources/samples/h265.mp4">
+    <track type="General">
+      <Count>331</Count>
+      <StreamCount>1</StreamCount>
+      <StreamKind>General</StreamKind>
+      <StreamKind_String>General</StreamKind_String>
+      <StreamKindID>0</StreamKindID>
+      <VideoCount>1</VideoCount>
+      <Video_Format_List>HEVC</Video_Format_List>
+      <Video_Format_WithHint_List>HEVC</Video_Format_WithHint_List>
+      <Video_Codec_List>HEVC</Video_Codec_List>
+      <CompleteName>/home/manuel/Dokumente/workspace_v4/tinyMediaManager/src/test/resources/samples/h265.mp4
+      </CompleteName>
+      <FolderName>/home/manuel/Dokumente/workspace_v4/tinyMediaManager/src/test/resources/samples</FolderName>
+      <FileNameExtension>h265.mp4</FileNameExtension>
+      <FileName>h265</FileName>
+      <FileExtension>mp4</FileExtension>
+      <Format>MPEG-4</Format>
+      <Format_String>MPEG-4</Format_String>
+      <Format_Extensions>braw mov mp4 m4v m4a m4b m4p m4r 3ga 3gpa 3gpp 3gp 3gpp2 3g2 k3g jpm jpx mqv ismv isma ismt f4a
+        f4b f4v
+      </Format_Extensions>
+      <Format_Commercial>MPEG-4</Format_Commercial>
+      <Format_Profile>Base Media</Format_Profile>
+      <InternetMediaType>video/mp4</InternetMediaType>
+      <CodecID>iso4</CodecID>
+      <CodecID_String>iso4 (iso4/hvc1)</CodecID_String>
+      <CodecID_Url>http://www.apple.com/quicktime/download/standalone.html</CodecID_Url>
+      <CodecID_Compatible>iso4/hvc1</CodecID_Compatible>
+      <FileSize>706007</FileSize>
+      <FileSize_String>689 KiB</FileSize_String>
+      <FileSize_String1>689 KiB</FileSize_String1>
+      <FileSize_String2>689 KiB</FileSize_String2>
+      <FileSize_String3>689 KiB</FileSize_String3>
+      <FileSize_String4>689.5 KiB</FileSize_String4>
+      <Duration>13958</Duration>
+      <Duration_String>13 s 958 ms</Duration_String>
+      <Duration_String1>13 s 958 ms</Duration_String1>
+      <Duration_String2>13 s 958 ms</Duration_String2>
+      <Duration_String3>00:00:13.958</Duration_String3>
+      <Duration_String4>00:00:13:23</Duration_String4>
+      <Duration_String5>00:00:13.958 (00:00:13:23)</Duration_String5>
+      <OverallBitRate>404647</OverallBitRate>
+      <OverallBitRate_String>405 kb/s</OverallBitRate_String>
+      <FrameRate>24.000</FrameRate>
+      <FrameRate_String>24.000 FPS</FrameRate_String>
+      <FrameCount>335</FrameCount>
+      <StreamSize>4234</StreamSize>
+      <StreamSize_String>4.13 KiB (1%)</StreamSize_String>
+      <StreamSize_String1>4 KiB</StreamSize_String1>
+      <StreamSize_String2>4.1 KiB</StreamSize_String2>
+      <StreamSize_String3>4.13 KiB</StreamSize_String3>
+      <StreamSize_String4>4.135 KiB</StreamSize_String4>
+      <StreamSize_String5>4.13 KiB (1%)</StreamSize_String5>
+      <StreamSize_Proportion>0.00600</StreamSize_Proportion>
+      <HeaderSize>4167</HeaderSize>
+      <DataSize>701781</DataSize>
+      <FooterSize>59</FooterSize>
+      <IsStreamable>Yes</IsStreamable>
+      <Encoded_Date>UTC 2014-08-25 18:10:46</Encoded_Date>
+      <Tagged_Date>UTC 2014-08-25 18:10:46</Tagged_Date>
+      <File_Modified_Date>UTC 2020-04-20 10:46:27</File_Modified_Date>
+      <File_Modified_Date_Local>2020-04-20 12:46:27</File_Modified_Date_Local>
+    </track>
+    <track type="Video">
+      <Count>378</Count>
+      <StreamCount>1</StreamCount>
+      <StreamKind>Video</StreamKind>
+      <StreamKind_String>Video</StreamKind_String>
+      <StreamKindID>0</StreamKindID>
+      <StreamOrder>0</StreamOrder>
+      <ID>1</ID>
+      <ID_String>1</ID_String>
+      <Format>HEVC</Format>
+      <Format_String>HEVC</Format_String>
+      <Format_Info>High Efficiency Video Coding</Format_Info>
+      <Format_Url>http://www.itu.int</Format_Url>
+      <Format_Commercial>HEVC</Format_Commercial>
+      <Format_Profile>Main@L4@Main</Format_Profile>
+      <InternetMediaType>video/H265</InternetMediaType>
+      <CodecID>hvc1</CodecID>
+      <CodecID_Info>High Efficiency Video Coding</CodecID_Info>
+      <CodecID_Url>http://www.itu.int/</CodecID_Url>
+      <Duration>13958</Duration>
+      <Duration_String>13 s 958 ms</Duration_String>
+      <Duration_String1>13 s 958 ms</Duration_String1>
+      <Duration_String2>13 s 958 ms</Duration_String2>
+      <Duration_String3>00:00:13.958</Duration_String3>
+      <Duration_String4>00:00:13:23</Duration_String4>
+      <Duration_String5>00:00:13.958 (00:00:13:23)</Duration_String5>
+      <BitRate>402210</BitRate>
+      <BitRate_String>402 kb/s</BitRate_String>
+      <BitRate_Maximum>801424</BitRate_Maximum>
+      <BitRate_Maximum_String>801 kb/s</BitRate_Maximum_String>
+      <Width>1920</Width>
+      <Width_String>1 920 pixels</Width_String>
+      <Height>800</Height>
+      <Height_String>800 pixels</Height_String>
+      <Sampled_Width>1920</Sampled_Width>
+      <Sampled_Height>800</Sampled_Height>
+      <PixelAspectRatio>1.000</PixelAspectRatio>
+      <DisplayAspectRatio>2.400</DisplayAspectRatio>
+      <DisplayAspectRatio_String>2.40:1</DisplayAspectRatio_String>
+      <Rotation>0.000</Rotation>
+      <FrameRate_Mode>CFR</FrameRate_Mode>
+      <FrameRate_Mode_String>Constant</FrameRate_Mode_String>
+      <FrameRate>24.000</FrameRate>
+      <FrameRate_String>24.000 FPS</FrameRate_String>
+      <FrameCount>335</FrameCount>
+      <ColorSpace>YUV</ColorSpace>
+      <ChromaSubsampling>4:2:0</ChromaSubsampling>
+      <ChromaSubsampling_String>4:2:0</ChromaSubsampling_String>
+      <BitDepth>8</BitDepth>
+      <BitDepth_String>8 bits</BitDepth_String>
+      <Bits-Pixel_Frame>0.011</Bits-Pixel_Frame>
+      <StreamSize>701773</StreamSize>
+      <StreamSize_String>685 KiB (99%)</StreamSize_String>
+      <StreamSize_String1>685 KiB</StreamSize_String1>
+      <StreamSize_String2>685 KiB</StreamSize_String2>
+      <StreamSize_String3>685 KiB</StreamSize_String3>
+      <StreamSize_String4>685.3 KiB</StreamSize_String4>
+      <StreamSize_String5>685 KiB (99%)</StreamSize_String5>
+      <StreamSize_Proportion>0.99400</StreamSize_Proportion>
+      <Title>hevc:fps=24@GPAC0.5.1-DEV-rev4807</Title>
+      <Encoded_Library>x265 - 1.3+20-6e6756f94b27:[Windows][MSVC 1700][64 bit]</Encoded_Library>
+      <Encoded_Library_String>x265 1.3+20-6e6756f94b27:[Windows][MSVC 1700][64 bit]</Encoded_Library_String>
+      <Encoded_Library_Name>x265</Encoded_Library_Name>
+      <Encoded_Library_Version>1.3+20-6e6756f94b27:[Windows][MSVC 1700][64 bit]</Encoded_Library_Version>
+      <Encoded_Library_Settings>wpp / ctu=64 / tu-intra-depth=3 / tu-inter-depth=3 / me=3 / subme=4 / merange=57 / rect
+        / amp / max-merge=4 / no-early-skip / no-fast-cbf / rdpenalty=0 / no-tskip / no-tskip-fast /
+        strong-intra-smoothing / no-lossless / no-cu-lossless / no-constrained-intra / no-fast-intra / open-gop /
+        interlace=0 / keyint=250 / min-keyint=24 / scenecut=40 / rc-lookahead=40 / bframes=8 / bframe-bias=0 / b-adapt=2
+        / ref=5 / weightp / no-weightb / aq-mode=2 / aq-strength=1.00 / cbqpoffs=0 / crqpoffs=0 / rd=6 / psy-rd=0.60 /
+        psy-rdoq=1.00 / signhide / lft / sao / sao-lcu-bounds=0 / sao-lcu-opt=1 / b-pyramid / cutree / rc=2 / pass /
+        bitrate=400 / ratetol=1.0 / qcomp=0.60 / qpmin=0 / qpmax=51 / qpstep=4 / cplxblur=20.0 / qblur=0.5 /
+        ipratio=1.40 / pbratio=1.30
+      </Encoded_Library_Settings>
+      <Encoded_Date>UTC 2014-08-25 18:10:46</Encoded_Date>
+      <Tagged_Date>UTC 2014-08-25 18:10:46</Tagged_Date>
+      <CodecConfigurationBox>hvcC</CodecConfigurationBox>
+    </track>
+  </media>
+</MediaInfo>

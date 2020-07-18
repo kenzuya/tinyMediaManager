@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<MediaInfo xmlns="https://mediaarea.net/mediainfo" version="2.0">
+  <media ref="/home/manuel/Dokumente/workspace_v4/tinyMediaManager/src/test/resources/samples/DTS-ES_Discrete.ts">
+    <track type="General">
+      <Count>333</Count>
+      <StreamCount>1</StreamCount>
+      <StreamKind>General</StreamKind>
+      <StreamKind_String>General</StreamKind_String>
+      <StreamKindID>0</StreamKindID>
+      <ID>1</ID>
+      <ID_String>1 (0x1)</ID_String>
+      <AudioCount>1</AudioCount>
+      <Audio_Format_List>DTS ES XXCH</Audio_Format_List>
+      <Audio_Format_WithHint_List>DTS ES XXCH</Audio_Format_WithHint_List>
+      <Audio_Codec_List>DTS ES XXCH</Audio_Codec_List>
+      <CompleteName>/home/manuel/Dokumente/workspace_v4/tinyMediaManager/src/test/resources/samples/DTS-ES_Discrete.ts
+      </CompleteName>
+      <FolderName>/home/manuel/Dokumente/workspace_v4/tinyMediaManager/src/test/resources/samples</FolderName>
+      <FileNameExtension>DTS-ES_Discrete.ts</FileNameExtension>
+      <FileName>DTS-ES_Discrete</FileName>
+      <FileExtension>ts</FileExtension>
+      <Format>MPEG-TS</Format>
+      <Format_String>MPEG-TS</Format_String>
+      <Format_Extensions>ts m2t m2s m4t m4s tmf ts tp trp ty</Format_Extensions>
+      <Format_Commercial>MPEG-TS</Format_Commercial>
+      <InternetMediaType>video/MP2T</InternetMediaType>
+      <FileSize>440484</FileSize>
+      <FileSize_String>430 KiB</FileSize_String>
+      <FileSize_String1>430 KiB</FileSize_String1>
+      <FileSize_String2>430 KiB</FileSize_String2>
+      <FileSize_String3>430 KiB</FileSize_String3>
+      <FileSize_String4>430.2 KiB</FileSize_String4>
+      <Duration>1962.666667</Duration>
+      <Duration_String>1 s 963 ms</Duration_String>
+      <Duration_String1>1 s 963 ms</Duration_String1>
+      <Duration_String2>1 s 963 ms</Duration_String2>
+      <Duration_String3>00:00:01.963</Duration_String3>
+      <Duration_String5>00:00:01.963</Duration_String5>
+      <OverallBitRate_Mode>VBR</OverallBitRate_Mode>
+      <OverallBitRate_Mode_String>Variable</OverallBitRate_Mode_String>
+      <OverallBitRate>1721120</OverallBitRate>
+      <OverallBitRate_String>1 721 kb/s</OverallBitRate_String>
+      <OverallBitRate_Maximum>35500000</OverallBitRate_Maximum>
+      <OverallBitRate_Maximum_String>35.5 Mb/s</OverallBitRate_Maximum_String>
+      <StreamSize>62103</StreamSize>
+      <StreamSize_String>60.6 KiB (14%)</StreamSize_String>
+      <StreamSize_String1>61 KiB</StreamSize_String1>
+      <StreamSize_String2>61 KiB</StreamSize_String2>
+      <StreamSize_String3>60.6 KiB</StreamSize_String3>
+      <StreamSize_String4>60.65 KiB</StreamSize_String4>
+      <StreamSize_String5>60.6 KiB (14%)</StreamSize_String5>
+      <StreamSize_Proportion>0.14099</StreamSize_Proportion>
+      <File_Modified_Date>UTC 2020-04-20 10:46:27</File_Modified_Date>
+      <File_Modified_Date_Local>2020-04-20 12:46:27</File_Modified_Date_Local>
+      <OverallBitRate_Precision_Min>1720677</OverallBitRate_Precision_Min>
+      <OverallBitRate_Precision_Max>1721562</OverallBitRate_Precision_Max>
+    </track>
+    <track type="Audio">
+      <Count>280</Count>
+      <StreamCount>1</StreamCount>
+      <StreamKind>Audio</StreamKind>
+      <StreamKind_String>Audio</StreamKind_String>
+      <StreamKindID>0</StreamKindID>
+      <StreamOrder>0-0</StreamOrder>
+      <ID>4352</ID>
+      <ID_String>4352 (0x1100)</ID_String>
+      <MenuID>1</MenuID>
+      <MenuID_String>1 (0x1)</MenuID_String>
+      <Format>DTS</Format>
+      <Format_String>DTS ES XXCH</Format_String>
+      <Format_Info>Digital Theater Systems</Format_Info>
+      <Format_Url>https://en.wikipedia.org/wiki/DTS_(sound_system)</Format_Url>
+      <Format_Commercial>DTS-ES Discrete</Format_Commercial>
+      <Format_Commercial_IfAny>DTS-ES Discrete</Format_Commercial_IfAny>
+      <Format_Settings_Mode>16</Format_Settings_Mode>
+      <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+      <Format_AdditionalFeatures>ES XXCH</Format_AdditionalFeatures>
+      <CodecID>130</CodecID>
+      <Duration>2005</Duration>
+      <Duration_String>2 s 5 ms</Duration_String>
+      <Duration_String1>2 s 5 ms</Duration_String1>
+      <Duration_String2>2 s 5 ms</Duration_String2>
+      <Duration_String3>00:00:02.005</Duration_String3>
+      <Duration_String4>00:00:02:00</Duration_String4>
+      <Duration_String5>00:00:02.005 (00:00:02:00)</Duration_String5>
+      <BitRate_Mode>CBR</BitRate_Mode>
+      <BitRate_Mode_String>Constant</BitRate_Mode_String>
+      <BitRate>1509750</BitRate>
+      <BitRate_String>1 510 kb/s</BitRate_String>
+      <Channels>7</Channels>
+      <Channels_String>7 channels</Channels_String>
+      <ChannelPositions>Front: L C R, Side: L R, Back: C, LFE</ChannelPositions>
+      <ChannelPositions_String2>3/2/1.1</ChannelPositions_String2>
+      <ChannelLayout>C L R Ls Rs Cb LFE</ChannelLayout>
+      <SamplesPerFrame>512</SamplesPerFrame>
+      <SamplingRate>48000</SamplingRate>
+      <SamplingRate_String>48.0 kHz</SamplingRate_String>
+      <SamplingCount>96240</SamplingCount>
+      <FrameRate>93.750</FrameRate>
+      <FrameRate_String>93.750 FPS (512 SPF)</FrameRate_String>
+      <FrameCount>188</FrameCount>
+      <BitDepth>16</BitDepth>
+      <BitDepth_String>16 bits</BitDepth_String>
+      <Compression_Mode>Lossy</Compression_Mode>
+      <Compression_Mode_String>Lossy</Compression_Mode_String>
+      <Delay>4202005.333333</Delay>
+      <Delay_String>1 h 10 min</Delay_String>
+      <Delay_String1>1 h 10 min 2 s 5 ms</Delay_String1>
+      <Delay_String2>1 h 10 min</Delay_String2>
+      <Delay_String3>01:10:02.005</Delay_String3>
+      <Delay_Source>Container</Delay_Source>
+      <Delay_Source_String>Container</Delay_Source_String>
+      <StreamSize>378381</StreamSize>
+      <StreamSize_String>370 KiB (86%)</StreamSize_String>
+      <StreamSize_String1>370 KiB</StreamSize_String1>
+      <StreamSize_String2>370 KiB</StreamSize_String2>
+      <StreamSize_String3>370 KiB</StreamSize_String3>
+      <StreamSize_String4>369.5 KiB</StreamSize_String4>
+      <StreamSize_String5>370 KiB (86%)</StreamSize_String5>
+      <StreamSize_Proportion>0.85901</StreamSize_Proportion>
+    </track>
+  </media>
+</MediaInfo>
