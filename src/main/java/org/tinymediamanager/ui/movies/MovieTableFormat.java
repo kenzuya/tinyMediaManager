@@ -179,13 +179,32 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * date added
+     * date added (hidden per default)
      */
     col = new Column(BUNDLE.getString("metatag.dateadded"), "dateAdded", MediaEntity::getDateAddedForUi, Date.class);
     col.setColumnComparator(dateComparator);
     col.setHeaderIcon(IconManager.DATE_ADDED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    try {
+      Date date = StrgUtils.parseDate("2012-12-12");
+      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
+    }
+    catch (Exception ignored) {
+    }
+    addColumn(col);
+
+    /*
+     * file creation date (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.filecreationdate"), "fileCreationDate", movie -> movie.getMainVideoFile().getDateCreated(),
+        Date.class);
+    col.setColumnComparator(dateComparator);
+    col.setHeaderIcon(IconManager.DATE_CREATED);
+    col.setCellRenderer(new DateTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
       col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));

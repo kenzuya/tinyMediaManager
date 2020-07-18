@@ -141,6 +141,8 @@ public class IconManager {
   public static final ImageIcon              CERTIFICATION                = createTableHeaderIcon("universal-access.svg");
   public static final ImageIcon              COUNT                        = createTableHeaderIcon("hashtag.svg");
   public static final ImageIcon              DATE_ADDED                   = createTableHeaderIcon("calendar-plus.svg");
+  public static final ImageIcon              DATE_AIRED                   = createTableHeaderIcon("calendar-alt.svg");
+  public static final ImageIcon              DATE_CREATED                 = createTableHeaderIcon("calendar-star.svg");
   public static final ImageIcon              EDITION                      = createTableHeaderIcon("compact-disc.svg");
   public static final ImageIcon              EDIT_HEADER                  = createTableHeaderIcon("edit.svg");
   public static final ImageIcon              EPISODES                     = createTextIcon("E", 1.5);
