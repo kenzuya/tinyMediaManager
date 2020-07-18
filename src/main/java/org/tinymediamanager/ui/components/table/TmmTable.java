@@ -92,7 +92,6 @@ public class TmmTable extends JTable {
 
   private void init() {
     getTableHeader().setReorderingAllowed(false);
-    setFillsViewportHeight(true);
 
     getColumnModel().addColumnModelListener(new TableColumnModelListener() {
       @Override
