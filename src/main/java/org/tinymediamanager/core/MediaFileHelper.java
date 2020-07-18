@@ -886,7 +886,7 @@ public class MediaFileHelper {
     List<MediaInfoFile> miFiles = parseMediaInfoXml(xmlFile);
 
     if (!miFiles.isEmpty()) {
-      return miFiles;
+      return detectRelevantFiles(miFiles);
     }
 
     if (!MediaInfoUtils.USE_LIBMEDIAINFO) {

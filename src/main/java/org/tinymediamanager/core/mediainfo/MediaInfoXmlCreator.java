@@ -28,6 +28,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -68,14 +69,17 @@ public class MediaInfoXmlCreator {
       media.setAttribute("ref", file.getAbsolutePath());
 
       for (Map.Entry<MediaInfo.StreamKind, List<Map<String, String>>> entry : mediaInfoFile.getSnapshot().entrySet()) {
-        Element track = document.createElement("track");
-        track.setAttribute("type", entry.getKey().name());
-
         for (Map<String, String> map : entry.getValue()) {
+          Element track = document.createElement("track");
+          track.setAttribute("type", entry.getKey().name());
+          String streamKindPos = map.get("StreamKindPos");
+          if (StringUtils.isNotBlank(streamKindPos)) {
+            track.setAttribute("typeorder", streamKindPos);
+          }
           map.forEach((tag, content) -> addItems(track, tag, content));
-        }
 
-        media.appendChild(track);
+          media.appendChild(track);
+        }
       }
 
       mediaInfo.appendChild(media);
