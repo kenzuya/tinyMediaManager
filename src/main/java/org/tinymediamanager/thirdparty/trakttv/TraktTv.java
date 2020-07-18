@@ -154,7 +154,7 @@ public class TraktTv {
   }
 
   /**
-   * do we have values for user/pass/api and are we a donator?!
+   * do we have values for user/pass/api?!
    * 
    * @return true/false if trakt could be called
    */
