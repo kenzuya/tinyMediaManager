@@ -75,22 +75,8 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
         return true;
       }
 
-      if (StringUtils.isNotEmpty(movie.getTitle())) {
-        java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitle()));
-        if (matcher.find()) {
-          return true;
-        }
-      }
-
       if (StringUtils.isNotEmpty(movie.getTitleSortable())) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitleSortable()));
-        if (matcher.find()) {
-          return true;
-        }
-      }
-
-      if (StringUtils.isNotEmpty(movie.getOriginalTitle())) {
-        java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalTitle()));
         if (matcher.find()) {
           return true;
         }
