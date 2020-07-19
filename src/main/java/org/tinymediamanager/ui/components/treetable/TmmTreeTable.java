@@ -83,7 +83,6 @@ public class TmmTreeTable extends TmmTable {
   @Override
   public void addColumn(TableColumn aColumn) {
     if (aColumn.getIdentifier() == null && getModel() instanceof TmmTreeTableModel) {
-      // disable grid in header
       aColumn.setHeaderRenderer(new IconHeaderRenderer());
 
       TmmTreeTableModel tableModel = ((TmmTreeTableModel) getModel());

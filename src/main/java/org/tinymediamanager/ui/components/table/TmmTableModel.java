@@ -16,7 +16,7 @@
 package org.tinymediamanager.ui.components.table;
 
 import javax.swing.ImageIcon;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.JComponent;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -61,8 +61,8 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
       column.setHeaderValue(headerIcon);
     }
 
-    if (column.getHeaderRenderer() instanceof DefaultTableCellRenderer) {
-      ((DefaultTableCellRenderer) column.getHeaderRenderer()).setToolTipText(tmmTableFormat.getColumnName(columnIndex));
+    if (column.getHeaderRenderer() instanceof JComponent) {
+      ((JComponent) column.getHeaderRenderer()).setToolTipText(getHeaderTooltip(columnIndex));
     }
 
     column.setResizable(tmmTableFormat.getColumnResizeable(columnIndex));
@@ -71,6 +71,10 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
     if (tmmTableFormat.getMaxWidth(columnIndex) > 0) {
       column.setMaxWidth(tmmTableFormat.getMaxWidth(columnIndex));
     }
+  }
+
+  public String getHeaderTooltip(int column) {
+    return tmmTableFormat.getColumnName(column);
   }
 
   public String getTooltipAt(int row, int column) {

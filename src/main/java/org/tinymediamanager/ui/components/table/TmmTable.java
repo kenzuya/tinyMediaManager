@@ -31,8 +31,11 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
@@ -54,6 +57,8 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.FlatButton;
 
 import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.swing.SortableRenderer;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The Class TmmTable. It's being used to draw the tables like our designer designed it
@@ -84,6 +89,8 @@ public class TmmTable extends JTable {
   @Override
   public void addColumn(TableColumn aColumn) {
     if (aColumn.getIdentifier() == null && getModel() instanceof TmmTableModel) {
+      aColumn.setHeaderRenderer(new SortableIconHeaderRenderer());
+
       TmmTableModel<?> tableModel = ((TmmTableModel<?>) getModel());
       tableModel.setUpColumn(aColumn);
     }
@@ -321,6 +328,78 @@ public class TmmTable extends JTable {
         setText((value == null) ? "" : value.toString());
         setIcon(null);
         setHorizontalAlignment(CENTER);
+      }
+
+      return this;
+    }
+  }
+
+  protected static class SortableIconHeaderRenderer extends JPanel implements TableCellRenderer, SortableRenderer {
+    private static final long       serialVersionUID = 7963585655186183415L;
+    private final TableCellRenderer delegate;
+    private final JLabel            labelLeft;
+    private final JLabel            labelRight;
+
+    private Icon                    sortIcon;
+
+    public SortableIconHeaderRenderer() {
+      delegate = new DefaultTableCellRenderer();
+      setLayout(new MigLayout("insets 0, hidemode 3, center", "[]", "[grow]"));
+      this.labelLeft = new JLabel();
+
+      add(this.labelLeft, "cell 0 0");
+      this.labelRight = new JLabel();
+      this.labelRight.setIconTextGap(0);
+
+      add(this.labelRight, "cell 0 0, gapx 1");
+    }
+
+    @Override
+    public void setSortIcon(Icon sortIcon) {
+      this.sortIcon = sortIcon;
+    }
+
+    // @Override
+    // public void setToolTipText(String text){
+    // this.labelLeft.setToolTipText(text);
+    // }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focused, int row, int column) {
+      Component c = delegate.getTableCellRendererComponent(table, value, selected, focused, row, column);
+      if (!(c instanceof JLabel)) {
+        return c;
+      }
+
+      JLabel label = (JLabel) c;
+      setForeground(label.getForeground());
+      setBackground(label.getBackground());
+      setFont(label.getFont());
+
+      labelLeft.setForeground(label.getForeground());
+      labelLeft.setBackground(label.getBackground());
+      labelLeft.setFont(label.getFont());
+
+      labelRight.setForeground(label.getForeground());
+      labelRight.setBackground(label.getBackground());
+      labelRight.setFont(label.getFont());
+
+      // move the sort icon to the right label
+      if (sortIcon == null) {
+        labelRight.setVisible(false);
+      }
+      else {
+        labelRight.setVisible(true);
+        labelRight.setIcon(sortIcon);
+      }
+
+      if (value instanceof ImageIcon) {
+        labelLeft.setIcon((ImageIcon) value);
+        labelLeft.setText("");
+      }
+      else {
+        labelLeft.setText((value == null) ? "" : value.toString());
+        labelLeft.setIcon(null);
       }
 
       return this;

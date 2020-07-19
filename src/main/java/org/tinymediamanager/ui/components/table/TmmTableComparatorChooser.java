@@ -25,6 +25,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -35,6 +36,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.plaf.UIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.tinymediamanager.ui.IconManager;
@@ -107,6 +109,9 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
     // wrap the default table header with logic that decorates it with a sorting icon
     wrapDefaultTableHeaderRenderer();
 
+    // also wrap all column renderers
+    wrapColumnHeaderRenderer();
+
     // listen for events on the specified table
     table.getModel().addTableModelListener(tableModelHandler);
 
@@ -155,6 +160,22 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
       // decorate the default table header renderer with sort arrows
       sortArrowHeaderRenderer = new SortArrowHeaderRenderer(defaultRenderer);
       table.getTableHeader().setDefaultRenderer(sortArrowHeaderRenderer);
+    }
+  }
+
+  /**
+   * A method to wrap all set column header renderers
+   */
+  private void wrapColumnHeaderRenderer() {
+    // also install the renderer for all columns
+    Iterator<TableColumn> columns = table.getTableHeader().getColumnModel().getColumns().asIterator();
+    while (columns.hasNext()) {
+      TableColumn column = columns.next();
+
+      TableCellRenderer columnHeaderRenderer = column.getHeaderRenderer();
+      if (columnHeaderRenderer != null && columnHeaderRenderer.getClass() != SortArrowHeaderRenderer.class) {
+        column.setHeaderRenderer(new SortArrowHeaderRenderer(columnHeaderRenderer));
+      }
     }
   }
 

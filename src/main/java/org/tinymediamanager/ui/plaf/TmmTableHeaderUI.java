@@ -17,23 +17,15 @@ package org.tinymediamanager.ui.plaf;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.UIResource;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -41,9 +33,6 @@ import javax.swing.table.TableColumnModel;
 import com.formdev.flatlaf.ui.FlatTableHeaderUI;
 import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.formdev.flatlaf.util.UIScale;
-
-import ca.odell.glazedlists.swing.SortableRenderer;
-import net.miginfocom.swing.MigLayout;
 
 /**
  * the class TmmTableHeaderUI is used to render the table header including icons
@@ -57,24 +46,8 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
   }
 
   @Override
-  protected void installDefaults() {
-    super.installDefaults();
-
-    TableCellRenderer defaultRenderer = header.getDefaultRenderer();
-    if (defaultRenderer instanceof UIResource) {
-      header.setDefaultRenderer(new TmmTableCellHeaderRenderer(defaultRenderer));
-    }
-  }
-
-  @Override
   protected void uninstallDefaults() {
     super.uninstallDefaults();
-
-    // restore default renderer
-    TableCellRenderer defaultRenderer = header.getDefaultRenderer();
-    if (defaultRenderer instanceof TmmTableCellHeaderRenderer) {
-      header.setDefaultRenderer(((TmmTableCellHeaderRenderer) defaultRenderer).delegate);
-    }
 
     separatorColor = null;
     bottomSeparatorColor = null;
@@ -103,8 +76,7 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
   private boolean isSystemDefaultRenderer(Object headerRenderer) {
     String rendererClassName = headerRenderer.getClass().getName();
     return rendererClassName.equals("sun.swing.table.DefaultTableCellHeaderRenderer")
-        || rendererClassName.equals("sun.swing.FilePane$AlignableTableHeaderRenderer")
-        || rendererClassName.equals(TmmTableCellHeaderRenderer.class.getName());
+        || rendererClassName.equals("sun.swing.FilePane$AlignableTableHeaderRenderer");
   }
 
   private void paintColumnBorders(Graphics g, JComponent c) {
@@ -203,11 +175,6 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
     }
   }
 
-  private boolean isVerticalScrollBarVisible() {
-    JScrollPane scrollPane = this.getScrollPane();
-    return scrollPane != null && scrollPane.getVerticalScrollBar() != null ? scrollPane.getVerticalScrollBar().isVisible() : false;
-  }
-
   private JScrollPane getScrollPane() {
     Container parent = this.header.getParent();
     if (parent == null) {
@@ -218,85 +185,4 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
       return parent instanceof JScrollPane ? (JScrollPane) parent : null;
     }
   }
-
-  /**
-   * A delegating header renderer that is only used to paint icons along with sort arrows
-   */
-  private static class TmmTableCellHeaderRenderer extends JPanel implements TableCellRenderer, UIResource, SortableRenderer {
-    private final TableCellRenderer delegate;
-    private final JLabel            labelLeft;
-    private final JLabel            labelRight;
-
-    private Icon                    sortIcon;
-
-    TmmTableCellHeaderRenderer(TableCellRenderer delegate) {
-      this.delegate = delegate;
-      setLayout(new MigLayout("insets 0, hidemode 3, center", "[]", "[grow]"));
-      this.labelLeft = new JLabel();
-
-      add(this.labelLeft, "cell 0 0");
-      this.labelRight = new JLabel();
-      this.labelRight.setIconTextGap(0);
-
-      add(this.labelRight, "cell 0 0, gapx 1");
-    }
-
-    @Override
-    public void setSortIcon(Icon sortIcon) {
-      this.sortIcon = sortIcon;
-    }
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-      Component c = delegate.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-      if (!(c instanceof JLabel)) {
-        return c;
-      }
-
-      JLabel label = (JLabel) c;
-      setForeground(label.getForeground());
-      setBackground(label.getBackground());
-      setFont(label.getFont());
-
-      labelLeft.setForeground(label.getForeground());
-      labelLeft.setBackground(label.getBackground());
-      labelLeft.setFont(label.getFont());
-
-      labelRight.setForeground(label.getForeground());
-      labelRight.setBackground(label.getBackground());
-      labelRight.setFont(label.getFont());
-
-      // move the sort icon to the right label
-      if (sortIcon == null) {
-        labelRight.setVisible(false);
-      }
-      else {
-        labelRight.setVisible(true);
-        labelRight.setIcon(sortIcon);
-      }
-
-      if (value instanceof ImageIcon) {
-        labelLeft.setIcon((ImageIcon) value);
-        labelLeft.setText("");
-      }
-      else {
-        labelLeft.setText((value == null) ? "" : value.toString());
-        labelLeft.setIcon(null);
-      }
-
-      return this;
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-      Dimension left = labelLeft.getPreferredSize();
-      Dimension right = labelRight.getPreferredSize();
-      Insets insets = getInsets();
-
-      int height = Math.max(left.height, right.height);
-
-      return new Dimension(left.width + right.width + insets.left + insets.right + 1, height + insets.top + insets.bottom);
-    }
-  }
-
 }
