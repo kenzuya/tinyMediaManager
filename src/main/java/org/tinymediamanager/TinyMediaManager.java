@@ -43,6 +43,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.swing.JOptionPane;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
 import org.apache.commons.io.IOUtils;
@@ -486,6 +487,8 @@ public class TinyMediaManager {
 
     try {
       TmmUIHelper.setTheme();
+      // decrease the tooltip timeout
+      ToolTipManager.sharedInstance().setInitialDelay(300);
     }
     catch (Exception e) {
       LOGGER.error("Failed to initialize LaF - {}", e.getMessage());
