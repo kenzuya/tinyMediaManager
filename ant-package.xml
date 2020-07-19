@@ -167,6 +167,20 @@
         </copy>
 
         <!-- ===================================================== -->
+        <!-- ARM (raspberry, ...) distributable -->
+        <!-- ===================================================== -->
+        <copy file="target/launcher/arm/tinyMediaManager"
+              tofile="${dist.dir}/arm/tinyMediaManager"/>
+        <chmod file="${dist.dir}/arm/tinyMediaManager" perm="ugo+rx"/>
+        <copy todir="${dist.dir}/arm">
+            <fileset dir="${build.dir}">
+                <include name="**/*"/>
+                <exclude name="native/**"/>
+                <exclude name="jre/**"/>
+            </fileset>
+        </copy>
+
+        <!-- ===================================================== -->
         <!-- finalize getdown files -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
@@ -176,6 +190,7 @@
         <copy file="${dist.dir}/linux/tinyMediaManager" todir="${build.dir}"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager"
               todir="${build.dir}/macOS/MacOS"/>
+        <copy file="${dist.dir}/arm/tinyMediaManager" tofile="${build.dir}/tinyMediaManager-arm"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" todir="${build.dir}/macOS/"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/tmm.icns"
               todir="${build.dir}/macOS/Resources/"/>
@@ -224,6 +239,19 @@
             <tarfileset filemode="755" dir="${dist.dir}/linux" includes="tinyMediaManager"/>
         </tar>
 
+        <!-- ===================================================== -->
+        <!-- package ARM -->
+        <!-- ===================================================== -->
+        <echo message="====================================================="/>
+        <echo message="package for ARM"/>
+        <echo message="====================================================="/>
+        <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
+        <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
+        <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_arm.tar.gz">
+            <tarfileset dir="${dist.dir}/arm" excludes="tinyMediaManager"/>
+            <tarfileset filemode="755" dir="${dist.dir}/arm" includes="tinyMediaManager-arm"/>
+        </tar>
+
         <!-- done, move build dir -->
         <delete dir="build"/>
         <move file="${build.dir}" tofile="build"/>
@@ -233,6 +261,7 @@
         <delete dir="${dist.dir}/win"/>
         <delete dir="${dist.dir}/mac"/>
         <delete dir="${dist.dir}/linux"/>
+        <delete dir="${dist.dir}/arm"/>
 
         <!-- create checksums -->
         <checksum algorithm="SHA-1" fileext=".sha1">

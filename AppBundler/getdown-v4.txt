@@ -20,8 +20,10 @@ ui.hide_decorations = true
 code = tmm.jar
 %CODELIBS%
 
-resource = [windows] tinyMediaManager.exe
-xresource = [linux] tinyMediaManager
+resource = [windows-amd64] tinyMediaManager.exe
+xresource = [linux-amd64] tinyMediaManager
+xresource = [linux-arm] tinyMediaManager-arm
+xresource = [linux-aarch64] tinyMediaManager-arm
 xresource = [mac os x] macOS/MacOS/tinyMediaManager
 resource = [mac os x] macOS/Info.plist
 resource = [mac os x] macOS/Resources/tmm.icns
@@ -33,8 +35,8 @@ resource = launcher.yml
 
 # JRE - will be mixed into the path by the ant build
 # DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
-resource = [windows] jre/jre-windows.tar.br
-resource = [linux] jre/jre-linux.tar.br
+resource = [windows-amd64] jre/jre-windows.tar.br
+resource = [linux-amd64] jre/jre-linux.tar.br
 resource = [mac os x] jre/jre-macos.tar.br
 
 # translations
@@ -42,14 +44,14 @@ resource = [mac os x] jre/jre-macos.tar.br
 
 # mediainfo native libs
 resource = [mac os x] native/mac/libmediainfo.dylib
-resource = [windows] native/windows/MediaInfo.dll
-resource = [windows] native/windows/MediaInfo.dll
+resource = [windows-amd64] native/windows/MediaInfo.dll
+resource = [windows-amd64] native/windows/MediaInfo.dll
 
 # nativefiledialogs native libs
-resource = [windows] native/windows/lwjgl.dll
-resource = [windows] native/windows/lwjgl_nfd.dll
-resource = [linux] native/linux/liblwjgl.so
-resource = [linux] native/linux/liblwjgl_nfd.so
+resource = [windows-amd64] native/windows/lwjgl.dll
+resource = [windows-amd64] native/windows/lwjgl_nfd.dll
+resource = [linux-amd64] native/linux/liblwjgl.so
+resource = [linux-amd64] native/linux/liblwjgl_nfd.so
 
 # templates
 resource = templates/templates.tar.bz2
