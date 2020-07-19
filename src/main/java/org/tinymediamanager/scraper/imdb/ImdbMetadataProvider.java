@@ -103,16 +103,19 @@ public class ImdbMetadataProvider
 
   @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    switch (options.getMediaType()) {
-      case MOVIE:
-        return (new ImdbMovieParser()).getMovieArtwork(options);
+    if (options.getArtworkType() == MediaArtworkType.ALL || options.getArtworkType() == MediaArtworkType.POSTER) {
+      switch (options.getMediaType()) {
+        case MOVIE:
+          return (new ImdbMovieParser()).getMovieArtwork(options);
 
-      case TV_SHOW:
-        return (new ImdbTvShowParser()).getTvShowArtwork(options);
+        case TV_SHOW:
+          return (new ImdbTvShowParser()).getTvShowArtwork(options);
 
-      default:
-        return Collections.emptyList();
+        default:
+          break;
+      }
     }
+    return Collections.emptyList();
   }
 
   @Override
