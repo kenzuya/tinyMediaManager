@@ -300,8 +300,8 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
         titleFirst = title.text();
       }
 
-      // do not work further with short titles
-      if("short".equals(title.attr("type"))){
+      // do not work further with short titles/synonyms
+      if("short".equals(title.attr("type")) || "synonym".equals(title.attr("type"))){
         continue;
       }
 
