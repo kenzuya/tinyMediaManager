@@ -29,7 +29,7 @@ import javax.swing.KeyStroke;
 public abstract class AbstractTmmUIModule implements ITmmUIModule {
   protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
-  protected final Map<Class, Action>    actionMap    = new HashMap<>();
+  protected final Map<Class<?>, Action> actionMap    = new HashMap<>();
 
   protected Action                      searchAction = null;
   protected Action                      editAction   = null;
@@ -56,11 +56,11 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
     Action action = actionMap.get(actionClass);
     if (action == null) {
       try {
-        action = actionClass.newInstance();
+        action = actionClass.getDeclaredConstructor().newInstance();
         actionMap.put(actionClass, action);
-        // KeyStroke keyStroke = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
     return action;
@@ -70,7 +70,7 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
    * register accelerators
    */
   protected void registerAccelerators() {
-    for (Map.Entry<Class, Action> entry : actionMap.entrySet()) {
+    for (Map.Entry<Class<?>, Action> entry : actionMap.entrySet()) {
       try {
         KeyStroke keyStroke = (KeyStroke) entry.getValue().getValue(Action.ACCELERATOR_KEY);
         if (keyStroke != null) {

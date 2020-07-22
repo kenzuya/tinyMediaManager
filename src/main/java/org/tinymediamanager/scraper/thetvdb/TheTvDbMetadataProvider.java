@@ -956,12 +956,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       }
 
       // swap arg0 and arg1 to sort reverse
-      int result = Double.compare(arg1.ratingsInfo.average, arg0.ratingsInfo.average);
-
-      // equal rating; sort by votes
-      if (result == 0) {
-        result = Integer.compare(arg1.ratingsInfo.count, arg0.ratingsInfo.count);
-      }
+      int result = Integer.compare(arg1.ratingsInfo.count, arg0.ratingsInfo.count);
 
       // if the result is still 0, we need to compare by ID (returning a zero here will treat it as a duplicate and remove the previous one)
       if (result == 0) {

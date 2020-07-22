@@ -101,9 +101,9 @@ public class ITOmdbMetadataProviderTest {
       md = mp.getMetadata(scrapeOptions);
       assertThat(md.getCertifications()).isNotEmpty();
       assertThat(md.getTitle()).isEqualTo("The Matrix");
-      assertThat(md.getYear()).isEqualTo(new Integer(1999));
+      assertThat(md.getYear()).isEqualTo(Integer.valueOf(1999));
       assertThat(md.getReleaseDate()).isNotNull();
-      assertThat(md.getRuntime()).isEqualTo(new Integer(136));
+      assertThat(md.getRuntime()).isEqualTo(Integer.valueOf(136));
       assertThat(md.getCastMembers(DIRECTOR)).isNotNull();
       assertThat(md.getCastMembers(DIRECTOR).size()).isEqualTo(2);
       assertThat(md.getCastMembers(WRITER)).isNotNull();
@@ -123,9 +123,9 @@ public class ITOmdbMetadataProviderTest {
       md = mp.getMetadata(scrapeOptions);
       assertThat(md.getCertifications()).isNotEmpty();
       assertThat(md.getTitle()).isEqualTo("Men in Black");
-      assertThat(md.getYear()).isEqualTo(new Integer(1997));
+      assertThat(md.getYear()).isEqualTo(Integer.valueOf(1997));
       assertThat(md.getReleaseDate()).isNotNull();
-      assertThat(md.getRuntime()).isEqualTo(new Integer(98));
+      assertThat(md.getRuntime()).isEqualTo(Integer.valueOf(98));
       assertThat(md.getCastMembers(DIRECTOR)).isNotNull();
       assertThat(md.getCastMembers(DIRECTOR).size()).isEqualTo(1);
       assertThat(md.getCastMembers(WRITER)).isNotNull();

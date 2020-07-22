@@ -207,7 +207,7 @@ public abstract class AbstractSettings extends AbstractModelObject {
    *          the class we need for unmarshalling
    * @return an instance (loaded or new) for the desired settings class
    */
-  protected static AbstractSettings getInstance(String folder, String filename, Class clazz) {
+  protected static AbstractSettings getInstance(String folder, String filename, Class<? extends AbstractSettings> clazz) {
     AbstractSettings instance = null;
 
     Path cfgFolder = Paths.get(folder);
@@ -236,7 +236,7 @@ public abstract class AbstractSettings extends AbstractModelObject {
           LOGGER.error("failed loading settings", e);
         }
         LOGGER.warn("could not load settings - creating default ones...");
-        instance = (AbstractSettings) clazz.newInstance();
+        instance = clazz.getDeclaredConstructor().newInstance();
         instance.settingsFolder = folder;
         instance.newConfig = true;
         instance.dirty = true;

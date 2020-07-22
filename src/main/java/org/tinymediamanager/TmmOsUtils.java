@@ -17,8 +17,8 @@ package org.tinymediamanager;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -38,6 +38,10 @@ public class TmmOsUtils {
 
   public static final String  DESKTOP_FILE = "tinyMediaManager.desktop";
 
+  private TmmOsUtils() {
+    // hide public constructor for utility classes
+  }
+
   /**
    * create a .desktop file for linux and unix (not osx)
    * 
@@ -51,12 +55,8 @@ public class TmmOsUtils {
 
     // get the path in a safe way
     String path = new File(TinyMediaManager.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
-    try {
-      path = URLDecoder.decode(path, "UTF-8");
-    }
-    catch (UnsupportedEncodingException e1) {
-      path = URLDecoder.decode(path);
-    }
+    path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+
     StringBuilder sb = new StringBuilder(60);
     sb.append("[Desktop Entry]\n");
     sb.append("Type=Application\n");

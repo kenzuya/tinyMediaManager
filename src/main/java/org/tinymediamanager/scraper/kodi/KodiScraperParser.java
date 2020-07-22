@@ -20,12 +20,13 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.text.translate.EntityArrays;
+import org.apache.commons.text.translate.EntityArrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -63,8 +64,8 @@ class KodiScraperParser {
       // replace all known entities with their unicode notation
       // this fixes the "entity 'Iacute' was referenced, but not declared" parsing problems, since we do not have to add doctype entity declarations
       // might replace too much; so this is only a fallback
-      for (String[] ent : EntityArrays.ISO8859_1_UNESCAPE()) {
-        xmlFile = xmlFile.replace(ent[0], ent[1]);
+      for (Map.Entry<CharSequence, CharSequence> ent : EntityArrays.ISO8859_1_UNESCAPE.entrySet()) {
+        xmlFile = xmlFile.replace(ent.getKey(), ent.getValue());
       }
       InputStream stream = new ByteArrayInputStream(xmlFile.getBytes(StandardCharsets.UTF_8));
       xml = parser.parse(stream);

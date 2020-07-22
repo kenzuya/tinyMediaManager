@@ -60,7 +60,7 @@ public class TmmTextFieldUI extends FlatTextFieldUI {
     am.put(UndoAction.UNDO, undoAction);
     am.put(RedoAction.REDO, redoAction);
 
-    int commandKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    int commandKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
     im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, commandKey), UndoAction.UNDO);
     im.put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, commandKey), RedoAction.REDO);
   }
