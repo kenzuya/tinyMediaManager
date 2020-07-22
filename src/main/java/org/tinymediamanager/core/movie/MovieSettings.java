@@ -173,6 +173,7 @@ public class MovieSettings extends AbstractSettings {
   private boolean                          automaticTrailerDownload               = false;
   private TrailerQuality                   trailerQuality                         = TrailerQuality.HD_720;
   private TrailerSources                   trailerSource                          = TrailerSources.YOUTUBE;
+  private boolean                          showLocalTrailerColumn                 = true;
 
   // subtitle scraper
   private MediaLanguages                   subtitleScraperLanguage                = MediaLanguages.en;
@@ -1053,6 +1054,16 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = this.automaticTrailerDownload;
     this.automaticTrailerDownload = newValue;
     firePropertyChange("automaticTrailerDownload", oldValue, newValue);
+  }
+
+  public void setShowLocalTrailerColumn(boolean newValue) {
+    boolean oldValue = this.showLocalTrailerColumn;
+    this.showLocalTrailerColumn = newValue;
+    firePropertyChange("showLocalTrailerColumn", oldValue, newValue);
+  }
+
+  public boolean isShowLocalTrailerColumn() {
+    return showLocalTrailerColumn;
   }
 
   public TrailerQuality getTrailerQuality() {

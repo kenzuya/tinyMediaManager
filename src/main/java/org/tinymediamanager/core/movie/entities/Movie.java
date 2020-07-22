@@ -401,10 +401,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the checks for trailer
    */
   public Boolean getHasTrailer() {
-    if (trailer != null && !trailer.isEmpty()) {
-      return true;
-    }
+    if (!MovieModuleManager.SETTINGS.isShowLocalTrailerColumn()) {
 
+      if (trailer != null && !trailer.isEmpty()) {
+        return true;
+      }
+    }
     // check if there is a mediafile (trailer)
     if (!getMediaFiles(MediaFileType.TRAILER).isEmpty()) {
       return true;
