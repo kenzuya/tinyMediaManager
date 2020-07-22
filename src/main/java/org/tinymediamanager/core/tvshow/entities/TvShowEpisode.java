@@ -1678,4 +1678,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       firePropertyChange("hasSubtitle", true, false);
     }
   }
+
+  public boolean isUncategorized() {
+    if (episode == -1 || season == -1) {
+      return true;
+    }
+    return false;
+  }
 }

@@ -60,6 +60,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowNewEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowStatusFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowStudioFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowTagFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowUncategorizedEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoContainerFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFormatFilter;
@@ -111,6 +112,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowCountryFilter(), panelMain);
         addFilter(new TvShowTagFilter(), panelMain);
         addFilter(new TvShowEmptyFilter(), panelMain);
+        addFilter(new TvShowUncategorizedEpisodesFilter(), panelMain);
       }
 
       {
