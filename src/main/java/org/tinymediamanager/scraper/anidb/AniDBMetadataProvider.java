@@ -300,6 +300,11 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
         titleFirst = title.text();
       }
 
+      // do not work further with short titles
+      if("short".equals(title.attr("type"))){
+        continue;
+      }
+
       // main title aka original title
       if ("main".equalsIgnoreCase(title.attr("type"))) {
         titleMain = title.text();
