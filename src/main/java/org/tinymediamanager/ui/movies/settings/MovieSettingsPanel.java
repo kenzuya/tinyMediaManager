@@ -82,6 +82,7 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxCheckLogo;
   private JCheckBox                    chckbxCheckClearlogo;
   private JCheckBox                    chckbxCheckDiscart;
+  private JCheckBox                    cbShowOnlyLocalTrailer;
 
   private ItemListener                 checkBoxListener;
 
@@ -236,6 +237,11 @@ public class MovieSettingsPanel extends JPanel {
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
         panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 3 2 1");
       }
+      {
+        cbShowOnlyLocalTrailer = new JCheckBox(BUNDLE.getString("Settings.showonlylocaltrailer"));
+        panelUiSettings.add(cbShowOnlyLocalTrailer, "cell 1 4 2 1");
+      }
+
     }
     {
       JPanel panelAutomaticTasks = new JPanel();
@@ -400,5 +406,10 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         movieSettingsBeanProperty_11, chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
     autoBinding_11.bind();
+    //
+    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_12 = BeanProperty.create("showLocalTrailerColumn");
+    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+        movieSettingsBeanProperty_12, cbShowOnlyLocalTrailer, jCheckBoxBeanProperty);
+    autoBinding_12.bind();
   }
 }
