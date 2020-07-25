@@ -88,7 +88,7 @@
         <okhttp.version>3.12.1</okhttp.version>
         <slf4j.version>1.7.30</slf4j.version>
         <release.version>2.5.3</release.version>
-        <jre.version>14.0.1_7</jre.version>
+        <jre.version>14.0.2_12_hotspot</jre.version>
         <launcher.version>1.0.3</launcher.version>
         <jackson.version>2.11.1</jackson.version>
     </properties>
