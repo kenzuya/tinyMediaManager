@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListCellRenderer;
@@ -106,6 +105,7 @@ public class MediaFileEditorPanel extends JPanel {
   private JTextField                      tfBitDepth;
   private JTextField                      tfHdrFormat;
   private JTextField                      tfVideoBitrate;
+  private JTextField                      tfRuntime;
 
   public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
     this.mediaFiles = ObservableCollections.observableList(new ArrayList<>());
@@ -114,17 +114,11 @@ public class MediaFileEditorPanel extends JPanel {
       this.mediaFiles.add(container);
     }
 
-    Vector<Float> aspectRatios = new Vector<>(ASPECT_RATIOS.keySet());
+    Float[] aspectRatios = ASPECT_RATIOS.keySet().toArray(new Float[0]);
 
     // predefined 3D Formats
-    Vector<String> threeDFormats = new Vector<>();
-    threeDFormats.add("");
-    threeDFormats.add(MediaFileHelper.VIDEO_3D);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_SBS);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_HSBS);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_TAB);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_HTAB);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_MVC);
+    String[] threeDFormats = { "", MediaFileHelper.VIDEO_3D, MediaFileHelper.VIDEO_3D_SBS, MediaFileHelper.VIDEO_3D_HSBS,
+        MediaFileHelper.VIDEO_3D_TAB, MediaFileHelper.VIDEO_3D_HTAB, MediaFileHelper.VIDEO_3D_MVC };
 
     setLayout(new MigLayout("", "[300lp:450lp,grow]", "[200lp:450lp,grow]"));
     {
@@ -144,8 +138,8 @@ public class MediaFileEditorPanel extends JPanel {
       {
         JPanel panelDetails = new JPanel();
         splitPane.setRightComponent(panelDetails);
-        panelDetails.setLayout(
-            new MigLayout("", "[][65lp:65lp,grow][20lp:n][][65lp:65lp,grow][20lp:n][][grow][50lp:n,grow]", "[][][][][][100lp:150lp][100lp:150lp]"));
+        panelDetails
+            .setLayout(new MigLayout("", "[][75lp:n][20lp:n][][75lp:n][20lp:n][][75lp:n][50lp:n,grow]", "[][][][][][100lp:150lp][100lp:150lp]"));
         {
           lblFilename = new JLabel("");
           TmmFontHelper.changeFont(lblFilename, 1.167, Font.BOLD);
@@ -201,7 +195,7 @@ public class MediaFileEditorPanel extends JPanel {
               return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
             }
           });
-          panelDetails.add(cbAspectRatio, "cell 7 2,growx");
+          panelDetails.add(cbAspectRatio, "cell 7 2");
         }
         {
           JLabel lblFrameRate = new TmmLabel(BUNDLE.getString("metatag.framerate"));
@@ -209,25 +203,25 @@ public class MediaFileEditorPanel extends JPanel {
 
           tfFrameRate = new JTextField();
           tfFrameRate.setInputVerifier(new DoubleInputVerifier());
-          panelDetails.add(tfFrameRate, "cell 1 3");
+          panelDetails.add(tfFrameRate, "cell 1 3,growx");
           tfFrameRate.setColumns(10);
         }
         {
-          JLabel lbl3d = new TmmLabel("3D Format");
-          panelDetails.add(lbl3d, "cell 3 3,alignx right");
-
-          cb3dFormat = new JComboBox(threeDFormats);
-          panelDetails.add(cb3dFormat, "cell 4 3,growx,aligny top");
-        }
-        {
           JLabel lblVideoBitrate = new TmmLabel(BUNDLE.getString("metatag.bitrate"));
-          panelDetails.add(lblVideoBitrate, "cell 6 3,alignx trailing");
-
-          tfVideoBitrate = new JTextField();
-          panelDetails.add(tfVideoBitrate, "cell 7 3");
-          tfVideoBitrate.setColumns(10);
-          tfVideoBitrate.setInputVerifier(new IntegerInputVerifier());
+          panelDetails.add(lblVideoBitrate, "cell 3 3,alignx trailing");
         }
+
+        tfVideoBitrate = new JTextField();
+        panelDetails.add(tfVideoBitrate, "cell 4 3");
+        tfVideoBitrate.setColumns(10);
+        tfVideoBitrate.setInputVerifier(new IntegerInputVerifier());
+        {
+          JLabel lbl3d = new TmmLabel("3D Format");
+          panelDetails.add(lbl3d, "cell 6 3,alignx right");
+        }
+
+        cb3dFormat = new JComboBox(threeDFormats);
+        panelDetails.add(cb3dFormat, "cell 7 3");
         {
           JLabel lblBitDepthT = new TmmLabel(BUNDLE.getString("metatag.videobitdepth"));
           panelDetails.add(lblBitDepthT, "cell 0 4,alignx trailing");
@@ -244,6 +238,15 @@ public class MediaFileEditorPanel extends JPanel {
           tfHdrFormat = new JTextField();
           panelDetails.add(tfHdrFormat, "cell 4 4,growx");
           tfHdrFormat.setColumns(10);
+        }
+        {
+          JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+          panelDetails.add(lblRuntimeT, "cell 6 4,alignx trailing");
+
+          tfRuntime = new JTextField();
+          panelDetails.add(tfRuntime, "cell 7 4");
+          tfRuntime.setColumns(5);
+          tfRuntime.setInputVerifier(new IntegerInputVerifier());
         }
         {
           JLabel lblAudiostreams = new TmmLabel("AudioStreams");
@@ -311,6 +314,8 @@ public class MediaFileEditorPanel extends JPanel {
             btnRemoveSubtitle.setEnabled(videoTypes.contains(mf.getType()));
             // 3D is only available for video types
             cb3dFormat.setEnabled(videoTypes.contains(mf.getType()));
+            // runtime is also only available for video types
+            tfRuntime.setEnabled(videoTypes.contains(mf.getType()));
           }
         }
       }
@@ -438,10 +443,10 @@ public class MediaFileEditorPanel extends JPanel {
   /*
    * Container needed to make the audio streams and subtitles editable
    */
-  public class MediaFileContainer {
-    private MediaFile                  mediaFile;
-    private List<MediaFileAudioStream> audioStreams;
-    private List<MediaFileSubtitle>    subtitles;
+  public static class MediaFileContainer {
+    private final MediaFile                  mediaFile;
+    private final List<MediaFileAudioStream> audioStreams;
+    private final List<MediaFileSubtitle>    subtitles;
 
     private MediaFileContainer(MediaFile mediaFile) {
       this.mediaFile = mediaFile;
@@ -524,6 +529,9 @@ public class MediaFileEditorPanel extends JPanel {
           }
           if (mfEditor.getOverallBitRate() != mfOriginal.getOverallBitRate()) {
             mfOriginal.setOverallBitRate(mfEditor.getOverallBitRate());
+          }
+          if (mfEditor.getDuration() != mfOriginal.getDuration()) {
+            mfOriginal.setDuration(mfEditor.getDuration());
           }
           // audio streams and subtitles will be completely set
           mfOriginal.setAudioStreams(mfEditor.getAudioStreams());
@@ -645,5 +653,11 @@ public class MediaFileEditorPanel extends JPanel {
     AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_4, tfHdrFormat,
         jTextFieldBeanProperty_6);
     autoBinding_10.bind();
+    //
+    Property tmmTableBeanProperty_5 = BeanProperty.create("selectedElement.mediaFile.durationInMinutes");
+    Property jTextFieldBeanProperty_7 = BeanProperty.create("text");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_5, tfRuntime,
+        jTextFieldBeanProperty_7);
+    autoBinding_11.bind();
   }
 }

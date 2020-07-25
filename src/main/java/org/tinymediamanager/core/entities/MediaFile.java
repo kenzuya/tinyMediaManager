@@ -1138,6 +1138,10 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return durationInSecs / 60;
   }
 
+  public void setDurationInMinutes(int durationInMinutes) {
+    setDuration(durationInMinutes * 60);
+  }
+
   /**
    * returns the duration / runtime formatted<br>
    * eg 1h 35m.
