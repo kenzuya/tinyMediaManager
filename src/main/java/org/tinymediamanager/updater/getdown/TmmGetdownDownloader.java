@@ -135,4 +135,9 @@ public class TmmGetdownDownloader extends com.threerings.getdown.net.Downloader 
     }
     throw new IOException(errpre + " [code=" + code + "]");
   }
+
+  @Override
+  protected void downloadFailed(Resource rsrc, Exception cause) {
+    LOGGER.error("Could not download resource '{}' - {}", rsrc.getRemote(), cause.getMessage());
+  }
 }
