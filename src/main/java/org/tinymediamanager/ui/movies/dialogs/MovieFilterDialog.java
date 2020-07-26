@@ -16,26 +16,46 @@
 
 package org.tinymediamanager.ui.movies.dialogs;
 
+import static org.tinymediamanager.ui.TmmFontHelper.L1;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.AbstractSettings.UIFilters;
+import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
+import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
@@ -82,8 +102,10 @@ public class MovieFilterDialog extends TmmDialog {
 
   // map for storing which filter is in which panel
   private final Map<JPanel, Set<IMovieUIFilter>> filterMap;
+  private final Set<IMovieUIFilter>              filters;
 
   private JTabbedPane                            tabbedPane;
+  private JComboBox<String>                      cbPreset;
 
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
     super(BUNDLE.getString("movieextendedsearch.options"), "movieFilter");
@@ -92,7 +114,18 @@ public class MovieFilterDialog extends TmmDialog {
 
     this.selectionModel = selectionModel;
     this.filterMap = new HashMap<>();
+    this.filters = new HashSet<>();
     this.selectionModel.addPropertyChangeListener("filterChanged", evt -> filterChanged());
+
+    ActionListener actionListener = e -> {
+      String filterName = (String) cbPreset.getSelectedItem();
+      if (StringUtils.isNotBlank(filterName)) {
+        selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getMovieUiFilterPresets().get(filterName));
+      }
+      else {
+        selectionModel.setFilterValues(Collections.emptyList());
+      }
+    };
 
     {
       tabbedPane = new TmmTabbedPane();
@@ -150,6 +183,123 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieMissingArtworkFilter(), panelMediaData);
         addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
       }
+
+      {
+        // filter preset panel
+        JPanel panelFilterPreset = new JPanel();
+        panelFilterPreset.setLayout(new MigLayout("insets n 0 n 0", "[5lp!][10lp][150lp,grow][5lp!]", "[]"));
+
+        JSeparator separator = new JSeparator();
+        panelFilterPreset.add(separator, "cell 0 1 4 1,growx,aligny top");
+
+        JLabel lblEnableAllT = new TmmLabel(BUNDLE.getString("filter.enableall"));
+        panelFilterPreset.add(lblEnableAllT, "cell 1 2, alignx trailing");
+
+        JCheckBox chkbxEnableAll = new JCheckBox();
+        chkbxEnableAll.setSelected(true);
+        chkbxEnableAll.addActionListener(e -> selectionModel.setFiltersActive(chkbxEnableAll.isSelected()));
+        panelFilterPreset.add(chkbxEnableAll, "cell 2 2");
+
+        JLabel lblFilterPresetT = new TmmLabel(BUNDLE.getString("filter.presets"));
+        panelFilterPreset.add(lblFilterPresetT, "cell 1 3, alignx trailing");
+
+        cbPreset = new JComboBox<>();
+        cbPreset.addActionListener(e -> {
+          String filterName = (String) cbPreset.getSelectedItem();
+          if (StringUtils.isNotBlank(filterName)) {
+            selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getMovieUiFilterPresets().get(filterName));
+          }
+          else {
+            selectionModel.setFilterValues(Collections.emptyList());
+          }
+        });
+        panelFilterPreset.add(cbPreset, "cell 2 3");
+
+        JButton btnSavePreset = new FlatButton(IconManager.SAVE);
+        btnSavePreset.setToolTipText(BUNDLE.getString("filter.savepreset"));
+        btnSavePreset.addActionListener(e -> {
+          Set<UIFilters> activeUiFilters = getActiveUiFilters();
+          if (!activeUiFilters.isEmpty()) {
+            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.SETTINGS.getMovieUiFilterPresets());
+            FilterSaveDialog saveDialog = new FilterSaveDialog(MovieFilterDialog.this, activeUiFilters, movieUiFilters);
+            saveDialog.setVisible(true);
+
+            String savedPreset = saveDialog.getSavedPreset();
+            if (StringUtils.isNotBlank(savedPreset)) {
+              cbPreset.removeActionListener(actionListener);
+              MovieModuleManager.SETTINGS.setMovieUiFilterPresets(movieUiFilters);
+              loadPresets();
+              cbPreset.setSelectedItem(savedPreset);
+              cbPreset.addActionListener(actionListener);
+            }
+          }
+        });
+        panelFilterPreset.add(btnSavePreset, "cell 2 3");
+
+        JButton btnDeletePreset = new FlatButton(IconManager.DELETE_GRAY);
+        btnDeletePreset.setToolTipText(BUNDLE.getString("filter.remove"));
+        btnDeletePreset.addActionListener(e -> {
+          String filterName = (String) cbPreset.getSelectedItem();
+          if (StringUtils.isBlank(filterName)) {
+            return;
+          }
+
+          // display warning and ask the user again
+          if (!TmmProperties.getInstance().getPropertyAsBoolean("movie.hidefilterhint")) {
+            JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+            TmmFontHelper.changeFont(checkBox, L1);
+            checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+            Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+            Object[] params = { BUNDLE.getString("filter.remove"), checkBox };
+            int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("filter.remove"),
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+
+            // the user don't want to show this dialog again
+            if (checkBox.isSelected()) {
+              TmmProperties.getInstance().putProperty("movie.hidefilterhint", String.valueOf(checkBox.isSelected()));
+            }
+
+            if (answer != JOptionPane.YES_OPTION) {
+              return;
+            }
+
+            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.SETTINGS.getMovieUiFilterPresets());
+            if (movieUiFilters.remove(filterName) != null) {
+              cbPreset.removeActionListener(actionListener);
+              MovieModuleManager.SETTINGS.setMovieUiFilterPresets(movieUiFilters);
+              loadPresets();
+              cbPreset.addActionListener(actionListener);
+            }
+          }
+        });
+        panelFilterPreset.add(btnDeletePreset, "cell 2 3");
+
+        getContentPane().add(panelFilterPreset, BorderLayout.SOUTH);
+      }
+    }
+
+    {
+      // init
+      loadPresets();
+
+      cbPreset.addActionListener(actionListener);
+    }
+  }
+
+  private Set<UIFilters> getActiveUiFilters() {
+    return new HashSet<>(IMovieUIFilter.morphToUiFilters(filters));
+  }
+
+  private void loadPresets() {
+    String preset = (String) cbPreset.getSelectedItem();
+
+    cbPreset.removeAllItems();
+    cbPreset.addItem("");
+    MovieModuleManager.SETTINGS.getMovieUiFilterPresets().keySet().stream().sorted().forEach(key -> cbPreset.addItem(key));
+
+    if (StringUtils.isNotBlank(preset)) {
+      cbPreset.setSelectedItem(preset);
     }
   }
 
@@ -172,7 +322,7 @@ public class MovieFilterDialog extends TmmDialog {
       panel.add(Box.createGlue(), "wrap");
     }
 
-    Set<IMovieUIFilter> filters = filterMap.computeIfAbsent(panel, k -> new HashSet<>());
+    filterMap.computeIfAbsent(panel, k -> new HashSet<>()).add(filter);
     filters.add(filter);
 
     selectionModel.addFilter(filter);

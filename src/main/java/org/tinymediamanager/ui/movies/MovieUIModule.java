@@ -22,12 +22,10 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
@@ -142,14 +140,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
   }
 
   private void init() {
-    // apply stored UI filters
-    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
-      SwingUtilities.invokeLater(() -> {
-        MovieList.getInstance().searchDuplicates();
-        selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getUiFilters());
-      });
-    }
-
     // init the table panel
     listPanel.init();
   }
