@@ -290,15 +290,10 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   private void parseTitle(MediaMetadata md, String langu, Element e) {
     String titleEN = "";
     String titleScraperLangu = "";
-    String titleFirst = "";
     String titleMain = "";
 
     for (Element title : e.children()) {
-      // store first title if neither the requested one nor the english one
-      // available
-      if (StringUtils.isBlank(titleFirst)) {
-        titleFirst = title.text();
-      }
+      // store first title if neither the requested one nor the english one available
 
       // do not work further with short titles/synonyms
       if("short".equals(title.attr("type")) || "synonym".equals(title.attr("type"))){
@@ -333,7 +328,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
       md.setTitle(titleEN);
     }
     else {
-      md.setTitle(titleFirst);
+      md.setTitle(titleMain);
     }
   }
 
