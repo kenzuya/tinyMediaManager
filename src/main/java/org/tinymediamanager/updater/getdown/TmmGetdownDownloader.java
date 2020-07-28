@@ -50,11 +50,13 @@ public class TmmGetdownDownloader extends com.threerings.getdown.net.Downloader 
       // make sure the resource's target directory exists
       File parent = new File(rsrc.getLocalNew().getParent());
       if (!parent.exists() && !parent.mkdirs()) {
-        LOGGER.warn("Failed to create target directory for resource '{}'", rsrc);
+        LOGGER.debug("Failed to create target directory for resource '{}'", rsrc);
       }
     }
     // perform the download
     super.download(resources, maxConcurrent);
+
+    LOGGER.debug("Finished downloading with state '{}'", _state);
 
     // return true if the download has been completed
     return _state == State.COMPLETE;
@@ -62,8 +64,6 @@ public class TmmGetdownDownloader extends com.threerings.getdown.net.Downloader 
 
   @Override
   protected void downloadProgress(int percent, long remaining) {
-    super.downloadProgress(percent, remaining);
-
     if (percent == 100) {
       _state = State.COMPLETE;
     }
@@ -93,7 +93,7 @@ public class TmmGetdownDownloader extends com.threerings.getdown.net.Downloader 
       checkConnectOK(url, "Unable to download resource " + rsrc.getRemote());
 
       long actualSize = url.getContentLength();
-      LOGGER.info("Downloading resource [url={}, size={}]", rsrc.getRemote(), actualSize);
+      LOGGER.debug("Downloading resource [url={}, size={}]", rsrc.getRemote(), actualSize);
       long currentSize = 0L;
       byte[] buffer = new byte[4 * 4096];
 
@@ -114,6 +114,10 @@ public class TmmGetdownDownloader extends com.threerings.getdown.net.Downloader 
     catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new InterruptedIOException();
+    }
+    catch (Exception e) {
+      _state = State.FAILED;
+      downloadFailed(rsrc, e);
     }
   }
 

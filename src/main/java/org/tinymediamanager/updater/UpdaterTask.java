@@ -121,12 +121,13 @@ public class UpdaterTask extends TmmTask {
         toInstallResources.addAll(toDownload);
 
         // redownload any that are corrupt or invalid...
-        LOGGER.info("{} of {} files require update ({} assumed valid).", toDownload.size(), app.getAllActiveResources().size(), alreadyValid[0]);
+        LOGGER.info("{} of {} files require update.", toDownload.size(), app.getAllActiveResources().size());
 
         download(toDownload, app);
 
         // and prepare for installation
         for (Resource resource : toInstallResources) {
+          LOGGER.trace("Installing resource {}", resource);
           resource.install(true);
         }
 
