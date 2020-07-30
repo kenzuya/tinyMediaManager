@@ -106,7 +106,7 @@ public class LinkLabel extends ReadOnlyTextArea {
   @Override
   protected void processMouseEvent(MouseEvent evt) {
     super.processMouseEvent(evt);
-    if ((evt.getID() == MouseEvent.MOUSE_CLICKED || evt.getID() == MouseEvent.MOUSE_PRESSED) && StringUtils.isNotBlank(getLink()))
+    if (evt.getID() == MouseEvent.MOUSE_PRESSED && StringUtils.isNotBlank(getLink()))
       fireActionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, getLink()));
   }
 
