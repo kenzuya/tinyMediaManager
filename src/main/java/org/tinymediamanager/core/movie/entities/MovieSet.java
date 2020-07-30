@@ -408,12 +408,14 @@ public class MovieSet extends MediaEntity {
     // get files to cache
     List<MediaFile> filesToCache = new ArrayList<>();
 
-    if (StringUtils.isNotBlank(getArtworkFilename(MediaFileType.POSTER))) {
-      filesToCache.add(new MediaFile(Paths.get(getArtworkFilename(MediaFileType.POSTER))));
-    }
+    List<MediaFileType> types = Arrays.asList(MediaFileType.POSTER, MediaFileType.FANART, MediaFileType.BANNER, MediaFileType.LOGO,
+        MediaFileType.CLEARLOGO, MediaFileType.CLEARART);
 
-    if (StringUtils.isNotBlank(getArtworkFilename(MediaFileType.FANART))) {
-      filesToCache.add(new MediaFile(Paths.get(getArtworkFilename(MediaFileType.FANART))));
+    for (MediaFileType type : types) {
+      String filename = getArtworkFilename(type);
+      if (StringUtils.isNotBlank(filename)) {
+        filesToCache.add(new MediaFile(Paths.get(filename)));
+      }
     }
 
     return filesToCache;

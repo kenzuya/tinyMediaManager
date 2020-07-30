@@ -55,6 +55,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -1709,7 +1710,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     // and having never ever downloaded any pic is quite slow.
     // (Many invalid cache requests and exists() checks)
     // Better get a listing of existent actor images directly!
-    if (!isMultiMovieDir()) {
+    if (MovieModuleManager.SETTINGS.isWriteActorImages() && !isMultiMovieDir()) {
       // and only for normal movies - MMD should not have .actors folder!
       filesToCache.addAll(listActorFiles());
     } // check against actors and trigger a download? - NO, only via scrape/missingImagesTask
@@ -1721,7 +1722,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return list of actor images on filesystem
    */
   private List<MediaFile> listActorFiles() {
+    if (!getPathNIO().resolve(Person.ACTOR_DIR).toFile().exists()) {
+      return Collections.emptyList();
+    }
+
     List<MediaFile> fileNames = new ArrayList<>();
+
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getPathNIO().resolve(Person.ACTOR_DIR))) {
       for (Path path : directoryStream) {
         if (Utils.isRegularFile(path)) {
@@ -1734,8 +1740,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
     }
     catch (IOException e) {
-      LOGGER.warn("Cannot get actors: {}", getPathNIO().resolve(Person.ACTOR_DIR));
+      LOGGER.debug("Cannot get actors: {}", getPathNIO().resolve(Person.ACTOR_DIR));
     }
+
     return fileNames;
   }
 

@@ -2010,7 +2010,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    filesToCache.addAll(listActorFiles());
+    if (TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+      filesToCache.addAll(listActorFiles());
+    }
 
     for (TvShowEpisode episode : new ArrayList<>(this.episodes)) {
       filesToCache.addAll(episode.getImagesToCache());
@@ -2123,7 +2125,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return list of actor images on filesystem
    */
   private List<MediaFile> listActorFiles() {
+    if (!getPathNIO().resolve(Person.ACTOR_DIR).toFile().exists()) {
+      return Collections.emptyList();
+    }
+
     List<MediaFile> fileNames = new ArrayList<>();
+
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getPathNIO().resolve(Person.ACTOR_DIR))) {
       for (Path path : directoryStream) {
         if (Utils.isRegularFile(path)) {
@@ -2136,8 +2143,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
     catch (IOException e) {
-      LOGGER.warn("Cannot get actors: {}", getPathNIO().resolve(Person.ACTOR_DIR));
+      LOGGER.debug("Cannot get actors: {}", getPathNIO().resolve(Person.ACTOR_DIR));
     }
+
     return fileNames;
   }
 
