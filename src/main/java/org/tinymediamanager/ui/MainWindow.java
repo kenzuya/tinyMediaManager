@@ -27,7 +27,6 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -320,20 +319,16 @@ public class MainWindow extends JFrame {
       // spawn our process
       if (pb != null) {
         try {
-          LOGGER.info("Going to execute: " + pb.command());
+          LOGGER.info("Going to execute: {}", pb.command());
           pb.start();
         }
-        catch (IOException e) {
+        catch (Exception e) {
           LOGGER.error("Cannot spawn process:", e);
         }
       }
       shutdownLogger();
       System.exit(0); // calling the method is a must
     }
-  }
-
-  JSplitPane getSplitPane() {
-    return splitPane;
   }
 
   /**
