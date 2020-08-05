@@ -20,3 +20,5 @@ jvmOpts:
   - '[macos] -Dapple.eawt.quitStrategy=CLOSE_ALL_WINDOWS'
   - '[linux] -Dawt.useSystemAAFontSettings=on'
   - '[linux] -Dswing.aatext=true'
+env:
+  - '[macos] LC_ALL=en_US.UTF-8'
