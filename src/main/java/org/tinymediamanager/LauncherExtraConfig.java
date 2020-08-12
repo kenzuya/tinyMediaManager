@@ -3,9 +3,7 @@ package org.tinymediamanager;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,17 +16,17 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
  * @author Manuel Laggner
  */
 public class LauncherExtraConfig {
-  public static String       LAUNCHER_EXTRA_YML = "launcher-extra.yml";
+  public static String LAUNCHER_EXTRA_YML = "launcher-extra.yml";
 
   @JsonProperty
-  public String              javaHome           = "";
+  public String        javaHome           = "";
   @JsonProperty
-  public List<String>        jvmOpts            = new ArrayList<>();
+  public List<String>  jvmOpts            = new ArrayList<>();
   @JsonProperty
-  public Map<String, String> env                = new HashMap<>();
+  public List<String>  env                = new ArrayList<>();
 
   @JsonIgnore
-  public File                file;
+  public File          file;
 
   public static LauncherExtraConfig readFile(File file) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
