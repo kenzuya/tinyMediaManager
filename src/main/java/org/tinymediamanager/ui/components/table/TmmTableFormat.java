@@ -254,6 +254,12 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   public static class FloatComparator implements Comparator<Float> {
     @Override
     public int compare(Float arg0, Float arg1) {
+      if (arg0 == null) {
+        return -1;
+      }
+      if (arg1 == null) {
+        return 1;
+      }
       return arg0.compareTo(arg1);
     }
   }
@@ -274,6 +280,12 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   public static class DateComparator implements Comparator<Date> {
     @Override
     public int compare(Date arg0, Date arg1) {
+      if (arg0 == null) {
+        return -1;
+      }
+      if (arg1 == null) {
+        return 1;
+      }
       return arg0.compareTo(arg1);
     }
   }
