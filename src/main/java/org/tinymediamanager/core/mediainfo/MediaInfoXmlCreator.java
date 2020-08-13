@@ -17,6 +17,9 @@ package org.tinymediamanager.core.mediainfo;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -31,6 +34,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.w3c.dom.Document;
@@ -56,6 +60,11 @@ public class MediaInfoXmlCreator {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); // NOSONAR
     document = factory.newDocumentBuilder().newDocument();
     document.setXmlStandalone(true);
+
+    // tmm comment
+    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String dat = formatter.format(new Date());
+    document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Globals.settings.getVersion()));
 
     Element mediaInfo = document.createElement("MediaInfo");
     mediaInfo.setAttribute("xmlns", "https://mediaarea.net/mediainfo");
