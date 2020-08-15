@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.movies.panels;
 
+import static java.awt.event.InputEvent.CTRL_DOWN_MASK;
+
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -30,6 +32,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
@@ -48,6 +51,7 @@ import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -101,6 +105,10 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
     searchField = EnhancedTextField.createSearchTextField();
     add(searchField, "cell 0 0,growx");
+
+    // register global short cut for the search field
+    getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
+    getActionMap().put("search", new RequestFocusAction(searchField));
 
     MatcherEditor<Movie> textMatcherEditor = new MovieTextMatcherEditor(searchField);
     MovieMatcherEditor movieMatcherEditor = new MovieMatcherEditor();
