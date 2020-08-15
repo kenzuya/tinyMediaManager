@@ -92,7 +92,6 @@ public class TinyMediaManagerWizard extends TmmDialog {
     });
   }
 
-
   private void initComponents() {
     {
       JPanel panelSizing = new JPanel();
@@ -190,7 +189,14 @@ public class TinyMediaManagerWizard extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      // fire events, that the wizard finished
+      MovieModuleManager.SETTINGS.firePropertyChange("wizard", false, true);
+      TvShowModuleManager.SETTINGS.firePropertyChange("wizard", false, true);
+
+      // close the wizard
       TinyMediaManagerWizard.this.setVisible(false);
+
+      // trigger uds
       if (!MovieModuleManager.SETTINGS.getMovieDataSource().isEmpty()) {
         TmmThreadPool task = new MovieUpdateDatasourceTask();
         TmmTaskManager.getInstance().addMainTask(task);

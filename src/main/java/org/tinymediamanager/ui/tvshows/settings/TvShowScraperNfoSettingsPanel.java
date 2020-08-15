@@ -83,8 +83,9 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
 
     // implement checkBoxListener for preset events
     settings.addPropertyChangeListener(evt -> {
-      if ("preset".equals(evt.getPropertyName())) {
+      if ("preset".equals(evt.getPropertyName()) || "wizard".equals(evt.getPropertyName())) {
         buildComboBoxes();
+        buildCheckBoxes();
       }
     });
 

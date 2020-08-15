@@ -107,7 +107,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
 
     // implement checkBoxListener for preset events
     settings.addPropertyChangeListener(evt -> {
-      if ("preset".equals(evt.getPropertyName())) {
+      if ("preset".equals(evt.getPropertyName()) || "wizard".equals(evt.getPropertyName())) {
         buildCheckBoxes();
         buildComboBoxes();
       }
@@ -120,6 +120,8 @@ class MovieScraperNfoSettingsPanel extends JPanel {
   private void buildCheckBoxes() {
     cbMovieNfoFilename1.removeItemListener(checkBoxListener);
     cbMovieNfoFilename2.removeItemListener(checkBoxListener);
+
+    clearSelection(cbMovieNfoFilename1, cbMovieNfoFilename2);
 
     // NFO filenames
     List<MovieNfoNaming> movieNfoFilenames = settings.getNfoFilenames();
