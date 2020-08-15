@@ -31,6 +31,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -60,7 +61,6 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxExtractArtworkFromVsmeta;
   private JCheckBox                    chckbxTraktTv;
   private JButton                      btnClearTraktTvShows;
-  private JCheckBox                    chckbxPersistUiFilters;
   private JCheckBox                    chckbxShowLogos;
   private JCheckBox                    chckbxShowMissingEpisodes;
   private JButton                      btnPresetKodi;
@@ -272,33 +272,31 @@ class TvShowSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
-        chckbxPersistUiFilters = new JCheckBox(BUNDLE.getString("Settings.movie.persistuifilter"));
-        panelUiSettings.add(chckbxPersistUiFilters, "cell 1 0 2 1");
 
         chckbxShowLogos = new JCheckBox(BUNDLE.getString("Settings.showlogos"));
-        panelUiSettings.add(chckbxShowLogos, "cell 1 1 2 1");
+        panelUiSettings.add(chckbxShowLogos, "cell 1 0 2 1");
 
         chckbxShowMissingEpisodes = new JCheckBox(BUNDLE.getString("Settings.tvshow.missingepisodes"));
-        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 2 2 1");
+        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 1 2 1");
 
         chckbxShowMissingSpecials = new JCheckBox(BUNDLE.getString("Settings.tvshow.missingespecials"));
-        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 3");
+        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 2");
 
         JLabel lblRating = new JLabel(BUNDLE.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "flowx,cell 1 4 2 1");
+        panelUiSettings.add(lblRating, "flowx,cell 1 3 2 1");
 
         cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb"));
-        panelUiSettings.add(cbRating, "cell 1 4");
+        panelUiSettings.add(cbRating, "cell 1 3");
 
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
-        panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 5");
+        panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 4");
       }
     }
     {
@@ -429,61 +427,56 @@ class TvShowSettingsPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<TvShowSettings, Boolean> settingsBeanProperty = BeanProperty.create("syncTrakt");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty, chckbxTraktTv, jCheckBoxBeanProperty);
+    Property settingsBeanProperty = BeanProperty.create("syncTrakt");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxTraktTv,
+        jCheckBoxBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty = BeanProperty.create("buildImageCacheOnImport");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty, chckbxImageCache, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty = BeanProperty.create("buildImageCacheOnImport");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, chckbxImageCache,
+        jCheckBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_1 = BeanProperty.create("storeUiFilters");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_1, chckbxPersistUiFilters, jCheckBoxBeanProperty);
-    autoBinding_2.bind();
-    //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_2 = BeanProperty.create("displayMissingEpisodes");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_2, chckbxShowMissingEpisodes, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("displayMissingEpisodes");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2,
+        chckbxShowMissingEpisodes, jCheckBoxBeanProperty);
     autoBinding_3.bind();
     //
-    BeanProperty<TvShowSettings, String> tvShowSettingsBeanProperty_3 = BeanProperty.create("preferredRating");
-    BeanProperty<AutocompleteComboBox, Object> autocompleteComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<TvShowSettings, String, AutocompleteComboBox, Object> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_3, cbRating, autocompleteComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_3 = BeanProperty.create("preferredRating");
+    Property autocompleteComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbRating,
+        autocompleteComboBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_4 = BeanProperty.create("preferPersonalRating");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_4, chckbxPersonalRatingFirst, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_4 = BeanProperty.create("preferPersonalRating");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4,
+        chckbxPersonalRatingFirst, jCheckBoxBeanProperty);
     autoBinding_5.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_5 = BeanProperty.create("renameAfterScrape");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_5, chckbxRenameAfterScrape, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_5 = BeanProperty.create("renameAfterScrape");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_5, chckbxRenameAfterScrape,
+        jCheckBoxBeanProperty);
     autoBinding_6.bind();
     //
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_1 = BeanProperty.create("enabled");
-    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxShowMissingEpisodes,
-        jCheckBoxBeanProperty, chckbxShowMissingSpecials, jCheckBoxBeanProperty_1);
+    Property jCheckBoxBeanProperty_1 = BeanProperty.create("enabled");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxShowMissingEpisodes, jCheckBoxBeanProperty,
+        chckbxShowMissingSpecials, jCheckBoxBeanProperty_1);
     autoBinding_7.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_6 = BeanProperty.create("displayMissingSpecials");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_6, chckbxShowMissingSpecials, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_6 = BeanProperty.create("displayMissingSpecials");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_6,
+        chckbxShowMissingSpecials, jCheckBoxBeanProperty);
     autoBinding_8.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_7 = BeanProperty.create("showLogosPanel");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_7, chckbxShowLogos, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_7 = BeanProperty.create("showLogosPanel");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7, chckbxShowLogos,
+        jCheckBoxBeanProperty);
     autoBinding_9.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_8 = BeanProperty.create("extractArtworkFromVsmeta");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_8, chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_8 = BeanProperty.create("extractArtworkFromVsmeta");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_8,
+        chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
     autoBinding_10.bind();
   }
 }

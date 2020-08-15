@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -116,10 +115,8 @@ public class MovieSettings extends AbstractSettings {
   private final List<String>                 subtitleScrapers                       = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                 skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
 
-  private final List<UIFilters>              movieSetUiFilters                      = new ArrayList<>();
-
-    private final Map<String, List<UIFilters>> movieUiFilterPresets                 = new HashMap<>();
-    private final Map<String, List<UIFilters>> movieSetUiFilterPresets              = new HashMap<>();
+  private final Map<String, List<UIFilters>> movieUiFilterPresets                   = new HashMap<>();
+  private final Map<String, List<UIFilters>> movieSetUiFilterPresets                = new HashMap<>();
 
   // data sources / NFO settings
   private boolean                            buildImageCacheOnImport                = false;
@@ -194,7 +191,6 @@ public class MovieSettings extends AbstractSettings {
   private boolean                            extractArtworkFromVsmeta               = false;
 
   // ui
-  private boolean                            storeUiFilters                         = false;
   private boolean                            showLogosPanel                         = true;
 
   public MovieSettings() {
@@ -861,12 +857,6 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange(MOVIE_UI_FILTER_PRESETS, null, movieUiFilterPresets);
   }
 
-  public void setMovieSetUiFilters(List<UIFilters> filters) {
-    movieSetUiFilters.clear();
-    movieSetUiFilters.addAll(filters);
-    firePropertyChange(MOVIE_SET_UI_FILTERS, null, movieSetUiFilters);
-  }
-
   public Map<String, List<UIFilters>> getMovieSetUiFilterPresets() {
     return movieSetUiFilterPresets;
   }
@@ -875,23 +865,6 @@ public class MovieSettings extends AbstractSettings {
     movieSetUiFilterPresets.clear();
     movieSetUiFilterPresets.putAll(newValues);
     firePropertyChange(MOVIE_SET_UI_FILTER_PRESETS, null, movieSetUiFilterPresets);
-  }
-
-  public List<UIFilters> getMovieSetUiFilters() {
-    if (storeUiFilters) {
-      return movieSetUiFilters;
-    }
-    return Collections.emptyList();
-  }
-
-  public void setStoreUiFilters(boolean newValue) {
-    boolean oldValue = this.storeUiFilters;
-    this.storeUiFilters = newValue;
-    firePropertyChange("storeUiFilters", oldValue, newValue);
-  }
-
-  public boolean isStoreUiFilters() {
-    return storeUiFilters;
   }
 
   public boolean isWriteActorImages() {

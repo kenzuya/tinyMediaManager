@@ -59,6 +59,11 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
     initDocumentListener();
   }
 
+  @Override
+  public String getId() {
+    return "treeTextFilter";
+  }
+
   protected void initDocumentListener() {
     getDocument().addDocumentListener(new DocumentListener() {
       @Override

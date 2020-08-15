@@ -21,10 +21,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
@@ -148,7 +149,7 @@ public class TvShowSettings extends AbstractSettings {
   private final List<MediaArtworkType>                   tvShowCheckImages                      = new ArrayList<>();
   private final List<TvShowTrailerNaming>                trailerFilenames                       = new ArrayList<>();
 
-  private final List<UIFilters>                          uiFilters                              = new ArrayList<>();
+  private final Map<String, List<UIFilters>>             uiFilterPresets                        = new HashMap<>();
 
   // data sources / NFO settings
   private TvShowConnectors                               tvShowConnector                        = TvShowConnectors.XBMC;
@@ -800,27 +801,14 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange("subtitleLanguageStyle", oldValue, newValue);
   }
 
-  public void setUiFilters(List<UIFilters> filters) {
-    uiFilters.clear();
-    uiFilters.addAll(filters);
-    firePropertyChange(UI_FILTERS, null, uiFilters);
+  public Map<String, List<UIFilters>> getUiFilterPresets() {
+    return uiFilterPresets;
   }
 
-  public List<UIFilters> getUiFilters() {
-    if (storeUiFilters) {
-      return uiFilters;
-    }
-    return Collections.emptyList();
-  }
-
-  public void setStoreUiFilters(boolean newValue) {
-    boolean oldValue = this.storeUiFilters;
-    this.storeUiFilters = newValue;
-    firePropertyChange("storeUiFilters", oldValue, newValue);
-  }
-
-  public boolean isStoreUiFilters() {
-    return storeUiFilters;
+  public void setUiFilterPresets(Map<String, List<UIFilters>> newValues) {
+    uiFilterPresets.clear();
+    uiFilterPresets.putAll(newValues);
+    firePropertyChange("uiFilterPresets", null, uiFilterPresets);
   }
 
   public boolean isDisplayMissingEpisodes() {

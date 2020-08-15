@@ -222,7 +222,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
    * @return true if there is at least one active filter
    */
   protected boolean hasActiveFilters() {
-    if (dataProvider.getTreeFilters() == null) {
+    if (dataProvider.getTreeFilters() == null || !dataProvider.isFiltersActive()) {
       return false;
     }
 

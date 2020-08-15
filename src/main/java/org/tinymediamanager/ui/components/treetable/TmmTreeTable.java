@@ -24,6 +24,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,6 @@ import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -510,46 +510,51 @@ public class TmmTreeTable extends TmmTable {
   /**
    * Updates nodes sorting and filtering for all loaded nodes.
    */
-  @SuppressWarnings("unchecked")
   void updateFiltering() {
     final TreeModel model = treeTableModel.getTreeModel();
     if (model instanceof TmmTreeModel) {
-      ((TmmTreeModel) model).updateSortingAndFiltering();
+      ((TmmTreeModel<?>) model).updateSortingAndFiltering();
     }
 
-    storeFilters();
     firePropertyChange("filterChanged", null, treeFilters);
   }
 
   public void setFilterValues(List<AbstractSettings.UIFilters> values) {
-    boolean fireFilterChanged = false;
+    if (values == null) {
+      values = Collections.emptyList();
+    }
 
-    for (AbstractSettings.UIFilters uiFilters : values) {
-      if (StringUtils.isBlank(uiFilters.id) || uiFilters.state == ITmmUIFilter.FilterState.INACTIVE) {
-        continue;
-      }
+    for (ITmmTreeFilter<?> filter : treeFilters) {
+      if (filter instanceof ITmmUIFilter) {
+        ITmmUIFilter<?> tmmUIFilter = (ITmmUIFilter<?>) filter;
+        AbstractSettings.UIFilters uiFilters = values.stream().filter(uiFilter -> uiFilter.id.equals(filter.getId())).findFirst().orElse(null);
 
-      for (ITmmTreeFilter filter : treeFilters) {
-        if (filter instanceof ITmmUIFilter) {
-          ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
-          if (uiFilter.getId().equals(uiFilters.id)) {
-            uiFilter.setFilterState(uiFilters.state);
-            uiFilter.setFilterValue(uiFilters.filterValue);
-            fireFilterChanged = true;
-          }
+        if (uiFilters != null) {
+          tmmUIFilter.setFilterState(uiFilters.state);
+          tmmUIFilter.setFilterValue(uiFilters.filterValue);
+        }
+        else {
+          tmmUIFilter.setFilterState(ITmmUIFilter.FilterState.INACTIVE);
         }
       }
     }
 
-    if (fireFilterChanged) {
-      updateFiltering();
-    }
+    updateFiltering();
   }
 
   /**
-   * to be overridden to provide storing of filters
+   * set whether all filters are active or not
+   *
+   * @param filtersActive
+   *          true if all filters should be active; false otherwise
    */
-  public void storeFilters() {
+  public void setFiltersActive(boolean filtersActive) {
+    final TreeModel model = treeTableModel.getTreeModel();
+    if (model instanceof TmmTreeModel) {
+      ((TmmTreeModel<?>) model).getDataProvider().setFiltersActive(filtersActive);
+    }
+
+    updateFiltering();
   }
 
   /**

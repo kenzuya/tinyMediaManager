@@ -21,7 +21,6 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -186,10 +185,6 @@ public class TvShowUIModule extends AbstractTmmUIModule {
   }
 
   private void init() {
-    // re-set filters
-    if (TvShowModuleManager.SETTINGS.isStoreUiFilters()) {
-      SwingUtilities.invokeLater(() -> listPanel.getTreeTable().setFilterValues(TvShowModuleManager.SETTINGS.getUiFilters()));
-    }
   }
 
   public static TvShowUIModule getInstance() {

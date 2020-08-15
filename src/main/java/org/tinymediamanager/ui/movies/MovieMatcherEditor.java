@@ -121,7 +121,7 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
   /*
    * helper class for running all filters against the given movie
    */
-  private class MovieMatcher implements Matcher<Movie> {
+  private static class MovieMatcher implements Matcher<Movie> {
     private final Set<IMovieUIFilter> filters;
 
     public MovieMatcher(Set<IMovieUIFilter> filters) {

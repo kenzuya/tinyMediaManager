@@ -104,7 +104,7 @@ public class MovieFilterDialog extends TmmDialog {
   private final Map<JPanel, Set<IMovieUIFilter>> filterMap;
   private final Set<IMovieUIFilter>              filters;
 
-  private JTabbedPane                            tabbedPane;
+  private final JTabbedPane                      tabbedPane;
   private JComboBox<String>                      cbPreset;
 
   public MovieFilterDialog(MovieSelectionModel selectionModel) {

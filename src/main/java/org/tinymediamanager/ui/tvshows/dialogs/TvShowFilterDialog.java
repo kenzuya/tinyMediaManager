@@ -16,27 +16,47 @@
 
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static org.tinymediamanager.ui.TmmFontHelper.L1;
+
 import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.AbstractSettings;
+import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
+import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.tvshows.filters.ITvShowUIFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAspectRatioFilter;
@@ -69,16 +89,18 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowWatchedFilter;
 import net.miginfocom.swing.MigLayout;
 
 public class TvShowFilterDialog extends TmmDialog {
-  private static final long                       serialVersionUID = 2298540526328945319L;
+  private static final long                          serialVersionUID = 2298540526328945319L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle           BUNDLE           = ResourceBundle.getBundle("messages");
+  protected static final ResourceBundle              BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TmmTreeTable                            treeTable;
+  private final TmmTreeTable                         treeTable;
 
   // map for storing which filter is in which panel
-  private final Map<JPanel, Set<ITvShowUIFilter>> filterMap;
+  private final Map<JPanel, Set<ITvShowUIFilter<?>>> filterMap;
+  private final Set<ITvShowUIFilter<?>>              filters;
 
-  private JTabbedPane                             tabbedPane;
+  private final JTabbedPane                          tabbedPane;
+  private JComboBox<String>                          cbPreset;
 
   public TvShowFilterDialog(TmmTreeTable treeTable) {
     super(BUNDLE.getString("movieextendedsearch.options"), "tvShowFilter");
@@ -86,7 +108,18 @@ public class TvShowFilterDialog extends TmmDialog {
 
     this.treeTable = treeTable;
     this.filterMap = new HashMap<>();
+    this.filters = new HashSet<>();
     this.treeTable.addPropertyChangeListener("filterChanged", evt -> filterChanged());
+
+    ActionListener actionListener = e -> {
+      String filterName = (String) cbPreset.getSelectedItem();
+      if (StringUtils.isNotBlank(filterName)) {
+        treeTable.setFilterValues(TvShowModuleManager.SETTINGS.getUiFilterPresets().get(filterName));
+      }
+      else {
+        treeTable.setFilterValues(Collections.emptyList());
+      }
+    };
 
     {
       tabbedPane = new TmmTabbedPane();
@@ -140,6 +173,122 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowMissingEpisodesFilter(), panelMediaData);
       }
 
+      {
+        // filter preset panel
+        JPanel panelFilterPreset = new JPanel();
+        panelFilterPreset.setLayout(new MigLayout("insets n 0 n 0", "[5lp!][10lp][150lp,grow][5lp!]", "[]"));
+
+        JSeparator separator = new JSeparator();
+        panelFilterPreset.add(separator, "cell 0 1 4 1,growx,aligny top");
+
+        JLabel lblEnableAllT = new TmmLabel(BUNDLE.getString("filter.enableall"));
+        panelFilterPreset.add(lblEnableAllT, "cell 1 2, alignx trailing");
+
+        JCheckBox chkbxEnableAll = new JCheckBox();
+        chkbxEnableAll.setSelected(true);
+        chkbxEnableAll.addActionListener(e -> treeTable.setFiltersActive(chkbxEnableAll.isSelected()));
+        panelFilterPreset.add(chkbxEnableAll, "cell 2 2");
+
+        JLabel lblFilterPresetT = new TmmLabel(BUNDLE.getString("filter.presets"));
+        panelFilterPreset.add(lblFilterPresetT, "cell 1 3, alignx trailing");
+
+        cbPreset = new JComboBox<>();
+        cbPreset.addActionListener(e -> {
+          String filterName = (String) cbPreset.getSelectedItem();
+          if (StringUtils.isNotBlank(filterName)) {
+            treeTable.setFilterValues(TvShowModuleManager.SETTINGS.getUiFilterPresets().get(filterName));
+          }
+          else {
+            treeTable.setFilterValues(Collections.emptyList());
+          }
+        });
+        panelFilterPreset.add(cbPreset, "cell 2 3");
+
+        JButton btnSavePreset = new FlatButton(IconManager.SAVE);
+        btnSavePreset.setToolTipText(BUNDLE.getString("filter.savepreset"));
+        btnSavePreset.addActionListener(e -> {
+          Set<AbstractSettings.UIFilters> activeUiFilters = getActiveUiFilters();
+          if (!activeUiFilters.isEmpty()) {
+            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(TvShowModuleManager.SETTINGS.getUiFilterPresets());
+            FilterSaveDialog saveDialog = new FilterSaveDialog(TvShowFilterDialog.this, activeUiFilters, tvShowUiFilters);
+            saveDialog.setVisible(true);
+
+            String savedPreset = saveDialog.getSavedPreset();
+            if (StringUtils.isNotBlank(savedPreset)) {
+              cbPreset.removeActionListener(actionListener);
+              TvShowModuleManager.SETTINGS.setUiFilterPresets(tvShowUiFilters);
+              loadPresets();
+              cbPreset.setSelectedItem(savedPreset);
+              cbPreset.addActionListener(actionListener);
+            }
+          }
+        });
+        panelFilterPreset.add(btnSavePreset, "cell 2 3");
+
+        JButton btnDeletePreset = new FlatButton(IconManager.DELETE_GRAY);
+        btnDeletePreset.setToolTipText(BUNDLE.getString("filter.remove"));
+        btnDeletePreset.addActionListener(e -> {
+          String filterName = (String) cbPreset.getSelectedItem();
+          if (StringUtils.isBlank(filterName)) {
+            return;
+          }
+
+          // display warning and ask the user again
+          if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hidefilterhint")) {
+            JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+            TmmFontHelper.changeFont(checkBox, L1);
+            checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+            Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+            Object[] params = { BUNDLE.getString("filter.remove"), checkBox };
+            int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("filter.remove"),
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+
+            // the user don't want to show this dialog again
+            if (checkBox.isSelected()) {
+              TmmProperties.getInstance().putProperty("tvshow.hidefilterhint", String.valueOf(checkBox.isSelected()));
+            }
+
+            if (answer != JOptionPane.YES_OPTION) {
+              return;
+            }
+
+            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(TvShowModuleManager.SETTINGS.getUiFilterPresets());
+            if (tvShowUiFilters.remove(filterName) != null) {
+              cbPreset.removeActionListener(actionListener);
+              TvShowModuleManager.SETTINGS.setUiFilterPresets(tvShowUiFilters);
+              loadPresets();
+              cbPreset.addActionListener(actionListener);
+            }
+          }
+        });
+        panelFilterPreset.add(btnDeletePreset, "cell 2 3");
+
+        getContentPane().add(panelFilterPreset, BorderLayout.SOUTH);
+      }
+    }
+
+    {
+      // init
+      loadPresets();
+
+      cbPreset.addActionListener(actionListener);
+    }
+  }
+
+  private Set<AbstractSettings.UIFilters> getActiveUiFilters() {
+    return new HashSet<>(ITvShowUIFilter.morphToUiFilters(filters));
+  }
+
+  private void loadPresets() {
+    String preset = (String) cbPreset.getSelectedItem();
+
+    cbPreset.removeAllItems();
+    cbPreset.addItem("");
+    TvShowModuleManager.SETTINGS.getUiFilterPresets().keySet().stream().sorted().forEach(key -> cbPreset.addItem(key));
+
+    if (StringUtils.isNotBlank(preset)) {
+      cbPreset.setSelectedItem(preset);
     }
   }
 
@@ -162,7 +311,7 @@ public class TvShowFilterDialog extends TmmDialog {
       panel.add(Box.createGlue(), "wrap");
     }
 
-    Set<ITvShowUIFilter> filters = filterMap.computeIfAbsent(panel, k -> new HashSet<>());
+    filterMap.computeIfAbsent(panel, k -> new HashSet<>()).add(filter);
     filters.add(filter);
 
     treeTable.addFilter(filter);
@@ -172,9 +321,9 @@ public class TvShowFilterDialog extends TmmDialog {
    * re-calculate if the active filter icon should be displayed
    */
   private void filterChanged() {
-    for (Map.Entry<JPanel, Set<ITvShowUIFilter>> entry : filterMap.entrySet()) {
+    for (Map.Entry<JPanel, Set<ITvShowUIFilter<?>>> entry : filterMap.entrySet()) {
       boolean active = false;
-      for (ITvShowUIFilter filter : entry.getValue()) {
+      for (ITvShowUIFilter<?> filter : entry.getValue()) {
         switch (filter.getFilterState()) {
           case ACTIVE:
           case ACTIVE_NEGATIVE:
@@ -215,5 +364,4 @@ public class TvShowFilterDialog extends TmmDialog {
     // do not dispose (singleton), but save the size/position
     TmmUILayoutStore.getInstance().saveSettings(this);
   }
-
 }
