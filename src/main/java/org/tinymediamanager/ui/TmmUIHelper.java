@@ -31,7 +31,9 @@ import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -46,11 +48,15 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
+import org.tinymediamanager.ui.dialogs.UpdateDialog;
 import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
 import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
+import org.tinymediamanager.updater.UpdateCheck;
+import org.tinymediamanager.updater.UpdaterTask;
 
 /**
  * The Class TmmUIHelper.
@@ -559,5 +565,53 @@ public class TmmUIHelper {
         UIManager.setLookAndFeel(new TmmLightLaf());
         break;
     }
+  }
+
+  public static void checkForUpdate() {
+    Runnable runnable = () -> {
+      try {
+        UpdateCheck updateCheck = new UpdateCheck();
+        if (updateCheck.isUpdateAvailable()) {
+          LOGGER.info("update available");
+
+          // we might need this somewhen...
+          if (updateCheck.isForcedUpdate()) {
+            LOGGER.info("Updating (forced)...");
+            // start the updater task
+            TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+            return;
+          }
+
+          // show whatsnewdialog with the option to update
+          SwingUtilities.invokeLater(() -> {
+            if (StringUtils.isNotBlank(updateCheck.getChangelog())) {
+              UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog());
+              dialog.setVisible(true);
+            }
+            else {
+              // do the update without changelog popup
+              Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+              int answer = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.update.message"), BUNDLE.getString("tmm.update.title"),
+                  JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+              if (answer == JOptionPane.YES_OPTION) {
+                LOGGER.info("Updating...");
+
+                // start the updater task
+                TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+              }
+            }
+          });
+
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("Update check failed - {}", e.getMessage());
+      }
+    };
+
+    // update task start a few secs after GUI...
+    Timer timer = new Timer(5000, e -> runnable.run());
+    timer.setRepeats(false);
+    timer.start();
   }
 }

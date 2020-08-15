@@ -16,6 +16,8 @@
 
 package org.tinymediamanager;
 
+import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
+
 import java.awt.AWTEvent;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -329,6 +331,14 @@ public class TinyMediaManager {
             if (Globals.settings.isNewConfig()) {
               TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
               wizard.setVisible(true);
+            }
+            else if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+              // if the wizard is not run, check for an update
+              // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is showing, the
+              // wizard will no more appear
+              // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the next
+              // startup
+              checkForUpdate();
             }
 
             // show changelog

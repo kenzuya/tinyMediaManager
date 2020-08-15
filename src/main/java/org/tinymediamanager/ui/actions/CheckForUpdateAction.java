@@ -15,10 +15,10 @@
  */
 package org.tinymediamanager.ui.actions;
 
+import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
+
 import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
-
-import org.tinymediamanager.ui.MainWindow;
 
 /**
  * The CheckForUpdateAction is used to trigger an update check
@@ -36,6 +36,6 @@ public class CheckForUpdateAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    MainWindow.getActiveInstance().checkForUpdate();
+    checkForUpdate();
   }
 }
