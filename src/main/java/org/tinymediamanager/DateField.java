@@ -28,7 +28,6 @@ public enum DateField {
   FILE_CREATION_DATE("metatag.filecreationdate"), // fileCreation date
   FILE_LAST_MODIFIED_DATE("metatag.filelastmodifieddate"); // fileLastModified date
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
   private final String                description;
 
   DateField(String description) {
@@ -37,6 +36,6 @@ public enum DateField {
 
   @Override
   public String toString() {
-    return BUNDLE.getString(description);
+    return ResourceBundle.getBundle("messages").getString(description);
   }
 }
