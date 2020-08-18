@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.ui.movies.filters;
+package org.tinymediamanager.ui.tvshows.filters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,20 +23,21 @@ import javax.swing.JLabel;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
- * This class implements a media type filter for movies
+ * This class implements a media type filter for the TV show tree
  *
  * @author Wolfgang Janes
  */
-public class MovieMediaFilesFilter extends AbstractCheckComboBoxMovieUIFilter<MovieMediaFilesFilter.MediaFileTypeContainer> {
+public class TvShowMediaFilesFilter extends AbstractCheckComboBoxTvShowUIFilter<TvShowMediaFilesFilter.MediaFileTypeContainer> {
 
-  public MovieMediaFilesFilter() {
+  public TvShowMediaFilesFilter() {
     super();
 
-    List<MediaFileTypeContainer> mediaFileTypeList = new ArrayList<>();
+    List<TvShowMediaFilesFilter.MediaFileTypeContainer> mediaFileTypeList = new ArrayList<>();
 
     for (MediaFileType type : MediaFileType.values()) {
       switch (type) {
@@ -47,7 +48,7 @@ public class MovieMediaFilesFilter extends AbstractCheckComboBoxMovieUIFilter<Mo
           break;
 
         default:
-          mediaFileTypeList.add(new MediaFileTypeContainer(type));
+          mediaFileTypeList.add(new TvShowMediaFilesFilter.MediaFileTypeContainer(type));
           break;
 
       }
@@ -66,33 +67,46 @@ public class MovieMediaFilesFilter extends AbstractCheckComboBoxMovieUIFilter<Mo
   }
 
   @Override
+  protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
+
+    boolean isValid = false;
+
+    List<MediaFileType> selectedItems = new ArrayList<>();
+    for (TvShowMediaFilesFilter.MediaFileTypeContainer container : checkComboBox.getSelectedItems()) {
+      selectedItems.add(container.type);
+    }
+
+    for (MediaFile mf : tvShow.getMediaFiles()) {
+      if (invert ^ selectedItems.contains(mf.getType())) {
+        isValid = true;
+        break;
+      }
+    }
+
+    if (!isValid) {
+
+      for (TvShowEpisode episode : episodes) {
+        List<MediaFile> mfs = episode.getMediaFiles();
+        for (MediaFile mf : mfs) {
+          if (invert ^ selectedItems.contains(mf.getType())) {
+            isValid = true;
+            break;
+          }
+        }
+      }
+    }
+
+    return isValid;
+  }
+
+  @Override
   protected JLabel createLabel() {
     return new TmmLabel(BUNDLE.getString("metatag.mediatype"));
   }
 
   @Override
   public String getId() {
-    return "movieMediaFiles";
-  }
-
-  @Override
-  public boolean accept(Movie movie) {
-
-    boolean isValid = false;
-
-    List<MediaFileType> selectedItems = new ArrayList<>();
-    for (MediaFileTypeContainer container : checkComboBox.getSelectedItems()) {
-      selectedItems.add(container.type);
-    }
-
-    for (MediaFile mf : movie.getMediaFiles()) {
-      if (selectedItems.contains(mf.getType())) {
-        isValid = true;
-        break;
-      }
-    }
-
-    return isValid;
+    return "tvShowMediaFiles";
   }
 
   public static class MediaFileTypeContainer {

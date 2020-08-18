@@ -166,6 +166,8 @@ public class MovieFilterDialog extends TmmDialog {
         tabbedPane.addTab(BUNDLE.getString("metatag.mediainformation"), scrollPaneMediaData);
         panelMediaData.add(new TmmLabel(BUNDLE.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
 
+        addFilter(new MovieMediaSourceFilter(), panelMediaData);
+        addFilter(new MovieMediaFilesFilter(), panelMediaData);
         addFilter(new MovieFilenameFilter(), panelMediaData);
         addFilter(new MovieVideoFormatFilter(), panelMediaData);
         addFilter(new MovieVideoCodecFilter(), panelMediaData);
@@ -178,8 +180,6 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieCountAudioStreamFilter(), panelMediaData);
         addFilter(new MovieCountSubtitleFilter(), panelMediaData);
         addFilter(new MovieDatasourceFilter(), panelMediaData);
-        addFilter(new MovieMediaSourceFilter(), panelMediaData);
-        addFilter(new MovieMediaFilesFilter(), panelMediaData);
         addFilter(new MovieVideoExtrasFilter(), panelMediaData);
         addFilter(new MovieMissingMetadataFilter(), panelMediaData);
         addFilter(new MovieMissingArtworkFilter(), panelMediaData);

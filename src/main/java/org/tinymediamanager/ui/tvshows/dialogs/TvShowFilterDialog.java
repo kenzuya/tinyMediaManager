@@ -71,6 +71,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowEmptyFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFilenameFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFrameRateFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowGenreFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowMediaFilesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaSourceFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingArtworkFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingEpisodesFilter;
@@ -157,6 +158,8 @@ public class TvShowFilterDialog extends TmmDialog {
         tabbedPane.addTab(BUNDLE.getString("metatag.mediainformation"), scrollPaneMediaData);
         panelMediaData.add(new TmmLabel(BUNDLE.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
 
+        addFilter(new TvShowDatasourceFilter(), panelMediaData);
+        addFilter(new TvShowMediaFilesFilter(), panelMediaData);
         addFilter(new TvShowFilenameFilter(), panelMediaData);
         addFilter(new TvShowVideoFormatFilter(), panelMediaData);
         addFilter(new TvShowVideoCodecFilter(), panelMediaData);
@@ -166,7 +169,6 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowAudioCodecFilter(), panelMediaData);
         addFilter(new TvShowAudioChannelFilter(), panelMediaData);
         addFilter(new TvShowMediaSourceFilter(), panelMediaData);
-        addFilter(new TvShowDatasourceFilter(), panelMediaData);
         addFilter(new TvShowMissingMetadataFilter(), panelMediaData);
         addFilter(new TvShowMissingArtworkFilter(), panelMediaData);
         addFilter(new TvShowMissingSubtitlesFilter(), panelMediaData);
