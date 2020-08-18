@@ -51,7 +51,12 @@ public abstract class AbstractTextMovieUIFilter extends AbstractMovieUIFilter {
   @Override
   protected void filterChanged() {
     normalizedFilterText = StrgUtils.normalizeString(textField.getText());
-    filterPattern = Pattern.compile(normalizedFilterText, Pattern.CASE_INSENSITIVE);
+    try {
+      filterPattern = Pattern.compile(normalizedFilterText, Pattern.CASE_INSENSITIVE);
+    }
+    catch (Exception e) {
+      // just catch illegal patterns
+    }
 
     super.filterChanged();
   }
