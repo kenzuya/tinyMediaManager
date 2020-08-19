@@ -42,6 +42,7 @@ import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
 import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 /**
  * The Class MoviemeterMetadataProvider. A meta data provider for the site moviemeter.nl
@@ -217,6 +218,19 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     for (MMDirector d : fd.directors) {
       Person cm = new Person(Person.Type.DIRECTOR, d.name);
       md.addCastMember(cm);
+    }
+
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      }
     }
 
     return md;

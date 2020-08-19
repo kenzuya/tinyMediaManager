@@ -61,6 +61,7 @@ import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.TvUtils;
 
 import com.uwetrottmann.tmdb2.Tmdb;
@@ -498,6 +499,19 @@ class TmdbTvShowMetadataProvider {
       }
     }
 
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      }
+    }
+
     return md;
   }
 
@@ -800,6 +814,19 @@ class TmdbTvShowMetadataProvider {
       ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + episode.still_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + episode.still_path);
       md.addMediaArt(ma);
+    }
+
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      }
     }
 
     return md;

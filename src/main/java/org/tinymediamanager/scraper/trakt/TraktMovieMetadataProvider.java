@@ -45,6 +45,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.CastMember;
@@ -235,6 +236,19 @@ class TraktMovieMetadataProvider {
         for (CrewMember crew : ListUtils.nullSafe(credits.crew.writing)) {
           md.addCastMember(TraktUtils.toTmmCast(crew, WRITER));
         }
+      }
+    }
+
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
       }
     }
 

@@ -49,6 +49,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 import com.uwetrottmann.tmdb2.Tmdb;
 import com.uwetrottmann.tmdb2.entities.AppendToResponse;
@@ -391,6 +392,19 @@ class TmdbMovieMetadataProvider {
     }
 
     md = morphMovieToMediaMetadata(movie, options);
+
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      }
+    }
 
     return md;
   }
