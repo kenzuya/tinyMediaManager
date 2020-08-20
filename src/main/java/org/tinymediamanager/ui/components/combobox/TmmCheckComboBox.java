@@ -194,11 +194,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       return;
     }
 
-    for (E item : items) {
-      if (selectedItems.containsKey(item)) {
-        selectedItems.put(item, true);
-      }
-    }
+    selectedItems.replaceAll((k, v) -> items.contains(k));
 
     reset();
   }
