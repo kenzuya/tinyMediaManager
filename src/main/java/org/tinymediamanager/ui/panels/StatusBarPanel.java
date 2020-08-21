@@ -255,12 +255,18 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
         // and update content
         taskLabel.setText(activeTask.getTaskName());
         if (activeTask.getWorkUnits() > 0) {
-          taskProgressBar.setIndeterminate(false);
-          taskProgressBar.setMaximum(activeTask.getWorkUnits());
-          taskProgressBar.setValue(activeTask.getProgressDone());
+          try {
+            // try/catch here; in a very occasional situation the last task might finish while we are inside the IF
+            taskProgressBar.setIndeterminate(false);
+            taskProgressBar.setMaximum(activeTask.getWorkUnits());
+            taskProgressBar.setValue(activeTask.getProgressDone());
 
-          TmmTaskbar.setProgressState(Taskbar.State.NORMAL);
-          TmmTaskbar.setProgressValue(100 * activeTask.getProgressDone() / activeTask.getWorkUnits());
+            TmmTaskbar.setProgressState(Taskbar.State.NORMAL);
+            TmmTaskbar.setProgressValue(100 * activeTask.getProgressDone() / activeTask.getWorkUnits());
+          }
+          catch (Exception e) {
+            // just ignore
+          }
         }
         else {
           taskProgressBar.setIndeterminate(true);
