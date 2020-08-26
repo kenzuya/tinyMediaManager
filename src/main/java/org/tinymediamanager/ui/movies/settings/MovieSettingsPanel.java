@@ -82,7 +82,6 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxCheckLogo;
   private JCheckBox                    chckbxCheckClearlogo;
   private JCheckBox                    chckbxCheckDiscart;
-  private JCheckBox                    cbShowOnlyLocalTrailer;
 
   private ItemListener                 checkBoxListener;
 
@@ -212,7 +211,7 @@ public class MovieSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][]")); // 16lp ~ width of the
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -233,11 +232,6 @@ public class MovieSettingsPanel extends JPanel {
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
         panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 2 2 1");
       }
-      {
-        cbShowOnlyLocalTrailer = new JCheckBox(BUNDLE.getString("Settings.showonlylocaltrailer"));
-        panelUiSettings.add(cbShowOnlyLocalTrailer, "cell 1 3 2 1");
-      }
-
     }
     {
       JPanel panelAutomaticTasks = new JPanel();
@@ -397,10 +391,5 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_11,
         chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
     autoBinding_11.bind();
-    //
-    Property movieSettingsBeanProperty_12 = BeanProperty.create("showLocalTrailerColumn");
-    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_12, cbShowOnlyLocalTrailer,
-        jCheckBoxBeanProperty);
-    autoBinding_12.bind();
   }
 }
