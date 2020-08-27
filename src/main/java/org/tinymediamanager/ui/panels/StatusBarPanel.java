@@ -16,8 +16,14 @@
 
 package org.tinymediamanager.ui.panels;
 
+import static org.tinymediamanager.ui.plaf.UIUtils.fitToScreen;
+
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Taskbar;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -29,6 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -172,7 +179,15 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
       add(taskStopButton, "cell 4 0");
     }
     {
-      btnNotifications = new FlatButton(IconManager.WARN_INTENSIFIED);
+      btnNotifications = new FlatButton(IconManager.WARN_INTENSIFIED) {
+        @Override
+        public Point getToolTipLocation(MouseEvent event) {
+          JToolTip tip = new JToolTip();
+          tip.setTipText(getToolTipText());
+
+          return getTooltipPointFor(this, tip.getPreferredSize());
+        }
+      };
       btnNotifications.setEnabled(false);
       btnNotifications.setForeground(Color.RED);
       btnNotifications.setToolTipText(BUNDLE.getString("notifications.new"));
@@ -275,6 +290,33 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
         }
       }
     });
+  }
+
+  /**
+   * calculate the tooltip {@link Point} for the given tooltip {@link Dimension} and the actual mouse location
+   *
+   * @param owner
+   *          the {@link Component} showing the tooltip
+   * @param popupSize
+   *          the {@link Dimension} of the tooltip
+   * @return the origin point where the tooltip should be shown
+   */
+  private Point getTooltipPointFor(Component owner, Dimension popupSize) {
+    Point location = new Point(0, owner.getHeight());
+    location.y += 5; // 5 ... tooltip offset
+    SwingUtilities.convertPointToScreen(location, owner);
+
+    Rectangle r = new Rectangle(location, popupSize);
+    fitToScreen(r);
+    location = r.getLocation();
+    SwingUtilities.convertPointFromScreen(location, owner);
+    r.setLocation(location);
+
+    if (r.intersects(new Rectangle(0, 0, owner.getWidth(), owner.getHeight()))) {
+      location.y = -r.height - 5;
+    }
+
+    return location;
   }
 
   /****************************************************************************************
