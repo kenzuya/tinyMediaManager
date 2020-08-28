@@ -38,6 +38,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -57,16 +58,15 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Myron Boyle (myron0815@gmx.net)
  */
 public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrailerProvider {
-  public static final String ID = "ofdb";
+  public static final String       ID           = "ofdb";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OfdbMetadataProvider.class);
-  private static final String BASE_URL = "http://www.ofdb.de";
+  private static final Logger      LOGGER       = LoggerFactory.getLogger(OfdbMetadataProvider.class);
 
   private static MediaProviderInfo providerInfo = createMediaProviderInfo();
 
   private static MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, "Online Filmdatenbank (OFDb.de)",
-            "<html><h3>Online Filmdatenbank (OFDb)</h3><br />A german movie database driven by the community.<br /><br />Available languages: DE</html>",
+        "<html><h3>Online Filmdatenbank (OFDb)</h3><br />A german movie database driven by the community.<br /><br />Available languages: DE</html>",
         OfdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/ofdb_de.svg"));
   }
 
@@ -95,13 +95,23 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
     // b) getMetadata has been called with an imdbId
     // c) getMetadata has been called from a previous search
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     String detailUrl = "";
 
     // case a)
     String id = options.getIdAsString(getProviderInfo().getId());
 
     if (StringUtils.isNotBlank(id)) {
-      detailUrl = "http://www.ofdb.de/view.php?page=film&fid=" + id;
+      detailUrl = apiKey + "/view.php?page=film&fid=" + id;
     }
 
     // case b)
@@ -240,7 +250,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
     LOGGER.trace("parse plot");
     el = doc.getElementsByAttributeValueMatching("href", "plot\\/\\d+,");
     if (!el.isEmpty()) {
-      String plotUrl = BASE_URL + "/" + el.first().attr("href");
+      String plotUrl = apiKey + "/" + el.first().attr("href");
       try {
         Document plot = UrlUtil.parseDocumentFromUrl(plotUrl);
 
@@ -259,8 +269,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
       }
     }
 
-    // http://www.ofdb.de/view.php?page=film_detail&fid=226745
-    String movieDetail = BASE_URL + "/view.php?page=film_detail&fid=" + ofdbId;
+    String movieDetail = apiKey + "/view.php?page=film_detail&fid=" + ofdbId;
     LOGGER.trace("parse movie detail: {}", movieDetail);
 
     doc = null;
@@ -276,12 +285,12 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
     }
 
     if (doc != null) {
-      parseCast(doc.getElementsContainingOwnText("Regie"), Person.Type.DIRECTOR, md);
-      parseCast(doc.getElementsContainingOwnText("Darsteller"), Person.Type.ACTOR, md);
-      parseCast(doc.getElementsContainingOwnText("Stimme/Sprecher"), Person.Type.ACTOR, md);
-      parseCast(doc.getElementsContainingOwnText("Synchronstimme (deutsch)"), Person.Type.ACTOR, md);
-      parseCast(doc.getElementsContainingOwnText("Drehbuchautor(in)"), Person.Type.WRITER, md);
-      parseCast(doc.getElementsContainingOwnText("Produzent(in)"), Person.Type.PRODUCER, md);
+      parseCast(apiKey, doc.getElementsContainingOwnText("Regie"), Person.Type.DIRECTOR, md);
+      parseCast(apiKey, doc.getElementsContainingOwnText("Darsteller"), Person.Type.ACTOR, md);
+      parseCast(apiKey, doc.getElementsContainingOwnText("Stimme/Sprecher"), Person.Type.ACTOR, md);
+      parseCast(apiKey, doc.getElementsContainingOwnText("Synchronstimme (deutsch)"), Person.Type.ACTOR, md);
+      parseCast(apiKey, doc.getElementsContainingOwnText("Drehbuchautor(in)"), Person.Type.WRITER, md);
+      parseCast(apiKey, doc.getElementsContainingOwnText("Produzent(in)"), Person.Type.PRODUCER, md);
     }
 
     return md;
@@ -291,7 +300,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
   // find the header
   // go up until TR table row
   // get next TR for casts entries
-  private void parseCast(Elements el, Person.Type type, MediaMetadata md) {
+  private void parseCast(String baseUrl, Elements el, Person.Type type, MediaMetadata md) {
     if (el != null && !el.isEmpty()) {
       Element castEl = null;
       for (Element element : el) {
@@ -326,7 +335,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
               try {
                 String imgurl = URLDecoder.decode(StrgUtils.substr(act, "images%2Fperson%2F(.*?)&amp;size"), "UTF-8");
                 if (!imgurl.isEmpty()) {
-                  imgurl = BASE_URL + "/images/person/" + imgurl;
+                  imgurl = baseUrl + "/images/person/" + imgurl;
                 }
                 cm.setThumbUrl(imgurl);
               }
@@ -336,7 +345,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
               // profile path
               Element profileAnchor = a.getElementsByAttributeValueStarting("href", "view.php?page=person").first();
               if (profileAnchor != null) {
-                cm.setProfileUrl(BASE_URL + "/" + profileAnchor.attr("href"));
+                cm.setProfileUrl(baseUrl + profileAnchor.attr("href"));
               }
             }
             String arole = StrgUtils.substr(act, "\\.\\.\\. (.*?)</font>").replaceAll("<[^>]*>", "");
@@ -467,6 +476,16 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     String searchQuery = options.getSearchQuery();
@@ -483,7 +502,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
         imdb = options.getImdbId();
         LOGGER.debug("search with imdbId: {}", imdb);
 
-        Document doc = UrlUtil.parseDocumentFromUrl(BASE_URL + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + imdb);
+        Document doc = UrlUtil.parseDocumentFromUrl(apiKey + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + imdb);
 
         // only look for movie links
         filme = doc.getElementsByAttributeValueMatching("href", "film\\/\\d+,");
@@ -502,7 +521,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
     // 2. search for search string
     if ((filme == null || filme.isEmpty()) && StringUtils.isNotBlank(options.getSearchQuery())) {
       try {
-        String searchString = BASE_URL + "/view.php?page=suchergebnis&Kat=All&SText=" + URLEncoder.encode(cleanSearch(searchQuery), "UTF-8");
+        String searchString = apiKey + "/view.php?page=suchergebnis&Kat=All&SText=" + URLEncoder.encode(cleanSearch(searchQuery), "UTF-8");
         LOGGER.debug("search for everything: {}", searchQuery);
 
         Document doc = UrlUtil.parseDocumentFromUrl(searchString);
@@ -553,8 +572,8 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
           LOGGER.trace("could not parse year: {}", e.getMessage());
         }
 
-        sr.setUrl(BASE_URL + "/" + StrgUtils.substr(a.toString(), "href=\\\"(.*?)\\\""));
-        sr.setPosterUrl(BASE_URL + "/images" + StrgUtils.substr(a.toString(), "images(.*?)\\&quot"));
+        sr.setUrl(apiKey + "/" + StrgUtils.substr(a.toString(), "href=\\\"(.*?)\\\""));
+        sr.setPosterUrl(apiKey + "/images" + StrgUtils.substr(a.toString(), "images(.*?)\\&quot"));
 
         // check if it has at least a title and url
         if (StringUtils.isBlank(sr.getTitle()) || StringUtils.isBlank(sr.getUrl())) {
@@ -588,6 +607,17 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
   @Override
   public List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     LOGGER.debug("getTrailers(): {}", options);
+
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     List<MediaTrailer> trailers = new ArrayList<>();
     if (!MetadataUtil.isValidImdbId(options.getImdbId())) {
       LOGGER.debug("IMDB id not found");
@@ -628,7 +658,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
      * <a href= "http://de.clip-1.filmtrailer.com/9507_39003_a_5.mp4?log_var=72|491100001-1|-" >mp4</a><br>&raquo; <a href=
      * "http://de.clip-1.filmtrailer.com/9507_39003_a_5.webm?log_var=72|491100001-1|-" >webm</a><br>'; } }
      */
-    String searchString = BASE_URL + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + options.getImdbId();
+    String searchString = apiKey + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + options.getImdbId();
     String url = "";
     try {
       // search with IMDB
@@ -643,7 +673,7 @@ public class OfdbMetadataProvider implements IMovieMetadataProvider, IMovieTrail
       LOGGER.debug("found {} search results", filme.size()); // hopefully only one
 
       LOGGER.debug("get (trailer) details page");
-      url = BASE_URL + "/" + StrgUtils.substr(filme.first().toString(), "href=\\\"(.*?)\\\"");
+      url = apiKey + "/" + StrgUtils.substr(filme.first().toString(), "href=\\\"(.*?)\\\"");
       doc = UrlUtil.parseDocumentFromUrl(url);
 
       // OLD STYLE

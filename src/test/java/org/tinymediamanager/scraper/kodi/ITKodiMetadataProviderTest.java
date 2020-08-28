@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -28,8 +30,13 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
-public class ITKodiMetadataProviderTest {
+public class ITKodiMetadataProviderTest extends BasicTest {
   private static final String CRLF = "\n";
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
   public void xmlHeaders() {

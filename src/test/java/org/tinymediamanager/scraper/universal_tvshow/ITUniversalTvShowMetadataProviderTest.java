@@ -23,8 +23,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -35,12 +37,17 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
-public class ITUniversalTvShowMetadataProviderTest {
+public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
 
   @BeforeClass
   public static void setUp() {
     // load all classpath plugins
     MediaProviders.loadMediaProviders();
+  }
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
   }
 
   @Test

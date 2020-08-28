@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -36,7 +38,12 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
-public class ITOfdbMetadataProviderTest {
+public class ITOfdbMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
   public void testSearch() {

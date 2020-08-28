@@ -10,7 +10,9 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -20,12 +22,16 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.util.ApiKey;
 
 /**
  * @author Wolfgang Janes
  */
-public class ITOmdbMetadataProviderTest {
+public class ITOmdbMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   /**
    * Testing ProviderInfo
@@ -50,8 +56,6 @@ public class ITOmdbMetadataProviderTest {
   public void testSearch() {
     try {
       OmdbMetadataProvider mp = new OmdbMetadataProvider();
-      mp.getProviderInfo().getConfig().setValue("apiKey", ApiKey.decryptApikey("Isuaab2ym89iI1hOtF94nQ=="));
-      mp.setVerbose(true);
 
       // Matrix
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
@@ -87,8 +91,6 @@ public class ITOmdbMetadataProviderTest {
   public void testScrapeById() {
     try {
       OmdbMetadataProvider mp = new OmdbMetadataProvider();
-      mp.getProviderInfo().getConfig().setValue("apiKey", ApiKey.decryptApikey("Isuaab2ym89iI1hOtF94nQ=="));
-      mp.setVerbose(true);
 
       MovieSearchAndScrapeOptions scrapeOptions = new MovieSearchAndScrapeOptions();
       scrapeOptions.setLanguage(MediaLanguages.en);

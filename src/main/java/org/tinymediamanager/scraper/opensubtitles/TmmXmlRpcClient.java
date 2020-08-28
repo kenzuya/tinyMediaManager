@@ -54,15 +54,18 @@ public class TmmXmlRpcClient {
   private String              userAgent;
   private ResponseParser      responseParser;
 
-  public TmmXmlRpcClient(URL url, String userAgent) {
+  public TmmXmlRpcClient(URL url) {
     this.url = url;
-    this.userAgent = userAgent;
     SerializerHandler.initialize(XMLRPCClient.FLAGS_8BYTE_INT);
     responseParser = new ResponseParser();
 
     if (client == null) {
       client = TmmHttpClient.getHttpClient();
     }
+  }
+
+  public void setUserAgent(String userAgent) {
+    this.userAgent = userAgent;
   }
 
   /**

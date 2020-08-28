@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
-import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
+import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.PROVIDER_INFO;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -20,7 +22,12 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 /**
  * @author Nikolas Mavropoylos
  */
-public class ITTmdbMovieMetadataProviderTest {
+public class ITTmdbMovieMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
   public void testMovieScrapeDataIntegrityInEnglish() throws Exception {
@@ -64,8 +71,8 @@ public class ITTmdbMovieMetadataProviderTest {
   @Test
   public void testMovieScrapeDataWithFallBackLanguageShouldFallbackAndReturnCorrectData() throws Exception {
 
-    providerInfo.getConfig().setValue("titleFallback", true);
-    providerInfo.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
+    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
+    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
     IMovieMetadataProvider mp = new TmdbMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
@@ -77,7 +84,7 @@ public class ITTmdbMovieMetadataProviderTest {
 
     assertThat(md.getTitle()).isEqualTo("The Front Line");
 
-    providerInfo.getConfig().setValue("titleFallback", false);
+    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   // @Test
@@ -121,8 +128,8 @@ public class ITTmdbMovieMetadataProviderTest {
 
   @Test
   public void testMovieSearchWithFallBackLanguageEnglishVerifyFallbackInitiatedAndChangedTitlesNumberIntegrity() throws Exception {
-    providerInfo.getConfig().setValue("titleFallback", true);
-    providerInfo.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
+    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
+    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
     IMovieMetadataProvider mp = new TmdbMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
@@ -139,7 +146,7 @@ public class ITTmdbMovieMetadataProviderTest {
 
     assertThat(results.get(1).getTitle()).isEqualTo("The Front Line");
 
-    providerInfo.getConfig().setValue("titleFallback", false);
+    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test

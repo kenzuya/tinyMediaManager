@@ -27,8 +27,8 @@ import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInf
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -74,7 +75,6 @@ import org.tinymediamanager.scraper.util.UrlUtil;
 public abstract class ImdbParser {
   protected static final Pattern IMDB_ID_PATTERN   = Pattern.compile("/title/(tt[0-9]{6,})/");
   protected static final Pattern PERSON_ID_PATTERN = Pattern.compile("/name/(nm[0-9]{6,})/");
-  protected static final String  IMDB_SITE         = "http://www.imdb.com/";
 
   protected final MediaType      type;
 
@@ -135,6 +135,16 @@ public abstract class ImdbParser {
     getLogger().debug("search(): {}", options);
     SortedSet<MediaSearchResult> result = new TreeSet<>();
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(providerInfo.getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     /*
      * IMDb matches seem to come in several "flavours".
      *
@@ -167,17 +177,10 @@ public abstract class ImdbParser {
 
     searchTerm = MetadataUtil.removeNonSearchCharacters(searchTerm);
 
-    StringBuilder sb = new StringBuilder(IMDB_SITE);
+    StringBuilder sb = new StringBuilder(apiKey);
     sb.append("find?q=");
-    try {
-      // search site was everytime in UTF-8
-      sb.append(URLEncoder.encode(searchTerm, UrlUtil.UTF_8));
-    }
-    catch (UnsupportedEncodingException ex) {
-      // Failed to encode the movie name for some reason!
-      getLogger().debug("Failed to encode search term: {}", searchTerm);
-      sb.append(searchTerm);
-    }
+    // search site was everytime in UTF-8
+    sb.append(URLEncoder.encode(searchTerm, StandardCharsets.UTF_8));
 
     // we need to search for all - otherwise we do not find TV movies
     sb.append(getSearchCategory());

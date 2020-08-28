@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -35,7 +37,12 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
-public class ITAniDBMetadataProviderTest {
+public class ITAniDBMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
   public void testSearch() {

@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
@@ -32,12 +34,17 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
-public class ITUniversalMovieMetadataProviderTest {
+public class ITUniversalMovieMetadataProviderTest extends BasicTest {
 
   @BeforeClass
   public static void setUp() {
     // load all classpath plugins
     MediaProviders.loadMediaProviders();
+  }
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
   }
 
   @Test

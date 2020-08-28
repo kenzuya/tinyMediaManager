@@ -61,6 +61,8 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.license.License;
+import org.tinymediamanager.license.MovieEventList;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -72,7 +74,6 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -109,7 +110,7 @@ public class MovieList extends AbstractModelObject {
    */
   private MovieList() {
     // create all lists
-    movieList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Movie.class));
+    movieList = new ObservableElementList<>(new MovieEventList<>(), GlazedLists.beanConnector(Movie.class));
     movieSetList = new ObservableCopyOnWriteArrayList<>();
 
     yearsInMovies = new CopyOnWriteArraySet<>();
@@ -170,6 +171,12 @@ public class MovieList extends AbstractModelObject {
     };
 
     movieSettings = MovieModuleManager.SETTINGS;
+
+    License.getInstance().addEventListener(() -> {
+      firePropertyChange("movieCount", 0, movieList.size());
+      firePropertyChange("movieSetCount", 0, movieSetList.size());
+      firePropertyChange("movieInMovieSetCount", 0, getMovieInMovieSetCount());
+    });
   }
 
   /**
@@ -1226,7 +1233,7 @@ public class MovieList extends AbstractModelObject {
 
   /**
    * get all titles from TV shows (mainly for the showlink feature)
-   * 
+   *
    * @return a {@link List} of all TV show titles
    */
   public List<String> getTvShowTitles() {

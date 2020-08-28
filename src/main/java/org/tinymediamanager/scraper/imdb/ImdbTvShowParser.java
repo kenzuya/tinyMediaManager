@@ -47,6 +47,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
@@ -116,6 +117,16 @@ public class ImdbTvShowParser extends ImdbParser {
   MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(providerInfo.getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     String imdbId = "";
 
     // imdbId from searchResult
@@ -146,25 +157,25 @@ public class ImdbTvShowParser extends ImdbParser {
     ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
     // get reference data (/reference)
-    String url = IMDB_SITE + "title/" + imdbId + "/reference";
+    String url = apiKey + "title/" + imdbId + "/reference";
     Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = compSvcImdb.submit(worker);
 
     // worker for imdb request (/plotsummary)
     Future<Document> futurePlotsummary;
-    url = IMDB_SITE + "title/" + imdbId + "/plotsummary";
+    url = apiKey + "title/" + imdbId + "/plotsummary";
     worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
     futurePlotsummary = compSvcImdb.submit(worker);
 
     // worker for imdb request (/releaseinfo)
     Future<Document> futureReleaseinfo;
-    url = IMDB_SITE + "title/" + imdbId + "/releaseinfo";
+    url = apiKey + "title/" + imdbId + "/releaseinfo";
     worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
-      url = IMDB_SITE + "title/" + imdbId + "/keywords";
+      url = apiKey + "title/" + imdbId + "/keywords";
       worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
       futureKeywords = compSvcImdb.submit(worker);
     }
@@ -241,8 +252,18 @@ public class ImdbTvShowParser extends ImdbParser {
 
   MediaMetadata getEpisodeMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getEpisodeMetadata(): {}", options);
-    MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(providerInfo.getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
+    MediaMetadata md = new MediaMetadata(providerInfo.getId());
     String showId = "" + options.getTvShowIds().get(MediaMetadata.IMDB);
 
     if (!MetadataUtil.isValidImdbId(showId)) {
@@ -311,14 +332,14 @@ public class ImdbTvShowParser extends ImdbParser {
       if (MetadataUtil.isValidImdbId(episodeId)) {
         ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
-        String url = IMDB_SITE + "title/" + episodeId + "/reference";
+        String url = apiKey + "title/" + episodeId + "/reference";
         Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
         Future<Document> futureReference = compSvcImdb.submit(worker);
 
         // worker for imdb keywords (/keywords)
         Future<Document> futureKeywords = null;
         if (isScrapeKeywordsPage()) {
-          url = IMDB_SITE + "title/" + episodeId + "/keywords";
+          url = apiKey + "title/" + episodeId + "/keywords";
           worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
           futureKeywords = compSvcImdb.submit(worker);
         }
@@ -458,6 +479,16 @@ public class ImdbTvShowParser extends ImdbParser {
   List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     LOGGER.debug("getEpisodeList(): {}", options);
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(providerInfo.getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     // parse the episodes from the ratings overview page (e.g.
     // http://www.imdb.com/title/tt0491738/epdate )
     String imdbId = options.getImdbId();
@@ -479,7 +510,7 @@ public class ImdbTvShowParser extends ImdbParser {
     Document doc;
     Url url;
     try {
-      url = new InMemoryCachedUrl(IMDB_SITE + "/title/" + imdbId + "/epdate");
+      url = new InMemoryCachedUrl(apiKey + "/title/" + imdbId + "/epdate");
       url.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
     }
     catch (Exception e) {
@@ -504,7 +535,7 @@ public class ImdbTvShowParser extends ImdbParser {
     for (int i = 1;; i++) {
       Url seasonUrl;
       try {
-        seasonUrl = new InMemoryCachedUrl(IMDB_SITE + "/title/" + imdbId + "/epdate?season=" + i);
+        seasonUrl = new InMemoryCachedUrl(apiKey + "/title/" + imdbId + "/epdate?season=" + i);
         seasonUrl.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
       }
       catch (Exception e) {

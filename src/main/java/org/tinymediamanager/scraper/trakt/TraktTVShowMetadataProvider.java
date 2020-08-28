@@ -121,14 +121,14 @@ class TraktTVShowMetadataProvider {
   List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     List<MediaMetadata> episodes = new ArrayList<>();
 
-    String id = options.getIdAsString(TraktMetadataProvider.providerInfo.getId());
+    String id = options.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
     if (StringUtils.isBlank(id)) {
       // alternatively we can take the imdbid
       id = options.getIdAsString(IMDB);
     }
     if (StringUtils.isBlank(id)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(IMDB, TraktMetadataProvider.providerInfo.getId());
+      throw new MissingIdException(IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
     }
 
     // the API does not provide a complete access to all episodes, so we have to
@@ -151,14 +151,14 @@ class TraktTVShowMetadataProvider {
 
     for (Season season : ListUtils.nullSafe(seasons)) {
       for (Episode episode : ListUtils.nullSafe(season.episodes)) {
-        MediaMetadata ep = new MediaMetadata(TraktMetadataProvider.providerInfo.getId());
+        MediaMetadata ep = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
         ep.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
         ep.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
         ep.setTitle(episode.title);
 
         if (episode.rating != null) {
           try {
-            MediaRating rating = new MediaRating(TraktMetadataProvider.providerInfo.getId());
+            MediaRating rating = new MediaRating(TraktMetadataProvider.PROVIDER_INFO.getId());
             rating.setRating(Math.round(episode.rating * 10.0) / 10.0); // hack to round to 1 decimal
             rating.setVotes(episode.votes);
             rating.setMaxValue(10);
@@ -174,7 +174,7 @@ class TraktTVShowMetadataProvider {
         }
 
         if (episode.ids != null) {
-          ep.setId(TraktMetadataProvider.providerInfo.getId(), episode.ids.trakt);
+          ep.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), episode.ids.trakt);
           if (episode.ids.tvdb != null && episode.ids.tvdb > 0) {
             ep.setId(TVDB, episode.ids.tvdb);
           }
@@ -197,9 +197,9 @@ class TraktTVShowMetadataProvider {
   }
 
   MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
 
-    String id = options.getIdAsString(TraktMetadataProvider.providerInfo.getId());
+    String id = options.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
 
     // alternatively we can take the imdbid
     if (StringUtils.isBlank(id)) {
@@ -208,7 +208,7 @@ class TraktTVShowMetadataProvider {
 
     if (StringUtils.isBlank(id)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(IMDB, TraktMetadataProvider.providerInfo.getId());
+      throw new MissingIdException(IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
     }
 
     String lang = options.getLanguage().getLanguage();
@@ -242,7 +242,7 @@ class TraktTVShowMetadataProvider {
 
     // show meta data
     if (show.ids != null) {
-      md.setId(TraktMetadataProvider.providerInfo.getId(), show.ids.trakt);
+      md.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), show.ids.trakt);
       if (show.ids.tvdb != null && show.ids.tvdb > 0) {
         md.setId(TVDB, show.ids.tvdb);
       }
@@ -329,7 +329,7 @@ class TraktTVShowMetadataProvider {
   }
 
   MediaMetadata getEpisodeMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
 
     // ok, we have 2 flavors here:
     // a) we get the season and episode number -> everything is fine
@@ -337,7 +337,7 @@ class TraktTVShowMetadataProvider {
 
     // get the tv show ids
     TvShowSearchAndScrapeOptions tvShowSearchAndScrapeOptions = options.createTvShowSearchAndScrapeOptions();
-    String showId = tvShowSearchAndScrapeOptions.getIdAsString(TraktMetadataProvider.providerInfo.getId());
+    String showId = tvShowSearchAndScrapeOptions.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
 
     if (StringUtils.isBlank(showId)) {
       // alternatively we can take the imdbid
@@ -345,7 +345,7 @@ class TraktTVShowMetadataProvider {
     }
     if (StringUtils.isBlank(showId)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(IMDB, TraktMetadataProvider.providerInfo.getId());
+      throw new MissingIdException(IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
     }
 
     String episodeImdbId = options.getIdAsString(IMDB);
@@ -444,7 +444,7 @@ class TraktTVShowMetadataProvider {
     md.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
 
     if (episode.ids != null) {
-      md.setId(TraktMetadataProvider.providerInfo.getId(), episode.ids.trakt);
+      md.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), episode.ids.trakt);
       if (episode.ids.tvdb != null && episode.ids.tvdb > 0) {
         md.setId(TVDB, episode.ids.tvdb);
       }

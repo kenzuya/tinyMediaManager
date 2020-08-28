@@ -41,8 +41,8 @@ import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
-import org.tinymediamanager.scraper.util.ApiKey;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.TraktV2Interceptor;
@@ -82,17 +82,24 @@ import retrofit2.Response;
  */
 
 public class TraktTv {
-  private static final String  CLIENT_ID = ApiKey
-      .decryptApikey("Xd0t1yRY+HaxMl3bqILuxIaokXxekrFNj0QszCUsG6aNSbrhOhC2h5PcxDhV7wUXmBdOt9cYlMGNJjLZvKcS3xTRx3zYH7EYb7Mv5hCsMQU=");
-  private static final Logger  LOGGER    = LoggerFactory.getLogger(TraktTv.class);
-  private static final TraktV2 TRAKT     = createTraktApi();
+  private static final Logger  LOGGER = LoggerFactory.getLogger(TraktTv.class);
+  private static final TraktV2 TRAKT  = createTraktApi();
   private static TraktTv       instance;
 
   private static TraktV2 createTraktApi() {
-    return new TraktV2(CLIENT_ID,
-        ApiKey.decryptApikey("VD2h4jmnrrYWnP1Nk49UtTNRILiWsuelJKdza7DAw+ROh1wtVf2U6PQScm7QWCOTsxN0K3QluIykKs2ZT1af1GcPz1401005bDBDss1Pz2c="),
-        "urn:ietf:wg:oauth:2.0:oob") {
-      // tell the trakt api to use our OkHttp client
+    String clientId;
+    String clientSecret;
+    try {
+      clientId = License.getInstance().getApiKey("trakt");
+      clientSecret = License.getInstance().getApiKey("trakt.secret");
+    }
+    catch (Exception e) {
+      clientId = "";
+      clientSecret = "";
+    }
+
+    return new TraktV2(clientId, clientSecret, "urn:ietf:wg:oauth:2.0:oob") {
+      // tell the trakt.tv api to use our OkHttp client
 
       @Override
       protected synchronized OkHttpClient okHttpClient() {

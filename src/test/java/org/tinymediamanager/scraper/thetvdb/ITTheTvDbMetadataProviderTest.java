@@ -14,7 +14,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -32,7 +34,12 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
-public class ITTheTvDbMetadataProviderTest {
+public class ITTheTvDbMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
   public void testSearch() throws Exception {

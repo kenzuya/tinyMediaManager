@@ -38,6 +38,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -52,7 +53,6 @@ import org.tinymediamanager.scraper.omdb.entities.MovieEntity;
 import org.tinymediamanager.scraper.omdb.entities.MovieRating;
 import org.tinymediamanager.scraper.omdb.entities.MovieSearch;
 import org.tinymediamanager.scraper.omdb.service.Controller;
-import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -68,7 +68,6 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
 
   private static final Logger            LOGGER       = LoggerFactory.getLogger(OmdbMetadataProvider.class);
   private static final MediaProviderInfo providerInfo = createMediaProviderInfo();
-  private static final String            API_KEY      = ApiKey.decryptApikey("Isuaab2ym89iI1hOtF94nQ==");
 
   private Controller                     controller;
 
@@ -96,13 +95,13 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
     return ID;
   }
 
-  private String getApiKey() {
+  private String getApiKey(String defaultKey) {
     String apiKey = providerInfo.getConfig().getValue("apiKey");
     if (StringUtils.isNotBlank(apiKey)) {
       return apiKey;
     }
 
-    return API_KEY;
+    return defaultKey;
   }
 
   @Override
@@ -111,7 +110,16 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
 
     MediaMetadata metadata = new MediaMetadata(OmdbMetadataProvider.providerInfo.getId());
 
-    String apiKey = getApiKey();
+    String tmmApiKey = "";
+    String apiKey = "";
+    try {
+      tmmApiKey = License.getInstance().getApiKey(ID);
+      apiKey = getApiKey(tmmApiKey);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     if (StringUtils.isBlank(apiKey)) {
       LOGGER.warn("no API key found");
       return metadata;
@@ -141,7 +149,7 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
 
     MovieEntity result = null;
     try {
-      if (API_KEY.equals(apiKey)) {
+      if (tmmApiKey.equals(apiKey)) {
         OmdbConnectionCounter.trackConnections();
       }
       result = controller.getScrapeDataById(apiKey, imdbId, "movie", true);
@@ -284,7 +292,16 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
     LOGGER.debug("search(): {}", query);
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
 
-    String apiKey = getApiKey();
+    String tmmApiKey;
+    String apiKey;
+    try {
+      tmmApiKey = License.getInstance().getApiKey(ID);
+      apiKey = getApiKey(tmmApiKey);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     if (StringUtils.isBlank(apiKey)) {
       LOGGER.warn("no API key found");
       return mediaResult;
@@ -293,7 +310,7 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
     MovieSearch resultList;
     try {
       LOGGER.info("========= BEGIN OMDB Scraper Search for Movie: {}", query.getSearchQuery());
-      if (API_KEY.equals(apiKey)) {
+      if (tmmApiKey.equals(apiKey)) {
         OmdbConnectionCounter.trackConnections();
       }
       resultList = controller.getMovieSearchInfo(apiKey, query.getSearchQuery(), "movie", null);

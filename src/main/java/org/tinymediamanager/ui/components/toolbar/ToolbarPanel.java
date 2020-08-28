@@ -46,6 +46,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -66,6 +67,7 @@ import org.tinymediamanager.ui.actions.HomepageAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
+import org.tinymediamanager.ui.actions.UnlockAction;
 import org.tinymediamanager.ui.dialogs.FullLogDialog;
 import org.tinymediamanager.ui.dialogs.LogDialog;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
@@ -81,17 +83,20 @@ import net.miginfocom.swing.MigLayout;
 public class ToolbarPanel extends JPanel {
   private static final long           serialVersionUID = 7969400170662870244L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class);            // $NON-NLS-1$
+  private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
   private ToolbarButton               btnSearch;
   private ToolbarButton               btnEdit;
   private ToolbarButton               btnUpdate;
   private ToolbarButton               btnRename;
+  private ToolbarButton               btnUnlock;
 
   private ToolbarMenu                 menuUpdate;
   private ToolbarMenu                 menuSearch;
   private ToolbarMenu                 menuEdit;
   private ToolbarMenu                 menuRename;
+
+  private ToolbarLabel                lblUnlock;
 
   public ToolbarPanel() {
     setLayout(new BorderLayout());
@@ -99,7 +104,8 @@ public class ToolbarPanel extends JPanel {
     JPanel panelCenter = new JPanel();
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
-    panelCenter.setLayout(new MigLayout("insets 0", "[5lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[]15lp[5lp:n]", "[50lp]1lp[]5lp"));
+    panelCenter
+        .setLayout(new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][15lp:n]", "[50lp]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,center");
 
@@ -128,6 +134,11 @@ public class ToolbarPanel extends JPanel {
     JButton btnInfo = new ToolbarButton(IconManager.TOOLBAR_ABOUT, IconManager.TOOLBAR_ABOUT_HOVER, infoPopupMenu);
     panelCenter.add(btnInfo, "cell 10 0,alignx center,aligny bottom");
 
+    btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UNLOCK, IconManager.TOOLBAR_UNLOCK_HOVER);
+    Action unlockAction = new UnlockAction();
+    btnUnlock.setAction(unlockAction);
+    panelCenter.add(btnUnlock, "cell 11 0, alignx center,aligny bottom, gap 10lp");
+
     menuUpdate = new ToolbarMenu(BUNDLE.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center");
 
@@ -149,10 +160,24 @@ public class ToolbarPanel extends JPanel {
     ToolbarMenu menuHelp = new ToolbarMenu(BUNDLE.getString("Toolbar.help"), infoPopupMenu);
     panelCenter.add(menuHelp, "cell 10 1,alignx center");
 
-    JPanel panelEast = new JPanel();
-    add(panelEast, BorderLayout.EAST);
-    panelEast.setOpaque(false);
-    panelEast.setLayout(new MigLayout("insets 0", "[]", "[grow]"));
+    lblUnlock = new ToolbarLabel(BUNDLE.getString("Toolbar.unlock"), unlockAction);
+    lblUnlock.setToolTipText(BUNDLE.getString("Toolbar.unlock.desc"));
+    panelCenter.add(lblUnlock, "cell 11 1,alignx center, gap 10lp");
+
+    License.getInstance().addEventListener(this::showHideUnlock);
+
+    showHideUnlock();
+  }
+
+  private void showHideUnlock() {
+    if (License.getInstance().isValidLicense()) {
+      btnUnlock.setVisible(false);
+      lblUnlock.setVisible(false);
+    }
+    else {
+      btnUnlock.setVisible(true);
+      lblUnlock.setVisible(true);
+    }
   }
 
   @Override
@@ -329,6 +354,7 @@ public class ToolbarPanel extends JPanel {
     menu.add(new FeedbackAction());
 
     menu.addSeparator();
+    menu.add(new UnlockAction());
     menu.add(new HomepageAction());
     menu.add(new AboutAction());
 

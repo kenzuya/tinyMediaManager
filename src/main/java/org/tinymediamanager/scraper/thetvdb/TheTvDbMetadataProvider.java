@@ -49,6 +49,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
@@ -64,7 +65,6 @@ import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
-import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -100,8 +100,6 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
 
   private static final Logger                                LOGGER                 = LoggerFactory.getLogger(TheTvDbMetadataProvider.class);
   private static final String                                ARTWORK_URL            = "https://artworks.thetvdb.com/banners/";
-  private static final String                                TMM_API_KEY            = ApiKey
-      .decryptApikey("7bHHg4k0XhRERM8xd3l+ElhMUXOA5Ou4vQUEzYLGHt8=");
   private static final String                                FALLBACK_LANGUAGE      = "fallbackLanguage";
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
   private static final MediaProviderInfo                     PROVIDER_INFO          = createMediaProviderInfo();
@@ -110,7 +108,15 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
   private List<Language>                                     tvdbLanguages;
 
   private synchronized void initAPI() throws ScrapeException {
-    String apiKey = TMM_API_KEY;
+    String tmmApiKey;
+    String apiKey;
+    try {
+      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     String userApiKey = PROVIDER_INFO.getConfig().getValue("apiKey");
 
     // check if the API should change from current key to user key
@@ -120,9 +126,9 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     }
 
     // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && tvdb != null && !TMM_API_KEY.equals(tvdb.apiKey())) {
+    if (StringUtils.isBlank(userApiKey) && tvdb != null && !tmmApiKey.equals(tvdb.apiKey())) {
       tvdb = null;
-      apiKey = TMM_API_KEY;
+      apiKey = tmmApiKey;
     }
 
     if (tvdb == null) {

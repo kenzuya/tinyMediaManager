@@ -16,19 +16,26 @@
 
 package org.tinymediamanager.scraper.fanarttv;
 
-import org.junit.Test;
-import org.tinymediamanager.scraper.fanarttv.entities.Images;
-import org.tinymediamanager.scraper.util.ApiKey;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-public class ITFanartTvTest {
+import org.junit.Before;
+import org.junit.Test;
+import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.license.License;
+import org.tinymediamanager.scraper.fanarttv.entities.Images;
+
+public class ITFanartTvTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
-  public void testMovieService() {
+  public void testMovieService() throws Exception {
     FanartTv api = new FanartTv();
-    api.setApiKey(ApiKey.decryptApikey("2gkQtSYPIxfyThxPXveHiCGXEcqJJwClUDrB5JV60OnQeQ85Ft65kFIk1SBKoge3"));
+    api.setApiKey(License.getInstance().getApiKey("fanarttv"));
 
     // Avatar; tmdb_id 19995
     try {
@@ -53,7 +60,8 @@ public class ITFanartTvTest {
       assertThat(images.moviebanner.size()).isGreaterThan(0);
       assertThat(images.moviethumb).isNotNull();
       assertThat(images.moviethumb.size()).isGreaterThan(0);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -81,16 +89,17 @@ public class ITFanartTvTest {
       assertThat(images.moviebanner.size()).isGreaterThan(0);
       assertThat(images.moviethumb).isNotNull();
       assertThat(images.moviethumb.size()).isGreaterThan(0);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
   }
 
   @Test
-  public void testTvShowService() {
+  public void testTvShowService() throws Exception {
     FanartTv api = new FanartTv();
-    api.setApiKey(ApiKey.decryptApikey("2gkQtSYPIxfyThxPXveHiCGXEcqJJwClUDrB5JV60OnQeQ85Ft65kFIk1SBKoge3"));
+    api.setApiKey(License.getInstance().getApiKey("fanarttv"));
 
     // Breaking Bad; tvdb_id 81189
     try {
@@ -121,7 +130,8 @@ public class ITFanartTvTest {
       assertThat(images.tvbanner.size()).isGreaterThan(0);
       assertThat(images.seasonbanner).isNotNull();
       assertThat(images.seasonbanner.size()).isGreaterThan(0);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

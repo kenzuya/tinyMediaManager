@@ -2,11 +2,13 @@ package org.tinymediamanager.scraper.tmdb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
+import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.PROVIDER_INFO;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -16,7 +18,13 @@ import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 /**
  * @author Nikolas Mavropoylos
  */
-public class ITTmdbMovieSetMetadataProviderTest {
+public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
+
   @Test
   public void testCollectionSearchDataIntegrity() throws Exception {
     IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
@@ -71,8 +79,8 @@ public class ITTmdbMovieSetMetadataProviderTest {
 
   @Test
   public void testCollectionSearchDataIntegrityInGreekWithFallbackLanguageEnglish() throws Exception {
-    providerInfo.getConfig().setValue("titleFallback", true);
-    providerInfo.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
+    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
+    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
     IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
 
@@ -88,7 +96,7 @@ public class ITTmdbMovieSetMetadataProviderTest {
 
     assertThat(searchResults.get(0).getTitle()).isEqualTo("F*ck You, Goethe Collection");
 
-    providerInfo.getConfig().setValue("titleFallback", false);
+    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test
@@ -113,8 +121,8 @@ public class ITTmdbMovieSetMetadataProviderTest {
 
   @Test
   public void testCollectionScrapeDataIntegrityWithFallbackLanguageReturnCorrectData() throws Exception {
-    providerInfo.getConfig().setValue("titleFallback", true);
-    providerInfo.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
+    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
+    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
     IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
 
@@ -132,7 +140,7 @@ public class ITTmdbMovieSetMetadataProviderTest {
     assertThat(md.getSubItems().get(0).getTitle()).isEqualTo("Επιχείρηση: Χάος");
     assertThat(md.getSubItems().get(1).getTitle()).isEqualTo("The Raid 2");
 
-    providerInfo.getConfig().setValue("titleFallback", false);
+    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
 
   }
 

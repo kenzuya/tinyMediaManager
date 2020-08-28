@@ -34,6 +34,8 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+
     TmmModuleManager.getInstance().startUp();
     TvShowModuleManager.getInstance().startUp();
     Utils.copyDirectoryRecursive(Paths.get("target/test-classes/testtvshows"), Paths.get(FOLDER, "testtvshows"));
@@ -52,7 +54,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
     task.run();
 
     // let the propertychangeevents finish
-    Thread.sleep(1000);
+    Thread.sleep(2000);
 
     check();
   }

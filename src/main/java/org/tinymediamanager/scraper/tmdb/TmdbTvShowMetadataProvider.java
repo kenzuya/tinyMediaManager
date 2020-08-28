@@ -22,8 +22,8 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.MediaMetadata.IMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TMDB;
 import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
+import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.PROVIDER_INFO;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.getRequestLanguage;
-import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
 import static org.tinymediamanager.scraper.util.MetadataUtil.isValidImdbId;
 
 import java.io.IOException;
@@ -323,7 +323,7 @@ class TmdbTvShowMetadataProvider {
   }
 
   MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TmdbMetadataProvider.providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(TmdbMetadataProvider.PROVIDER_INFO.getId());
 
     // tmdbId from option
     int tmdbId = options.getTmdbId();
@@ -381,7 +381,7 @@ class TmdbTvShowMetadataProvider {
       throw new NothingFoundException();
     }
 
-    md.setId(TmdbMetadataProvider.providerInfo.getId(), tmdbId);
+    md.setId(TmdbMetadataProvider.PROVIDER_INFO.getId(), tmdbId);
     md.setTitle(complete.name);
     md.setOriginalTitle(complete.original_name);
 
@@ -399,7 +399,7 @@ class TmdbTvShowMetadataProvider {
     md.setReleaseDate(complete.first_air_date);
     md.setPlot(complete.overview);
     for (String country : ListUtils.nullSafe(complete.origin_country)) {
-      if (providerInfo.getConfig().getValueAsBool("scrapeLanguageNames")) {
+      if (PROVIDER_INFO.getConfig().getValueAsBool("scrapeLanguageNames")) {
         md.addCountry(LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().toLocale(), country));
       }
       else {
@@ -413,7 +413,7 @@ class TmdbTvShowMetadataProvider {
 
     // Poster
     if (StringUtils.isNotBlank(complete.poster_path)) {
-      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
+      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w185" + complete.poster_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "w342" + complete.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
@@ -435,7 +435,7 @@ class TmdbTvShowMetadataProvider {
     if (complete.credits != null) {
       for (CastMember castMember : ListUtils.nullSafe(complete.credits.cast)) {
         Person cm = new Person(ACTOR);
-        cm.setId(providerInfo.getId(), castMember.id);
+        cm.setId(PROVIDER_INFO.getId(), castMember.id);
         cm.setName(castMember.name);
         cm.setRole(castMember.character);
         if (castMember.id != null) {
@@ -516,7 +516,7 @@ class TmdbTvShowMetadataProvider {
   }
 
   MediaMetadata getEpisodeMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TmdbMetadataProvider.providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(TmdbMetadataProvider.PROVIDER_INFO.getId());
 
     int tmdbId = 0;
 
@@ -679,7 +679,7 @@ class TmdbTvShowMetadataProvider {
 
     md.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.episode_number));
     md.setSeasonNumber(TvUtils.getSeasonNumber(episode.season_number));
-    md.setId(TmdbMetadataProvider.providerInfo.getId(), episode.id);
+    md.setId(TmdbMetadataProvider.PROVIDER_INFO.getId(), episode.id);
 
     // external IDs
     if (episode.external_ids != null) {
@@ -714,7 +714,7 @@ class TmdbTvShowMetadataProvider {
       // season cast
       for (CastMember castMember : ListUtils.nullSafe(fullSeason.credits.cast)) {
         Person cm = new Person(ACTOR);
-        cm.setId(providerInfo.getId(), castMember.id);
+        cm.setId(PROVIDER_INFO.getId(), castMember.id);
         cm.setName(castMember.name);
         cm.setRole(castMember.character);
         if (castMember.id != null) {
@@ -746,7 +746,7 @@ class TmdbTvShowMetadataProvider {
         else {
           continue;
         }
-        cm.setId(providerInfo.getId(), crewMember.id);
+        cm.setId(PROVIDER_INFO.getId(), crewMember.id);
         cm.setName(crewMember.name);
 
         if (StringUtils.isNotBlank(crewMember.profile_path)) {
@@ -763,7 +763,7 @@ class TmdbTvShowMetadataProvider {
     // episode guests
     for (CastMember castMember : ListUtils.nullSafe(episode.guest_stars)) {
       Person cm = new Person(ACTOR);
-      cm.setId(providerInfo.getId(), castMember.id);
+      cm.setId(PROVIDER_INFO.getId(), castMember.id);
       cm.setName(castMember.name);
       cm.setRole(castMember.character);
       if (castMember.id != null) {
@@ -795,7 +795,7 @@ class TmdbTvShowMetadataProvider {
       else {
         continue;
       }
-      cm.setId(providerInfo.getId(), crewMember.id);
+      cm.setId(PROVIDER_INFO.getId(), crewMember.id);
       cm.setName(crewMember.name);
 
       if (StringUtils.isNotBlank(crewMember.profile_path)) {
@@ -810,7 +810,7 @@ class TmdbTvShowMetadataProvider {
 
     // Thumb
     if (StringUtils.isNotBlank(episode.still_path)) {
-      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtworkType.THUMB);
+      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtworkType.THUMB);
       ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + episode.still_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + episode.still_path);
       md.addMediaArt(ma);
@@ -860,8 +860,8 @@ class TmdbTvShowMetadataProvider {
    */
   private void verifyTvShowLanguageTitle(Locale language, TvShow show) {
     // always doing a fallback scrape when overview empty, regardless of setting!
-    if (providerInfo.getConfig().getValueAsBool("titleFallback") || StringUtils.isEmpty(show.overview)) {
-      Locale fallbackLanguage = Locale.forLanguageTag(providerInfo.getConfig().getValue("titleFallbackLanguage"));
+    if (PROVIDER_INFO.getConfig().getValueAsBool("titleFallback") || StringUtils.isEmpty(show.overview)) {
+      Locale fallbackLanguage = Locale.forLanguageTag(PROVIDER_INFO.getConfig().getValue("titleFallbackLanguage"));
 
       if ((show.name.equals(show.original_name) && !show.original_language.equals(language.getLanguage())) && !language.equals(fallbackLanguage)) {
         LOGGER.debug("checking for title fallback {}", fallbackLanguage);
@@ -903,14 +903,14 @@ class TmdbTvShowMetadataProvider {
    */
   private void verifyTvShowLanguageTitle(Locale language, BaseTvShow show) throws IOException {
     // NOT doing a fallback scrape when overview empty, used only for SEARCH - unneeded!
-    if (providerInfo.getConfig().getValueAsBool("titleFallback")) {
-      Locale fallbackLanguage = Locale.forLanguageTag(providerInfo.getConfig().getValue("titleFallbackLanguage"));
+    if (PROVIDER_INFO.getConfig().getValueAsBool("titleFallback")) {
+      Locale fallbackLanguage = Locale.forLanguageTag(PROVIDER_INFO.getConfig().getValue("titleFallbackLanguage"));
 
       // tmdb provides title = originalTitle if no title in the requested language has been found,
       // so get the title in a alternative language
       if ((show.name.equals(show.original_name) && !show.original_language.equals(language.getLanguage())) && !language.equals(fallbackLanguage)) {
         LOGGER.debug("checking for title fallback {}", fallbackLanguage);
-        String lang = providerInfo.getConfig().getValue("titleFallbackLanguage").replace("_", "-");
+        String lang = PROVIDER_INFO.getConfig().getValue("titleFallbackLanguage").replace("_", "-");
         Response<TvShow> httpResponse = api.tvService().tv(show.id, lang, new AppendToResponse(AppendToResponseItem.TRANSLATIONS)).execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
@@ -955,9 +955,9 @@ class TmdbTvShowMetadataProvider {
     int episodeNr = query.getIdAsInt(MediaMetadata.EPISODE_NR);
 
     if (episode != null && (StringUtils.isAnyBlank(episode.name, episode.overview) || isEpisodesNameDefault(episode, episodeNr)
-        || providerInfo.getConfig().getValueAsBool("titleFallback"))) {
+        || PROVIDER_INFO.getConfig().getValueAsBool("titleFallback"))) {
 
-      String languageFallback = MediaLanguages.get(providerInfo.getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
+      String languageFallback = MediaLanguages.get(PROVIDER_INFO.getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
 
       try {
         TvEpisode ep = api.tvEpisodesService().episode(query.getTmdbId(), episode.season_number, episode.episode_number, languageFallback).execute()
@@ -998,15 +998,15 @@ class TmdbTvShowMetadataProvider {
   }
 
   private MediaMetadata morphTvEpisodeToMediaMetadata(BaseTvEpisode episode) {
-    MediaMetadata ep = new MediaMetadata(TmdbMetadataProvider.providerInfo.getId());
-    ep.setId(providerInfo.getId(), episode.id);
+    MediaMetadata ep = new MediaMetadata(TmdbMetadataProvider.PROVIDER_INFO.getId());
+    ep.setId(PROVIDER_INFO.getId(), episode.id);
     ep.setEpisodeNumber(episode.episode_number);
     ep.setSeasonNumber(episode.season_number);
     ep.setTitle(episode.name);
     ep.setPlot(episode.overview);
 
     if (episode.vote_average != null && episode.vote_count != null) {
-      MediaRating rating = new MediaRating(providerInfo.getId());
+      MediaRating rating = new MediaRating(PROVIDER_INFO.getId());
       rating.setRating(episode.vote_average);
       rating.setVotes(episode.vote_count);
       rating.setMaxValue(10);
@@ -1021,7 +1021,7 @@ class TmdbTvShowMetadataProvider {
 
   private MediaSearchResult morphTvShowToSearchResult(BaseTvShow tvShow, TvShowSearchAndScrapeOptions query) {
 
-    MediaSearchResult result = new MediaSearchResult(TmdbMetadataProvider.providerInfo.getId(), MediaType.TV_SHOW);
+    MediaSearchResult result = new MediaSearchResult(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaType.TV_SHOW);
     result.setId(Integer.toString(tvShow.id));
     result.setTitle(tvShow.name);
     result.setOriginalTitle(tvShow.original_name);

@@ -15,21 +15,32 @@
  */
 package org.tinymediamanager.scraper.moviemeter;
 
-import org.junit.Test;
-import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
-import org.tinymediamanager.scraper.moviemeter.services.FilmService;
-import org.tinymediamanager.scraper.util.ApiKey;
-import retrofit2.Response;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-public class ITMovieMeterFilmServiceTest {
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.license.License;
+import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
+import org.tinymediamanager.scraper.moviemeter.services.FilmService;
+import org.tinymediamanager.scraper.moviemeter.services.SearchService;
+
+import retrofit2.Response;
+
+public class ITMovieMeterServiceTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
-  public void testFilmService() {
+  public void testFilmService() throws Exception {
     MovieMeter movieMeter = new MovieMeter();
-    movieMeter.setApiKey(ApiKey.decryptApikey("GK5bRYdcKs3WZzOCa1fOQfIeAJVsBP7buUYjc0q4x2/jX66BlSUDKDAcgN/L0JnM"));
+    movieMeter.setApiKey(License.getInstance().getApiKey("moviemeter"));
 
     try {
       FilmService filmService = movieMeter.getFilmService();
@@ -48,6 +59,24 @@ public class ITMovieMeterFilmServiceTest {
       assertThat(film.title).isEqualTo("Avatar");
 
     } catch (Exception e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+  }
+
+  @Test
+  public void testSearchService() throws Exception {
+    MovieMeter movieMeter = new MovieMeter();
+    movieMeter.setApiKey(License.getInstance().getApiKey("moviemeter"));
+
+    try {
+      SearchService searchService = movieMeter.getSearchService();
+      List<MMFilm> result = searchService.searchFilm("avatar").execute().body();
+
+      assertThat(result).isNotNull();
+      assertThat(result).isNotEmpty();
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

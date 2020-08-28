@@ -37,6 +37,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
@@ -92,6 +93,16 @@ public class ImdbMovieParser extends ImdbParser {
   MediaMetadata getMovieMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(providerInfo.getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     // check if there is a md in the result
     if (options.getMetadata() != null && providerInfo.getId().equals(options.getMetadata().getProviderId())) {
       LOGGER.debug("IMDB: got metadata from cache: {}", options.getMetadata());
@@ -127,26 +138,26 @@ public class ImdbMovieParser extends ImdbParser {
     ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
 
     // worker for imdb request (/reference)
-    String url = IMDB_SITE + "title/" + imdbId + "/reference";
+    String url = apiKey + "title/" + imdbId + "/reference";
     Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = compSvcImdb.submit(worker);
 
     // worker for imdb request (/plotsummary) (from chosen site)
     Future<Document> futurePlotsummary;
-    url = IMDB_SITE + "title/" + imdbId + "/plotsummary";
+    url = apiKey + "title/" + imdbId + "/plotsummary";
     worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
     futurePlotsummary = compSvcImdb.submit(worker);
 
     // worker for imdb request (/releaseinfo)
     Future<Document> futureReleaseinfo;
-    url = IMDB_SITE + "title/" + imdbId + "/releaseinfo";
+    url = apiKey + "title/" + imdbId + "/releaseinfo";
     worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
     futureReleaseinfo = compSvcImdb.submit(worker);
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
-      url = IMDB_SITE + "title/" + imdbId + "/keywords";
+      url = apiKey + "title/" + imdbId + "/keywords";
       worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
       futureKeywords = compSvcImdb.submit(worker);
     }

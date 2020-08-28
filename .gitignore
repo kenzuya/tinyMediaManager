@@ -54,3 +54,4 @@ tvshows.db
 /tmp/
 /templates/*.jar
 
+/src/test/resources/tmm_build_license

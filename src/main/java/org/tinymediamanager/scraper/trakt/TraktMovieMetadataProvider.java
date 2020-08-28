@@ -131,8 +131,8 @@ class TraktMovieMetadataProvider {
   }
 
   MediaMetadata scrape(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.providerInfo.getId());
-    String id = options.getIdAsString(TraktMetadataProvider.providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
+    String id = options.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
 
     // alternatively we can take the imdbid
     if (StringUtils.isBlank(id)) {
@@ -141,7 +141,7 @@ class TraktMovieMetadataProvider {
 
     if (StringUtils.isBlank(id)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(MediaMetadata.IMDB, TraktMetadataProvider.providerInfo.getId());
+      throw new MissingIdException(MediaMetadata.IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
     }
 
     // scrape
@@ -208,7 +208,7 @@ class TraktMovieMetadataProvider {
 
     // ids
     if (movie.ids != null) {
-      md.setId(TraktMetadataProvider.providerInfo.getId(), movie.ids.trakt);
+      md.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), movie.ids.trakt);
       if (movie.ids.tmdb != null && movie.ids.tmdb > 0) {
         md.setId(TMDB, movie.ids.tmdb);
       }

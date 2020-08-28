@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -27,7 +29,12 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
-public class ITTmdbMetadataProviderTest {
+public class ITTmdbMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
   public void testMovieSearch() {

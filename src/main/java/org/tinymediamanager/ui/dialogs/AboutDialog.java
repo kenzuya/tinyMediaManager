@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.time.LocalDate;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -31,10 +32,12 @@ import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.images.Logo;
 
 import net.miginfocom.swing.MigLayout;
@@ -53,11 +56,11 @@ public class AboutDialog extends TmmDialog {
 
     JPanel contentPanel = new JPanel();
     getContentPane().add(contentPanel, BorderLayout.CENTER);
-    contentPanel.setLayout(new MigLayout("", "[][20lp:n][300lp,grow]", "[][10lp:n][][20lp:n][][10lp:n][][][10lp:n][][][][][]"));
+    contentPanel.setLayout(new MigLayout("", "[][20lp:n][300lp,grow]", "[][10lp:n][][20lp:n][][][][10lp:n][][10lp:n][][][][][]"));
     {
       JLabel lblLogo = new JLabel("");
       lblLogo.setIcon(new Logo(96));
-      contentPanel.add(lblLogo, "cell 0 0 1 7,alignx left,aligny top");
+      contentPanel.add(lblLogo, "cell 0 0 1 8,alignx left,aligny top");
     }
     {
       JLabel lblTinymediamanager = new JLabel("tinyMediaManager");
@@ -74,11 +77,24 @@ public class AboutDialog extends TmmDialog {
     }
     {
       JLabel lblBuild = new JLabel(BUNDLE.getString("tmm.builddate") + ": " + ReleaseInfo.getRealBuildDate());
-      contentPanel.add(lblBuild, "cell 2 6");
+      contentPanel.add(lblBuild, "cell 2 5");
     }
     {
-      JLabel lblHomepage = new JLabel(BUNDLE.getString("tmm.homepage"));
-      contentPanel.add(lblHomepage, "cell 0 7,alignx right");
+      JLabel lblLicense = new JLabel("");
+      TmmFontHelper.changeFont(lblLicense, Font.BOLD);
+      contentPanel.add(lblLicense, "cell 2 6");
+
+      LocalDate validUntil = License.getInstance().validUntil();
+      if (validUntil != null) {
+        lblLicense.setText(BUNDLE.getString("tmm.license.validuntil") + ": " + validUntil.toString());
+      }
+      else {
+        lblLicense.setText(BUNDLE.getString("tmm.license.unregistered"));
+      }
+    }
+    {
+      JLabel lblHomepage = new TmmLabel(BUNDLE.getString("tmm.homepage"));
+      contentPanel.add(lblHomepage, "cell 0 8,alignx right");
     }
     {
       final LinkLabel lblHomepage = new LinkLabel("https://www.tinymediamanager.org/");
@@ -93,31 +109,31 @@ public class AboutDialog extends TmmDialog {
               new Message(MessageLevel.ERROR, lblHomepage.getText(), "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
         }
       });
-      contentPanel.add(lblHomepage, "cell 2 7");
+      contentPanel.add(lblHomepage, "cell 2 8");
     }
     {
-      JLabel lblThanksTo = new JLabel(BUNDLE.getString("tmm.thanksto"));
-      contentPanel.add(lblThanksTo, "cell 0 9,alignx right");
+      JLabel lblThanksTo = new TmmLabel(BUNDLE.getString("tmm.thanksto"));
+      contentPanel.add(lblThanksTo, "cell 0 10,alignx right");
     }
     {
       JLabel lblMyronForHelping = new JLabel("Myron for helping me with coding, scrapers, localization, setup, everything...");
-      contentPanel.add(lblMyronForHelping, "cell 2 9");
+      contentPanel.add(lblMyronForHelping, "cell 2 10");
     }
     {
       JLabel lblJoostzilla = new JLabel("Joostzilla for the UI design");
-      contentPanel.add(lblJoostzilla, "cell 2 10");
+      contentPanel.add(lblJoostzilla, "cell 2 11");
     }
     {
       JLabel lblTranslators = new JLabel("All our translators");
-      contentPanel.add(lblTranslators, "cell 2 11");
+      contentPanel.add(lblTranslators, "cell 2 12");
     }
     {
       JLabel lblLibs = new JLabel("The creators of all libs we've used");
-      contentPanel.add(lblLibs, "cell 2 12");
+      contentPanel.add(lblLibs, "cell 2 13");
     }
     {
       JLabel lblTester = new JLabel("Everyone who tested and provided feedback");
-      contentPanel.add(lblTester, "cell 2 13");
+      contentPanel.add(lblTester, "cell 2 14");
     }
     {
       JButton okButton = new JButton();
@@ -131,7 +147,7 @@ public class AboutDialog extends TmmDialog {
     private static final long serialVersionUID = 4652946848116365706L;
 
     CloseAction() {
-      putValue(NAME, BUNDLE.getString("Button.ok"));
+      putValue(NAME, BUNDLE.getString("Button.close"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }

@@ -38,6 +38,8 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+
     TmmModuleManager.getInstance().startUp();
     MovieModuleManager.getInstance().startUp();
 
@@ -60,7 +62,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
     task.run();
 
     // let the propertychangeevents finish
-    Thread.sleep(1000);
+    Thread.sleep(2000);
 
     showEntries();
   }

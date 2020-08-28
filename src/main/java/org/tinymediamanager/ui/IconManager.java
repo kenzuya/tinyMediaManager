@@ -65,6 +65,8 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_SETTINGS_HOVER       = createSVGIcon("icn_settings_hover.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_TOOLS                = createSVGIcon("icn_tools.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_TOOLS_HOVER          = createSVGIcon("icn_tools_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_UNLOCK               = createSVGIcon("icn_unlock.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_UNLOCK_HOVER         = createSVGIcon("icn_unlock_hover.svg", new Dimension(24, 24));
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR       = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR);
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR_HOVER = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR_HOVER);
 

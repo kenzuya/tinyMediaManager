@@ -54,6 +54,8 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.license.License;
+import org.tinymediamanager.license.TvShowEventList;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -65,7 +67,6 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -94,7 +95,7 @@ public class TvShowList extends AbstractModelObject {
    */
   private TvShowList() {
     // create the lists
-    tvShowList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(TvShow.class));
+    tvShowList = new ObservableElementList<>(new TvShowEventList<>(), GlazedLists.beanConnector(TvShow.class));
     tvShowTagsObservable = new ObservableCopyOnWriteArrayList<>();
     episodeTagsObservable = new ObservableCopyOnWriteArrayList<>();
     videoCodecsObservable = new ObservableCopyOnWriteArrayList<>();
@@ -123,6 +124,11 @@ public class TvShowList extends AbstractModelObject {
         firePropertyChange(EPISODE_COUNT, 0, 1);
       }
     };
+
+    License.getInstance().addEventListener(() -> {
+      firePropertyChange(TV_SHOW_COUNT, 0, tvShowList.size());
+      firePropertyChange(EPISODE_COUNT, 0, 1);
+    });
   }
 
   /**
@@ -130,7 +136,7 @@ public class TvShowList extends AbstractModelObject {
    * 
    * @return single instance of TvShowList
    */
-  public synchronized static TvShowList getInstance() {
+  public static synchronized TvShowList getInstance() {
     if (TvShowList.instance == null) {
       TvShowList.instance = new TvShowList();
     }

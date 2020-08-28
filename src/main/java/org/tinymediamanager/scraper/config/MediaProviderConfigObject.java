@@ -105,7 +105,7 @@ public class MediaProviderConfigObject {
 
   public String getValueAsString() {
     if (type == ConfigType.SELECT && !possibleValues.contains(this.value)) {
-      LOGGER.warn("Could not get value for key '{}' - not in range; returning default {}", this.key, defaultValue);
+      LOGGER.trace("Could not get value for key '{}' - not in range; returning default {}", this.key, defaultValue);
       return this.defaultValue;
     }
     return this.value;
@@ -114,14 +114,14 @@ public class MediaProviderConfigObject {
   public Boolean getValueAsBool() {
     Boolean bool = null;
     if (type != ConfigType.BOOL) {
-      LOGGER.warn("This is not a boolean '{}={}' - returning NULL ", key, value);
+      LOGGER.trace("This is not a boolean '{}={}' - returning NULL ", key, value);
       return null;
     }
     if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) { // always false when unparseable :/
       bool = Boolean.valueOf(value);
     }
     else {
-      LOGGER.warn("This is not a Boolean '{}={}' - returning default {}", key, value, defaultValue);
+      LOGGER.trace("This is not a Boolean '{}={}' - returning default {}", key, value, defaultValue);
       bool = Boolean.valueOf(defaultValue);
     }
     return bool;
@@ -130,14 +130,14 @@ public class MediaProviderConfigObject {
   public Integer getValueAsInteger() {
     Integer integer = null;
     if (type != ConfigType.INTEGER) {
-      LOGGER.warn("This is not an Integer '{}={}' - returning NULL ", key, value);
+      LOGGER.trace("This is not an Integer '{}={}' - returning NULL ", key, value);
       return null;
     }
     try {
       integer = Integer.parseInt(value);
     }
     catch (Exception e) {
-      LOGGER.warn("This is not an Integer '{}={}' - returning default {}", key, value, defaultValue);
+      LOGGER.trace("This is not an Integer '{}={}' - returning default {}", key, value, defaultValue);
       try {
         integer = Integer.parseInt(defaultValue);
       }
@@ -152,7 +152,7 @@ public class MediaProviderConfigObject {
     // FIXME: Index is just stored in value? return 1:1 ?!? no example found yet...
     Integer ret = null;
     if (type != ConfigType.SELECT && type != ConfigType.SELECT_INDEX) {
-      LOGGER.warn("This is not a selectbox '{}={} - returning NULL ", key, value);
+      LOGGER.trace("This is not a selectbox '{}={} - returning NULL ", key, value);
       return null;
     }
     ret = possibleValues.indexOf(value);
@@ -161,7 +161,7 @@ public class MediaProviderConfigObject {
       if (ret == -1) {
         ret = null;
       }
-      LOGGER.warn("Could not get index for '{}={}' - not in defined range! returning default {}", key, value, ret);
+      LOGGER.trace("Could not get index for '{}={}' - not in defined range! returning default {}", key, value, ret);
     }
     return ret;
   }
@@ -169,7 +169,7 @@ public class MediaProviderConfigObject {
   public void setValue(String value) {
     if (type == ConfigType.SELECT && !possibleValues.contains(value)) {
       // possible values set, but ours isn't in? just return...
-      LOGGER.warn("Could not set '{}={}' - not in defined range!", key, value);
+      LOGGER.trace("Could not set '{}={}' - not in defined range!", key, value);
       return;
     }
     this.value = value;
@@ -177,7 +177,7 @@ public class MediaProviderConfigObject {
 
   public void setValue(boolean value) {
     if (type != ConfigType.BOOL) {
-      LOGGER.warn("This is not a boolean configuration object - setting keep current value");
+      LOGGER.trace("This is not a boolean configuration object - setting keep current value");
     }
     else {
       this.value = String.valueOf(value);
@@ -186,7 +186,7 @@ public class MediaProviderConfigObject {
 
   public void setValue(Integer value) {
     if (type != ConfigType.INTEGER) {
-      LOGGER.warn("This is not an Integer configuration object - setting keep current value");
+      LOGGER.trace("This is not an Integer configuration object - setting keep current value");
     }
     else {
       this.value = String.valueOf(value);
@@ -199,7 +199,7 @@ public class MediaProviderConfigObject {
 
   public void setDefaultValue(String defaultValue) {
     if (type == ConfigType.SELECT && !possibleValues.contains(defaultValue)) {
-      LOGGER.warn("Will not set defaultValue '{}={}' - since it is not in the list of possible values!", key, defaultValue);
+      LOGGER.trace("Will not set defaultValue '{}={}' - since it is not in the list of possible values!", key, defaultValue);
     }
     else {
       this.defaultValue = defaultValue;

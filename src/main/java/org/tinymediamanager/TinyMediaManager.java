@@ -60,6 +60,7 @@ import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
@@ -131,10 +132,21 @@ public class TinyMediaManager {
         JOptionPane.showMessageDialog(null, msg);
       }
       else {
-        System.out.println(msg);
+        System.out.println(msg); // NOSONAR
       }
       shutdownLogger();
       System.exit(1);
+    }
+
+    // read the license code
+    Path license = Paths.get(Globals.DATA_FOLDER, "tmm.lic");
+    if (Files.exists(license)) {
+      try {
+        License.getInstance().setLicenseCode(Utils.readFileToString(license));
+      }
+      catch (Exception e) {
+        LOGGER.warn("unable to decode license file - {}", e.getMessage());
+      }
     }
 
     LOGGER.info("=====================================================");

@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -24,11 +25,11 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
-public class ITTraktMetadataProviderTest {
+public class ITTraktMetadataProviderTest extends BasicTest {
 
-  @BeforeClass
-  public static void setUp() {
-    // ProxySettings.setProxySettings("localhost", 3128, "", "");
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
   }
 
   @Test
@@ -46,7 +47,8 @@ public class ITTraktMetadataProviderTest {
       options.setTmdbId(671);
       // options.setId("trakt", "-2");
       mp.lookupWithId(options);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -76,7 +78,8 @@ public class ITTraktMetadataProviderTest {
       assertThat(result.getScore()).isGreaterThan(0);
       assertThat(result.getIMDBId()).isEqualTo("tt0241527");
       assertThat(result.getProviderId()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -123,7 +126,8 @@ public class ITTraktMetadataProviderTest {
       Person castMember = md.getCastMembers(ACTOR).get(0);
       assertThat(castMember.getName()).isNotEmpty();
       assertThat(castMember.getRole()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -150,7 +154,8 @@ public class ITTraktMetadataProviderTest {
       assertThat(episode.getTitle()).isNotEmpty();
       assertThat(episode.getPlot()).isNotNull(); // can be empty for some eps
       assertThat(episode.getIds()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -189,7 +194,7 @@ public class ITTraktMetadataProviderTest {
       assertThat(md.getGenres().size()).isGreaterThan(0);
 
       // ids
-      assertThat(md.getId(TraktMetadataProvider.providerInfo.getId())).isEqualTo(1390);
+      assertThat(md.getId(TraktMetadataProvider.PROVIDER_INFO.getId())).isEqualTo(1390);
       assertThat(md.getId(MediaMetadata.TVDB)).isEqualTo(121361);
       assertThat(md.getId(MediaMetadata.IMDB)).isEqualTo("tt0944947");
       assertThat(md.getId(MediaMetadata.TMDB)).isEqualTo(1399);
@@ -199,7 +204,8 @@ public class ITTraktMetadataProviderTest {
       Person castMember = md.getCastMembers(ACTOR).get(0);
       assertThat(castMember.getName()).isNotEmpty();
       assertThat(castMember.getRole()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -230,11 +236,12 @@ public class ITTraktMetadataProviderTest {
       assertThat(mediaRating.getMaxValue()).isEqualTo(10);
 
       // ids
-      assertThat(md.getId(TraktMetadataProvider.providerInfo.getId())).isEqualTo(73640);
+      assertThat(md.getId(TraktMetadataProvider.PROVIDER_INFO.getId())).isEqualTo(73640);
       assertThat(md.getId(MediaMetadata.TVDB)).isEqualTo(3254641);
       assertThat(md.getId(MediaMetadata.IMDB)).isEqualTo("tt1480055");
       assertThat(md.getId(MediaMetadata.TMDB)).isEqualTo(63056);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

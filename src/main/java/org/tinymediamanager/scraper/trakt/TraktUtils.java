@@ -82,7 +82,7 @@ public class TraktUtils {
    * @return
    */
   public static MediaSearchResult morphTraktResultToTmmResult(MediaSearchAndScrapeOptions options, SearchResult traktResult) {
-    MediaSearchResult msr = new MediaSearchResult(TraktMetadataProvider.providerInfo.getId(), options.getMediaType());
+    MediaSearchResult msr = new MediaSearchResult(TraktMetadataProvider.PROVIDER_INFO.getId(), options.getMediaType());
 
     // ok, some duplicate code
     // but it is more maintainable, than some reflection/casting lookup
@@ -91,7 +91,7 @@ public class TraktUtils {
       msr.setOverview(traktResult.movie.overview);
       msr.setYear(traktResult.movie.year);
 
-      msr.setId(TraktMetadataProvider.providerInfo.getId(), String.valueOf(traktResult.movie.ids.trakt));
+      msr.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), String.valueOf(traktResult.movie.ids.trakt));
       if (traktResult.movie.ids.tmdb != null && traktResult.movie.ids.tmdb > 0) {
         msr.setId(TMDB, String.valueOf(traktResult.movie.ids.tmdb));
       }
@@ -105,7 +105,7 @@ public class TraktUtils {
       msr.setOverview(traktResult.show.overview);
       msr.setYear(traktResult.show.year);
 
-      msr.setId(TraktMetadataProvider.providerInfo.getId(), String.valueOf(traktResult.show.ids.trakt));
+      msr.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), String.valueOf(traktResult.show.ids.trakt));
       if (traktResult.show.ids.tmdb != null && traktResult.show.ids.tmdb > 0) {
         msr.setId(TMDB, String.valueOf(traktResult.show.ids.tmdb));
       }
@@ -119,7 +119,7 @@ public class TraktUtils {
       msr.setOverview(traktResult.episode.overview);
       msr.setYear(traktResult.episode.first_aired.getYear());
 
-      msr.setId(TraktMetadataProvider.providerInfo.getId(), String.valueOf(traktResult.episode.ids.trakt));
+      msr.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), String.valueOf(traktResult.episode.ids.trakt));
       if (traktResult.episode.ids.tmdb != null && traktResult.episode.ids.tmdb > 0) {
         msr.setId(TMDB, String.valueOf(traktResult.episode.ids.tmdb));
       }
@@ -138,7 +138,7 @@ public class TraktUtils {
     cm.setName(crew.person.name);
     cm.setRole(crew.job);
     if (crew.person.ids != null) {
-      cm.setId(TraktMetadataProvider.providerInfo.getId(), crew.person.ids.trakt);
+      cm.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), crew.person.ids.trakt);
       cm.setId(MediaMetadata.IMDB, crew.person.ids.imdb);
       cm.setId(MediaMetadata.TMDB, crew.person.ids.tmdb);
       if (StringUtils.isNotBlank(crew.person.ids.slug)) {
@@ -153,7 +153,7 @@ public class TraktUtils {
     cm.setName(crew.person.name);
     cm.setRole(crew.character);
     if (crew.person.ids != null) {
-      cm.setId(TraktMetadataProvider.providerInfo.getId(), crew.person.ids.trakt);
+      cm.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), crew.person.ids.trakt);
       cm.setId(MediaMetadata.IMDB, crew.person.ids.imdb);
       cm.setId(MediaMetadata.TMDB, crew.person.ids.tmdb);
       if (StringUtils.isNotBlank(crew.person.ids.slug)) {
