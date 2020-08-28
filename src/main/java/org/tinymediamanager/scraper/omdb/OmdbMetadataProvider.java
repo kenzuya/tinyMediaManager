@@ -56,6 +56,7 @@ import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 /**
  * Central metadata provider class
@@ -155,6 +156,11 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
       throw new NothingFoundException();
     }
 
+    // set ids
+    if (MetadataUtil.isValidImdbId(result.imdbID)) {
+      metadata.setId(MediaMetadata.IMDB, result.imdbID);
+    }
+
     metadata.setTitle(result.title);
     try {
       metadata.setYear(Integer.parseInt(result.year));
@@ -245,6 +251,21 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
           catch (Exception ignored) {
           }
           break;
+      }
+    }
+
+    // get the imdb rating from the imdb dataset too (and probably replace an outdated rating from omdb)
+    if (metadata.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
+        if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
+          metadata.getRatings().remove(omdbRating);
+          metadata.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
       }
     }
 

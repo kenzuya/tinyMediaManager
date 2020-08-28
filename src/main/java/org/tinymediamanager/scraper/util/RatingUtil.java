@@ -32,7 +32,7 @@ public class RatingUtil {
   private static final Map<String, MediaRating> IMDB_RATINGS = new HashMap<>();
 
   private RatingUtil() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   public static synchronized MediaRating getImdbRating(String imdbId) throws IOException, InterruptedException {
@@ -42,7 +42,7 @@ public class RatingUtil {
 
     if (IMDB_RATINGS.isEmpty()) {
       // no rating here yet
-      OnDiskCachedUrl cachedUrl = new OnDiskCachedUrl("https://datasets.imdbws.com/title.ratings.tsv.gz", 1, TimeUnit.DAYS);
+      OnDiskCachedUrl cachedUrl = new OnDiskCachedUrl("https://datasets.imdbws.com/title.ratings.tsv.gz", 5, TimeUnit.DAYS);
 
       try (InputStream httpInputStream = cachedUrl.getInputStream(); GzipCompressorInputStream in = new GzipCompressorInputStream(httpInputStream)) {
         String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
@@ -57,7 +57,7 @@ public class RatingUtil {
               IMDB_RATINGS.put(cols[0], new MediaRating(MediaMetadata.IMDB, Float.parseFloat(cols[1]), Integer.parseInt(cols[2])));
             }
           }
-          catch (Exception ingored) {
+          catch (Exception ignored) {
             // just ignore
           }
         }
