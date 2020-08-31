@@ -571,20 +571,22 @@ public class MovieSetEditorDialog extends TmmDialog {
     tableMovies.getTableHeader().getColumnModel().getColumn(0).setHeaderValue(BUNDLE.getString("metatag.name"));
 
     // year column
-    int width = tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth(" 2000");
+    int width = (int) (tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth("2000") * 1.3f + 10);
     int titleWidth = tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth(BUNDLE.getString("metatag.year"));
     if (titleWidth > width) {
       width = titleWidth;
     }
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setPreferredWidth(width);
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setMinWidth(width);
-    tableMovies.getTableHeader().getColumnModel().getColumn(1).setMaxWidth((int) (width * 1.5));
+    tableMovies.getTableHeader().getColumnModel().getColumn(1).setMaxWidth((int) (width * 1.1f));
+    tableMovies.getTableHeader().getColumnModel().getColumn(1).setResizable(false);
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setHeaderValue(BUNDLE.getString("metatag.year"));
 
     // watched column
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setPreferredWidth(70);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setMinWidth(70);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setMaxWidth(85);
+    tableMovies.getTableHeader().getColumnModel().getColumn(2).setResizable(false);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setHeaderValue(BUNDLE.getString("metatag.watched"));
   }
 
