@@ -20,7 +20,7 @@ import static java.awt.Frame.MAXIMIZED_BOTH;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
@@ -152,6 +152,14 @@ public class TmmUILayoutStore implements AWTEventListener {
         // only set location/size if something was stored
         Rectangle rect = getWindowBounds("mainWindow");
         if (rect.width > 0) {
+          GraphicsDevice ge = getScreenForBounds(rect);
+          if (ge.getDefaultConfiguration() != frame.getGraphicsConfiguration()) {
+            // move to another screen
+            JFrame dummy = new JFrame(ge.getDefaultConfiguration());
+            frame.setLocationRelativeTo(dummy);
+            dummy.dispose();
+          }
+
           frame.setBounds(rect);
           // frame.validate();
         }
@@ -178,6 +186,14 @@ public class TmmUILayoutStore implements AWTEventListener {
     if (!dialog.getName().contains("dialog")) {
       Rectangle rect = getWindowBounds(dialog.getName());
       if (rect.width > 0 && getVirtualBounds().contains(rect)) {
+        GraphicsDevice ge = getScreenForBounds(rect);
+        if (ge.getDefaultConfiguration() != dialog.getGraphicsConfiguration()) {
+          // move to another screen
+          JFrame dummy = new JFrame(ge.getDefaultConfiguration());
+          dialog.setLocationRelativeTo(dummy);
+          dummy.dispose();
+        }
+
         dialog.setBounds(rect);
       }
       else {
@@ -189,6 +205,21 @@ public class TmmUILayoutStore implements AWTEventListener {
       dialog.pack();
       dialog.setLocationRelativeTo(dialog.getParent());
     }
+  }
+
+  private GraphicsDevice getScreenForBounds(Rectangle rectangle) {
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    GraphicsDevice[] gs = ge.getScreenDevices();
+
+    for (GraphicsDevice device : gs) {
+      GraphicsConfiguration gc = device.getDefaultConfiguration();
+      Rectangle bounds = gc.getBounds();
+      if (bounds.contains(rectangle)) {
+        return device;
+      }
+    }
+
+    return ge.getDefaultScreenDevice();
   }
 
   /**
@@ -292,20 +323,36 @@ public class TmmUILayoutStore implements AWTEventListener {
       return rect;
     }
 
-    // check if the stored sizes fit the actual screen
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    // screen insets / taskbar
-    if (MainWindow.getActiveInstance() != null) {
-      Insets scnMax = Toolkit.getDefaultToolkit().getScreenInsets(MainWindow.getActiveInstance().getGraphicsConfiguration());
-      if ((rect.x + rect.width) > (screenSize.getWidth() - scnMax.left - scnMax.right)) {
-        rect.x = scnMax.left;
-        rect.width = (int) screenSize.getWidth() - scnMax.right;
-      }
+    // check if the stored sizes fit to any screen
+    GraphicsConfiguration graphicsConfiguration = null;
 
-      if ((rect.y + rect.height) > (screenSize.getHeight() - scnMax.top - scnMax.bottom)) {
-        rect.y = scnMax.top;
-        rect.height = (int) screenSize.getHeight() - scnMax.bottom;
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    GraphicsDevice[] gs = ge.getScreenDevices();
+
+    for (GraphicsDevice device : gs) {
+      GraphicsConfiguration gc = device.getDefaultConfiguration();
+      Rectangle bounds = gc.getBounds();
+      if (bounds.contains(rect)) {
+        graphicsConfiguration = gc;
+        break;
       }
+    }
+
+    if (graphicsConfiguration == null) {
+      graphicsConfiguration = ge.getDefaultScreenDevice().getDefaultConfiguration();
+    }
+
+    // screen insets / taskbar
+    Rectangle screenBounds = graphicsConfiguration.getBounds();
+    Insets scnMax = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration);
+    if ((rect.x + rect.width) > (screenBounds.x + screenBounds.width - scnMax.left - scnMax.right)) {
+      rect.x = screenBounds.x + scnMax.left;
+      rect.width = screenBounds.width - scnMax.right;
+    }
+
+    if ((rect.y + rect.height) > (screenBounds.y + screenBounds.height - scnMax.top - scnMax.bottom)) {
+      rect.y = screenBounds.y + scnMax.top;
+      rect.height = screenBounds.height - scnMax.bottom;
     }
 
     return rect;
