@@ -237,7 +237,7 @@ public class MovieSetInformationPanel extends JPanel {
     autoBinding_1.bind();
   }
 
-  private class ImageSizeLoader extends SwingWorker<Void, Void> {
+  private static class ImageSizeLoader extends SwingWorker<Void, Void> {
     private final String path;
     private final String type;
     private final JLabel label;

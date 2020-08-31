@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.ui.moviesets;
 
+import java.awt.FontMetrics;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
@@ -35,6 +36,8 @@ public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
 
   public MovieInMovieSetTableFormat() {
 
+    FontMetrics fontMetrics = getFontMetrics();
+
     /*
      * title
      */
@@ -46,6 +49,7 @@ public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(BUNDLE.getString("metatag.year"), "year", MediaEntity::getYear, Movie.class);
     col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
     addColumn(col);
 
     /*
