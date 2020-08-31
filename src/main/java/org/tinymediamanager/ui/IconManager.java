@@ -81,7 +81,7 @@ public class IconManager {
   public static final ImageIcon              DELETE_FOREVER               = createMenuIcon("trash-alt.svg");
   public static final ImageIcon              DOWNLOAD                     = createMenuIcon("download.svg");
   public static final ImageIcon              FEEDBACK                     = createMenuIcon("envelope.svg");
-  public static final ImageIcon              EDIT                         = createMenuIcon("edit.avg");
+  public static final ImageIcon              EDIT                         = createMenuIcon("edit.svg");
   public static final ImageIcon              EXPORT                       = createMenuIcon("share-square.svg");
   public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
