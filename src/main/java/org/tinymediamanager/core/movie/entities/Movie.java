@@ -68,6 +68,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -2515,5 +2516,23 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Movie movie = (Movie) o;
+    return path.equals(movie.path) && getMainFile().getFile().equals(movie.getMainFile().getFile());
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(path).append(getMainFile().getFile()).build();
   }
 }

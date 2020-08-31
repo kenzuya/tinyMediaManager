@@ -55,6 +55,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -1210,7 +1211,7 @@ public class MovieList extends AbstractModelObject {
       Files.createFile(stubFile);
     }
     catch (IOException e) {
-      LOGGER.error("could not create stub file: " + e.getMessage());
+      LOGGER.error("could not create stub file - {}", e.getMessage());
       return;
     }
 
@@ -1227,8 +1228,20 @@ public class MovieList extends AbstractModelObject {
     movie.addToMediaFiles(mf);
     movie.setOffline(true);
     movie.setNewlyAdded(true);
-    addMovie(movie);
-    movie.saveToDb();
+
+    try {
+      addMovie(movie);
+      movie.saveToDb();
+    }
+    catch (Exception e) {
+      try {
+        Utils.deleteDirectoryRecursive(stubFolder);
+      }
+      catch (Exception e1) {
+        LOGGER.debug("could not delete stub folder - {}", e1.getMessage());
+      }
+      throw e;
+    }
   }
 
   /**

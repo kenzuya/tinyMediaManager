@@ -17,60 +17,60 @@
         <url>https://www.tinymediamanager.org</url>
     </organization>
     <licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-			<comments>A business-friendly OSS license</comments>
-		</license>
-	</licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
 
-	<developers>
-		<developer>
-			<id>mlaggner</id>
-			<name>Manuel Laggner</name>
-			<email>manuel@tinymediamanager.org</email>
-			<roles>
-				<role>owner</role>
-				<role>developer</role>
-			</roles>
-			<timezone>Europe/Vienna</timezone>
-		</developer>
-		<developer>
-			<id>myron</id>
-			<name>Myron Boyle</name>
-			<email>myron@tinymediamanager.org</email>
-			<roles>
-				<role>developer</role>
-			</roles>
-			<timezone>Europe/Vienna</timezone>
-			<properties>
-				<picUrl>http://www.gravatar.com/avatar/c9f1f8250a29405f5cbbab246a025fb4</picUrl>
-			</properties>
-		</developer>
-	</developers>
+    <developers>
+        <developer>
+            <id>mlaggner</id>
+            <name>Manuel Laggner</name>
+            <email>manuel@tinymediamanager.org</email>
+            <roles>
+                <role>owner</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Vienna</timezone>
+        </developer>
+        <developer>
+            <id>myron</id>
+            <name>Myron Boyle</name>
+            <email>myron@tinymediamanager.org</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Vienna</timezone>
+            <properties>
+                <picUrl>http://www.gravatar.com/avatar/c9f1f8250a29405f5cbbab246a025fb4</picUrl>
+            </properties>
+        </developer>
+    </developers>
 
-	<mailingLists>
-		<mailingList>
-			<name>Kodi-Forum</name>
-			<post>http://forum.kodi.tv/forumdisplay.php?fid=204</post>
-		</mailingList>
-	</mailingLists>
+    <mailingLists>
+        <mailingList>
+            <name>Kodi-Forum</name>
+            <post>http://forum.kodi.tv/forumdisplay.php?fid=204</post>
+        </mailingList>
+    </mailingLists>
 
-	<prerequisites>
-		<maven>3.2.5</maven>
-	</prerequisites>
+    <prerequisites>
+        <maven>3.2.5</maven>
+    </prerequisites>
 
-	<scm>
-		<url>https://gitlab.com/tinyMediaManager/${project.artifactId}</url>
-		<connection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</connection>
-		<developerConnection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</developerConnection>
-		<tag>HEAD</tag>
-	</scm>
-	<ciManagement>
-		<system>GitLab CI</system>
-		<url>https://gitlab.com/tinyMediaManager/${project.artifactId}/pipelines</url>
-	</ciManagement>
+    <scm>
+        <url>https://gitlab.com/tinyMediaManager/${project.artifactId}</url>
+        <connection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</connection>
+        <developerConnection>scm:git:git@gitlab.com:tinyMediaManager/${project.artifactId}.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <ciManagement>
+        <system>GitLab CI</system>
+        <url>https://gitlab.com/tinyMediaManager/${project.artifactId}/pipelines</url>
+    </ciManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -93,18 +93,11 @@
         <jackson.version>2.11.1</jackson.version>
     </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
+    <dependencies>
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.11.1</version>
-            <scope>test</scope>
+            <groupId>org.tinymediamanager</groupId>
+            <artifactId>license</artifactId>
+            <version>1.1.4</version>
         </dependency>
 
         <dependency>
@@ -343,22 +336,28 @@
             <artifactId>dec</artifactId>
             <version>0.1.2</version>
         </dependency>
+
         <dependency>
-            <groupId>org.tinymediamanager</groupId>
-            <artifactId>license</artifactId>
-            <version>1.1.3</version>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.3.2</version>
         </dependency>
 
-
-        <!-- for score testing -->
+        <!-- testing -->
         <dependency>
-            <groupId>info.debatty</groupId>
-            <artifactId>java-string-similarity</artifactId>
-            <version>1.1.0</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
 
-        <!-- for HTTP testing -->
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.11.1</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
@@ -366,10 +365,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- for score testing -->
         <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli</artifactId>
-            <version>4.3.2</version>
+            <groupId>info.debatty</groupId>
+            <artifactId>java-string-similarity</artifactId>
+            <version>1.1.0</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

@@ -46,6 +46,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -87,6 +88,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private TmmTable                    movieTable;
   private JLabel                      lblMovieCountFiltered;
   private JLabel                      lblMovieCountTotal;
+  private JLabel                      lblLicenseHint;
   private JButton                     btnExtendedFilter;
 
   public MovieListPanel() {
@@ -160,10 +162,26 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     lblMovieCountTotal = new JLabel("");
     add(lblMovieCountTotal, "cell 0 3 2 1");
 
+    lblLicenseHint = new JLabel(IconManager.WARN_INTENSIFIED);
+    lblLicenseHint.setToolTipText(BUNDLE.getString("tmm.license.hint1"));
+    add(lblLicenseHint, "cell 0 3 2 1");
+
     initDataBindings();
 
     // initialize filteredCount
     lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
+
+    License.getInstance().addEventListener(this::showHideLicenseHint);
+    showHideLicenseHint();
+  }
+
+  private void showHideLicenseHint() {
+    if (License.getInstance().isValidLicense()) {
+      lblLicenseHint.setVisible(false);
+    }
+    else {
+      lblLicenseHint.setVisible(true);
+    }
   }
 
   private void updateFilterIndicator() {

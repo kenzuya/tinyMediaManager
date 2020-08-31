@@ -48,6 +48,7 @@ import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.ITmmUIModule;
@@ -89,6 +90,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private JLabel                      lblEpisodeCountTotal;
   private JLabel                      lblTvShowCountFiltered;
   private JLabel                      lblTvShowCountTotal;
+  private JLabel                      lblLicenseHint;
   private JButton                     btnFilter;
 
   public TvShowTreePanel(TvShowSelectionModel selectionModel) {
@@ -278,6 +280,10 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
       lblTvShowCountTotal = new JLabel("");
       add(lblTvShowCountTotal, "cell 0 3 2 1");
+
+      lblLicenseHint = new JLabel(IconManager.WARN_INTENSIFIED);
+      lblLicenseHint.setToolTipText(BUNDLE.getString("tmm.license.hint1"));
+      add(lblLicenseHint, "cell 0 3 2 1");
     }
     {
       JLabel lblEpisodeCount = new JLabel(BUNDLE.getString("metatag.episodes") + ":");
@@ -291,6 +297,18 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
       lblEpisodeCountTotal = new JLabel("");
       add(lblEpisodeCountTotal, "cell 0 4 2 1");
+    }
+
+    License.getInstance().addEventListener(this::showHideLicenseHint);
+    showHideLicenseHint();
+  }
+
+  private void showHideLicenseHint() {
+    if (License.getInstance().isValidLicense()) {
+      lblLicenseHint.setVisible(false);
+    }
+    else {
+      lblLicenseHint.setVisible(true);
     }
   }
 
