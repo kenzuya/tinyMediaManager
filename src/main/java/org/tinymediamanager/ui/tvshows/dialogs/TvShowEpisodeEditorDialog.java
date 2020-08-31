@@ -603,9 +603,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
       cbScraper = new MediaScraperComboBox(tvShowList.getAvailableMediaScrapers());
       MediaScraper defaultScraper = tvShowList.getDefaultMediaScraper();
-      scrapePanel.setLayout(new MigLayout("", "[][][][grow]", "[]"));
+      scrapePanel.setLayout(new MigLayout("", "[100lp:150lp][][][grow]", "[]"));
       cbScraper.setSelectedItem(defaultScraper);
-      scrapePanel.add(cbScraper, "cell 0 0");
+      scrapePanel.add(cbScraper, "cell 0 0, growx");
 
       JButton btnScrape = new JButton(new ScrapeAction());
       scrapePanel.add(btnScrape, "cell 1 0");
