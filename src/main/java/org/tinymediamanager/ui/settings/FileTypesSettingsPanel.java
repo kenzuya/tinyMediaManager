@@ -40,10 +40,11 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -51,7 +52,7 @@ import net.miginfocom.swing.MigLayout;
 class FileTypesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 9136097757447080369L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Settings                    settings         = Settings.getInstance();
   private JTextField                  tfVideoFiletype;
@@ -149,6 +150,7 @@ class FileTypesSettingsPanel extends JPanel {
 
       JLabel lblVideoFiletypesT = new TmmLabel(BUNDLE.getString("Settings.videofiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelVideoFiletypes, lblVideoFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneVideoFiletypes = new JScrollPane();
@@ -157,14 +159,14 @@ class FileTypesSettingsPanel extends JPanel {
         listVideoFiletypes = new JList<>();
         scrollPaneVideoFiletypes.setViewportView(listVideoFiletypes);
 
-        btnRemoveVideoFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveVideoFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelVideoFiletypes.add(btnRemoveVideoFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveVideoFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfVideoFiletype = new JTextField();
         panelVideoFiletypes.add(tfVideoFiletype, "cell 1 1,growx");
 
-        btnAddVideoFiletype = new JButton(IconManager.ADD_INV);
+        btnAddVideoFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelVideoFiletypes.add(btnAddVideoFiletype, "cell 2 1,growx");
         btnAddVideoFiletype.setToolTipText(BUNDLE.getString("Button.add"));
       }
@@ -174,6 +176,7 @@ class FileTypesSettingsPanel extends JPanel {
 
       JLabel lblSubtitleFiletypesT = new TmmLabel(BUNDLE.getString("Settings.extrafiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelSubtitleFiletypes, lblSubtitleFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         JScrollPane scrollPaneSubtitleFiletypes = new JScrollPane();
@@ -182,14 +185,14 @@ class FileTypesSettingsPanel extends JPanel {
         listSubtitleFiletypes = new JList<>();
         scrollPaneSubtitleFiletypes.setViewportView(listSubtitleFiletypes);
 
-        btnRemoveSubtitleFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveSubtitleFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelSubtitleFiletypes.add(btnRemoveSubtitleFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveSubtitleFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfSubtitleFiletype = new JTextField();
         panelSubtitleFiletypes.add(tfSubtitleFiletype, "cell 1 1,growx");
 
-        btnAddSubtitleFiletype = new JButton(IconManager.ADD_INV);
+        btnAddSubtitleFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelSubtitleFiletypes.add(btnAddSubtitleFiletype, "cell 2 1");
         btnAddSubtitleFiletype.setToolTipText(BUNDLE.getString("Button.add"));
       }
@@ -199,6 +202,7 @@ class FileTypesSettingsPanel extends JPanel {
 
       JLabel lblAudioFiletypesT = new TmmLabel(BUNDLE.getString("Settings.audiofiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAudioFiletypes, lblAudioFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JScrollPane scrollPaneAudioFiletypes = new JScrollPane();
@@ -207,14 +211,14 @@ class FileTypesSettingsPanel extends JPanel {
         listAudioFiletypes = new JList<>();
         scrollPaneAudioFiletypes.setViewportView(listAudioFiletypes);
 
-        btnRemoveAudioFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveAudioFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelAudioFiletypes.add(btnRemoveAudioFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveAudioFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfAudioFiletype = new JTextField();
         panelAudioFiletypes.add(tfAudioFiletype, "cell 1 1,growx");
 
-        btnAddAudioFiletype = new JButton(IconManager.ADD_INV);
+        btnAddAudioFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelAudioFiletypes.add(btnAddAudioFiletype, "cell 2 1, growx");
         btnAddAudioFiletype.setToolTipText(BUNDLE.getString("Button.add"));
       }
@@ -225,6 +229,7 @@ class FileTypesSettingsPanel extends JPanel {
       JLabel lblCleanupFiletypesT = new TmmLabel(BUNDLE.getString("Settings.unwantedfiletypes"), H3);
       JLabel lblCleanupFiletypesHelpT = new TmmLabel(BUNDLE.getString("Settings.cleanupfiles.help"));
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelCleanupFiletypes, lblCleanupFiletypesT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#unwanted-file-types"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JScrollPane scrollPaneCleanupFiletypes = new JScrollPane();
@@ -233,14 +238,14 @@ class FileTypesSettingsPanel extends JPanel {
         listCleanupFiletypes = new JList<>();
         scrollPaneCleanupFiletypes.setViewportView(listCleanupFiletypes);
 
-        btnRemoveCleanupFiletype = new JButton(IconManager.REMOVE_INV);
+        btnRemoveCleanupFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelCleanupFiletypes.add(btnRemoveCleanupFiletype, "cell 2 0,aligny bottom, growx");
         btnRemoveCleanupFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
 
         tfCleanupFiletype = new JTextField();
         panelCleanupFiletypes.add(tfCleanupFiletype, "cell 1 1,growx");
 
-        btnAddCleanupFiletype = new JButton(IconManager.ADD_INV);
+        btnAddCleanupFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelCleanupFiletypes.add(btnAddCleanupFiletype, "cell 2 1, growx");
         btnAddCleanupFiletype.setToolTipText(BUNDLE.getString("Button.add"));
 

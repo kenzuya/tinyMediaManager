@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
@@ -40,7 +39,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowReadEpisodeNfoAction extends TmmAction {
   private static final long           serialVersionUID = 5762347331284295996L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowReadEpisodeNfoAction() {
     putValue(NAME, BUNDLE.getString("tvshowepisode.readnfo"));

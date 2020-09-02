@@ -55,6 +55,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -67,6 +68,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -75,6 +77,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
@@ -193,6 +196,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private List<Person>                          writers                    = new CopyOnWriteArrayList<>();
   @JsonProperty
   private List<MediaTrailer>                    trailer                    = new CopyOnWriteArrayList<>();
+  @JsonProperty
+  private List<String>                          showlinks                  = new CopyOnWriteArrayList<>();
 
   private MovieSet                              movieSet;
   private String                                titleSortable              = "";
@@ -268,6 +273,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     setDirectors(other.directors);
     setWriters(other.writers);
     setTags(other.tags);
+    setShowlinks(other.showlinks);
     setExtraFanarts(other.extraFanarts);
     setExtraThumbs(other.extraThumbs);
 
@@ -397,16 +403,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the checks for trailer
    */
   public Boolean getHasTrailer() {
-    if (trailer != null && !trailer.isEmpty()) {
-      return true;
-    }
-
     // check if there is a mediafile (trailer)
-    if (!getMediaFiles(MediaFileType.TRAILER).isEmpty()) {
-      return true;
-    }
-
-    return false;
+    return !getMediaFiles(MediaFileType.TRAILER).isEmpty();
   }
 
   /**
@@ -494,9 +492,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the remove tag
    */
   public void removeFromTags(String removeTag) {
-    tags.remove(removeTag);
-    firePropertyChange(TAG, null, removeTag);
-    firePropertyChange(TAGS_AS_STRING, null, removeTag);
+    if (tags.remove(removeTag)) {
+      firePropertyChange(TAG, null, removeTag);
+      firePropertyChange(TAGS_AS_STRING, null, removeTag);
+    }
   }
 
   /**
@@ -547,7 +546,60 @@ public class Movie extends MediaEntity implements IMediaInformation {
     tags.clear();
     firePropertyChange(TAG, null, tags);
     firePropertyChange(TAGS_AS_STRING, null, tags);
+  }
 
+  /**
+   * get all associated TV show names (showlinks)
+   * 
+   * @return a {@link List} of all associated TV show names
+   */
+  public List<String> getShowlinks() {
+    return showlinks;
+  }
+
+  /**
+   * set the associated TV show names (showlinks)
+   * 
+   * @param newShowlinks
+   *          a {@link List} of all associated TV show names to set
+   */
+  public void setShowlinks(List<String> newShowlinks) {
+    ListUtils.mergeLists(showlinks, newShowlinks);
+    Utils.removeEmptyStringsFromList(showlinks);
+
+    firePropertyChange("showlinks", null, showlinks);
+    firePropertyChange("showlinksAsString", null, showlinks);
+  }
+
+  /**
+   * add a single showlink (TV show name)
+   * 
+   * @param showlink
+   *          the TV show name
+   */
+  public void addShowlink(String showlink) {
+    if (!showlinks.contains(showlink)) {
+      showlinks.add(showlink);
+      firePropertyChange("showlinks", null, showlinks);
+      firePropertyChange("showlinksAsString", null, showlinks);
+    }
+  }
+
+  /**
+   * remove the given showlink (TV show name)
+   * 
+   * @param showlink
+   *          the TV show name
+   */
+  public void removeShowlink(String showlink) {
+    if (showlinks.remove(showlink)) {
+      firePropertyChange("showlinks", null, showlinks);
+      firePropertyChange("showlinksAsString", null, showlinks);
+    }
+  }
+
+  public String getShowlinksAsString() {
+    return String.join(", ", showlinks);
   }
 
   /** has movie local (or any mediafile inline) subtitles? */
@@ -1649,7 +1701,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     // and having never ever downloaded any pic is quite slow.
     // (Many invalid cache requests and exists() checks)
     // Better get a listing of existent actor images directly!
-    if (!isMultiMovieDir()) {
+    if (MovieModuleManager.SETTINGS.isWriteActorImages() && !isMultiMovieDir()) {
       // and only for normal movies - MMD should not have .actors folder!
       filesToCache.addAll(listActorFiles());
     } // check against actors and trigger a download? - NO, only via scrape/missingImagesTask
@@ -1661,7 +1713,12 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return list of actor images on filesystem
    */
   private List<MediaFile> listActorFiles() {
+    if (!getPathNIO().resolve(Person.ACTOR_DIR).toFile().exists()) {
+      return Collections.emptyList();
+    }
+
     List<MediaFile> fileNames = new ArrayList<>();
+
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(getPathNIO().resolve(Person.ACTOR_DIR))) {
       for (Path path : directoryStream) {
         if (Utils.isRegularFile(path)) {
@@ -1674,8 +1731,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
     }
     catch (IOException e) {
-      LOGGER.warn("Cannot get actors: {}", getPathNIO().resolve(Person.ACTOR_DIR));
+      LOGGER.debug("Cannot get actors: {}", getPathNIO().resolve(Person.ACTOR_DIR));
     }
+
     return fileNames;
   }
 
@@ -1875,14 +1933,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   public boolean isVideoIn3D() {
-    String video3DFormat = "";
-    List<MediaFile> videos = getMediaFiles(MediaFileType.VIDEO);
-    if (!videos.isEmpty()) {
-      MediaFile mediaFile = videos.get(0);
-      video3DFormat = mediaFile.getVideo3DFormat();
-    }
-
-    return videoIn3D || StringUtils.isNotBlank(video3DFormat);
+    return videoIn3D || StringUtils.isNotBlank(getMainVideoFile().getVideo3DFormat());
   }
 
   public void setTop250(int newValue) {
@@ -2336,7 +2387,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     if (isVideoIn3D()) { // no MI info, but flag set from user
-      return "3D";
+      return MediaFileHelper.VIDEO_3D;
     }
 
     return "";
@@ -2465,5 +2516,23 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Movie movie = (Movie) o;
+    return path.equals(movie.path) && getMainFile().getFile().equals(movie.getMainFile().getFile());
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(path).append(getMainFile().getFile()).build();
   }
 }

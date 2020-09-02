@@ -23,7 +23,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -34,7 +33,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 public class MovieCleanUpFilesAction extends TmmAction {
 
   private static final long           serialVersionUID = -2029243504238273721L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieCleanUpFilesAction() {
 

@@ -54,7 +54,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -72,7 +71,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
     results = new SortedList<>(GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>())),
         new EpisodeContainerComparator());
-    DefaultEventTableModel<EpisodeContainer> missingEpisodeListModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(results),
+    TmmTableModel<EpisodeContainer> missingEpisodeListModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(results),
         new MissingEpisodeListTableFormat());
 
     // UI
@@ -83,7 +82,6 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
       tblMissingEpisodeList = new TmmTable(missingEpisodeListModel);
       JScrollPane scrollPane = new JScrollPane();
-      tblMissingEpisodeList.configureScrollPane(scrollPane);
       panelContent.add(scrollPane, "cell 0 0, grow");
     }
     {
@@ -197,6 +195,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     private List<MediaMetadata> getEpisodes(TvShow tvShow) {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(language);
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
       MediaScraper mediaScraper = TvShowList.getInstance().getDefaultMediaScraper();
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());

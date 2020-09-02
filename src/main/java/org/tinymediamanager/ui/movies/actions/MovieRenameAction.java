@@ -30,7 +30,6 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -47,7 +46,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRenameAction extends TmmAction {
   private static final long           serialVersionUID = 4804592958868052533L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieRenameAction() {
     putValue(NAME, BUNDLE.getString("movie.rename"));

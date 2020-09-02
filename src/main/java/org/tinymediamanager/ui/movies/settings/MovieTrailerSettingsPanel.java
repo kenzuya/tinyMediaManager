@@ -18,13 +18,10 @@ package org.tinymediamanager.ui.movies.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
 
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -43,8 +40,6 @@ import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
-import org.apache.commons.lang3.StringUtils;
-import org.imgscalr.Scalr;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -52,22 +47,19 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
@@ -85,11 +77,11 @@ class MovieTrailerSettingsPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings settings = MovieModuleManager.SETTINGS;
-  private List<TrailerScraper> scrapers = ObservableCollections.observableList(new ArrayList<>());
-  private TmmTable tableTrailerScraper;
+  private List<ScraperInTable>        scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private TmmTable                    tableScraperInTable;
   private JTextPane tpScraperDescription;
   private JComboBox<TrailerSources> cbTrailerSource;
   private JComboBox<TrailerQuality> cbTrailerQuality;
@@ -121,29 +113,29 @@ class MovieTrailerSettingsPanel extends JPanel {
     int selectedIndex = -1;
     int counter = 0;
     for (MediaScraper scraper : MovieList.getInstance().getAvailableTrailerScrapers()) {
-      TrailerScraper trailerScraper = new TrailerScraper(scraper);
-      if (enabledTrailerProviders.contains(trailerScraper.getScraperId())) {
-        trailerScraper.active = true;
+      ScraperInTable ScraperInTable = new ScraperInTable(scraper);
+      if (enabledTrailerProviders.contains(ScraperInTable.getScraperId())) {
+        ScraperInTable.setActive(true);
         if (selectedIndex < 0) {
           selectedIndex = counter;
         }
       }
-      scrapers.add(trailerScraper);
+      scrapers.add(ScraperInTable);
       counter++;
     }
 
     // adjust table columns
     // Checkbox and Logo shall have minimal width
-    TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 1, 2);
-    TableColumnResizer.adjustColumnPreferredWidths(tableTrailerScraper, 5);
+    TableColumnResizer.setMaxWidthForColumn(tableScraperInTable, 0, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraperInTable, 1, 2);
+    TableColumnResizer.adjustColumnPreferredWidths(tableScraperInTable, 5);
 
-    tableTrailerScraper.getModel().addTableModelListener(arg0 -> {
+    tableScraperInTable.getModel().addTableModelListener(arg0 -> {
       // click on the checkbox
       if (arg0.getColumn() == 0) {
         int row = arg0.getFirstRow();
-        TrailerScraper changedScraper = scrapers.get(row);
-        if (changedScraper.active) {
+        ScraperInTable changedScraper = scrapers.get(row);
+        if (changedScraper.getActive()) {
           settings.addMovieTrailerScraper(changedScraper.getScraperId());
         }
         else {
@@ -153,8 +145,8 @@ class MovieTrailerSettingsPanel extends JPanel {
     });
 
     // implement selection listener to load settings
-    tableTrailerScraper.getSelectionModel().addListSelectionListener(e -> {
-      int index = tableTrailerScraper.convertRowIndexToModel(tableTrailerScraper.getSelectedRow());
+    tableScraperInTable.getSelectionModel().addListSelectionListener(e -> {
+      int index = tableScraperInTable.convertRowIndexToModel(tableScraperInTable.getSelectedRow());
       if (index > -1) {
         panelScraperOptions.removeAll();
         if (scrapers.get(index).getMediaProvider().getProviderInfo().getConfig().hasConfig()) {
@@ -180,7 +172,7 @@ class MovieTrailerSettingsPanel extends JPanel {
       selectedIndex = 0;
     }
     if (counter > 0) {
-      tableTrailerScraper.getSelectionModel().setSelectionInterval(selectedIndex, selectedIndex);
+      tableScraperInTable.getSelectionModel().setSelectionInterval(selectedIndex, selectedIndex);
     }
 
     buildCheckBoxes();
@@ -231,12 +223,13 @@ class MovieTrailerSettingsPanel extends JPanel {
 
       JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.trailer"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#trailer"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableTrailerScraper = new TmmTable();
-        tableTrailerScraper.setRowHeight(29);
-        tableTrailerScraper.setShowGrid(true);
-        panelScraper.add(tableTrailerScraper, "cell 1 0,grow");
+        tableScraperInTable = new TmmTable();
+        tableScraperInTable.setRowHeight(29);
+        tableScraperInTable.setShowGrid(true);
+        panelScraper.add(tableScraperInTable, "cell 1 0,grow");
 
         JSeparator separator = new JSeparator();
         panelScraper.add(separator, "cell 1 1,growx");
@@ -255,10 +248,12 @@ class MovieTrailerSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelOptions = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelOptions = new JPanel();
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#advanced-options-2"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
         checkBox = new JCheckBox(BUNDLE.getString("Settings.trailer.preferred"));
@@ -301,103 +296,25 @@ class MovieTrailerSettingsPanel extends JPanel {
     }
   }
 
-  /*****************************************************************************************************
-   * helper classes
-   ****************************************************************************************************/
-  public class TrailerScraper extends AbstractModelObject {
-    private MediaScraper scraper;
-    private Icon         scraperLogo;
-    private boolean      active;
-
-    public TrailerScraper(MediaScraper scraper) {
-      this.scraper = scraper;
-      if (scraper.getMediaProvider().getProviderInfo().getProviderLogo() == null) {
-        scraperLogo = new ImageIcon();
-      }
-      else {
-        scraperLogo = getScaledIcon(new ImageIcon(scraper.getMediaProvider().getProviderInfo().getProviderLogo()));
-      }
-    }
-
-    private ImageIcon getScaledIcon(ImageIcon original) {
-      try {
-        Canvas c = new Canvas();
-        FontMetrics fm = c.getFontMetrics(getFont());
-
-        int height = (int) (fm.getHeight() * 2f);
-        int width = original.getIconWidth() / original.getIconHeight() * height;
-
-        BufferedImage scaledImage = Scalr.resize(ImageUtils.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width,
-            height, Scalr.OP_ANTIALIAS);
-        return new ImageIcon(scaledImage);
-      }
-      catch (Exception e) {
-        return new ImageIcon();
-      }
-    }
-
-    public String getScraperId() {
-      return scraper.getId();
-    }
-
-    public String getScraperName() {
-      return scraper.getName() + " - " + scraper.getVersion();
-    }
-
-    public String getScraperDescription() {
-      // first try to get the localized version
-      String description = null;
-      try {
-        description = BUNDLE.getString("scraper." + scraper.getId() + ".hint");
-      }
-      catch (Exception ignored) {
-      }
-
-      if (StringUtils.isBlank(description)) {
-        // try to get a scraper text
-        description = scraper.getDescription();
-      }
-
-      return description;
-    }
-
-    public Icon getScraperLogo() {
-      return scraperLogo;
-    }
-
-    public Boolean getActive() {
-      return active;
-    }
-
-    public void setActive(Boolean newValue) {
-      Boolean oldValue = this.active;
-      this.active = newValue;
-      firePropertyChange("active", oldValue, newValue);
-    }
-
-    public IMediaProvider getMediaProvider() {
-      return scraper.getMediaProvider();
-    }
-  }
 
   protected void initDataBindings() {
-    JTableBinding<TrailerScraper, List<TrailerScraper>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers,
-        tableTrailerScraper);
+    JTableBinding<ScraperInTable, List<ScraperInTable>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers,
+        tableScraperInTable);
     //
-    BeanProperty<TrailerScraper, Boolean> trailerScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
+    BeanProperty<ScraperInTable, Boolean> ScraperInTableBeanProperty = BeanProperty.create("active");
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
     //
-    BeanProperty<TrailerScraper, Icon> trailerScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
+    BeanProperty<ScraperInTable, Icon> ScraperInTableBeanProperty_1 = BeanProperty.create("scraperLogo");
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
     //
-    BeanProperty<TrailerScraper, String> trailerScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
+    BeanProperty<ScraperInTable, String> ScraperInTableBeanProperty_2 = BeanProperty.create("scraperName");
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
     //
     jTableBinding.bind();
     //
     BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
     BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
-    AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableTrailerScraper,
+    AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraperInTable,
             jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
     autoBinding.bind();
     //

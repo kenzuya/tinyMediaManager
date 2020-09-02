@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaCertification;
@@ -29,6 +30,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.license.License;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
@@ -36,6 +38,27 @@ import ch.qos.logback.classic.LoggerContext;
 public class BasicTest {
 
   private static final String LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lacus libero. Ut vel lacus erat. Maecenas maximus vestibulum ante at efficitur. Sed id ex eget purus commodo feugiat. Suspendisse ultricies felis sed interdum luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc et scelerisque nibh. Donec maximus nunc nunc, non commodo nulla rhoncus id. Curabitur pharetra maximus tellus non porta. Ut vehicula elit nec ante elementum, ut semper ligula consectetur.";
+
+  protected static void setLicenseKey() throws Exception {
+    String key = "";
+    // take the env variable for the license key (offered in CI)
+    if (StringUtils.isNotBlank(System.getenv("TMM_BUILD_LICENSE"))) {
+      key = System.getenv("TMM_BUILD_LICENSE");
+    }
+    else {
+      // try to read it from a local file
+      try {
+        key = Utils.readFileToString(Paths.get("target/test-classes/tmm_build_license"));
+      }
+      catch (Exception e) {
+        // just not crashing
+      }
+    }
+
+    if (StringUtils.isNotBlank(key)) {
+      License.getInstance().setLicenseCode(key);
+    }
+  }
 
   // own method to get some logging ;)
   public static void assertEqual(Object expected, Object actual) {

@@ -16,6 +16,9 @@
 
 package org.tinymediamanager.core.movie;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaCertification;
@@ -28,9 +31,6 @@ import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YoutubeDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * a collection of various helpers for the movie module
@@ -47,7 +47,8 @@ public class MovieHelpers {
   /**
    * Parses a given certification string for the localized country setup in setting.
    *
-   * @param name certification string like "USA:R / UK:15 / Sweden:15"
+   * @param name
+   *          certification string like "USA:R / UK:15 / Sweden:15"
    * @return the localized certification if found, else *ANY* language cert found
    */
   // <certification>USA:R / UK:15 / Sweden:15 / Spain:18 / South Korea:15 /
@@ -124,7 +125,7 @@ public class MovieHelpers {
   public static void startAutomaticTrailerDownload(Movie movie) {
     // start movie trailer download?
     if (MovieModuleManager.SETTINGS.isUseTrailerPreference() && MovieModuleManager.SETTINGS.isAutomaticTrailerDownload()
-            && movie.getMediaFiles(MediaFileType.TRAILER).isEmpty() && !movie.getTrailer().isEmpty()) {
+        && movie.getMediaFiles(MediaFileType.TRAILER).isEmpty() && !movie.getTrailer().isEmpty()) {
       downloadBestTrailer(movie);
     }
   }
@@ -132,18 +133,23 @@ public class MovieHelpers {
   /**
    * download the best trailer for the given movie
    *
-   * @param movie the movie to download the trailer for
+   * @param movie
+   *          the movie to download the trailer for
    */
   public static void downloadBestTrailer(Movie movie) {
-    MediaTrailer trailer = movie.getTrailer().get(0);
-    downloadTrailer(movie, trailer);
+    if (!movie.getTrailer().isEmpty()) {
+      MediaTrailer trailer = movie.getTrailer().get(0);
+      downloadTrailer(movie, trailer);
+    }
   }
 
   /**
    * download the given trailer for the given movie
    *
-   * @param movie   the movie to download the trailer for
-   * @param trailer the trailer to download
+   * @param movie
+   *          the movie to download the trailer for
+   * @param trailer
+   *          the trailer to download
    */
   public static void downloadTrailer(Movie movie, MediaTrailer trailer) {
     // get the right file name
@@ -151,7 +157,8 @@ public class MovieHelpers {
     if (movie.isMultiMovieDir()) {
       // in a MMD we can only use this naming
       trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
-    } else {
+    }
+    else {
       trailernames = MovieModuleManager.SETTINGS.getTrailerFilenames();
     }
 
@@ -160,7 +167,8 @@ public class MovieHelpers {
     String filename;
     if (!trailernames.isEmpty()) {
       filename = movie.getTrailerFilename(trailernames.get(0));
-    } else {
+    }
+    else {
       filename = movie.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
     }
 
@@ -168,7 +176,8 @@ public class MovieHelpers {
       if (trailer.getProvider().equalsIgnoreCase("youtube")) {
         YoutubeDownloadTask task = new YoutubeDownloadTask(trailer, movie, filename);
         TmmTaskManager.getInstance().addDownloadTask(task);
-      } else {
+      }
+      else {
         TrailerDownloadTask task = new TrailerDownloadTask(trailer, movie, filename);
         TmmTaskManager.getInstance().addDownloadTask(task);
       }
@@ -176,7 +185,7 @@ public class MovieHelpers {
     catch (Exception e) {
       LOGGER.error("could not start trailer download: {}", e.getMessage());
       MessageManager.instance
-              .pushMessage(new Message(Message.MessageLevel.ERROR, movie, "message.scrape.trailerfailed", new String[]{":", e.getLocalizedMessage()}));
+          .pushMessage(new Message(Message.MessageLevel.ERROR, movie, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
     }
   }
 

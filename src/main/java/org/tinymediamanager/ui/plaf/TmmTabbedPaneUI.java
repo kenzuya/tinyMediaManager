@@ -15,33 +15,28 @@
  */
 package org.tinymediamanager.ui.plaf;
 
+import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
 
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 
-import com.jtattoo.plaf.AbstractLookAndFeel;
-import com.jtattoo.plaf.BaseTabbedPaneUI;
-import com.jtattoo.plaf.JTattooUtilities;
+import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
+import com.formdev.flatlaf.ui.FlatUIUtils;
 
 /**
  * The Class TmmTabbedPaneUI.
  *
  * @author Manuel Laggner
  */
-public class TmmTabbedPaneUI extends BaseTabbedPaneUI {
-  protected static int BORDER_RADIUS         = 15;
-  protected static int DEFAULT_BOTTOM_INSETS = 10 + BORDER_RADIUS;
-
-  private boolean      roundEdge             = true;
+public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
+  protected static final int BORDER_RADIUS = 15;
+  protected Color            contentBackgroundColor;
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmTabbedPaneUI();
@@ -52,64 +47,76 @@ public class TmmTabbedPaneUI extends BaseTabbedPaneUI {
   }
 
   @Override
-  public void installDefaults() {
+  protected void installDefaults() {
+    // just take the original font and scale it
+    Font defaultFont = UIManager.getFont("defaultFont");
+    if (defaultFont != null) {
+      tabPane.setFont(null); // need to re-set the font for online font changing
+      UIManager.put("TabbedPane.font", scale(defaultFont, 1.1667).deriveFont(Font.BOLD));
+    }
+
     super.installDefaults();
 
-    // defaults
-    tabAreaBackground = AbstractLookAndFeel.getTheme().getTabAreaBackgroundColor();
-    tabInsets = new Insets(5, 20, 5, 20);
-    tabAreaInsets = new Insets(0, 20, 15, 20);
-    contentBorderInsets = new Insets(0, 20, DEFAULT_BOTTOM_INSETS, 20);
-    roundedTabs = false;
-
-    // overrides
-    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("rightBorder"))) {
-      tabAreaInsets.right = 0;
-      contentBorderInsets.right = 0;
-    }
-
-    if ("half".equals(this.tabPane.getClientProperty("rightBorder"))) {
-      tabAreaInsets.right = tabAreaInsets.right / 2;
-      contentBorderInsets.right = contentBorderInsets.right / 2;
-    }
-
-    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("leftBorder"))) {
-      tabAreaInsets.left = 0;
-      contentBorderInsets.left = 0;
-    }
-
-    if ("half".equals(this.tabPane.getClientProperty("leftBorder"))) {
-      tabAreaInsets.left = tabAreaInsets.left / 2;
-      contentBorderInsets.left = contentBorderInsets.left / 2;
-    }
-
-    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("roundEdge"))) {
-      roundEdge = false;
-    }
-
-    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("bottomBorder"))) {
-      if (roundEdge) {
-        contentBorderInsets.bottom = 10;
-      }
-      else {
-        contentBorderInsets.bottom = 0;
-      }
-    }
-
-    if ("half".equals(this.tabPane.getClientProperty("bottomBorder"))) {
-      contentBorderInsets.bottom = contentBorderInsets.bottom / 2;
-    }
-
+    contentBackgroundColor = UIManager.getColor("TabbedPane.contentBackgroundColor");
   }
 
   @Override
-  protected Insets getContentBorderInsets(int tabPlacement) {
-    return contentBorderInsets;
+  protected void paintTabSelection(Graphics g, int tabPlacement, int x, int y, int w, int h) {
   }
 
   @Override
-  protected Font getTabFont(boolean isSelected) {
-    return scale(UIManager.getFont("TabbedPane.font").deriveFont(Font.BOLD), 1.1667);
+  protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
+    Graphics2D g2D = (Graphics2D) g.create();
+    try {
+      FlatUIUtils.setRenderingHints((Graphics2D) g);
+
+      Insets insets = tabPane.getInsets();
+
+      int x = insets.left;
+      int y = insets.top;
+      int w = tabPane.getWidth() - insets.right - insets.left;
+      int h = tabPane.getHeight() - insets.top - insets.bottom;
+
+      g2D.setColor(contentAreaColor);
+      g2D.fillRect(x, y, w, h);
+
+      if (contentBackgroundColor != null) {
+        g2D.setColor(contentBackgroundColor);
+
+        if (drawFullWidth()) {
+          x = 0;
+          y = 0;
+        }
+        else {
+          Insets contentInsets = getContentBorderInsets(tabPlacement);
+
+          x = insets.left + contentInsets.left;
+          y = 0;
+          w = w - contentInsets.left - contentInsets.right;
+        }
+
+        if (drawRoundEdge()) {
+          g2D.fillRoundRect(x, y, w, h, BORDER_RADIUS, BORDER_RADIUS);
+        }
+        else {
+          g2D.fillRect(x, y, w, h);
+        }
+      }
+
+      // repaint selection because the arrow is painted in the content area
+      if (selectedIndex >= 0) {
+        Rectangle tabRect = getTabBounds(tabPane, selectedIndex);
+        g2D.setColor(selectedBackground);
+        int[] xPoints = { tabRect.x + (tabRect.width / 2 + 10), tabRect.x + (tabRect.width / 2 - 10), tabRect.x + (tabRect.width / 2) };
+        int[] yPoints = { tabRect.y + tabRect.height, tabRect.y + tabRect.height, tabRect.y + tabRect.height + 10 };
+        g2D.fillPolygon(xPoints, yPoints, xPoints.length);
+
+      }
+
+    }
+    finally {
+      g2D.dispose();
+    }
   }
 
   protected Font scale(Font font, double factor) {
@@ -117,111 +124,131 @@ public class TmmTabbedPaneUI extends BaseTabbedPaneUI {
     return font.deriveFont((float) newSize);
   }
 
-  @SuppressWarnings("deprecation")
-  @Override
-  protected FontMetrics getFontMetrics() {
-    Font font = getTabFont(false);
-    return Toolkit.getDefaultToolkit().getFontMetrics(font);
-  }
-
-  @Override
-  protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-    Graphics2D g2D = (Graphics2D) g;
-    RenderingHints savedRenderingHints = g2D.getRenderingHints();
-    g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    if (isSelected) {
-      g.setColor(AbstractLookAndFeel.getTheme().getTabSelectionBackgroundColor());
-    }
-    else {
-      g.setColor(tabAreaBackground);
-    }
-
-    g.fillRect(x, y, w, h);
-
-    if (isSelected) {
-      int[] xPoints = { x + (w / 2 + 10), x + (w / 2 - 10), x + (w / 2) };
-      int[] yPoints = { y + h, y + h, y + h + 10 };
-      g.fillPolygon(xPoints, yPoints, xPoints.length);
-    }
-    g2D.setRenderingHints(savedRenderingHints);
-  }
-
-  @Override
-  protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-    Graphics2D g2D = (Graphics2D) g.create();
-    g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    int xt = contentBorderInsets.left;
-    int yt = 0;
-    int wt = w - contentBorderInsets.left - contentBorderInsets.right;
-    int ht = h + DEFAULT_BOTTOM_INSETS - contentBorderInsets.bottom - BORDER_RADIUS;
-
-    g2D.setColor(AbstractLookAndFeel.getBackgroundColor());
-
-    if (roundEdge) {
-      g2D.fillRoundRect(xt, yt, wt, ht, BORDER_RADIUS, BORDER_RADIUS);
-    }
-    else {
-      g2D.fillRect(xt, yt, wt, ht);
-    }
-  }
-
   @Override
   protected void paintFocusIndicator(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect, Rectangle textRect,
       boolean isSelected) {
+    // the focus indicator is drawn with the tab background
   }
 
   @Override
-  protected void paintTopTabBorder(int tabIndex, Graphics g, int x1, int y1, int x2, int y2, boolean isSelected) {
+  protected Insets getContentBorderInsets(int tabPlacement) {
+    Insets insets = new Insets(contentBorderInsets.top, contentBorderInsets.left, contentBorderInsets.bottom, contentBorderInsets.right);
+
+    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("rightBorder"))) {
+      insets.right = 0;
+    }
+
+    if ("half".equals(this.tabPane.getClientProperty("rightBorder"))) {
+      insets.right = contentBorderInsets.right / 2;
+    }
+
+    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("leftBorder"))) {
+      insets.left = 0;
+    }
+
+    if ("half".equals(this.tabPane.getClientProperty("leftBorder"))) {
+      insets.left = contentBorderInsets.left / 2;
+    }
+
+    if (drawRoundEdge()) {
+      insets.bottom = 10;
+    }
+    else {
+      insets.bottom = 0;
+    }
+
+    return insets;
+  }
+
+  private boolean drawRoundEdge() {
+    Object clientProperty = tabPane.getClientProperty("roundEdge");
+    if (clientProperty == null) {
+      return true;
+    }
+    return Boolean.parseBoolean(clientProperty.toString());
+  }
+
+  private boolean drawFullWidth() {
+    Object clientProperty = tabPane.getClientProperty("fullWidth");
+    if (clientProperty == null) {
+      return false;
+    }
+    return Boolean.parseBoolean(clientProperty.toString());
   }
 
   @Override
-  protected void paintText(Graphics g, int tabPlacement, Font font, FontMetrics metrics, int tabIndex, String title, Rectangle textRect,
-      boolean isSelected) {
-    Graphics2D g2D = (Graphics2D) g;
-    Object savedRenderingHint = null;
-    if (AbstractLookAndFeel.getTheme().isTextAntiAliasingOn()) {
-      savedRenderingHint = g2D.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
-      g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AbstractLookAndFeel.getTheme().getTextAntiAliasingHint());
+  protected Insets getTabAreaInsets(int tabPlacement) {
+    Insets insets = new Insets(tabAreaInsets.top, tabAreaInsets.left, tabAreaInsets.bottom, tabAreaInsets.right);
+
+    // overrides
+    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("rightBorder"))) {
+      insets.right = 0;
     }
 
-    // plain text
-    g.setFont(font);
-    int mnemIndex = tabPane.getDisplayedMnemonicIndexAt(tabIndex);
-
-    if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex)) {
-      if (isSelected) {
-        g.setColor(AbstractLookAndFeel.getTheme().getTabSelectionForegroundColor());
-      }
-      else {
-        g.setColor(AbstractLookAndFeel.getTheme().getTabForegroundColor());
-      }
-      JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x, textRect.y + metrics.getAscent());
-    }
-    else { // tab disabled
-      g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());
-      JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x, textRect.y + metrics.getAscent());
-      g.setColor(tabPane.getBackgroundAt(tabIndex).darker());
-      JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x - 1, textRect.y + metrics.getAscent() - 1);
+    if ("half".equals(this.tabPane.getClientProperty("rightBorder"))) {
+      insets.right = tabAreaInsets.right / 2;
     }
 
-    if (AbstractLookAndFeel.getTheme().isTextAntiAliasingOn()) {
-      g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedRenderingHint);
+    if (Boolean.FALSE.equals(this.tabPane.getClientProperty("leftBorder"))) {
+      insets.left = 0;
     }
+
+    if ("half".equals(this.tabPane.getClientProperty("leftBorder"))) {
+      insets.left = tabAreaInsets.left / 2;
+    }
+    return insets;
   }
 
-  @Override
-  protected int getTabLabelShiftY(int tabPlacement, int tabIndex, boolean isSelected) {
-    return 0;
-  }
+  // @Override
+  // protected void paintTopTabBorder(int tabIndex, Graphics g, int x1, int y1, int x2, int y2, boolean isSelected) {
+  // }
+
+  // @Override
+  // protected void paintText(Graphics g, int tabPlacement, Font font, FontMetrics metrics, int tabIndex, String title, Rectangle textRect,
+  // boolean isSelected) {
+  // Graphics2D g2D = (Graphics2D) g;
+  // Object savedRenderingHint = null;
+  // if (AbstractLookAndFeel.getTheme().isTextAntiAliasingOn()) {
+  // savedRenderingHint = g2D.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+  // g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, AbstractLookAndFeel.getTheme().getTextAntiAliasingHint());
+  // }
+  //
+  // // plain text
+  // g.setFont(font);
+  // int mnemIndex = tabPane.getDisplayedMnemonicIndexAt(tabIndex);
+  //
+  // if (tabPane.isEnabled() && tabPane.isEnabledAt(tabIndex)) {
+  // if (isSelected) {
+  // g.setColor(AbstractLookAndFeel.getTheme().getTabSelectionForegroundColor());
+  // }
+  // else {
+  // g.setColor(AbstractLookAndFeel.getTheme().getTabForegroundColor());
+  // }
+  // JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x, textRect.y + metrics.getAscent());
+  // }
+  // else { // tab disabled
+  // g.setColor(tabPane.getBackgroundAt(tabIndex).brighter());
+  // JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x, textRect.y + metrics.getAscent());
+  // g.setColor(tabPane.getBackgroundAt(tabIndex).darker());
+  // JTattooUtilities.drawStringUnderlineCharAt(tabPane, g, title, mnemIndex, textRect.x - 1, textRect.y + metrics.getAscent() - 1);
+  // }
+  //
+  // if (AbstractLookAndFeel.getTheme().isTextAntiAliasingOn()) {
+  // g2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, savedRenderingHint);
+  // }
+  // }
+  //
+  // @Override
+  // protected int getTabLabelShiftY(int tabPlacement, int tabIndex, boolean isSelected) {
+  // return 0;
+  // }
 
   @Override
   protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
     // redraw the black border
     Rectangle clipRect = g.getClipBounds();
     if (clipRect.y < maxTabHeight) {
-      g.setColor(tabAreaBackground);
+      g.setColor(tabPane.getBackground());
       g.fillRect(0, 0, tabPane.getWidth(), maxTabHeight);
     }
 
@@ -235,7 +262,7 @@ public class TmmTabbedPaneUI extends BaseTabbedPaneUI {
     // redraw the black border
     Rectangle clipRect = g.getClipBounds();
     if (clipRect.y < maxTabHeight) {
-      g.setColor(tabAreaBackground);
+      g.setColor(tabPane.getBackground());
       g.fillRect(0, 0, tabPane.getWidth(), maxTabHeight);
     }
   }

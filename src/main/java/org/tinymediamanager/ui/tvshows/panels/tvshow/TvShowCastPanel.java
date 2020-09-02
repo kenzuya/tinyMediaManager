@@ -25,9 +25,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -48,7 +48,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowCastPanel extends JPanel {
   private static final long           serialVersionUID = 2374973082749248956L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TvShowSelectionModel  selectionModel;
   private EventList<Person>           actorEventList   = null;
@@ -120,8 +120,10 @@ public class TvShowCastPanel extends JPanel {
       add(lblActorImage, "cell 2 0,grow");
 
       tableActors = new PersonTable(actorEventList);
+      tableActors.setName("tvshows.tvshow.actorTable");
+      TmmUILayoutStore.getInstance().install(tableActors);
+
       JScrollPane scrollPaneActors = new JScrollPane(tableActors);
-      tableActors.configureScrollPane(scrollPaneActors);
       scrollPaneActors.setViewportView(tableActors);
       add(scrollPaneActors, "cell 1 0 1 2,grow");
     }

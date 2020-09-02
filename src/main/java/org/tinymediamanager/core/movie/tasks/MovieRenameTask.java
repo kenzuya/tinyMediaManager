@@ -27,7 +27,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -42,7 +41,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  */
 public class MovieRenameTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieRenameTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private List<Movie>                 moviesToRename;
 

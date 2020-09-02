@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.wizard;
 
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Insets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -39,13 +38,13 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -57,7 +56,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSourcePanel extends JPanel {
   private static final long           serialVersionUID = -7126616245313008341L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
 
@@ -95,10 +94,9 @@ class TvShowSourcePanel extends JPanel {
     cbDvdOrder = new JCheckBox(BUNDLE.getString("Settings.dvdorder"));
     panelTvShowDataSources.add(cbDvdOrder, "flowx,cell 0 2");
 
-    JButton btnAdd = new JButton(IconManager.ADD_INV);
+    JButton btnAdd = new SquareIconButton(IconManager.ADD_INV);
     panelTvShowDataSources.add(btnAdd, "flowy,cell 1 1,aligny top");
     btnAdd.setToolTipText(BUNDLE.getString("Button.add"));
-    btnAdd.setMargin(new Insets(2, 2, 2, 2));
     btnAdd.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("tvshow.datasource.path");
       Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("Settings.tvshowdatasource.folderchooser"), path);
@@ -108,10 +106,9 @@ class TvShowSourcePanel extends JPanel {
       }
     });
 
-    JButton btnRemove = new JButton(IconManager.REMOVE_INV);
+    JButton btnRemove = new SquareIconButton(IconManager.REMOVE_INV);
     panelTvShowDataSources.add(btnRemove, "cell 1 1");
     btnRemove.setToolTipText(BUNDLE.getString("Button.remove"));
-    btnRemove.setMargin(new Insets(2, 2, 2, 2));
     btnRemove.addActionListener(arg0 -> {
       int row = listDataSources.getSelectedIndex();
       if (row != -1) { // nothing selected

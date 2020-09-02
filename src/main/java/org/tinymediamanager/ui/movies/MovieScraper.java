@@ -42,11 +42,9 @@ public class MovieScraper extends ScraperInTable implements Comparable<MovieScra
   }
 
   public void setDefaultScraper(Boolean newValue) {
-    if (scraper.isEnabled()) {
-      Boolean oldValue = this.defaultScraper;
-      this.defaultScraper = newValue;
-      firePropertyChange("defaultScraper", oldValue, newValue);
-    }
+    Boolean oldValue = this.defaultScraper;
+    this.defaultScraper = newValue;
+    firePropertyChange("defaultScraper", oldValue, newValue);
   }
 
   public MediaScraper getMediaScraper() {

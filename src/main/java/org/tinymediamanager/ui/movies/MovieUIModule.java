@@ -22,12 +22,10 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
@@ -41,6 +39,7 @@ import org.tinymediamanager.ui.movies.actions.MovieCleanUpFilesAction;
 import org.tinymediamanager.ui.movies.actions.MovieClearImageCacheAction;
 import org.tinymediamanager.ui.movies.actions.MovieCreateOfflineAction;
 import org.tinymediamanager.ui.movies.actions.MovieDeleteAction;
+import org.tinymediamanager.ui.movies.actions.MovieDeleteMediainfoXmlAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
@@ -86,23 +85,17 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieUIModule extends AbstractTmmUIModule {
   private static final String       ID       = "movies";
-
   private static MovieUIModule      instance = null;
 
   private final MovieListPanel      listPanel;
-
+  private final JPanel              detailPanel;
   private final MovieSelectionModel selectionModel;
-
-  private TmmSettingsNode           settingsNode;
-
   private final MovieFilterDialog   movieFilterDialog;
+  private final TmmSettingsNode     settingsNode;
 
   private MovieUIModule() {
-
     listPanel = new MovieListPanel();
     selectionModel = listPanel.getSelectionModel();
-
-    super.listPanel = listPanel;
 
     detailPanel = new JPanel();
     detailPanel.setOpaque(false);
@@ -147,14 +140,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
   }
 
   private void init() {
-    // apply stored UI filters
-    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
-      SwingUtilities.invokeLater(() -> {
-        MovieList.getInstance().searchDuplicates();
-        selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getUiFilters());
-      });
-    }
-
     // init the table panel
     listPanel.init();
   }
@@ -196,8 +181,10 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieRenameAction.class));
     popupMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
-    popupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
     popupMenu.add(createAndRegisterAction(MovieExportAction.class));
+    popupMenu.addSeparator();
+    popupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
+    popupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieTrailerDownloadAction.class));
     popupMenu.add(createAndRegisterAction(MovieSubtitleSearchAction.class));
@@ -293,7 +280,9 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRenameAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
+    editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));

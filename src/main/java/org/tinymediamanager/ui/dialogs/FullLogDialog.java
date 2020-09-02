@@ -24,6 +24,7 @@ import javax.swing.JTextArea;
 
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.InMemoryAppender;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.Appender;
@@ -40,7 +41,7 @@ public class FullLogDialog extends TmmDialog {
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("", "[600lp,grow]", "[400lp,grow]"));
 
-    JScrollPane scrollPane = new JScrollPane();
+    JScrollPane scrollPane = new NoBorderScrollPane();
     panelContent.add(scrollPane, "cell 0 0,grow");
 
     JTextArea taLogs = new JTextArea();

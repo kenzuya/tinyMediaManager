@@ -115,7 +115,6 @@ public class TvShowEpisodeAndSeasonParser {
       for (String s : b) {
         backup.append(" ").append(s);
       }
-      // System.out.println("****** empty string - setting back to " + backup);
       ret = new StringBuilder(backup.toString().trim());
     }
     return ret.toString();

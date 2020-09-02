@@ -27,6 +27,11 @@ public class MainTabbedPane extends JTabbedPane {
 
   public MainTabbedPane() {
     super(TOP, SCROLL_TAB_LAYOUT);
+  }
+
+  @Override
+  public void updateUI() {
+    super.updateUI();
     setBorder(null);
   }
 }

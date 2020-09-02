@@ -78,10 +78,11 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -97,7 +98,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import net.miginfocom.swing.MigLayout;
 
@@ -160,7 +160,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(TvShowChooserModel.class)),
         new SearchResultScoreComparator());
 
-    DefaultEventTableModel<TvShowChooserModel> searchResultTableModel = new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat());
+    TmmTableModel<TvShowChooserModel> searchResultTableModel = new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat());
 
     {
       final JPanel panelPath = new JPanel();
@@ -225,8 +225,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(separator, "cell 0 1,growx");
     }
     {
-      JSplitPane splitPane = new TmmSplitPane();
-      splitPane.setResizeWeight(0.5);
+      JSplitPane splitPane = new JSplitPane();
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 2,grow");
       {
         JPanel panelSearchResults = new JPanel();
@@ -236,14 +237,13 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchResults.add(scrollPane, "cell 0 0,grow");
           tableSearchResults = new TmmTable(searchResultTableModel);
-          tableSearchResults.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableSearchResults);
         }
       }
       {
         JPanel panelSearchDetail = new JPanel();
         splitPane.setRightComponent(panelSearchDetail);
-        panelSearchDetail.setLayout(new MigLayout("", "[150lp:n,grow][300lp:500lp,grow]", "[][][150lp:200lp,grow]"));
+        panelSearchDetail.setLayout(new MigLayout("", "[150lp:15%:25%,grow][300lp:500lp,grow 3]", "[][][150lp:200lp,grow]"));
         {
           lblTtitle = new JLabel("");
           TmmFontHelper.changeFont(lblTtitle, 1.166, Font.BOLD);
@@ -251,6 +251,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         }
         {
           lblTvShowPoster = new ImageLabel(false);
+          lblTvShowPoster.setDesiredAspectRatio(2 / 3f);
           panelSearchDetail.add(lblTvShowPoster, "cell 0 0 1 3,grow");
         }
         {
@@ -258,8 +259,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           panelSearchDetail.add(lblOriginalTitle, "cell 1 1,wmin 0");
         }
         {
-          JScrollPane scrollPane = new JScrollPane();
-          scrollPane.setBorder(null);
+          JScrollPane scrollPane = new NoBorderScrollPane();
           panelSearchDetail.add(scrollPane, "cell 1 2,grow");
 
           taOverview = new ReadOnlyTextArea();
@@ -496,7 +496,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             List<TvShowEpisode> episodesToScrape = tvShowToScrape.getEpisodesToScrape();
             // scrape episodes in a task
             if (!episodesToScrape.isEmpty()) {
-              TvShowEpisodeSearchAndScrapeOptions scrapeOptions = new TvShowEpisodeSearchAndScrapeOptions();
+              // create the episode scrape options
+              TvShowEpisodeSearchAndScrapeOptions scrapeOptions = new TvShowEpisodeSearchAndScrapeOptions(md.getIds());
               scrapeOptions.setMetadataScraper(model.getMediaScraper());
               scrapeOptions.setArtworkScraper(model.getArtworkScrapers());
               scrapeOptions.setLanguage(model.getLanguage());

@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -41,7 +40,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowRebuildImageCacheAction extends TmmAction {
   private static final long           serialVersionUID = 3452373237085274937L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowRebuildImageCacheAction() {
     putValue(NAME, BUNDLE.getString("tvshow.rebuildimagecache"));

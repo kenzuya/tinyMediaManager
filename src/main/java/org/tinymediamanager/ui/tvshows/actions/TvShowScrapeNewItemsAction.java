@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -44,8 +43,8 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class TvShowScrapeNewItemsAction extends TmmAction {
-  private static final long serialVersionUID = -3365542777082781952L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final long           serialVersionUID = -3365542777082781952L;
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowScrapeNewItemsAction() {
     putValue(NAME, BUNDLE.getString("tvshow.scrape.newitems"));
@@ -99,20 +98,22 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
 
     // scrape new episodes
     if (!newEpisodes.isEmpty()) {
-      TvShowScrapeMetadataDialog dialog = new TvShowScrapeMetadataDialog(BUNDLE.getString("tvshowepisode.scrape"), true, true, false, true, true);
+      TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createEpisodeScrapeDialog(BUNDLE.getString("tvshowepisode.scrape"));
       dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
       dialog.setVisible(true);
+
+      // do we want to scrape?
+      if (!dialog.shouldStartScrape()) {
+        return;
+      }
 
       // get options from dialog
       TvShowEpisodeSearchAndScrapeOptions options = dialog.getTvShowEpisodeSearchAndScrapeOptions();
       List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
 
-      // do we want to scrape?
-      if (dialog.shouldStartScrape()) {
-        // scrape
-        TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(newEpisodes, options, episodeScraperMetadataConfig);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
-      }
+      // scrape
+      TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(newEpisodes, options, episodeScraperMetadataConfig);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
     }
   }
 }

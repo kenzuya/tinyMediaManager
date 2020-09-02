@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -39,7 +38,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowExporterDialog;
  */
 public class TvShowExportAction extends TmmAction {
   private static final long           serialVersionUID = 6746506855715337027L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowExportAction() {
     putValue(LARGE_ICON_KEY, IconManager.EXPORT);

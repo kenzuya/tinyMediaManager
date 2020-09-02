@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -59,7 +58,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * The Class MovieSetChooserModel.
  */
 public class MovieSetChooserModel extends AbstractModelObject {
-  private static final ResourceBundle      BUNDLE      = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle      BUNDLE      = ResourceBundle.getBundle("messages");
   private static final Logger              LOGGER      = LoggerFactory.getLogger(MovieSetChooserModel.class);
   public static final MovieSetChooserModel emptyResult = new MovieSetChooserModel();
   private String                           name        = "";
@@ -167,6 +166,8 @@ public class MovieSetChooserModel extends AbstractModelObject {
             MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
             options.setTmdbId(mis.tmdbId);
             options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+            options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+
             try {
               MediaScraper movieScraper = MediaScraper.getMediaScraperById(TmdbMetadataProvider.ID, ScraperType.MOVIE);
               MediaMetadata md = ((IMovieMetadataProvider) movieScraper.getMediaProvider()).getMetadata(options);

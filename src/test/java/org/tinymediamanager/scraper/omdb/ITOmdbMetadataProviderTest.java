@@ -10,21 +10,28 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.util.ApiKey;
 
 /**
  * @author Wolfgang Janes
  */
-public class ITOmdbMetadataProviderTest {
+public class ITOmdbMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   /**
    * Testing ProviderInfo
@@ -49,8 +56,6 @@ public class ITOmdbMetadataProviderTest {
   public void testSearch() {
     try {
       OmdbMetadataProvider mp = new OmdbMetadataProvider();
-      mp.getProviderInfo().getConfig().setValue("apiKey", ApiKey.decryptApikey("Isuaab2ym89iI1hOtF94nQ=="));
-      mp.setVerbose(true);
 
       // Matrix
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
@@ -86,11 +91,11 @@ public class ITOmdbMetadataProviderTest {
   public void testScrapeById() {
     try {
       OmdbMetadataProvider mp = new OmdbMetadataProvider();
-      mp.getProviderInfo().getConfig().setValue("apiKey", ApiKey.decryptApikey("Isuaab2ym89iI1hOtF94nQ=="));
-      mp.setVerbose(true);
 
       MovieSearchAndScrapeOptions scrapeOptions = new MovieSearchAndScrapeOptions();
       scrapeOptions.setLanguage(MediaLanguages.en);
+      scrapeOptions.setCertificationCountry(CountryCode.US);
+
       MediaMetadata md = null;
 
       // Matrix
@@ -98,9 +103,9 @@ public class ITOmdbMetadataProviderTest {
       md = mp.getMetadata(scrapeOptions);
       assertThat(md.getCertifications()).isNotEmpty();
       assertThat(md.getTitle()).isEqualTo("The Matrix");
-      assertThat(md.getYear()).isEqualTo(new Integer(1999));
+      assertThat(md.getYear()).isEqualTo(Integer.valueOf(1999));
       assertThat(md.getReleaseDate()).isNotNull();
-      assertThat(md.getRuntime()).isEqualTo(new Integer(136));
+      assertThat(md.getRuntime()).isEqualTo(Integer.valueOf(136));
       assertThat(md.getCastMembers(DIRECTOR)).isNotNull();
       assertThat(md.getCastMembers(DIRECTOR).size()).isEqualTo(2);
       assertThat(md.getCastMembers(WRITER)).isNotNull();
@@ -120,9 +125,9 @@ public class ITOmdbMetadataProviderTest {
       md = mp.getMetadata(scrapeOptions);
       assertThat(md.getCertifications()).isNotEmpty();
       assertThat(md.getTitle()).isEqualTo("Men in Black");
-      assertThat(md.getYear()).isEqualTo(new Integer(1997));
+      assertThat(md.getYear()).isEqualTo(Integer.valueOf(1997));
       assertThat(md.getReleaseDate()).isNotNull();
-      assertThat(md.getRuntime()).isEqualTo(new Integer(98));
+      assertThat(md.getRuntime()).isEqualTo(Integer.valueOf(98));
       assertThat(md.getCastMembers(DIRECTOR)).isNotNull();
       assertThat(md.getCastMembers(DIRECTOR).size()).isEqualTo(1);
       assertThat(md.getCastMembers(WRITER)).isNotNull();

@@ -15,142 +15,61 @@
  */
 package org.tinymediamanager.ui.plaf;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
-import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 
-import com.jtattoo.plaf.AbstractLookAndFeel;
-import com.jtattoo.plaf.BaseComboBoxUI;
-import com.jtattoo.plaf.NoFocusButton;
+import com.formdev.flatlaf.ui.FlatComboBoxUI;
 
 /**
+ * Provides the Flat LaF UI delegate for {@link javax.swing.JComboBox}.
+ *
+ * <!-- BasicComboBoxUI -->
+ *
+ * @uiDefault ComboBox.font Font
+ * @uiDefault ComboBox.background Color
+ * @uiDefault ComboBox.foreground Color
+ * @uiDefault ComboBox.border Border
+ * @uiDefault ComboBox.padding Insets
+ * @uiDefault ComboBox.squareButton boolean default is true
+ *
+ *            <!-- FlatComboBoxUI -->
+ *
+ * @uiDefault ComboBox.minimumWidth int
+ * @uiDefault ComboBox.editorColumns int
+ * @uiDefault ComboBox.maximumRowCount int
+ * @uiDefault ComboBox.buttonStyle String auto (default), button or none
+ * @uiDefault Component.arrowType String triangle (default) or chevron
+ * @uiDefault Component.isIntelliJTheme boolean
+ * @uiDefault Component.borderColor Color
+ * @uiDefault Component.disabledBorderColor Color
+ * @uiDefault ComboBox.editableBackground Color optional; defaults to ComboBox.background
+ * @uiDefault ComboBox.disabledBackground Color
+ * @uiDefault ComboBox.disabledForeground Color
+ * @uiDefault ComboBox.buttonBackground Color
+ * @uiDefault ComboBox.buttonEditableBackground Color
+ * @uiDefault ComboBox.buttonArrowColor Color
+ * @uiDefault ComboBox.buttonDisabledArrowColor Color
+ * @uiDefault ComboBox.buttonHoverArrowColor Color
+ *
  * @author Manuel Laggner
  */
-public class TmmComboBoxUI extends BaseComboBoxUI {
+public class TmmComboBoxUI extends FlatComboBoxUI {
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmComboBoxUI();
   }
 
   @Override
-  public JButton createArrowButton() {
-    return new ArrowButton();
+  protected JButton createArrowButton() {
+    JButton arrowButton = new TmmComboBoxButton();
+    // just make is look like a square button on "default" comboboxes, but do not stretch on multi line comboboxes
+    arrowButton.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 2));
+    return arrowButton;
   }
 
-  @Override
-  public void installUI(JComponent c) {
-    super.installUI(c);
-    if (comboBox.getEditor() != null) {
-      if (comboBox.getEditor().getEditorComponent() instanceof JTextField) {
-        ((JTextField) (comboBox.getEditor().getEditorComponent())).setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1));
-      }
-      else if (comboBox.getEditor().getEditorComponent() instanceof JLabel) {
-        ((JLabel) (comboBox.getEditor().getEditorComponent())).setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1));
-      }
-    }
-  }
+  private class TmmComboBoxButton extends FlatComboBoxButton {
 
-  @Override
-  protected void installDefaults() {
-    super.installDefaults();
-    squareButton = false;
-  }
-
-  @Override
-  public Dimension getPreferredSize(JComponent c) {
-    Dimension size = super.getPreferredSize(c);
-    return new Dimension(size.width + 6, size.height); // +6 to do not crop the content in the editor
-  }
-
-  @SuppressWarnings({ "unchecked" })
-  @Override
-  public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
-    @SuppressWarnings("rawtypes")
-    ListCellRenderer renderer = comboBox.getRenderer();
-    Component c;
-
-    if (hasFocus && !isPopupVisible(comboBox)) {
-      c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, true, false);
-    }
-    else {
-      c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
-      c.setBackground(UIManager.getColor("ComboBox.background"));
-    }
-
-    c.setFont(comboBox.getFont());
-    if (comboBox.isEnabled()) {
-      c.setForeground(comboBox.getForeground());
-      c.setBackground(comboBox.getBackground());
-    }
-    else {
-      c.setForeground(UIManager.getColor("ComboBox.disabledForeground", c.getLocale()));
-      c.setBackground(UIManager.getColor("ComboBox.disabledBackground", c.getLocale()));
-    }
-
-    // Fix for 4238829: should lay out the JPanel.
-    boolean shouldValidate = false;
-    if (c instanceof JPanel) {
-      shouldValidate = true;
-    }
-
-    int x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height;
-    if (padding != null) {
-      x = bounds.x + padding.left;
-      y = bounds.y + padding.top;
-      w = bounds.width - (padding.left + padding.right);
-      h = bounds.height - (padding.top + padding.bottom);
-    }
-
-    currentValuePane.paintComponent(g, c, comboBox, x, y, w, h, shouldValidate);
-  }
-
-  @Override
-  public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
-    Color t = g.getColor();
-    if (comboBox.isEnabled()) {
-      g.setColor(UIManager.getColor("ComboBox.background", comboBox.getLocale()));
-    }
-    else {
-      g.setColor(UIManager.getColor("ComboBox.disabledBackground", comboBox.getLocale()));
-    }
-    g.fillRect(0, 0, comboBox.getWidth(), comboBox.getHeight());
-    g.setColor(t);
-  }
-
-  @Override
-  protected void setButtonBorder() {
-  }
-
-  private class ArrowButton extends NoFocusButton {
-    private static final long serialVersionUID = -2765755741007665606L;
-
-    public ArrowButton() {
-      super();
-      setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-    }
-
-    @Override
-    public void paint(Graphics g) {
-      int w = getWidth();
-      int h = getHeight();
-
-      g.setColor(AbstractLookAndFeel.getButtonForegroundColor());
-
-      int[] xPoints = { w / 2 + 5, w / 2 - 5, w / 2 };
-      int[] yPoints = { h / 2 - 1, h / 2 - 1, h / 2 + 4 };
-      g.fillPolygon(xPoints, yPoints, xPoints.length);
-    }
   }
 }

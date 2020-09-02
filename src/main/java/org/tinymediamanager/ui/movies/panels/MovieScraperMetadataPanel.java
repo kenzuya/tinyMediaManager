@@ -29,7 +29,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -47,7 +46,7 @@ public class MovieScraperMetadataPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle                BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle                BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings                              settings         = MovieModuleManager.SETTINGS;
   private Map<MovieScraperMetadataConfig, JCheckBox> checkboxes;

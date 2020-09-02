@@ -566,12 +566,12 @@ public class MovieArtworkHelper {
     else if (movie.isDisc()) {
       // all *DISC namings should resolve in DISC
       if (MovieModuleManager.SETTINGS.getDiscartFilenames().contains(MovieDiscartNaming.FILENAME_DISC)
-              || MovieModuleManager.SETTINGS.getDiscartFilenames().contains(MovieDiscartNaming.DISC)) {
+          || MovieModuleManager.SETTINGS.getDiscartFilenames().contains(MovieDiscartNaming.DISC)) {
         discartnames.add(MovieDiscartNaming.DISC);
       }
       // all *DISCART namings should resolve in DISCART
       if (MovieModuleManager.SETTINGS.getDiscartFilenames().contains(MovieDiscartNaming.FILENAME_DISCART)
-              || MovieModuleManager.SETTINGS.getDiscartFilenames().contains(MovieDiscartNaming.DISCART)) {
+          || MovieModuleManager.SETTINGS.getDiscartFilenames().contains(MovieDiscartNaming.DISCART)) {
         discartnames.add(MovieDiscartNaming.DISCART);
       }
     }

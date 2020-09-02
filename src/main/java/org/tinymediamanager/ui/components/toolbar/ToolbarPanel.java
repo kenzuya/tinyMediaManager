@@ -30,6 +30,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.UIManager;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
@@ -43,9 +44,9 @@ import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -53,6 +54,7 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.AboutAction;
 import org.tinymediamanager.ui.actions.BugReportAction;
+import org.tinymediamanager.ui.actions.CheckForUpdateAction;
 import org.tinymediamanager.ui.actions.ClearHttpCacheAction;
 import org.tinymediamanager.ui.actions.ClearImageCacheAction;
 import org.tinymediamanager.ui.actions.CreateDesktopFileAction;
@@ -62,10 +64,10 @@ import org.tinymediamanager.ui.actions.FaqAction;
 import org.tinymediamanager.ui.actions.FeedbackAction;
 import org.tinymediamanager.ui.actions.ForumAction;
 import org.tinymediamanager.ui.actions.HomepageAction;
-import org.tinymediamanager.ui.actions.LaunchUpdaterAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
+import org.tinymediamanager.ui.actions.UnlockAction;
 import org.tinymediamanager.ui.dialogs.FullLogDialog;
 import org.tinymediamanager.ui.dialogs.LogDialog;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
@@ -80,46 +82,49 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ToolbarPanel extends JPanel {
   private static final long           serialVersionUID = 7969400170662870244L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class);            // $NON-NLS-1$
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
   private ToolbarButton               btnSearch;
   private ToolbarButton               btnEdit;
   private ToolbarButton               btnUpdate;
   private ToolbarButton               btnRename;
+  private ToolbarButton               btnUnlock;
 
   private ToolbarMenu                 menuUpdate;
   private ToolbarMenu                 menuSearch;
   private ToolbarMenu                 menuEdit;
   private ToolbarMenu                 menuRename;
 
+  private ToolbarLabel                lblUnlock;
+
   public ToolbarPanel() {
-    putClientProperty("class", "toolbarPanel");
     setLayout(new BorderLayout());
 
     JPanel panelCenter = new JPanel();
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
-    panelCenter.setLayout(new MigLayout("insets 0", "[5lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][5lp:n]", "[]1lp[]5lp"));
+    panelCenter
+        .setLayout(new MigLayout("insets 0, hidemode 3", "[15lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][][15lp:n]", "[50lp]1lp[]5lp"));
 
-    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,alignx center");
+    panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,center");
 
     btnUpdate = new ToolbarButton(IconManager.TOOLBAR_REFRESH, IconManager.TOOLBAR_REFRESH_HOVER);
-    panelCenter.add(btnUpdate, "cell 2 0,alignx center");
+    panelCenter.add(btnUpdate, "cell 2 0,grow, center");
 
     btnSearch = new ToolbarButton(IconManager.TOOLBAR_SEARCH, IconManager.TOOLBAR_SEARCH_HOVER);
-    panelCenter.add(btnSearch, "cell 3 0,alignx center");
+    panelCenter.add(btnSearch, "cell 3 0,grow, center");
 
     btnEdit = new ToolbarButton(IconManager.TOOLBAR_EDIT, IconManager.TOOLBAR_EDIT_HOVER);
-    panelCenter.add(btnEdit, "cell 4 0,alignx center");
+    panelCenter.add(btnEdit, "cell 4 0,grow, center");
 
     btnRename = new ToolbarButton(IconManager.TOOLBAR_RENAME, IconManager.TOOLBAR_RENAME_HOVER);
-    panelCenter.add(btnRename, "cell 5 0,alignx center");
+    panelCenter.add(btnRename, "cell 5 0,grow, center");
 
     JButton btnSettings = new ToolbarButton(IconManager.TOOLBAR_SETTINGS, IconManager.TOOLBAR_SETTINGS_HOVER);
     Action settingsAction = new SettingsAction();
     btnSettings.setAction(settingsAction);
-    panelCenter.add(btnSettings, "cell 8 0,alignx center,aligny bottom");
+    panelCenter.add(btnSettings, "cell 8 0,growx, alignx center,aligny bottom");
 
     JPopupMenu toolsPopupMenu = buildToolsMenu();
     JButton btnTools = new ToolbarButton(IconManager.TOOLBAR_TOOLS, IconManager.TOOLBAR_TOOLS_HOVER, toolsPopupMenu);
@@ -128,6 +133,11 @@ public class ToolbarPanel extends JPanel {
     JPopupMenu infoPopupMenu = buildInfoMenu();
     JButton btnInfo = new ToolbarButton(IconManager.TOOLBAR_ABOUT, IconManager.TOOLBAR_ABOUT_HOVER, infoPopupMenu);
     panelCenter.add(btnInfo, "cell 10 0,alignx center,aligny bottom");
+
+    btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UNLOCK, IconManager.TOOLBAR_UNLOCK_HOVER);
+    Action unlockAction = new UnlockAction();
+    btnUnlock.setAction(unlockAction);
+    panelCenter.add(btnUnlock, "cell 11 0, alignx center,aligny bottom, gap 10lp");
 
     menuUpdate = new ToolbarMenu(BUNDLE.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center");
@@ -150,10 +160,30 @@ public class ToolbarPanel extends JPanel {
     ToolbarMenu menuHelp = new ToolbarMenu(BUNDLE.getString("Toolbar.help"), infoPopupMenu);
     panelCenter.add(menuHelp, "cell 10 1,alignx center");
 
-    JPanel panelEast = new JPanel();
-    add(panelEast, BorderLayout.EAST);
-    panelEast.setOpaque(false);
-    panelEast.setLayout(new MigLayout("insets 0", "[]", "[grow]"));
+    lblUnlock = new ToolbarLabel(BUNDLE.getString("Toolbar.unlock"), unlockAction);
+    lblUnlock.setToolTipText(BUNDLE.getString("Toolbar.unlock.desc"));
+    panelCenter.add(lblUnlock, "cell 11 1,alignx center, gap 10lp");
+
+    License.getInstance().addEventListener(this::showHideUnlock);
+
+    showHideUnlock();
+  }
+
+  private void showHideUnlock() {
+    if (License.getInstance().isValidLicense()) {
+      btnUnlock.setVisible(false);
+      lblUnlock.setVisible(false);
+    }
+    else {
+      btnUnlock.setVisible(true);
+      lblUnlock.setVisible(true);
+    }
+  }
+
+  @Override
+  public void updateUI() {
+    super.updateUI();
+    setBackground(UIManager.getColor("Tmm.toolbar.background"));
   }
 
   public void setUIModule(ITmmUIModule module) {
@@ -239,7 +269,7 @@ public class ToolbarPanel extends JPanel {
 
     if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) != true) {
       menu.addSeparator();
-      menu.add(new LaunchUpdaterAction());
+      menu.add(new CheckForUpdateAction());
     }
 
     // debug menu
@@ -324,6 +354,7 @@ public class ToolbarPanel extends JPanel {
     menu.add(new FeedbackAction());
 
     menu.addSeparator();
+    menu.add(new UnlockAction());
     menu.add(new HomepageAction());
     menu.add(new AboutAction());
 

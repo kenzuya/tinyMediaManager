@@ -37,22 +37,20 @@ public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilt
     if (node instanceof TvShowTreeDataProvider.AbstractTvShowTreeNode) {
       TvShowTreeDataProvider.AbstractTvShowTreeNode treeNode = (TvShowTreeDataProvider.AbstractTvShowTreeNode) node;
 
-      Pattern pattern = Pattern.compile("(?i)" + Pattern.quote(filterText));
-
       // first: filter on the node
-      Matcher matcher = pattern.matcher(treeNode.toString());
+      Matcher matcher = filterPattern.matcher(treeNode.toString());
       if (matcher.find()) {
         return true;
       }
 
       // second: filter on the orignal title
-      matcher = pattern.matcher(treeNode.getTitle());
+      matcher = filterPattern.matcher(treeNode.getTitle());
       if (matcher.find()) {
         return true;
       }
 
       // third: filter on the original title
-      matcher = pattern.matcher(treeNode.getOriginalTitle());
+      matcher = filterPattern.matcher(treeNode.getOriginalTitle());
       if (matcher.find()) {
         return true;
       }
@@ -65,7 +63,7 @@ public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilt
       }
 
       // third: check the parent(s)
-      if (checkParent(node.getDataProvider().getParent(node), pattern)) {
+      if (checkParent(node.getDataProvider().getParent(node), filterPattern)) {
         return true;
       }
 

@@ -46,10 +46,10 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -108,8 +108,19 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   @Override
   public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getMetadata(): {}", options);
+
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
-    String langu = options.getLanguage().getLanguage();
+    String language = options.getLanguage().getLanguage();
 
     // do we have an id from the options?
     String id = options.getIdAsString(providerInfo.getId());
@@ -124,7 +135,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
 
     try {
       trackConnections();
-      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&client=tinymediamanager&clientver=2&protover=1&aid=" + id, 1,
+      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1,
           TimeUnit.DAYS);
       try (InputStream is = url.getInputStream()) {
         doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
@@ -163,7 +174,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
       }
 
       if ("titles".equalsIgnoreCase(e.tagName())) {
-        parseTitle(md, langu, e);
+        parseTitle(md, language, e);
       }
 
       if ("description".equalsIgnoreCase(e.tagName())) {
@@ -213,7 +224,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     }
 
     // get full episode listing
-    List<MediaMetadata> episodes = getEpisodeList(options);
+    List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
 
     // filter out the wanted episode
     for (MediaMetadata episode : episodes) {
@@ -291,12 +302,19 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   private void parseTitle(MediaMetadata md, String langu, Element e) {
     String titleEN = "";
     String titleScraperLangu = "";
-    String titleFirst = "";
+    String titleMain = "";
+
     for (Element title : e.children()) {
-      // store first title if neither the requested one nor the english one
-      // available
-      if (StringUtils.isBlank(titleFirst)) {
-        titleFirst = title.text();
+      // store first title if neither the requested one nor the english one available
+
+      // do not work further with short titles/synonyms
+      if ("short".equals(title.attr("type")) || "synonym".equals(title.attr("type"))) {
+        continue;
+      }
+
+      // main title aka original title
+      if ("main".equalsIgnoreCase(title.attr("type"))) {
+        titleMain = title.text();
       }
 
       // store the english one for fallback
@@ -311,6 +329,10 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
 
     }
 
+    if (StringUtils.isNotBlank(titleMain)) {
+      md.setOriginalTitle(titleMain);
+    }
+
     if (StringUtils.isNotBlank(titleScraperLangu)) {
       md.setTitle(titleScraperLangu);
     }
@@ -318,7 +340,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
       md.setTitle(titleEN);
     }
     else {
-      md.setTitle(titleFirst);
+      md.setTitle(titleMain);
     }
   }
 
@@ -465,17 +487,18 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
 
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    return _getEpisodeList(options);
-  }
-
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    return _getEpisodeList(options);
-  }
-
-  private List<MediaMetadata> _getEpisodeList(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     List<MediaMetadata> episodes = new ArrayList<>();
-    String langu = options.getLanguage().getLanguage();
+    String language = options.getLanguage().getLanguage();
+
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
 
     // do we have an id from the options?
     String id = options.getIdAsString(providerInfo.getId());
@@ -488,7 +511,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
 
     try {
       trackConnections();
-      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&client=tinymediamanager&clientver=2&protover=1&aid=" + id, 1,
+      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1,
           TimeUnit.DAYS);
       try (InputStream is = url.getInputStream()) {
         doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
@@ -510,7 +533,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     // filter out the episode
     for (Episode ep : parseEpisodes(doc)) {
       MediaMetadata md = new MediaMetadata(getProviderInfo().getId());
-      md.setTitle(ep.titles.get(langu));
+      md.setTitle(ep.titles.get(language));
       md.setSeasonNumber(ep.season);
       md.setEpisodeNumber(ep.episode);
 
@@ -613,7 +636,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
     String id = "";
 
     // check if there is a metadata containing an id
-    if (options.getMetadata() != null) {
+    if (options.getMetadata() != null && getId().equals(options.getMetadata().getProviderId())) {
       id = (String) options.getMetadata().getId(providerInfo.getId());
     }
 

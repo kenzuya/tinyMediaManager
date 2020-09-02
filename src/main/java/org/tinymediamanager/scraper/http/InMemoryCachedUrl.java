@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -40,7 +41,7 @@ import okhttp3.Headers;
  * @author Manuel Laggner
  */
 public class InMemoryCachedUrl extends Url {
-  public static final CacheMap<String, CachedRequest> CACHE = new CacheMap<>(60, 10);
+  public static final CacheMap<CachedRequest, CachedResponse> CACHE = new CacheMap<>(60, 10);
 
   public InMemoryCachedUrl(String url) throws MalformedURLException {
     this.url = url;
@@ -59,8 +60,10 @@ public class InMemoryCachedUrl extends Url {
 
   @Override
   public InputStream getInputStream() throws IOException, InterruptedException {
-    CachedRequest cachedRequest = CACHE.get(url);
-    if (cachedRequest == null) {
+    CachedRequest cachedRequest = new CachedRequest(url, headersRequest);
+
+    CachedResponse cachedResponse = CACHE.get(cachedRequest);
+    if (cachedResponse == null) {
       // need to fetch it with a real request
       Url url = new Url(this.url);
       url.headersRequest = headersRequest;
@@ -75,23 +78,23 @@ public class InMemoryCachedUrl extends Url {
         gzip.finish(); // finish writing of the gzip output stream
 
         // and now fill the CachedRequest object with the result
-        cachedRequest = new CachedRequest(url, outputStream.toByteArray());
+        cachedResponse = new CachedResponse(url, outputStream.toByteArray());
         if (url.responseCode >= 200 && url.responseCode < 300) {
-          CACHE.put(this.url, cachedRequest);
+          CACHE.put(cachedRequest, cachedResponse);
         }
       }
     }
 
-    responseCode = cachedRequest.responseCode;
-    responseMessage = cachedRequest.responseMessage;
-    responseCharset = cachedRequest.responseCharset;
-    responseContentType = cachedRequest.responseContentType;
-    responseContentLength = cachedRequest.responseContentLength;
+    responseCode = cachedResponse.responseCode;
+    responseMessage = cachedResponse.responseMessage;
+    responseCharset = cachedResponse.responseCharset;
+    responseContentType = cachedResponse.responseContentType;
+    responseContentLength = cachedResponse.responseContentLength;
 
-    headersResponse = cachedRequest.headersResponse;
-    headersRequest.addAll(cachedRequest.headersRequest);
+    headersResponse = cachedResponse.headersResponse;
+    headersRequest.addAll(cachedResponse.headersRequest);
 
-    return new GZIPInputStream(new ByteArrayInputStream(cachedRequest.content));
+    return new GZIPInputStream(new ByteArrayInputStream(cachedResponse.content));
   }
 
   public static void clearCache() {
@@ -99,41 +102,56 @@ public class InMemoryCachedUrl extends Url {
   }
 
   /**
-   * Is the url already cached?
-   *
-   * @param url
-   *          the url to check
-   * @return true/false
-   */
-  public static boolean isCached(String url) {
-    return CACHE.get(url) != null;
-  }
-
-  /**
-   * Is the url already cached?
+   * is this url/header combination already cached?
    *
    * @return true/false
    */
   public boolean isCached() {
-    return isCached(url);
+    CachedRequest cachedRequest = new CachedRequest(url, headersRequest);
+    return CACHE.get(cachedRequest) != null;
+  }
+
+  private static class CachedRequest {
+    final String                     url;
+    final List<Pair<String, String>> headersRequest;
+
+    public CachedRequest(String url, List<Pair<String, String>> headersRequest) {
+      this.url = url;
+      this.headersRequest = headersRequest;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (o == null || getClass() != o.getClass())
+        return false;
+      CachedRequest that = (CachedRequest) o;
+      return url.equals(that.url) && headersRequest.equals(that.headersRequest);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(url, headersRequest);
+    }
   }
 
   /**
    * A inner class for representing cached entries
    */
-  private static class CachedRequest {
-    byte[]                     content;
+  private static class CachedResponse {
+    final byte[]                     content;
 
-    int                        responseCode          = 0;
-    String                     responseMessage       = "";
-    Charset                    responseCharset       = null;
-    String                     responseContentType   = "";
-    long                       responseContentLength = -1;
+    final int                        responseCode;
+    final String                     responseMessage;
+    final Charset                    responseCharset;
+    final String                     responseContentType;
+    final long                       responseContentLength;
 
-    Headers                    headersResponse       = null;
-    List<Pair<String, String>> headersRequest        = new ArrayList<>();
+    final Headers                    headersResponse;
+    final List<Pair<String, String>> headersRequest = new ArrayList<>();
 
-    CachedRequest(Url url, byte[] content) {
+    CachedResponse(Url url, byte[] content) {
       this.content = content;
 
       this.responseCode = url.responseCode;

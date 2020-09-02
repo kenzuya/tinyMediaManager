@@ -1576,7 +1576,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       if (firstMediaFile.isDVDFile()) {
         baseName = "VIDEO_TS.nfo";
       }
-      if (firstMediaFile.isHdDVDFile()) {
+      if (firstMediaFile.isHDDVDFile()) {
         baseName = "HVDVD_TS.nfo";
       }
     }
@@ -1677,5 +1677,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (mediaFile.getType() == MediaFileType.SUBTITLE) {
       firePropertyChange("hasSubtitle", true, false);
     }
+  }
+
+  public boolean isUncategorized() {
+    if (episode == -1 || season == -1) {
+      return true;
+    }
+    return false;
   }
 }

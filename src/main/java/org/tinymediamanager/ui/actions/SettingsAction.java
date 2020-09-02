@@ -20,7 +20,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JDialog;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.dialogs.SettingsDialog;
 
 /**
@@ -30,7 +29,7 @@ import org.tinymediamanager.ui.dialogs.SettingsDialog;
  */
 public class SettingsAction extends TmmAction {
   private static final long           serialVersionUID = 8930602755330446751L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public SettingsAction() {
     putValue(NAME, BUNDLE.getString("tmm.settings"));

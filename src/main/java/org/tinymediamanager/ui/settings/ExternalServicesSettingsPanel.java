@@ -27,12 +27,11 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.thirdparty.trakttv.TraktTv;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -45,7 +44,7 @@ import net.miginfocom.swing.MigLayout;
 class ExternalServicesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 7266564870819511988L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private JButton                     btnGetTraktPin;
   private JButton                     btnTestTraktConnection;
   private JLabel                      lblTraktStatus;
@@ -117,10 +116,12 @@ class ExternalServicesSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[]"));
     {
-      JPanel panelTrakt = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelTrakt = new JPanel();
+      panelTrakt.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblTraktT = new TmmLabel(BUNDLE.getString("Settings.trakt"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelTrakt, lblTraktT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#trakttv"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         lblTraktStatus = new JLabel("");

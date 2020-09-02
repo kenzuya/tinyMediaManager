@@ -34,7 +34,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.SwingPropertyChangeSupport;
 import javax.swing.text.JTextComponent;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.components.TriStateCheckBox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Manuel Laggner
  */
 public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
-  protected static final ResourceBundle BUNDLE                = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE                = ResourceBundle.getBundle("messages");
   /**
    * an object mapper which can be used to transform filters via/to JSON
    */

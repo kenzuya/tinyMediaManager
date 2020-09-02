@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.thetvdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.ALL;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
@@ -48,10 +49,10 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -63,7 +64,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
-import org.tinymediamanager.scraper.util.ApiKey;
+import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -94,23 +95,29 @@ import retrofit2.Response;
  *
  * @author Manuel Laggner
  */
-public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShowArtworkProvider {
-  public static final String                                  ID                  = "tvdb";
+public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShowArtworkProvider, ITvShowTvdbMetadataProvider {
+  public static final String                                 ID                     = "tvdb";
 
-  private static final Logger                                 LOGGER              = LoggerFactory.getLogger(TheTvDbMetadataProvider.class);
-  private static final String                                 ARTWORK_URL         = "https://artworks.thetvdb.com/banners/";
-  private static final String                                 TMM_API_KEY         = ApiKey
-      .decryptApikey("7bHHg4k0XhRERM8xd3l+ElhMUXOA5Ou4vQUEzYLGHt8=");
-  private static final String                                 FALLBACK_LANGUAGE   = "fallbackLanguage";
-  private static final CacheMap<Integer, List<MediaMetadata>> episodeListCacheMap = new CacheMap<>(60, 10);
-  private static final MediaProviderInfo                      providerInfo        = createMediaProviderInfo();
+  private static final Logger                                LOGGER                 = LoggerFactory.getLogger(TheTvDbMetadataProvider.class);
+  private static final String                                ARTWORK_URL            = "https://artworks.thetvdb.com/banners/";
+  private static final String                                FALLBACK_LANGUAGE      = "fallbackLanguage";
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
+  private static final MediaProviderInfo                     PROVIDER_INFO          = createMediaProviderInfo();
 
-  private TheTvdb                                             tvdb;
-  private List<Language>                                      tvdbLanguages;
+  private TheTvdb                                            tvdb;
+  private List<Language>                                     tvdbLanguages;
 
   private synchronized void initAPI() throws ScrapeException {
-    String apiKey = TMM_API_KEY;
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String tmmApiKey;
+    String apiKey;
+    try {
+      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
+    String userApiKey = PROVIDER_INFO.getConfig().getValue("apiKey");
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey) && tvdb != null && !userApiKey.equals(tvdb.apiKey())) {
@@ -119,9 +126,9 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     }
 
     // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && tvdb != null && !TMM_API_KEY.equals(tvdb.apiKey())) {
+    if (StringUtils.isBlank(userApiKey) && tvdb != null && !tmmApiKey.equals(tvdb.apiKey())) {
       tvdb = null;
-      apiKey = TMM_API_KEY;
+      apiKey = tmmApiKey;
     }
 
     if (tvdb == null) {
@@ -163,7 +170,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "thetvdb.com",
         "<html><h3>The TVDB</h3><br />An open database for television fans. This scraper is able to scrape TV series metadata and artwork</html>",
-        TheTvDbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/thetvdb_com.png"));
+        TheTvDbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/thetvdb_com.svg"));
 
     providerInfo.getConfig().addText("apiKey", "", true);
 
@@ -179,7 +186,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
 
   @Override
   public MediaProviderInfo getProviderInfo() {
-    return providerInfo;
+    return PROVIDER_INFO;
   }
 
   @Override
@@ -193,17 +200,17 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     // lazy initialization of the api
     initAPI();
 
-    MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(PROVIDER_INFO.getId());
 
     // do we have an id from the options?
-    Integer id = options.getIdAsInteger(providerInfo.getId());
+    Integer id = options.getIdAsInteger(PROVIDER_INFO.getId());
     if (id == null || id == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(providerInfo.getId());
+      throw new MissingIdException(PROVIDER_INFO.getId());
     }
 
     String language = options.getLanguage().getLanguage();
-    String fallbackLanguage = MediaLanguages.get(providerInfo.getConfig().getValue(FALLBACK_LANGUAGE)).getLanguage(); // just 2 char
+    String fallbackLanguage = MediaLanguages.get(PROVIDER_INFO.getConfig().getValue(FALLBACK_LANGUAGE)).getLanguage(); // just 2 char
 
     Series show = null;
     try {
@@ -224,9 +231,9 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     }
 
     // populate metadata
-    md.setId(providerInfo.getId(), show.id);
+    md.setId(PROVIDER_INFO.getId(), show.id);
     md.setTitle(show.seriesName);
-    if (StringUtils.isNotBlank(show.imdbId)) {
+    if (MetadataUtil.isValidImdbId(show.imdbId)) {
       md.setId(MediaMetadata.IMDB, show.imdbId);
     }
     if (StringUtils.isNotBlank(show.zap2itId)) {
@@ -292,7 +299,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
 
     for (Actor actor : actors) {
       Person member = new Person(ACTOR);
-      member.setId(providerInfo.getId(), actor.id);
+      member.setId(PROVIDER_INFO.getId(), actor.id);
       member.setName(actor.name);
       member.setRole(actor.role);
       if (StringUtils.isNotBlank(actor.image)) {
@@ -322,12 +329,14 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     boolean useDvdOrder = false;
 
     // do we have an id from the options?
-    Integer showId = options.getIdAsInteger(providerInfo.getId());
+    int showId = options.createTvShowSearchAndScrapeOptions().getIdAsIntOrDefault(PROVIDER_INFO.getId(), 0);
 
-    if (showId == null || showId == 0) {
+    if (showId == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(providerInfo.getId());
+      throw new MissingIdException(PROVIDER_INFO.getId());
     }
+
+    int episodeTvdbId = options.getIdAsIntOrDefault(TVDB, 0);
 
     // get episode number and season number
     int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
@@ -336,29 +345,33 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     if (seasonNr == -1 || episodeNr == -1) {
       seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR_DVD, -1);
       episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR_DVD, -1);
-      useDvdOrder = true;
+
+      if (seasonNr != -1 && episodeNr != -1) {
+        useDvdOrder = true;
+      }
     }
 
     Date releaseDate = null;
     if (options.getMetadata() != null && options.getMetadata().getReleaseDate() != null) {
       releaseDate = options.getMetadata().getReleaseDate();
     }
-    if (releaseDate == null && (seasonNr == -1 || episodeNr == -1)) {
+    if (releaseDate == null && (seasonNr == -1 || episodeNr == -1) && episodeTvdbId == 0) {
       LOGGER.warn("no aired date/season number/episode number found");
       throw new MissingIdException(MediaMetadata.EPISODE_NR, MediaMetadata.SEASON_NR);
     }
 
     // get the episode via the episodesList() (is cached and contains all data with 1 call per 100 eps)
-    List<MediaMetadata> episodes = episodeListCacheMap.get(showId);
-    if (episodes == null) {
-      episodes = getEpisodeList(options);
-    }
+    List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
 
     // now search for the right episode in this list
     MediaMetadata foundEpisode = null;
     // first run - search with EP number
     for (MediaMetadata episode : episodes) {
-      if (useDvdOrder && episode.getDvdSeasonNumber() == seasonNr && episode.getDvdEpisodeNumber() == episodeNr) {
+      if (episodeTvdbId == (Integer) episode.getId(TVDB)) {
+        foundEpisode = episode;
+        break;
+      }
+      else if (useDvdOrder && episode.getDvdSeasonNumber() == seasonNr && episode.getDvdEpisodeNumber() == episodeNr) {
         foundEpisode = episode;
         break;
       }
@@ -403,13 +416,13 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       imdbId = searchString; // search via IMDBid only
       searchString = null; // by setting empty searchterm
     }
-    if (!StringUtils.isEmpty(imdbId)) {
+    if (MetadataUtil.isValidImdbId(imdbId)) {
       searchString = null; // null-out search string, when searching with IMDB, else 405
     }
 
-    int tvdbId = options.getIdAsInt(providerInfo.getId());
+    int tvdbId = options.getIdAsInt(PROVIDER_INFO.getId());
     String language = options.getLanguage().getLanguage();
-    String fallbackLanguage = MediaLanguages.get(providerInfo.getConfig().getValue(FALLBACK_LANGUAGE)).getLanguage(); // just 2 char
+    String fallbackLanguage = MediaLanguages.get(PROVIDER_INFO.getConfig().getValue(FALLBACK_LANGUAGE)).getLanguage(); // just 2 char
 
     List<Series> series = new ArrayList<>();
 
@@ -482,7 +495,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       }
 
       // build up a new result
-      MediaSearchResult result = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
+      MediaSearchResult result = new MediaSearchResult(PROVIDER_INFO.getId(), options.getMediaType());
       result.setId(show.id.toString());
       result.setTitle(show.seriesName);
       result.setOverview(show.overview);
@@ -573,11 +586,11 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     List<MediaArtwork> artwork = new ArrayList<>();
 
     // do we have an id from the options?
-    Integer id = options.getIdAsInteger(providerInfo.getId());
+    Integer id = options.getIdAsInteger(PROVIDER_INFO.getId());
 
     if (id == null || id == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(providerInfo.getId());
+      throw new MissingIdException(PROVIDER_INFO.getId());
     }
 
     // get artwork from thetvdb
@@ -627,15 +640,15 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       // set artwork type
       switch (image.keyType) {
         case "fanart":
-          ma = new MediaArtwork(providerInfo.getId(), BACKGROUND);
+          ma = new MediaArtwork(PROVIDER_INFO.getId(), BACKGROUND);
           break;
 
         case "poster":
-          ma = new MediaArtwork(providerInfo.getId(), POSTER);
+          ma = new MediaArtwork(PROVIDER_INFO.getId(), POSTER);
           break;
 
         case "season":
-          ma = new MediaArtwork(providerInfo.getId(), SEASON_POSTER);
+          ma = new MediaArtwork(PROVIDER_INFO.getId(), SEASON_POSTER);
           try {
             ma.setSeason(Integer.parseInt(image.subKey));
           }
@@ -645,7 +658,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
           break;
 
         case "seasonwide":
-          ma = new MediaArtwork(providerInfo.getId(), SEASON_BANNER);
+          ma = new MediaArtwork(PROVIDER_INFO.getId(), SEASON_BANNER);
           try {
             ma.setSeason(Integer.parseInt(image.subKey));
           }
@@ -655,7 +668,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
           break;
 
         case "series":
-          ma = new MediaArtwork(providerInfo.getId(), BANNER);
+          ma = new MediaArtwork(PROVIDER_INFO.getId(), BANNER);
           break;
 
         default:
@@ -741,33 +754,30 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     LOGGER.debug("getEpisodeList(): {}", options);
-    return _getEpisodeList(options);
-  }
 
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    LOGGER.debug("getEpisodeList(): {}", options);
-    return _getEpisodeList(options);
-  }
-
-  private List<MediaMetadata> _getEpisodeList(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     // lazy initialization of the api
     initAPI();
 
-    LOGGER.debug("getting episode list: {}", options);
-    List<MediaMetadata> episodes = new ArrayList<>();
-
     // do we have an show id from the options?
-    Integer showId = options.getIdAsInteger(providerInfo.getId());
+    Integer showId = options.getIdAsInteger(PROVIDER_INFO.getId());
     if (showId == null || showId == 0) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(providerInfo.getId());
+      throw new MissingIdException(PROVIDER_INFO.getId());
     }
+
+    // look in the cache map if there is an entry
+    List<MediaMetadata> episodes = EPISODE_LIST_CACHE_MAP.get(showId + "_" + options.getLanguage().getLanguage());
+    if (ListUtils.isNotEmpty(episodes)) {
+      // cache hit!
+      return episodes;
+    }
+
+    episodes = new ArrayList<>();
 
     List<Episode> eps = new ArrayList<>();
     try {
       String language = options.getLanguage().getLanguage();
-      String fallbackLanguage = MediaLanguages.get(providerInfo.getConfig().getValue(FALLBACK_LANGUAGE)).getLanguage();
+      String fallbackLanguage = MediaLanguages.get(PROVIDER_INFO.getConfig().getValue(FALLBACK_LANGUAGE)).getLanguage();
 
       // 100 results per page
       int counter = 1;
@@ -802,9 +812,12 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     }
 
     for (Episode ep : eps) {
-      MediaMetadata episode = new MediaMetadata(providerInfo.getId());
+      MediaMetadata episode = new MediaMetadata(PROVIDER_INFO.getId());
 
-      episode.setId(providerInfo.getId(), ep.id);
+      episode.setId(PROVIDER_INFO.getId(), ep.id);
+      if (MetadataUtil.isValidImdbId(ep.imdbId)) {
+        episode.setId(MediaMetadata.IMDB, ep.imdbId);
+      }
       episode.setSeasonNumber(TvUtils.getSeasonNumber(ep.airedSeason));
       episode.setEpisodeNumber(TvUtils.getEpisodeNumber(ep.airedEpisodeNumber));
       episode.setDvdSeasonNumber(TvUtils.getSeasonNumber(ep.dvdSeason));
@@ -868,7 +881,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
 
       // Thumb
       if (StringUtils.isNotBlank(ep.filename)) {
-        MediaArtwork ma = new MediaArtwork(providerInfo.getId(), MediaArtworkType.THUMB);
+        MediaArtwork ma = new MediaArtwork(PROVIDER_INFO.getId(), MediaArtworkType.THUMB);
         ma.setPreviewUrl(ARTWORK_URL + ep.filename);
         ma.setDefaultUrl(ARTWORK_URL + ep.filename);
         episode.addMediaArt(ma);
@@ -878,7 +891,9 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     }
 
     // cache for further fast access
-    episodeListCacheMap.put(showId, episodes);
+    if (!episodes.isEmpty()) {
+      EPISODE_LIST_CACHE_MAP.put(showId + "_" + options.getLanguage().getLanguage(), episodes);
+    }
 
     return episodes;
   }
@@ -947,12 +962,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       }
 
       // swap arg0 and arg1 to sort reverse
-      int result = Double.compare(arg1.ratingsInfo.average, arg0.ratingsInfo.average);
-
-      // equal rating; sort by votes
-      if (result == 0) {
-        result = Integer.compare(arg1.ratingsInfo.count, arg0.ratingsInfo.count);
-      }
+      int result = Integer.compare(arg1.ratingsInfo.count, arg0.ratingsInfo.count);
 
       // if the result is still 0, we need to compare by ID (returning a zero here will treat it as a duplicate and remove the previous one)
       if (result == 0) {

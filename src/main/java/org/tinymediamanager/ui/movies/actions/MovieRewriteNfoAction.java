@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
@@ -38,7 +37,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRewriteNfoAction extends TmmAction {
   private static final long           serialVersionUID = 2866581962767395824L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieRewriteNfoAction() {
     putValue(NAME, BUNDLE.getString("movie.rewritenfo"));

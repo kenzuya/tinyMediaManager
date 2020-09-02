@@ -21,9 +21,12 @@ import static org.junit.Assert.fail;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -34,7 +37,12 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
-public class ITAniDBMetadataProviderTest {
+public class ITAniDBMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @Test
   public void testSearch() {
@@ -70,6 +78,7 @@ public class ITAniDBMetadataProviderTest {
       assertEquals("2006-03-25", sdf.format(md.getReleaseDate()));
       assertEquals(2006, md.getYear());
       assertEquals("Spider Riders", md.getTitle());
+      assertEquals("Spider Riders: Oracle no Yuusha-tachi", md.getOriginalTitle());
       assertEquals(
               "In this Earth, there exists unknown underground world, the Inner World. In the world, there are braves who fight with large spiders, and they are called Spider Riders. According to his grandfather`s diary, a boy, Hunter Steel is traveling around. Meanwhile he happens to enter the Inner World from a pyramid. There, the war between the insect squad that aims at conquest of the Inner World and Spider Riders continues. Oracle, the fairly of the Inner World, summons Hunter because he thinks Hunter will be the messiah of the world. However, the powers of Oracle are sealed by Mantid who is the rule of the Insecter. For the peace of the Inner World, he has to find four sealed keys of Oracle to retrieve Oracle`s power. Hunter asks Spider Shadow, which is a big spider chosen by Oracle, to become a member of Spider Riders to fight against enemies. Source: AnimeNfo Note: The first three episodes premiered in North America with a 2 month hiatus between episodes 3 and 4, after which the series continued without a break between seasons. Episodes 4-26 aired first in Japan.",
               md.getPlot());
@@ -105,7 +114,7 @@ public class ITAniDBMetadataProviderTest {
     ITvShowMetadataProvider mp = new AniDBMetadataProvider();
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.en);
-    options.setId("anidb", "4242");
+    options.setTvShowIds(Collections.singletonMap("anidb", "4242"));
     options.setId("episodeNr", "1");
     options.setId("seasonNr", "1");
 

@@ -18,7 +18,8 @@ package org.tinymediamanager.ui;
 
 import java.awt.Canvas;
 import java.awt.FontMetrics;
-import java.awt.image.BufferedImage;
+import java.net.URI;
+import java.net.URL;
 import java.util.ResourceBundle;
 
 import javax.swing.Icon;
@@ -26,22 +27,21 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.imgscalr.Scalr;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
 
 /**
  * The class {@link ScraperInTable} is used to display scrapers in a table
  */
 public class ScraperInTable extends AbstractModelObject {
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   protected MediaScraper                scraper;
-  protected Icon                        scraperLogo;
+  protected ImageIcon                   scraperLogo;
   protected boolean                     active;
 
   public ScraperInTable(MediaScraper scraper) {
@@ -51,32 +51,32 @@ public class ScraperInTable extends AbstractModelObject {
       scraperLogo = new ImageIcon();
     }
     else {
-      scraperLogo = getScaledIcon(new ImageIcon(scraper.getMediaProvider().getProviderInfo().getProviderLogo()));
+      scraperLogo = getIcon(scraper.getMediaProvider().getProviderInfo().getProviderLogo());
     }
   }
 
-  protected ImageIcon getScaledIcon(ImageIcon original) {
+  protected ImageIcon getIcon(URL url) {
     try {
-      Canvas c = new Canvas();
-      FontMetrics fm = c.getFontMetrics(new JPanel().getFont());
+      URI uri = url.toURI();
 
-      int height = (int) (fm.getHeight() * 2f);
-      int width = original.getIconWidth() / original.getIconHeight() * height;
-
-      BufferedImage scaledImage;
-      if (!scraper.isEnabled()) {
-        scaledImage = Scalr.resize(ImageUtils.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
-            Scalr.OP_GRAYSCALE);
+      if (url.getFile().endsWith("svg")) {
+        TmmSvgIcon svgIcon = new TmmSvgIcon(uri);
+        svgIcon.setPreferredHeight(calculatePreferredHeight());
+        return svgIcon;
       }
       else {
-        scaledImage = Scalr.resize(ImageUtils.createImage(original.getImage()), Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, width, height,
-            Scalr.OP_ANTIALIAS);
+        return ImageUtils.createMultiResolutionImage(IconManager.loadImageFromURL(url), calculatePreferredHeight());
       }
-      return new ImageIcon(scaledImage);
     }
     catch (Exception e) {
       return null;
     }
+  }
+
+  private int calculatePreferredHeight() {
+    Canvas c = new Canvas();
+    FontMetrics fm = c.getFontMetrics(new JPanel().getFont());
+    return (int) (fm.getHeight() * 1.8f);
   }
 
   public String getScraperId() {

@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -43,7 +42,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowSeasonEditorDialog;
  */
 public class TvShowEditAction extends TmmAction {
   private static final long           serialVersionUID = -3911290901017607679L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowEditAction() {
     putValue(NAME, BUNDLE.getString("tvshow.edit"));

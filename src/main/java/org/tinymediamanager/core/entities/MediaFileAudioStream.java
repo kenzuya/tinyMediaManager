@@ -29,11 +29,13 @@ public class MediaFileAudioStream extends MediaStreamInfo {
   private int    audioChannels = 0;
   @JsonProperty
   private int    bitrate       = 0;
+
   @JsonProperty
   @Deprecated
   public boolean defaultStream = false;
 
   public MediaFileAudioStream() {
+    // empty constructor for jackson
   }
 
   public int getAudioChannels() {

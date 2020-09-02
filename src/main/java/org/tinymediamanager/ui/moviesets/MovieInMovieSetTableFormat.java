@@ -16,11 +16,11 @@
 
 package org.tinymediamanager.ui.moviesets;
 
+import java.awt.FontMetrics;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
@@ -32,9 +32,11 @@ import org.tinymediamanager.ui.components.table.TmmTableFormat;
  * @author Manuel Laggner
  */
 public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieInMovieSetTableFormat() {
+
+    FontMetrics fontMetrics = getFontMetrics();
 
     /*
      * title
@@ -47,6 +49,7 @@ public class MovieInMovieSetTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(BUNDLE.getString("metatag.year"), "year", MediaEntity::getYear, Movie.class);
     col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
     addColumn(col);
 
     /*

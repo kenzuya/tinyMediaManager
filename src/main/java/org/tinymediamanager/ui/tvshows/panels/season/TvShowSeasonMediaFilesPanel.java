@@ -31,6 +31,7 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
+import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -39,15 +40,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSeasonMediaFilesPanel extends JPanel {
-  private static final long    serialVersionUID = -1895363438194617002L;
+  private static final long          serialVersionUID = -1895363438194617002L;
 
-  private EventList<MediaFile> mediaFileEventList;
-  private MediaFilesPanel      panelMediaFiles;
+  private final EventList<MediaFile> mediaFileEventList;
+  private MediaFilesPanel            panelMediaFiles;
 
   public TvShowSeasonMediaFilesPanel(final TvShowSeasonSelectionModel selectionModel) {
-    mediaFileEventList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaFile.class));
+    mediaFileEventList = GlazedListsSwing.swingThreadProxyList(
+        new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaFile.class)));
 
     initComponents();
+    panelMediaFiles.installTmmUILayoutStore("tvshows.season");
 
     // manual coded binding
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
@@ -68,11 +71,12 @@ public class TvShowSeasonMediaFilesPanel extends JPanel {
           mediaFileEventList.addAll(selectedSeason.getMediaFiles());
         }
         catch (Exception ignored) {
+          // ignored
         }
         finally {
           mediaFileEventList.getReadWriteLock().writeLock().unlock();
+          panelMediaFiles.adjustColumns();
         }
-        panelMediaFiles.adjustColumns();
       }
     };
     selectionModel.addPropertyChangeListener(propertyChangeListener);

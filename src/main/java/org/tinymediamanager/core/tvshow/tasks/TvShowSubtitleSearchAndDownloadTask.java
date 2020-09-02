@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.core.tvshow.tasks;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -27,12 +28,13 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -49,11 +51,26 @@ import org.tinymediamanager.scraper.util.MediaIdUtil;
  */
 public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowSubtitleSearchAndDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<TvShowEpisode>   episodes;
   private final List<MediaScraper>    subtitleScrapers;
   private final MediaLanguages        language;
+
+  public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, MediaLanguages language) {
+    super(BUNDLE.getString("tvshow.download.subtitles"));
+    this.episodes = episodes;
+    this.language = language;
+
+    // get scrapers
+    this.subtitleScrapers = new ArrayList<>();
+    for (String scraperId : TvShowModuleManager.SETTINGS.getSubtitleScrapers()) {
+      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.SUBTITLE);
+      if (scraper != null) {
+        subtitleScrapers.add(scraper);
+      }
+    }
+  }
 
   public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, List<MediaScraper> subtitleScrapers, MediaLanguages language) {
     super(BUNDLE.getString("tvshow.download.subtitles"));

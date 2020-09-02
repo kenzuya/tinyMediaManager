@@ -52,9 +52,9 @@ import org.tinymediamanager.core.tvshow.TvShowExporter;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -93,7 +93,7 @@ public class TvShowExporterDialog extends TmmDialog {
       getContentPane().add(panelContent);
       panelContent.setLayout(new MigLayout("", "[600lp,grow]", "[300lp,grow][]"));
 
-      JSplitPane splitPane = new TmmSplitPane();
+      JSplitPane splitPane = new JSplitPane();
       splitPane.setResizeWeight(0.7);
       panelContent.add(splitPane, "cell 0 0,grow");
 
@@ -120,7 +120,7 @@ public class TvShowExporterDialog extends TmmDialog {
       JLabel lblDetails = new TmmLabel(BUNDLE.getString("export.detail"));
       panelExporterDetails.add(lblDetails, "cell 0 2,growx,aligny center");
 
-      JScrollPane scrollPaneDescription = new JScrollPane();
+      JScrollPane scrollPaneDescription = new NoBorderScrollPane();
       panelExporterDetails.add(scrollPaneDescription, "cell 0 3,grow");
 
       tpDescription = new ReadOnlyTextArea();

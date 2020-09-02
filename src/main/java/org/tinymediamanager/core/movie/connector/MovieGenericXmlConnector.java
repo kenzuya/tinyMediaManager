@@ -65,13 +65,13 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class MovieGenericXmlConnector implements IMovieConnector {
-  protected final String   ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
+  protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
-  protected final Movie    movie;
-  protected MovieNfoParser parser               = null;
+  protected final Movie         movie;
+  protected MovieNfoParser      parser               = null;
 
-  protected Document       document;
-  protected Element        root;
+  protected Document            document;
+  protected Element             root;
 
   public MovieGenericXmlConnector(Movie movie) {
     this.movie = movie;
@@ -162,6 +162,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         addProducers();
         addTrailer();
         addLanguages();
+        addShowlink();
         addDateAdded();
 
         // add connector specific tags
@@ -697,6 +698,17 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     Element languages = document.createElement("languages");
     languages.setTextContent(movie.getSpokenLanguages());
     root.appendChild(languages);
+  }
+
+  /**
+   * add all linked TV shows to the <showlink>xxx</showlink> tags (mulitple)
+   */
+  protected void addShowlink() {
+    for (String showName : movie.getShowlinks()) {
+      Element showlink = document.createElement("showlink");
+      showlink.setTextContent(showName);
+      root.appendChild(showlink);
+    }
   }
 
   /**

@@ -25,7 +25,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskState;
 import org.tinymediamanager.ui.IconManager;
@@ -40,7 +39,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TaskListComponent extends JPanel {
   private static final long           serialVersionUID = -6088880093610800005L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TmmTaskHandle               taskHandle;
 

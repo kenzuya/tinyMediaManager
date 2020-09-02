@@ -16,29 +16,19 @@
 
 package org.tinymediamanager.ui.components.toolbar;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.ui.IconManager;
 
 public class ToolbarMenu extends ToolbarLabel {
   public static Color        COLOR       = Color.GRAY;
   public static Color        COLOR_HOVER = Color.WHITE;
-
-  private static int         arrowSize   = 10;
-
-  protected static ImageIcon menuImage;
-  protected static ImageIcon menuImageHover;
 
   protected JPopupMenu       popupMenu   = null;
 
@@ -61,7 +51,7 @@ public class ToolbarMenu extends ToolbarLabel {
       public void mouseExited(MouseEvent arg0) {
         setForeground(COLOR);
         if (popupMenu != null) {
-          setIcon(getMenuIndicatorImage());
+          setIcon(IconManager.TOOLBAR_MENU_INDICATOR);
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
       }
@@ -70,7 +60,7 @@ public class ToolbarMenu extends ToolbarLabel {
       public void mouseEntered(MouseEvent arg0) {
         setForeground(COLOR_HOVER);
         if (popupMenu != null) {
-          setIcon(getMenuIndicatorHoverImage());
+          setIcon(IconManager.TOOLBAR_MENU_INDICATOR_HOVER);
           setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
       }
@@ -101,68 +91,10 @@ public class ToolbarMenu extends ToolbarLabel {
     }
 
     if (popupMenu != null) {
-      setIcon(getMenuIndicatorImage());
+      setIcon(IconManager.TOOLBAR_MENU_INDICATOR);
     }
     else {
       setIcon(null);
     }
-  }
-
-  protected ImageIcon getMenuIndicatorHoverImage() {
-    if (menuImageHover != null) {
-      return menuImageHover;
-    }
-
-    menuImageHover = new ImageIcon(paintMenuImage(true));
-    return menuImageHover;
-  }
-
-  protected ImageIcon getMenuIndicatorImage() {
-    if (menuImage != null) {
-      return menuImage;
-    }
-
-    menuImage = new ImageIcon(paintMenuImage(false));
-    return menuImage;
-  }
-
-  protected Image paintMenuImage(boolean hover) {
-    BufferedImage img = new BufferedImage(arrowSize, arrowSize, BufferedImage.TYPE_INT_RGB);
-    Graphics2D g = img.createGraphics();
-    g.setColor(hover ? COLOR : COLOR_HOVER);
-    g.fillRect(0, 0, img.getWidth(), img.getHeight());
-    g.setColor(hover ? COLOR_HOVER : COLOR);
-    // this creates a triangle facing right >
-    g.fillPolygon(new int[] { 0, 0, arrowSize / 2 }, new int[] { 0, arrowSize, arrowSize / 2 }, 3);
-    g.dispose();
-    // rotate it to face downwards
-    img = rotate(img, 90);
-
-    BufferedImage dimg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB);
-    g = dimg.createGraphics();
-    g.setComposite(AlphaComposite.Src);
-    g.drawImage(img, null, 0, 0);
-    g.dispose();
-
-    // paint transparent background
-    for (int i = 0; i < dimg.getHeight(); i++) {
-      for (int j = 0; j < dimg.getWidth(); j++) {
-        if (dimg.getRGB(j, i) == (hover ? COLOR.getRGB() : COLOR_HOVER.getRGB())) {
-          dimg.setRGB(j, i, 0x8F1C1C);
-        }
-      }
-    }
-
-    return Toolkit.getDefaultToolkit().createImage(dimg.getSource());
-  }
-
-  protected BufferedImage rotate(BufferedImage img, int angle) {
-    int w = img.getWidth();
-    int h = img.getHeight();
-    BufferedImage dimg = new BufferedImage(w, h, img.getType());
-    Graphics2D g = dimg.createGraphics();
-    g.rotate(Math.toRadians(angle), w / 2, h / 2);
-    g.drawImage(img, null, 0, 0);
-    return dimg;
   }
 }

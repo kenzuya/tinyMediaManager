@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
@@ -37,7 +38,6 @@ import org.tinymediamanager.scraper.fanarttv.entities.Image;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
-import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
@@ -51,7 +51,6 @@ import retrofit2.Response;
 public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowArtworkProvider {
   public static final String             ID           = "fanarttv";
   private static final Logger            LOGGER       = LoggerFactory.getLogger(FanartTvMetadataProvider.class);
-  private static final String            TMM_API_KEY  = ApiKey.decryptApikey("2gkQtSYPIxfyThxPXveHiCGXEcqJJwClUDrB5JV60OnQeQ85Ft65kFIk1SBKoge3");
   private static final MediaProviderInfo providerInfo = createMediaProviderInfo();
 
   private static FanartTv                api          = null;
@@ -76,12 +75,22 @@ public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowA
     if (api == null) {
       try {
         api = new FanartTv();
-        api.setApiKey(TMM_API_KEY);
       }
       catch (Exception e) {
         LOGGER.error("FanartTvMetadataProvider", e);
         throw new ScrapeException(e);
       }
+    }
+
+    // API key check
+    try {
+      String apiKey = License.getInstance().getApiKey(ID);
+      if (!apiKey.equals(api.getApiKey())) {
+        api.setApiKey(apiKey);
+      }
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
     }
 
     // check if we should set a client key
@@ -392,7 +401,10 @@ public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowA
 
       MediaArtwork ma = new MediaArtwork(providerInfo.getId(), type.type);
       ma.setDefaultUrl(image.url);
-      ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/"));
+
+      // replace the url to get the preview AND switch to assetcache.fanart.tv (as suggested in discord)
+      ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/").replace("assets.fanart.tv", "assetcache.fanart.tv"));
+
       ma.setLanguage(image.lang);
       ma.setLikes(image.likes);
       ma.addImageSize(type.width, type.height, image.url);

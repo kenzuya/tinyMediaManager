@@ -27,20 +27,23 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.CellRendererPane;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 import javax.swing.plaf.ComponentUI;
 
-import com.jtattoo.plaf.AbstractLookAndFeel;
-import com.jtattoo.plaf.BaseTableUI;
+import com.formdev.flatlaf.ui.FlatTableUI;
 
 /**
- * Class TmmTableUI
+ * the class TmmTableUI is used to render the JTable in our way
  *
  * @author Manuel Laggner
  */
-public class TmmTableUI extends BaseTableUI {
+public class TmmTableUI extends FlatTableUI {
+
+  private Color selectedGridColor;
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmTableUI();
@@ -50,9 +53,13 @@ public class TmmTableUI extends BaseTableUI {
   public void installUI(JComponent c) {
     super.installUI(c);
 
-    table.remove(rendererPane);
-    rendererPane = createCustomCellRendererPane();
-    table.add(rendererPane);
+    if (UIManager.getBoolean("Table.paintTmmGrid")) {
+      selectedGridColor = UIManager.getColor("Table.selectedGridColor");
+
+      table.remove(rendererPane);
+      rendererPane = createCustomCellRendererPane();
+      table.add(rendererPane);
+    }
   }
 
   /**
@@ -76,7 +83,7 @@ public class TmmTableUI extends BaseTableUI {
         // look if there are any non drawable borders defined
         Object prop = table.getClientProperty("borderNotToDraw");
         List<Integer> colsNotToDraw = new ArrayList<>();
-        if (prop != null && prop instanceof List<?>) {
+        if (prop instanceof List<?>) {
           try {
             colsNotToDraw.addAll((List) prop);
           }
@@ -84,14 +91,18 @@ public class TmmTableUI extends BaseTableUI {
           }
         }
 
+        if (component instanceof JCheckBox) {
+          // prevent the checkbox from clearing the horizontal lines
+          ((JCheckBox) component).setContentAreaFilled(false);
+        }
+
         // if the component to render is a JComponent, add our tweaks.
         if (component instanceof JComponent) {
           JComponent jcomponent = (JComponent) component;
           jcomponent.setOpaque(isSelected);
 
-          if (isSelected && !colsNotToDraw.contains(columnAtPoint)) {
-            jcomponent.setBorder(BorderFactory.createCompoundBorder(new RightSideBorder(AbstractLookAndFeel.getTheme().getSelectedGridColor()),
-                jcomponent.getBorder()));
+          if (isSelected && !colsNotToDraw.contains(columnAtPoint) && columnAtPoint != table.getColumnCount() - 1) {
+            jcomponent.setBorder(BorderFactory.createCompoundBorder(new RightSideBorder(selectedGridColor), jcomponent.getBorder()));
           }
         }
 
@@ -102,17 +113,19 @@ public class TmmTableUI extends BaseTableUI {
 
   private static class RightSideBorder extends AbstractBorder {
 
-    private final Color color;
-    private final int   thickness = 1;
+    private static final int THICKNESS = 1;
+
+    private final Color      color;
 
     public RightSideBorder(Color color) {
       this.color = color;
     }
 
+    @Override
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
       Graphics2D g2d = (Graphics2D) g.create();
       g2d.setColor(this.color);
-      g2d.setStroke(new BasicStroke(thickness));
+      g2d.setStroke(new BasicStroke(THICKNESS));
       g2d.drawLine(width - 1, 0, width - 1, height - 1);
       g2d.dispose();
     }

@@ -16,6 +16,9 @@
 
 package org.tinymediamanager.ui.dialogs;
 
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+
 import java.awt.BorderLayout;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -28,11 +31,11 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.ui.TmmWindowSaver;
+import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TaskListComponent;
 
 import net.miginfocom.swing.MigLayout;
@@ -40,7 +43,7 @@ import net.miginfocom.swing.MigLayout;
 public class TaskListDialog extends TmmDialog implements TmmTaskListener {
   private static final long                           serialVersionUID = 4151412495928010232L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static TaskListDialog                       instance;
 
@@ -65,11 +68,11 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
       panelContent.setLayout(new MigLayout("", "[grow]"));
       panelContent.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
 
-      JScrollPane scrollPane = new JScrollPane();
+      JScrollPane scrollPane = new NoBorderScrollPane();
       scrollPane.setOpaque(false);
       scrollPane.getViewport().setOpaque(false);
-      scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-      scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
+      scrollPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
       scrollPane.setViewportView(panelContent);
 
       JPanel rootPanel = new JPanel();
@@ -92,7 +95,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
   @Override
   public void dispose() {
     // do not dispose (singleton), but save the size/position
-    TmmWindowSaver.getInstance().saveSettings(this);
+    TmmUILayoutStore.getInstance().saveSettings(this);
   }
 
   public static TaskListDialog getInstance() {

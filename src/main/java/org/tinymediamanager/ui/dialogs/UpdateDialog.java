@@ -33,10 +33,11 @@ import javax.swing.event.HyperlinkEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.updater.UpdaterTask;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -64,7 +65,7 @@ public class UpdateDialog extends TmmDialog {
       JLabel lblChangelog = new JLabel(BUNDLE.getString("whatsnew.title"));
       panelContent.add(lblChangelog, "cell 0 2,growx");
 
-      JScrollPane scrollPane = new JScrollPane();
+      JScrollPane scrollPane = new NoBorderScrollPane();
       panelContent.add(scrollPane, "cell 0 3,grow");
       JTextPane textPane = new JTextPane();
       textPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, Globals.settings.getFontSize() + 1));
@@ -80,7 +81,7 @@ public class UpdateDialog extends TmmDialog {
             TmmUIHelper.browseUrl(hle.getURL().toString());
           }
           catch (Exception e) {
-            LOGGER.error("error browsing to " + hle.getURL().toString() + " :" + e.getMessage());
+            LOGGER.error("error browsing to \"{}\" : {}", hle.getURL(), e.getMessage());
           }
         }
       });
@@ -95,8 +96,7 @@ public class UpdateDialog extends TmmDialog {
         setVisible(false);
         LOGGER.info("Updating...");
 
-        // spawn getdown and exit TMM
-        MainWindow.getActiveInstance().closeTmmAndStart(Utils.getPBforTMMupdate());
+        TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
       });
       addButton(btnUpdate);
     }

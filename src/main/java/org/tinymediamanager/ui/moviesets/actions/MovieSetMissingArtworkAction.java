@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieSetMissingArtworkDownloadTask;
@@ -38,7 +37,7 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Wolfgang Janes
  */
 public class MovieSetMissingArtworkAction extends TmmAction {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieSetMissingArtworkAction() {
     putValue(NAME, BUNDLE.getString("movieset.downloadmissingartwork"));

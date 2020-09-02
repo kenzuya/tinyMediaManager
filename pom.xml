@@ -6,7 +6,7 @@
 
 	<groupId>org.tinymediamanager</groupId>
 	<artifactId>tinyMediaManager</artifactId>
-	<version>3.1.8-SNAPSHOT</version>
+	<version>4.0-SNAPSHOT</version>
 
 	<name>tinyMediaManager</name>
 	<description>a media management tool written in Java</description>
@@ -76,8 +76,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.release>11</maven.compiler.release>
 		<skipTests>true</skipTests><!-- to override on command line -->
 
 		<jar.version>3.2.0</jar.version>
@@ -89,20 +88,16 @@
 		<okhttp.version>3.12.1</okhttp.version>
 		<slf4j.version>1.7.30</slf4j.version>
 		<release.version>2.5.3</release.version>
+		<jre.version>14.0.2_12_hotspot</jre.version>
+		<launcher.version>1.0.8</launcher.version>
+		<jackson.version>2.11.1</jackson.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<version>3.11.1</version>
-			<scope>test</scope>
+			<groupId>org.tinymediamanager</groupId>
+			<artifactId>license</artifactId>
+			<version>1.1.4</version>
 		</dependency>
 
 		<dependency>
@@ -131,6 +126,11 @@
 			<version>1.2.3</version>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.janino</groupId>
 			<artifactId>janino</artifactId>
 			<version>3.0.6</version>
@@ -148,7 +148,12 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.10.2</version>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup.retrofit2</groupId>
@@ -207,7 +212,7 @@
 		<dependency>
 			<groupId>com.uwetrottmann.trakt5</groupId>
 			<artifactId>trakt-java</artifactId>
-			<version>6.4.0</version>
+			<version>6.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>it.tidalwave.betterbeansbinding</groupId>
@@ -305,19 +310,66 @@
 			<version>3.2.3</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>flatlaf</artifactId>
+			<version>0.40</version>
+		</dependency>
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>svgSalamander</artifactId>
+			<version>1.1.2.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.threerings.getdown</groupId>
+			<artifactId>getdown-core</artifactId>
+			<version>1.8.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.20</version>
+		</dependency>
+		<dependency>
+			<groupId>org.brotli</groupId>
+			<artifactId>dec</artifactId>
+			<version>0.1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+
+		<!-- testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.11.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>mockwebserver</artifactId>
+			<version>${okhttp.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- for score testing -->
 		<dependency>
 			<groupId>info.debatty</groupId>
 			<artifactId>java-string-similarity</artifactId>
 			<version>1.1.0</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- for HTTP testing -->
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>mockwebserver</artifactId>
-			<version>${okhttp.version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -372,7 +424,7 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<useReleaseProfile>false</useReleaseProfile>
-						<releaseProfiles>release</releaseProfiles>
+						<releaseProfiles>dist,release</releaseProfiles>
 						<goals>deploy</goals>
 					</configuration>
 				</plugin>
@@ -383,8 +435,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${compiler.version}</version>
 				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
+					<release>${maven.compiler.release}</release>
 					<debug>true</debug>
 					<debuglevel>lines,vars,source</debuglevel>
 				</configuration>
@@ -519,53 +570,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<!-- copies our dependencies WITHOUT version number for packaging -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.1</version>
-				<executions>
-					<execution>
-						<id>copy-tmm-dependencies</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<includeScope>runtime</includeScope>
-							<stripVersion>true</stripVersion>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin><!-- call our ant file, since it's too complicated to do our packaging 
-					solely in maven -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<id>dist</id>
-						<phase>package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<exportAntProperties>true</exportAntProperties>
-					<target>
-						<property name="tmmName" value="${project.artifactId}" />
-						<property name="tmmVersion" value="${project.version}" />
-						<property name="tmmRevision" value="${buildNumber}" />
-						<property name="tmmTimestamp" value="${timestamp}" />
-
-						<ant antfile="${project.basedir}/ant-package.xml">
-							<target name="package-app" />
-						</ant>
-					</target>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<version>${enforcer.version}</version>
@@ -587,13 +591,114 @@
 
 	<profiles>
 		<profile>
-			<id>java9+</id>
+			<id>dist</id>
 			<activation>
-				<jdk>[9,)</jdk>
+				<activeByDefault>false</activeByDefault>
 			</activation>
-			<properties>
-				<maven.compiler.release>8</maven.compiler.release>
-			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- copies our dependencies WITHOUT version number for packaging -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>3.1.1</version>
+						<executions>
+							<execution>
+								<id>copy-tmm-dependencies</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>copy-dependencies</goal>
+								</goals>
+								<configuration>
+									<includeScope>runtime</includeScope>
+									<stripVersion>true</stripVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-JRE</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-windows</artifactId>
+											<version>${jre.version}</version>
+											<type>tar.br</type>
+										</artifactItem>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-linux</artifactId>
+											<version>${jre.version}</version>
+											<type>tar.br</type>
+										</artifactItem>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>jre-macos</artifactId>
+											<version>${jre.version}</version>
+											<type>tar.br</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/jre</outputDirectory>
+									<overWriteReleases>false</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
+									<stripVersion>true</stripVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-launcher</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>org.tinymediamanager</groupId>
+											<artifactId>launcher</artifactId>
+											<version>${launcher.version}</version>
+											<type>tar.gz</type>
+										</artifactItem>
+									</artifactItems>
+									<outputDirectory>${project.build.directory}/launcher</outputDirectory>
+									<overWriteReleases>false</overWriteReleases>
+									<overWriteSnapshots>true</overWriteSnapshots>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin><!-- call our ant file, since it's too complicated to do our
+							packaging solely in maven -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>dist</id>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<exportAntProperties>true</exportAntProperties>
+							<target>
+								<property name="tmmName" value="${project.artifactId}"/>
+								<property name="tmmVersion" value="${project.version}"/>
+								<property name="tmmRevision" value="${buildNumber}"/>
+								<property name="tmmTimestamp" value="${timestamp}"/>
+
+								<ant antfile="${project.basedir}/ant-package.xml">
+									<target name="package-app"/>
+								</ant>
+							</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 		<profile>
 			<id>gitlab-ci</id>
@@ -691,8 +796,8 @@
 							<failOnViolation>false</failOnViolation>
 							<!-- more https://github.com/policeman-tools/forbidden-apis/wiki/BundledSignatures -->
 							<bundledSignatures>
-								<!-- This will automatically choose the right signatures based on 
-									'maven.compiler.target': -->
+								<!-- This will automatically choose the right signatures based on
+                                    'maven.compiler.target': -->
 								<bundledSignature>jdk-deprecated</bundledSignature>
 								<bundledSignature>jdk-non-portable</bundledSignature>
 								<bundledSignature>jdk-system-out</bundledSignature>

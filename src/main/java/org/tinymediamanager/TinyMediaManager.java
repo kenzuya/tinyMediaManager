@@ -16,6 +16,8 @@
 
 package org.tinymediamanager;
 
+import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
+
 import java.awt.AWTEvent;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -38,38 +40,39 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.swing.JOptionPane;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
 import org.apache.commons.io.IOUtils;
 import org.jdesktop.beansbinding.ELProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.thirdparty.KodiRPC;
-import org.tinymediamanager.thirdparty.MediaInfoUtils;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmTaskbar;
+import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.TmmUILogCollector;
-import org.tinymediamanager.ui.TmmWindowSaver;
 import org.tinymediamanager.ui.dialogs.MessageDialog;
 import org.tinymediamanager.ui.dialogs.WhatsNewDialog;
-import org.tinymediamanager.ui.plaf.TmmTheme;
-import org.tinymediamanager.ui.plaf.dark.TmmDarkLookAndFeel;
-import org.tinymediamanager.ui.plaf.light.TmmLightLookAndFeel;
+import org.tinymediamanager.ui.images.LogoCircle;
 import org.tinymediamanager.ui.wizard.TinyMediaManagerWizard;
 
 import com.sun.jna.Platform;
@@ -99,8 +102,11 @@ public class TinyMediaManager {
 
     // simple parse command line
     if (args != null && args.length > 0) {
-      LOGGER.debug("TMM started with: " + Arrays.toString(args));
-      TinyMediaManagerCMD.parseParams(args);
+      LOGGER.debug("TMM started with: {}", Arrays.toString(args));
+      if (!TinyMediaManagerCLI.checkArgs(args)) {
+        shutdownLogger();
+        System.exit(0);
+      }
       System.setProperty("java.awt.headless", "true");
     }
     else {
@@ -108,7 +114,7 @@ public class TinyMediaManager {
       String head = System.getProperty("java.awt.headless");
       if (head != null && head.equals("true")) {
         LOGGER.info("TMM started 'headless', and without params -> displaying syntax ");
-        TinyMediaManagerCMD.printSyntax();
+        TinyMediaManagerCLI.printHelp();
         shutdownLogger();
         System.exit(0);
       }
@@ -126,10 +132,21 @@ public class TinyMediaManager {
         JOptionPane.showMessageDialog(null, msg);
       }
       else {
-        System.out.println(msg);
+        System.out.println(msg); // NOSONAR
       }
       shutdownLogger();
       System.exit(1);
+    }
+
+    // read the license code
+    Path license = Paths.get(Globals.DATA_FOLDER, "tmm.lic");
+    if (Files.exists(license)) {
+      try {
+        License.getInstance().setLicenseCode(Utils.readFileToString(license));
+      }
+      catch (Exception e) {
+        LOGGER.warn("unable to decode license file - {}", e.getMessage());
+      }
     }
 
     LOGGER.info("=====================================================");
@@ -149,6 +166,7 @@ public class TinyMediaManager {
       LOGGER.info("java.webswing    : true");
     }
 
+    // START character encoding debug
     debugCharacterEncoding("current encoding : ");
 
     // set GUI default language
@@ -166,13 +184,14 @@ public class TinyMediaManager {
           Thread.setDefaultUncaughtExceptionHandler(new Log4jBackstop());
           if (!GraphicsEnvironment.isHeadless()) {
             Thread.currentThread().setName("main");
+            TmmTaskbar.setImage(new LogoCircle().getImage());
           }
           else {
             Thread.currentThread().setName("headless");
             LOGGER.debug("starting without GUI...");
           }
           Toolkit tk = Toolkit.getDefaultToolkit();
-          tk.addAWTEventListener(TmmWindowSaver.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
+          tk.addAWTEventListener(TmmUILayoutStore.getInstance(), AWTEvent.WINDOW_EVENT_MASK);
           if (!GraphicsEnvironment.isHeadless()) {
             setLookAndFeel();
           }
@@ -308,6 +327,7 @@ public class TinyMediaManager {
             splash.update();
           }
           if (!GraphicsEnvironment.isHeadless()) {
+
             MainWindow window = new MainWindow("tinyMediaManager / " + ReleaseInfo.getRealVersion());
 
             // finished ////////////////////////////////////////////////////
@@ -316,13 +336,21 @@ public class TinyMediaManager {
               splash.update();
             }
 
-            TmmWindowSaver.getInstance().loadSettings(window);
+            TmmUILayoutStore.getInstance().loadSettings(window);
             window.setVisible(true);
 
             // wizard for new user
             if (Globals.settings.isNewConfig()) {
               TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
               wizard.setVisible(true);
+            }
+            else if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+              // if the wizard is not run, check for an update
+              // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is showing, the
+              // wizard will no more appear
+              // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the next
+              // startup
+              checkForUpdate();
             }
 
             // show changelog
@@ -332,14 +360,18 @@ public class TinyMediaManager {
             }
           }
           else {
-            TinyMediaManagerCMD.startCommandLineTasks();
+            TinyMediaManagerCLI.start(args);
             // wait for other tmm threads (artwork download et all)
             while (TmmTaskManager.getInstance().poolRunning()) {
-              Thread.sleep(2000);
+              try {
+                Thread.sleep(2000);
+              }
+              catch (InterruptedException e) {
+                // ignored, just shut down gracefully
+              }
             }
 
             LOGGER.info("bye bye");
-            // MainWindows.shutdown()
             try {
               // send shutdown signal
               TmmTaskManager.getInstance().shutdown();
@@ -361,7 +393,7 @@ public class TinyMediaManager {
           LOGGER.error("IllegalStateException", e);
           if (!GraphicsEnvironment.isHeadless() && e.getMessage().contains("file is locked")) {
             // MessageDialog.showExceptionWindow(e);
-            ResourceBundle bundle = ResourceBundle.getBundle("messages", new UTF8Control());
+            ResourceBundle bundle = ResourceBundle.getBundle("messages");
             MessageDialog dialog = new MessageDialog(null, bundle.getString("tmm.problemdetected"));
             dialog.setImage(IconManager.ERROR);
             dialog.setText(bundle.getString("tmm.nostart"));
@@ -435,9 +467,6 @@ public class TinyMediaManager {
         // rename downloaded files
         UpgradeTasks.renameDownloadedFiles();
 
-        // extract templates, if GD has not already done
-        Utils.extractTemplates();
-
         // clean old log files
         Utils.cleanOldLogs();
 
@@ -462,61 +491,27 @@ public class TinyMediaManager {
     });
   }
 
-  public static void setLookAndFeel() throws Exception {
-    // preload LaF (to prevent chicken-egg problem with font-loading)
-    String themeDefaultFont = TmmTheme.FONT;
-
-    // get font from settings
-    String fontFamily = Globals.settings.getFontFamily();
-    try {// sanity check
-      fontFamily = Font.decode(fontFamily).getFamily();
+  public static void setLookAndFeel() {
+    // load font settings
+    try {
+      // sanity check
+      Font font = Font.decode(Globals.settings.getFontFamily());
+      if (font != null) {
+        UIManager.put("defaultFont", font);
+      }
     }
     catch (Exception e) {
-      // try LaF font as fallback
-      try {
-        fontFamily = Font.decode(themeDefaultFont).getFamily();
-      }
-      catch (Exception e1) {
-        // last resort fallback - default system font
-        fontFamily = "Dialog";
-      }
+      LOGGER.warn("could not set default font - {}", e.getMessage());
     }
 
-    int fontSize = Globals.settings.getFontSize();
-    if (fontSize < 12) {
-      fontSize = 12;
+    try {
+      TmmUIHelper.setTheme();
+      // decrease the tooltip timeout
+      ToolTipManager.sharedInstance().setInitialDelay(300);
     }
-
-    String fontString = fontFamily + " " + fontSize;
-
-    // Get the native look and feel class name
-    Properties props = new Properties();
-    props.setProperty("controlTextFont", fontString);
-    props.setProperty("systemTextFont", fontString);
-    props.setProperty("userTextFont", fontString);
-    props.setProperty("menuTextFont", fontString);
-    props.setProperty("defaultFontSize", Integer.toString(fontSize));
-    props.setProperty("windowDecoration", "system");
-
-    fontSize = Math.round((float) (fontSize * 0.833));
-    fontString = fontFamily + " " + fontSize;
-
-    props.setProperty("subTextFont", fontString);
-
-    // Get the look and feel class name
-    String themeName = Globals.settings.getTheme();
-    String laf;
-    if ("Dark".equals(themeName)) {
-      TmmDarkLookAndFeel.setTheme(props);
-      laf = "org.tinymediamanager.ui.plaf.dark.TmmDarkLookAndFeel";
+    catch (Exception e) {
+      LOGGER.error("Failed to initialize LaF - {}", e.getMessage());
     }
-    else {
-      TmmLightLookAndFeel.setTheme(props);
-      laf = "org.tinymediamanager.ui.plaf.light.TmmLightLookAndFeel";
-    }
-
-    // Install the look and feel
-    UIManager.setLookAndFeel(laf);
   }
 
   public static void shutdownLogger() {

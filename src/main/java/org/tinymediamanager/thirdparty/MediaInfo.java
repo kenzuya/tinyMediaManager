@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.mediainfo.MediaInfoException;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
@@ -448,35 +449,14 @@ public class MediaInfo implements Closeable {
     return streamInfo;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.io.Closeable#close()
-   */
   @Override
   public void close() {
     if (isLoaded()) {
       MediaInfoLibrary.INSTANCE.Close(handle);
-    }
-  }
 
-  /**
-   * Dispose.
-   */
-  public void dispose() {
-    if (!isLoaded()) {
-      throw new IllegalStateException();
-    }
-
-    // delete handle
-    MediaInfoLibrary.INSTANCE.Delete(handle);
-    handle = null;
-  }
-
-  @Override
-  protected void finalize() {
-    if (isLoaded()) {
-      dispose();
+      // delete handle
+      MediaInfoLibrary.INSTANCE.Delete(handle);
+      handle = null;
     }
   }
 

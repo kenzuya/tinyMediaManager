@@ -15,17 +15,18 @@
  */
 package org.tinymediamanager.ui.converter;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.Locale;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
+import javax.swing.UIManager;
 
 import org.jdesktop.beansbinding.Converter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaCertification;
-import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.scraper.entities.CountryCode;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
+
+import com.kitfox.svg.app.beans.SVGIcon;
 
 /**
  * The Class CertificationImageConverter.
@@ -33,9 +34,6 @@ import org.tinymediamanager.core.Settings;
  * @author Manuel Laggner
  */
 public class CertificationImageConverter extends Converter<MediaCertification, Icon> {
-  private static final Logger   LOGGER     = LoggerFactory.getLogger(CertificationImageConverter.class);
-
-  public static final ImageIcon emptyImage = new ImageIcon();
 
   @Override
   public Icon convertForward(MediaCertification cert) {
@@ -45,21 +43,21 @@ public class CertificationImageConverter extends Converter<MediaCertification, I
     }
     // try to find an image for this genre
     try {
-      StringBuilder sb = new StringBuilder(
-          "/org/tinymediamanager/ui/plaf/" + Settings.getInstance().getTheme().toLowerCase(Locale.ROOT) + "/images/certification/");
-      sb.append(cert.name().toLowerCase(Locale.ROOT));
-      sb.append(".png");
+      URI uri = getClass().getResource("/org/tinymediamanager/ui/images/certification/" + cert.name().toLowerCase(Locale.ROOT) + ".svg").toURI();
+      TmmSvgIcon icon = new TmmSvgIcon(uri);
+      icon.setPreferredHeight(32);
+      icon.setAutosize(SVGIcon.AUTOSIZE_STRETCH);
 
-      URL file = getClass().getResource(sb.toString());
-      if (file != null) {
-        return new ImageIcon(file);
+      // only color the monochrome ones
+      if (cert.getCountry() == CountryCode.US) {
+        icon.setColor(UIManager.getColor("Label.foreground"), "#000000");
       }
+
+      return icon;
     }
     catch (Exception e) {
-      LOGGER.warn("cannot convert certification", e);
+      return null;
     }
-
-    return emptyImage;
   }
 
   @Override

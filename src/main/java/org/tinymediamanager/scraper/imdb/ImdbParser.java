@@ -27,8 +27,8 @@ import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInf
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +41,7 @@ import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -51,10 +52,10 @@ import org.slf4j.Logger;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
-import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -74,7 +75,6 @@ import org.tinymediamanager.scraper.util.UrlUtil;
 public abstract class ImdbParser {
   protected static final Pattern IMDB_ID_PATTERN   = Pattern.compile("/title/(tt[0-9]{6,})/");
   protected static final Pattern PERSON_ID_PATTERN = Pattern.compile("/name/(nm[0-9]{6,})/");
-  protected static final String  IMDB_SITE         = "http://www.imdb.com/";
 
   protected final MediaType      type;
 
@@ -94,8 +94,6 @@ public abstract class ImdbParser {
   protected abstract MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
 
   protected abstract String getSearchCategory();
-
-  protected abstract CountryCode getCountry();
 
   /**
    * scrape tmdb for movies too?
@@ -137,6 +135,16 @@ public abstract class ImdbParser {
     getLogger().debug("search(): {}", options);
     SortedSet<MediaSearchResult> result = new TreeSet<>();
 
+    // API key check
+    String apiKey;
+
+    try {
+      apiKey = License.getInstance().getApiKey(providerInfo.getId());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
     /*
      * IMDb matches seem to come in several "flavours".
      *
@@ -165,21 +173,14 @@ public abstract class ImdbParser {
 
     // parse out language and country from the scraper query
     String language = options.getLanguage().getLanguage();
-    String country = getCountry().getAlpha2(); // for passing the country to the scrape
+    String country = options.getCertificationCountry().getAlpha2(); // for passing the country to the scrape
 
     searchTerm = MetadataUtil.removeNonSearchCharacters(searchTerm);
 
-    StringBuilder sb = new StringBuilder(IMDB_SITE);
+    StringBuilder sb = new StringBuilder(apiKey);
     sb.append("find?q=");
-    try {
-      // search site was everytime in UTF-8
-      sb.append(URLEncoder.encode(searchTerm, UrlUtil.UTF_8));
-    }
-    catch (UnsupportedEncodingException ex) {
-      // Failed to encode the movie name for some reason!
-      getLogger().debug("Failed to encode search term: {}", searchTerm);
-      sb.append(searchTerm);
-    }
+    // search site was everytime in UTF-8
+    sb.append(URLEncoder.encode(searchTerm, StandardCharsets.UTF_8));
 
     // we need to search for all - otherwise we do not find TV movies
     sb.append(getSearchCategory());
@@ -189,7 +190,7 @@ public abstract class ImdbParser {
 
     Url url;
     try {
-      url = new Url(sb.toString());
+      url = new InMemoryCachedUrl(sb.toString());
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }
     catch (Exception e) {
@@ -254,9 +255,20 @@ public abstract class ImdbParser {
           Elements imgs = posters.get(0).getElementsByTag("img");
           for (Element img : imgs) {
             posterUrl = img.attr("src");
-            posterUrl = posterUrl.replaceAll("UX[0-9]{2,4}_", "");
-            posterUrl = posterUrl.replaceAll("UY[0-9]{2,4}_", "");
-            posterUrl = posterUrl.replaceAll("CR[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}_", "");
+            int fileStart = posterUrl.lastIndexOf('/');
+            if (fileStart > 0) {
+              int parameterStart = posterUrl.indexOf('_', fileStart);
+              if (parameterStart > 0) {
+                int startOfExtension = posterUrl.lastIndexOf('.');
+                if (startOfExtension > parameterStart) {
+                  posterUrl = posterUrl.substring(0, parameterStart) + posterUrl.substring(startOfExtension);
+                }
+              }
+            }
+
+            // and resize to the default preview size
+            String extension = FilenameUtils.getExtension(posterUrl);
+            posterUrl = posterUrl.replace("." + extension, "_UX342." + extension);
           }
         }
         if (StringUtils.isNotBlank(posterUrl)) {
@@ -683,7 +695,7 @@ public abstract class ImdbParser {
       if (elementText.equals("Certification")) {
         Element nextElement = element.nextElementSibling();
         if (nextElement != null) {
-          String languageCode = getCountry().getAlpha2();
+          String languageCode = options.getCertificationCountry().getAlpha2();
           Elements certificationElements = nextElement.getElementsByAttributeValueStarting("href", "/search/title?certificates=" + languageCode);
           boolean done = false;
           for (Element certificationElement : certificationElements) {
@@ -693,7 +705,7 @@ public abstract class ImdbParser {
               certText = certText.substring(startOfCert + 1);
             }
 
-            MediaCertification certification = MediaCertification.getCertification(getCountry(), certText);
+            MediaCertification certification = MediaCertification.getCertification(options.getCertificationCountry(), certText);
             if (certification != null) {
               md.addCertification(certification);
               done = true;
@@ -710,7 +722,7 @@ public abstract class ImdbParser {
                 certText = certText.substring(startOfCert + 1);
               }
 
-              MediaCertification certification = MediaCertification.getCertification(getCountry(), certText);
+              MediaCertification certification = MediaCertification.getCertification(options.getCertificationCountry(), certText);
               if (certification != null) {
                 md.addCertification(certification);
                 break;
@@ -925,11 +937,11 @@ public abstract class ImdbParser {
             if (column != null) {
               Date parsedDate = parseDate(column.text());
               // do not overwrite any parsed date with a null value!
-              if (parsedDate != null && (releaseDate == null || getCountry().getAlpha2().equalsIgnoreCase(country))) {
+              if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
                 releaseDate = parsedDate;
 
                 // abort the loop if we have found a valid date in our desired language
-                if (getCountry().getAlpha2().equalsIgnoreCase(country)) {
+                if (options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country)) {
                   break;
                 }
               }
@@ -954,11 +966,11 @@ public abstract class ImdbParser {
             if (column != null) {
               Date parsedDate = parseDate(column.text());
               // do not overwrite any parsed date with a null value!
-              if (parsedDate != null && (releaseDate == null || getCountry().getAlpha2().equalsIgnoreCase(country))) {
+              if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
                 releaseDate = parsedDate;
 
                 // abort the loop if we have found a valid date in our desired language
-                if (getCountry().getAlpha2().equalsIgnoreCase(country)) {
+                if (options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country)) {
                   break;
                 }
               }
@@ -1082,7 +1094,7 @@ public abstract class ImdbParser {
     private boolean useCachedUrl;
 
     ImdbWorker(String url, String language, String country) {
-      this(url, language, country, false);
+      this(url, language, country, true);
     }
 
     ImdbWorker(String url, String language, String country, boolean useCachedUrl) {

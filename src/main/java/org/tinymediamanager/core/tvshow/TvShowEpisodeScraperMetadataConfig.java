@@ -15,12 +15,13 @@
  */
 package org.tinymediamanager.core.tvshow;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.UTF8Control;
 
 /**
  * The enum TvShowEpisodeScraperMetadataConfig is used to control which episode fields should be set after scraping.
@@ -48,7 +49,7 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
   // artwork
   THUMB(Type.ARTWORK);
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private Type                        type;
   private String                      description;
@@ -111,5 +112,24 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
       // just not crash
     }
     return null;
+  }
+
+  /**
+   * get a {@link List} of all {@link TvShowEpisodeScraperMetadataConfig} for the given {@link org.tinymediamanager.core.ScraperMetadataConfig.Type}
+   *
+   * @param type
+   *          the {@link org.tinymediamanager.core.ScraperMetadataConfig.Type} to get all {@link TvShowEpisodeScraperMetadataConfig}s for
+   * @return a {@link List} with all matching {@link TvShowEpisodeScraperMetadataConfig}s
+   */
+  public static List<TvShowEpisodeScraperMetadataConfig> valuesForType(Type type) {
+    List<TvShowEpisodeScraperMetadataConfig> values = new ArrayList<>();
+
+    for (TvShowEpisodeScraperMetadataConfig config : values()) {
+      if (config.type == type) {
+        values.add(config);
+      }
+    }
+
+    return values;
   }
 }

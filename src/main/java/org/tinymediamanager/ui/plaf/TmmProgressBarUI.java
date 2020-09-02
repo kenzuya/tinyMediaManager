@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2019 FormDev Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.tinymediamanager.ui.plaf;
 
-import java.awt.Composite;
+import static javax.swing.SwingConstants.HORIZONTAL;
+
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
@@ -29,29 +30,48 @@ import javax.swing.JComponent;
 import javax.swing.JProgressBar;
 import javax.swing.plaf.ComponentUI;
 
-import com.jtattoo.plaf.BaseProgressBarUI;
-import com.jtattoo.plaf.JTattooUtilities;
+import com.formdev.flatlaf.ui.FlatProgressBarUI;
+import com.formdev.flatlaf.ui.FlatUIUtils;
+import com.formdev.flatlaf.util.UIScale;
 
 /**
+ * Provides the Flat LaF UI delegate for {@link JProgressBar}.
+ *
+ * <!-- BasicProgressBarUI -->
+ *
+ * @uiDefault ProgressBar.font Font
+ * @uiDefault ProgressBar.background Color
+ * @uiDefault ProgressBar.foreground Color
+ * @uiDefault ProgressBar.selectionBackground Color
+ * @uiDefault ProgressBar.selectionForeground Color
+ * @uiDefault ProgressBar.border Border
+ * @uiDefault ProgressBar.horizontalSize Dimension default is 146,12
+ * @uiDefault ProgressBar.verticalSize Dimension default is 12,146
+ * @uiDefault ProgressBar.repaintInterval int default is 50 milliseconds
+ * @uiDefault ProgressBar.cycleTime int default is 3000 milliseconds
+ *
+ *            <!-- FlatProgressBarUI -->
+ *
+ * @uiDefault ProgressBar.arc int
+ *
  * @author Manuel Laggner
  */
-public class TmmProgressBarUI extends BaseProgressBarUI {
-
-  private static final int PROGRESS_BAR_WIDTH = 6;
+public class TmmProgressBarUI extends FlatProgressBarUI {
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmProgressBarUI();
   }
 
-  @Override
-  public void installUI(JComponent c) {
-    super.installUI(c);
-    progressBar.setOpaque(false);
-  }
-
-  @Override
-  protected void paintString(Graphics g, int x, int y, int width, int height, int amountFull, Insets b) {
-    // no string to be painted here
+  /**
+   * Delegates painting to one of two methods: paintDeterminate or paintIndeterminate.
+   */
+  public void paint(Graphics g, JComponent c) {
+    if (progressBar.isIndeterminate()) {
+      paintIndeterminate(g, c);
+    }
+    else {
+      paintDeterminate(g, c);
+    }
   }
 
   @Override
@@ -59,48 +79,45 @@ public class TmmProgressBarUI extends BaseProgressBarUI {
     if (!(g instanceof Graphics2D)) {
       return;
     }
-    Graphics2D g2D = (Graphics2D) g;
-    Composite savedComposite = g2D.getComposite();
-    RenderingHints savedRenderingHints = g2D.getRenderingHints();
-    g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    Insets b = progressBar.getInsets(); // area for border
-    int w = progressBar.getWidth() - (b.right + b.left);
-    int h = progressBar.getHeight() - (b.top + b.bottom);
+    Graphics2D g2D = (Graphics2D) g.create();
+    try {
+      FlatUIUtils.setRenderingHints(g2D);
 
-    // amount of progress to draw
-    int amountFull = getAmountFull(b, w, h);
+      Insets b = progressBar.getInsets(); // area for border
+      int w = progressBar.getWidth() - (b.right + b.left);
+      int h = progressBar.getHeight() - (b.top + b.bottom);
 
-    if (progressBar.getOrientation() == JProgressBar.HORIZONTAL) {
-      // calculate the origin for the progress bar
-      int y = b.top + (h - PROGRESS_BAR_WIDTH) / 2;
+      // amount of progress to draw
+      int amountFull = getAmountFull(b, w, h);
 
-      // draw background
-      g2D.setColor(progressBar.getBackground());
-      g2D.fillRoundRect(b.left, y, w, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH);
+      if (progressBar.getOrientation() == HORIZONTAL) {
+        // calculate the origin for the progress bar
+        int y = b.top + (h - horizontalSize.height) / 2;
 
-      g2D.setColor(progressBar.getForeground());
-      if (JTattooUtilities.isLeftToRight(progressBar)) {
-        g2D.fillRoundRect(b.left, y, amountFull, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH);
+        // draw background
+        g2D.setColor(progressBar.getBackground());
+        g2D.fillRoundRect(b.left, y, w, horizontalSize.height, arc, arc);
+
+        g2D.setColor(progressBar.getForeground());
+        g2D.fillRoundRect(b.left, y, amountFull, horizontalSize.height, arc, arc);
+
       }
-      else {
-        g2D.fillRoundRect(progressBar.getWidth() - amountFull - b.right, y, b.right, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH);
+      else { // VERTICAL
+        // calculate the origin for the progress bar
+        int x = b.left + (w - verticalSize.width) / 2;
+
+        // draw background
+        g2D.setColor(progressBar.getBackground());
+        g2D.fillRoundRect(x, b.top, verticalSize.width, h, arc, arc);
+
+        g2D.setColor(progressBar.getForeground());
+        g2D.fillRoundRect(x, b.top, w, h - amountFull, arc, arc);
       }
     }
-    else { // VERTICAL
-      // calculate the origin for the progress bar
-      int x = b.left + (w - PROGRESS_BAR_WIDTH) / 2;
-
-      // draw background
-      g2D.setColor(progressBar.getBackground());
-      g2D.fillRoundRect(x, b.top, w, h, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH);
-
-      g2D.setColor(progressBar.getForeground());
-      g2D.fillRoundRect(x, b.top, w, h - amountFull, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH);
+    finally {
+      g2D.dispose();
     }
-
-    g2D.setComposite(savedComposite);
-    g2D.setRenderingHints(savedRenderingHints);
   }
 
   @Override
@@ -108,63 +125,64 @@ public class TmmProgressBarUI extends BaseProgressBarUI {
     if (!(g instanceof Graphics2D)) {
       return;
     }
-    Graphics2D g2D = (Graphics2D) g;
-    Composite savedComposite = g2D.getComposite();
-    RenderingHints savedRenderingHints = g2D.getRenderingHints();
-    g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    Insets b = progressBar.getInsets(); // area for border
-    int w = progressBar.getWidth() - (b.right + b.left);
-    int h = progressBar.getHeight() - (b.top + b.bottom);
+    Graphics2D g2D = (Graphics2D) g.create();
+    try {
+      FlatUIUtils.setRenderingHints(g2D);
 
-    if (progressBar.getOrientation() == JProgressBar.HORIZONTAL) {
-      // calculate the origin for the progress bar
-      int y = b.top + (h - PROGRESS_BAR_WIDTH) / 2;
+      Insets b = progressBar.getInsets(); // area for border
+      int w = progressBar.getWidth() - (b.right + b.left);
+      int h = progressBar.getHeight() - (b.top + b.bottom);
 
-      // draw background
-      g2D.setColor(progressBar.getForeground());
-      Area background = new Area(new RoundRectangle2D.Float(b.left, y, w, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH));
-      g2D.fill(background);
+      if (progressBar.getOrientation() == HORIZONTAL) {
+        // calculate the origin for the progress bar
+        int y = b.top + (h - horizontalSize.height) / 2;
 
-      // Paint the striped box.
-      boxRect = getBox(boxRect);
-      if (boxRect != null) {
-        w = 20;
-        int x = getAnimationIndex();
-        GeneralPath p = new GeneralPath();
+        // draw background
+        g2D.setColor(progressBar.getForeground());
+        Area background = new Area(new RoundRectangle2D.Float(b.left, y, w, horizontalSize.height, arc, arc));
+        g2D.fill(background);
 
-        p.moveTo(boxRect.x, boxRect.y + boxRect.height);
-        p.lineTo(boxRect.x + w * .5f, boxRect.y + boxRect.height);
-        p.lineTo(boxRect.x + w, boxRect.y);
-        p.lineTo(boxRect.x + w * .5f, boxRect.y);
+        // Paint the striped box.
+        boxRect = getBox(boxRect);
+        if (boxRect != null) {
+          w = UIScale.scale(20);
+          int x = getAnimationIndex();
+          GeneralPath p = new GeneralPath();
 
-        p.closePath();
-        g2D.setColor(progressBar.getBackground());
+          p.moveTo(boxRect.x, boxRect.y + boxRect.height);
+          p.lineTo(boxRect.x + w * .5f, boxRect.y + boxRect.height);
+          p.lineTo(boxRect.x + w, boxRect.y);
+          p.lineTo(boxRect.x + w * .5f, boxRect.y);
 
-        for (int i = boxRect.width + x; i > -w; i -= w) {
-          Area bar = new Area(AffineTransform.getTranslateInstance(i, 0).createTransformedShape(p));
-          bar.intersect(background);
-          g2D.fill(bar);
+          p.closePath();
+          g2D.setColor(progressBar.getBackground());
+
+          for (int i = boxRect.width + x; i > -w; i -= w) {
+            Area bar = new Area(AffineTransform.getTranslateInstance(i, 0).createTransformedShape(p));
+            bar.intersect(background);
+            g2D.fill(bar);
+          }
         }
       }
+      else { // VERTICAL
+        // calculate the origin for the progress bar
+        int x = b.left + (w - verticalSize.width) / 2;
+
+        // not implemented
+
+        // draw background
+        g2D.setColor(progressBar.getForeground());
+        g2D.fillRoundRect(x, b.top, verticalSize.width, h, arc, arc);
+      }
     }
-    else { // VERTICAL
-      // calculate the origin for the progress bar
-      int x = b.left + (w - PROGRESS_BAR_WIDTH) / 2;
-
-      // not implemented
-
-      // draw background
-      g2D.setColor(progressBar.getForeground());
-      g2D.fillRoundRect(x, b.top, w, h, PROGRESS_BAR_WIDTH, PROGRESS_BAR_WIDTH);
+    finally {
+      g2D.dispose();
     }
-
-    g2D.setComposite(savedComposite);
-    g2D.setRenderingHints(savedRenderingHints);
   }
 
   @Override
   protected int getBoxLength(int availableLength, int otherDimension) {
-    return availableLength; // (int) Math.round(availableLength / 6d);
+    return availableLength;
   }
 }

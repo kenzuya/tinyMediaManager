@@ -30,6 +30,7 @@ import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
@@ -49,18 +50,18 @@ import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
-import org.tinymediamanager.scraper.util.ApiKey;
+import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
 
 import com.uwetrottmann.tmdb2.Tmdb;
 import com.uwetrottmann.tmdb2.TmdbInterceptor;
 import com.uwetrottmann.tmdb2.entities.Configuration;
-import com.uwetrottmann.tmdb2.entities.FindResults;
 import com.uwetrottmann.tmdb2.entities.Genre;
 import com.uwetrottmann.tmdb2.entities.Translations;
 import com.uwetrottmann.tmdb2.entities.Translations.Translation;
-import com.uwetrottmann.tmdb2.enumerations.ExternalSource;
 
 import okhttp3.OkHttpClient;
 
@@ -70,29 +71,30 @@ import okhttp3.OkHttpClient;
  * @author Manuel Laggner
  */
 public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMetadataProvider, ITvShowMetadataProvider, IMovieArtworkProvider,
-    ITvShowArtworkProvider, IMovieTrailerProvider, ITvShowTrailerProvider, IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider {
-  public static final String    ID           = "tmdb";
+    ITvShowArtworkProvider, IMovieTrailerProvider, ITvShowTrailerProvider, IMovieTmdbMetadataProvider, IMovieImdbMetadataProvider,
+    ITvShowTmdbMetadataProvider, ITvShowImdbMetadataProvider, ITvShowTvdbMetadataProvider {
+  public static final String     ID            = "tmdb";
 
-  private static final Logger   LOGGER       = LoggerFactory.getLogger(TmdbMetadataProvider.class);
-  private static final String   TMM_API_KEY  = ApiKey.decryptApikey("dj5KmN0AO0eFDMF1tybX3H+zxGpfm4pUQAlEhM3iah/g2kuCzUQVZiiJ+ceCP2DO");
+  private static final Logger    LOGGER        = LoggerFactory.getLogger(TmdbMetadataProvider.class);
 
   // Use primary translations, not just our internal MediaLanguages (we need the country!)
   // https://api.themoviedb.org/3/configuration/primary_translations?api_key=XXXX
   // And keep on duplicate languages the main country on first position!
-  private static final String[] PT           = new String[] { "ar-AE", "ar-SA", "be-BY", "bg-BG", "bn-BD", "ca-ES", "ch-GU", "cs-CZ", "da-DK",
+  private static final String[]  PT            = new String[] { "ar-AE", "ar-SA", "be-BY", "bg-BG", "bn-BD", "ca-ES", "ch-GU", "cs-CZ", "da-DK",
       "de-DE", "el-GR", "en-US", "en-AU", "en-CA", "en-GB", "eo-EO", "es-ES", "es-MX", "eu-ES", "fr-FR", "fa-IR", "fi-FI", "fr-CA", "gl-ES", "he-IL",
       "hi-IN", "hu-HU", "id-ID", "it-IT", "ja-JP", "ka-GE", "kn-IN", "ko-KR", "lt-LT", "ml-IN", "nb-NO", "nl-NL", "no-NO", "pl-PL", "pt-BR", "pt-PT",
       "ro-RO", "ru-RU", "si-LK", "sk-SK", "sl-SI", "sr-RS", "sv-SE", "ta-IN", "te-IN", "th-TH", "tr-TR", "uk-UA", "vi-VN", "zh-CN", "zh-HK",
       "zh-TW" };
 
-  static Tmdb                   api;
-  static MediaProviderInfo      providerInfo = createMediaProviderInfo();
-  static Configuration          configuration;
+  static final MediaProviderInfo PROVIDER_INFO = createMediaProviderInfo();
+
+  static Tmdb                    api;
+  static Configuration           configuration;
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "themoviedb.org",
         "<html><h3>The Movie Database (TMDb)</h3><br />The largest free movie database maintained by the community. It provides metadata and artwork<br />in many different languages. Thus it is the first choice for non english users<br /><br />Available languages: multiple</html>",
-        TmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/themoviedb_org.png"));
+        TmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/themoviedb_org.svg"));
 
     providerInfo.getConfig().addText("apiKey", "", true);
     providerInfo.getConfig().addBoolean("includeAdult", false);
@@ -106,8 +108,16 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
 
   // thread safe initialization of the API
   private static synchronized void initAPI() throws ScrapeException {
-    String apiKey = TMM_API_KEY;
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String tmmApiKey;
+    String apiKey;
+    try {
+      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
+    String userApiKey = PROVIDER_INFO.getConfig().getValue("apiKey");
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey) && api != null && !userApiKey.equals(api.apiKey())) {
@@ -116,9 +126,9 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
     }
 
     // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && api != null && !TMM_API_KEY.equals(api.apiKey())) {
+    if (StringUtils.isBlank(userApiKey) && api != null && !tmmApiKey.equals(api.apiKey())) {
       api = null;
-      apiKey = TMM_API_KEY;
+      apiKey = tmmApiKey;
     }
 
     // create a new instance of the tmdb api
@@ -154,7 +164,7 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
 
   @Override
   public MediaProviderInfo getProviderInfo() {
-    return providerInfo;
+    return PROVIDER_INFO;
   }
 
   @Override
@@ -188,13 +198,6 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
 
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    // lazy initialization of the api
-    initAPI();
-    return new TmdbTvShowMetadataProvider(api).getEpisodeList(options);
-  }
-
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     // lazy initialization of the api
     initAPI();
     return new TmdbTvShowMetadataProvider(api).getEpisodeList(options);
@@ -261,20 +264,7 @@ public class TmdbMetadataProvider implements IMovieMetadataProvider, IMovieSetMe
     try {
       // lazy initialization of the api
       initAPI();
-
-      FindResults findResults = api.findService().find(imdbId, ExternalSource.IMDB_ID, null).execute().body();
-      // movie
-      if (findResults != null && findResults.movie_results != null && !findResults.movie_results.isEmpty()
-          && (type == MediaType.MOVIE || type == MediaType.MOVIE_SET)) {
-        return findResults.movie_results.get(0).id;
-      }
-
-      // tv show
-      if (findResults != null && findResults.tv_results != null && !findResults.tv_results.isEmpty()
-          && (type == MediaType.TV_SHOW || type == MediaType.TV_EPISODE)) {
-        return findResults.tv_results.get(0).id;
-      }
-
+      return TmdbUtils.getTmdbIdFromImdbId(api, type, imdbId);
     }
     catch (Exception e) {
       LOGGER.debug("failed to get tmdb id: {}", e.getMessage());

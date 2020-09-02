@@ -28,7 +28,6 @@ import org.tinymediamanager.scraper.hdtrailersnet.HDTrailersNetTrailerProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.kodi.KodiMetadataProvider;
-import org.tinymediamanager.scraper.kyradb.KyradbMetadataProvider;
 import org.tinymediamanager.scraper.moviemeter.MovieMeterMetadataProvider;
 import org.tinymediamanager.scraper.mpdbtv.MpdbMetadataProvider;
 import org.tinymediamanager.scraper.ofdb.OfdbMetadataProvider;
@@ -38,6 +37,7 @@ import org.tinymediamanager.scraper.thetvdb.TheTvDbMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.trakt.TraktMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
+import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProvider;
 
 /**
  * the class {@link MediaProviders} is used to manage all loaded {@link IMediaProvider}s.
@@ -83,15 +83,21 @@ public class MediaProviders {
     /////////////////////////////////////////////
     loadProvider(TheTvDbMetadataProvider.class);
     loadProvider(AniDBMetadataProvider.class);
+    loadProvider(UniversalTvShowMetadataProvider.class);
     // tmdb, imdb and trakt are already loaded in the movie block
+
+    // register all compatible scrapers in the universal scraper
+    MEDIA_PROVIDERS.forEach((key, value) -> UniversalTvShowMetadataProvider.addProvider(value));
+    UniversalTvShowMetadataProvider.afterInitialization();
 
     /////////////////////////////////////////////
     // ARTWORK
     /////////////////////////////////////////////
     loadProvider(FanartTvMetadataProvider.class);
-    loadProvider(KyradbMetadataProvider.class);
+    // loadProvider(KyradbMetadataProvider.class); EOL
     // tmdb is already loaded in the movie block
-    // tvdb is alrey loaded in the TV show block
+    // tvdb is already loaded in the TV show block
+    // imdb is already loaded in the movie block
 
     /////////////////////////////////////////////
     // TRAILER

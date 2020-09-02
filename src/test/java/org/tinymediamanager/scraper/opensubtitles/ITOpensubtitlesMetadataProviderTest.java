@@ -14,18 +14,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.LogManager;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.opensubtitles.model.Info;
 
-public class ITOpensubtitlesMetadataProviderTest {
-  private static final String CRLF = "\n";
+public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
+  private static final String CRLF    = "\n";
   private static final String SERVICE = "http://api.opensubtitles.org/xml-rpc";
-  private static final String USER_AGENT = "tinyMediaManager v1";
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   @BeforeClass
   public static void setUp() {
@@ -39,7 +46,8 @@ public class ITOpensubtitlesMetadataProviderTest {
     InputStream ins = new ByteArrayInputStream(config.toString().getBytes());
     try {
       LogManager.getLogManager().readConfiguration(ins);
-    } catch (IOException ignored) {
+    }
+    catch (IOException ignored) {
     }
   }
 
@@ -78,7 +86,8 @@ public class ITOpensubtitlesMetadataProviderTest {
           }
         }
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -93,7 +102,8 @@ public class ITOpensubtitlesMetadataProviderTest {
       List<SubtitleSearchResult> results = mp.search(options);
       assertThat(results).isNotEmpty();
       assertThat(results.size()).isGreaterThanOrEqualTo(11);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -101,13 +111,18 @@ public class ITOpensubtitlesMetadataProviderTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void testLogin() {
+  public void testLogin() throws Exception {
     try {
-      TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE), USER_AGENT);
-      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[]{"", "", "", USER_AGENT});
+      TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE));
+
+      String userAgent = License.getInstance().getApiKey("opensubtitles");
+      client.setUserAgent(userAgent);
+
+      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[] { "", "", "", userAgent });
       assertThat(result).isNotEmpty();
       assertThat((String) result.get("token")).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -118,8 +133,12 @@ public class ITOpensubtitlesMetadataProviderTest {
   public void testSearchMovieSubtitles() {
     try {
       // login
-      TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE), USER_AGENT);
-      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[]{"", "", "", USER_AGENT});
+      TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE));
+
+      String userAgent = License.getInstance().getApiKey("opensubtitles");
+      client.setUserAgent(userAgent);
+
+      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[] { "", "", "", userAgent });
       assertThat(result).isNotEmpty();
       assertThat((String) result.get("token")).isNotEmpty();
       String token = (String) result.get("token");
@@ -129,8 +148,8 @@ public class ITOpensubtitlesMetadataProviderTest {
       mapQuery.put("query", "The Matrix");
       mapQuery.put("sublanguageid", "ger");
 
-      Object[] arrayQuery = new Object[]{mapQuery};
-      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[]{token, arrayQuery});
+      Object[] arrayQuery = new Object[] { mapQuery };
+      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[] { token, arrayQuery });
       assertThat(result).isNotEmpty();
       Info info = new Info(result);
       assertThat(info.getSeconds()).isGreaterThan(0);
@@ -146,8 +165,8 @@ public class ITOpensubtitlesMetadataProviderTest {
       mapQuery.put("moviehash", "c00e58454d238c53");
       mapQuery.put("sublanguageid", "ger");
 
-      arrayQuery = new Object[]{mapQuery};
-      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[]{token, arrayQuery});
+      arrayQuery = new Object[] { mapQuery };
+      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[] { token, arrayQuery });
       assertThat(result).isNotEmpty();
       info = new Info(result);
       assertThat(info.getSeconds()).isGreaterThan(0);
@@ -164,8 +183,8 @@ public class ITOpensubtitlesMetadataProviderTest {
       mapQuery.put("moviehash", "c00e58454d238c53");
       mapQuery.put("sublanguageid", "ger");
 
-      arrayQuery = new Object[]{mapQuery};
-      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[]{token, arrayQuery});
+      arrayQuery = new Object[] { mapQuery };
+      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[] { token, arrayQuery });
       assertThat(result).isNotEmpty();
       info = new Info(result);
       assertThat(info.getSeconds()).isGreaterThan(0);
@@ -180,8 +199,8 @@ public class ITOpensubtitlesMetadataProviderTest {
       mapQuery.put("imdbid", "0103064");
       mapQuery.put("sublanguageid", "ger");
 
-      arrayQuery = new Object[]{mapQuery};
-      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[]{token, arrayQuery});
+      arrayQuery = new Object[] { mapQuery };
+      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[] { token, arrayQuery });
       assertThat(result).isNotEmpty();
       info = new Info(result);
       assertThat(info.getSeconds()).isGreaterThan(0);
@@ -210,14 +229,15 @@ public class ITOpensubtitlesMetadataProviderTest {
       mapQuery.put("moviehash", "c00e59454d238c53");
       mapQuery.put("sublanguageid", "ger");
 
-      arrayQuery = new Object[]{mapQuery};
-      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[]{token, arrayQuery});
+      arrayQuery = new Object[] { mapQuery };
+      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[] { token, arrayQuery });
       assertThat(result).isNotEmpty();
       info = new Info(result);
       assertThat(info.getSeconds()).isGreaterThan(0);
       assertThat(info.getStatus()).isNotEmpty();
       assertThat(info.getMovieInfo()).isEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -227,8 +247,12 @@ public class ITOpensubtitlesMetadataProviderTest {
   public void testSearchEpisodeSubtitles() {
     try {
       // login
-      TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE), USER_AGENT);
-      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[]{"", "", "", USER_AGENT});
+      TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE));
+
+      String userAgent = License.getInstance().getApiKey("opensubtitles");
+      client.setUserAgent(userAgent);
+
+      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[] { "", "", "", userAgent });
       assertThat(result).isNotEmpty();
       assertThat((String) result.get("token")).isNotEmpty();
       String token = (String) result.get("token");
@@ -240,8 +264,8 @@ public class ITOpensubtitlesMetadataProviderTest {
       mapQuery.put("episode", "1");
       mapQuery.put("sublanguageid", "ger");
 
-      Object[] arrayQuery = new Object[]{mapQuery};
-      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[]{token, arrayQuery});
+      Object[] arrayQuery = new Object[] { mapQuery };
+      result = (Map<String, Object>) client.call("SearchSubtitles", new Object[] { token, arrayQuery });
       assertThat(result).isNotEmpty();
       Info info = new Info(result);
       assertThat(info.getSeconds()).isGreaterThan(0);
@@ -252,7 +276,8 @@ public class ITOpensubtitlesMetadataProviderTest {
       assertThat(info.getMovieInfo().get(0).episode).isEqualTo("1");
       assertThat(info.getMovieInfo().get(0).subFormat).isNotEmpty();
       assertThat(info.getMovieInfo().get(0).subDownloadLink).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

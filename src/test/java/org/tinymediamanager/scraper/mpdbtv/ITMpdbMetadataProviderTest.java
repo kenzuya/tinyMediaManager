@@ -21,15 +21,23 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 
-public class ITMpdbMetadataProviderTest {
+public class ITMpdbMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   /**
    * Testing ProviderInfo
@@ -59,6 +67,8 @@ public class ITMpdbMetadataProviderTest {
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setSearchQuery("Batman");
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
+
     List<MediaSearchResult> result = new ArrayList<>(mp.search(options));
 
     assertThat(result).isNotNull();
@@ -75,6 +85,7 @@ public class ITMpdbMetadataProviderTest {
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setId("mpdbtv", "3193");
     options.setLanguage(MediaLanguages.fr);
+    options.setCertificationCountry(CountryCode.US);
 
     MediaMetadata result = mp.getMetadata(options);
     assertThat(result).isNotNull();

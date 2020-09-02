@@ -20,10 +20,13 @@ import static org.tinymediamanager.ui.moviesets.MovieSetSelectionModel.SELECTED_
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.moviesets.MovieSetSelectionModel;
 import org.tinymediamanager.ui.panels.ImagePanel;
@@ -43,6 +46,7 @@ public class MovieSetArtworkPanel extends JPanel {
 
   public MovieSetArtworkPanel(final MovieSetSelectionModel selectionModel) {
     mediaFiles = new ArrayList<>();
+    Map<MediaFileType, MediaFile> artworkMap = new EnumMap<>(MediaFileType.class);
 
     initComponents();
 
@@ -57,11 +61,15 @@ public class MovieSetArtworkPanel extends JPanel {
       if (SELECTED_MOVIE_SET.equals(property) || MEDIA_FILES.equals(property)) {
         synchronized (mediaFiles) {
           mediaFiles.clear();
+          artworkMap.clear();
+
           for (MediaFile mediafile : selectionModel.getSelectedMovieSet().getMediaFiles()) {
             if (mediafile.isGraphic()) {
-              mediaFiles.add(mediafile);
+              artworkMap.put(mediafile.getType(), mediafile);
             }
           }
+
+          mediaFiles.addAll(artworkMap.values());
           imagePanel.rebuildPanel();
         }
       }

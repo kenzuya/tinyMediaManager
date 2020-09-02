@@ -17,11 +17,8 @@ package org.tinymediamanager.ui.tvshows.filters;
 
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -34,8 +31,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Manuel Laggner
  */
-public class TvShowStudioFilter extends AbstractTvShowUIFilter {
-  private JTextField textField;
+public class TvShowStudioFilter extends AbstractTextTvShowUIFilter {
 
   @Override
   public String getId() {
@@ -43,30 +39,15 @@ public class TvShowStudioFilter extends AbstractTvShowUIFilter {
   }
 
   @Override
-  public String getFilterValueAsString() {
-    return textField.getText();
-  }
-
-  @Override
-  public void setFilterValue(Object value) {
-    if (value instanceof String) {
-      textField.setText((String) value);
-    }
-  }
-
-  @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
-    String filterText = StrgUtils.normalizeString(textField.getText());
-    if (StringUtils.isBlank(filterText)) {
+    if (StringUtils.isBlank(normalizedFilterText)) {
       return true;
     }
 
     try {
-      Pattern pattern = Pattern.compile(filterText, Pattern.CASE_INSENSITIVE);
-
       // first: filter on the production companies of the Tv show
       boolean foundShow = false;
-      Matcher matcher = pattern.matcher(StrgUtils.normalizeString(tvShow.getProductionCompany()));
+      Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(tvShow.getProductionCompany()));
       if (matcher.find()) {
         foundShow = true;
       }
@@ -83,7 +64,7 @@ public class TvShowStudioFilter extends AbstractTvShowUIFilter {
       for (TvShowEpisode episode : episodes) {
         boolean foundEpisode = false;
 
-        matcher = pattern.matcher(StrgUtils.normalizeString(episode.getProductionCompany()));
+        matcher = filterPattern.matcher(StrgUtils.normalizeString(episode.getProductionCompany()));
         if (matcher.find()) {
           foundEpisode = true;
         }
@@ -108,11 +89,5 @@ public class TvShowStudioFilter extends AbstractTvShowUIFilter {
   @Override
   protected JLabel createLabel() {
     return new TmmLabel(BUNDLE.getString("tvshowextendedsearch.studio"));
-  }
-
-  @Override
-  protected JComponent createFilterComponent() {
-    textField = new JTextField();
-    return textField;
   }
 }

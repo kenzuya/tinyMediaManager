@@ -37,7 +37,6 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -48,7 +47,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 public class ExportLogAction extends TmmAction {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ExportLogAction.class);
   private static final long           serialVersionUID = -1578568721825387890L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public ExportLogAction() {
     putValue(NAME, BUNDLE.getString("tmm.exportlogs"));

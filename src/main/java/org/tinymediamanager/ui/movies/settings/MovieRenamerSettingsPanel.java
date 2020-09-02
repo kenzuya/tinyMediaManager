@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.settings;
 
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
@@ -53,13 +54,13 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -72,18 +73,19 @@ import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.EnhancedTextField;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.gui.TableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -93,7 +95,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListener {
   private static final long              serialVersionUID = 5039498266207230875L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger            LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 
   private MovieSettings                  settings         = MovieModuleManager.SETTINGS;
@@ -120,6 +122,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   private TmmTable                       tableExamples;
   private ReadOnlyTextArea               taWarning;
   private JComboBox                      cbColonReplacement;
+  private JTextField                     tfFirstCharacter;
 
   public MovieRenamerSettingsPanel() {
     exampleEventList = GlazedLists
@@ -130,7 +133,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     initDataBindings();
 
     // data init
-    tfMoviePath.getDocument().addDocumentListener(new DocumentListener() {
+    DocumentListener documentListener = new DocumentListener() {
       @Override
       public void removeUpdate(DocumentEvent arg0) {
         createRenamerExample();
@@ -145,24 +148,11 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       public void changedUpdate(DocumentEvent arg0) {
         createRenamerExample();
       }
-    });
+    };
 
-    tfMovieFilename.getDocument().addDocumentListener(new DocumentListener() {
-      @Override
-      public void removeUpdate(DocumentEvent arg0) {
-        createRenamerExample();
-      }
-
-      @Override
-      public void insertUpdate(DocumentEvent arg0) {
-        createRenamerExample();
-      }
-
-      @Override
-      public void changedUpdate(DocumentEvent arg0) {
-        createRenamerExample();
-      }
-    });
+    tfMoviePath.getDocument().addDocumentListener(documentListener);
+    tfMovieFilename.getDocument().addDocumentListener(documentListener);
+    tfFirstCharacter.getDocument().addDocumentListener(documentListener);
 
     // foldername space replacement
     String replacement = settings.getRenamerPathnameSpaceReplacement();
@@ -261,6 +251,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
       JLabel lblPatternsT = new TmmLabel(BUNDLE.getString("Settings.movie.renamer.title"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPatterns, lblPatternsT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#renamer-pattern"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JLabel lblMoviePath = new JLabel(BUNDLE.getString("Settings.renamer.folder"));
@@ -332,10 +323,12 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       }
     }
     {
-      JPanel panelAdvancedOptions = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelAdvancedOptions = new JPanel();
+      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblAdvancedOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#advanced-options-4"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
         chckbxFoldernameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.folderspacereplacement"));
@@ -343,7 +336,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         panelAdvancedOptions.add(chckbxFoldernameSpaceReplacement, "cell 1 0 2 1");
 
         cbFoldernameSpaceReplacement = new JComboBox<>(spaceReplacement.toArray());
-        panelAdvancedOptions.add(cbFoldernameSpaceReplacement, "cell 1 0");
+        panelAdvancedOptions.add(cbFoldernameSpaceReplacement, "cell 1 0 2 1");
       }
       {
         chckbxFilenameSpaceReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.spacereplacement"));
@@ -351,15 +344,15 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         panelAdvancedOptions.add(chckbxFilenameSpaceReplacement, "cell 1 1 2 1");
 
         cbFilenameSpaceReplacement = new JComboBox<>(spaceReplacement.toArray());
-        panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 1");
+        panelAdvancedOptions.add(cbFilenameSpaceReplacement, "cell 1 1 2 1");
       }
       {
         JLabel lblColonReplacement = new JLabel(BUNDLE.getString("Settings.renamer.colonreplacement"));
-        panelAdvancedOptions.add(lblColonReplacement, "cell 2 2");
+        panelAdvancedOptions.add(lblColonReplacement, "cell 1 2 2 1");
         lblColonReplacement.setToolTipText(BUNDLE.getString("Settings.renamer.colonreplacement.hint"));
 
         cbColonReplacement = new JComboBox<>(colonReplacement.toArray());
-        panelAdvancedOptions.add(cbColonReplacement, "cell 2 2");
+        panelAdvancedOptions.add(cbColonReplacement, "cell 1 2");
       }
       {
         chckbxAsciiReplacement = new JCheckBox(BUNDLE.getString("Settings.renamer.asciireplacement"));
@@ -370,12 +363,20 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         TmmFontHelper.changeFont(lblAsciiHint, L2);
       }
       {
+        JLabel lblFirstCharacterT = new JLabel(BUNDLE.getString("Settings.renamer.firstnumbercharacterreplacement"));
+        panelAdvancedOptions.add(lblFirstCharacterT, "flowx,cell 1 5 2 1");
+
+        tfFirstCharacter = new JTextField();
+        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 5");
+        tfFirstCharacter.setColumns(2);
+      }
+      {
         chckbxMoviesetSingleMovie = new JCheckBox(BUNDLE.getString("Settings.renamer.moviesetsinglemovie"));
-        panelAdvancedOptions.add(chckbxMoviesetSingleMovie, "cell 1 5 2 1");
+        panelAdvancedOptions.add(chckbxMoviesetSingleMovie, "cell 1 6 2 1");
       }
       {
         chckbxRemoveOtherNfos = new JCheckBox(BUNDLE.getString("Settings.renamer.removenfo"));
-        panelAdvancedOptions.add(chckbxRemoveOtherNfos, "cell 1 6 2 1");
+        panelAdvancedOptions.add(chckbxRemoveOtherNfos, "cell 1 7 2 1");
       }
     }
     {
@@ -384,6 +385,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
       JLabel lblExampleHeader = new TmmLabel(BUNDLE.getString("Settings.example"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExample, lblExampleHeader, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#example"));
       add(collapsiblePanel, "cell 0 4, growx, wmin 0");
       {
         JLabel lblExampleT = new JLabel(BUNDLE.getString("tmm.movie"));
@@ -395,12 +397,10 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         lblExample = new TmmLabel("", L1);
         panelExample.add(lblExample, "cell 1 1, wmin 0");
 
-        DefaultEventTableModel<MovieRenamerExample> exampleTableModel = new DefaultEventTableModel<>(
-            GlazedListsSwing.swingThreadProxyList(exampleEventList), new MovieRenamerExampleTableFormat());
-        tableExamples = new TmmTable(exampleTableModel);
-        JScrollPane scrollPaneExamples = new JScrollPane(tableExamples);
-        tableExamples.configureScrollPane(scrollPaneExamples);
-        scrollPaneExamples.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        tableExamples = new TmmTable(
+            new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(exampleEventList), new MovieRenamerExampleTableFormat()));
+        JScrollPane scrollPaneExamples = new NoBorderScrollPane(tableExamples);
+        scrollPaneExamples.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_NEVER);
         ScrollingEventDelegator.install(scrollPaneExamples);
         panelExample.add(scrollPaneExamples, "cell 1 2,grow");
         tableExamples.setRowHeight(35);
@@ -595,85 +595,71 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     }
   }
 
-  private static class MovieRenamerExampleTableFormat implements TableFormat<MovieRenamerExample> {
-    @Override
-    public int getColumnCount() {
-      return 3;
-    }
+  private static class MovieRenamerExampleTableFormat extends TmmTableFormat<MovieRenamerExample> {
+    public MovieRenamerExampleTableFormat() {
+      /*
+       * token name
+       */
+      Column col = new Column(BUNDLE.getString("Settings.renamer.token.name"), "name", token -> token.completeToken, String.class);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("Settings.renamer.token.name");
+      /*
+       * token description
+       */
+      col = new Column(BUNDLE.getString("Settings.renamer.token"), "description", token -> token.description, String.class);
+      addColumn(col);
 
-        case 1:
-          return BUNDLE.getString("Settings.renamer.token");
-
-        case 2:
-          return BUNDLE.getString("Settings.renamer.value");
-
-        default:
-          return null;
-      }
-    }
-
-    @Override
-    public Object getColumnValue(MovieRenamerExample baseObject, int column) {
-      switch (column) {
-        case 0:
-          return baseObject.completeToken;
-
-        case 1:
-          return baseObject.description;
-
-        case 2:
-          return baseObject.example;
-
-        default:
-          break;
-      }
-      return null;
+      /*
+       * token value
+       */
+      col = new Column(BUNDLE.getString("Settings.renamer.value"), "value", token -> token.example, String.class);
+      addColumn(col);
     }
   }
 
   protected void initDataBindings() {
-    BeanProperty<MovieSettings, String> settingsBeanProperty_11 = BeanProperty.create("renamerPathname");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_3 = BeanProperty.create("text");
-    AutoBinding<MovieSettings, String, JTextField, String> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_11, tfMoviePath, jTextFieldBeanProperty_3);
+    Property settingsBeanProperty_11 = BeanProperty.create("renamerPathname");
+    Property jTextFieldBeanProperty_3 = BeanProperty.create("text");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_11, tfMoviePath,
+        jTextFieldBeanProperty_3);
     autoBinding_10.bind();
     //
-    BeanProperty<MovieSettings, String> settingsBeanProperty_12 = BeanProperty.create("renamerFilename");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_4 = BeanProperty.create("text");
-    AutoBinding<MovieSettings, String, JTextField, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_12, tfMovieFilename, jTextFieldBeanProperty_4);
+    Property settingsBeanProperty_12 = BeanProperty.create("renamerFilename");
+    Property jTextFieldBeanProperty_4 = BeanProperty.create("text");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_12, tfMovieFilename,
+        jTextFieldBeanProperty_4);
     autoBinding_11.bind();
     //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty = BeanProperty.create("renamerPathnameSpaceSubstitution");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty, chckbxFoldernameSpaceReplacement, jCheckBoxBeanProperty);
+    Property settingsBeanProperty = BeanProperty.create("renamerPathnameSpaceSubstitution");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, chckbxFoldernameSpaceReplacement,
+        jCheckBoxBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty_2 = BeanProperty.create("renamerFilenameSpaceSubstitution");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_2, chckbxFilenameSpaceReplacement, jCheckBoxBeanProperty);
+    Property settingsBeanProperty_2 = BeanProperty.create("renamerFilenameSpaceSubstitution");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_2,
+        chckbxFilenameSpaceReplacement, jCheckBoxBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty_1 = BeanProperty.create("renamerNfoCleanup");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_1, chckbxRemoveOtherNfos, jCheckBoxBeanProperty);
+    Property settingsBeanProperty_1 = BeanProperty.create("renamerNfoCleanup");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_1, chckbxRemoveOtherNfos,
+        jCheckBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty_5 = BeanProperty.create("renamerCreateMoviesetForSingleMovie");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_5, chckbxMoviesetSingleMovie, jCheckBoxBeanProperty);
+    Property settingsBeanProperty_5 = BeanProperty.create("renamerCreateMoviesetForSingleMovie");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_5, chckbxMoviesetSingleMovie,
+        jCheckBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<MovieSettings, Boolean> settingsBeanProperty_7 = BeanProperty.create("asciiReplacement");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_7, chckbxAsciiReplacement, jCheckBoxBeanProperty);
+    Property settingsBeanProperty_7 = BeanProperty.create("asciiReplacement");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_7, chckbxAsciiReplacement,
+        jCheckBoxBeanProperty);
     autoBinding_5.bind();
+    //
+    Property movieSettingsBeanProperty = BeanProperty.create("renamerFirstCharacterNumberReplacement");
+    Property jTextFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, tfFirstCharacter,
+        jTextFieldBeanProperty);
+    autoBinding_3.bind();
   }
 }

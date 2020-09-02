@@ -3,9 +3,9 @@
 <plist version="1.0">
   <dict>
   	<key>CFBundleExecutable</key>
-  		<string>JavaApplicationStub</string>
+  		<string>tinyMediaManager</string>
   	<key>CFBundleGetInfoString</key>
-  		<string>tinyMediaManager %VERSION% for Mac OS X</string>
+  		<string>tinyMediaManager %VERSION% for macOS</string>
   	<key>CFBundleIconFile</key>
   		<string>tmm.icns</string>
   	<key>CFBundleIdentifier</key>

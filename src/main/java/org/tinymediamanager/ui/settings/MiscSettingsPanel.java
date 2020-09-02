@@ -31,9 +31,8 @@ import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.ImageCache.CacheType;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -46,12 +45,13 @@ import net.miginfocom.swing.MigLayout;
 class MiscSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 500841588272296493L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Settings                    settings         = Settings.getInstance();
   private JComboBox                   cbImageCacheQuality;
   private JCheckBox                   chckbxImageCache;
   private JCheckBox                   chckbxDeleteTrash;
+  private JCheckBox                   chckbxMediaInfoXml;
 
   /**
    * Instantiates a new general settings panel.
@@ -65,10 +65,12 @@ class MiscSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[25lp:n,grow]", "[]"));
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         chckbxImageCache = new JCheckBox(BUNDLE.getString("Settings.imagecache"));
@@ -82,6 +84,9 @@ class MiscSettingsPanel extends JPanel {
 
         chckbxDeleteTrash = new JCheckBox(BUNDLE.getString("Settings.deletetrash"));
         panelMisc.add(chckbxDeleteTrash, "cell 1 2 2 1");
+
+        chckbxMediaInfoXml = new JCheckBox(BUNDLE.getString("Settings.writemediainfoxml"));
+        panelMisc.add(chckbxMediaInfoXml, "cell 1 3 2 1");
       }
     }
   }
@@ -103,5 +108,10 @@ class MiscSettingsPanel extends JPanel {
     AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         settingsBeanProperty_10, chckbxDeleteTrash, jCheckBoxBeanProperty);
     autoBinding_10.bind();
+    //
+    BeanProperty<Settings, Boolean> settingsBeanProperty = BeanProperty.create("writeMediaInfoXml");
+    AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+        settingsBeanProperty, chckbxMediaInfoXml, jCheckBoxBeanProperty);
+    autoBinding.bind();
   }
 }

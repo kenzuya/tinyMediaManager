@@ -6,10 +6,12 @@ import static org.junit.Assert.fail;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -20,13 +22,14 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
-public class ITTraktMetadataProviderTest {
+public class ITTraktMetadataProviderTest extends BasicTest {
 
-  @BeforeClass
-  public static void setUp() {
-    // ProxySettings.setProxySettings("localhost", 3128, "", "");
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
   }
 
   @Test
@@ -39,11 +42,13 @@ public class ITTraktMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter and the Philosopher's Stone");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
       options.setImdbId("tt0241527");
       options.setTmdbId(671);
       // options.setId("trakt", "-2");
       mp.lookupWithId(options);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -60,6 +65,7 @@ public class ITTraktMetadataProviderTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter and the Philosopher's Stone");
       options.setLanguage(MediaLanguages.en);
+      options.setCertificationCountry(CountryCode.US);
       results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
@@ -72,7 +78,8 @@ public class ITTraktMetadataProviderTest {
       assertThat(result.getScore()).isGreaterThan(0);
       assertThat(result.getIMDBId()).isEqualTo("tt0241527");
       assertThat(result.getProviderId()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -84,6 +91,7 @@ public class ITTraktMetadataProviderTest {
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     TraktMetadataProvider mp = new TraktMetadataProvider();
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
     options.setId(mp.getProviderInfo().getId(), "545"); // Harry Potter and the Philosopher's Stone
 
     try {
@@ -118,7 +126,8 @@ public class ITTraktMetadataProviderTest {
       Person castMember = md.getCastMembers(ACTOR).get(0);
       assertThat(castMember.getName()).isNotEmpty();
       assertThat(castMember.getRole()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -127,7 +136,7 @@ public class ITTraktMetadataProviderTest {
 
   @Test
   public void testTvShowEpisodeList() {
-    TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     TraktMetadataProvider mp = new TraktMetadataProvider();
 
     // Game of Thrones
@@ -145,7 +154,8 @@ public class ITTraktMetadataProviderTest {
       assertThat(episode.getTitle()).isNotEmpty();
       assertThat(episode.getPlot()).isNotNull(); // can be empty for some eps
       assertThat(episode.getIds()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -159,6 +169,7 @@ public class ITTraktMetadataProviderTest {
     // Game of Thrones
     options.setId(mp.getId(), "1390");
     options.setLanguage(MediaLanguages.en);
+    options.setCertificationCountry(CountryCode.US);
 
     try {
       MediaMetadata md = mp.getMetadata(options);
@@ -180,11 +191,10 @@ public class ITTraktMetadataProviderTest {
       assertThat(mediaRating.getVotes()).isGreaterThan(0);
       assertThat(mediaRating.getMaxValue()).isEqualTo(10);
 
-      assertThat(md.getGenres()).containsOnly(MediaGenres.DRAMA, MediaGenres.FANTASY, MediaGenres.SCIENCE_FICTION, MediaGenres.ACTION,
-              MediaGenres.ADVENTURE);
+      assertThat(md.getGenres().size()).isGreaterThan(0);
 
       // ids
-      assertThat(md.getId(TraktMetadataProvider.providerInfo.getId())).isEqualTo(1390);
+      assertThat(md.getId(TraktMetadataProvider.PROVIDER_INFO.getId())).isEqualTo(1390);
       assertThat(md.getId(MediaMetadata.TVDB)).isEqualTo(121361);
       assertThat(md.getId(MediaMetadata.IMDB)).isEqualTo("tt0944947");
       assertThat(md.getId(MediaMetadata.TMDB)).isEqualTo(1399);
@@ -194,7 +204,8 @@ public class ITTraktMetadataProviderTest {
       Person castMember = md.getCastMembers(ACTOR).get(0);
       assertThat(castMember.getName()).isNotEmpty();
       assertThat(castMember.getRole()).isNotEmpty();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
@@ -206,7 +217,7 @@ public class ITTraktMetadataProviderTest {
     TraktMetadataProvider mp = new TraktMetadataProvider();
 
     // Game of Thrones
-    options.setId(mp.getProviderInfo().getId(), "1390");
+    options.setTvShowIds(Collections.singletonMap(mp.getProviderInfo().getId(), "1390"));
     options.setId(MediaMetadata.SEASON_NR, "1");
     options.setId(MediaMetadata.EPISODE_NR, "1");
 
@@ -225,11 +236,12 @@ public class ITTraktMetadataProviderTest {
       assertThat(mediaRating.getMaxValue()).isEqualTo(10);
 
       // ids
-      assertThat(md.getId(TraktMetadataProvider.providerInfo.getId())).isEqualTo(73640);
+      assertThat(md.getId(TraktMetadataProvider.PROVIDER_INFO.getId())).isEqualTo(73640);
       assertThat(md.getId(MediaMetadata.TVDB)).isEqualTo(3254641);
       assertThat(md.getId(MediaMetadata.IMDB)).isEqualTo("tt1480055");
       assertThat(md.getId(MediaMetadata.TMDB)).isEqualTo(63056);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

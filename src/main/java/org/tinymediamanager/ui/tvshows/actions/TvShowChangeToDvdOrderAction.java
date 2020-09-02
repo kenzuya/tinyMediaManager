@@ -23,7 +23,6 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -39,7 +38,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowChangeToDvdOrderAction extends TmmAction {
   private static final long           serialVersionUID = 8457297935386064655L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowChangeToDvdOrderAction() {
     putValue(NAME, BUNDLE.getString("tvshow.changetodvdorder"));

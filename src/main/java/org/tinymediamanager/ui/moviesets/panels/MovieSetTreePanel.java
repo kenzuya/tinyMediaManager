@@ -16,6 +16,8 @@
 
 package org.tinymediamanager.ui.moviesets.panels;
 
+import static java.awt.event.InputEvent.CTRL_DOWN_MASK;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -23,8 +25,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
@@ -34,22 +34,16 @@ import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.AbstractSettings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.ITmmTabItem;
@@ -57,6 +51,8 @@ import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
+import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -73,7 +69,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = 5889203009864512935L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TmmTreeTable                tree;
 
@@ -101,72 +97,23 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     final TmmTreeTextFilter<TmmTreeNode> searchField = new TmmTreeTextFilter<>();
     add(searchField, "cell 0 0,growx");
 
+    // register global short cut for the search field
+    getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
+    getActionMap().put("search", new RequestFocusAction(searchField));
+
     btnFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));
     btnFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options"));
     btnFilter.addActionListener(e -> MovieSetUIModule.getInstance().setFilterDialogVisible(true));
     add(btnFilter, "cell 1 0");
 
-    tree = new TmmTreeTable(new MovieSetTreeDataProvider(), new MovieSetTableFormat()) {
-      @Override
-      public void storeFilters() {
-        if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
-          List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
-          for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
-            if (filter instanceof ITmmUIFilter) {
-              ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
-              if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
-                AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
-                uiFilters.id = uiFilter.getId();
-                uiFilters.state = uiFilter.getFilterState();
-                uiFilters.filterValue = uiFilter.getFilterValueAsString();
-                filterValues.add(uiFilters);
-              }
-            }
-          }
-          MovieModuleManager.SETTINGS.setMovieSetUiFilters(filterValues);
-          MovieModuleManager.SETTINGS.saveSettings();
-        }
-      }
-    };
+    tree = new TmmTreeTable(new MovieSetTreeDataProvider(), new MovieSetTableFormat());
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
 
-    // restore hidden columns
-    tree.readHiddenColumns(MovieModuleManager.SETTINGS.getMovieSetTableHiddenColumns());
-    tree.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
-      @Override
-      public void columnAdded(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnRemoved(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnMoved(TableColumnModelEvent e) {
-      }
-
-      @Override
-      public void columnMarginChanged(ChangeEvent e) {
-
-      }
-
-      @Override
-      public void columnSelectionChanged(ListSelectionEvent e) {
-      }
-
-      private void writeSettings() {
-        tree.writeHiddenColumns(cols -> {
-          MovieModuleManager.SETTINGS.setMovieSetTableHiddenColumns(cols);
-          MovieModuleManager.SETTINGS.saveSettings();
-        });
-      }
-    });
+    tree.setName("movieSets.movieSetTree");
+    TmmUILayoutStore.getInstance().install(tree);
 
     tree.addFilter(searchField);
     JScrollPane scrollPane = new JScrollPane(tree);
-    tree.configureScrollPane(scrollPane, new int[] { 0 });
     add(scrollPane, "cell 0 1 2 1,grow");
     tree.adjustColumnPreferredWidths(3);
 

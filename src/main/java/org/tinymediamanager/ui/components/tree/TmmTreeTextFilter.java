@@ -27,7 +27,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 
@@ -40,9 +39,10 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
  */
 public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField implements ITmmTreeFilter<E> {
   private static final long           serialVersionUID = 8492300503787395800L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected String                    filterText       = "";
+  protected Pattern                   filterPattern;
 
   public TmmTreeTextFilter() {
     super(BUNDLE.getString("tmm.searchfield"), IconManager.SEARCH_GREY);
@@ -57,6 +57,11 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
     });
 
     initDocumentListener();
+  }
+
+  @Override
+  public String getId() {
+    return "treeTextFilter";
   }
 
   protected void initDocumentListener() {
@@ -91,6 +96,7 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
       private void updateFilter() {
         String oldValue = filterText;
         filterText = getText();
+        filterPattern = Pattern.compile("(?i)" + filterText);
         firePropertyChange(ITmmTreeFilter.TREE_FILTER_CHANGED, oldValue, filterText);
       }
     });
@@ -108,10 +114,8 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
       return true;
     }
 
-    Pattern pattern = Pattern.compile("(?i)" + Pattern.quote(filterText));
-
     // first: filter on the node
-    Matcher matcher = pattern.matcher(node.toString());
+    Matcher matcher = filterPattern.matcher(node.toString());
     if (matcher.find()) {
       return true;
     }
@@ -124,7 +128,7 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
     }
 
     // third: check the parent(s)
-    if (checkParent(node.getDataProvider().getParent(node), pattern)) {
+    if (checkParent(node.getDataProvider().getParent(node), filterPattern)) {
       return true;
     }
 

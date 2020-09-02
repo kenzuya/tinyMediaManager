@@ -43,6 +43,7 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
    */
   public void loadDefaults() {
     language = MovieModuleManager.SETTINGS.getScraperLanguage();
+    certificationCountry = MovieModuleManager.SETTINGS.getCertificationCountry();
 
     // metadata
     metadataScraper = MovieList.getInstance().getDefaultMediaScraper();

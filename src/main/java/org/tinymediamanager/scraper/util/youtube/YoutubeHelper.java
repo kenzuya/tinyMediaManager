@@ -39,6 +39,15 @@ public class YoutubeHelper {
     }
   }
 
+  public static Long getLong(JsonNode node, String name) {
+    if (node.get(name) != null && node.get(name).isLong()) {
+      return node.get(name).asLong();
+    }
+    else {
+      return null;
+    }
+  }
+
   public static String getString(JsonNode node, String name) {
     if (node.get(name) != null && node.get(name).isTextual()) {
       return node.get(name).asText();

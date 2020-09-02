@@ -45,12 +45,13 @@ import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -61,7 +62,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -74,7 +74,7 @@ public class MovieSetInformationPanel extends JPanel {
   private static final long            serialVersionUID    = -8166784589262658147L;
   private static final Logger          LOGGER              = LoggerFactory.getLogger(MovieSetInformationPanel.class);
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE              = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle  BUNDLE              = ResourceBundle.getBundle("messages");
   private static final String          ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private JLabel                       lblMovieSetName;
   private ImageLabel                   lblFanart;
@@ -165,23 +165,21 @@ public class MovieSetInformationPanel extends JPanel {
         panelRight.add(lblPlot, "cell 0 2");
         TmmFontHelper.changeFont(lblPlot, Font.BOLD);
 
-        JScrollPane scrollPaneOverview = new JScrollPane();
+        JScrollPane scrollPaneOverview = new NoBorderScrollPane();
         panelRight.add(scrollPaneOverview, "cell 0 3,grow");
 
         taOverview = new ReadOnlyTextArea();
-        taOverview.setBorder(null);
         scrollPaneOverview.setViewportView(taOverview);
       }
       {
         panelRight.add(new JSeparator(), "cell 0 5,growx");
       }
       {
-
-        final DefaultEventTableModel<Movie> movieTableModel = new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat());
-        tableAssignedMovies = new TmmTable(movieTableModel);
+        tableAssignedMovies = new TmmTable(new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat()));
+        tableAssignedMovies.setName("movieSets.movieTable");
+        TmmUILayoutStore.getInstance().install(tableAssignedMovies);
         tableAssignedMovies.adjustColumnPreferredWidths(3);
         JScrollPane scrollPane = new JScrollPane(tableAssignedMovies);
-        tableAssignedMovies.configureScrollPane(scrollPane);
         panelRight.add(scrollPane, "cell 0 7,grow");
       }
     }
@@ -239,7 +237,7 @@ public class MovieSetInformationPanel extends JPanel {
     autoBinding_1.bind();
   }
 
-  private class ImageSizeLoader extends SwingWorker<Void, Void> {
+  private static class ImageSizeLoader extends SwingWorker<Void, Void> {
     private final String path;
     private final String type;
     private final JLabel label;

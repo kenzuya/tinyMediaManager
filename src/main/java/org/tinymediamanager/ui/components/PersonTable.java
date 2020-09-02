@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -42,7 +41,6 @@ import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 
 /**
@@ -52,7 +50,7 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  */
 public class PersonTable extends TmmTable {
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   /**
    * create a PersonTable for display only
@@ -75,9 +73,7 @@ public class PersonTable extends TmmTable {
   public PersonTable(EventList<Person> personEventList, boolean edit) {
     super();
 
-    DefaultEventTableModel<Person> personTableModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(personEventList),
-        new PersonTableFormat(edit));
-    setModel(personTableModel);
+    setModel(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(personEventList), new PersonTableFormat(edit)));
     // init();
 
     adjustColumnPreferredWidths(3);

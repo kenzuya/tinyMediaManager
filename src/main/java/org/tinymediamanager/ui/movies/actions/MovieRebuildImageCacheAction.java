@@ -23,7 +23,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
@@ -39,7 +38,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRebuildImageCacheAction extends TmmAction {
   private static final long           serialVersionUID = -5089957097690621345L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieRebuildImageCacheAction() {
     putValue(NAME, BUNDLE.getString("movie.rebuildimagecache"));

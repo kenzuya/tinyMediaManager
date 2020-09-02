@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class DynaComparatorTest {
 
-  private static List<Person> p = new ArrayList<Person>();
+  private static List<Person> p = new ArrayList<>();
 
   @BeforeClass
   public static void init() throws ParseException {
@@ -26,13 +26,13 @@ public class DynaComparatorTest {
 
   @Test
   public void test() {
-    Collections.sort(p, new DynaComparator("getName", false));
+    Collections.sort(p, new DynaComparator<>("getName", false));
     displayPersonList(p);
-    Collections.sort(p, new DynaComparator("getNumber", false));
+    Collections.sort(p, new DynaComparator<>("getNumber", false));
     displayPersonList(p);
-    Collections.sort(p, new DynaComparator("isActive"));
+    Collections.sort(p, new DynaComparator<>("isActive"));
     displayPersonList(p);
-    Collections.sort(p, new DynaComparator("getEntry", false));
+    Collections.sort(p, new DynaComparator<>("getEntry", false));
     displayPersonList(p);
   }
 

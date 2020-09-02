@@ -58,14 +58,4 @@ public class MovieRenamerTest extends BasicTest {
     assertEqual("The Dish (2000)", MovieRenamer.createDestinationForFoldername(".${title} (${year})", m));
     assertEqual("The Dish (2000)", MovieRenamer.createDestinationForFoldername("-${title} (${year})-", m));
   }
-
-  @Test
-  public void testFirstAlphaNum() {
-    assertEqual("A", MovieRenamer.getFirstAlphaNum("... and then came Polly"));
-    assertEqual("5", MovieRenamer.getFirstAlphaNum("(500) days of summer"));
-    assertEqual("3", MovieRenamer.getFirstAlphaNum("300"));
-    assertEqual("B", MovieRenamer.getFirstAlphaNum("Batman"));
-    assertEqual("", MovieRenamer.getFirstAlphaNum(""));
-    assertEqual("", MovieRenamer.getFirstAlphaNum(null));
-  }
 }

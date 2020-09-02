@@ -17,12 +17,10 @@ package org.tinymediamanager;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.SystemUtils;
@@ -40,6 +38,10 @@ public class TmmOsUtils {
 
   public static final String  DESKTOP_FILE = "tinyMediaManager.desktop";
 
+  private TmmOsUtils() {
+    // hide public constructor for utility classes
+  }
+
   /**
    * create a .desktop file for linux and unix (not osx)
    * 
@@ -53,12 +55,8 @@ public class TmmOsUtils {
 
     // get the path in a safe way
     String path = new File(TinyMediaManager.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
-    try {
-      path = URLDecoder.decode(path, "UTF-8");
-    }
-    catch (UnsupportedEncodingException e1) {
-      path = URLDecoder.decode(path);
-    }
+    path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+
     StringBuilder sb = new StringBuilder(60);
     sb.append("[Desktop Entry]\n");
     sb.append("Type=Application\n");
@@ -68,7 +66,7 @@ public class TmmOsUtils {
     sb.append('\n');
     sb.append("Exec=/usr/bin/env bash \"");
     sb.append(path);
-    sb.append("/tinyMediaManager.sh\"\n");
+    sb.append("/tinyMediaManager\"\n");
     sb.append("Icon=");
     sb.append(path);
     sb.append("/tmm.png\n");
@@ -87,19 +85,29 @@ public class TmmOsUtils {
   }
 
   /**
-   * need to do add path to Classpath with reflection since the URLClassLoader.addURL(URL url) method is protected:
-   * 
-   * @param s
-   *          the path to be set
-   * @throws Exception
+   * create a ProcessBuilder for restarting TMM
+   *
+   * @return the process builder
    */
-  public static void addPath(String s) throws Exception {
-    File f = new File(s);
-    URI u = f.toURI();
-    URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-    Class<URLClassLoader> urlClass = URLClassLoader.class;
-    Method method = urlClass.getDeclaredMethod("addURL", new Class[] { URL.class });
-    method.setAccessible(true);
-    method.invoke(urlClassLoader, new Object[] { u.toURL() });
+  public static ProcessBuilder getPBforTMMrestart() {
+    Path tmmExecutable;
+    ProcessBuilder pb;
+
+    if (SystemUtils.IS_OS_WINDOWS) {
+      tmmExecutable = Paths.get("tinyMediaManager.exe");
+      pb = new ProcessBuilder("cmd", "/c", "tinyMediaManager.exe");
+    }
+    else if (SystemUtils.IS_OS_MAC) {
+      tmmExecutable = Paths.get("../../MacOS/tinyMediaManager");
+      pb = new ProcessBuilder("/bin/sh", "-c", tmmExecutable.toAbsolutePath().toString());
+    }
+    else {
+      tmmExecutable = Paths.get("tinyMediaManager");
+      pb = new ProcessBuilder("/bin/sh", "-c", tmmExecutable.toAbsolutePath().toString());
+    }
+
+    pb.directory(tmmExecutable.toAbsolutePath().getParent().toAbsolutePath().toFile());
+    pb.redirectOutput(new File("NUL")).redirectErrorStream(true);
+    return pb;
   }
 }

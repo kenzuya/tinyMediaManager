@@ -38,7 +38,9 @@ public abstract class TmmTreeDataProvider<E extends TmmTreeNode> extends Abstrac
   public static final String               NODE_REMOVED           = "nodeRemoved";
   public static final String               NODE_STRUCTURE_CHANGED = "nodeStructureChanged";
 
-  protected Set<ITmmTreeFilter<E>>         treeFilters;
+  protected Set<ITmmTreeFilter<E>>         treeFilters            = null;
+  private boolean                          filtersActive          = true;
+
   protected Comparator<E>                  treeComparator         = null;
   protected final ReadWriteLock            readWriteLock          = new ReentrantReadWriteLock();
   protected final Map<Object, TmmTreeNode> nodeMap                = new HashMap<>();
@@ -60,6 +62,25 @@ public abstract class TmmTreeDataProvider<E extends TmmTreeNode> extends Abstrac
    */
   public void setTreeFilters(final Set<ITmmTreeFilter<E>> treeFilters) {
     this.treeFilters = treeFilters;
+  }
+
+  /**
+   * check whether the filters for this tree are active or not
+   * 
+   * @return true/false
+   */
+  public boolean isFiltersActive() {
+    return filtersActive;
+  }
+
+  /**
+   * activate/deactivate all filters at once
+   * 
+   * @param filtersActive
+   *          true to activate/false to deactivate
+   */
+  public void setFiltersActive(boolean filtersActive) {
+    this.filtersActive = filtersActive;
   }
 
   /**

@@ -16,8 +16,15 @@
 
 package org.tinymediamanager.ui.panels;
 
+import static org.tinymediamanager.ui.plaf.UIUtils.fitToScreen;
+
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Taskbar;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -28,18 +35,19 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmTaskbar;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
@@ -55,7 +63,7 @@ import net.miginfocom.swing.MigLayout;
 public class StatusBarPanel extends JPanel implements TmmTaskListener {
   private static final long           serialVersionUID = -6375900257553323558L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Set<TmmTaskHandle>          taskSet;
   private TmmTaskHandle               activeTask;
@@ -138,9 +146,14 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     TaskListDialog.getInstance();
   }
 
+  @Override
+  public void updateUI() {
+    super.updateUI();
+    setBackground(UIManager.getColor("Panel.tmmAlternateBackground"));
+  }
+
   private void initComponents() {
     setLayout(new MigLayout("insets 0 n 0 n, hidemode 3", "[][50lp:n][grow][100lp][15lp:n][]", "[22lp:n]"));
-    setOpaque(false);
     {
       lblMemory = new JLabel("");
       add(lblMemory, "cell 0 0");
@@ -166,7 +179,15 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
       add(taskStopButton, "cell 4 0");
     }
     {
-      btnNotifications = new FlatButton(IconManager.WARN_INTENSIFIED);
+      btnNotifications = new FlatButton(IconManager.WARN_INTENSIFIED) {
+        @Override
+        public Point getToolTipLocation(MouseEvent event) {
+          JToolTip tip = new JToolTip();
+          tip.setTipText(getToolTipText());
+
+          return getTooltipPointFor(this, tip.getPreferredSize());
+        }
+      };
       btnNotifications.setEnabled(false);
       btnNotifications.setForeground(Color.RED);
       btnNotifications.setToolTipText(BUNDLE.getString("notifications.new"));
@@ -231,6 +252,9 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
         taskLabel.setVisible(false);
         taskStopButton.setVisible(false);
         taskProgressBar.setVisible(false);
+
+        TmmTaskbar.setProgressState(Taskbar.State.OFF);
+        TmmTaskbar.setProgressValue(-1);
       }
       else {
         // ensure everything is visible
@@ -246,15 +270,53 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
         // and update content
         taskLabel.setText(activeTask.getTaskName());
         if (activeTask.getWorkUnits() > 0) {
-          taskProgressBar.setIndeterminate(false);
-          taskProgressBar.setMaximum(activeTask.getWorkUnits());
-          taskProgressBar.setValue(activeTask.getProgressDone());
+          try {
+            // try/catch here; in a very occasional situation the last task might finish while we are inside the IF
+            taskProgressBar.setIndeterminate(false);
+            taskProgressBar.setMaximum(activeTask.getWorkUnits());
+            taskProgressBar.setValue(activeTask.getProgressDone());
+
+            TmmTaskbar.setProgressState(Taskbar.State.NORMAL);
+            TmmTaskbar.setProgressValue(100 * activeTask.getProgressDone() / activeTask.getWorkUnits());
+          }
+          catch (Exception e) {
+            // just ignore
+          }
         }
         else {
           taskProgressBar.setIndeterminate(true);
+
+          TmmTaskbar.setProgressState(Taskbar.State.INDETERMINATE);
         }
       }
     });
+  }
+
+  /**
+   * calculate the tooltip {@link Point} for the given tooltip {@link Dimension} and the actual mouse location
+   *
+   * @param owner
+   *          the {@link Component} showing the tooltip
+   * @param popupSize
+   *          the {@link Dimension} of the tooltip
+   * @return the origin point where the tooltip should be shown
+   */
+  private Point getTooltipPointFor(Component owner, Dimension popupSize) {
+    Point location = new Point(0, owner.getHeight());
+    location.y += 5; // 5 ... tooltip offset
+    SwingUtilities.convertPointToScreen(location, owner);
+
+    Rectangle r = new Rectangle(location, popupSize);
+    fitToScreen(r);
+    location = r.getLocation();
+    SwingUtilities.convertPointFromScreen(location, owner);
+    r.setLocation(location);
+
+    if (r.intersects(new Rectangle(0, 0, owner.getWidth(), owner.getHeight()))) {
+      location.y = -r.height - 5;
+    }
+
+    return location;
   }
 
   /****************************************************************************************

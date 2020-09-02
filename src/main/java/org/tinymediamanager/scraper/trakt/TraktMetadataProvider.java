@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
@@ -38,8 +39,8 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
-import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -52,21 +53,20 @@ import com.uwetrottmann.trakt5.enums.Type;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
-public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider {
-  public static final String     ID           = "trakt";
+public class TraktMetadataProvider
+    implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider, ITvShowImdbMetadataProvider {
+  public static final String     ID            = "trakt";
 
-  private static final Logger    LOGGER       = LoggerFactory.getLogger(TraktMetadataProvider.class);
-  private static final String    CLIENT_ID    = ApiKey
-      .decryptApikey("Xd0t1yRY+HaxMl3bqILuxIaokXxekrFNj0QszCUsG6aNSbrhOhC2h5PcxDhV7wUXmBdOt9cYlMGNJjLZvKcS3xTRx3zYH7EYb7Mv5hCsMQU=");
+  private static final Logger    LOGGER        = LoggerFactory.getLogger(TraktMetadataProvider.class);
 
-  static final MediaProviderInfo providerInfo = createMediaProviderInfo();
+  static final MediaProviderInfo PROVIDER_INFO = createMediaProviderInfo();
 
   private static TraktV2         api;
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "Trakt.tv",
         "<html><h3>Trakt.tv</h3><br />Trakt.tv is a platform that does many things, but primarily keeps track of TV shows and movies you watch. It also provides meta data for movies and TV shows<br /><br />Available languages: EN</html>",
-        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.png"));
+        TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.svg"));
 
     providerInfo.getConfig().addText("clientId", "", true);
     providerInfo.getConfig().load();
@@ -75,9 +75,17 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
   }
 
   // thread safe initialization of the API
-  private static synchronized void initAPI() {
-    String apiKey = CLIENT_ID;
-    String userApiKey = providerInfo.getConfig().getValue("clientId");
+  private static synchronized void initAPI() throws ScrapeException {
+    String tmmApiKey;
+    String apiKey;
+    try {
+      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
+    String userApiKey = PROVIDER_INFO.getConfig().getValue("apiKey");
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey) && api != null && !userApiKey.equals(api.apiKey())) {
@@ -86,9 +94,9 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
     }
 
     // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && api != null && !CLIENT_ID.equals(api.apiKey())) {
+    if (StringUtils.isBlank(userApiKey) && api != null && !tmmApiKey.equals(api.apiKey())) {
       api = null;
-      apiKey = CLIENT_ID;
+      apiKey = tmmApiKey;
     }
 
     // create a new instance of the trakt api
@@ -109,7 +117,7 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
   // ProviderInfo
   @Override
   public MediaProviderInfo getProviderInfo() {
-    return providerInfo;
+    return PROVIDER_INFO;
   }
 
   @Override
@@ -124,7 +132,7 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
    *          the options to lookup with the id
    * @return any media search result
    */
-  public List<MediaSearchResult> lookupWithId(MediaSearchAndScrapeOptions options) {
+  public List<MediaSearchResult> lookupWithId(MediaSearchAndScrapeOptions options) throws ScrapeException {
     List<SearchResult> results = new ArrayList<>();
 
     // get known IDs
@@ -132,7 +140,7 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
     if (MetadataUtil.isValidImdbId(options.getSearchQuery())) {
       imdbId = options.getSearchQuery();
     }
-    String traktId = options.getIdAsString(providerInfo.getId());
+    String traktId = options.getIdAsString(PROVIDER_INFO.getId());
     String tmdbId = options.getIdAsString(TMDB);
     String tvdbId = options.getIdAsString(TVDB);
     String tvrageId = options.getIdAsString("tvrage");
@@ -168,7 +176,7 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
     return msr;
   }
 
-  private List<SearchResult> lookupWithId(List<SearchResult> results, IdType id, String value, Type type) {
+  private List<SearchResult> lookupWithId(List<SearchResult> results, IdType id, String value, Type type) throws ScrapeException {
     // lazy initialization of the api
     initAPI();
 
@@ -237,15 +245,6 @@ public class TraktMetadataProvider implements IMovieMetadataProvider, ITvShowMet
 
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    LOGGER.debug("getEpisodeList(): {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktTVShowMetadataProvider(api).getEpisodeList(options);
-  }
-
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     LOGGER.debug("getEpisodeList(): {}", options);
 
     // lazy initialization of the api

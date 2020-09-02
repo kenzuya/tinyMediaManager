@@ -30,7 +30,6 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -63,7 +62,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @author Manuel Laggner
  */
 public class MovieChooserModel extends AbstractModelObject {
-  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger LOGGER = LoggerFactory.getLogger(MovieChooserModel.class);
   public static final MovieChooserModel emptyResult = new MovieChooserModel();
 
@@ -205,6 +204,7 @@ public class MovieChooserModel extends AbstractModelObject {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchResult(result);
       options.setLanguage(language);
+      options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");

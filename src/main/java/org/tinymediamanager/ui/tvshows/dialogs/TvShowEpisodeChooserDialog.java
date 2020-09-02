@@ -25,14 +25,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
@@ -44,8 +42,8 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
-import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -54,9 +52,10 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.EnhancedTextField;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeChooserModel;
@@ -92,7 +91,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   private final SortedList<TvShowEpisodeChooserModel>      sortedEpisodes;
 
   private JLabel                                           lblPath;
-  private JTable                                           table;
+  private TmmTable                                         table;
   private JTextArea                                        taPlot;
   private JTextField                                       textField;
 
@@ -123,7 +122,9 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     contentPanel.setLayout(new MigLayout("", "[700lp,grow]", "[500lp,grow]"));
 
     {
-      JSplitPane splitPane = new TmmSplitPane();
+      JSplitPane splitPane = new JSplitPane();
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 0,grow");
 
       JPanel panelLeft = new JPanel();
@@ -167,7 +168,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       JPanel panelRight = new JPanel();
       panelRight.setLayout(new MigLayout("", "[400lp,grow]", "[400lp,grow]"));
 
-      JScrollPane scrollPane_1 = new JScrollPane();
+      JScrollPane scrollPane_1 = new NoBorderScrollPane();
       panelRight.add(scrollPane_1, "cell 0 0,grow");
       splitPane.setRightComponent(panelRight);
 
@@ -238,16 +239,14 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   private class SearchTask extends SwingWorker<Void, Void> {
     @Override
     public Void doInBackground() {
-      TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
-
-      for (Entry<String, Object> entry : episode.getTvShow().getIds().entrySet()) {
-        options.setId(entry.getKey(), entry.getValue().toString());
-      }
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
+      options.setIds(episode.getTvShow().getIds());
 
       try {
-        for (MediaMetadata episode : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
-          episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, episode));
+        for (MediaMetadata md : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
+          episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
         }
       }
       catch (ScrapeException e) {

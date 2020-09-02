@@ -23,20 +23,13 @@ import java.util.ResourceBundle;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
-import org.tinymediamanager.ui.components.TmmListPanel;
-
 public abstract class AbstractTmmUIModule implements ITmmUIModule {
-  protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
-  protected final Map<Class, Action>    actionMap    = new HashMap<>();
-
-  protected TmmListPanel                listPanel;
-  protected JPanel                      detailPanel;
+  protected final Map<Class<?>, Action> actionMap    = new HashMap<>();
 
   protected Action                      searchAction = null;
   protected Action                      editAction   = null;
@@ -63,11 +56,11 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
     Action action = actionMap.get(actionClass);
     if (action == null) {
       try {
-        action = actionClass.newInstance();
+        action = actionClass.getDeclaredConstructor().newInstance();
         actionMap.put(actionClass, action);
-        // KeyStroke keyStroke = (KeyStroke) action.getValue(Action.ACCELERATOR_KEY);
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
     return action;
@@ -77,7 +70,7 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
    * register accelerators
    */
   protected void registerAccelerators() {
-    for (Map.Entry<Class, Action> entry : actionMap.entrySet()) {
+    for (Map.Entry<Class<?>, Action> entry : actionMap.entrySet()) {
       try {
         KeyStroke keyStroke = (KeyStroke) entry.getValue().getValue(Action.ACCELERATOR_KEY);
         if (keyStroke != null) {
@@ -89,16 +82,6 @@ public abstract class AbstractTmmUIModule implements ITmmUIModule {
       catch (Exception ignored) {
       }
     }
-  }
-
-  @Override
-  public JPanel getTabPanel() {
-    return listPanel;
-  }
-
-  @Override
-  public JPanel getDetailPanel() {
-    return detailPanel;
   }
 
   @Override

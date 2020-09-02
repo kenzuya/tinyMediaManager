@@ -46,7 +46,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -58,8 +57,8 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
@@ -75,7 +74,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowImageSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private List<ScraperInTable>        artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
@@ -169,6 +168,7 @@ class TvShowImageSettingsPanel extends JPanel {
 
       JLabel lblScraperT = new TmmLabel(BUNDLE.getString("scraper.artwork"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraperT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#artwork-scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
         tableScraper = new TmmTable();
@@ -193,10 +193,12 @@ class TvShowImageSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelOptions = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelOptions = new JPanel();
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options-1"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
         JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage"));

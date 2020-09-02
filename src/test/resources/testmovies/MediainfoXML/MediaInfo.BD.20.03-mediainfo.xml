@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo
+        xmlns="https://mediaarea.net/mediainfo"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+        version="2.0">
+    <creatingLibrary version="20.03" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="R:\">
+        <track type="General">
+            <VideoCount>1</VideoCount>
+            <AudioCount>3</AudioCount>
+            <TextCount>3</TextCount>
+            <MenuCount>1</MenuCount>
+            <Format>Blu-ray movie</Format>
+            <Duration>7439.431</Duration>
+            <OverallBitRate_Mode>VBR</OverallBitRate_Mode>
+            <OverallBitRate>47799000</OverallBitRate>
+            <FrameRate>23.976</FrameRate>
+            <FrameCount>178368</FrameCount>
+        </track>
+        <track type="Video">
+            <ID>4113</ID>
+            <MenuID>1</MenuID>
+            <Format>HEVC</Format>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5.1</Format_Level>
+            <Format_Tier>High</Format_Tier>
+            <HDR_Format>SMPTE ST 2086</HDR_Format>
+            <HDR_Format_Compatibility>HDR10</HDR_Format_Compatibility>
+            <CodecID>36</CodecID>
+            <Duration>7439.432</Duration>
+            <Width>3840</Width>
+            <Height>2160</Height>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>2160</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <FrameRate>23.976</FrameRate>
+            <FrameCount>178368</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_Position>Type 2</ChromaSubsampling_Position>
+            <BitDepth>10</BitDepth>
+            <Delay>11.650666667</Delay>
+            <colour_description_present>Yes</colour_description_present>
+            <colour_description_present_Source>Stream</colour_description_present_Source>
+            <colour_range>Limited</colour_range>
+            <colour_range_Source>Stream</colour_range_Source>
+            <colour_primaries>BT.2020</colour_primaries>
+            <colour_primaries_Source>Stream</colour_primaries_Source>
+            <transfer_characteristics>PQ</transfer_characteristics>
+            <transfer_characteristics_Source>Stream</transfer_characteristics_Source>
+            <matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
+            <matrix_coefficients_Source>Stream</matrix_coefficients_Source>
+            <MasteringDisplay_ColorPrimaries>Display P3</MasteringDisplay_ColorPrimaries>
+            <MasteringDisplay_ColorPrimaries_Source>Stream</MasteringDisplay_ColorPrimaries_Source>
+            <MasteringDisplay_Luminance>min: 0.0050 cd/m2, max: 4000 cd/m2</MasteringDisplay_Luminance>
+            <MasteringDisplay_Luminance_Source>Stream</MasteringDisplay_Luminance_Source>
+            <MaxCLL>4004 cd/m2</MaxCLL>
+            <MaxCLL_Source>Stream</MaxCLL_Source>
+            <MaxFALL>695 cd/m2</MaxFALL>
+            <MaxFALL_Source>Stream</MaxFALL_Source>
+            <extra>
+                <format_identifier>HDMV</format_identifier>
+                <Source>00352.m2ts</Source>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="1">
+            <ID>4352</ID>
+            <MenuID>1</MenuID>
+            <Format>DTS</Format>
+            <Format_Commercial_IfAny>DTS-HD Master Audio</Format_Commercial_IfAny>
+            <Format_Settings_Mode>16</Format_Settings_Mode>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <Format_AdditionalFeatures>XLL</Format_AdditionalFeatures>
+            <MuxingMode>Stream extension</MuxingMode>
+            <CodecID>134</CodecID>
+            <Duration>7439.424</Duration>
+            <BitRate_Mode>VBR</BitRate_Mode>
+            <BitRate>5847000</BitRate>
+            <Channels>8</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, Back: L R, LFE</ChannelPositions>
+            <ChannelLayout>C L R LFE Lb Rb Lss Rss</ChannelLayout>
+            <SamplesPerFrame>512</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>357092352</SamplingCount>
+            <FrameRate>93.750</FrameRate>
+            <FrameCount>697446</FrameCount>
+            <BitDepth>24</BitDepth>
+            <Compression_Mode>Lossless</Compression_Mode>
+            <Delay>11.650666667</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <Language>en</Language>
+            <extra>
+                <Source>00352.m2ts</Source>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="2">
+            <ID>4353</ID>
+            <MenuID>1</MenuID>
+            <Format>AC-3</Format>
+            <Format_Commercial_IfAny>Dolby Digital</Format_Commercial_IfAny>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <CodecID>129</CodecID>
+            <Duration>7439.456</Duration>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate>448000</BitRate>
+            <Channels>6</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
+            <ChannelLayout>L R C LFE Ls Rs</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>357093888</SamplingCount>
+            <FrameRate>31.250</FrameRate>
+            <FrameCount>232483</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Delay>11.642666667</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>416609536</StreamSize>
+            <Language>en</Language>
+            <ServiceKind>CM</ServiceKind>
+            <extra>
+                <bsid>8</bsid>
+                <dialnorm>-31</dialnorm>
+                <dialnorm_String>-31 dB</dialnorm_String>
+                <compr>-0.28</compr>
+                <compr_String>-0.28 dB</compr_String>
+                <acmod>7</acmod>
+                <lfeon>1</lfeon>
+                <dialnorm_Average>-31</dialnorm_Average>
+                <dialnorm_Average_String>-31 dB</dialnorm_Average_String>
+                <dialnorm_Minimum>-31</dialnorm_Minimum>
+                <dialnorm_Minimum_String>-31 dB</dialnorm_Minimum_String>
+                <dialnorm_Maximum>-31</dialnorm_Maximum>
+                <dialnorm_Maximum_String>-31 dB</dialnorm_Maximum_String>
+                <dialnorm_Count>1240</dialnorm_Count>
+                <compr_Average>-4.59</compr_Average>
+                <compr_Average_String>-4.59 dB</compr_Average_String>
+                <compr_Minimum>-8.52</compr_Minimum>
+                <compr_Minimum_String>-8.52 dB</compr_Minimum_String>
+                <compr_Maximum>-0.56</compr_Maximum>
+                <compr_Maximum_String>-0.56 dB</compr_Maximum_String>
+                <compr_Count>722</compr_Count>
+                <format_identifier>AC-3</format_identifier>
+                <Source>00352.m2ts</Source>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="3">
+            <ID>4354</ID>
+            <MenuID>1</MenuID>
+            <Format>DTS</Format>
+            <Format_Commercial_IfAny>DTS-HD Master Audio</Format_Commercial_IfAny>
+            <Format_Settings_Mode>16</Format_Settings_Mode>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <Format_AdditionalFeatures>XLL</Format_AdditionalFeatures>
+            <MuxingMode>Stream extension</MuxingMode>
+            <CodecID>134</CodecID>
+            <Duration>7439.424</Duration>
+            <BitRate_Mode>VBR</BitRate_Mode>
+            <BitRate>2326000</BitRate>
+            <Channels>6</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
+            <ChannelLayout>C L R Ls Rs LFE</ChannelLayout>
+            <SamplesPerFrame>512</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>357092352</SamplingCount>
+            <FrameRate>93.750</FrameRate>
+            <FrameCount>697446</FrameCount>
+            <BitDepth>16</BitDepth>
+            <Compression_Mode>Lossless</Compression_Mode>
+            <Delay>11.650666667</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <Language>de</Language>
+            <extra>
+                <Source>00352.m2ts</Source>
+            </extra>
+        </track>
+        <track type="Text" typeorder="1">
+            <ID>4768</ID>
+            <MenuID>1</MenuID>
+            <Format>PGS</Format>
+            <CodecID>144</CodecID>
+            <Duration>7439.431</Duration>
+            <Language>en</Language>
+            <extra>
+                <Source>00352.m2ts</Source>
+            </extra>
+        </track>
+        <track type="Text" typeorder="2">
+            <ID>4769</ID>
+            <MenuID>1</MenuID>
+            <Format>PGS</Format>
+            <CodecID>144</CodecID>
+            <Duration>7439.431</Duration>
+            <Language>en</Language>
+            <extra>
+                <Source>00352.m2ts</Source>
+            </extra>
+        </track>
+        <track type="Text" typeorder="3">
+            <ID>4774</ID>
+            <MenuID>1</MenuID>
+            <Format>PGS</Format>
+            <CodecID>144</CodecID>
+            <Duration>7439.431</Duration>
+            <Language>de</Language>
+            <extra>
+                <Source>00352.m2ts</Source>
+            </extra>
+        </track>
+        <track type="Menu">
+            <extra>
+                <_00_00_00_000>Chapter 1</_00_00_00_000>
+                <_00_07_33_202>Chapter 2</_00_07_33_202>
+                <_00_14_56_645>Chapter 3</_00_14_56_645>
+                <_00_23_43_255>Chapter 4</_00_23_43_255>
+                <_00_31_05_613>Chapter 5</_00_31_05_613>
+                <_00_38_43_070>Chapter 6</_00_38_43_070>
+                <_00_45_26_348>Chapter 7</_00_45_26_348>
+                <_00_53_27_329>Chapter 8</_00_53_27_329>
+                <_01_00_22_035>Chapter 9</_01_00_22_035>
+                <_01_07_29_253>Chapter 10</_01_07_29_253>
+                <_01_12_55_162>Chapter 11</_01_12_55_162>
+                <_01_22_12_344>Chapter 12</_01_22_12_344>
+                <_01_29_49_092>Chapter 13</_01_29_49_092>
+                <_01_36_47_802>Chapter 14</_01_36_47_802>
+                <_01_42_08_580>Chapter 15</_01_42_08_580>
+                <_01_53_55_912>Chapter 16</_01_53_55_912>
+                <_02_03_59_388>Chapter 17</_02_03_59_388>
+            </extra>
+        </track>
+    </media>
+</MediaInfo>

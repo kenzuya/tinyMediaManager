@@ -17,7 +17,6 @@ package org.tinymediamanager.thirdparty.trakttv;
 
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 
 /**
@@ -26,7 +25,7 @@ import org.tinymediamanager.core.threading.TmmTask;
  * @author Manuel Laggner
  */
 public class ClearTraktTvTask extends TmmTask {
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
   private boolean                     clearMovies  = false;
   private boolean                     clearTvShows = false;

@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.movies.settings;
 
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 
 /**
@@ -27,7 +26,7 @@ import org.tinymediamanager.ui.settings.TmmSettingsNode;
  * @author Manuel Laggner
  */
 public class MovieSettingsNode extends TmmSettingsNode {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieSettingsNode() {
     super(BUNDLE.getString("Settings.movies"), new MovieSettingsPanel());

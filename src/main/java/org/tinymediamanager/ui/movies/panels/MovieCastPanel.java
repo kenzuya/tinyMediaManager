@@ -29,8 +29,8 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -51,7 +51,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieCastPanel extends JPanel {
   private static final long           serialVersionUID  = 2972207353452870494L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages");
 
   private MovieSelectionModel         selectionModel;
   private EventList<Person>           actorEventList    = null;
@@ -143,8 +143,9 @@ public class MovieCastPanel extends JPanel {
       add(lblProducersT, "cell 0 2,aligny top");
 
       tableProducer = new PersonTable(producerEventList);
+      tableProducer.setName("movies.producerTable");
+      TmmUILayoutStore.getInstance().install(tableProducer);
       JScrollPane scrollPanePerson = new JScrollPane(tableProducer);
-      tableProducer.configureScrollPane(scrollPanePerson);
       add(scrollPanePerson, "cell 1 2,grow");
     }
     {
@@ -152,8 +153,9 @@ public class MovieCastPanel extends JPanel {
       add(lblActorsT, "cell 0 3,aligny top");
 
       tableActors = new PersonTable(actorEventList);
+      tableActors.setName("movies.actorTable");
+      TmmUILayoutStore.getInstance().install(tableActors);
       JScrollPane scrollPanePersons = new JScrollPane(tableActors);
-      tableActors.configureScrollPane(scrollPanePersons);
       add(scrollPanePersons, "cell 1 3,grow");
     }
     {

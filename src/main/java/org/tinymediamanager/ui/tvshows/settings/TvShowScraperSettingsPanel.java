@@ -44,13 +44,14 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -68,7 +69,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private List<TvShowScraper>         scrapers         = ObservableCollections.observableList(new ArrayList<>());
@@ -167,6 +168,7 @@ class TvShowScraperSettingsPanel extends JPanel {
 
       JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.metadata"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
         tableScraper = new TmmTable();
@@ -177,12 +179,11 @@ class TvShowScraperSettingsPanel extends JPanel {
         JSeparator separator = new JSeparator();
         panelScraper.add(separator, "cell 1 1,growx");
 
-        scrollPaneScraperDetails = new JScrollPane();
+        scrollPaneScraperDetails = new NoBorderScrollPane();
         panelScraper.add(scrollPaneScraperDetails, "cell 1 2,grow");
 
         scrollPaneScraperDetails.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPaneScraperDetails.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPaneScraperDetails.setBorder(null);
 
         JPanel panelScraperDetails = new ScrollablePanel();
         scrollPaneScraperDetails.setViewportView(panelScraperDetails);

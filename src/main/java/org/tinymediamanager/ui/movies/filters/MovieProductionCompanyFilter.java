@@ -16,11 +16,8 @@
 package org.tinymediamanager.ui.movies.filters;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -32,8 +29,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Manuel Laggner
  */
-public class MovieProductionCompanyFilter extends AbstractMovieUIFilter {
-  private JTextField textField;
+public class MovieProductionCompanyFilter extends AbstractTextMovieUIFilter {
 
   @Override
   public String getId() {
@@ -41,30 +37,15 @@ public class MovieProductionCompanyFilter extends AbstractMovieUIFilter {
   }
 
   @Override
-  public String getFilterValueAsString() {
-    return textField.getText();
-  }
-
-  @Override
-  public void setFilterValue(Object value) {
-    if (value instanceof String) {
-      textField.setText((String) value);
-    }
-  }
-
-  @Override
   public boolean accept(Movie movie) {
-    String name = StrgUtils.normalizeString(textField.getText());
-
-    if (StringUtils.isBlank(name)) {
+    if (StringUtils.isBlank(normalizedFilterText)) {
       return true;
     }
 
     try {
       // country
       if (StringUtils.isNotEmpty(movie.getProductionCompany())) {
-        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(StrgUtils.normalizeString(movie.getProductionCompany()));
+        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getProductionCompany()));
         return matcher.find();
       }
     }
@@ -79,11 +60,5 @@ public class MovieProductionCompanyFilter extends AbstractMovieUIFilter {
   @Override
   protected JLabel createLabel() {
     return new TmmLabel(BUNDLE.getString("movieextendedsearch.productioncompany"));
-  }
-
-  @Override
-  protected JComponent createFilterComponent() {
-    textField = new JTextField();
-    return textField;
   }
 }

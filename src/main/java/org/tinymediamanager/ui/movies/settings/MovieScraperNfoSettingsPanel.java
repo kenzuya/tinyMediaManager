@@ -34,7 +34,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.DateField;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaCertification;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
@@ -42,8 +41,8 @@ import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -56,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = -299825914193235308L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings                        settings         = MovieModuleManager.SETTINGS;
   private JComboBox<MovieConnectors>           cbNfoFormat;
@@ -108,7 +107,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
 
     // implement checkBoxListener for preset events
     settings.addPropertyChangeListener(evt -> {
-      if ("preset".equals(evt.getPropertyName())) {
+      if ("preset".equals(evt.getPropertyName()) || "wizard".equals(evt.getPropertyName())) {
         buildCheckBoxes();
         buildComboBoxes();
       }
@@ -163,10 +162,12 @@ class MovieScraperNfoSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[]"));
     {
-      JPanel panelNfo = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelNfo = new JPanel();
+      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblNfoT = new TmmLabel(BUNDLE.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#nfo-settings"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JLabel lblNfoFormat = new JLabel(BUNDLE.getString("Settings.nfoFormat"));

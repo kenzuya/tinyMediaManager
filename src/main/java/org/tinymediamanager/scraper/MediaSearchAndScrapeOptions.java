@@ -18,12 +18,14 @@ package org.tinymediamanager.scraper;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 
@@ -35,23 +37,24 @@ import org.tinymediamanager.scraper.entities.MediaType;
  */
 public abstract class MediaSearchAndScrapeOptions {
   // common fields
-  protected MediaType           type;
-  protected Map<String, Object> ids              = new HashMap<>();
-  protected MediaLanguages      language;
+  protected final MediaType           type;
+  protected final Map<String, Object> ids                  = new HashMap<>();
+  protected MediaLanguages            language             = MediaLanguages.en;
+  protected CountryCode               certificationCountry = CountryCode.US;
 
   // search related fields
-  protected String              searchQuery      = "";
-  protected int                 searchYear       = -1;
+  protected String                    searchQuery          = "";
+  protected int                       searchYear           = -1;
 
   // scrape related fields
-  protected MediaScraper        metadataScraper;
-  protected List<MediaScraper>  artworkScrapers  = new ArrayList<>();
-  protected List<MediaScraper>  trailerScrapers  = new ArrayList<>();
-  protected List<MediaScraper>  subtitleScrapers = new ArrayList<>();
+  protected MediaScraper              metadataScraper;
+  protected List<MediaScraper>        artworkScrapers      = new ArrayList<>();
+  protected List<MediaScraper>        trailerScrapers      = new ArrayList<>();
+  protected List<MediaScraper>        subtitleScrapers     = new ArrayList<>();
 
   // helper fields to pass data around in the search&scrape process
-  protected MediaSearchResult   searchResult;
-  protected MediaMetadata       metadata;
+  protected MediaSearchResult         searchResult;
+  protected MediaMetadata             metadata;
 
   protected MediaSearchAndScrapeOptions(MediaType type) {
     this.type = type;
@@ -75,17 +78,18 @@ public abstract class MediaSearchAndScrapeOptions {
    *          the original
    */
   public void setDataFromOtherOptions(MediaSearchAndScrapeOptions original) {
-    this.ids.putAll(original.ids);
+    setIds(original.ids);
     this.language = original.language;
+    this.certificationCountry = original.certificationCountry;
     this.searchQuery = original.searchQuery;
     this.searchYear = original.searchYear;
     this.searchResult = original.searchResult;
     this.metadata = original.metadata;
 
     this.metadataScraper = original.metadataScraper;
-    this.artworkScrapers.addAll(original.artworkScrapers);
-    this.trailerScrapers.addAll(original.trailerScrapers);
-    this.subtitleScrapers.addAll(original.subtitleScrapers);
+    setArtworkScraper(original.artworkScrapers);
+    setTrailerScraper(original.trailerScrapers);
+    setSubtitleScraper(original.subtitleScrapers);
   }
 
   /**
@@ -107,6 +111,15 @@ public abstract class MediaSearchAndScrapeOptions {
   }
 
   /**
+   * get the certification country
+   *
+   * @return the country for the certifications
+   */
+  public CountryCode getCertificationCountry() {
+    return certificationCountry;
+  }
+
+  /**
    * set the language to scrape
    *
    * @param language
@@ -114,6 +127,16 @@ public abstract class MediaSearchAndScrapeOptions {
    */
   public void setLanguage(MediaLanguages language) {
     this.language = language;
+  }
+
+  /**
+   * set the country for certifications
+   * 
+   * @param certificationCountry
+   *          the country for the certifications
+   */
+  public void setCertificationCountry(CountryCode certificationCountry) {
+    this.certificationCountry = certificationCountry;
   }
 
   /**
@@ -160,7 +183,7 @@ public abstract class MediaSearchAndScrapeOptions {
    * @return the map with all ids
    */
   public Map<String, Object> getIds() {
-    return ids;
+    return Collections.unmodifiableMap(ids);
   }
 
   /**

@@ -29,6 +29,7 @@ import org.tinymediamanager.ui.IconManager;
 import net.miginfocom.swing.MigLayout;
 
 public class CollapsiblePanel extends JPanel {
+  private final JPanel     panelTop;
   private final JButton    btnToggle;
   private final JComponent content;
 
@@ -119,19 +120,19 @@ public class CollapsiblePanel extends JPanel {
     this.content = content;
     setBackground(content.getBackground());
 
-    JPanel panelTop = new JPanel(new MigLayout("insets 0", "[grow][]", "[]"));
+    panelTop = new JPanel(new MigLayout("insets 0", "[grow][]", "[]"));
 
     btnToggle = new FlatButton(IconManager.COLLAPSED); // init with this icon; will be set by setCollapsed()
 
     if (collapseButtonAtLeft) {
-      panelTop.add(btnToggle, "cell 0 0, aligny top");
+      panelTop.add(btnToggle, "cell 0 0, aligny center");
     }
     else {
-      panelTop.add(btnToggle, "cell 1 0, aligny top");
+      panelTop.add(btnToggle, "cell 1 0, aligny center");
     }
 
     if (lblTitle != null) {
-      panelTop.add(lblTitle, "cell 0 0, growx");
+      panelTop.add(lblTitle, "cell 0 0, wmin 0");
     }
 
     panelTop.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIManager.getColor("Label.foreground")));
@@ -139,6 +140,12 @@ public class CollapsiblePanel extends JPanel {
 
     btnToggle.addActionListener(e -> setCollapsed(!this.isCollapsed));
     setCollapsed(isCollapsed);
+  }
+
+  public void addExtraTitleComponent(JComponent component) {
+    if (component != null) {
+      panelTop.add(component, "cell 0 0");
+    }
   }
 
   protected void setCollapsed(boolean collapse) {

@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.components.tree.TmmTreeDataProvider;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.movies.MovieUIModule;
+import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
@@ -32,7 +32,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TmmSettingsDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
   private TmmTreeNode                 root;
 
   public TmmSettingsDataProvider() {
@@ -51,6 +51,9 @@ public class TmmSettingsDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     // movie settings
     rootSettingsNode.addChild(MovieUIModule.getInstance().getSettingsNode());
+
+    // movie set settings
+    rootSettingsNode.addChild(MovieSetUIModule.getInstance().getSettingsNode());
 
     // TV show settings
     rootSettingsNode.addChild(TvShowUIModule.getInstance().getSettingsNode());

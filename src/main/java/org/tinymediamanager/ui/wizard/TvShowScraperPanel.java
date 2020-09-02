@@ -38,7 +38,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -46,6 +45,7 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.TableColumnResizer;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
 import org.tinymediamanager.ui.panels.ScrollablePanel;
@@ -64,7 +64,7 @@ class TvShowScraperPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
   private final List<TvShowScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());
@@ -158,10 +158,9 @@ class TvShowScraperPanel extends JPanel {
     scrollPaneScraper.setViewportView(tableScraper);
 
     {
-      JScrollPane scrollPaneScraperDetails = new JScrollPane();
+      JScrollPane scrollPaneScraperDetails = new NoBorderScrollPane();
       panelTvShowScrapers.add(scrollPaneScraperDetails, "cell 2 0 1 2,grow");
       scrollPaneScraperDetails.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-      scrollPaneScraperDetails.setBorder(null);
 
       JPanel panelScraperDetails = new ScrollablePanel();
       scrollPaneScraperDetails.setViewportView(panelScraperDetails);
