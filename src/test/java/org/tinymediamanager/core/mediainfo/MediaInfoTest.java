@@ -136,7 +136,7 @@ public class MediaInfoTest extends BasicTest {
 
     assertThat(mf.getVideoWidth()).isEqualTo(720);
     assertThat(mf.getVideoHeight()).isEqualTo(576);
-    assertThat(mf.getVideoCodec()).isEqualTo("MPEG");
+    assertThat(mf.getVideoCodec()).isEqualTo("MPEG-2");
     assertThat(mf.getDuration()).isEqualTo(5160);
 
     assertThat(mf.getAudioStreams().size()).isEqualTo(8);
