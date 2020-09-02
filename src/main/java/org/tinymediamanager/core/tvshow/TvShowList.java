@@ -55,6 +55,7 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
+import org.tinymediamanager.license.SizeLimitExceededException;
 import org.tinymediamanager.license.TvShowEventList;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -76,19 +77,19 @@ import ca.odell.glazedlists.ObservableElementList;
  * @author Manuel Laggner
  */
 public class TvShowList extends AbstractModelObject {
-  private static final Logger    LOGGER   = LoggerFactory.getLogger(TvShowList.class);
-  private static TvShowList      instance = null;
+  private static final Logger            LOGGER   = LoggerFactory.getLogger(TvShowList.class);
+  private static TvShowList              instance = null;
 
-  private final List<TvShow>     tvShowList;
-  private final List<String>     tvShowTagsObservable;
-  private final List<String>     episodeTagsObservable;
-  private final List<String>     videoCodecsObservable;
-  private final List<String>     videoContainersObservable;
-  private final List<String>     audioCodecsObservable;
-  private final List<Double>     frameRateObservable;
+  private final List<TvShow>             tvShowList;
+  private final List<String>             tvShowTagsObservable;
+  private final List<String>             episodeTagsObservable;
+  private final List<String>             videoCodecsObservable;
+  private final List<String>             videoContainersObservable;
+  private final List<String>             audioCodecsObservable;
+  private final List<Double>             frameRateObservable;
   private final List<MediaCertification> certificationObservable;
 
-  private PropertyChangeListener propertyChangeListener;
+  private PropertyChangeListener         propertyChangeListener;
 
   /**
    * Instantiates a new TvShowList.
@@ -386,6 +387,10 @@ public class TvShowList extends AbstractModelObject {
 
         // for performance reasons we add tv shows directly
         tvShowList.add(tvShow);
+      }
+      catch (SizeLimitExceededException e) {
+        LOGGER.debug("size limit exceeded - ignoring DB entry");
+        break;
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding TV show json string: {}", e.getMessage());

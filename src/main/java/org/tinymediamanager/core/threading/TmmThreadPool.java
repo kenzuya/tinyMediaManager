@@ -102,7 +102,7 @@ public abstract class TmmThreadPool extends TmmTask {
     boolean limitExceeded = false;
 
     pool.shutdown();
-    while (!cancel && !pool.isTerminated() && progressDone < workUnits) {
+    while (!limitExceeded && !cancel && !pool.isTerminated() && progressDone < workUnits) {
       try {
         final Future<Object> future = service.take();
         progressDone++;
@@ -114,8 +114,7 @@ public abstract class TmmThreadPool extends TmmTask {
       }
       catch (ExecutionException e) {
         if (e.getCause() instanceof SizeLimitExceededException) {
-          // tmm free size limit is exceeded; just cancel
-          cancel = true;
+          // tmm free size limit is exceeded; just soft-cancel
           limitExceeded = true;
         }
         else {
@@ -124,7 +123,7 @@ public abstract class TmmThreadPool extends TmmTask {
       }
     }
 
-    if (cancel) {
+    if (cancel || limitExceeded) {
       try {
         LOGGER.info("Abort queue (discarding {} tasks", workUnits - progressDone);
         pool.getQueue().clear();

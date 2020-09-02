@@ -64,6 +64,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.license.MovieEventList;
+import org.tinymediamanager.license.SizeLimitExceededException;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -375,6 +376,10 @@ public class MovieList extends AbstractModelObject {
 
         // for performance reasons we add movies directly
         movieList.add(movie);
+      }
+      catch (SizeLimitExceededException e) {
+        LOGGER.debug("size limit exceeded - ignoring DB entry");
+        break;
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
