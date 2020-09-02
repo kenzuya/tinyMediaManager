@@ -52,7 +52,7 @@ public class TvShowRemoveAction extends TmmAction {
     putValue(NAME, BUNDLE.getString("tvshow.remove"));
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.remove"));
-    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke((char) KeyEvent.VK_DELETE));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
   }
 
   @Override

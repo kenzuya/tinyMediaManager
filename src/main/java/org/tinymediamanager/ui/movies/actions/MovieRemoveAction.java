@@ -49,7 +49,7 @@ public class MovieRemoveAction extends TmmAction {
   public MovieRemoveAction() {
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(NAME, BUNDLE.getString("movie.remove"));
-    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke((char) KeyEvent.VK_DELETE));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
   }
 
   @Override
