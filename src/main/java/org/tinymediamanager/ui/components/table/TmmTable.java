@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
+import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -66,10 +67,11 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TmmTable extends JTable {
-  private static final long           serialVersionUID = 6150939811851709115L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long             serialVersionUID = 6150939811851709115L;
+  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final CellRendererPane CELL_RENDER_PANE = new CellRendererPane();
 
-  private TmmTableComparatorChooser<?> tableComparatorChooser;
+  private TmmTableComparatorChooser<?>  tableComparatorChooser;
 
   public TmmTable() {
     super();
@@ -99,6 +101,7 @@ public class TmmTable extends JTable {
 
   private void init() {
     getTableHeader().setReorderingAllowed(false);
+    setOpaque(false);
 
     getColumnModel().addColumnModelListener(new TableColumnModelListener() {
       @Override
@@ -358,11 +361,6 @@ public class TmmTable extends JTable {
     public void setSortIcon(Icon sortIcon) {
       this.sortIcon = sortIcon;
     }
-
-    // @Override
-    // public void setToolTipText(String text){
-    // this.labelLeft.setToolTipText(text);
-    // }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focused, int row, int column) {

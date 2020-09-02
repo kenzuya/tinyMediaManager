@@ -22,7 +22,6 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,15 +30,11 @@ import javax.swing.CellRendererPane;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTable;
-import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
-import javax.swing.border.Border;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.table.TableColumn;
 
 import com.formdev.flatlaf.ui.FlatTableUI;
-import com.formdev.flatlaf.ui.FlatUIUtils;
 
 /**
  * the class TmmTableUI is used to render the JTable in our way
@@ -48,11 +43,7 @@ import com.formdev.flatlaf.ui.FlatUIUtils;
  */
 public class TmmTableUI extends FlatTableUI {
 
-  private boolean paintTmmGrid;
-  private Color   gridColor;
-  private Color   gridColor2;
-  private Color   selectedGridColor;
-  private Border  defaultTableCellBorder;
+  private Color selectedGridColor;
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmTableUI();
@@ -62,123 +53,12 @@ public class TmmTableUI extends FlatTableUI {
   public void installUI(JComponent c) {
     super.installUI(c);
 
-    paintTmmGrid = UIManager.getBoolean("Table.paintTmmGrid");
-    if (paintTmmGrid) {
-      gridColor = UIManager.getColor("Table.gridColor");
-      gridColor2 = UIManager.getColor("Table.gridColor2");
+    if (UIManager.getBoolean("Table.paintTmmGrid")) {
       selectedGridColor = UIManager.getColor("Table.selectedGridColor");
-      defaultTableCellBorder = UIManager.getBorder("Table.cellNoFocusBorder");
 
       table.remove(rendererPane);
       rendererPane = createCustomCellRendererPane();
       table.add(rendererPane);
-    }
-  }
-
-  @Override
-  public void paint(Graphics g, JComponent c) {
-    // paint the grid lines ourself
-    if (paintTmmGrid) {
-      paintHorizontalGridLines(g, c);
-      paintVerticalGridLines(g, c);
-    }
-
-    super.paint(g, c);
-  }
-
-  private void paintHorizontalGridLines(Graphics g, JComponent c) {
-    Graphics2D g2 = (Graphics2D) g.create();
-    try {
-      FlatUIUtils.setRenderingHints(g2);
-
-      Rectangle clip = g2.getClipBounds();
-      Rectangle bounds = table.getBounds();
-
-      // if we're in a JViewPort, draw the horizontal lines over the whole width
-      if (c.getParent() instanceof JViewport) {
-        int width = c.getParent().getWidth();
-        if (bounds.width < width) {
-          bounds.width = width;
-        }
-        if (clip.width < width) {
-          clip.width = width;
-          g2.setClip(clip);
-        }
-      }
-
-      // account for the fact that the graphics has already been translated
-      // into the table's bounds
-      bounds.x = bounds.y = 0;
-
-      // compute the visible part of table which needs to be painted
-      Rectangle visibleBounds = clip.intersection(bounds);
-      Point upperLeft = visibleBounds.getLocation();
-
-      // get the row index at the top of the clip bounds (the first row to paint).
-      int rowAtPoint = table.rowAtPoint(upperLeft);
-
-      // get the y coordinate of the first row to paint. if there are no
-      // rows in the table, start painting at the top of the supplied clipping bounds.
-      int topY = rowAtPoint < 0 ? g2.getClipBounds().y : table.getCellRect(rowAtPoint, 0, true).y;
-
-      // create a counter variable to hold the current row. if there are no
-      // rows in the table, start the counter at 0.
-      int currentRow = Math.max(rowAtPoint, 0);
-      while (topY < g.getClipBounds().y + g2.getClipBounds().height) {
-        int bottomY = topY + table.getRowHeight(currentRow);
-        g2.setColor(gridColor);
-        g2.drawLine(5, bottomY - 1, bounds.width, bottomY - 1);
-        if (gridColor2 != null) {
-          g2.setColor(gridColor2);
-          g2.drawLine(5, bottomY, bounds.width, bottomY);
-        }
-        topY = bottomY;
-        currentRow++;
-      }
-    }
-    finally {
-      g2.dispose();
-    }
-  }
-
-  private void paintVerticalGridLines(Graphics g, JComponent c) {
-    Graphics2D g2 = (Graphics2D) g.create();
-    try {
-      FlatUIUtils.setRenderingHints(g2);
-
-      Rectangle clip = g2.getClipBounds();
-      Rectangle bounds = table.getBounds();
-
-      // account for the fact that the graphics has already been translated
-      // into the table's bounds
-      bounds.x = bounds.y = 0;
-
-      int drawColumnCountOffset = 1;
-
-      ArrayList<Integer> colsWoRightGrid = new ArrayList<>();
-      if (table.getClientProperty("borderNotToDraw") != null) {
-        colsWoRightGrid = (ArrayList<Integer>) table.getClientProperty("borderNotToDraw");
-      }
-
-      int x = 0;
-      for (int i = 0; i < table.getColumnCount() - drawColumnCountOffset; i++) {
-        TableColumn column = table.getColumnModel().getColumn(i);
-        // increase the x position by the width of the current column.
-        x += column.getWidth();
-
-        if (colsWoRightGrid.contains(i)) {
-          continue;
-        }
-
-        if (x >= 0) {
-          g2.setColor(gridColor);
-          // draw the grid line (not sure what the -1 is for, but BasicTableUI also does it.
-          g2.drawLine(x - 1, g2.getClipBounds().y, x - 1, bounds.height);
-        }
-      }
-    }
-    finally {
-      g2.dispose();
     }
   }
 
