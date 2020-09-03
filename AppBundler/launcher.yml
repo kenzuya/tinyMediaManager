@@ -10,6 +10,7 @@ jvmOpts:
   - '-XX:+IgnoreUnrecognizedVMOptions'
   - '-XX:+UseG1GC'
   - '-XX:+UseStringDeduplication'
+  - '-XX:+UnlockExperimentalVMOptions'
   - '-XX:+EnableJVMCI'
   - '-XX:+UseJVMCICompiler'
   - '-Dsun.java2d.renderer=sun.java2d.marlin.MarlinRenderingEngine'
