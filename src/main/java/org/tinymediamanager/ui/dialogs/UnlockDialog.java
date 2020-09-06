@@ -27,10 +27,16 @@ import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
+import org.apache.commons.text.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 
 import net.miginfocom.swing.MigLayout;
@@ -41,6 +47,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class UnlockDialog extends TmmDialog {
+  private static final Logger LOGGER = LoggerFactory.getLogger(UnlockDialog.class);
+
   public UnlockDialog() {
     super(MainWindow.getInstance(), BUNDLE.getString("tmm.unlock.desc"), "unlockDialog");
 
@@ -53,6 +61,17 @@ public class UnlockDialog extends TmmDialog {
       panelContent.add(taLicenseHint, "cell 0 0 2 1,grow");
 
       JButton btnOpenPaddle = new JButton(BUNDLE.getString("tmm.license.buy"));
+      btnOpenPaddle.addActionListener(e -> {
+        String url = StringEscapeUtils.unescapeHtml4("https://www.tinymediamanager.org/purchase/");
+        try {
+          TmmUIHelper.browseUrl(url);
+        }
+        catch (Exception e1) {
+          LOGGER.error("FAQ", e1);
+          MessageManager.instance
+              .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e1.getLocalizedMessage() }));
+        }
+      });
       panelContent.add(btnOpenPaddle, "cell 0 1 2 1");
     }
     {
