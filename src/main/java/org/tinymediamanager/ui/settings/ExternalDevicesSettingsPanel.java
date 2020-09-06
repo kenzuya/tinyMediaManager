@@ -90,7 +90,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
     btnAddWolDevice.addActionListener(arg0 -> {
       WolDeviceDialog dialog = new WolDeviceDialog();
       dialog.pack();
-      dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+      dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
     });
     btnRemoveWolDevice.addActionListener(e -> {
@@ -110,7 +110,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
           WolDeviceDialog dialog = new WolDeviceDialog();
           dialog.setDevice(device);
           dialog.pack();
-          dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+          dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
         }
       }

@@ -53,7 +53,7 @@ public class TvShowUpdateAction extends TmmAction {
     List<Path> tvShowFolders = new ArrayList<>();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

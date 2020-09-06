@@ -52,12 +52,12 @@ public class MovieSubtitleDownloadAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     MovieDownloadSubtitleDialog dialog = new MovieDownloadSubtitleDialog(BUNDLE.getString("movie.download.subtitle"));
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
 
     // do we want to scrape?

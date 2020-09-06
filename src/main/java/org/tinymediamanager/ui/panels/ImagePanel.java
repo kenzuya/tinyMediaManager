@@ -217,7 +217,7 @@ public class ImagePanel extends JPanel implements HierarchyListener {
     @Override
     public void mouseClicked(MouseEvent arg0) {
       if (StringUtils.isNotBlank(pathToFile)) {
-        MainWindow.getActiveInstance().createLightbox(pathToFile, "");
+        MainWindow.getInstance().createLightbox(pathToFile, "");
       }
     }
 

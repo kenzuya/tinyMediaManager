@@ -57,7 +57,7 @@ public class MovieSingleScrapeAction extends TmmAction {
     int index = 0;
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

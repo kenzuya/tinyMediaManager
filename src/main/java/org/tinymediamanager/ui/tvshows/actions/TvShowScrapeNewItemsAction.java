@@ -99,7 +99,7 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
     // scrape new episodes
     if (!newEpisodes.isEmpty()) {
       TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createEpisodeScrapeDialog(BUNDLE.getString("tvshowepisode.scrape"));
-      dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+      dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
 
       // do we want to scrape?

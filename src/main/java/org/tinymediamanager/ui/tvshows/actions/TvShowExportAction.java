@@ -52,13 +52,13 @@ public class TvShowExportAction extends TmmAction {
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     // export selected tv shows
     TvShowExporterDialog dialog = new TvShowExporterDialog(selectedTvShows);
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
   }
 }

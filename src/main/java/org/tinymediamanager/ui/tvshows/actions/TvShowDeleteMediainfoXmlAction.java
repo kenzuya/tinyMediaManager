@@ -83,7 +83,7 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
     }
 
     if (selectedTvShows.isEmpty() && selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
@@ -95,7 +95,7 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
 
       Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
       Object[] params = { BUNDLE.getString("tvshow.deletemediainfoxml.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("tvshow.deletemediainfoxml"),
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("tvshow.deletemediainfoxml"),
           JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

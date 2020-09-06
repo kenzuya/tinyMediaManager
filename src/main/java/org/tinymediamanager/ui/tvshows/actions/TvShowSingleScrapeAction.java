@@ -55,7 +55,7 @@ public class TvShowSingleScrapeAction extends TmmAction {
     int count = selectedTvShows.size();
 
     if (count == 0) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

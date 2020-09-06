@@ -162,7 +162,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, ImageType.SEASON_POSTER,
                 tvShowList.getAvailableArtworkScrapers(), lblPoster, null, null, MediaType.TV_SHOW);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblPoster, tfPoster);
           }
@@ -196,7 +196,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, ImageType.SEASON_THUMB,
                 tvShowList.getAvailableArtworkScrapers(), lblThumb, null, null, MediaType.TV_SHOW);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblThumb, tfThumb);
           }
@@ -230,7 +230,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, ImageType.SEASON_BANNER,
                 tvShowList.getAvailableArtworkScrapers(), lblBanner, null, null, MediaType.TV_SHOW);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblBanner, tfBanner);
           }

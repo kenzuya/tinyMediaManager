@@ -58,7 +58,7 @@ public class TvShowDownloadMissingArtworkAction extends TmmAction {
     Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

@@ -53,13 +53,13 @@ public class MovieDeleteAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     // display warning and ask the user again
     Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), BUNDLE.getString("movie.delete.desc"), BUNDLE.getString("movie.delete"), //$NON-NLS-2$
+    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), BUNDLE.getString("movie.delete.desc"), BUNDLE.getString("movie.delete"), //$NON-NLS-2$
         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (answer != JOptionPane.YES_OPTION) {
       return;

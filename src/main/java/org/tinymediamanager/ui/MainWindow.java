@@ -28,6 +28,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -46,6 +47,7 @@ import javax.swing.text.JTextComponent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
@@ -77,13 +79,23 @@ public class MainWindow extends JFrame {
   private static final long           serialVersionUID = 1L;
 
   public static final List<Image>     LOGOS            = createLogos();
+
   private static MainWindow           instance;
 
-  private ToolbarPanel                toolbarPanel;
   private JTabbedPane                 tabbedPane;
   private JPanel                      detailPanel;
-  private JSplitPane                  splitPane;
-  private JPanel                      panelStatusBar;
+
+  /**
+   * Gets the active instance.
+   *
+   * @return the active instance
+   */
+  public static synchronized MainWindow getInstance() {
+    if (instance == null) {
+      new MainWindow("tinyMediaManager / " + ReleaseInfo.getRealVersion());
+    }
+    return instance;
+  }
 
   /**
    * Create the application.
@@ -91,12 +103,12 @@ public class MainWindow extends JFrame {
    * @param name
    *          the name
    */
-  public MainWindow(String name) {
+  private MainWindow(String name) {
     super(name);
     setName("mainWindow");
     setMinimumSize(new Dimension(1050, 700));
 
-    instance = this;
+    instance = this; // NOSONAR
 
     initialize();
   }
@@ -115,7 +127,7 @@ public class MainWindow extends JFrame {
     logos.add(new LogoCircle(128).getImage());
     logos.add(new LogoCircle(256).getImage());
 
-    return logos;
+    return Collections.unmodifiableList(logos);
   }
 
   /**
@@ -126,9 +138,9 @@ public class MainWindow extends JFrame {
     setIconImages(LOGOS);
     setBounds(5, 5, 1100, 727);
     // do nothing, we have our own windowClosing() listener
-    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-    toolbarPanel = new ToolbarPanel();
+    ToolbarPanel toolbarPanel = new ToolbarPanel();
     getContentPane().add(toolbarPanel, BorderLayout.NORTH);
 
     JPanel rootPanel = new JPanel();
@@ -142,7 +154,7 @@ public class MainWindow extends JFrame {
     JLayer<JComponent> rootLayer = new JLayer<>(rootPanel, new ShadowLayerUI()); // $hide$ - do not parse this in wbpro
     getContentPane().add(rootLayer, BorderLayout.CENTER);
 
-    splitPane = new JSplitPane();
+    JSplitPane splitPane = new JSplitPane();
     splitPane.setOneTouchExpandable(true);
     splitPane.setName("mainWindow.splitPane");
     TmmUILayoutStore.getInstance().install(splitPane);
@@ -164,7 +176,7 @@ public class MainWindow extends JFrame {
     detailPanel.setLayout(new CardLayout(0, 0));
     splitPane.setRightComponent(detailPanel);
 
-    panelStatusBar = new StatusBarPanel();
+    JPanel panelStatusBar = new StatusBarPanel();
     rootPanel.add(panelStatusBar, "cell 0 1,grow");
 
     addModule(MovieUIModule.getInstance());
@@ -206,18 +218,14 @@ public class MainWindow extends JFrame {
 
     // inform user that MI could not be loaded
     if (Platform.isLinux() && StringUtils.isBlank(MediaInfo.version())) {
-      SwingUtilities.invokeLater(() -> {
-        JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux"));
-      });
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux")));
     }
 
     // inform user that something happened while loading the modules
     for (ITmmModule module : TmmModuleManager.getInstance().getModules()) {
       if (!module.getStartupMessages().isEmpty()) {
         for (String message : module.getStartupMessages()) {
-          SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(MainWindow.this, message); // $NON-NLS-1$
-          });
+          SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, message));
         }
       }
     }
@@ -273,15 +281,6 @@ public class MainWindow extends JFrame {
       shutdownLogger();
       System.exit(0); // calling the method is a must
     }
-  }
-
-  /**
-   * Gets the active instance.
-   * 
-   * @return the active instance
-   */
-  public static MainWindow getActiveInstance() {
-    return instance;
   }
 
   /**

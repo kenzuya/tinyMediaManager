@@ -61,7 +61,7 @@ public abstract class TmmDialog extends JDialog {
    * @wbp.parser.constructor
    */
   public TmmDialog(String title, String id) {
-    this(MainWindow.getActiveInstance(), title, id);
+    this(MainWindow.getInstance(), title, id);
   }
 
   public TmmDialog(JFrame owner, String title, String id) {

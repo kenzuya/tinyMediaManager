@@ -52,12 +52,12 @@ public class TvShowScrapeEpisodesAction extends TmmAction {
     List<TvShowEpisode> episodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
     if (episodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createEpisodeScrapeDialog(BUNDLE.getString("tvshowepisode.scrape"));
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
 
     if (!dialog.shouldStartScrape()) {

@@ -405,7 +405,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.POSTER,
                 movieList.getDefaultArtworkScrapers(), lblPoster, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblPoster, tfPoster);
           }
@@ -538,7 +538,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.FANART,
                 movieList.getDefaultArtworkScrapers(), lblFanart, extrathumbs, extrafanarts, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblFanart, tfFanart);
           }
@@ -885,7 +885,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.LOGO,
                 movieList.getDefaultArtworkScrapers(), lblLogo, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblLogo, tfLogo);
 
@@ -917,7 +917,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.KEYART,
                 movieList.getDefaultArtworkScrapers(), lblKeyart, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblKeyart, tfKeyart);
           }
@@ -947,7 +947,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.CLEARLOGO,
                 movieList.getDefaultArtworkScrapers(), lblClearlogo, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblClearlogo, tfClearLogo);
           }
@@ -978,7 +978,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.BANNER,
                 movieList.getDefaultArtworkScrapers(), lblBanner, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblBanner, tfBanner);
           }
@@ -1008,7 +1008,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.CLEARART,
                 movieList.getDefaultArtworkScrapers(), lblClearart, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblClearart, tfClearArt);
           }
@@ -1040,7 +1040,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.THUMB,
                 movieList.getDefaultArtworkScrapers(), lblThumb, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblThumb, tfThumb);
           }
@@ -1070,7 +1070,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.DISC,
                 movieList.getDefaultArtworkScrapers(), lblDisc, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblDisc, tfDisc);
           }
@@ -1688,7 +1688,7 @@ public class MovieEditorDialog extends TmmDialog {
    * @return true, if successful
    */
   public boolean showDialog() {
-    setLocationRelativeTo(MainWindow.getActiveInstance());
+    setLocationRelativeTo(MainWindow.getInstance());
     setVisible(true);
     return continueQueue;
   }

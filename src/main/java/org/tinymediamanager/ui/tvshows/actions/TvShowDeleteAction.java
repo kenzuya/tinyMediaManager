@@ -56,14 +56,14 @@ public class TvShowDeleteAction extends TmmAction {
 
     // display warning and ask the user again
     Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tvshow.delete.desc"),
+    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), BUNDLE.getString("tvshow.delete.desc"),
         BUNDLE.getString("tvshow.delete"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (answer != JOptionPane.YES_OPTION) {
       return;
     }
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

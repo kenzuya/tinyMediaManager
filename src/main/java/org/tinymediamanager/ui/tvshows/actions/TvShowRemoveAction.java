@@ -60,7 +60,7 @@ public class TvShowRemoveAction extends TmmAction {
     List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
@@ -71,7 +71,7 @@ public class TvShowRemoveAction extends TmmAction {
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
       Object[] params = { BUNDLE.getString("tvshow.remove.desc"), checkBox };
       Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("tvshow.remove"), JOptionPane.YES_NO_OPTION,
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("tvshow.remove"), JOptionPane.YES_NO_OPTION,
           JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

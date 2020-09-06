@@ -52,7 +52,7 @@ public class MovieEditAction extends TmmAction {
     int index = 0;
 
     if (selectedCount == 0) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

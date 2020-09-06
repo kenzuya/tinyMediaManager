@@ -216,7 +216,7 @@ public abstract class MediaFilesPanel extends JPanel {
         }
         // open the graphic in the lightbox
         if (mf.isGraphic()) {
-          MainWindow.getActiveInstance().createLightbox(mf.getFileAsPath().toString(), "");
+          MainWindow.getInstance().createLightbox(mf.getFileAsPath().toString(), "");
         }
       }
     }

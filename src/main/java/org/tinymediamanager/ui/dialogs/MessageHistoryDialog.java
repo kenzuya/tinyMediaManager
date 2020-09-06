@@ -48,7 +48,7 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
   private JPanel                      messagesPanel;
 
   private MessageHistoryDialog() {
-    super(MainWindow.getActiveInstance(), BUNDLE.getString("summarywindow.title"), "messageSummary");
+    super(MainWindow.getInstance(), BUNDLE.getString("summarywindow.title"), "messageSummary");
 
     setModal(false);
     setModalityType(ModalityType.MODELESS);

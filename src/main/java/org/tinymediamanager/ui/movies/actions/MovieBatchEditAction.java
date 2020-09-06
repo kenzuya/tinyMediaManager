@@ -54,13 +54,13 @@ public class MovieBatchEditAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     // get data of all files within all selected movies
     MovieBulkEditorDialog editor = new MovieBulkEditorDialog(selectedMovies);
-    editor.setLocationRelativeTo(MainWindow.getActiveInstance());
+    editor.setLocationRelativeTo(MainWindow.getInstance());
     editor.pack();
     editor.setVisible(true);
   }

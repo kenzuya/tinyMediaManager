@@ -52,18 +52,18 @@ public class ClearDatabaseAction extends TmmAction {
   protected void processAction(ActionEvent arg0) {
     // display warning popup
     Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.cleardatabase.hint"),
+    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.cleardatabase.hint"),
         BUNDLE.getString("tmm.cleardatabase"), JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, null);
     if (answer != JOptionPane.YES_OPTION) {
       return;
     }
 
-    MainWindow.getActiveInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     // delete the database
     try {
       TmmModuleManager.getInstance().shutDown();
       TmmModuleManager.getInstance().initializeDatabase();
-      MainWindow.getActiveInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
       JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.cleardatabase.info"));
     }
     catch (Exception e) {
@@ -82,6 +82,6 @@ public class ClearDatabaseAction extends TmmAction {
             .pushMessage(new Message(MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
       }
     }
-    MainWindow.getActiveInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
+    MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
   }
 }

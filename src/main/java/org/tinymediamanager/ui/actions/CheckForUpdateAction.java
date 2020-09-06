@@ -20,6 +20,8 @@ import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 import java.awt.event.ActionEvent;
 import java.util.ResourceBundle;
 
+import org.tinymediamanager.license.License;
+
 /**
  * The CheckForUpdateAction is used to trigger an update check
  * 
@@ -32,6 +34,9 @@ public class CheckForUpdateAction extends TmmAction {
   public CheckForUpdateAction() {
     putValue(NAME, BUNDLE.getString("tmm.updater.check"));
     putValue(SHORT_DESCRIPTION, BUNDLE.getString("tmm.updater.check"));
+    setEnabled(License.getInstance().isValidLicense());
+
+    License.getInstance().addEventListener(() -> setEnabled(License.getInstance().isValidLicense()));
   }
 
   @Override

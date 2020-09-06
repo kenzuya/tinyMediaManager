@@ -78,12 +78,12 @@ public class TvShowBulkEditAction extends TmmAction {
     }
 
     if (selectedTvShows.isEmpty() && selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     TvShowBulkEditorDialog dialog = new TvShowBulkEditorDialog(selectedTvShows, new ArrayList<>(selectedEpisodes));
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
   }
 }

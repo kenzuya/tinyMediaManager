@@ -59,7 +59,7 @@ public class MovieRenameAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
@@ -71,7 +71,7 @@ public class MovieRenameAction extends TmmAction {
 
       Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
       Object[] params = { BUNDLE.getString("movie.rename.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("movie.rename"), JOptionPane.YES_NO_OPTION,
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("movie.rename"), JOptionPane.YES_NO_OPTION,
           JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

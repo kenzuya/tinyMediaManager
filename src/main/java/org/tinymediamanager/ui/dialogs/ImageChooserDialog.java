@@ -711,7 +711,7 @@ public class ImageChooserDialog extends TmmDialog {
 
     ImageLabel lblImage = new ImageLabel();
     ImageChooserDialog dialog = new ImageChooserDialog(parent, ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
     return lblImage.getImageUrl();
   }
@@ -741,7 +741,7 @@ public class ImageChooserDialog extends TmmDialog {
 
     ImageLabel lblImage = new ImageLabel();
     ImageChooserDialog dialog = new ImageChooserDialog(ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
     return lblImage.getImageUrl();
   }

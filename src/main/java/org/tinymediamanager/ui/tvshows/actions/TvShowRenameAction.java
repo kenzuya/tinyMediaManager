@@ -78,7 +78,7 @@ public class TvShowRenameAction extends TmmAction {
     }
 
     if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
@@ -89,7 +89,7 @@ public class TvShowRenameAction extends TmmAction {
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
       Object[] params = { BUNDLE.getString("tvshow.rename.desc"), checkBox };
       Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("tvshow.rename"), JOptionPane.YES_NO_OPTION,
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("tvshow.rename"), JOptionPane.YES_NO_OPTION,
           JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

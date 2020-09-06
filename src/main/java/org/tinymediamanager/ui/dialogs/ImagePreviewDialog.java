@@ -135,7 +135,7 @@ public class ImagePreviewDialog extends TmmDialog {
       });
 
       pack();
-      setLocationRelativeTo(MainWindow.getActiveInstance());
+      setLocationRelativeTo(MainWindow.getInstance());
       super.setVisible(true);
     }
     else {

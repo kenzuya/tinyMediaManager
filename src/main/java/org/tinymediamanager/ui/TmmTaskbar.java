@@ -89,7 +89,7 @@ public class TmmTaskbar {
   public static void setBadge(final Image image) {
     try {
       if (TASKBAR != null && TASKBAR.isSupported(Taskbar.Feature.ICON_BADGE_IMAGE_WINDOW)) {
-        TASKBAR.setWindowIconBadge(MainWindow.getActiveInstance(), image);
+        TASKBAR.setWindowIconBadge(MainWindow.getInstance(), image);
       }
     }
     catch (Exception e) {
@@ -106,7 +106,7 @@ public class TmmTaskbar {
         TASKBAR.requestUserAttention(true, true);
       }
       else if (TASKBAR != null && TASKBAR.isSupported(Taskbar.Feature.USER_ATTENTION_WINDOW)) {
-        TASKBAR.requestWindowUserAttention(MainWindow.getActiveInstance());
+        TASKBAR.requestWindowUserAttention(MainWindow.getInstance());
       }
     }
     catch (Exception e) {
@@ -125,7 +125,7 @@ public class TmmTaskbar {
         TASKBAR.setProgressValue(progress);
       }
       else if (TASKBAR != null && TASKBAR.isSupported(Taskbar.Feature.PROGRESS_VALUE_WINDOW)) {
-        TASKBAR.setWindowProgressValue(MainWindow.getActiveInstance(), progress);
+        TASKBAR.setWindowProgressValue(MainWindow.getInstance(), progress);
       }
     }
     catch (Exception e) {
@@ -142,7 +142,7 @@ public class TmmTaskbar {
   public static void setProgressState(Taskbar.State state) {
     try {
       if (TASKBAR != null && TASKBAR.isSupported(Taskbar.Feature.PROGRESS_STATE_WINDOW)) {
-        TASKBAR.setWindowProgressState(MainWindow.getActiveInstance(), state);
+        TASKBAR.setWindowProgressState(MainWindow.getInstance(), state);
       }
     }
     catch (Exception e) {

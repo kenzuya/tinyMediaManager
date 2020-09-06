@@ -214,7 +214,7 @@ public class ToolbarPanel extends JPanel {
     menu.add(tmmLogs);
     tmmLogs.addActionListener(arg0 -> {
       JDialog logDialog = new LogDialog();
-      logDialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+      logDialog.setLocationRelativeTo(MainWindow.getInstance());
       logDialog.setVisible(true);
     });
 
@@ -289,7 +289,7 @@ public class ToolbarPanel extends JPanel {
       debugMenu.add(traceLogs);
       traceLogs.addActionListener(arg0 -> {
         JDialog logDialog = new FullLogDialog();
-        logDialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+        logDialog.setLocationRelativeTo(MainWindow.getInstance());
         logDialog.setVisible(true);
       });
 

@@ -43,7 +43,7 @@ public class BugReportAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     JDialog dialog = new BugReportDialog();
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.pack();
     dialog.setVisible(true);
   }

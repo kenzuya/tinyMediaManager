@@ -254,7 +254,7 @@ public class MovieFilterDialog extends TmmDialog {
 
             Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
             Object[] params = { BUNDLE.getString("filter.remove"), checkBox };
-            int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("filter.remove"),
+            int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("filter.remove"),
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
             // the user don't want to show this dialog again

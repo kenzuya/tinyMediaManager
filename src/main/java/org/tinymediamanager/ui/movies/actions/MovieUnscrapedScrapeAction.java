@@ -57,7 +57,7 @@ public class MovieUnscrapedScrapeAction extends TmmAction {
     List<Movie> unscrapedMovies = MovieList.getInstance().getUnscrapedMovies();
     if (!unscrapedMovies.isEmpty()) {
       MovieScrapeMetadataDialog dialog = new MovieScrapeMetadataDialog(BUNDLE.getString("movie.scrape.unscraped"));
-      dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+      dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
 
       // get options from dialog

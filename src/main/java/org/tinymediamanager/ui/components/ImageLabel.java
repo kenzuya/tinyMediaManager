@@ -746,7 +746,7 @@ public class ImageLabel extends JComponent {
     @Override
     public void mouseClicked(MouseEvent arg0) {
       if (arg0.getClickCount() == 1 && scaledImage != null) {
-        MainWindow.getActiveInstance().createLightbox(getImagePath(), getImageUrl());
+        MainWindow.getInstance().createLightbox(getImagePath(), getImageUrl());
       }
     }
   }

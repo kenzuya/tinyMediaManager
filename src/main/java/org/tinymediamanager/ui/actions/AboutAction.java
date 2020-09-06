@@ -38,7 +38,7 @@ public class AboutAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     Dialog aboutDialog = new AboutDialog();
-    aboutDialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    aboutDialog.setLocationRelativeTo(MainWindow.getInstance());
     aboutDialog.setVisible(true);
   }
 }

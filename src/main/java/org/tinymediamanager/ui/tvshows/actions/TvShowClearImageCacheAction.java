@@ -59,12 +59,12 @@ public class TvShowClearImageCacheAction extends TmmAction {
     }
 
     if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     // clear the cache
-    MainWindow.getActiveInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (TvShow tvShow : selectedTvShows) {
       ImageCache.clearImageCacheForMediaEntity(tvShow);
     }
@@ -72,6 +72,6 @@ public class TvShowClearImageCacheAction extends TmmAction {
     for (TvShowEpisode episode : selectedEpisodes) {
       ImageCache.clearImageCacheForMediaEntity(episode);
     }
-    MainWindow.getActiveInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

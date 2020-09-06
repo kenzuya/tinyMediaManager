@@ -42,7 +42,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class UnlockDialog extends TmmDialog {
   public UnlockDialog() {
-    super(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.unlock.desc"), "unlockDialog");
+    super(MainWindow.getInstance(), BUNDLE.getString("tmm.unlock.desc"), "unlockDialog");
 
     JPanel panelContent = new JPanel();
     getContentPane().add(panelContent, BorderLayout.CENTER);

@@ -47,7 +47,7 @@ public class MovieSetAddAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    String name = JOptionPane.showInputDialog(MainWindow.getActiveInstance(), BUNDLE.getString("movieset.title"), "", JOptionPane.QUESTION_MESSAGE);
+    String name = JOptionPane.showInputDialog(MainWindow.getInstance(), BUNDLE.getString("movieset.title"), "", JOptionPane.QUESTION_MESSAGE);
     if (StringUtils.isNotEmpty(name)) {
       MovieSet movieSet = new MovieSet(name);
       movieSet.saveToDb();

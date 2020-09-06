@@ -328,7 +328,7 @@ public class TinyMediaManager {
           }
           if (!GraphicsEnvironment.isHeadless()) {
 
-            MainWindow window = new MainWindow("tinyMediaManager / " + ReleaseInfo.getRealVersion());
+            MainWindow window = MainWindow.getInstance();
 
             // finished ////////////////////////////////////////////////////
             if (g2 != null) {
@@ -400,7 +400,7 @@ public class TinyMediaManager {
             dialog.setDescription(bundle.getString("tmm.nostart.instancerunning"));
             dialog.setResizable(true);
             dialog.pack();
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setAlwaysOnTop(true);
             dialog.setVisible(true);
           }

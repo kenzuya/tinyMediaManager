@@ -51,12 +51,12 @@ public class TvShowSubtitleDownloadAction extends TmmAction {
     List<TvShowEpisode> episodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
     if (episodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     TvShowDownloadSubtitleDialog dialog = new TvShowDownloadSubtitleDialog(BUNDLE.getString("tvshow.download.subtitle"));
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
 
     // do we want to scrape?
