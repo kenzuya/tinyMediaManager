@@ -344,7 +344,7 @@ public class TinyMediaManager {
               TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
               wizard.setVisible(true);
             }
-            else if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+            else if (License.getInstance().isValidLicense() && !Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
               // if the wizard is not run, check for an update
               // this has a simple reason: the wizard lets you do some settings only once: if you accept the update WHILE the wizard is showing, the
               // wizard will no more appear

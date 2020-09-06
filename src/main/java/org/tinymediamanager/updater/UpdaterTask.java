@@ -136,10 +136,10 @@ public class UpdaterTask extends TmmTask {
         // all files downloaded -> popup to inform the user (if we're in a UI environment)
         if (!GraphicsEnvironment.isHeadless()) {
           SwingUtilities.invokeLater(() -> {
-            int decision = JOptionPane.showConfirmDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.updater.restart.desc"),
+            int decision = JOptionPane.showConfirmDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.updater.restart.desc"),
                 BUNDLE.getString("tmm.updater.restart"), JOptionPane.YES_NO_OPTION);
             if (decision == JOptionPane.YES_OPTION) {
-              MainWindow.getActiveInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
+              MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
             }
           });
         }
