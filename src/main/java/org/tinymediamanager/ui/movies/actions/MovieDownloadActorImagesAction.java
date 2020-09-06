@@ -29,8 +29,9 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 /**
- * The Class MovieDownloadActorImagesAction To download images from actors /
- * producers for selected Movies
+ * The Class MovieDownloadActorImagesAction To download images from actors / producers for selected Movies
+ *
+ * @author wjanes
  */
 public class MovieDownloadActorImagesAction extends TmmAction {
 
@@ -47,7 +48,7 @@ public class MovieDownloadActorImagesAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

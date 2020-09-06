@@ -28,8 +28,9 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
- * The Class TvShowDownloadActorImagesAction To download images from actors /
- * producers for selected TvShows
+ * The Class TvShowDownloadActorImagesAction To download images from actors / producers for selected TvShows
+ *
+ * @author wjanes
  */
 public class TvShowDownloadActorImagesAction extends TmmAction {
 
@@ -47,13 +48,12 @@ public class TvShowDownloadActorImagesAction extends TmmAction {
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     for (TvShow tvShow : selectedTvShows) {
       tvShow.writeActorImages();
     }
-
   }
 }
