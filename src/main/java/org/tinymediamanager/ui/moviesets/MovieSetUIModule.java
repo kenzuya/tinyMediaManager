@@ -30,6 +30,8 @@ import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
+import org.tinymediamanager.ui.movies.actions.MovieBatchEditAction;
+import org.tinymediamanager.ui.movies.actions.MovieToggleWatchedFlagAction;
 import org.tinymediamanager.ui.movies.panels.MovieArtworkPanel;
 import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
 import org.tinymediamanager.ui.movies.panels.MovieInformationPanel;
@@ -165,6 +167,8 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     // movie actions
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieEditAction.class));
+    popupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
+    popupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
 
     // actions for both of them
     popupMenu.addSeparator();
