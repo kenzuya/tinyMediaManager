@@ -74,36 +74,39 @@ public class MovieArtworkHelper {
     }
 
     String url = movie.getArtworkUrl(type);
-    if (StringUtils.isBlank(url)) {
-      return;
-    }
-
-    List<IFileNaming> fileNamings = getFileNamingsForMediaFileType(movie, type);
-    if (fileNamings.isEmpty()) {
-      return;
-    }
-
-    int i = 0;
-    for (IFileNaming fileNaming : fileNamings) {
-      boolean firstImage = false;
-
-      String filename = getArtworkFilename(movie, fileNaming, Utils.getArtworkExtension(url));
-      if (StringUtils.isBlank(filename)) {
-        continue;
+    try {
+      if (StringUtils.isBlank(url)) {
+        return;
       }
 
-      if (++i == 1) {
-        firstImage = true;
+      List<IFileNaming> fileNamings = getFileNamingsForMediaFileType(movie, type);
+      if (fileNamings.isEmpty()) {
+        return;
       }
 
-      // get image in thread
-      MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(movie, url, MediaFileType.getMediaArtworkType(type), filename, firstImage);
-      TmmTaskManager.getInstance().addImageDownloadTask(task);
-    }
+      int i = 0;
+      for (IFileNaming fileNaming : fileNamings) {
+        boolean firstImage = false;
 
-    // if that has been a local file, remove it from the artwork urls after we've already started the download(copy) task
-    if (url.startsWith("file:")) {
-      movie.removeArtworkUrl(type);
+        String filename = getArtworkFilename(movie, fileNaming, Utils.getArtworkExtension(url));
+        if (StringUtils.isBlank(filename)) {
+          continue;
+        }
+
+        if (++i == 1) {
+          firstImage = true;
+        }
+
+        // get image in thread
+        MediaEntityImageFetcherTask task = new MediaEntityImageFetcherTask(movie, url, MediaFileType.getMediaArtworkType(type), filename, firstImage);
+        TmmTaskManager.getInstance().addImageDownloadTask(task);
+      }
+    }
+    finally {
+      // if that has been a local file, remove it from the artwork urls after we've already started the download(copy) task
+      if (url.startsWith("file:")) {
+        movie.removeArtworkUrl(type);
+      }
     }
   }
 
