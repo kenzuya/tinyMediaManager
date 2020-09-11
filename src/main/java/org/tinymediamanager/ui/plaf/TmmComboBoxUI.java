@@ -70,6 +70,6 @@ public class TmmComboBoxUI extends FlatComboBoxUI {
   }
 
   private class TmmComboBoxButton extends FlatComboBoxButton {
-
+    // needed to have access to the constructor
   }
 }

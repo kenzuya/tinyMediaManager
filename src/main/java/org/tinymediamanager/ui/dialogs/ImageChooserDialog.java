@@ -449,24 +449,18 @@ public class ImageChooserDialog extends TmmDialog {
       case THUMB:
       case DISC:
       case CHARACTERART:
-        gbl.columnWidths = new int[] { 130 };
-        gbl.rowHeights = new int[] { 180 };
         size = ImageUtils.calculateSize(300, 150, originalImage.getWidth(), originalImage.getHeight(), true);
         break;
 
       case BANNER:
       case LOGO:
       case CLEARLOGO:
-        gbl.columnWidths = new int[] { 130 };
-        gbl.rowHeights = new int[] { 120 };
         size = ImageUtils.calculateSize(300, 100, originalImage.getWidth(), originalImage.getHeight(), true);
         break;
 
       case POSTER:
       case KEYART:
       default:
-        gbl.columnWidths = new int[] { 180 };
-        gbl.rowHeights = new int[] { 270 };
         size = ImageUtils.calculateSize(150, 250, originalImage.getWidth(), originalImage.getHeight(), true);
         break;
 
@@ -481,7 +475,7 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.gridwidth = 3;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.insets = new Insets(5, 5, 5, 5);
 
     JToggleButton button = new JToggleButton();
@@ -506,7 +500,8 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.gridx = 0;
     gbc.gridy = 1;
     gbc.anchor = GridBagConstraints.LAST_LINE_START;
-    gbc.insets = new Insets(0, 5, 0, 0);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.insets = new Insets(0, 5, 0, 5);
 
     JComboBox cb = null;
     if (!artwork.getImageSizes().isEmpty()) {
