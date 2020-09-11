@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.movies;
 
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -60,7 +61,9 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
 
   private void refilter() {
     normalizedFilterText = StrgUtils.normalizeString(textComponent.getText());
-    filterPattern = Pattern.compile(normalizedFilterText, Pattern.CASE_INSENSITIVE);
+    try {
+      filterPattern = Pattern.compile(normalizedFilterText, Pattern.CASE_INSENSITIVE);
+    } catch (PatternSyntaxException ignore) {}
 
     fireChanged(new MovieMatcher());
   }
