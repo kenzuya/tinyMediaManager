@@ -136,6 +136,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * video codec (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.videocodec"), "videoCodec", this::getVideoCodec, String.class);
+    col.setHeaderIcon(IconManager.VIDEO_CODEC);
+    col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * main video file size (hidden per default)
      */
     col = new Column(BUNDLE.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
@@ -256,6 +265,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode) {
       return ((TvShowEpisode) userObject).getMediaInfoVideoFormat();
+    }
+    return "";
+  }
+
+  private String getVideoCodec(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode) {
+      return ((TvShowEpisode) userObject).getMediaInfoVideoCodec();
     }
     return "";
   }
