@@ -35,6 +35,7 @@ import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.SEASON_COUNT;
 import static org.tinymediamanager.core.Constants.SORT_TITLE;
 import static org.tinymediamanager.core.Constants.STATUS;
+import static org.tinymediamanager.core.Constants.SUBTITLES;
 import static org.tinymediamanager.core.Constants.TAG;
 import static org.tinymediamanager.core.Constants.TAGS_AS_STRING;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
@@ -188,6 +189,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
           case TAG:
           case MEDIA_INFORMATION:
           case MEDIA_FILES:
+          case SUBTITLES:
+          case "hasSubtitles":
             firePropertyChange(evt);
             break;
 

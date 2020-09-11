@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.core.entities;
 
+import static org.tinymediamanager.core.Constants.SUBTITLES;
 import static org.tinymediamanager.core.MediaFileHelper.getFirstEntryViaScanner;
 
 import java.nio.file.Files;
@@ -606,7 +607,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     if (!this.subtitles.contains(subtitle)) {
       this.subtitles.add(subtitle);
-      firePropertyChange("subtitles", null, subtitles);
+      firePropertyChange(SUBTITLES, null, subtitles);
     }
   }
 

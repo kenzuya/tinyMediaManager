@@ -104,6 +104,7 @@ public final class Constants {
   public static final String SPOKEN_LANGUAGES       = "spokenLanguages";
   public static final String STATUS                 = "status";
   public static final String STUDIO                 = "studio";
+  public static final String SUBTITLES              = "subtitles";
   public static final String SUBTITLES_COUNT        = "countSubtitles";
   public static final String TAG                    = "tag";
   public static final String TAGS_AS_STRING         = "tagsAsString";
@@ -126,7 +127,6 @@ public final class Constants {
   public static final String WRITERS                = "writers";
   public static final String WRITERS_AS_STRING      = "writersAsString";
   public static final String YEAR                   = "year";
-
 
   // some hardcoded, well known meta data provider IDs
   // may add new ones in MediaEntity.setId()

@@ -329,10 +329,11 @@ final class TmmTreeTableEventBroadcaster implements TableModelListener, TreeMode
       // If the node is closed, no expensive checks are needed - just fire a change on the parent node in case it needs to update its display
       if (row != -1) {
         switch (type) {
-          case NODES_CHANGED:
           case NODES_INSERTED:
           case NODES_REMOVED:
             return new TableModelEvent[] { new TableModelEvent(getModel(), row, row, 0, TableModelEvent.UPDATE) };
+          case NODES_CHANGED:
+            return new TableModelEvent[] { new TableModelEvent(getModel(), row, row, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE) };
           default:
             assert false : "Unknown event type " + type;
         }
@@ -409,7 +410,7 @@ final class TmmTreeTableEventBroadcaster implements TableModelListener, TreeMode
 
     int first = null == indices ? row : indices[0];
     int last = null == indices ? row : indices[indices.length - 1];
-    result = new TableModelEvent(getModel(), first, last, 0, TableModelEvent.UPDATE);
+    result = new TableModelEvent(getModel(), first, last, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE);
 
     return result;
   }
