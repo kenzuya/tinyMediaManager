@@ -112,8 +112,6 @@ public class UpgradeTasks {
    * performs some upgrade tasks from one version to another<br>
    * <b>make sure, this upgrade can run multiple times (= needed for nightlies!!!)
    *
-   * @param oldVersion
-   *          our current version
    */
   public static void performUpgradeTasksAfterDatabaseLoading() {
     MovieList movieList = MovieList.getInstance();
@@ -143,6 +141,7 @@ public class UpgradeTasks {
         File cur = new File("../../MacOS/tinyMediaManager");
         try {
           FileUtils.copyFile(file, cur);
+          cur.setExecutable(true);
         }
         catch (IOException e) {
           LOGGER.error("Could not update JavaApplicationStub");
