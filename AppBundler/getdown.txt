@@ -1,5 +1,5 @@
 # The URL from which the client is downloaded
-appbase = https://release.tinymediamanager.org/v3/build/
+appbase = https://release.tinymediamanager.org/v4/build/
 
 # UI Configuration
 ui.name = tinyMediaManager
@@ -16,50 +16,45 @@ ui.status_text = 868686
 ui.mac_dock_icon = ../tmm.icns
 ui.hide_decorations = true
 
-# Application jar files, on classpath (generated from claspath in build.xml)
+# Application jar files, on classpath (generated from classpath in build.xml)
 code = tmm.jar
 %CODELIBS%
 
-resource = progress.jpg
-resource = [windows] tinyMediaManager.new           #rename to new, for self-update
-resource = [windows] tinyMediaManagerUpd.new        #rename to new, for self-update
-resource = [windows] tinyMediaManagerCMD.new        #rename to new, for self-update
-xresource = [!windows] tinyMediaManagerCMD.sh
-xresource = [!windows] tinyMediaManager.sh
-xresource = [!windows] tinyMediaManagerUpdater.sh
-xresource = [mac os x] tinyMediaManagerOSX.sh
-xresource = [mac os x] tinyMediaManagerCMD-OSX.sh
-resource = [mac os x] JavaApplicationStub.new       #rename to new, for self-update
-resource = [mac os x] Info.plist
-resource = [mac os x] tmm.icns
-resource = getdown-new.jar
+resource = [windows-amd64] tinyMediaManager.exe
+xresource = [linux-amd64] tinyMediaManager
+xresource = [linux-arm] tinyMediaManager-arm
+xresource = [linux-aarch64] tinyMediaManager-arm
+xresource = [mac os x] macOS/MacOS/tinyMediaManager
+resource = [mac os x] macOS/Info.plist
+resource = [mac os x] macOS/Resources/tmm.icns
 resource = version
 resource = splashscreen.png
 resource = tmm.png
 resource = changelog.txt
+resource = launcher.yml
+
+# JRE - will be mixed into the path by the ant build
+# DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
+resource = [windows-amd64] jre/jre-windows.tar.br
+resource = [linux-amd64] jre/jre-linux.tar.br
+resource = [mac os x] jre/jre-macos.tar.br
 
 # translations
 %LOCALES%
 
 # mediainfo native libs
 resource = [mac os x] native/mac/libmediainfo.dylib
-resource = [windows-amd64] native/windows-x64/MediaInfo.dll
-resource = [windows-x64] native/windows-x64/MediaInfo.dll
-resource = [windows-x86] native/windows-x86/MediaInfo.dll
-resource = [windows-x86] native/windows-x86/mingwm10.dll
+resource = [windows-amd64] native/windows/MediaInfo.dll
+resource = [windows-amd64] native/windows/MediaInfo.dll
 
 # nativefiledialogs native libs
-resource = [windows-x86] native/windows-x86/lwjgl.dll
-resource = [windows-x86] native/windows-x86/lwjgl_nfd.dll
-resource = [windows-amd64] native/windows-x64/lwjgl.dll
-resource = [windows-amd64] native/windows-x64/lwjgl_nfd.dll
-resource = [linux-x86] native/linux-x86/liblwjgl.so
-resource = [linux-x86] native/linux-x86/liblwjgl_nfd.so
-resource = [linux-amd64] native/linux-x64/liblwjgl.so
-resource = [linux-amd64] native/linux-x64/liblwjgl_nfd.so
+resource = [windows-amd64] native/windows/lwjgl.dll
+resource = [windows-amd64] native/windows/lwjgl_nfd.dll
+resource = [linux-amd64] native/linux/liblwjgl.so
+resource = [linux-amd64] native/linux/liblwjgl_nfd.so
 
 # templates
-uresource = templates/templates.jar
+resource = templates/templates.tar.bz2
 
 # The main entry point for the application (prefix needed for GD params)
 class = org.tinymediamanager.TinyMediaManager

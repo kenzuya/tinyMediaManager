@@ -46,6 +46,7 @@ import org.lwjgl.util.nfd.NativeFileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -613,5 +614,14 @@ public class TmmUIHelper {
     Timer timer = new Timer(5000, e -> runnable.run());
     timer.setRepeats(false);
     timer.start();
+  }
+
+  public static void restartWarningAfterV4Upgrade() {
+    Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+    int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.upgrade.finished.desc"), BUNDLE.getString("tmm.upgrade.finished"),
+        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+    if (confirm == JOptionPane.YES_OPTION) {
+      MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
+    }
   }
 }

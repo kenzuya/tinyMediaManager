@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -41,7 +42,25 @@ import com.sun.jna.Platform;
 public class UpgradeTasks {
   private static final Logger LOGGER = LoggerFactory.getLogger(UpgradeTasks.class);
 
-  public static void performUpgradeTasksBeforeDatabaseLoading(String oldVersion) {
+  private static String       oldVersion;
+
+  private UpgradeTasks() {
+    throw new IllegalAccessError();
+  }
+
+  public static void setOldVersion() {
+    oldVersion = Globals.settings.getVersion();
+  }
+
+  public static String getOldVersion() {
+    return oldVersion;
+  }
+
+  public static boolean isNewVersion() {
+    return StrgUtils.compareVersion(oldVersion, ReleaseInfo.getVersion()) == 0;
+  }
+
+  public static void performUpgradeTasksBeforeDatabaseLoading() {
     String v = "" + oldVersion;
     if (StringUtils.isBlank(v)) {
       v = "4.0"; // set version for other updates
@@ -74,6 +93,17 @@ public class UpgradeTasks {
         }
       }
 
+      // delete old files
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMD.exe"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMDUpd.exe"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerUpd.exe"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMD.sh"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerUpdater.sh"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerUpdaterCMD.sh"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMD-OSX.sh"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerOSX.sh"));
+      Utils.deleteFileSafely(Paths.get("tinyMediaManagerUpdaterCMD-OSX.sh"));
+      Utils.deleteFileSafely(Paths.get("getdown.jar"));
     }
 
   }
@@ -85,7 +115,7 @@ public class UpgradeTasks {
    * @param oldVersion
    *          our current version
    */
-  public static void performUpgradeTasksAfterDatabaseLoading(String oldVersion) {
+  public static void performUpgradeTasksAfterDatabaseLoading() {
     MovieList movieList = MovieList.getInstance();
     TvShowList tvShowList = TvShowList.getInstance();
 
@@ -106,59 +136,11 @@ public class UpgradeTasks {
    * rename downloaded files (getdown.jar, ...)
    */
   public static void renameDownloadedFiles() {
-    // self updater
-    File file = new File("getdown-new.jar");
-    if (file.exists() && file.length() > 100000) {
-      File cur = new File("getdown.jar");
-      if (file.length() != cur.length() || !cur.exists()) {
-        try {
-          FileUtils.copyFile(file, cur);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update the updater!");
-        }
-      }
-    }
-
-    // exe launchers
-    if (Platform.isWindows()) {
-      file = new File("tinyMediaManager.new");
-      if (file.exists() && file.length() > 10000 && file.length() < 100000) {
-        File cur = new File("tinyMediaManager.exe");
-        try {
-          FileUtils.copyFile(file, cur);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update tmm!");
-        }
-      }
-      file = new File("tinyMediaManagerUpd.new");
-      if (file.exists() && file.length() > 10000 && file.length() < 100000) {
-        File cur = new File("tinyMediaManagerUpd.exe");
-        try {
-          FileUtils.copyFile(file, cur);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update the updater!");
-        }
-      }
-      file = new File("tinyMediaManagerCMD.new");
-      if (file.exists() && file.length() > 10000 && file.length() < 100000) {
-        File cur = new File("tinyMediaManagerCMD.exe");
-        try {
-          FileUtils.copyFile(file, cur);
-        }
-        catch (IOException e) {
-          LOGGER.error("Could not update CMD TMM!");
-        }
-      }
-    }
-
     // OSX launcher
     if (Platform.isMac()) {
-      file = new File("JavaApplicationStub.new");
+      File file = new File("macOS/MacOS/tinyMediaManager");
       if (file.exists() && file.length() > 0) {
-        File cur = new File("../../MacOS/JavaApplicationStub");
+        File cur = new File("../../MacOS/tinyMediaManager");
         try {
           FileUtils.copyFile(file, cur);
         }
@@ -170,21 +152,21 @@ public class UpgradeTasks {
 
     // OSX Info.plist
     if (Platform.isMac()) {
-      file = new File("Info.plist");
+      File file = new File("macOS/Info.plist");
       if (file.exists() && file.length() > 0) {
         File cur = new File("../../Info.plist");
         try {
           FileUtils.copyFile(file, cur);
         }
         catch (IOException e) {
-          LOGGER.error("Could not update JavaApplicationStub");
+          LOGGER.error("Could not update Info.plist");
         }
       }
     }
 
     // OSX tmm.icns
     if (Platform.isMac()) {
-      file = new File("tmm.icns");
+      File file = new File("macOS/Resources/tmm.icns");
       if (file.exists() && file.length() > 0) {
         File cur = new File("../tmm.icns");
         try {

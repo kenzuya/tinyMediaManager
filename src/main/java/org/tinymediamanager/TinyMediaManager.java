@@ -17,6 +17,7 @@
 package org.tinymediamanager;
 
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
+import static org.tinymediamanager.ui.TmmUIHelper.restartWarningAfterV4Upgrade;
 
 import java.awt.AWTEvent;
 import java.awt.AlphaComposite;
@@ -62,6 +63,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
 import org.tinymediamanager.ui.IconManager;
@@ -234,13 +236,13 @@ public class TinyMediaManager {
           LOGGER.info("starting tinyMediaManager");
 
           // upgrade check
-          String oldVersion = Globals.settings.getVersion();
+          UpgradeTasks.setOldVersion();
           if (newVersion) {
             if (g2 != null) {
               updateProgress(g2, "upgrading to new version", 10);
               splash.update();
             }
-            UpgradeTasks.performUpgradeTasksBeforeDatabaseLoading(oldVersion); // do the upgrade tasks for the old version
+            UpgradeTasks.performUpgradeTasksBeforeDatabaseLoading(); // do the upgrade tasks for the old version
             Globals.settings.setCurrentVersion();
             Globals.settings.saveSettings();
           }
@@ -318,7 +320,7 @@ public class TinyMediaManager {
               updateProgress(g2, "upgrading database to new version", 70);
               splash.update();
             }
-            UpgradeTasks.performUpgradeTasksAfterDatabaseLoading(oldVersion);
+            UpgradeTasks.performUpgradeTasksAfterDatabaseLoading();
           }
 
           // launch application ////////////////////////////////////////////
@@ -354,9 +356,14 @@ public class TinyMediaManager {
             }
 
             // show changelog
-            if (newVersion && !ReleaseInfo.getVersion().equals(oldVersion)) {
+            if (newVersion && !ReleaseInfo.getVersion().equals(UpgradeTasks.getOldVersion())) {
               // special case nightly/git: if same snapshot version, do not display changelog
               showChangelog();
+            }
+
+            // did we just upgrade to v4?
+            if (newVersion && StrgUtils.compareVersion(UpgradeTasks.getOldVersion(), "4.0") < 0) {
+              restartWarningAfterV4Upgrade();
             }
           }
           else {

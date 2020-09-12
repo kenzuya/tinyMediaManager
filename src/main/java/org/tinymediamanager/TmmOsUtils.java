@@ -107,7 +107,7 @@ public class TmmOsUtils {
     }
 
     pb.directory(tmmExecutable.toAbsolutePath().getParent().toAbsolutePath().toFile());
-    pb.redirectOutput(new File("NUL")).redirectErrorStream(true);
+    pb.redirectOutput(new File(SystemUtils.IS_OS_WINDOWS ? "NUL" : "/dev/null")).redirectErrorStream(true);
     return pb;
   }
 }

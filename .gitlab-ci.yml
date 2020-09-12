@@ -122,7 +122,6 @@ deploy:prerel:
     paths:
       - build/
       - dist/
-    expire_in: 1 month
 
 deploy:RELEASE:
   stage: deploy
