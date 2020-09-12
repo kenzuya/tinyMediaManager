@@ -63,7 +63,6 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
-import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
 import org.tinymediamanager.ui.IconManager;
@@ -362,7 +361,7 @@ public class TinyMediaManager {
             }
 
             // did we just upgrade to v4?
-            if (newVersion && StrgUtils.compareVersion(UpgradeTasks.getOldVersion(), "4.0") < 0) {
+            if (newVersion && UpgradeTasks.getOldVersion().startsWith("3")) {
               restartWarningAfterV4Upgrade();
             }
           }
