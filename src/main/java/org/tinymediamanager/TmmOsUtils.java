@@ -99,11 +99,11 @@ public class TmmOsUtils {
     }
     else if (SystemUtils.IS_OS_MAC) {
       tmmExecutable = Paths.get("../../MacOS/tinyMediaManager");
-      pb = new ProcessBuilder("/bin/sh", "-c", tmmExecutable.toString());
+      pb = new ProcessBuilder("/bin/sh", "-c", "./" + tmmExecutable.toString());
     }
     else {
       tmmExecutable = Paths.get("tinyMediaManager");
-      pb = new ProcessBuilder("/bin/sh", "-c", tmmExecutable.toString());
+      pb = new ProcessBuilder("/bin/sh", "-c", "./" + tmmExecutable.toString());
     }
 
     pb.directory(tmmExecutable.toAbsolutePath().getParent().toAbsolutePath().toFile());
