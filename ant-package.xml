@@ -191,6 +191,8 @@
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager"
               todir="${build.dir}/macOS/MacOS"/>
         <copy file="${dist.dir}/arm/tinyMediaManager" tofile="${build.dir}/tinyMediaManager-arm"/>
+        <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/JavaApplicationStub"
+              todir="${build.dir}/macOS/MacOS"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" todir="${build.dir}/macOS/"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/tmm.icns"
               todir="${build.dir}/macOS/Resources/"/>
