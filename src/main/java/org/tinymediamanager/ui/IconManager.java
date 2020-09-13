@@ -154,6 +154,7 @@ public class IconManager {
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
+  public static final ImageIcon              RUNTIME                      = createTableHeaderIcon("clock.svg");
   public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
   public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location.svg");
   public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");

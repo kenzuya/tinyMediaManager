@@ -214,6 +214,17 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
+     * runtime (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.runtime") + " [min]", "runtime", Movie::getRuntime, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("200") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * video format (hidden per default)
      */
     col = new Column(BUNDLE.getString("metatag.format"), "videoFormat", Movie::getMediaInfoVideoFormat, String.class);
