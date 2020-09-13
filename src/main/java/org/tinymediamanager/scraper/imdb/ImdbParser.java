@@ -767,8 +767,13 @@ public abstract class ImdbParser {
     // actors
     Element castTableElement = doc.getElementsByClass("cast_list").first();
     if (castTableElement != null) {
+      Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
       Elements tr = castTableElement.getElementsByTag("tr");
       for (Element row : tr) {
+        // check if we're at the uncredited cast members
+        if (castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
+          break;
+        }
         Person cm = parseCastMember(row);
         if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
           cm.setType(ACTOR);
