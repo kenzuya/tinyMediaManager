@@ -144,7 +144,22 @@ public class UpgradeTasks {
           cur.setExecutable(true);
         }
         catch (IOException e) {
-          LOGGER.error("Could not update JavaApplicationStub");
+          LOGGER.error("Could not update MacOS/tinyMediaManager");
+        }
+      }
+    }
+
+    // legacy OSX launcher (need for a smooth transition from v3)
+    if (Platform.isMac()) {
+      File file = new File("macOS/MacOS/JavaApplicationStub");
+      if (file.exists() && file.length() > 0) {
+        File cur = new File("../../MacOS/JavaApplicationStub");
+        try {
+          FileUtils.copyFile(file, cur);
+          cur.setExecutable(true);
+        }
+        catch (IOException e) {
+          LOGGER.error("Could not update MacOS/JavaApplicationStub");
         }
       }
     }

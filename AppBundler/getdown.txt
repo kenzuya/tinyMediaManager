@@ -25,6 +25,8 @@ xresource = [linux-amd64] tinyMediaManager
 xresource = [linux-arm] tinyMediaManager-arm
 xresource = [linux-aarch64] tinyMediaManager-arm
 xresource = [mac os x] macOS/MacOS/tinyMediaManager
+# legacy v3 launcher - needed since macOS caches old Info.plist where this launcher is listed
+xresource = [mac os x] macOS/MacOS/JavaApplicationStub
 resource = [mac os x] macOS/Info.plist
 resource = [mac os x] macOS/Resources/tmm.icns
 resource = version

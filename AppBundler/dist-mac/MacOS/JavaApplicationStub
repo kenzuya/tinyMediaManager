@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# tinyMediaManager v4 by Manuel Laggner
+# https://www.tinymediamanager.org/
+# SPDX-License-Identifier: Apache-2.0
+#
+#  launch tinyMediaManager v4 launcher
+
+# find the path where to execute tmm
+PRG=$0
+while [ -h "$PRG" ]; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '^.*-> \(.*\)$' 2>/dev/null`
+    if expr "$link" : '^/' 2> /dev/null >/dev/null; then
+        PRG="$link"
+    else
+        PRG="`dirname "$PRG"`/$link"
+    fi
+done
+
+progdir=`dirname "$PRG"`
+cd "$progdir"
+
+./tinyMediaManager
