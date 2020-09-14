@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.SortedSet;
@@ -72,15 +73,15 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Manuel Laggner
  */
 public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArtworkProvider {
-  public static final String               ID                = "anidb";
-  private static final Logger              LOGGER            = LoggerFactory.getLogger(AniDBMetadataProvider.class);
-  private static final String              IMAGE_SERVER      = "http://img7.anidb.net/pics/anime/";
+  public static final String                ID                = "anidb";
+  private static final Logger               LOGGER            = LoggerFactory.getLogger(AniDBMetadataProvider.class);
+  private static final String               IMAGE_SERVER      = "http://img7.anidb.net/pics/anime/";
   // flood: pager every 2 seconds
   // protection: https://wiki.anidb.net/w/HTTP_API_Definition
-  private static final RingBuffer<Long>    connectionCounter = new RingBuffer<>(1);
-  private static MediaProviderInfo         providerInfo      = createMediaProviderInfo();
+  private static final RingBuffer<Long>     connectionCounter = new RingBuffer<>(1);
+  private static MediaProviderInfo          providerInfo      = createMediaProviderInfo();
 
-  private HashMap<String, List<AniDBShow>> showsForLookup    = new HashMap<>();
+  private HashMap<Integer, List<AniDBShow>> showsForLookup    = new HashMap<>();
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "aniDB",
@@ -135,8 +136,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
 
     try {
       trackConnections();
-      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1,
-          TimeUnit.DAYS);
+      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1, TimeUnit.DAYS);
       try (InputStream is = url.getInputStream()) {
         doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
       }
@@ -464,23 +464,26 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
       return results;
     }
 
-    List<Integer> foundIds = new ArrayList<>();
-    for (Entry<String, List<AniDBShow>> entry : showsForLookup.entrySet()) {
-      String title = entry.getKey();
-      float score = Similarity.compareStrings(title, searchString);
-      if (score > 0.4) {
-        for (AniDBShow show : entry.getValue()) {
-          if (!foundIds.contains(show.aniDbId)) {
-            MediaSearchResult result = new MediaSearchResult(providerInfo.getId(), MediaType.TV_SHOW);
-            result.setId(String.valueOf(show.aniDbId));
-            result.setTitle(show.title);
-            result.setScore(score);
-            results.add(result);
-            foundIds.add(show.aniDbId);
-          }
-        }
+    for (Entry<Integer, List<AniDBShow>> entry : showsForLookup.entrySet()) {
+      for (AniDBShow show : entry.getValue()) {
+
+        MediaSearchResult result = new MediaSearchResult(providerInfo.getId(), MediaType.TV_SHOW);
+        result.setId(String.valueOf(show.aniDbId));
+        result.setTitle(show.title);
+        result.setScore(Similarity.compareStrings(show.title, searchString));
+        results.add(result);
       }
     }
+
+    // filter out duplicates - just keep the "title" with the highest rating from a show
+    Map<Object, MediaSearchResult> filteredResults = new HashMap<>();
+    for (MediaSearchResult result : results) {
+      if (!filteredResults.containsKey(result.getId())) {
+        filteredResults.put(result.getId(), result);
+      }
+    }
+    results.clear();
+    results.addAll(filteredResults.values());
 
     return results;
   }
@@ -511,8 +514,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
 
     try {
       trackConnections();
-      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1,
-          TimeUnit.DAYS);
+      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1, TimeUnit.DAYS);
       try (InputStream is = url.getInputStream()) {
         doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
       }
@@ -596,7 +598,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
           show.language = matcher.group(3);
           show.title = matcher.group(4);
 
-          List<AniDBShow> shows = showsForLookup.computeIfAbsent(show.title, k -> new ArrayList<>());
+          List<AniDBShow> shows = showsForLookup.computeIfAbsent(show.aniDbId, k -> new ArrayList<>());
           shows.add(show);
         }
       }
