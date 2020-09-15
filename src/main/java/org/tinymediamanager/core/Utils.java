@@ -16,6 +16,7 @@
 package org.tinymediamanager.core;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -64,6 +65,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -118,6 +120,8 @@ public class Utils {
   // folder stacking marker <cd/dvd/part/pt/disk/disc> <0-N> - must be last part
   private static final Pattern folderStackingPattern = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
+
+  public static final String   DISC_FOLDER_REGEX     = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
 
   private static List<Locale>  availableLocales      = new ArrayList<>();
 
@@ -1659,7 +1663,7 @@ public class Utils {
    *          list of regular expression
    * @return a list of files
    */
-  public static HashSet<Path> getUnknownFilesByRegex(Path folder, List<String> regexList) {
+  public static Set<Path> getUnknownFilesByRegex(Path folder, List<String> regexList) {
 
     GetUnknownFilesVisitor visitor = new GetUnknownFilesVisitor(regexList);
 
@@ -1675,8 +1679,8 @@ public class Utils {
 
   private static class GetUnknownFilesVisitor extends AbstractFileVisitor {
 
-    private HashSet<Path> fileList = new HashSet<>();
-    private List<String>  regexList;
+    private Set<Path>    fileList = new HashSet<>();
+    private List<String> regexList;
 
     GetUnknownFilesVisitor(List<String> regexList) {
       this.regexList = regexList;
@@ -1691,6 +1695,15 @@ public class Utils {
         if (m.find()) {
           fileList.add(file);
         }
+      }
+      return CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) throws IOException {
+      // if we're in a disc folder, don't walk further
+      if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+        return SKIP_SUBTREE;
       }
       return CONTINUE;
     }

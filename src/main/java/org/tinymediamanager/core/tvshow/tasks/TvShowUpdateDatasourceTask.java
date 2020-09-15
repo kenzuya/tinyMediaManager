@@ -17,6 +17,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
+import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -93,7 +94,6 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
   // skip folders starting with a SINGLE "." or "._"
   private static final String         SKIP_REGEX        = "^[.][\\w@]+.*";
-  private static final String         DISC_FOLDER_REGEX = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
 
   private static final Pattern        seasonNumber      = Pattern.compile("(?i)season([0-9]{1,4}).*");
 

@@ -18,6 +18,7 @@ package org.tinymediamanager.core.movie.tasks;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.FileVisitResult.TERMINATE;
+import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -106,7 +107,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
   private static final String         SKIP_REGEX        = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
-  private static final String         DISC_FOLDER_REGEX = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
   private static final Pattern        VIDEO_3D_PATTERN  = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private List<String>                dataSources;
