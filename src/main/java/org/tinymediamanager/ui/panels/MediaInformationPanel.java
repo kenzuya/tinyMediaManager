@@ -190,7 +190,8 @@ abstract public class MediaInformationPanel extends JPanel {
       TmmTable tableAudioStreams = new TmmTable(tmmTableModel);
       tableAudioStreams.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-      JScrollPane scrollPane = new JScrollPane(tableAudioStreams);
+      JScrollPane scrollPane = new JScrollPane();
+      tableAudioStreams.configureScrollPane(scrollPane);
       scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
       add(scrollPane, "cell 1 9 5 1,growx");
     }
@@ -202,7 +203,8 @@ abstract public class MediaInformationPanel extends JPanel {
       TmmTable tableSubtitles = new TmmTable(tmmTableModel);
       tableSubtitles.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-      JScrollPane scrollPane = new JScrollPane(tableSubtitles);
+      JScrollPane scrollPane = new JScrollPane();
+      tableSubtitles.configureScrollPane(scrollPane);
       scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
       add(scrollPane, "cell 1 11 5 1,growx");
     }

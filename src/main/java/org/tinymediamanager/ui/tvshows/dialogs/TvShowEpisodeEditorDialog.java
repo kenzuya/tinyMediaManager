@@ -399,7 +399,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(scrollPaneRatings, "cell 1 10 5 2,grow");
 
         tableRatings = new MediaRatingTable(ratings);
-        scrollPaneRatings.setViewportView(tableRatings);
+        tableRatings.configureScrollPane(scrollPaneRatings);
 
         JButton btnAddRating = new SquareIconButton(new AddRatingAction());
         detailsPanel.add(btnAddRating, "cell 0 10,alignx right,aligny top");
@@ -483,7 +483,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         details2Panel.add(scrollPaneIds, "cell 6 3,grow");
 
         tableIds = new MediaIdTable(ids);
-        scrollPaneIds.setViewportView(tableIds);
+        tableIds.configureScrollPane(scrollPaneIds);
 
         JButton btnAddId = new JButton(new AddIdAction());
         details2Panel.add(btnAddId, "cell 5 3,alignx right,aligny top");
@@ -515,7 +515,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
         tableGuests = new PersonTable(guests, true);
 
-        JScrollPane scrollPane = new JScrollPane(tableGuests);
+        JScrollPane scrollPane = new JScrollPane();
+        tableGuests.configureScrollPane(scrollPane);
         crewPanel.add(scrollPane, "cell 1 0,grow");
       }
       {
@@ -524,7 +525,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
         tableDirectors = new PersonTable(directors, true);
 
-        JScrollPane scrollPane = new JScrollPane(tableDirectors);
+        JScrollPane scrollPane = new JScrollPane();
+        tableDirectors.configureScrollPane(scrollPane);
         crewPanel.add(scrollPane, "cell 1 2,grow");
       }
       {
@@ -533,7 +535,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
         tableWriters = new PersonTable(writers, true);
 
-        JScrollPane scrollPane = new JScrollPane(tableWriters);
+        JScrollPane scrollPane = new JScrollPane();
+        tableWriters.configureScrollPane(scrollPane);
         crewPanel.add(scrollPane, "cell 4 2,grow");
       }
       {

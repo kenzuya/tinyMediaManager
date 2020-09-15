@@ -139,7 +139,8 @@ public class TvShowEpisodeCastPanel extends JPanel {
       tableActors.setName("tvshows.episode.actorTable");
       TmmUILayoutStore.getInstance().install(tableActors);
 
-      JScrollPane scrollPaneActors = new JScrollPane(tableActors);
+      JScrollPane scrollPaneActors = new JScrollPane();
+      tableActors.configureScrollPane(scrollPaneActors);
       add(scrollPaneActors, "cell 1 2 1 2,grow");
     }
     {

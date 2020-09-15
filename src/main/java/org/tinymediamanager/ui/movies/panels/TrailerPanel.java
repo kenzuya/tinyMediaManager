@@ -166,7 +166,8 @@ public class TrailerPanel extends JPanel {
     table = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(trailerEventList), new TrailerTableFormat()));
     table.setSelectionModel(new NullSelectionModel());
 
-    JScrollPane scrollPane = new JScrollPane(table);
+    JScrollPane scrollPane = new JScrollPane();
+    table.configureScrollPane(scrollPane);
     add(scrollPane, "cell 0 0,grow");
     scrollPane.setViewportView(table);
 

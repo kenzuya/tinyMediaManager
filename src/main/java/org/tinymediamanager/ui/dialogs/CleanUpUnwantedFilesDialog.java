@@ -75,7 +75,8 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
 
     {
       table = new TmmTable(new TmmTableModel<>(results, new CleanUpTableFormat()));
-      JScrollPane scrollPane = new JScrollPane(table);
+      JScrollPane scrollPane = new JScrollPane();
+      table.configureScrollPane(scrollPane);
       getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
 

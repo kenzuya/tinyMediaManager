@@ -133,7 +133,7 @@ public class MediaFileEditorPanel extends JPanel {
         splitPane.setLeftComponent(panelMediaFiles);
 
         tableMediaFiles = new TmmTable();
-        scrollPaneMediaFiles.setViewportView(tableMediaFiles);
+        tableMediaFiles.configureScrollPane(scrollPaneMediaFiles);
       }
       {
         JPanel panelDetails = new JPanel();
@@ -256,7 +256,7 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(scrollPane, "cell 1 5 8 1,grow");
 
           tableAudioStreams = new TmmTable();
-          scrollPane.setViewportView(tableAudioStreams);
+          tableAudioStreams.configureScrollPane(scrollPane);
         }
         {
           JLabel lblSubtitles = new TmmLabel("Subtitles");
@@ -266,7 +266,7 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(scrollPane, "cell 1 6 8 1,grow");
 
           tableSubtitles = new TmmTable();
-          scrollPane.setViewportView(tableSubtitles);
+          tableSubtitles.configureScrollPane(scrollPane);
         }
         {
           btnAddAudioStream = new SquareIconButton(new AddAudioStreamAction());

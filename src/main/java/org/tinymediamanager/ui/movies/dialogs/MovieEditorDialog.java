@@ -521,7 +521,7 @@ public class MovieEditorDialog extends TmmDialog {
         details1Panel.add(scrollPaneRatings, "cell 1 11 5 1,grow,wmin 0");
 
         tableRatings = new MediaRatingTable(ratings);
-        scrollPaneRatings.setViewportView(tableRatings);
+        tableRatings.configureScrollPane(scrollPaneRatings);
       }
       {
         JLabel lblTop = new TmmLabel(BUNDLE.getString("metatag.top250"));
@@ -628,7 +628,7 @@ public class MovieEditorDialog extends TmmDialog {
         details2Panel.add(scrollPaneIds, "cell 7 0 1 7,growx");
 
         tableIds = new MediaIdTable(ids);
-        scrollPaneIds.setViewportView(tableIds);
+        tableIds.configureScrollPane(scrollPaneIds);
 
         JButton btnAddId = new SquareIconButton(new AddIdAction());
         details2Panel.add(btnAddId, "cell 6 0 1 3,alignx right,aligny top");
@@ -760,7 +760,8 @@ public class MovieEditorDialog extends TmmDialog {
 
         tableActors = new PersonTable(cast, true);
 
-        JScrollPane scrollPane = new JScrollPane(tableActors);
+        JScrollPane scrollPane = new JScrollPane();
+        tableActors.configureScrollPane(scrollPane);
         crewPanel.add(scrollPane, "cell 1 0,grow");
       }
       {
@@ -769,7 +770,8 @@ public class MovieEditorDialog extends TmmDialog {
 
         tableProducers = new PersonTable(producers, true);
 
-        JScrollPane scrollPane = new JScrollPane(tableProducers);
+        JScrollPane scrollPane = new JScrollPane();
+        tableProducers.configureScrollPane(scrollPane);
         crewPanel.add(scrollPane, "cell 4 0,grow");
       }
       {
@@ -779,6 +781,7 @@ public class MovieEditorDialog extends TmmDialog {
         tableDirectors = new PersonTable(directors, true);
 
         JScrollPane scrollPane = new JScrollPane(tableDirectors);
+        tableDirectors.configureScrollPane(scrollPane);
         crewPanel.add(scrollPane, "cell 1 2,grow");
       }
       {
@@ -788,6 +791,7 @@ public class MovieEditorDialog extends TmmDialog {
         tableWriters = new PersonTable(writers, true);
 
         JScrollPane scrollPane = new JScrollPane(tableWriters);
+        tableWriters.configureScrollPane(scrollPane);
         crewPanel.add(scrollPane, "cell 4 2,grow");
       }
       {
@@ -1166,7 +1170,7 @@ public class MovieEditorDialog extends TmmDialog {
         artworkAndTrailerPanel.add(scrollPaneTrailer, "cell 1 10 7 1,grow");
         tableTrailer = new TmmTable();
         tableTrailer.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        scrollPaneTrailer.setViewportView(tableTrailer);
+        tableTrailer.configureScrollPane(scrollPaneTrailer);
       }
     }
 

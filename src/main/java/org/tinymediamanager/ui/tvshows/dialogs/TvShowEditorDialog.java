@@ -484,7 +484,7 @@ public class TvShowEditorDialog extends TmmDialog {
         details1Panel.add(scrollPaneRatings, "cell 1 10 4 1,growx");
 
         tableRatings = new MediaRatingTable(ratings);
-        scrollPaneRatings.setViewportView(tableRatings);
+        tableRatings.configureScrollPane(scrollPaneRatings);
       }
       {
         lblFanart = new ImageLabel();
@@ -546,7 +546,8 @@ public class TvShowEditorDialog extends TmmDialog {
 
         tableActors = new PersonTable(actors, true);
 
-        JScrollPane scrollPaneActors = new JScrollPane(tableActors);
+        JScrollPane scrollPaneActors = new JScrollPane();
+        tableActors.configureScrollPane(scrollPaneActors);
         details2Panel.add(scrollPaneActors, "cell 1 0 1 2,grow");
 
         JButton btnAddActor = new SquareIconButton(new AddActorAction());
@@ -574,7 +575,8 @@ public class TvShowEditorDialog extends TmmDialog {
 
         tableIds = new MediaIdTable(ids);
 
-        JScrollPane scrollPaneIds = new JScrollPane(tableIds);
+        JScrollPane scrollPaneIds = new JScrollPane();
+        tableIds.configureScrollPane(scrollPaneIds);
         details2Panel.add(scrollPaneIds, "cell 4 1,grow");
 
         JButton btnAddId = new SquareIconButton(new AddIdAction());
@@ -955,7 +957,8 @@ public class TvShowEditorDialog extends TmmDialog {
       {
         tableEpisodes = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(episodes), new EpisodeTableFormat()));
 
-        JScrollPane scrollPaneEpisodes = new JScrollPane(tableEpisodes);
+        JScrollPane scrollPaneEpisodes = new JScrollPane();
+        tableEpisodes.configureScrollPane(scrollPaneEpisodes);
         episodesPanel.add(scrollPaneEpisodes, "cell 1 0 1 2,grow");
       }
       {
@@ -986,7 +989,7 @@ public class TvShowEditorDialog extends TmmDialog {
         trailerPanel.add(scrollPaneTrailer, "cell 1 10 7 1,grow");
         tableTrailer = new TmmTable();
         tableTrailer.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        scrollPaneTrailer.setViewportView(tableTrailer);
+        tableTrailer.configureScrollPane(scrollPaneTrailer);
       }
     }
 

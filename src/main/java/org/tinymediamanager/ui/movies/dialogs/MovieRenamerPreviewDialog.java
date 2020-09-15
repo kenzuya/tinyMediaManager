@@ -112,7 +112,8 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
             }
           });
 
-          JScrollPane scrollPaneMovies = new JScrollPane(tableMovies);
+          JScrollPane scrollPaneMovies = new JScrollPane();
+          tableMovies.configureScrollPane(scrollPaneMovies);
           splitPane.setLeftComponent(scrollPaneMovies);
         }
         {
@@ -159,7 +160,8 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
             {
               TmmTable tableMediaFilesOld = new TmmTable(
                   new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(oldMediaFileEventList), new MediaFileTableFormat()));
-              JScrollPane scrollPaneMediaFilesOld = new JScrollPane(tableMediaFilesOld);
+              JScrollPane scrollPaneMediaFilesOld = new JScrollPane();
+              tableMediaFilesOld.configureScrollPane(scrollPaneMediaFilesOld);
               panelMediaFiles.add(scrollPaneMediaFilesOld, "cell 0 1,grow");
               tableMediaFilesOld.getColumnModel().getColumn(0).setMaxWidth(40);
             }
@@ -167,6 +169,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
               TmmTable tableMediaFilesNew = new TmmTable(
                   new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(newMediaFileEventList), new MediaFileTableFormat()));
               JScrollPane scrollPaneMediaFilesNew = new JScrollPane(tableMediaFilesNew);
+              tableMediaFilesNew.configureScrollPane(scrollPaneMediaFilesNew);
               panelMediaFiles.add(scrollPaneMediaFilesNew, "cell 1 1,grow");
               tableMediaFilesNew.getColumnModel().getColumn(0).setMaxWidth(40);
             }

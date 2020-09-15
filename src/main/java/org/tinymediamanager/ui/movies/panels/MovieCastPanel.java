@@ -145,7 +145,8 @@ public class MovieCastPanel extends JPanel {
       tableProducer = new PersonTable(producerEventList);
       tableProducer.setName("movies.producerTable");
       TmmUILayoutStore.getInstance().install(tableProducer);
-      JScrollPane scrollPanePerson = new JScrollPane(tableProducer);
+      JScrollPane scrollPanePerson = new JScrollPane();
+      tableProducer.configureScrollPane(scrollPanePerson);
       add(scrollPanePerson, "cell 1 2,grow");
     }
     {
@@ -155,7 +156,8 @@ public class MovieCastPanel extends JPanel {
       tableActors = new PersonTable(actorEventList);
       tableActors.setName("movies.actorTable");
       TmmUILayoutStore.getInstance().install(tableActors);
-      JScrollPane scrollPanePersons = new JScrollPane(tableActors);
+      JScrollPane scrollPanePersons = new JScrollPane();
+      tableActors.configureScrollPane(scrollPanePersons);
       add(scrollPanePersons, "cell 1 3,grow");
     }
     {

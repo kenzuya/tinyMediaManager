@@ -218,7 +218,8 @@ public class TvShowSeasonInformationPanel extends JPanel {
         tableEpisodes = new TmmTable(episodeTableModel);
         tableEpisodes.setName("tvshows.seaon.episodeTable");
         TmmUILayoutStore.getInstance().install(tableEpisodes);
-        JScrollPane scrollPaneEpisodes = new JScrollPane(tableEpisodes);
+        JScrollPane scrollPaneEpisodes = new JScrollPane();
+        tableEpisodes.configureScrollPane(scrollPaneEpisodes);
         panelRight.add(scrollPaneEpisodes, "cell 0 4 2 1,grow");
         scrollPaneEpisodes.setViewportView(tableEpisodes);
       }

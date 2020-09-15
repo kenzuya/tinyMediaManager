@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
-import javax.swing.CellRendererPane;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -67,11 +66,10 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TmmTable extends JTable {
-  private static final long             serialVersionUID = 6150939811851709115L;
-  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
-  private static final CellRendererPane CELL_RENDER_PANE = new CellRendererPane();
+  private static final long            serialVersionUID = 6150939811851709115L;
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TmmTableComparatorChooser<?>  tableComparatorChooser;
+  private TmmTableComparatorChooser<?> tableComparatorChooser;
 
   public TmmTable() {
     super();
@@ -284,6 +282,19 @@ public class TmmTable extends JTable {
         b.setFocusable(false);
         scrollPane.setCorner(UPPER_RIGHT_CORNER, b);
       }
+    }
+  }
+
+  public void configureScrollPane(JScrollPane scrollPane) {
+    int[] columnsWithoutRightVerticalGrid = {};
+    configureScrollPane(scrollPane, columnsWithoutRightVerticalGrid);
+  }
+
+  public void configureScrollPane(JScrollPane scrollPane, int[] columnsWithoutRightVerticalGrid) {
+    if (!(scrollPane.getViewport() instanceof TmmViewport)) {
+      // NEEDED to repaint the grid of empty rows
+      scrollPane.setViewport(new TmmViewport(this, columnsWithoutRightVerticalGrid));
+      scrollPane.getViewport().setView(this);
     }
   }
 
