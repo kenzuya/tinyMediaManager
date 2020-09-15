@@ -46,17 +46,18 @@ import okhttp3.Response;
  * @author Manuel Laggner
  */
 public class TmmXmlRpcClient {
-  private static OkHttpClient client;
+  private static final boolean DEBUG     = false;
+  private static OkHttpClient  client;
+  private Map<String, Object>  callCache = new HashMap<>();
 
-  private Map<String, Object> callCache = new HashMap<>();
-
-  private URL                 url;
-  private String              userAgent;
-  private ResponseParser      responseParser;
+  private URL                  url;
+  private String               userAgent;
+  private ResponseParser       responseParser;
+  private SerializerHandler    serializerHandler;
 
   public TmmXmlRpcClient(URL url) {
     this.url = url;
-    SerializerHandler.initialize(XMLRPCClient.FLAGS_8BYTE_INT);
+    serializerHandler = new SerializerHandler(XMLRPCClient.FLAGS_8BYTE_INT);
     responseParser = new ResponseParser();
 
     if (client == null) {
@@ -118,8 +119,8 @@ public class TmmXmlRpcClient {
      */
     public Object call(String methodName, Object[] params) throws TmmXmlRpcException {
       try {
-        Call c = new Call(methodName, params);
-        String callXml = c.getXML();
+        Call c = new Call(serializerHandler, methodName, params);
+        String callXml = c.getXML(DEBUG);
 
         // look in the cache if there is a cached call
         Object cachedResponse = callCache.get(callXml);
@@ -226,7 +227,7 @@ public class TmmXmlRpcClient {
      */
     private Object getReturnValueFromElement(Element element) throws XMLRPCException {
       element = XMLUtil.getOnlyChildElement(element.getChildNodes());
-      return SerializerHandler.getDefault().deserialize(element);
+      return serializerHandler.deserialize(element);
     }
   }
 }
