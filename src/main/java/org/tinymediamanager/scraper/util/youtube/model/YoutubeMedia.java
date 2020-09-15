@@ -40,7 +40,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Represents the parsed media information from the Youtube Parser for a given Youtube link
+ * Represents the parsed media information from the Youtube Parser for a given
+ * Youtube link
  *
  * @author Wolfgang Janes
  */
@@ -56,6 +57,7 @@ public class YoutubeMedia {
   private static final String       ERROR        = "\"status\":\"ERROR\",\"reason\":\"";
   private static final String       URL          = "https://www.youtube.com/watch?v=";
   public static Map<String, Cipher> ciphers      = new HashMap<>();
+  private ObjectMapper              objectMapper = new ObjectMapper();
 
   public YoutubeMedia(String videoId) {
     this.videoId = videoId;
@@ -139,7 +141,8 @@ public class YoutubeMedia {
   }
 
   /**
-   * Parsing the Youtube Webpage from the given YoutubeID to get all the information for downloading audio and video
+   * Parsing the Youtube Webpage from the given YoutubeID to get all the
+   * information for downloading audio and video
    *
    * @throws IOException
    *           any {@link IOException occurred while downloading}
@@ -147,8 +150,6 @@ public class YoutubeMedia {
    *           indicates that the thread has been interrupted
    */
   public void parseVideo() throws Exception {
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
     // Load Page into String
     String page;
@@ -179,6 +180,11 @@ public class YoutubeMedia {
 
     videoDetails.setDetails(player_response.get("videoDetails"));
 
+    // Get Live URL if available
+    if (videoDetails.getIsLive()) {
+      videoDetails.setLiveUrl(getLiveHLSUrl(streamingData));
+    }
+
     // Get Video / Audio Formats
     ArrayNode jsonFormats = (ArrayNode) streamingData.get("formats");
     ArrayNode jsonAdaptiveFormats = (ArrayNode) streamingData.get("adaptiveFormats");
@@ -192,11 +198,14 @@ public class YoutubeMedia {
     for (int i = 0; i < jsonAdaptiveFormats.size(); i++) {
       JsonNode json = jsonAdaptiveFormats.get(i);
 
+      if ("FORMAT_STREAM_TYPE_OTF".equals(json.get("type")))
+        continue; // unsupported otf formats which cause 404 not found
+
       // Check for ciphered Youtube Link
 
-      if (json.has("cipher")) {
+      if (json.has("signatureCipher")) {
         HashMap<String, String> cipherMap = new HashMap<>();
-        String[] cipherdata = json.get("cipher").asText().replace("\\u0026", "&").split("&");
+        String[] cipherdata = json.get("signatureCipher").asText().replace("\\u0026", "&").split("&");
 
         for (String s : cipherdata) {
           String[] keyValue = s.split("=");
@@ -233,19 +242,22 @@ public class YoutubeMedia {
           continue;
         }
 
-        if (itag.isVideo() && itag.isAudio()) {
+        boolean hasVideo = itag.isVideo() || json.has("size") || json.has("width");
+        boolean hasAudio = itag.isAudio() || json.has("audioQuality");
+
+        if (hasVideo && hasAudio) {
           formats.add(new AudioVideoFormat(json, itag));
         }
-        else if (itag.isVideo()) {
+        else if (hasVideo) {
           formats.add(new VideoFormat(json, itag));
         }
-        else if (itag.isAudio()) {
+        else if (hasAudio) {
           formats.add(new AudioFormat(json, itag));
         }
 
       }
       catch (Exception e) {
-        LOGGER.warn("Itag : " + Itag.findItag(json.get("itag").asInt(0)) + " seems to be  Audio/Video Stream -> not supported yet");
+        LOGGER.warn("unknown format with itag " + Itag.findItag(json.get("itag").asInt(0)));
       }
     }
   }
@@ -255,5 +267,14 @@ public class YoutubeMedia {
       LOGGER.error("Could not extract js url");
     }
     return "https://youtube.com" + config.get("js").asText();
+  }
+
+  private String getLiveHLSUrl(ObjectNode data) {
+    if (data.has("hlsManifestUrl")) {
+      return data.get("hlsManifestUrl").asText();
+    }
+    else {
+      return "";
+    }
   }
 }

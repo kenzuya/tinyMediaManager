@@ -112,7 +112,7 @@ public class YoutubeDownloadTask extends TmmTask {
         // no combined audio/video format found -> need to download separate streams and mux it
 
         VideoFormat videoFormat = mediaDetails.findVideo(VideoQuality.getVideoQuality(mediaTrailer.getQuality()), Extension.MP4);
-        AudioFormat audioFormat = mediaDetails.findBestAudio(Extension.MP4);
+        AudioFormat audioFormat = mediaDetails.findBestAudio(Extension.M4A);
 
         if (videoFormat == null || audioFormat == null) {
           MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Youtube trailer downloader", "message.trailer.unsupported",
