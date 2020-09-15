@@ -354,7 +354,9 @@ public class ToolbarPanel extends JPanel {
     menu.add(new FeedbackAction());
 
     menu.addSeparator();
-    menu.add(new UnlockAction());
+    if (!License.getInstance().isValidLicense()) {
+      menu.add(new UnlockAction());
+    }
     menu.add(new HomepageAction());
     menu.add(new AboutAction());
 
