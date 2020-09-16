@@ -23,7 +23,6 @@ import java.util.ResourceBundle;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 
 /**
@@ -32,7 +31,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
  * @author Manuel Laggner
  */
 public class MovieExtendedComparator implements Comparator<Movie> {
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER         = LoggerFactory.getLogger(MovieExtendedComparator.class);
 
   private SortColumn                  sortColumn;

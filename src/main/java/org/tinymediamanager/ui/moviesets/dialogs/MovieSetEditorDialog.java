@@ -53,7 +53,6 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -66,13 +65,15 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
-import org.tinymediamanager.ui.components.MainTabbedPane;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
@@ -103,7 +104,7 @@ public class MovieSetEditorDialog extends TmmDialog {
 
   /** UI components */
   private JTextField          tfName;
-  private JTable              tableMovies;
+  private TmmTable            tableMovies;
   private ImageLabel          lblPoster;
   private ImageLabel          lblFanart;
   private JTextPane           tpOverview;
@@ -157,20 +158,13 @@ public class MovieSetEditorDialog extends TmmDialog {
     }
 
     {
-      JTabbedPane tabbedPane = new MainTabbedPane() {
-        private static final long serialVersionUID = 71548865608767532L;
-
-        @Override
-        public void updateUI() {
-          putClientProperty("bottomBorder", Boolean.FALSE);
-          super.updateUI();
-        }
-      };
+      JTabbedPane tabbedPane = new TmmTabbedPane();
       getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
       JPanel panelContent = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details"), panelContent);
-      panelContent.setLayout(new MigLayout("", "[][400lp,grow 200][150lp:200lp,grow 50]", "[][][150lp:200lp,grow][20lp:n][][][50lp:100lp,grow]"));
+      panelContent
+          .setLayout(new MigLayout("", "[][400lp,grow 200][150lp:200lp,grow 50]", "[][][150lp:25%:40%,grow][20lp:n][pref!][][50lp:20%:30%,grow]"));
 
       JLabel lblName = new TmmLabel(BUNDLE.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");
@@ -186,7 +180,7 @@ public class MovieSetEditorDialog extends TmmDialog {
         public void mouseClicked(MouseEvent e) {
           ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.POSTER, artworkScrapers, lblPoster,
               null, null, MediaType.MOVIE_SET);
-          dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+          dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
           updateArtworkUrl(lblPoster, tfPoster);
         }
@@ -217,7 +211,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       JLabel lblOverview = new TmmLabel(BUNDLE.getString("metatag.plot"));
       panelContent.add(lblOverview, "cell 0 2,alignx right,aligny top");
 
-      JScrollPane scrollPaneOverview = new JScrollPane();
+      JScrollPane scrollPaneOverview = new NoBorderScrollPane();
       panelContent.add(scrollPaneOverview, "cell 1 2,grow");
 
       tpOverview = new JTextPane();
@@ -240,7 +234,7 @@ public class MovieSetEditorDialog extends TmmDialog {
         public void mouseClicked(MouseEvent e) {
           ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.FANART, artworkScrapers, lblFanart,
               null, null, MediaType.MOVIE_SET);
-          dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+          dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
           updateArtworkUrl(lblFanart, tfFanart);
         }
@@ -297,7 +291,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.LOGO,
                   movieList.getDefaultArtworkScrapers(), lblLogo, null, null, MediaType.MOVIE_SET);
-              dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+              dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblLogo, tfLogo);
             }
@@ -328,7 +322,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.CLEARLOGO,
                   movieList.getDefaultArtworkScrapers(), lblClearlogo, null, null, MediaType.MOVIE_SET);
-              dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+              dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
             }
           });
@@ -358,7 +352,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.BANNER,
                   movieList.getDefaultArtworkScrapers(), lblBanner, null, null, MediaType.MOVIE_SET);
-              dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+              dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblBanner, tfBanner);
             }
@@ -388,7 +382,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.CLEARART,
                   movieList.getDefaultArtworkScrapers(), lblClearart, null, null, MediaType.MOVIE_SET);
-              dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+              dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblClearart, tfClearArt);
             }
@@ -419,7 +413,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.THUMB,
                   movieList.getDefaultArtworkScrapers(), lblThumb, null, null, MediaType.MOVIE_SET);
-              dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+              dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblThumb, tfThumb);
             }
@@ -449,7 +443,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             public void mouseClicked(MouseEvent e) {
               ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.DISC,
                   movieList.getDefaultArtworkScrapers(), lblDisc, null, null, MediaType.MOVIE_SET);
-              dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+              dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblDisc, tfDisc);
             }
@@ -577,20 +571,22 @@ public class MovieSetEditorDialog extends TmmDialog {
     tableMovies.getTableHeader().getColumnModel().getColumn(0).setHeaderValue(BUNDLE.getString("metatag.name"));
 
     // year column
-    int width = tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth(" 2000");
+    int width = (int) (tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth("2000") * 1.3f + 10);
     int titleWidth = tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth(BUNDLE.getString("metatag.year"));
     if (titleWidth > width) {
       width = titleWidth;
     }
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setPreferredWidth(width);
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setMinWidth(width);
-    tableMovies.getTableHeader().getColumnModel().getColumn(1).setMaxWidth((int) (width * 1.5));
+    tableMovies.getTableHeader().getColumnModel().getColumn(1).setMaxWidth((int) (width * 1.1f));
+    tableMovies.getTableHeader().getColumnModel().getColumn(1).setResizable(false);
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setHeaderValue(BUNDLE.getString("metatag.year"));
 
     // watched column
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setPreferredWidth(70);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setMinWidth(70);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setMaxWidth(85);
+    tableMovies.getTableHeader().getColumnModel().getColumn(2).setResizable(false);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setHeaderValue(BUNDLE.getString("metatag.watched"));
   }
 
@@ -798,11 +794,12 @@ public class MovieSetEditorDialog extends TmmDialog {
         IMovieMetadataProvider mp = (IMovieMetadataProvider) scraper.getMediaProvider();
 
         for (Movie movie : moviesInSet) {
-          if (Utils.isValidImdbId(movie.getImdbId()) || movie.getTmdbId() > 0) {
+          if (MetadataUtil.isValidImdbId(movie.getImdbId()) || movie.getTmdbId() > 0) {
             MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
             options.setTmdbId(movie.getTmdbId());
             options.setImdbId(movie.getImdbId());
             options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+            options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
 
             try {
               MediaMetadata md = mp.getMetadata(options);

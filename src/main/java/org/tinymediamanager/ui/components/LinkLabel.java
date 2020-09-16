@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.ui.UIConstants;
 
 /**
  * An extension of JLabel which looks like a link and responds appropriately when clicked. Note that this class will only work with Swing 1.1.1 and
@@ -66,7 +65,7 @@ public class LinkLabel extends ReadOnlyTextArea {
     Font font = UIManager.getFont("Label.font");
     Map attributes = font.getAttributes();
     attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-    attributes.put(TextAttribute.FOREGROUND, UIConstants.LINK_COLOR);
+    attributes.put(TextAttribute.FOREGROUND, UIManager.getColor("Component.linkColor"));
     setFont(font.deriveFont(attributes));
 
     setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

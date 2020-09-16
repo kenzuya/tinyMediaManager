@@ -152,7 +152,8 @@ public class KodiScraper implements IMediaProvider {
         return;
       }
 
-      providerInfo = new MediaProviderInfo(id, "Kodi: " + name, "<h3>" + summary + "</h3><br>" + description);
+      providerInfo = new MediaProviderInfo(id, "Kodi: " + name, "<h3>" + summary + "</h3><br>" + description,
+          KodiScraper.class.getResource("/org/tinymediamanager/scraper/kodi_tv.svg"));
       providerInfo.setVersion(version); // deprecated solely for Kodi, so ok
 
       // =====================================================
@@ -281,17 +282,6 @@ public class KodiScraper implements IMediaProvider {
       // load TMM config values
       // =====================================================
       this.providerInfo.getConfig().load();
-
-      File logo = new File(scraperFolder, "icon.png");
-      if (logo.exists()) {
-        providerInfo.setProviderLogo(logo.toURI().toURL());
-      }
-      else { // new http://kodi.wiki/view/Add-on_structure#Kodi_v17_Krypton_and_up
-        logo = new File(scraperFolder, "resources/icon.png");
-        if (logo.exists()) {
-          providerInfo.setProviderLogo(logo.toURI().toURL());
-        }
-      }
     }
     catch (IOException e) {
       LOGGER.error("Unable to generate Kodi scraper for folder {}", scraperFolder, e);

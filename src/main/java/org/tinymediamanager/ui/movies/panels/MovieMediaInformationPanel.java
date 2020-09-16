@@ -31,7 +31,6 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
@@ -48,7 +47,7 @@ import org.tinymediamanager.ui.panels.MediaInformationPanel;
 public class MovieMediaInformationPanel extends MediaInformationPanel {
   private static final long           serialVersionUID = 2513029074142934502L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSelectionModel         movieSelectionModel;
 
@@ -61,6 +60,7 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
   public MovieMediaInformationPanel(MovieSelectionModel model) {
     super();
     this.movieSelectionModel = model;
+    panelMediaFiles.installTmmUILayoutStore("movies");
 
     initDataBindings();
 
@@ -86,11 +86,12 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
           mediaFileEventList.addAll(movieSelectionModel.getSelectedMovie().getMediaFiles());
         }
         catch (Exception ignored) {
+          // ignored
         }
         finally {
           mediaFileEventList.getReadWriteLock().writeLock().unlock();
+          panelMediaFiles.adjustColumns();
         }
-        panelMediaFiles.adjustColumns();
       }
     };
 
@@ -119,8 +120,8 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
       lblRuntime.setText("");
     }
     else {
-      int minutes = (int) (runtime / 60) % 60;
-      int hours = (int) (runtime / (60 * 60)) % 24;
+      int minutes = (runtime / 60) % 60;
+      int hours = (runtime / (60 * 60)) % 24;
       int seconds = runtime % 60;
       lblRuntime.setText(String.format("%dh %02dm %02ds", hours, minutes, seconds));
     }
@@ -128,7 +129,12 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
     chckbxWatched.setSelected(movie.isWatched());
 
     lblVideoCodec.setText(mediaFile.getVideoCodec());
-    lblVideoResolution.setText(mediaFile.getVideoResolution());
+    if (mediaFile.getAspectRatio() > 0) {
+      lblVideoResolution.setText(String.format("%s (%.2f:1)", mediaFile.getVideoResolution(), mediaFile.getAspectRatio()));
+    }
+    else {
+      lblVideoResolution.setText(mediaFile.getVideoResolution());
+    }
     lblVideoBitrate.setText(mediaFile.getBiteRateInKbps());
     lblVideoBitDepth.setText(mediaFile.getBitDepthString());
     lblSource.setText(movie.getMediaSource().toString());

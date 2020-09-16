@@ -84,12 +84,12 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.ToggleButtonUI;
-import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.WrapLayout;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
+import org.tinymediamanager.ui.components.SquareIconButton;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -102,7 +102,6 @@ public class ImageChooserDialog extends TmmDialog {
   private static final long   serialVersionUID = 8193355920006275933L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
   private static final String DIALOG_ID        = "imageChooser";
-  private static final Insets BUTTON_MARGIN    = UIConstants.SMALL_BUTTON_MARGIN;
 
   public enum ImageType {
     POSTER,
@@ -133,10 +132,9 @@ public class ImageChooserDialog extends TmmDialog {
   private JPanel              panelImages;
   private JScrollPane         scrollPane;
   private LockableViewPort    viewport;
-  private ButtonGroup         buttonGroup    = new ButtonGroup();
-  private List<JToggleButton> buttons        = new ArrayList<>();
+  private ButtonGroup         buttonGroup = new ButtonGroup();
+  private List<JToggleButton> buttons     = new ArrayList<>();
   private JTextField          tfImageUrl;
-  private ToggleButtonUI      toggleButtonUI = new ToggleButtonUI();
 
   private DownloadTask        task;
 
@@ -304,7 +302,7 @@ public class ImageChooserDialog extends TmmDialog {
     getContentPane().add(contentPanel, BorderLayout.CENTER);
     contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[500lp,grow][shrink 0][][][]"));
     {
-      scrollPane = new JScrollPane();
+      scrollPane = new NoBorderScrollPane();
       viewport = new LockableViewPort();
       scrollPane.setViewport(viewport);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -339,10 +337,8 @@ public class ImageChooserDialog extends TmmDialog {
       JLabel labelThumbs = new JLabel("Extrathumbs:");
       contentPanel.add(labelThumbs, "flowx,cell 0 2");
 
-      JButton btnMarkExtrathumbs = new JButton("");
+      JButton btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
       contentPanel.add(btnMarkExtrathumbs, "cell 0 2");
-      btnMarkExtrathumbs.setMargin(BUTTON_MARGIN);
-      btnMarkExtrathumbs.setIcon(IconManager.CHECK_ALL);
       btnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.markall"));
       btnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
@@ -353,10 +349,8 @@ public class ImageChooserDialog extends TmmDialog {
         }
       });
 
-      JButton btnUnMarkExtrathumbs = new JButton("");
+      JButton btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
       contentPanel.add(btnUnMarkExtrathumbs, "cell 0 2");
-      btnUnMarkExtrathumbs.setMargin(BUTTON_MARGIN);
-      btnUnMarkExtrathumbs.setIcon(IconManager.CLEAR_ALL);
       btnUnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.unmarkall"));
       btnUnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
@@ -371,15 +365,12 @@ public class ImageChooserDialog extends TmmDialog {
       JLabel labelFanart = new JLabel("Extrafanart:");
       contentPanel.add(labelFanart, "flowx,cell 0 3");
 
-      JButton btnMarkExtrafanart = new JButton("");
+      JButton btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
       contentPanel.add(btnMarkExtrafanart, "cell 0 3");
-      btnMarkExtrafanart.setMargin(BUTTON_MARGIN);
-      btnMarkExtrafanart.setIcon(IconManager.CHECK_ALL);
       btnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.markall"));
-      JButton btnUnMarkExtrafanart = new JButton("");
+
+      JButton btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
       contentPanel.add(btnUnMarkExtrafanart, "cell 0 3");
-      btnUnMarkExtrafanart.setMargin(BUTTON_MARGIN);
-      btnUnMarkExtrafanart.setIcon(IconManager.CLEAR_ALL);
       btnUnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.unmarkall"));
       btnUnMarkExtrafanart.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
@@ -458,24 +449,18 @@ public class ImageChooserDialog extends TmmDialog {
       case THUMB:
       case DISC:
       case CHARACTERART:
-        gbl.columnWidths = new int[] { 130 };
-        gbl.rowHeights = new int[] { 180 };
         size = ImageUtils.calculateSize(300, 150, originalImage.getWidth(), originalImage.getHeight(), true);
         break;
 
       case BANNER:
       case LOGO:
       case CLEARLOGO:
-        gbl.columnWidths = new int[] { 130 };
-        gbl.rowHeights = new int[] { 120 };
         size = ImageUtils.calculateSize(300, 100, originalImage.getWidth(), originalImage.getHeight(), true);
         break;
 
       case POSTER:
       case KEYART:
       default:
-        gbl.columnWidths = new int[] { 180 };
-        gbl.rowHeights = new int[] { 270 };
         size = ImageUtils.calculateSize(150, 250, originalImage.getWidth(), originalImage.getHeight(), true);
         break;
 
@@ -490,12 +475,11 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridx = 0;
     gbc.gridy = 0;
-    gbc.gridwidth = 3;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.insets = new Insets(5, 5, 5, 5);
 
     JToggleButton button = new JToggleButton();
     button.setBackground(Color.white);
-    button.setUI(toggleButtonUI);
     button.setMargin(new Insets(10, 10, 10, 10));
     if (artwork.isAnimated()) {
       button.setText("<html><img width=\"" + size.x + "\" height=\"" + size.y + "\" src='" + artwork.getPreviewUrl() + "'/></html>");
@@ -516,7 +500,8 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.gridx = 0;
     gbc.gridy = 1;
     gbc.anchor = GridBagConstraints.LAST_LINE_START;
-    gbc.insets = new Insets(0, 5, 0, 0);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.insets = new Insets(0, 5, 0, 5);
 
     JComboBox cb = null;
     if (!artwork.getImageSizes().isEmpty()) {
@@ -721,7 +706,7 @@ public class ImageChooserDialog extends TmmDialog {
 
     ImageLabel lblImage = new ImageLabel();
     ImageChooserDialog dialog = new ImageChooserDialog(parent, ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
     return lblImage.getImageUrl();
   }
@@ -751,7 +736,7 @@ public class ImageChooserDialog extends TmmDialog {
 
     ImageLabel lblImage = new ImageLabel();
     ImageChooserDialog dialog = new ImageChooserDialog(ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
     return lblImage.getImageUrl();
   }

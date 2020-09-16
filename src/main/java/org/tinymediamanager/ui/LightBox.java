@@ -73,6 +73,7 @@ public class LightBox {
     imagePanel.setOpaque(false);
 
     image = new ImageLabel(true);
+    image.setScaleUpIfTooSmall(false);
     image.setPreferCache(false);
     image.setIsLightbox(true);
     image.setPosition(Position.CENTER);

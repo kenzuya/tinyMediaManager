@@ -31,7 +31,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
+import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.threading.TmmTask;
@@ -40,7 +40,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.thirdparty.trakttv.ClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 
@@ -54,14 +54,13 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -4173835431245178069L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSettings          settings         = MovieModuleManager.SETTINGS;
 
   private JButton                      btnClearTraktData;
   private JCheckBox                    chckbxTraktSync;
   private JCheckBox                    chckbxRenameAfterScrape;
-  private JCheckBox                    chckbxPersistUiFilters;
   private JCheckBox                    chckbxBuildImageCache;
   private JCheckBox                    chckbxExtractArtworkFromVsmeta;
   private JCheckBox                    chckbxRuntimeFromMi;
@@ -211,36 +210,36 @@ public class MovieSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
-      JPanel panelUiSettings = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelUiSettings = new JPanel();
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
-        chckbxPersistUiFilters = new JCheckBox(BUNDLE.getString("Settings.movie.persistuifilter"));
-        panelUiSettings.add(chckbxPersistUiFilters, "cell 1 0 2 1");
-      }
-      {
         chckbxShowLogos = new JCheckBox(BUNDLE.getString("Settings.showlogos"));
-        panelUiSettings.add(chckbxShowLogos, "cell 1 1 2 1");
+        panelUiSettings.add(chckbxShowLogos, "cell 1 0 2 1");
       }
       {
         JLabel lblRating = new JLabel(BUNDLE.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "cell 1 2 2 1");
+        panelUiSettings.add(lblRating, "cell 1 1 2 1");
 
         cbRating = new AutocompleteComboBox<>(Arrays.asList("imdb", "tmdb", "rottenTomatoes"));
-        panelUiSettings.add(cbRating, "cell 1 2");
+        panelUiSettings.add(cbRating, "cell 1 1");
       }
       {
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
-        panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 3 2 1");
+        panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 2 2 1");
       }
     }
     {
-      JPanel panelAutomaticTasks = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelAutomaticTasks = new JPanel();
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblAutomaticTasksT = new TmmLabel(BUNDLE.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#automatic-tasks"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         chckbxRenameAfterScrape = new JCheckBox(BUNDLE.getString("Settings.movie.automaticrename"));
@@ -258,10 +257,12 @@ public class MovieSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         chckbxExtractArtworkFromVsmeta = new JCheckBox(BUNDLE.getString("Settings.extractartworkfromvsmeta"));
@@ -318,6 +319,7 @@ public class MovieSettingsPanel extends JPanel {
 
       JLabel lblPresets = new TmmLabel(BUNDLE.getString("Settings.preset"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPresets, lblPresets, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#media-center-presets"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblPresetHintT = new JLabel(BUNDLE.getString("Settings.preset.desc"));
@@ -343,56 +345,51 @@ public class MovieSettingsPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty = BeanProperty.create("storeUiFilters");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty, chckbxPersistUiFilters, jCheckBoxBeanProperty);
-    autoBinding.bind();
-    //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_1 = BeanProperty.create("renameAfterScrape");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_1, chckbxRenameAfterScrape, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_1 = BeanProperty.create("renameAfterScrape");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, chckbxRenameAfterScrape,
+        jCheckBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_2 = BeanProperty.create("syncTrakt");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_2, chckbxTraktSync, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_2 = BeanProperty.create("syncTrakt");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_2, chckbxTraktSync,
+        jCheckBoxBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_3 = BeanProperty.create("buildImageCacheOnImport");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_3, chckbxBuildImageCache, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_3 = BeanProperty.create("buildImageCacheOnImport");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_3, chckbxBuildImageCache,
+        jCheckBoxBeanProperty);
     autoBinding_3.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_4 = BeanProperty.create("runtimeFromMediaInfo");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_4, chckbxRuntimeFromMi, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_4 = BeanProperty.create("runtimeFromMediaInfo");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_4, chckbxRuntimeFromMi,
+        jCheckBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_7 = BeanProperty.create("preferPersonalRating");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_7, chckbxPersonalRatingFirst, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_7 = BeanProperty.create("preferPersonalRating");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_7,
+        chckbxPersonalRatingFirst, jCheckBoxBeanProperty);
     autoBinding_7.bind();
     //
-    BeanProperty<MovieSettings, String> movieSettingsBeanProperty_8 = BeanProperty.create("preferredRating");
-    BeanProperty<AutocompleteComboBox, Object> autocompleteComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, String, AutocompleteComboBox, Object> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_8, cbRating, autocompleteComboBoxBeanProperty);
+    Property movieSettingsBeanProperty_8 = BeanProperty.create("preferredRating");
+    Property autocompleteComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_8, cbRating,
+        autocompleteComboBoxBeanProperty);
     autoBinding_8.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_9 = BeanProperty.create("includeExternalAudioStreams");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_9, chckbxIncludeExternalAudioStreams, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_9 = BeanProperty.create("includeExternalAudioStreams");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_9,
+        chckbxIncludeExternalAudioStreams, jCheckBoxBeanProperty);
     autoBinding_9.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_10 = BeanProperty.create("showLogosPanel");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_10, chckbxShowLogos, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_10 = BeanProperty.create("showLogosPanel");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_10, chckbxShowLogos,
+        jCheckBoxBeanProperty);
     autoBinding_10.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_11 = BeanProperty.create("extractArtworkFromVsmeta");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_11, chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_11 = BeanProperty.create("extractArtworkFromVsmeta");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_11,
+        chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
     autoBinding_11.bind();
   }
 }

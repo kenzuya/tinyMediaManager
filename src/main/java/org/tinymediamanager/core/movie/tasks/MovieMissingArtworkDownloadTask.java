@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -50,7 +49,7 @@ import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
  */
 public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger                    LOGGER = LoggerFactory.getLogger(MovieMissingArtworkDownloadTask.class);
-  private static final ResourceBundle            BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle            BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<Movie>                      moviesToScrape;
   private final MovieSearchAndScrapeOptions      scrapeOptions;

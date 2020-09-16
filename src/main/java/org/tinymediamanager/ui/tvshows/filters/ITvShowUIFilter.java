@@ -15,6 +15,11 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -27,4 +32,27 @@ import org.tinymediamanager.ui.components.tree.TmmTreeNode;
  * @param <E>
  */
 public interface ITvShowUIFilter<E extends TmmTreeNode> extends ITmmUIFilter<E>, ITmmTreeFilter<E> {
+  /**
+   * morph the given {@link ITvShowUIFilter}s with a state != {@link org.tinymediamanager.ui.ITmmUIFilter.FilterState#INACTIVE} to the storage form
+   * {@link AbstractSettings.UIFilters}
+   *
+   * @param tvShowUIFilters
+   *          the {@link ITvShowUIFilter}s to morph
+   * @return a {@link List} of all morphed {@link AbstractSettings.UIFilters}
+   */
+  static List<AbstractSettings.UIFilters> morphToUiFilters(Collection<ITvShowUIFilter<?>> tvShowUIFilters) {
+    List<AbstractSettings.UIFilters> uiFilters = new ArrayList<>();
+
+    tvShowUIFilters.forEach(filter -> {
+      if (filter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
+        AbstractSettings.UIFilters uiFilter = new AbstractSettings.UIFilters();
+        uiFilter.id = filter.getId();
+        uiFilter.state = filter.getFilterState();
+        uiFilter.filterValue = filter.getFilterValueAsString();
+        uiFilters.add(uiFilter);
+      }
+    });
+
+    return uiFilters;
+  }
 }

@@ -29,6 +29,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 
 import net.miginfocom.swing.MigLayout;
@@ -73,7 +74,7 @@ public class MessageDialog extends TmmDialog {
         panelContent.add(tpDescription, "cell 1 1,growx");
       }
       {
-        scrollPane = new JScrollPane();
+        scrollPane = new NoBorderScrollPane();
         scrollPane.setVisible(false);
         scrollPane.setPreferredSize(new Dimension(600, 200));
         panelContent.add(scrollPane, "cell 0 2 2 1,grow");

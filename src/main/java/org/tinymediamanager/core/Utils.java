@@ -16,16 +16,19 @@
 package org.tinymediamanager.core;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -62,21 +65,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.io.FileExistsException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.text.StringEscapeUtils;
+import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.LaunchUtil;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
@@ -108,6 +120,8 @@ public class Utils {
   // folder stacking marker <cd/dvd/part/pt/disk/disc> <0-N> - must be last part
   private static final Pattern folderStackingPattern = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
+
+  public static final String   DISC_FOLDER_REGEX     = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
 
   private static List<Locale>  availableLocales      = new ArrayList<>();
 
@@ -463,21 +477,6 @@ public class Utils {
       }
     }
     return 0;
-  }
-
-  /**
-   * Checks if is valid imdb id.
-   * 
-   * @param imdbId
-   *          the imdb id
-   * @return true, if is valid imdb id
-   */
-  public static boolean isValidImdbId(String imdbId) {
-    if (StringUtils.isEmpty(imdbId)) {
-      return false;
-    }
-
-    return imdbId.matches("tt\\d{6,}");
   }
 
   /**
@@ -1155,7 +1154,7 @@ public class Utils {
       String date = formatter.format(new Date());
       backup = backup.resolve(file.getFileName() + "." + date + ".zip");
       if (!Files.exists(backup) || overwrite) {
-        createZip(backup, file, "/" + file.getFileName().toString()); // just put in main dir
+        createZip(backup, file); // just put in main dir
       }
     }
     catch (IOException e) {
@@ -1240,69 +1239,6 @@ public class Utils {
   }
 
   /**
-   * create a ProcessBuilder for restarting TMM
-   * 
-   * @return the process builder
-   */
-  public static ProcessBuilder getPBforTMMrestart() {
-    Path f = Paths.get("tmm.jar");
-    if (!Files.exists(f)) {
-      LOGGER.error("cannot restart TMM - tmm.jar not found.");
-      return null; // when we are in GIT, return null = normal close
-    }
-    List<String> arguments = getJVMArguments();
-    arguments.add(0, LaunchUtil.getJVMPath()); // java exe before JVM args
-    arguments.add("-Dsilent=noupdate"); // start GD.jar instead of TMM.jar, since we don't have the libs in manifest
-    arguments.add("-jar");
-    arguments.add("getdown.jar"); // NOSONAR
-    arguments.add(".");
-    ProcessBuilder pb = new ProcessBuilder(arguments);
-    pb.directory(Paths.get("").toAbsolutePath().toFile()); // set working directory (current TMM dir)
-    return pb;
-  }
-
-  /**
-   * create a ProcessBuilder for restarting TMM to the updater
-   * 
-   * @return the process builder
-   */
-  public static ProcessBuilder getPBforTMMupdate() {
-    Path f = Paths.get("getdown.jar");
-    if (!Files.exists(f)) {
-      LOGGER.error("cannot start updater - getdown.jar not found.");
-      return null; // when we are in GIT, return null = normal close
-    }
-    List<String> arguments = getJVMArguments();
-    arguments.add(0, LaunchUtil.getJVMPath()); // java exe before JVM args
-    arguments.add("-jar");
-    arguments.add("getdown.jar"); // NOSONAR
-    arguments.add(".");
-    ProcessBuilder pb = new ProcessBuilder(arguments);
-    pb.directory(Paths.get("").toAbsolutePath().toFile()); // set working directory (current TMM dir)
-    return pb;
-  }
-
-  /**
-   * gets all the JVM parameters used for starting TMM<br>
-   * like -Dfile.encoding=UTF8 or others<br>
-   * needed for restarting tmm :)
-   * 
-   * @return list of jvm parameters
-   */
-  private static List<String> getJVMArguments() {
-    RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-    List<String> arguments = new ArrayList<>(runtimeMxBean.getInputArguments());
-    // fixtate some
-    if (!arguments.contains("-Djava.net.preferIPv4Stack=true")) {
-      arguments.add("-Djava.net.preferIPv4Stack=true");
-    }
-    if (!arguments.contains("-Dfile.encoding=UTF-8")) {
-      arguments.add("-Dfile.encoding=UTF-8");
-    }
-    return arguments;
-  }
-
-  /**
    * Deletes a complete directory recursively, using Java NIO
    * 
    * @param dir
@@ -1315,7 +1251,7 @@ public class Utils {
     }
 
     LOGGER.info("Deleting complete directory: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<Path>() {
+    Files.walkFileTree(dir, new FileVisitor<>() {
 
       @Override
       public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
@@ -1356,7 +1292,7 @@ public class Utils {
     }
 
     LOGGER.info("Deleting complete directory: {}", dir);
-    Files.walkFileTree(dir, new FileVisitor<Path>() {
+    Files.walkFileTree(dir, new FileVisitor<>() {
 
       @Override
       public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
@@ -1404,61 +1340,53 @@ public class Utils {
    *          Path of zip file
    * @param toBeAdded
    *          Path to be added
-   * @param internalPath
-   *          the location inside the ZIP like /aa/a.txt
    */
-  public static void createZip(Path zipFile, Path toBeAdded, String internalPath) {
-    Map<String, String> env = new HashMap<>();
-    try {
-      // check if file exists
-      env.put("create", String.valueOf(!Files.exists(zipFile)));
-      // and use temp files rather than everything in memory
-      env.put("useTempFile", "true");
+  public static void createZip(Path zipFile, Path toBeAdded) {
+    List<File> filesToArchive = new ArrayList<>();
 
-      // use a Zip filesystem URI
-      URI fileUri = zipFile.toUri(); // here
-      URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
+    if (Files.isDirectory(toBeAdded)) {
+      filesToArchive.addAll(FileUtils.listFiles(toBeAdded.toFile(), null, true));
+    }
+    else {
+      filesToArchive.add(toBeAdded.toFile());
+    }
 
-      // zip
-      // try with resource
-      try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
-        // Create internal path in the zipfs
-        Path internalTargetPath = zipfs.getPath(internalPath);
-        if (!Files.exists(internalTargetPath)) {
-          // Create directory
-          Files.createDirectory(internalTargetPath);
-        }
-        // copy a file into the zip file
-        if (Files.isDirectory(toBeAdded)) {
-          try (Stream<Path> files = Files.walk(toBeAdded)) {
-            files.forEach(source -> {
-              try {
-                if (Files.isSameFile(source, toBeAdded)) {
-                  return;
-                }
+    try (FileOutputStream fos = new FileOutputStream(zipFile.toFile());
+        ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream("zip", fos)) {
+      for (File file : filesToArchive) {
+        String entryName = getEntryName(toBeAdded.toFile(), file);
+        ZipArchiveEntry entry = new ZipArchiveEntry(entryName);
+        archive.putArchiveEntry(entry);
 
-                if (Files.isDirectory(source)) {
-                  // Create directory
-                  Files.createDirectory(internalTargetPath.resolve(toBeAdded.relativize(source)));
-                }
-                else {
-                  Files.copy(source, internalTargetPath.resolve(toBeAdded.relativize(source).toString()), StandardCopyOption.REPLACE_EXISTING);
-                }
-              }
-              catch (Exception e) {
-                LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
-              }
-            });
-          }
-        }
-        else {
-          Files.copy(toBeAdded, internalTargetPath, StandardCopyOption.REPLACE_EXISTING);
-        }
+        BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
+
+        IOUtils.copy(input, archive);
+        input.close();
+        archive.closeArchiveEntry();
       }
+      archive.finish();
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
     }
+  }
+
+  /**
+   * Remove the leading part of each entry that contains the source directory name
+   *
+   * @param source
+   *          the directory where the file entry is found
+   * @param file
+   *          the file that is about to be added
+   * @return the name of an archive entry
+   * @throws IOException
+   *           if the io fails
+   */
+  private static String getEntryName(File source, File file) throws IOException {
+    int index = source.getAbsoluteFile().getParentFile().getAbsolutePath().length() + 1;
+    String path = file.getCanonicalPath();
+
+    return path.substring(index);
   }
 
   /**
@@ -1512,39 +1440,6 @@ public class Utils {
     }
     catch (Exception e) {
       LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
-    }
-  }
-
-  /**
-   * extract our templates (only if non existing)
-   */
-  public static void extractTemplates() {
-    extractTemplates(false);
-  }
-
-  /**
-   * extract our templates (use force to overwrite)
-   */
-  public static void extractTemplates(boolean force) {
-    Path dest = Paths.get("templates");
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dest)) {
-      // count the directory amount if not forced
-      int dirCount = 0;
-      if (!force) {
-        for (Path path : directoryStream) {
-          if (Files.isDirectory(path)) {
-            dirCount++;
-          }
-        }
-      }
-
-      // if forced or the directory count is zero, we will extract the templates.zip
-      if (dirCount == 0 || force) {
-        Utils.unzip(dest.resolve("templates.jar"), dest);
-      }
-    }
-    catch (IOException e) {
-      LOGGER.warn("failed to extract templates: {}", e.getMessage());
     }
   }
 
@@ -1768,7 +1663,7 @@ public class Utils {
    *          list of regular expression
    * @return a list of files
    */
-  public static HashSet<Path> getUnknownFilesByRegex(Path folder, List<String> regexList) {
+  public static Set<Path> getUnknownFilesByRegex(Path folder, List<String> regexList) {
 
     GetUnknownFilesVisitor visitor = new GetUnknownFilesVisitor(regexList);
 
@@ -1784,8 +1679,8 @@ public class Utils {
 
   private static class GetUnknownFilesVisitor extends AbstractFileVisitor {
 
-    private HashSet<Path> fileList = new HashSet<>();
-    private List<String>  regexList;
+    private Set<Path>    fileList = new HashSet<>();
+    private List<String> regexList;
 
     GetUnknownFilesVisitor(List<String> regexList) {
       this.regexList = regexList;
@@ -1802,6 +1697,60 @@ public class Utils {
         }
       }
       return CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes var2) throws IOException {
+      // if we're in a disc folder, don't walk further
+      if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+        return SKIP_SUBTREE;
+      }
+      return CONTINUE;
+    }
+  }
+
+  /**
+   * unpack the given brotli archive ({code .tar.br}) to the given path
+   *
+   * @param archive
+   *          the brotli archive
+   * @param targetPath
+   *          the path to extract
+   * @throws IOException
+   *           any {@link IOException} thrown while extracting
+   */
+  public static void unpackBrotli(File archive, File targetPath) throws IOException {
+    try (FileInputStream fis = new FileInputStream(archive);
+        InputStream buis = new BufferedInputStream(fis);
+        BrotliInputStream bris = new BrotliInputStream(buis);
+        InputStream bis = new BufferedInputStream(bris);
+        ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(bis)) {
+      ArchiveEntry entry = null;
+      while ((entry = ais.getNextEntry()) != null) {
+        if (!ais.canReadEntryData(entry)) {
+          // log something?
+          continue;
+        }
+
+        File f = new File(targetPath, entry.getName());
+        if (entry.isDirectory()) {
+          if (!f.isDirectory() && !f.mkdirs()) {
+            throw new IOException("failed to create directory " + f);
+          }
+        }
+        else {
+          File parent = f.getParentFile();
+          if (!parent.isDirectory() && !parent.mkdirs()) {
+            throw new IOException("failed to create directory " + parent);
+          }
+          try (OutputStream o = Files.newOutputStream(f.toPath())) {
+            IOUtils.copy(ais, o);
+          }
+        }
+      }
+    }
+    catch (ArchiveException e) {
+      throw new IOException("Could not extract archive", e);
     }
   }
 }

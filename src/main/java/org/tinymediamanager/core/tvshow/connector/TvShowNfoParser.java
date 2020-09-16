@@ -91,6 +91,13 @@ public class TvShowNfoParser {
   public Map<Integer, List<String>> seasonBanners       = new HashMap<>();
   public Map<Integer, List<String>> seasonThumbs        = new HashMap<>();
   public List<String>               banners             = new ArrayList<>();
+  public List<String>               cleararts           = new ArrayList<>();
+  public List<String>               clearlogos          = new ArrayList<>();
+  public List<String>               discarts            = new ArrayList<>();
+  public List<String>               thumbs              = new ArrayList<>();
+  public List<String>               keyarts             = new ArrayList<>();
+  public List<String>               logos               = new ArrayList<>();
+  public List<String>               characterarts       = new ArrayList<>();
   public List<String>               fanarts             = new ArrayList<>();
   public List<MediaGenres>          genres              = new ArrayList<>();
   public List<String>               studios             = new ArrayList<>();
@@ -139,6 +146,13 @@ public class TvShowNfoParser {
     parseTag(TvShowNfoParser::parseStatus);
     parseTag(TvShowNfoParser::parsePosters);
     parseTag(TvShowNfoParser::parseBanners);
+    parseTag(TvShowNfoParser::parseCleararts);
+    parseTag(TvShowNfoParser::parseClearlogos);
+    parseTag(TvShowNfoParser::parseDiscarts);
+    parseTag(TvShowNfoParser::parseThumbs);
+    parseTag(TvShowNfoParser::parseKeyarts);
+    parseTag(TvShowNfoParser::parseLogos);
+    parseTag(TvShowNfoParser::parseCharacterarts);
     parseTag(TvShowNfoParser::parseFanarts);
     parseTag(TvShowNfoParser::parseSeasonArtwork);
     parseTag(TvShowNfoParser::parseSeasonNames);
@@ -302,6 +316,7 @@ public class TvShowNfoParser {
         r.rating = Float.parseFloat(element.ownText());
       }
       catch (Exception ignored) {
+        // ignored
       }
       element = getSingleElement(root, "votes");
       if (element != null) {
@@ -309,6 +324,7 @@ public class TvShowNfoParser {
           r.votes = MetadataUtil.parseInt(element.ownText()); // replace thousands separator
         }
         catch (Exception ignored) {
+          // ignored
         }
       }
       if (r.rating > 0) {
@@ -329,6 +345,7 @@ public class TvShowNfoParser {
         }
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 
@@ -349,6 +366,7 @@ public class TvShowNfoParser {
           r.maxValue = MetadataUtil.parseInt(ratingChild.attr("max"));
         }
         catch (NumberFormatException ignored) {
+          // ignored
         }
 
         for (Element child : ratingChild.children()) {
@@ -359,6 +377,7 @@ public class TvShowNfoParser {
                 r.rating = Float.parseFloat(child.ownText());
               }
               catch (NumberFormatException ignored) {
+                // ignored
               }
               break;
 
@@ -367,7 +386,11 @@ public class TvShowNfoParser {
                 r.votes = MetadataUtil.parseInt(child.ownText());
               }
               catch (Exception ignored) {
+                // ignored
               }
+              break;
+
+            default:
               break;
           }
         }
@@ -393,6 +416,7 @@ public class TvShowNfoParser {
         year = MetadataUtil.parseInt(element.ownText());
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 
@@ -411,6 +435,7 @@ public class TvShowNfoParser {
         top250 = MetadataUtil.parseInt(element.ownText());
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 
@@ -471,6 +496,7 @@ public class TvShowNfoParser {
         runtime = MetadataUtil.parseInt(element.ownText());
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 
@@ -499,9 +525,9 @@ public class TvShowNfoParser {
     supportedElements.add("thumb");
 
     // get all thumb elements
-    Elements thumbs = root.select(root.tagName() + " > thumb");
-    if (!thumbs.isEmpty()) {
-      for (Element element : thumbs) {
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
         // if there is an aspect attribute, it has to be poster
         if (element.hasAttr("aspect") && !element.attr("aspect").equals("poster")) {
           continue;
@@ -526,6 +552,7 @@ public class TvShowNfoParser {
             }
           }
           catch (Exception ignored) {
+            // ignored
           }
         }
         else {
@@ -547,15 +574,176 @@ public class TvShowNfoParser {
     // supportedElements.add("thumb"); //already registered with posters
 
     // get all thumb elements
-    Elements thumbs = root.select(root.tagName() + " > thumb");
-    if (!thumbs.isEmpty()) {
-      for (Element element : thumbs) {
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
         // if there is an aspect attribute, it has to be poster
         if (element.hasAttr("aspect") && !element.attr("aspect").equals("banner")) {
           continue;
         }
         if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
           banners.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * cleararts are usually inside <thumb>xxx</thumb> tag with an aspect of "clearart"
+   */
+  private Void parseCleararts() {
+    // supportedElements.add("thumb"); //already registered with posters
+
+    // get all thumb elements
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
+        // if there is an aspect attribute, it has to be poster
+        if (element.hasAttr("aspect") && !element.attr("aspect").equals("clearart")) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
+          cleararts.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * clearlogos are usually inside <thumb>xxx</thumb> tag with an aspect of "clearlogo"
+   */
+  private Void parseClearlogos() {
+    // supportedElements.add("thumb"); //already registered with posters
+
+    // get all thumb elements
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
+        // if there is an aspect attribute, it has to be poster
+        if (element.hasAttr("aspect") && !element.attr("aspect").equals("clearlogo")) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
+          clearlogos.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * discarts are usually inside <thumb>xxx</thumb> tag with an aspect of "discart"
+   */
+  private Void parseDiscarts() {
+    // supportedElements.add("thumb"); //already registered with posters
+
+    // get all thumb elements
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
+        // if there is an aspect attribute, it has to be poster
+        if (element.hasAttr("aspect") && !element.attr("aspect").equals("discart")) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
+          discarts.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * thumbs are usually inside <thumb>xxx</thumb> tag with an aspect of "landscape"
+   */
+  private Void parseThumbs() {
+    // supportedElements.add("thumb"); //already registered with posters
+
+    // get all thumb elements
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
+        // if there is an aspect attribute, it has to be poster
+        if (element.hasAttr("aspect") && !element.attr("aspect").equals("landscape")) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
+          thumbs.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * keyarts are usually inside <thumb>xxx</thumb> tag with an aspect of "keyart"
+   */
+  private Void parseKeyarts() {
+    // supportedElements.add("thumb"); //already registered with posters
+
+    // get all thumb elements
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
+        // if there is an aspect attribute, it has to be poster
+        if (element.hasAttr("aspect") && !element.attr("aspect").equals("keyart")) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
+          keyarts.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * characterarts are usually inside <thumb>xxx</thumb> tag with an aspect of "characterart"
+   */
+  private Void parseCharacterarts() {
+    // supportedElements.add("thumb"); //already registered with posters
+
+    // get all thumb elements
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
+        // if there is an aspect attribute, it has to be poster
+        if (element.hasAttr("aspect") && !element.attr("aspect").equals("characterart")) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
+          characterarts.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * logos are usually inside <thumb>xxx</thumb> tag with an aspect of "logo"
+   */
+  private Void parseLogos() {
+    // supportedElements.add("thumb"); //already registered with posters
+
+    // get all thumb elements
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    if (!thumb.isEmpty()) {
+      for (Element element : thumb) {
+        // if there is an aspect attribute, it has to be poster
+        if (element.hasAttr("aspect") && !element.attr("aspect").equals("logo")) {
+          continue;
+        }
+        if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
+          logos.add(element.ownText());
         }
       }
     }
@@ -576,10 +764,10 @@ public class TvShowNfoParser {
     Element fanart = getSingleElement(root, "fanart");
     if (fanart != null) {
       String prefix = fanart.attr("url");
-      Elements thumbs = fanart.select(fanart.tagName() + " > thumb");
+      Elements thumb = fanart.select(fanart.tagName() + " > thumb");
       // thumb children available
-      if (!thumbs.isEmpty()) {
-        for (Element element : thumbs) {
+      if (!thumb.isEmpty()) {
+        for (Element element : thumb) {
           if (StringUtils.isNotBlank(element.ownText()) && element.ownText().matches("https?://.*")) {
             fanarts.add(element.ownText());
           }
@@ -608,8 +796,8 @@ public class TvShowNfoParser {
     // supportedElements.add("thumb"); //already registered with posters
 
     // get all thumb elements
-    Elements thumbs = root.select(root.tagName() + " > thumb");
-    for (Element element : thumbs) {
+    Elements thumb = root.select(root.tagName() + " > thumb");
+    for (Element element : thumb) {
       // there has to be the type of season
       if (!element.hasAttr("aspect") || !element.hasAttr("type") || !element.attr("type").equals("season")) {
         continue;
@@ -626,6 +814,7 @@ public class TvShowNfoParser {
         season = Integer.parseInt(element.attr("season"));
       }
       catch (Exception ignored) {
+        // ignored
       }
 
       if (season == null) {
@@ -740,6 +929,7 @@ public class TvShowNfoParser {
         ids.put(MediaMetadata.TVDB, MetadataUtil.parseInt(element.ownText()));
       }
       catch (NumberFormatException ignored) {
+        // ignored
       }
     }
 
@@ -773,6 +963,7 @@ public class TvShowNfoParser {
         }
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
 
@@ -793,6 +984,7 @@ public class TvShowNfoParser {
         ids.put(MediaMetadata.TMDB, MetadataUtil.parseInt(element.ownText()));
       }
       catch (NumberFormatException ignored) {
+        // ignored
       }
     }
     // iterate over our internal id store (old JAXB style)
@@ -857,6 +1049,7 @@ public class TvShowNfoParser {
         }
       }
       catch (ParseException ignored) {
+        // ignored
       }
     }
     // also look if there is an aired date
@@ -871,6 +1064,7 @@ public class TvShowNfoParser {
           }
         }
         catch (ParseException ignored) {
+          // ignored
         }
       }
     }
@@ -952,6 +1146,7 @@ public class TvShowNfoParser {
         studios.addAll(Arrays.asList(elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
       }
       catch (Exception ignored) {
+        // ignored
       }
     }
     else {
@@ -1010,6 +1205,9 @@ public class TvShowNfoParser {
           case "profile":
             actor.profile = child.ownText();
             break;
+
+          default:
+            break;
         }
       }
       if (StringUtils.isNotBlank(actor.name)) {
@@ -1044,6 +1242,7 @@ public class TvShowNfoParser {
             trailer = URLDecoder.decode(matcher.group(1), "UTF-8");
           }
           catch (UnsupportedEncodingException ignored) {
+            // ignored
           }
         }
       }
@@ -1073,6 +1272,7 @@ public class TvShowNfoParser {
         }
       }
       catch (ParseException ignored) {
+        // ignored
       }
     }
 
@@ -1109,6 +1309,7 @@ public class TvShowNfoParser {
         }
       }
       catch (ParseException ignored) {
+        // ignored
       }
     }
 
@@ -1216,6 +1417,34 @@ public class TvShowNfoParser {
       show.setArtworkUrl(banners.get(0), MediaFileType.BANNER);
     }
 
+    if (!cleararts.isEmpty()) {
+      show.setArtworkUrl(cleararts.get(0), MediaFileType.CLEARART);
+    }
+
+    if (!clearlogos.isEmpty()) {
+      show.setArtworkUrl(clearlogos.get(0), MediaFileType.CLEARLOGO);
+    }
+
+    if (!discarts.isEmpty()) {
+      show.setArtworkUrl(discarts.get(0), MediaFileType.DISC);
+    }
+
+    if (!thumbs.isEmpty()) {
+      show.setArtworkUrl(thumbs.get(0), MediaFileType.THUMB);
+    }
+
+    if (!keyarts.isEmpty()) {
+      show.setArtworkUrl(keyarts.get(0), MediaFileType.KEYART);
+    }
+
+    if (!logos.isEmpty()) {
+      show.setArtworkUrl(logos.get(0), MediaFileType.LOGO);
+    }
+
+    if (!characterarts.isEmpty()) {
+      show.setArtworkUrl(characterarts.get(0), MediaFileType.CHARACTERART);
+    }
+
     if (!fanarts.isEmpty()) {
       show.setArtworkUrl(fanarts.get(0), MediaFileType.FANART);
     }
@@ -1265,20 +1494,20 @@ public class TvShowNfoParser {
   /*
    * entity classes
    */
-  public static class Rating {
-    public static final String DEFAULT  = "default";
-    public static final String USER     = "user";
+  static class Rating {
+    static final String DEFAULT  = "default";
+    static final String USER     = "user";
 
-    public String              id       = "";
-    public float               rating   = 0;
-    public int                 votes    = 0;
-    public int                 maxValue = 10;
+    String              id       = "";
+    float               rating   = 0;
+    int                 votes    = 0;
+    int                 maxValue = 10;
   }
 
   public static class Person {
-    public String name    = "";
-    public String role    = "";
-    public String thumb   = "";
-    public String profile = "";
+    String name    = "";
+    String role    = "";
+    String thumb   = "";
+    String profile = "";
   }
 }

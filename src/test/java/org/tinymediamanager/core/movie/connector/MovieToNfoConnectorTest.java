@@ -45,6 +45,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieEdition;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
@@ -56,6 +57,7 @@ public class MovieToNfoConnectorTest extends BasicTest {
   public static void setup() {
     deleteSettingsFolder();
     Settings.getInstance(getSettingsFolder());
+    MovieModuleManager.getInstance().startUp();
   }
 
   @Test
@@ -214,6 +216,13 @@ public class MovieToNfoConnectorTest extends BasicTest {
     movie.setRuntime(90);
     movie.setArtworkUrl("http://poster", MediaFileType.POSTER);
     movie.setArtworkUrl("http://fanart", MediaFileType.FANART);
+    movie.setArtworkUrl("http://banner", MediaFileType.BANNER);
+    movie.setArtworkUrl("http://clearart", MediaFileType.CLEARART);
+    movie.setArtworkUrl("http://clearlogo", MediaFileType.CLEARLOGO);
+    movie.setArtworkUrl("http://discart", MediaFileType.DISC);
+    movie.setArtworkUrl("http://keyart", MediaFileType.KEYART);
+    movie.setArtworkUrl("http://thumb", MediaFileType.THUMB);
+    movie.setArtworkUrl("http://logo", MediaFileType.LOGO);
     movie.setImdbId("tt0103639");
     movie.setTmdbId(812);
     movie.setId("trakt", 655);
@@ -278,6 +287,8 @@ public class MovieToNfoConnectorTest extends BasicTest {
     movie.setSpokenLanguages("de, fr, Englirsch");
     movie.setMediaSource(MediaSource.BLURAY);
     movie.setEdition(MovieEdition.DIRECTORS_CUT);
+    movie.addShowlink("Foo");
+    movie.addShowlink("Foo2");
     return movie;
   }
 

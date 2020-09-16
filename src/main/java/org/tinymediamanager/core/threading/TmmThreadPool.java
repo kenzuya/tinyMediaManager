@@ -28,6 +28,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.license.SizeLimitExceededException;
 
 /**
  * The Class TmmThreadPool.
@@ -96,8 +99,10 @@ public abstract class TmmThreadPool extends TmmTask {
    * Wait for completion or cancel.
    */
   protected void waitForCompletionOrCancel() {
+    boolean limitExceeded = false;
+
     pool.shutdown();
-    while (!cancel && !pool.isTerminated() && progressDone < workUnits) {
+    while (!limitExceeded && !cancel && !pool.isTerminated() && progressDone < workUnits) {
       try {
         final Future<Object> future = service.take();
         progressDone++;
@@ -108,10 +113,17 @@ public abstract class TmmThreadPool extends TmmTask {
         Thread.currentThread().interrupt();
       }
       catch (ExecutionException e) {
-        LOGGER.error("ThreadPool {}: Error getting result! - {}", poolname, e);
+        if (e.getCause() instanceof SizeLimitExceededException) {
+          // tmm free size limit is exceeded; just soft-cancel
+          limitExceeded = true;
+        }
+        else {
+          LOGGER.error("ThreadPool {}: Error getting result! - {}", poolname, e.getMessage());
+        }
       }
     }
-    if (cancel) {
+
+    if (cancel || limitExceeded) {
       try {
         LOGGER.info("Abort queue (discarding {} tasks", workUnits - progressDone);
         pool.getQueue().clear();
@@ -121,9 +133,14 @@ public abstract class TmmThreadPool extends TmmTask {
         pool.shutdown();
       }
       catch (InterruptedException e) {
-        LOGGER.error("ThreadPool {} interrupted in shutdown! - {}", poolname, e);
+        LOGGER.error("ThreadPool {} interrupted in shutdown! - {}", poolname, e.getMessage());
         Thread.currentThread().interrupt();
       }
+    }
+
+    if (limitExceeded) {
+      LOGGER.warn("size limit exceeded - aborting");
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Toolbar.update", "message.sizelimitexceeded"));
     }
   }
 

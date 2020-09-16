@@ -22,12 +22,10 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
@@ -41,6 +39,8 @@ import org.tinymediamanager.ui.movies.actions.MovieCleanUpFilesAction;
 import org.tinymediamanager.ui.movies.actions.MovieClearImageCacheAction;
 import org.tinymediamanager.ui.movies.actions.MovieCreateOfflineAction;
 import org.tinymediamanager.ui.movies.actions.MovieDeleteAction;
+import org.tinymediamanager.ui.movies.actions.MovieDeleteMediainfoXmlAction;
+import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
@@ -86,23 +86,17 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieUIModule extends AbstractTmmUIModule {
   private static final String       ID       = "movies";
-
   private static MovieUIModule      instance = null;
 
   private final MovieListPanel      listPanel;
-
+  private final JPanel              detailPanel;
   private final MovieSelectionModel selectionModel;
-
-  private TmmSettingsNode           settingsNode;
-
   private final MovieFilterDialog   movieFilterDialog;
+  private final TmmSettingsNode     settingsNode;
 
   private MovieUIModule() {
-
     listPanel = new MovieListPanel();
     selectionModel = listPanel.getSelectionModel();
-
-    super.listPanel = listPanel;
 
     detailPanel = new JPanel();
     detailPanel.setOpaque(false);
@@ -147,14 +141,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
   }
 
   private void init() {
-    // apply stored UI filters
-    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
-      SwingUtilities.invokeLater(() -> {
-        MovieList.getInstance().searchDuplicates();
-        selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getUiFilters());
-      });
-    }
-
     // init the table panel
     listPanel.init();
   }
@@ -183,36 +169,49 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSelectedScrapeAction.class));
     popupMenu.add(createAndRegisterAction(MovieUnscrapedScrapeAction.class));
     popupMenu.add(createAndRegisterAction(MovieSelectedScrapeMetadataAction.class));
-    popupMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
-    popupMenu.add(createAndRegisterAction(MovieDownloadMissingArtworkAction.class));
+
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieUpdateAction.class));
+    popupMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
+    popupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
+    popupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
+    popupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
+
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieEditAction.class));
     popupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
-    popupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     popupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
-    popupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
-    popupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
+    JMenu enhancedEditMenu = new JMenu(BUNDLE.getString("edit.enhanced"));
+    enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
+    popupMenu.add(enhancedEditMenu);
+
+    popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieRenameAction.class));
     popupMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
-    popupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
     popupMenu.add(createAndRegisterAction(MovieExportAction.class));
+
     popupMenu.addSeparator();
+    popupMenu.add(createAndRegisterAction(MovieDownloadMissingArtworkAction.class));
+    popupMenu.add(createAndRegisterAction(MovieDownloadActorImagesAction.class));
     popupMenu.add(createAndRegisterAction(MovieTrailerDownloadAction.class));
     popupMenu.add(createAndRegisterAction(MovieSubtitleSearchAction.class));
     popupMenu.add(createAndRegisterAction(MovieSubtitleDownloadAction.class));
+
     popupMenu.addSeparator();
-    popupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
-    popupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
+    JMenu traktMenu = new JMenu("Trakt.tv");
+    traktMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
+    popupMenu.add(traktMenu);
     JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickMovies();
     popupMenu.add(kodiRPCMenu);
+
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
     popupMenu.add(createAndRegisterAction(MovieClearImageCacheAction.class));
     popupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
-    popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieRemoveAction.class));
     popupMenu.add(createAndRegisterAction(MovieDeleteAction.class));
 
@@ -291,15 +290,19 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieRenameAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieRenamePreviewAction.class));
+
+    editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
+
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
+
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
+
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieExportAction.class));
 

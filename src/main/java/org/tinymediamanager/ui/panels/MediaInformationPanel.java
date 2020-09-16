@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.panels;
 
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.file.Files;
@@ -36,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
@@ -46,12 +47,12 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -63,7 +64,7 @@ import net.miginfocom.swing.MigLayout;
 abstract public class MediaInformationPanel extends JPanel {
   private static final long                 serialVersionUID = 2513029074142934502L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger               LOGGER           = LoggerFactory.getLogger(MediaInformationPanel.class);
 
   protected EventList<MediaFile>            mediaFileEventList;
@@ -86,9 +87,10 @@ abstract public class MediaInformationPanel extends JPanel {
   protected MediaFilesPanel                 panelMediaFiles;
 
   public MediaInformationPanel() {
-    mediaFileEventList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaFile.class));
-    audioStreamEventList = GlazedLists.threadSafeList(new BasicEventList<>());
-    subtitleEventList = GlazedLists.threadSafeList(new BasicEventList<>());
+    mediaFileEventList = GlazedListsSwing.swingThreadProxyList(
+        new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaFile.class)));
+    audioStreamEventList = GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>()));
+    subtitleEventList = GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>()));
 
     initComponents();
   }
@@ -184,26 +186,26 @@ abstract public class MediaInformationPanel extends JPanel {
       JLabel lblAudioT = new TmmLabel(BUNDLE.getString("metatag.audio"));
       add(lblAudioT, "cell 0 9,aligny top");
 
-      TmmTable tableAudioStreams = new TmmTable(
-          new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(audioStreamEventList), new AudioStreamTableFormat()));
+      TmmTableModel<AudioStreamContainer> tmmTableModel = new TmmTableModel<>(audioStreamEventList, new AudioStreamTableFormat());
+      TmmTable tableAudioStreams = new TmmTable(tmmTableModel);
       tableAudioStreams.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-      JScrollPane scrollPane = new JScrollPane(tableAudioStreams);
+      JScrollPane scrollPane = new JScrollPane();
       tableAudioStreams.configureScrollPane(scrollPane);
-      scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+      scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
       add(scrollPane, "cell 1 9 5 1,growx");
     }
     {
       JLabel lblSubtitle = new TmmLabel(BUNDLE.getString("metatag.subtitles"));
       add(lblSubtitle, "cell 0 11,aligny top");
 
-      TmmTable tableSubtitles = new TmmTable(
-          new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat()));
+      TmmTableModel<SubtitleContainer> tmmTableModel = new TmmTableModel<>(subtitleEventList, new SubtitleTableFormat());
+      TmmTable tableSubtitles = new TmmTable(tmmTableModel);
       tableSubtitles.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-      JScrollPane scrollPane = new JScrollPane(tableSubtitles);
+      JScrollPane scrollPane = new JScrollPane();
       tableSubtitles.configureScrollPane(scrollPane);
-      scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+      scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_AS_NEEDED);
       add(scrollPane, "cell 1 11 5 1,growx");
     }
     {

@@ -66,10 +66,11 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -98,7 +99,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
   private JTable                                                            tableMovieSets;
   private JLabel                                                            lblMovieSetName;
   private ImageLabel                                                        lblMovieSetPoster;
-  private JTable                                                            tableMovies;
+  private TmmTable                                                          tableMovies;
   private JCheckBox                                                         cbAssignMovies;
   private JButton                                                           btnOk;
   private JTextPane                                                         tpPlot;
@@ -137,8 +138,9 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
       getContentPane().add(panelContent, BorderLayout.CENTER);
       panelContent.setLayout(new MigLayout("", "[950lp,grow]", "[500,grow][][][]"));
 
-      JSplitPane splitPane = new TmmSplitPane();
-      splitPane.setResizeWeight(0.5);
+      JSplitPane splitPane = new JSplitPane();
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       panelContent.add(splitPane, "cell 0 0,grow");
       {
         JPanel panelResults = new JPanel();
@@ -186,7 +188,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
       {
         JPanel panelSearchDetail = new JPanel();
         splitPane.setRightComponent(panelSearchDetail);
-        panelSearchDetail.setLayout(new MigLayout("", "[150lp,grow 60][450lp,grow]", "[][250lp,grow][150lp][]"));
+        panelSearchDetail.setLayout(new MigLayout("", "[150lp:15%:25%,grow][300lp:500lp,grow 3]", "[][250lp,grow][150lp][]"));
         {
           lblMovieSetName = new JLabel("");
           TmmFontHelper.changeFont(lblMovieSetName, 1.166, Font.BOLD);
@@ -194,10 +196,11 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
         }
         {
           lblMovieSetPoster = new ImageLabel();
+          lblMovieSetPoster.setDesiredAspectRatio(2 / 3f);
           panelSearchDetail.add(lblMovieSetPoster, "cell 0 1,grow");
         }
         {
-          JScrollPane scrollPane = new JScrollPane();
+          JScrollPane scrollPane = new NoBorderScrollPane();
           panelSearchDetail.add(scrollPane, "cell 1 1,grow");
 
           tpPlot = new ReadOnlyTextPane();

@@ -34,11 +34,12 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
   private static final String RATIO_1_43 = "IMAX (1.43:1)";
   private static final String RATIO_1_56 = "14:9 (1.56:1)";
   private static final String RATIO_1_66 = "5:3 (1.66:1)";
-  private static final String RATIO_1_78 = "16:9 (1.77:1)";
+  private static final String RATIO_1_78 = "16:9 (1.78:1)";
   private static final String RATIO_1_85 = "Widescreen (1.85:1)";
   private static final String RATIO_1_90 = "Digital IMAX (1.90:1)";
   private static final String RATIO_2_20 = "70mm (2.20:1)";
   private static final String RATIO_2_35 = "Anamorphic (2.35:1)";
+  private static final String RATIO_2_40 = "Anamorphic widescreen (2.39:1 & 12:5)";
 
   private final String        others;
 
@@ -46,8 +47,8 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
     super();
     others = BUNDLE.getString("filter.others");
 
-    setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90, RATIO_2_20, RATIO_2_35, others);
-
+    setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90, RATIO_2_20, RATIO_2_35, RATIO_2_40,
+        others);
   }
 
   @Override
@@ -114,6 +115,11 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
       }
       else if (aspectRatio == 2.35F) {
         if (ratios.equals(RATIO_2_35)) {
+          return true;
+        }
+      }
+      else if (aspectRatio == 2.39F || aspectRatio == 2.40F) {
+        if (ratios.equals(RATIO_2_40)) {
           return true;
         }
       }

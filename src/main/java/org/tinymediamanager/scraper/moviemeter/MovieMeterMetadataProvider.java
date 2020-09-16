@@ -27,6 +27,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -39,9 +40,9 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.moviemeter.entities.MMActor;
 import org.tinymediamanager.scraper.moviemeter.entities.MMDirector;
 import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
-import org.tinymediamanager.scraper.util.ApiKey;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 /**
  * The Class MoviemeterMetadataProvider. A meta data provider for the site moviemeter.nl
@@ -49,13 +50,12 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * @author Myron Boyle (myron0815@gmx.net)
  */
 public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider {
-  public static final String       ID           = "moviemeter";
+  public static final String             ID            = "moviemeter";
 
-  private static final Logger      LOGGER       = LoggerFactory.getLogger(MovieMeterMetadataProvider.class);
-  private static final String      TMM_API_KEY  = ApiKey.decryptApikey("GK5bRYdcKs3WZzOCa1fOQfIeAJVsBP7buUYjc0q4x2/jX66BlSUDKDAcgN/L0JnM");
+  private static final Logger            LOGGER        = LoggerFactory.getLogger(MovieMeterMetadataProvider.class);
+  private static final MediaProviderInfo PROVIDER_INFO = createMediaProviderInfo();
 
-  private static MovieMeter        api;
-  private static MediaProviderInfo providerInfo = createMediaProviderInfo();
+  private static MovieMeter              api;
 
   private static MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "moviemeter.nl",
@@ -75,7 +75,6 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     if (api == null) {
       try {
         api = new MovieMeter();
-        // api.setIsDebug(true);
       }
       catch (Exception e) {
         LOGGER.error("MoviemeterMetadataProvider", e);
@@ -83,7 +82,15 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
       }
     }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String tmmApiKey;
+    try {
+      tmmApiKey = License.getInstance().getApiKey(ID);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+
+    String userApiKey = PROVIDER_INFO.getConfig().getValue("apiKey");
 
     // check if the API should change from current key to user key
     if (StringUtils.isNotBlank(userApiKey) && !userApiKey.equals(api.getApiKey())) {
@@ -91,14 +98,14 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     }
 
     // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && !TMM_API_KEY.equals(api.getApiKey())) {
-      api.setApiKey(TMM_API_KEY);
+    if (StringUtils.isBlank(userApiKey) && !api.getApiKey().equals(tmmApiKey)) {
+      api.setApiKey(tmmApiKey);
     }
   }
 
   @Override
   public MediaProviderInfo getProviderInfo() {
-    return providerInfo;
+    return PROVIDER_INFO;
   }
 
   @Override
@@ -113,22 +120,22 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
 
     LOGGER.debug("getMetadata(): {}", options);
     // check if there is a md in the result
-    if (options.getMetadata() != null) {
+    if (options.getMetadata() != null && getId().equals(options.getMetadata().getProviderId())) {
       LOGGER.debug("MovieMeter: getMetadata from cache");
       return options.getMetadata();
     }
 
     // get ids to scrape
-    MediaMetadata md = new MediaMetadata(providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(PROVIDER_INFO.getId());
 
-    int mmId = options.getIdAsInt(providerInfo.getId());
+    int mmId = options.getIdAsInt(PROVIDER_INFO.getId());
 
     // imdbid
     String imdbId = options.getImdbId();
 
-    if (StringUtils.isBlank(imdbId) && mmId == 0) {
+    if (!MetadataUtil.isValidImdbId(imdbId) && mmId == 0) {
       LOGGER.warn("not possible to scrape from Moviemeter.bl - no mmId/imdbId found");
-      throw new MissingIdException(MediaMetadata.IMDB, providerInfo.getId());
+      throw new MissingIdException(MediaMetadata.IMDB, PROVIDER_INFO.getId());
     }
 
     // scrape
@@ -167,7 +174,9 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
       throw new NothingFoundException();
     }
 
-    md.setId(MediaMetadata.IMDB, fd.imdb);
+    if (MetadataUtil.isValidImdbId(fd.imdb)) {
+      md.setId(MediaMetadata.IMDB, fd.imdb);
+    }
     md.setTitle(fd.title);
     md.setYear(fd.year);
     md.setPlot(fd.plot);
@@ -179,7 +188,7 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     mediaRating.setVotes(fd.votes_count);
     md.addRating(mediaRating);
 
-    md.setId(providerInfo.getId(), fd.id);
+    md.setId(PROVIDER_INFO.getId(), fd.id);
     try {
       md.setRuntime(fd.duration);
     }
@@ -192,14 +201,14 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     }
 
     // Poster
-    MediaArtwork ma = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
+    MediaArtwork ma = new MediaArtwork(PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
     ma.setPreviewUrl(fd.posters.small);
     ma.setDefaultUrl(fd.posters.large);
     ma.setLanguage(options.getLanguage().getLanguage());
     md.addMediaArt(ma);
 
     for (String country : fd.countries) {
-      if (providerInfo.getConfig().getValueAsBool("scrapeLanguageNames")) {
+      if (PROVIDER_INFO.getConfig().getValueAsBool("scrapeLanguageNames")) {
         md.addCountry(LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().getLanguage(), country));
       }
       else {
@@ -215,6 +224,19 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     for (MMDirector d : fd.directors) {
       Person cm = new Person(Person.Type.DIRECTOR, d.name);
       md.addCastMember(cm);
+    }
+
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      }
     }
 
     return md;
@@ -280,9 +302,11 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     }
 
     if (fd != null) { // imdb film detail page
-      MediaSearchResult sr = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
+      MediaSearchResult sr = new MediaSearchResult(PROVIDER_INFO.getId(), options.getMediaType());
       sr.setId(String.valueOf(fd.id));
-      sr.setIMDBId(imdb);
+      if (MetadataUtil.isValidImdbId(fd.imdb)) {
+        sr.setIMDBId(fd.imdb);
+      }
       sr.setTitle(fd.title);
       sr.setUrl(fd.url);
       sr.setYear(fd.year);
@@ -290,9 +314,11 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
       results.add(sr);
     }
     for (MMFilm film : moviesFound) {
-      MediaSearchResult sr = new MediaSearchResult(providerInfo.getId(), options.getMediaType());
+      MediaSearchResult sr = new MediaSearchResult(PROVIDER_INFO.getId(), options.getMediaType());
       sr.setId(String.valueOf(film.id));
-      sr.setIMDBId(imdb);
+      if (MetadataUtil.isValidImdbId(film.imdb)) {
+        sr.setIMDBId(film.imdb);
+      }
       sr.setTitle(film.title);
       sr.setUrl(film.url);
       sr.setYear(film.year);

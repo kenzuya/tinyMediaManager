@@ -1,7 +1,10 @@
-#!/bin/sh
-#####################################################################################
-# Just a kickstarter to launch the real app
-#####################################################################################
+#!/usr/bin/env bash
+#
+# tinyMediaManager v4 by Manuel Laggner
+# https://www.tinymediamanager.org/
+# SPDX-License-Identifier: Apache-2.0
+#
+#  launch tinyMediaManager v4 launcher
 
 # find the path where to execute tmm
 PRG=$0
@@ -16,5 +19,6 @@ while [ -h "$PRG" ]; do
 done
 
 progdir=`dirname "$PRG"`
-cd "$progdir/../Resources/Java/"
-exec `/bin/sh tinyMediaManagerOSX.sh`
+cd "$progdir"
+
+./tinyMediaManager

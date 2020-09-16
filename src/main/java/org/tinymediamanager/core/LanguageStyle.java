@@ -31,7 +31,7 @@ public enum LanguageStyle {
   LANG_EN,
   LANG_LOCALIZED;
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   @Override
   public String toString() {

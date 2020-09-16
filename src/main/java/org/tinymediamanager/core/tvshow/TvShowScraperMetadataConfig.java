@@ -15,12 +15,13 @@
  */
 package org.tinymediamanager.core.tvshow;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.UTF8Control;
 
 /**
  * The enum TvShowScraperMetadataConfig is used to control which TV show fields should be set after scraping.
@@ -65,7 +66,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   SEASON_BANNER(Type.ARTWORK),
   SEASON_THUMB(Type.ARTWORK);
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private Type                        type;
   private String                      description;
@@ -128,5 +129,24 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
       // just not crash
     }
     return null;
+  }
+
+  /**
+   * get a {@link List} of all {@link TvShowScraperMetadataConfig} for the given {@link org.tinymediamanager.core.ScraperMetadataConfig.Type}
+   * 
+   * @param type
+   *          the {@link org.tinymediamanager.core.ScraperMetadataConfig.Type} to get all {@link TvShowScraperMetadataConfig}s for
+   * @return a {@link List} with all matching {@link TvShowScraperMetadataConfig}s
+   */
+  public static List<TvShowScraperMetadataConfig> valuesForType(Type type) {
+    List<TvShowScraperMetadataConfig> values = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig config : values()) {
+      if (config.type == type) {
+        values.add(config);
+      }
+    }
+
+    return values;
   }
 }

@@ -43,7 +43,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.WrapLayout;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -57,7 +56,7 @@ import org.tinymediamanager.ui.components.FlatButton;
  */
 public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
   private static final long                         serialVersionUID = -7796247854176782396L;
-  protected static final ResourceBundle             BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle             BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected List<TmmCheckComboBoxItem<E>>           checkBoxes;
   protected Map<E, Boolean>                         selectedItems;
@@ -195,11 +194,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       return;
     }
 
-    for (E item : items) {
-      if (selectedItems.containsKey(item)) {
-        selectedItems.put(item, true);
-      }
-    }
+    selectedItems.replaceAll((k, v) -> items.contains(k));
 
     reset();
   }
@@ -411,7 +406,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
       setLayout(new WrapLayout(FlowLayout.LEFT, 5, 2));
       setOpaque(false);
-      setBorder(null);
+      setBorder(BorderFactory.createEmptyBorder(-2, -5, -2, 0)); // to avoid space of the first/last item
     }
 
     @Override
@@ -469,14 +464,14 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       super();
       putClientProperty("class", "roundedPanel");
       setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-      setBorder(BorderFactory.createEmptyBorder(1, 10, 1, 5));
+      setBorder(null);
 
       JLabel label = new JLabel(userObject.toString());
-      label.setBorder(BorderFactory.createEmptyBorder());
+      label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       add(label);
 
       JButton button = new FlatButton(IconManager.DELETE);
-      button.setBorder(BorderFactory.createEmptyBorder());
+      button.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       button.addActionListener(e -> {
         selectedItems.put(userObject, false);
         reset();

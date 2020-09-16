@@ -104,7 +104,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
     if (epXml == null) {
       // get episodes list with showId
       try {
-        getEpisodeList(options);
+        getEpisodeList(options.createTvShowSearchAndScrapeOptions());
         // now it should be cached!
         epXml = KodiMetadataProvider.XML_CACHE.get(scraper.getProviderInfo().getId() + "_" + showId + "_S" + lz(seasonNr) + "_E" + lz(episodeNr));
       }
@@ -185,12 +185,6 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    LOGGER.debug("getEpisodeList(): {}", options);
-    return _getEpisodeList(options);
-  }
-
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     LOGGER.debug("getEpisodeList(): {}", options);
     return _getEpisodeList(options);
   }

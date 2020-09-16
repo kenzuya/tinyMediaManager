@@ -34,7 +34,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -51,7 +50,7 @@ import okhttp3.Headers;
  */
 public class DownloadTask extends TmmTask {
   private static final Logger         LOGGER    = LoggerFactory.getLogger(DownloadTask.class);
-  private static final ResourceBundle BUNDLE    = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE    = ResourceBundle.getBundle("messages");
 
   protected String                    url;
   protected Path                      file;

@@ -111,6 +111,8 @@ public class Settings extends AbstractSettings {
 
   private boolean               ignoreSSLProblems      = false;
 
+  private boolean               writeMediaInfoXml      = false;
+
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
       DEFAULT_KODI_HTTP_PORT = 80;
@@ -936,7 +938,7 @@ public class Settings extends AbstractSettings {
     firePropertyChange("ignoreSSLProblems", old, ignoreSSLProblems);
     // and pass this setting to the HTTP client if it has been changed
     if (old != ignoreSSLProblems) {
-      System.setProperty("tmm.trustallcerts", Boolean.valueOf(ignoreSSLProblems).toString());
+      System.setProperty("tmm.trustallcerts", Boolean.toString(ignoreSSLProblems));
       TmmHttpClient.recreateHttpClient();
     }
   }
@@ -960,5 +962,26 @@ public class Settings extends AbstractSettings {
     int oldValue = this.maximumDownloadThreads;
     this.maximumDownloadThreads = newValue;
     firePropertyChange("maximumDownloadThreads", oldValue, newValue);
+  }
+
+  /**
+   * should we write mediainfo.xml after reading mediainfo?
+   * 
+   * @return true/false
+   */
+  public boolean isWriteMediaInfoXml() {
+    return writeMediaInfoXml;
+  }
+
+  /**
+   * should we write mediainfo.xml after reading mediainfo?
+   * 
+   * @param newValue
+   *          true/false
+   */
+  public void setWriteMediaInfoXml(boolean newValue) {
+    boolean oldValue = this.writeMediaInfoXml;
+    this.writeMediaInfoXml = newValue;
+    firePropertyChange("writeMediaInfoXml", oldValue, newValue);
   }
 }

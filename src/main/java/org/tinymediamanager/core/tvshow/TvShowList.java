@@ -44,27 +44,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.license.License;
+import org.tinymediamanager.license.SizeLimitExceededException;
+import org.tinymediamanager.license.TvShowEventList;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -74,31 +77,33 @@ import ca.odell.glazedlists.ObservableElementList;
  * @author Manuel Laggner
  */
 public class TvShowList extends AbstractModelObject {
-  private static final Logger    LOGGER   = LoggerFactory.getLogger(TvShowList.class);
-  private static TvShowList      instance = null;
+  private static final Logger            LOGGER   = LoggerFactory.getLogger(TvShowList.class);
+  private static TvShowList              instance = null;
 
-  private final List<TvShow>     tvShowList;
-  private final List<String>     tvShowTagsObservable;
-  private final List<String>     episodeTagsObservable;
-  private final List<String>     videoCodecsObservable;
-  private final List<String>     videoContainersObservable;
-  private final List<String>     audioCodecsObservable;
-  private final List<Double>     frameRateObservable;
+  private final List<TvShow>             tvShowList;
+  private final List<String>             tvShowTagsObservable;
+  private final List<String>             episodeTagsObservable;
+  private final List<String>             videoCodecsObservable;
+  private final List<String>             videoContainersObservable;
+  private final List<String>             audioCodecsObservable;
+  private final List<Double>             frameRateObservable;
+  private final List<MediaCertification> certificationObservable;
 
-  private PropertyChangeListener propertyChangeListener;
+  private PropertyChangeListener         propertyChangeListener;
 
   /**
    * Instantiates a new TvShowList.
    */
   private TvShowList() {
     // create the lists
-    tvShowList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(TvShow.class));
+    tvShowList = new ObservableElementList<>(new TvShowEventList<>(), GlazedLists.beanConnector(TvShow.class));
     tvShowTagsObservable = new ObservableCopyOnWriteArrayList<>();
     episodeTagsObservable = new ObservableCopyOnWriteArrayList<>();
     videoCodecsObservable = new ObservableCopyOnWriteArrayList<>();
     videoContainersObservable = new ObservableCopyOnWriteArrayList<>();
     audioCodecsObservable = new ObservableCopyOnWriteArrayList<>();
     frameRateObservable = new ObservableCopyOnWriteArrayList<>();
+    certificationObservable = new ObservableCopyOnWriteArrayList<>();
 
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
@@ -120,6 +125,11 @@ public class TvShowList extends AbstractModelObject {
         firePropertyChange(EPISODE_COUNT, 0, 1);
       }
     };
+
+    License.getInstance().addEventListener(() -> {
+      firePropertyChange(TV_SHOW_COUNT, 0, tvShowList.size());
+      firePropertyChange(EPISODE_COUNT, 0, 1);
+    });
   }
 
   /**
@@ -127,7 +137,7 @@ public class TvShowList extends AbstractModelObject {
    * 
    * @return single instance of TvShowList
    */
-  public synchronized static TvShowList getInstance() {
+  public static synchronized TvShowList getInstance() {
     if (TvShowList.instance == null) {
       TvShowList.instance = new TvShowList();
     }
@@ -142,6 +152,33 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<TvShow> getTvShows() {
     return tvShowList;
+  }
+
+  /**
+   * Gets all episodes
+   *
+   * @return all episodes
+   */
+  public List<TvShowEpisode> getEpisodes() {
+    List<TvShowEpisode> newEp = new ArrayList<>();
+    for (TvShow show : tvShowList) {
+      for (TvShowEpisode ep : show.getEpisodes()) {
+        newEp.add(ep);
+      }
+    }
+    return newEp;
+  }
+
+  public List<TvShowEpisode> getEpisodesWithoutSubtitles() {
+    List<TvShowEpisode> subEp = new ArrayList<>();
+    for (TvShow show : tvShowList) {
+      for (TvShowEpisode ep : show.getEpisodes()) {
+        if (!ep.getHasSubtitles()) {
+          subEp.add(ep);
+        }
+      }
+    }
+    return subEp;
   }
 
   /**
@@ -351,6 +388,10 @@ public class TvShowList extends AbstractModelObject {
         // for performance reasons we add tv shows directly
         tvShowList.add(tvShow);
       }
+      catch (SizeLimitExceededException e) {
+        LOGGER.debug("size limit exceeded - ignoring DB entry");
+        break;
+      }
       catch (Exception e) {
         LOGGER.warn("problem decoding TV show json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt TV show: {}", json);
@@ -425,6 +466,7 @@ public class TvShowList extends AbstractModelObject {
     for (TvShow tvShow : tvShowList) {
       tvShow.initializeAfterLoading();
       updateTvShowTags(tvShow);
+      updateCertification(tvShow);
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.initializeAfterLoading();
@@ -586,13 +628,14 @@ public class TvShowList extends AbstractModelObject {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery(searchTerm);
       options.setLanguage(language);
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
       if (ids != null) {
         options.setIds(ids);
       }
 
       if (!searchTerm.isEmpty()) {
-        if (Utils.isValidImdbId(searchTerm)) {
+        if (MetadataUtil.isValidImdbId(searchTerm)) {
           options.setImdbId(searchTerm);
         }
         options.setSearchQuery(searchTerm);
@@ -647,6 +690,12 @@ public class TvShowList extends AbstractModelObject {
       if (!tagFound) {
         addTvShowTag(tagInTvShow);
       }
+    }
+  }
+
+  private void updateCertification(TvShow tvShow) {
+    if (!certificationObservable.contains(tvShow.getCertification())) {
+      certificationObservable.add(tvShow.getCertification());
     }
   }
 
@@ -808,6 +857,10 @@ public class TvShowList extends AbstractModelObject {
 
   public List<String> getAudioCodecsInEpisodes() {
     return audioCodecsObservable;
+  }
+
+  public List<MediaCertification> getCertification() {
+    return certificationObservable;
   }
 
   /**

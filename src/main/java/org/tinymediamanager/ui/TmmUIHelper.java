@@ -17,6 +17,7 @@ package org.tinymediamanager.ui;
 
 import java.awt.Desktop;
 import java.awt.FileDialog;
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,10 @@ import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.FilenameUtils;
@@ -41,10 +46,18 @@ import org.lwjgl.util.nfd.NativeFileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.TmmOsUtils;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
+import org.tinymediamanager.ui.dialogs.UpdateDialog;
+import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
+import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
+import org.tinymediamanager.updater.UpdateCheck;
+import org.tinymediamanager.updater.UpdaterTask;
 
 /**
  * The Class TmmUIHelper.
@@ -53,7 +66,7 @@ import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
  */
 public class TmmUIHelper {
   private static final Logger           LOGGER = LoggerFactory.getLogger(TmmUIHelper.class);
-  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private TmmUIHelper() {
     // private constructor for utility classes
@@ -367,6 +380,14 @@ public class TmmUIHelper {
     }
   }
 
+  /**
+   * browse to the url
+   *
+   * @param url
+   *          the url to browse
+   * @throws Exception
+   *           any exception occurred
+   */
   public static void browseUrl(String url) throws Exception {
     if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
       Desktop.getDesktop().browse(new URI(url));
@@ -379,6 +400,7 @@ public class TmmUIHelper {
         started = true;
       }
       catch (IOException ignored) {
+        // no exception handling needed
       }
 
       if (!started) {
@@ -387,6 +409,7 @@ public class TmmUIHelper {
           started = true;
         }
         catch (IOException ignored) {
+          // no exception handling needed
         }
       }
 
@@ -396,6 +419,7 @@ public class TmmUIHelper {
           started = true;
         }
         catch (IOException ignored) {
+          // no exception handling needed
         }
       }
 
@@ -405,11 +429,29 @@ public class TmmUIHelper {
           started = true;
         }
         catch (IOException ignored) {
+          // no exception handling needed
         }
       }
     }
     else {
       throw new UnsupportedOperationException();
+    }
+  }
+
+  /**
+   * browse to the url without throwing any exception
+   *
+   * @param url
+   *          the url to browse
+   */
+  public static void browseUrlSilently(String url) {
+    try {
+      browseUrl(url);
+    }
+    catch (Exception e) {
+      LOGGER.error("could not open url '{}' - {}", url, e.getMessage());
+      MessageManager.instance
+          .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
     }
   }
 
@@ -497,5 +539,89 @@ public class TmmUIHelper {
     });
 
     return linklabel;
+  }
+
+  /**
+   * Update UI of all application windows immediately. Invoke after changing anything in the LaF.
+   */
+  public static void updateUI() {
+    // update all visible components
+    for (Window w : Window.getWindows()) {
+      SwingUtilities.updateComponentTreeUI(w);
+    }
+
+    // update icons
+    IconManager.updateIcons();
+  }
+
+  public static void setTheme() throws Exception {
+
+    switch (Globals.settings.getTheme()) {
+      case "Dark":
+        UIManager.setLookAndFeel(new TmmDarkLaf());
+        break;
+
+      case "Light":
+      default:
+        UIManager.setLookAndFeel(new TmmLightLaf());
+        break;
+    }
+  }
+
+  public static void checkForUpdate() {
+    Runnable runnable = () -> {
+      try {
+        UpdateCheck updateCheck = new UpdateCheck();
+        if (updateCheck.isUpdateAvailable()) {
+          LOGGER.info("update available");
+
+          // we might need this somewhen...
+          if (updateCheck.isForcedUpdate()) {
+            LOGGER.info("Updating (forced)...");
+            // start the updater task
+            TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+            return;
+          }
+
+          // show whatsnewdialog with the option to update
+          SwingUtilities.invokeLater(() -> {
+            if (StringUtils.isNotBlank(updateCheck.getChangelog())) {
+              UpdateDialog dialog = new UpdateDialog(updateCheck.getChangelog());
+              dialog.setVisible(true);
+            }
+            else {
+              // do the update without changelog popup
+              Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+              int answer = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.update.message"), BUNDLE.getString("tmm.update.title"),
+                  JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+              if (answer == JOptionPane.YES_OPTION) {
+                LOGGER.info("Updating...");
+
+                // start the updater task
+                TmmTaskManager.getInstance().addDownloadTask(new UpdaterTask());
+              }
+            }
+          });
+
+        }
+      }
+      catch (Exception e) {
+        LOGGER.error("Update check failed - {}", e.getMessage());
+      }
+    };
+
+    // update task start a few secs after GUI...
+    Timer timer = new Timer(5000, e -> runnable.run());
+    timer.setRepeats(false);
+    timer.start();
+  }
+
+  public static void restartWarningAfterV4Upgrade() {
+    Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+    int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.upgrade.finished.desc"), BUNDLE.getString("tmm.upgrade.finished"),
+        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+    if (confirm == JOptionPane.YES_OPTION) {
+      MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
+    }
   }
 }

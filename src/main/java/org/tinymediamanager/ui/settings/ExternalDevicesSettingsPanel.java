@@ -41,14 +41,13 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
 import org.tinymediamanager.jsonrpc.io.ApiException;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.WolDeviceDialog;
@@ -65,7 +64,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
 
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private Settings                    settings         = Settings.getInstance();
 
@@ -91,7 +90,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
     btnAddWolDevice.addActionListener(arg0 -> {
       WolDeviceDialog dialog = new WolDeviceDialog();
       dialog.pack();
-      dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+      dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
     });
     btnRemoveWolDevice.addActionListener(e -> {
@@ -111,7 +110,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
           WolDeviceDialog dialog = new WolDeviceDialog();
           dialog.setDevice(device);
           dialog.pack();
-          dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+          dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
         }
       }
@@ -130,6 +129,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
 
       JLabel lblWolT = new TmmLabel(BUNDLE.getString("tmm.wakeonlan"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelWol, lblWolT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#wake-on-lan"));
       add(collapsiblePanel, "growx,wmin 0");
       {
         JScrollPane spWolDevices = new JScrollPane();
@@ -153,6 +153,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
 
       JLabel lblKodiT = new TmmLabel("Kodi / XBMC", H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelKodi, lblKodiT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#kodixbmc"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         JLabel lblKodiHostT = new JLabel(BUNDLE.getString("Settings.kodi.host"));
@@ -210,10 +211,12 @@ class ExternalDevicesSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelUpnp = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelUpnp = new JPanel();
+      panelUpnp.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblUpnp = new TmmLabel("UPnP", H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUpnp, lblUpnp, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#upnp"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         chckbxUpnpShareLibrary = new JCheckBox(BUNDLE.getString("Settings.upnp.share"));

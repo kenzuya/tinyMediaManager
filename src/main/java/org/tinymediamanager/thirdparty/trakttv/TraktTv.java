@@ -32,14 +32,17 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
-import org.tinymediamanager.scraper.util.ApiKey;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.TraktV2Interceptor;
@@ -48,6 +51,7 @@ import com.uwetrottmann.trakt5.entities.BaseEpisode;
 import com.uwetrottmann.trakt5.entities.BaseMovie;
 import com.uwetrottmann.trakt5.entities.BaseSeason;
 import com.uwetrottmann.trakt5.entities.BaseShow;
+import com.uwetrottmann.trakt5.entities.Metadata;
 import com.uwetrottmann.trakt5.entities.MovieIds;
 import com.uwetrottmann.trakt5.entities.ShowIds;
 import com.uwetrottmann.trakt5.entities.SyncEpisode;
@@ -58,6 +62,12 @@ import com.uwetrottmann.trakt5.entities.SyncResponse;
 import com.uwetrottmann.trakt5.entities.SyncSeason;
 import com.uwetrottmann.trakt5.entities.SyncShow;
 import com.uwetrottmann.trakt5.entities.SyncStats;
+import com.uwetrottmann.trakt5.enums.Audio;
+import com.uwetrottmann.trakt5.enums.AudioChannels;
+import com.uwetrottmann.trakt5.enums.Extended;
+import com.uwetrottmann.trakt5.enums.Hdr;
+import com.uwetrottmann.trakt5.enums.MediaType;
+import com.uwetrottmann.trakt5.enums.Resolution;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
@@ -72,17 +82,24 @@ import retrofit2.Response;
  */
 
 public class TraktTv {
-  private static final String  CLIENT_ID = ApiKey
-      .decryptApikey("Xd0t1yRY+HaxMl3bqILuxIaokXxekrFNj0QszCUsG6aNSbrhOhC2h5PcxDhV7wUXmBdOt9cYlMGNJjLZvKcS3xTRx3zYH7EYb7Mv5hCsMQU=");
-  private static final Logger  LOGGER    = LoggerFactory.getLogger(TraktTv.class);
-  private static final TraktV2 TRAKT     = createTraktApi();
+  private static final Logger  LOGGER = LoggerFactory.getLogger(TraktTv.class);
+  private static final TraktV2 TRAKT  = createTraktApi();
   private static TraktTv       instance;
 
   private static TraktV2 createTraktApi() {
-    return new TraktV2(CLIENT_ID,
-        ApiKey.decryptApikey("VD2h4jmnrrYWnP1Nk49UtTNRILiWsuelJKdza7DAw+ROh1wtVf2U6PQScm7QWCOTsxN0K3QluIykKs2ZT1af1GcPz1401005bDBDss1Pz2c="),
-        "urn:ietf:wg:oauth:2.0:oob") {
-      // tell the trakt api to use our OkHttp client
+    String clientId;
+    String clientSecret;
+    try {
+      clientId = License.getInstance().getApiKey("trakt");
+      clientSecret = License.getInstance().getApiKey("trakt.secret");
+    }
+    catch (Exception e) {
+      clientId = "";
+      clientSecret = "";
+    }
+
+    return new TraktV2(clientId, clientSecret, "urn:ietf:wg:oauth:2.0:oob") {
+      // tell the trakt.tv api to use our OkHttp client
 
       @Override
       protected synchronized OkHttpClient okHttpClient() {
@@ -187,7 +204,7 @@ public class TraktTv {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<BaseMovie>> response = TRAKT.sync().collectionMovies(null).execute();
+      Response<List<BaseMovie>> response = TRAKT.sync().collectionMovies(Extended.METADATA).execute();
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         refreshAccessToken();
@@ -233,8 +250,10 @@ public class TraktTv {
             tmmMovie.saveToDb();
           }
 
-          // remove it from our list (no need to add)
-          tmmMovies.remove(i);
+          // remove it from our list, if we already have at least a video source (so metadata has also been synced)
+          if (hasMetadata(traktMovie.metadata)) {
+            tmmMovies.remove(i);
+          }
         }
       }
     }
@@ -284,6 +303,15 @@ public class TraktTv {
     catch (Exception e) {
       LOGGER.error("failed syncing trakt: {}", e.getMessage());
     }
+  }
+
+  private boolean hasMetadata(Metadata metadata) {
+    if (metadata == null) {
+      return false;
+    }
+
+    // if resolution, type OR audio has been set, do not add this to trakt
+    return metadata.resolution != null || metadata.media_type != null || metadata.audio != null;
   }
 
   /**
@@ -566,7 +594,7 @@ public class TraktTv {
     try {
       // Extended.DEFAULT adds url, poster, fanart, banner, genres
       // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
-      Response<List<BaseShow>> response = TRAKT.sync().collectionShows(null).execute();
+      Response<List<BaseShow>> response = TRAKT.sync().collectionShows(Extended.METADATA).execute();
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         refreshAccessToken();
@@ -614,7 +642,10 @@ public class TraktTv {
                 continue;
               }
 
-              episodesInTrakt.add(tmmEP);
+              // remove it from our list, if we already have at least a video source (so metadata has also been synced)
+              if (hasMetadata(be.metadata)) {
+                episodesInTrakt.add(tmmEP);
+              }
 
               // update ep IDs - NOT YET POSSIBLE
               // boolean epDirty = updateIDs(tmmEP, be.ids);
@@ -994,21 +1025,169 @@ public class TraktTv {
     }
 
     // we have to decide what we send; trakt behaves differently when sending data to sync collection and sync history.
+    movie = new SyncMovie().id(ids);
     if (watched) {
       // sync history
       if (tmmMovie.isWatched() && tmmMovie.getLastWatched() == null) {
         // watched in tmm and not in trakt -> sync
         OffsetDateTime watchedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault());
-        movie = new SyncMovie().id(ids).watchedAt(watchedAt);
+        movie.watchedAt(watchedAt);
       }
     }
     else {
       // sync collection
       OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneId.systemDefault());
-      movie = new SyncMovie().id(ids).collectedAt(collectedAt);
+      movie.collectedAt(collectedAt);
     }
 
+    // also sync mediainfo
+    movie.mediaType(getMediaType(tmmMovie.getMediaInfoSource()));
+    movie.resolution(getResolution(tmmMovie.getMainVideoFile()));
+    movie.hdr(getHdr(tmmMovie.getVideoHDRFormat()));
+    movie.audio(getAudio(tmmMovie.getMediaInfoAudioCodec()));
+    movie.audioChannels(getAudioChannels(tmmMovie.getMainVideoFile().getAudioChannelCount()));
+    movie.is3d(tmmMovie.isVideoIn3D());
+
     return movie;
+  }
+
+  private MediaType getMediaType(MediaSource mediaSource) {
+    if (mediaSource == MediaSource.BLURAY || mediaSource == MediaSource.UHD_BLURAY) {
+      return MediaType.BLURAY;
+    }
+    if (mediaSource == MediaSource.DVD || mediaSource == MediaSource.DVDSCR) {
+      return MediaType.DVD;
+    }
+    if (mediaSource == MediaSource.HDDVD) {
+      return MediaType.HDDVD;
+    }
+    if (mediaSource == MediaSource.VHS || mediaSource == MediaSource.D_VHS) {
+      return MediaType.VHS;
+    }
+    if (mediaSource == MediaSource.LASERDISC) {
+      return MediaType.LASERDISC;
+    }
+    return MediaType.DIGITAL;
+  }
+
+  private Resolution getResolution(MediaFile mediaFile) {
+    switch (mediaFile.getVideoFormat()) {
+      case MediaFileHelper.VIDEO_FORMAT_4320P:
+      case MediaFileHelper.VIDEO_FORMAT_2160P:
+        return Resolution.UHD_4K;
+
+      case MediaFileHelper.VIDEO_FORMAT_1440P:
+      case MediaFileHelper.VIDEO_FORMAT_1080P:
+        return Resolution.HD_1080P;
+
+      case MediaFileHelper.VIDEO_FORMAT_720P:
+        return Resolution.HD_720P;
+
+      case MediaFileHelper.VIDEO_FORMAT_576P:
+      case MediaFileHelper.VIDEO_FORMAT_540P:
+        return Resolution.SD_576P;
+
+      case MediaFileHelper.VIDEO_FORMAT_480P:
+      case MediaFileHelper.VIDEO_FORMAT_360P:
+        return Resolution.SD_480P;
+
+      default:
+        return null;
+    }
+  }
+
+  private Hdr getHdr(String hdr) {
+    if ("hdr10+".equalsIgnoreCase(hdr)) {
+      return Hdr.HDR10_PLUS;
+    }
+    if ("hdr".equalsIgnoreCase(hdr)) {
+      return Hdr.HDR10;
+    }
+    if ("dolby vision".equalsIgnoreCase(hdr)) {
+      return Hdr.DOLBY_VISION;
+    }
+    if ("hlg".equalsIgnoreCase(hdr)) {
+      return Hdr.HLG;
+    }
+    return null;
+  }
+
+  private Audio getAudio(String audioCodec) {
+    if ("DTSHD-MA".equalsIgnoreCase(audioCodec)) {
+      return Audio.DTS_MA;
+    }
+    if ("DTSHD-HRA".equalsIgnoreCase(audioCodec)) {
+      return Audio.DTS_HR;
+    }
+    if ("DTS-X".equalsIgnoreCase(audioCodec)) {
+      return Audio.DTS_X;
+    }
+    if ("Atmos".equalsIgnoreCase(audioCodec)) {
+      return Audio.DOLBY_ATMOS;
+    }
+    if ("DTS".equalsIgnoreCase(audioCodec)) {
+      return Audio.DTS;
+    }
+    if ("TrueHD".equalsIgnoreCase(audioCodec)) {
+      return Audio.DOLBY_TRUEHD;
+    }
+    if ("EAC3".equalsIgnoreCase(audioCodec)) {
+      return Audio.DOLBY_DIGITAL_PLUS;
+    }
+    if ("AC3".equalsIgnoreCase(audioCodec)) {
+      return Audio.DOLBY_DIGITAL;
+    }
+    if ("MP3".equalsIgnoreCase(audioCodec)) {
+      return Audio.MP3;
+    }
+    if ("OGG".equalsIgnoreCase(audioCodec)) {
+      return Audio.OGG;
+    }
+    if ("WMA".equalsIgnoreCase(audioCodec)) {
+      return Audio.WMA;
+    }
+    if ("AAC".equalsIgnoreCase(audioCodec)) {
+      return Audio.AAC;
+    }
+
+    return null;
+  }
+
+  private AudioChannels getAudioChannels(int audioChannelCount) {
+    switch (audioChannelCount) {
+      case 1:
+        return AudioChannels.CH1_0;
+
+      case 2:
+        return AudioChannels.CH2_0;
+
+      case 3:
+        return AudioChannels.CH2_1;
+
+      case 4:
+        return AudioChannels.CH3_1;
+
+      case 5:
+        return AudioChannels.CH4_1;
+
+      case 6:
+        return AudioChannels.CH5_1;
+
+      case 7:
+        return AudioChannels.CH6_1;
+
+      case 8:
+        return AudioChannels.CH7_1;
+
+      case 10:
+        return AudioChannels.CH9_1;
+
+      case 11:
+        return AudioChannels.CH10_1;
+
+      default:
+        return null;
+    }
   }
 
   private SyncMovie toSyncMovie(BaseMovie baseMovie) {
@@ -1059,7 +1238,7 @@ public class TraktTv {
           if (tmmEp.isWatched() && tmmEp.getLastWatched() == null) {
             // watched in tmm and not in trakt -> sync
             OffsetDateTime watchedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault());
-            se.add(new SyncEpisode().number(tmmEp.getEpisode()).watchedAt(watchedAt));
+            se.add(toSyncEpisode(tmmEp).watchedAt(watchedAt));
             foundEP = true;
           }
         }
@@ -1067,7 +1246,7 @@ public class TraktTv {
           // sync collection
           if (!episodesInTrakt.contains(tmmEp)) {
             OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmEp.getDateAdded()), ZoneId.systemDefault());
-            se.add(new SyncEpisode().number(tmmEp.getEpisode()).collectedAt(collectedAt));
+            se.add(toSyncEpisode(tmmEp).collectedAt(collectedAt));
             foundEP = true;
           }
         }
@@ -1100,6 +1279,21 @@ public class TraktTv {
       ss.add(new SyncSeason().number(baseSeason.number).episodes(se));
     }
     return new SyncShow().id(baseShow.show.ids).collectedAt(baseShow.last_collected_at).watchedAt(baseShow.last_watched_at).seasons(ss);
+  }
+
+  private SyncEpisode toSyncEpisode(TvShowEpisode episode) {
+    SyncEpisode syncEpisode = new SyncEpisode();
+    syncEpisode.number(episode.getEpisode());
+
+    // also sync mediainfo
+    syncEpisode.mediaType(getMediaType(episode.getMediaInfoSource()));
+    syncEpisode.resolution(getResolution(episode.getMainVideoFile()));
+    syncEpisode.hdr(getHdr(episode.getVideoHDRFormat()));
+    syncEpisode.audio(getAudio(episode.getMediaInfoAudioCodec()));
+    syncEpisode.audioChannels(getAudioChannels(episode.getMainVideoFile().getAudioChannelCount()));
+    syncEpisode.is3d(episode.isVideoIn3D());
+
+    return syncEpisode;
   }
 
   /**

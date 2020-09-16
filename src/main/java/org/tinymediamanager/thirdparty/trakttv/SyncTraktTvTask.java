@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -30,7 +29,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  * @author Manuel Laggner
  */
 public class SyncTraktTvTask extends TmmTask {
-  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages");
 
   private boolean                     syncMovies         = false;
   private boolean                     syncMoviesWatched  = false;

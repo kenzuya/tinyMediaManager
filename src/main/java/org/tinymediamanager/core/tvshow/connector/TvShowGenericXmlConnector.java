@@ -16,6 +16,9 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
+import static org.tinymediamanager.DateField.DATE_ADDED;
+import static org.tinymediamanager.DateField.FILE_CREATION_DATE;
+import static org.tinymediamanager.DateField.FILE_LAST_MODIFIED_DATE;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
@@ -27,10 +30,13 @@ import java.nio.file.Path;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -70,13 +76,13 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
-  protected final String    ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
+  protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
-  protected final TvShow    tvShow;
-  protected TvShowNfoParser parser               = null;
+  protected final TvShow        tvShow;
+  protected TvShowNfoParser     parser               = null;
 
-  protected Document        document;
-  protected Element         root;
+  protected Document            document;
+  protected Element             root;
 
   public TvShowGenericXmlConnector(TvShow tvShow) {
     this.tvShow = tvShow;
@@ -144,7 +150,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         addPlot();
         addTagline();
         addRuntime();
-        addPoster();
+        addThumb();
         addSeasonName();
         addSeasonPoster();
         addSeasonBanner();
@@ -373,15 +379,39 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   }
 
   /**
-   * add the poster in the form <thumb aspect="poster">xxx</thumb> tags
+   * add the artwork urls<br />
+   *
+   * <thumb aspect="poster">xxx</thumb> <br />
+   * <thumb aspect="banner">xxx</thumb> <br />
+   * <thumb aspect="clearart">xxx</thumb> <br />
+   * <thumb aspect="clearlogo">xxx</thumb> <br />
+   * <thumb aspect="landscape">xxx</thumb> <br />
+   * <thumb aspect="keyart">xxx</thumb> //not yet supported by kodi <br />
+   * <thumb aspect="logo">xxx</thumb> //not yet supported by kodi <br />
+   * <thumb aspect="characterart">xxx</thumb> //not yet supported by kodi <br />
+   * <thumb aspect="discart">xxx</thumb> //not yet supported by kodi <br />
+   *
+   * we will write all supported artwork types here
    */
-  protected void addPoster() {
+  protected void addThumb() {
+    addThumb(MediaFileType.POSTER, "poster");
+    addThumb(MediaFileType.BANNER, "banner");
+    addThumb(MediaFileType.CLEARART, "clearart");
+    addThumb(MediaFileType.CLEARLOGO, "clearlogo");
+    addThumb(MediaFileType.THUMB, "landscape");
+    addThumb(MediaFileType.KEYART, "keyart");
+    addThumb(MediaFileType.LOGO, "logo");
+    addThumb(MediaFileType.CHARACTERART, "characterart");
+    addThumb(MediaFileType.DISC, "discart");
+  }
+
+  private void addThumb(MediaFileType type, String aspect) {
     Element thumb = document.createElement("thumb");
 
-    String posterUrl = tvShow.getArtworkUrl(MediaFileType.POSTER);
-    if (StringUtils.isNotBlank(posterUrl)) {
-      thumb.setAttribute("aspect", "poster");
-      thumb.setTextContent(posterUrl);
+    String artworkUrl = tvShow.getArtworkUrl(type);
+    if (StringUtils.isNotBlank(artworkUrl)) {
+      thumb.setAttribute("aspect", aspect);
+      thumb.setTextContent(artworkUrl);
       root.appendChild(thumb);
     }
   }
@@ -458,14 +488,26 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   protected void addFanart() {
     Element fanart = document.createElement("fanart");
 
-    String fanarUrl = tvShow.getArtworkUrl(MediaFileType.FANART);
-    if (StringUtils.isNotBlank(fanarUrl)) {
+    Set<String> fanartUrls = new LinkedHashSet<>();
+
+    // main fanart
+    String fanartUrl = tvShow.getArtworkUrl(MediaFileType.FANART);
+    if (StringUtils.isNotBlank(fanartUrl)) {
+      fanartUrls.add(fanartUrl);
+    }
+
+    // extrafanart
+    fanartUrls.addAll(tvShow.getExtraFanartUrls());
+
+    for (String url : fanartUrls) {
       Element thumb = document.createElement("thumb");
-      thumb.setTextContent(fanarUrl);
+      thumb.setTextContent(url);
       fanart.appendChild(thumb);
     }
 
-    root.appendChild(fanart);
+    if (!fanartUrls.isEmpty()) {
+      root.appendChild(fanart);
+    }
   }
 
   /**
@@ -602,8 +644,24 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    */
   protected void addDateAdded() {
     Element dateadded = document.createElement("dateadded");
-    if (tvShow.getDateAdded() != null) {
-      dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tvShow.getDateAdded()));
+    if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == DATE_ADDED) {
+      if (tvShow.getDateAdded() != null) {
+        dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tvShow.getDateAdded()));
+      }
+    }
+    else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_CREATION_DATE) {
+      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles().stream().filter(mf -> mf.getType() == MediaFileType.VIDEO)
+          .min(Comparator.comparing(MediaFile::getDateCreated)).orElse(null);
+      if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
+        dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
+      }
+    }
+    else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_LAST_MODIFIED_DATE) {
+      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles().stream().filter(mf -> mf.getType() == MediaFileType.VIDEO)
+          .min(Comparator.comparing(MediaFile::getDateLastModified)).orElse(null);
+      if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {
+        dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateLastModified()));
+      }
     }
     root.appendChild(dateadded);
   }

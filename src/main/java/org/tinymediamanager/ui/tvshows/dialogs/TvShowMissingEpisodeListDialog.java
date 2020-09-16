@@ -40,7 +40,6 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
@@ -54,10 +53,14 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * the class {@link TvShowMissingEpisodeListDialog} is used to display a table full of missing episodes for the given TV shows
+ *
+ * @author Wolfgang Janes
+ */
 public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
   private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowMissingEpisodeListDialog.class);
@@ -72,7 +75,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
     results = new SortedList<>(GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>())),
         new EpisodeContainerComparator());
-    DefaultEventTableModel<EpisodeContainer> missingEpisodeListModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(results),
+    TmmTableModel<EpisodeContainer> missingEpisodeListModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(results),
         new MissingEpisodeListTableFormat());
 
     // UI
@@ -105,14 +108,14 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     worker.execute();
   }
 
-  private class EpisodeContainer {
+  private static class EpisodeContainer {
     String tvShowTitle;
     int    season;
     int    episode;
     String episodeTitle;
   }
 
-  private class EpisodeContainerComparator implements Comparator<EpisodeContainer> {
+  private static class EpisodeContainerComparator implements Comparator<EpisodeContainer> {
 
     @Override
     public int compare(EpisodeContainer o1, EpisodeContainer o2) {
@@ -128,7 +131,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
     }
   }
 
-  private class MissingEpisodeListTableFormat extends TmmTableFormat<EpisodeContainer> {
+  private static class MissingEpisodeListTableFormat extends TmmTableFormat<EpisodeContainer> {
     MissingEpisodeListTableFormat() {
       Comparator<String> stringComparator = new StringComparator();
       Comparator<Integer> integerComparator = new IntegerComparator();
@@ -177,8 +180,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
   private class EpisodeListWorker extends SwingWorker<Void, Void> {
 
-    private List<TvShow>   tvShows;
-    private MediaLanguages language = TvShowModuleManager.SETTINGS.getScraperLanguage();
+    private final List<TvShow> tvShows;
 
     EpisodeListWorker(List<TvShow> tvShows) {
       this.tvShows = tvShows;
@@ -196,7 +198,8 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
     private List<MediaMetadata> getEpisodes(TvShow tvShow) {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
-      options.setLanguage(language);
+      options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
 
       MediaScraper mediaScraper = TvShowList.getInstance().getDefaultMediaScraper();
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());

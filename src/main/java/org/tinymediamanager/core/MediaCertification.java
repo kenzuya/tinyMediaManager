@@ -59,6 +59,7 @@ public enum MediaCertification {
     GB_15(CountryCode.GB, "15", new String[] { "15" }),
     GB_18(CountryCode.GB, "18", new String[] { "18" }),
     GB_R18(CountryCode.GB, "R18", new String[] { "R18" }),
+    GB_E(CountryCode.GB, "E", new String[] { "E" }),
 
     RU_Y(CountryCode.RU, "Y", new String[] { "Y" }),
     RU_6(CountryCode.RU, "6+", new String[] { "6+" }),

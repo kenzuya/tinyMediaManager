@@ -17,16 +17,20 @@ package org.tinymediamanager.core.tasks;
 
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
 /**
  * The Class MediaFileInformationFetcherTask.
@@ -70,13 +74,15 @@ public class MediaFileInformationFetcherTask implements Runnable {
       Thread.currentThread().setName(name);
 
       mediaFile.gatherMediaInformation(forceUpdate);
-      if (mediaEntity instanceof Movie && mediaFile.hasSubtitles()) {
-        Movie movie = (Movie) mediaEntity;
-        movie.firePropertyChange("hasSubtitles", false, true);
+      if (mediaFile.hasSubtitles()) {
+        mediaEntity.firePropertyChange("hasSubtitles", false, true);
       }
-      if (mediaEntity instanceof TvShowEpisode && mediaFile.hasSubtitles()) {
-        TvShowEpisode episode = (TvShowEpisode) mediaEntity;
-        episode.firePropertyChange("hasSubtitles", false, true);
+      // add the -mediainfo.xml if it has been written
+      if (Settings.getInstance().isWriteMediaInfoXml()) {
+        Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
+        if (Files.exists(xmlFile)) {
+          mediaEntity.addToMediaFiles(new MediaFile(xmlFile));
+        }
       }
     }
     catch (Exception e) {

@@ -28,8 +28,8 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ActorImageLabel;
 import org.tinymediamanager.ui.components.PersonTable;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -50,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEpisodeCastPanel extends JPanel {
   private static final long                 serialVersionUID = 4712144916016763491L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TvShowEpisodeSelectionModel selectionModel;
   private EventList<Person>                 actorEventList   = null;
@@ -136,7 +136,10 @@ public class TvShowEpisodeCastPanel extends JPanel {
       add(lblActorsT, "cell 0 2,aligny top");
 
       tableActors = new PersonTable(actorEventList);
-      JScrollPane scrollPaneActors = new JScrollPane(tableActors);
+      tableActors.setName("tvshows.episode.actorTable");
+      TmmUILayoutStore.getInstance().install(tableActors);
+
+      JScrollPane scrollPaneActors = new JScrollPane();
       tableActors.configureScrollPane(scrollPaneActors);
       add(scrollPaneActors, "cell 1 2 1 2,grow");
     }

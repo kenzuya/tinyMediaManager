@@ -23,7 +23,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -43,7 +42,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieScrapeMetadataDialog;
  */
 public class MovieUnscrapedScrapeAction extends TmmAction {
   private static final long           serialVersionUID = -5330113139288186736L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieUnscrapedScrapeAction() {
     putValue(NAME, BUNDLE.getString("movie.scrape.unscraped"));
@@ -58,7 +57,7 @@ public class MovieUnscrapedScrapeAction extends TmmAction {
     List<Movie> unscrapedMovies = MovieList.getInstance().getUnscrapedMovies();
     if (!unscrapedMovies.isEmpty()) {
       MovieScrapeMetadataDialog dialog = new MovieScrapeMetadataDialog(BUNDLE.getString("movie.scrape.unscraped"));
-      dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+      dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
 
       // get options from dialog

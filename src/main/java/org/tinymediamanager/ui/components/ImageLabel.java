@@ -17,19 +17,20 @@ package org.tinymediamanager.ui.components;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,10 +46,12 @@ import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.plaf.TmmTheme;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
 import org.tinymediamanager.ui.thirdparty.ShadowRenderer;
 
+import com.formdev.flatlaf.ui.FlatUIUtils;
 import com.madgag.gif.fmsware.GifDecoder;
 
 /**
@@ -66,10 +69,11 @@ public class ImageLabel extends JComponent {
   }
 
   private static final long         serialVersionUID       = -2524445544386464158L;
-  private static final char         ICON_ID                = '\uF03E';
   private static final Color        EMPTY_BACKGROUND_COLOR = new Color(141, 165, 179);
-  private static final Dimension    EMPTY_SIZE             = new Dimension(0, 0);
 
+  private static final TmmSvgIcon   NO_IMAGE               = createNoImageIcon();
+  private static final Dimension    EMPTY_SIZE             = new Dimension(0, 0);
+  private static final int          SHADOW_SIZE            = 8;
   protected byte[]                  originalImageBytes;
   protected Dimension               originalImageSize      = EMPTY_SIZE;
   protected Image                   scaledImage;
@@ -88,10 +92,22 @@ public class ImageLabel extends JComponent {
   protected boolean                 isLightBox             = false;
   protected float                   desiredAspectRatio     = 0f;
   protected boolean                 cacheUrl               = false;
+  protected boolean                 scaleUpIfTooSmall      = true;
 
   protected ShadowRenderer          shadowRenderer;
   protected SwingWorker<Void, Void> worker                 = null;
   protected MouseListener           lightboxListener       = null;
+
+  private static TmmSvgIcon createNoImageIcon() {
+    try {
+      // create the icon
+      URI uri = IconManager.class.getResource("images/svg/image.svg").toURI();
+      return new TmmSvgIcon(uri);
+    }
+    catch (Exception e) {
+      return null;
+    }
+  }
 
   public ImageLabel() {
     this(true, false);
@@ -140,7 +156,14 @@ public class ImageLabel extends JComponent {
       // this is just a normal pic
       BufferedImage originalImage = ImageUtils.createImage(originalImageBytes);
       originalImageSize = new Dimension(originalImage.getWidth(), originalImage.getHeight());
-      scaledImage = Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, width, height, Scalr.OP_ANTIALIAS);
+      if (width < 1000 || height < 1000) {
+        // scale fast
+        scaledImage = Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, width, height, Scalr.OP_ANTIALIAS);
+      }
+      else {
+        // scale good
+        scaledImage = Scalr.resize(originalImage, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, width, height, Scalr.OP_ANTIALIAS);
+      }
       animatedGif = null;
     }
   }
@@ -231,6 +254,10 @@ public class ImageLabel extends JComponent {
     return desiredAspectRatio;
   }
 
+  public void setScaleUpIfTooSmall(boolean scaleUpIfTooSmall) {
+    this.scaleUpIfTooSmall = scaleUpIfTooSmall;
+  }
+
   /**
    * get a byte array of the original image.<br/>
    * WARNING: this array is only filled _after_ the image has been loaded!
@@ -253,15 +280,36 @@ public class ImageLabel extends JComponent {
 
   @Override
   public Dimension getPreferredSize() {
+    if (originalImageSize != EMPTY_SIZE) {
+      int parentWidth = getParent().getWidth();
+      int parentHeight = getParent().getHeight();
+      if (scaleUpIfTooSmall || parentWidth < originalImageSize.width || parentHeight < originalImageSize.height) {
+        // we maximize the image regardless of its size or if it is bigger than the parent
+        return new Dimension(getParent().getWidth(),
+            (int) ((getParent().getWidth() - getShadowSize()) / (float) originalImageSize.width * (float) originalImageSize.height)
+                + getShadowSize());
+      }
+      else {
+        // we wont scale up
+        return new Dimension(originalImageSize.width, originalImageSize.height + getShadowSize());
+      }
+
+    }
+
     if (desiredAspectRatio == 0) {
       // no desired aspect ratio; get the JLabel's preferred size
       return super.getPreferredSize();
     }
-    if (originalImageSize != EMPTY_SIZE) {
-      return new Dimension(getParent().getWidth(),
-          (int) (getParent().getWidth() / (float) originalImageSize.width * (float) originalImageSize.height));
+    else {
+      return new Dimension(getParent().getWidth(), (int) ((getParent().getWidth() - getShadowSize()) / desiredAspectRatio) + 1 + getShadowSize());
     }
-    return new Dimension(getParent().getWidth(), (int) (getParent().getWidth() / desiredAspectRatio) + 1);
+  }
+
+  private int getShadowSize() {
+    if (drawShadow) {
+      return SHADOW_SIZE;
+    }
+    return 0;
   }
 
   /**
@@ -283,149 +331,239 @@ public class ImageLabel extends JComponent {
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
 
-    if (scaledImage != null) {
-      Graphics2D g2d = (Graphics2D) g;
+    Graphics2D g2d = (Graphics2D) g.create();
+    try {
       g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
       g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_DEFAULT);
       g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-      int scaledImageWidth = scaledImage.getWidth(null);
-      int scaledImageHeight = scaledImage.getHeight(null);
+      if (scaledImage != null) {
+        int scaledImageWidth = scaledImage.getWidth(null);
+        int scaledImageHeight = scaledImage.getHeight(null);
 
-      // calculate new height/width
-      int newWidth;
-      int newHeight;
+        // calculate new height/width
+        Rectangle rectangle = new Rectangle();
 
-      int offsetX = 0;
-      int offsetY = 0;
+        if (drawBorder && !drawFullWidth && !drawShadow) {
+          Point size = ImageUtils.calculateSize(getMaxWidth() - 8, getMaxHeight() - 8, originalImageSize.width, originalImageSize.height, true);
 
-      if (drawBorder && !drawFullWidth && !drawShadow) {
-        Point size = ImageUtils.calculateSize(this.getWidth() - 8, this.getHeight() - 8, originalImageSize.width, originalImageSize.height, true);
+          // calculate offsets
+          if (position == Position.TOP_RIGHT || position == Position.BOTTOM_RIGHT) {
+            rectangle.x = this.getWidth() - size.x - 8;
+          }
 
-        // calculate offsets
-        if (position == Position.TOP_RIGHT || position == Position.BOTTOM_RIGHT) {
-          offsetX = this.getWidth() - size.x - 8;
+          if (position == Position.BOTTOM_LEFT || position == Position.BOTTOM_RIGHT) {
+            rectangle.y = this.getHeight() - size.y - 8;
+          }
+
+          if (position == Position.CENTER) {
+            rectangle.x = (this.getWidth() - size.x - 8) / 2;
+            rectangle.y = (this.getHeight() - size.y - 8) / 2;
+          }
+
+          rectangle.width = size.x;
+          rectangle.height = size.y;
+
+          g2d.setColor(Color.BLACK);
+          g2d.drawRect(rectangle.x, rectangle.y, size.x + 7, size.y + 7);
+          g2d.setColor(Color.WHITE);
+          g2d.fillRect(rectangle.x + 1, rectangle.y + 1, size.x + 6, size.y + 6);
+
+          Rectangle hiDpi = scaleHiDpi(g2d.getTransform(), rectangle);
+
+          // when the image size differs too much - reload and rescale the original image
+          recreateScaledImageIfNeeded(scaledImageWidth, scaledImageHeight, hiDpi.width, hiDpi.height);
+
+          Rectangle drawRectangle = new Rectangle(rectangle);
+          drawRectangle.x += 4;
+          drawRectangle.y += 4;
+
+          drawImageAtScale1x(scaledImage, g2d, scaleHiDpi(g2d.getTransform(), drawRectangle));
+          // g.drawImage(scaledImage, offsetX + 4, offsetY + 4, newWidth, newHeight, this);
         }
+        else if (drawShadow && !drawFullWidth) {
+          Point size = ImageUtils.calculateSize(this.getMaxWidth() - SHADOW_SIZE, this.getMaxHeight() - SHADOW_SIZE, originalImageSize.width,
+              originalImageSize.height, true);
 
-        if (position == Position.BOTTOM_LEFT || position == Position.BOTTOM_RIGHT) {
-          offsetY = this.getHeight() - size.y - 8;
-        }
+          rectangle.width = size.x;
+          rectangle.height = size.y;
 
-        if (position == Position.CENTER) {
-          offsetX = (this.getWidth() - size.x - 8) / 2;
-          offsetY = (this.getHeight() - size.y - 8) / 2;
-        }
+          Rectangle hiDpi = scaleHiDpi(g2d.getTransform(), rectangle);
 
-        newWidth = size.x;
-        newHeight = size.y;
+          // when the image size differs too much - reload and rescale the original image
+          recreateScaledImageIfNeeded(scaledImageWidth, scaledImageHeight, hiDpi.width, hiDpi.height);
 
-        // when the image size differs too much - reload and rescale the original image
-        recreateScaledImageIfNeeded(scaledImageWidth, scaledImageHeight, newWidth, newHeight);
+          // did the image reset to null?
+          if (scaledImage instanceof BufferedImage) {
+            // create shadow
+            BufferedImage shadowImage = shadowRenderer.createShadow((BufferedImage) scaledImage);
 
-        g.setColor(Color.BLACK);
-        g.drawRect(offsetX, offsetY, size.x + 7, size.y + 7);
-        g.setColor(Color.WHITE);
-        g.fillRect(offsetX + 1, offsetY + 1, size.x + 6, size.y + 6);
-        g.drawImage(scaledImage, offsetX + 4, offsetY + 4, newWidth, newHeight, this);
-      }
-      else if (drawShadow && !drawFullWidth) {
-        Point size = ImageUtils.calculateSize(this.getWidth(), this.getHeight(), originalImageSize.width, originalImageSize.height, true);
-        newWidth = size.x;
-        newHeight = size.y;
+            Rectangle shadowRectangle = new Rectangle(rectangle);
+            shadowRectangle.x = SHADOW_SIZE;
+            shadowRectangle.y = SHADOW_SIZE;
 
-        // when the image size differs too much - reload and rescale the original image
-        recreateScaledImageIfNeeded(scaledImageWidth, scaledImageHeight, newWidth - 8, newHeight - 8);
+            // draw shadow
+            drawImageAtScale1x(shadowImage, g2d, scaleHiDpi(g2d.getTransform(), shadowRectangle));
+          }
 
-        // did the image reset to null?
-        if (scaledImage instanceof BufferedImage) {
-          // draw shadow
-          BufferedImage shadowImage = shadowRenderer.createShadow((BufferedImage) scaledImage);
-          // draw shadow
-          g.drawImage(shadowImage, 8, 8, newWidth - 8, newHeight - 8, this);
-        }
-
-        // draw image
-        g.drawImage(scaledImage, 0, 0, newWidth - 8, newHeight - 8, this);
-      }
-      else {
-        Point size = null;
-        if (drawFullWidth) {
-          size = new Point(this.getWidth(), this.getWidth() * originalImageSize.height / originalImageSize.width);
+          // draw image
+          drawImageAtScale1x(scaledImage, g2d, hiDpi);
         }
         else {
-          size = ImageUtils.calculateSize(this.getWidth(), this.getHeight(), originalImageSize.width, originalImageSize.height, true);
+          Point size = null;
+          if (drawFullWidth) {
+            size = new Point(this.getMaxWidth(), this.getMaxWidth() * originalImageSize.height / originalImageSize.width);
+          }
+          else {
+            size = ImageUtils.calculateSize(this.getMaxWidth(), this.getMaxHeight(), originalImageSize.width, originalImageSize.height, true);
+          }
+
+          // calculate offsets
+          if (position == Position.TOP_RIGHT || position == Position.BOTTOM_RIGHT) {
+            rectangle.x = this.getWidth() - size.x;
+          }
+
+          if (position == Position.BOTTOM_LEFT || position == Position.BOTTOM_RIGHT) {
+            rectangle.y = this.getHeight() - size.y;
+          }
+
+          if (position == Position.CENTER) {
+            rectangle.x = (this.getWidth() - size.x) / 2;
+            rectangle.y = (this.getHeight() - size.y) / 2;
+          }
+
+          rectangle.width = size.x;
+          rectangle.height = size.y;
+
+          Rectangle hiDpi = scaleHiDpi(g2d.getTransform(), rectangle);
+
+          // when the image size differs too much - reload and rescale the original image
+          recreateScaledImageIfNeeded(scaledImageWidth, scaledImageHeight, hiDpi.width, hiDpi.height);
+
+          drawImageAtScale1x(scaledImage, g2d, hiDpi);
+        }
+      }
+      // do not draw the "no image found" icon if the worker is loading or in lightbox usage
+      else if (!isLoading() && !isLightBox) {
+        // nothing to draw; draw the _no image found_ indicator
+        Rectangle rectangle = new Rectangle();
+
+        if (drawShadow) {
+          rectangle.width = this.getMaxWidth() - 8;
+          rectangle.height = this.getMaxHeight() - 8;
+        }
+        else {
+          rectangle.width = this.getMaxWidth();
+          rectangle.height = this.getMaxHeight();
         }
 
-        // calculate offsets
-        if (position == Position.TOP_RIGHT || position == Position.BOTTOM_RIGHT) {
-          offsetX = this.getWidth() - size.x;
+        Rectangle hiDpi = scaleHiDpi(g2d.getTransform(), rectangle);
+
+        // calculate the optimal font size; the pt is about 0.75 * the needed px
+        // we draw that icon at max 50% of the available space
+        int imageSize = (int) (Math.min(hiDpi.width, hiDpi.height) * 0.5 / 0.75);
+
+        // draw the _no image found_ icon
+        if (NO_IMAGE != null) {
+          BufferedImage tmp = new BufferedImage(hiDpi.width, hiDpi.height, BufferedImage.TYPE_INT_ARGB);
+          Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment().createGraphics(tmp);
+
+          try {
+            FlatUIUtils.setRenderingHints(g2);
+
+            g2.setColor(EMPTY_BACKGROUND_COLOR);
+            g2.fillRect(0, 0, hiDpi.width, hiDpi.height);
+
+            NO_IMAGE.setPreferredSize(new Dimension(imageSize, imageSize));
+            NO_IMAGE.setColor(UIManager.getColor("Panel.background"));
+
+            if (drawShadow) {
+              BufferedImage shadowImage = shadowRenderer.createShadow(tmp);
+
+              Rectangle shadowRectangle = new Rectangle(rectangle);
+              shadowRectangle.x = 8;
+              shadowRectangle.y = 8;
+
+              // draw shadow
+              drawImageAtScale1x(shadowImage, g2d, scaleHiDpi(g2d.getTransform(), shadowRectangle));
+            }
+
+            g2.drawImage(NO_IMAGE.getImage(), (hiDpi.width - NO_IMAGE.getIconWidth()) / 2, (hiDpi.height - NO_IMAGE.getIconHeight()) / 2, null);
+          }
+          finally {
+            g2.dispose();
+          }
+
+          // draw image
+          drawImageAtScale1x(tmp, g2d, hiDpi);
         }
-
-        if (position == Position.BOTTOM_LEFT || position == Position.BOTTOM_RIGHT) {
-          offsetY = this.getHeight() - size.y;
-        }
-
-        if (position == Position.CENTER) {
-          offsetX = (this.getWidth() - size.x) / 2;
-          offsetY = (this.getHeight() - size.y) / 2;
-        }
-
-        newWidth = size.x;
-        newHeight = size.y;
-
-        // when the image size differs too much - reload and rescale the original image
-        recreateScaledImageIfNeeded(scaledImageWidth, scaledImageHeight, newWidth, newHeight);
-        g.drawImage(scaledImage, offsetX, offsetY, newWidth, newHeight, this);
       }
     }
-    // do not draw the "no image found" icon if the worker is loading or in lightbox usage
-    else if (!isLoading() && !isLightBox) {
-      // nothing to draw; draw the _no image found_ indicator
-      int newWidth;
-      int newHeight;
-
-      if (drawShadow) {
-        newWidth = this.getWidth() - 8;
-        newHeight = this.getHeight() - 8;
-      }
-      else {
-        newWidth = this.getWidth();
-        newHeight = this.getHeight();
-      }
-
-      // calculate the optimal font size; the pt is about 0.75 * the needed px
-      // we draw that icon at max 50% of the available space
-      float fontSize = (float) (Math.min(newWidth, newHeight) * 0.5 / 0.75);
-
-      // draw the _no image found_ icon
-      Font font = TmmTheme.FONT_AWESOME.deriveFont(fontSize);
-      BufferedImage tmp = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-      Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment().createGraphics(tmp);
-      g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-      g2.setColor(EMPTY_BACKGROUND_COLOR);
-      g2.fillRect(0, 0, newWidth, newHeight);
-
-      g2.setFont(font);
-      g2.setColor(UIManager.getColor("Panel.background"));
-      Rectangle2D bounds = font.createGlyphVector(g2.getFontRenderContext(), String.valueOf(ICON_ID)).getVisualBounds();
-      int iconWidth = (int) Math.ceil(bounds.getWidth()) + 2; // +2 to avoid clipping problems
-      int iconHeight = (int) Math.ceil(bounds.getHeight()) + 2; // +2 to avoid clipping problems
-      g2.drawString(String.valueOf(ICON_ID), (newWidth - iconWidth) / 2, (newHeight + iconHeight) / 2);
-
-      g2.dispose();
-
-      if (drawShadow) {
-        BufferedImage shadowImage = shadowRenderer.createShadow(tmp);
-
-        // draw shadow
-        g.drawImage(shadowImage, 8, 8, newWidth, newHeight, this);
-      }
-
-      // draw image
-      g.drawImage(tmp, 0, 0, newWidth, newHeight, this);
+    finally {
+      g2d.dispose();
     }
+  }
+
+  private int getMaxWidth() {
+    if (!scaleUpIfTooSmall && originalImageSize != null) {
+      return Math.min(getWidth(), originalImageSize.width);
+    }
+    return getWidth();
+  }
+
+  private int getMaxHeight() {
+    if (!scaleUpIfTooSmall && originalImageSize != null) {
+      return Math.min(originalImageSize.height, getHeight());
+    }
+    return getHeight();
+  }
+
+  /**
+   * Scales a rectangle in the same way as the JRE does in sun.java2d.pipe.PixelToParallelogramConverter.fillRectangle(), which is used by
+   * Graphics.fillRect().
+   */
+  private Rectangle scaleHiDpi(AffineTransform transform, Rectangle rectangle) {
+    // no need to scale
+    if (transform.getScaleX() == 1 && transform.getScaleY() == 1) {
+      return new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    }
+
+    double dx1 = transform.getScaleX();
+    double dy2 = transform.getScaleY();
+    double px = rectangle.x * dx1 + transform.getTranslateX();
+    double py = rectangle.y * dy2 + transform.getTranslateY();
+    dx1 *= rectangle.width;
+    dy2 *= rectangle.height;
+
+    int newx = (int) Math.floor(normalize(px));
+    int newy = (int) Math.floor(normalize(py));
+    dx1 = normalize(px + dx1) - newx;
+    dy2 = normalize(py + dy2) - newy;
+
+    return new Rectangle(newx, newy, (int) dx1, (int) dy2);
+  }
+
+  private void drawImageAtScale1x(Image image, Graphics2D g2D, Rectangle rectangle) {
+    // save original transform
+    AffineTransform transform = g2D.getTransform();
+
+    try {
+      // unscale to factor 1.0 and move origin (to whole numbers)
+      if (transform.getScaleX() != 1 || transform.getScaleY() != 1) {
+        g2D.setTransform(new AffineTransform(1, 0, 0, 1, 0, 0));
+      }
+
+      // paint
+      g2D.drawImage(image, rectangle.x, rectangle.y, rectangle.width, rectangle.height, this);
+    }
+    finally {
+      // restore original transform
+      g2D.setTransform(transform);
+    }
+  }
+
+  private static double normalize(double value) {
+    return Math.floor(value + 0.25) + 0.25;
   }
 
   protected boolean isLoading() {
@@ -608,7 +746,7 @@ public class ImageLabel extends JComponent {
     @Override
     public void mouseClicked(MouseEvent arg0) {
       if (arg0.getClickCount() == 1 && scaledImage != null) {
-        MainWindow.getActiveInstance().createLightbox(getImagePath(), getImageUrl());
+        MainWindow.getInstance().createLightbox(getImagePath(), getImageUrl());
       }
     }
   }

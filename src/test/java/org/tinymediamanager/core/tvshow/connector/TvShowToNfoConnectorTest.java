@@ -214,6 +214,14 @@ public class TvShowToNfoConnectorTest extends BasicTest {
     tvShow.setRuntime(45);
     tvShow.setArtworkUrl("http://poster", MediaFileType.POSTER);
     tvShow.setArtworkUrl("http://fanart", MediaFileType.FANART);
+    tvShow.setArtworkUrl("http://banner", MediaFileType.BANNER);
+    tvShow.setArtworkUrl("http://clearart", MediaFileType.CLEARART);
+    tvShow.setArtworkUrl("http://clearlogo", MediaFileType.CLEARLOGO);
+    tvShow.setArtworkUrl("http://discart", MediaFileType.DISC);
+    tvShow.setArtworkUrl("http://keyart", MediaFileType.KEYART);
+    tvShow.setArtworkUrl("http://thumb", MediaFileType.THUMB);
+    tvShow.setArtworkUrl("http://logo", MediaFileType.LOGO);
+    tvShow.setArtworkUrl("http://characterart", MediaFileType.CHARACTERART);
     tvShow.addSeasonTitle(1, "First Season");
     tvShow.addSeasonTitle(2, "Second Season");
     tvShow.setSeasonArtworkUrl(1, "http://season1", SEASON_POSTER);

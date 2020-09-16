@@ -15,22 +15,27 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import static org.tinymediamanager.ui.TmmFontHelper.L1;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
@@ -41,13 +46,13 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowRemoveAction extends TmmAction {
   private static final long           serialVersionUID = -2355545751433709417L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowRemoveAction() {
     putValue(NAME, BUNDLE.getString("tvshow.remove"));
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.remove"));
-    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke((char) KeyEvent.VK_DELETE));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
   }
 
   @Override
@@ -55,8 +60,28 @@ public class TvShowRemoveAction extends TmmAction {
     List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
+    }
+
+    // display warning and ask the user again
+    if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hideremovehint")) {
+      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+      TmmFontHelper.changeFont(checkBox, L1);
+      checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+      Object[] params = { BUNDLE.getString("tvshow.remove.desc"), checkBox };
+      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("tvshow.remove"), JOptionPane.YES_NO_OPTION,
+          JOptionPane.QUESTION_MESSAGE, null, options, null);
+
+      // the user don't want to show this dialog again
+      if (checkBox.isSelected()) {
+        TmmProperties.getInstance().putProperty("tvshow.hideremovehint", String.valueOf(checkBox.isSelected()));
+      }
+
+      if (answer != JOptionPane.YES_OPTION) {
+        return;
+      }
     }
 
     for (Object obj : selectedObjects) {

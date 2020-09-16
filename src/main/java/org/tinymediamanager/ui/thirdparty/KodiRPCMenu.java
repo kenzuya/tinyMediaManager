@@ -23,14 +23,13 @@ import java.util.ResourceBundle;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.SplitUri;
 import org.tinymediamanager.ui.movies.actions.MovieKodiRefreshNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowKodiRefreshNfoAction;
 
 public class KodiRPCMenu {
-  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private KodiRPCMenu() {
     // private constructor for utility classes

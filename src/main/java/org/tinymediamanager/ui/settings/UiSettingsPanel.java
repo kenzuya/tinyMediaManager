@@ -31,6 +31,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,14 +48,13 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -67,7 +68,7 @@ class UiSettingsPanel extends JPanel {
   private static final long           serialVersionUID   = 6409982195347794360L;
 
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
   private static final Integer[]      DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 
@@ -75,7 +76,6 @@ class UiSettingsPanel extends JPanel {
   private List<LocaleComboBox>        locales            = new ArrayList<>();
 
   private JComboBox                   cbLanguage;
-  private JLabel                      lblFontChangeHint;
   private LinkLabel                   lblLinkTranslate;
   private JComboBox                   cbFontSize;
   private JComboBox                   cbFontFamily;
@@ -138,7 +138,7 @@ class UiSettingsPanel extends JPanel {
       }
     });
 
-    ActionListener actionListener = e -> checkChanges();
+    ActionListener actionListener = e -> SwingUtilities.invokeLater(this::checkChanges);
     cbLanguage.addActionListener(actionListener);
     cbFontFamily.addActionListener(actionListener);
     cbFontSize.addActionListener(actionListener);
@@ -149,10 +149,12 @@ class UiSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("hidemode 1", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
-      JPanel panelLanguage = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelLanguage = new JPanel();
+      panelLanguage.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("Settings.language"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelLanguage, lblLanguageT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#ui-language"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         cbLanguage = new JComboBox(locales.toArray());
@@ -173,10 +175,12 @@ class UiSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelTheme = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelTheme = new JPanel();
+      panelTheme.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblThemeT = new TmmLabel(BUNDLE.getString("Settings.uitheme"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelTheme, lblThemeT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#ui-theme"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         cbTheme = new JComboBox(new String[] { "Light", "Dark" });
@@ -189,10 +193,12 @@ class UiSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelFont = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelFont = new JPanel();
+      panelFont.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblFontT = new TmmLabel(BUNDLE.getString("Settings.font"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFont, lblFontT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#font"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JLabel lblFontFamilyT = new JLabel(BUNDLE.getString("Settings.fontfamily"));
@@ -215,17 +221,14 @@ class UiSettingsPanel extends JPanel {
         JTextArea tpFontHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.fonts.hint"));
         panelFont.add(tpFontHint, "cell 1 2 2 1,growx");
       }
-      {
-        lblFontChangeHint = new JLabel("");
-        TmmFontHelper.changeFont(lblFontChangeHint, Font.BOLD);
-        panelFont.add(lblFontChangeHint, "cell 0 3 3 1");
-      }
     }
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblDatefield = new JLabel(BUNDLE.getString("Settings.datefield"));
@@ -266,20 +269,28 @@ class UiSettingsPanel extends JPanel {
     String theme = (String) cbTheme.getSelectedItem();
     if (!theme.equals(Globals.settings.getTheme())) {
       Globals.settings.setTheme(theme);
-      lblThemeHint.setText(BUNDLE.getString("Settings.uitheme.hint"));
+      try {
+        TmmUIHelper.setTheme();
+        TmmUIHelper.updateUI();
+      }
+      catch (Exception e) {
+        lblThemeHint.setText(BUNDLE.getString("Settings.uitheme.hint"));
+      }
     }
 
     // fonts
-    Integer fontSize = (Integer) cbFontSize.getSelectedItem();
-    if (fontSize != null && fontSize != Globals.settings.getFontSize()) {
-      Globals.settings.setFontSize(fontSize);
-      lblFontChangeHint.setText(BUNDLE.getString("Settings.fontchangehint"));
-    }
-
     String fontFamily = (String) cbFontFamily.getSelectedItem();
-    if (fontFamily != null && !fontFamily.equals(Globals.settings.getFontFamily())) {
+    Integer fontSize = (Integer) cbFontSize.getSelectedItem();
+    if ((fontFamily != null && !fontFamily.equals(Globals.settings.getFontFamily()))
+        || (fontSize != null && fontSize != Globals.settings.getFontSize())) {
       Globals.settings.setFontFamily(fontFamily);
-      lblFontChangeHint.setText(BUNDLE.getString("Settings.fontchangehint"));
+      Globals.settings.setFontSize(fontSize);
+
+      Font font = UIManager.getFont("defaultFont");
+      Font newFont = new Font(fontFamily, font.getStyle(), fontSize);
+      UIManager.put("defaultFont", newFont);
+
+      TmmUIHelper.updateUI();
     }
   }
 

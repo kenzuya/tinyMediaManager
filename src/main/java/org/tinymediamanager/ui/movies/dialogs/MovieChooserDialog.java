@@ -76,10 +76,12 @@ import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -96,8 +98,6 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.gui.TableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import ca.odell.glazedlists.swing.TableComparatorChooser;
 import net.miginfocom.swing.MigLayout;
@@ -167,12 +167,9 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MovieChooserModel.class)),
         new SearchResultScoreComparator());
 
-    DefaultEventTableModel<MovieChooserModel> searchResultTableModel = new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat());
-
     // table format for the castmembers
-    castMemberEventList = GlazedLists.threadSafeList(new ObservableElementList<>(new BasicEventList<>(), GlazedLists.beanConnector(Person.class)));
-    DefaultEventTableModel<Person> castMemberTableModel = new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(castMemberEventList),
-        new CastMemberTableFormat());
+    castMemberEventList = GlazedListsSwing.swingThreadProxyList(
+        GlazedLists.threadSafeList(new ObservableElementList<>(new BasicEventList<>(), GlazedLists.beanConnector(Person.class))));
 
     {
       final JPanel panelPath = new JPanel();
@@ -185,7 +182,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       }
 
       {
-        final JButton btnPlay = new JButton(IconManager.PLAY_INV);
+        final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
         btnPlay.setFocusable(false);
         btnPlay.addActionListener(e -> {
           MediaFile mf = movieToScrape.getMediaFiles(MediaFileType.VIDEO).get(0);
@@ -249,8 +246,9 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(new JSeparator(), "cell 0 1,growx");
     }
     {
-      JSplitPane splitPane = new TmmSplitPane();
-      splitPane.setResizeWeight(0.5);
+      JSplitPane splitPane = new JSplitPane();
+      splitPane.setName(getName() + ".splitPane");
+      TmmUILayoutStore.getInstance().install(splitPane);
       contentPanel.add(splitPane, "cell 0 2,grow");
       {
         JPanel panelSearchResults = new JPanel();
@@ -259,15 +257,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchResults.add(scrollPane, "cell 0 0,grow");
-          tableSearchResults = new TmmTable(searchResultTableModel);
+          tableSearchResults = new TmmTable(new TmmTableModel<>(searchResultEventList, new SearchResultTableFormat()));
           tableSearchResults.configureScrollPane(scrollPane);
-          scrollPane.setViewportView(tableSearchResults);
         }
       }
       {
         JPanel panelSearchDetail = new JPanel();
         splitPane.setRightComponent(panelSearchDetail);
-        panelSearchDetail.setLayout(new MigLayout("", "[150lp:n,grow][300lp:500lp,grow]", "[]2lp[]2lp[][150lp:n][50lp:100lp,grow]"));
+        panelSearchDetail.setLayout(new MigLayout("", "[100lp:15%:20%,grow][300lp:500lp,grow 3]", "[]2lp[]2lp[][150lp:25%:50%][50lp:100lp,grow]"));
         {
           lblTitle = new JLabel("");
           TmmFontHelper.changeFont(lblTitle, 1.167, Font.BOLD);
@@ -283,12 +280,12 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         }
         {
           lblMoviePoster = new ImageLabel(false);
+          lblMoviePoster.setDesiredAspectRatio(2 / 3f);
           panelSearchDetail.add(lblMoviePoster, "cell 0 0 1 4,grow");
         }
         {
-          JScrollPane scrollPane = new JScrollPane();
+          JScrollPane scrollPane = new NoBorderScrollPane();
           panelSearchDetail.add(scrollPane, "cell 1 3,grow");
-          scrollPane.setBorder(null);
           {
             taMovieDescription = new ReadOnlyTextArea();
             scrollPane.setViewportView(taMovieDescription);
@@ -298,9 +295,8 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           JScrollPane scrollPane = new JScrollPane();
           panelSearchDetail.add(scrollPane, "cell 0 4 2 1,grow");
           {
-            tableCastMembers = new TmmTable(castMemberTableModel);
+            tableCastMembers = new TmmTable(new TmmTableModel<>(castMemberEventList, new CastMemberTableFormat()));
             tableCastMembers.configureScrollPane(scrollPane);
-            scrollPane.setViewportView(tableCastMembers);
           }
         }
       }
@@ -802,6 +798,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
        * title
        */
       Column col = new Column(BUNDLE.getString("chooser.searchresult"), "title", result -> result, MovieChooserModel.class);
+      col.setColumnTooltip(MovieChooserModel::getTitle);
       col.setColumnComparator(searchResultComparator);
       col.setCellRenderer(new SearchResultRenderer());
       addColumn(col);
@@ -860,34 +857,21 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   /**
    * inner class for representing the cast table
    */
-  private static class CastMemberTableFormat implements TableFormat<Person> {
-    @Override
-    public int getColumnCount() {
-      return 2;
-    }
+  private static class CastMemberTableFormat extends TmmTableFormat<Person> {
+    public CastMemberTableFormat() {
+      /*
+       * name
+       */
+      Column col = new Column(BUNDLE.getString("metatag.name"), "name", Person::getName, String.class);
+      col.setColumnTooltip(Person::getName);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("metatag.name");
-
-        case 1:
-          return BUNDLE.getString("metatag.role");
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(Person castMember, int column) {
-      switch (column) {
-        case 0:
-          return castMember.getName();
-
-        case 1:
-          return castMember.getRole();
-      }
-      throw new IllegalStateException();
+      /*
+       * role
+       */
+      col = new Column(BUNDLE.getString("metatag.role"), "role", Person::getRole, String.class);
+      col.setColumnTooltip(Person::getRole);
+      addColumn(col);
     }
   }
 

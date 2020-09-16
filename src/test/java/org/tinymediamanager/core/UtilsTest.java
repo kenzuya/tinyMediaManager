@@ -68,8 +68,19 @@ public class UtilsTest extends BasicTest {
   public void zip() {
     Path zip = Paths.get("target", "test.zip");
     Path add = Paths.get("pom.xml");
-    Utils.createZip(zip, add, "/pom.xml");
-    Utils.createZip(zip, add, "/sub/pom.xml");
+    Utils.createZip(zip, add);
+    Utils.createZip(zip, add);
+  }
+
+  @Test
+  public void testBrotli() throws Exception {
+    Path sourceFile = Paths.get("target", "test-classes", "test.tar.br");
+    Path target = Paths.get("target", "test-classes", "brotli");
+    Utils.unpackBrotli(sourceFile.toFile(), target.toFile());
+
+    Path targetFile = target.resolve("test.txt");
+    assertThat(targetFile).exists();
+    assertThat(Utils.readFileToString(targetFile).trim()).isEqualTo("FOO");
   }
 
   @Test

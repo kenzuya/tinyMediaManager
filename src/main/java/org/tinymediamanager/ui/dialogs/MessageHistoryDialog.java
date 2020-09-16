@@ -27,6 +27,7 @@ import javax.swing.JScrollPane;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.panels.MessagePanel;
 
 import ca.odell.glazedlists.EventList;
@@ -47,7 +48,7 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
   private JPanel                      messagesPanel;
 
   private MessageHistoryDialog() {
-    super(MainWindow.getActiveInstance(), BUNDLE.getString("summarywindow.title"), "messageSummary");
+    super(MainWindow.getInstance(), BUNDLE.getString("summarywindow.title"), "messageSummary");
 
     setModal(false);
     setModalityType(ModalityType.MODELESS);
@@ -61,7 +62,7 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
     messagesPanel.setOpaque(false);
     messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.PAGE_AXIS));
 
-    JScrollPane scrollPane = new JScrollPane();
+    JScrollPane scrollPane = new NoBorderScrollPane();
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     scrollPane.setViewportView(messagesPanel);
     scrollPane.getVerticalScrollBar().setUnitIncrement(16);

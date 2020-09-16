@@ -49,7 +49,7 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
     super();
     treeFilters = new CopyOnWriteArraySet<>();
     filterChangeListener = evt -> updateFiltering();
-    setOpaque(false);
+    // setOpaque(false);
     setDataProvider(dataProvider);
   }
 

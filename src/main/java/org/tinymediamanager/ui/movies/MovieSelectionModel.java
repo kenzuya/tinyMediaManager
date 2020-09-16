@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.movies;
 
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -235,12 +236,25 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
   }
 
   /**
+   * set whether all filters are active or not
+   * 
+   * @param filtersActive
+   *          true if all filters should be active; false otherwise
+   */
+  public void setFiltersActive(boolean filtersActive) {
+    matcherEditor.setFiltersActive(filtersActive);
+  }
+
+  /**
    * set any stored filter values
    * 
    * @param values
    *          the values to be set
    */
-  void setFilterValues(List<AbstractSettings.UIFilters> values) {
+  public void setFilterValues(List<AbstractSettings.UIFilters> values) {
+    if (values == null) {
+      values = Collections.emptyList();
+    }
     matcherEditor.setFilterValues(values);
     firePropertyChange("filterChanged", null, values);
   }

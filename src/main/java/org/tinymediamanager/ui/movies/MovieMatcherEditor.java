@@ -16,16 +16,14 @@
 package org.tinymediamanager.ui.movies;
 
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
@@ -41,6 +39,7 @@ import ca.odell.glazedlists.matchers.Matcher;
 public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
   private final Set<IMovieUIFilter>    filters;
   private final PropertyChangeListener filterChangeListener;
+  private boolean                      filtersActive = true;
 
   /**
    * Instantiates a new movie matcher editor.
@@ -68,24 +67,30 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
    *          the values to be set
    */
   public void setFilterValues(List<AbstractSettings.UIFilters> values) {
-    boolean fireFilterChanged = false;
+    for (IMovieUIFilter filter : filters) {
+      AbstractSettings.UIFilters uiFilters = values.stream().filter(uiFilter -> uiFilter.id.equals(filter.getId())).findFirst().orElse(null);
 
-    for (AbstractSettings.UIFilters uiFilters : values) {
-      if (StringUtils.isBlank(uiFilters.id) || uiFilters.state == ITmmUIFilter.FilterState.INACTIVE) {
-        continue;
+      if (uiFilters != null) {
+        filter.setFilterState(uiFilters.state);
+        filter.setFilterValue(uiFilters.filterValue);
       }
-      for (IMovieUIFilter filter : filters) {
-        if (filter.getId().equals(uiFilters.id)) {
-          filter.setFilterState(uiFilters.state);
-          filter.setFilterValue(uiFilters.filterValue);
-          fireFilterChanged = true;
-        }
+      else {
+        filter.setFilterState(ITmmUIFilter.FilterState.INACTIVE);
       }
     }
 
-    if (fireFilterChanged) {
-      updateFiltering();
-    }
+    updateFiltering();
+  }
+
+  /**
+   * set whether all filters are active or not
+   * 
+   * @param filtersActive
+   *          true if all filters should be active; false otherwise
+   */
+  public void setFiltersActive(boolean filtersActive) {
+    this.filtersActive = filtersActive;
+    updateFiltering();
   }
 
   /**
@@ -93,24 +98,15 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
    */
   private void updateFiltering() {
     SwingUtilities.invokeLater(() -> {
-      Matcher<Movie> matcher = new MovieMatcher(new HashSet<>(filters));
+      Matcher<Movie> matcher;
+      if (filtersActive) {
+        matcher = new MovieMatcher(new HashSet<>(filters));
+      }
+      else {
+        matcher = new MovieMatcher(Collections.emptySet());
+      }
       fireChanged(matcher);
     });
-
-    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
-      List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
-      for (IMovieUIFilter filter : filters) {
-        if (filter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
-          AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
-          uiFilters.id = filter.getId();
-          uiFilters.state = filter.getFilterState();
-          uiFilters.filterValue = filter.getFilterValueAsString();
-          filterValues.add(uiFilters);
-        }
-      }
-      MovieModuleManager.SETTINGS.setUiFilters(filterValues);
-      MovieModuleManager.SETTINGS.saveSettings();
-    }
   }
 
   /**
@@ -125,7 +121,7 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
   /*
    * helper class for running all filters against the given movie
    */
-  private class MovieMatcher implements Matcher<Movie> {
+  private static class MovieMatcher implements Matcher<Movie> {
     private final Set<IMovieUIFilter> filters;
 
     public MovieMatcher(Set<IMovieUIFilter> filters) {

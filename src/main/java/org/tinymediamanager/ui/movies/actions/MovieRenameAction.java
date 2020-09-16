@@ -30,7 +30,6 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -47,7 +46,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRenameAction extends TmmAction {
   private static final long           serialVersionUID = 4804592958868052533L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieRenameAction() {
     putValue(NAME, BUNDLE.getString("movie.rename"));
@@ -60,7 +59,7 @@ public class MovieRenameAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
@@ -72,7 +71,7 @@ public class MovieRenameAction extends TmmAction {
 
       Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
       Object[] params = { BUNDLE.getString("movie.rename.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getActiveInstance(), params, BUNDLE.getString("movie.rename"), JOptionPane.YES_NO_OPTION,
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("movie.rename"), JOptionPane.YES_NO_OPTION,
           JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

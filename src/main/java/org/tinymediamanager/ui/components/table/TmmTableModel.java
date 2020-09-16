@@ -16,12 +16,13 @@
 package org.tinymediamanager.ui.components.table;
 
 import javax.swing.ImageIcon;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.JComponent;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.DefaultEventTableModel;
+import ca.odell.glazedlists.swing.GlazedListsSwing;
 
 /**
  * The class TmmTableModel is used as a template for our table models
@@ -34,6 +35,10 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
   public TmmTableModel(EventList<E> source, TmmTableFormat<? super E> tableFormat) {
     super(source, tableFormat);
     tmmTableFormat = tableFormat;
+  }
+
+  public void setManyToOneTableModelEventAdapter() {
+    setEventAdapter(GlazedListsSwing.<E> manyToOneEventAdapterFactory().create(this));
   }
 
   /**
@@ -56,8 +61,8 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
       column.setHeaderValue(headerIcon);
     }
 
-    if (column.getHeaderRenderer() instanceof DefaultTableCellRenderer) {
-      ((DefaultTableCellRenderer) column.getHeaderRenderer()).setToolTipText(tmmTableFormat.getColumnName(columnIndex));
+    if (column.getHeaderRenderer() instanceof JComponent) {
+      ((JComponent) column.getHeaderRenderer()).setToolTipText(getHeaderTooltip(columnIndex));
     }
 
     column.setResizable(tmmTableFormat.getColumnResizeable(columnIndex));
@@ -66,6 +71,10 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
     if (tmmTableFormat.getMaxWidth(columnIndex) > 0) {
       column.setMaxWidth(tmmTableFormat.getMaxWidth(columnIndex));
     }
+  }
+
+  public String getHeaderTooltip(int column) {
+    return tmmTableFormat.getColumnName(column);
   }
 
   public String getTooltipAt(int row, int column) {

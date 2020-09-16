@@ -41,16 +41,16 @@ public class RatingEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID = 535315882962742572L;
   private static final String                DIALOG_ID        = "ratingEditor";
 
-  private final MediaRatingTable.MediaRating ratingToEdit;
+  private final MediaRatingTable.Rating ratingToEdit;
 
   private JTextField                         tfProviderId;
   private JSpinner                           spRating;
   private JSpinner                           spMaxValue;
   private JSpinner                           spVotes;
 
-  public RatingEditorDialog(Window owner, String title, MediaRatingTable.MediaRating mediaRating) {
+  public RatingEditorDialog(Window owner, String title, MediaRatingTable.Rating rating) {
     super(owner, title, DIALOG_ID);
-    ratingToEdit = mediaRating;
+    ratingToEdit = rating;
 
     initComponents();
 

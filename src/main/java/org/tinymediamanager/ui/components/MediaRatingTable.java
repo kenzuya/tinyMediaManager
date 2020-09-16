@@ -24,14 +24,15 @@ import javax.swing.table.TableColumn;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.ui.NumberCellEditor;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.gui.WritableTableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 /**
  * The class MediaRatingTable is used to display / edit ratings
@@ -39,13 +40,12 @@ import ca.odell.glazedlists.swing.DefaultEventTableModel;
  * @author Manuel Laggner
  */
 public class MediaRatingTable extends TmmTable {
-  private static final long                                           serialVersionUID = 8010732881277204728L;
+  private static final long              serialVersionUID = 8010732881277204728L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle                                 BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private Map<String, org.tinymediamanager.core.entities.MediaRating> ratingMap;
-  private EventList<MediaRating>                                      mediaRatingList;
-  private boolean                                                     editable;
+  private final Map<String, MediaRating> ratingMap;
+  private final EventList<Rating>        ratingList;
 
   /**
    * this constructor is used to display the ratings
@@ -53,11 +53,10 @@ public class MediaRatingTable extends TmmTable {
    * @param ratings
    *          a map containing the ratings
    */
-  public MediaRatingTable(Map<String, org.tinymediamanager.core.entities.MediaRating> ratings) {
+  public MediaRatingTable(Map<String, MediaRating> ratings) {
     this.ratingMap = ratings;
-    this.editable = false;
-    this.mediaRatingList = convertRatingMapToEventList(ratingMap, true);
-    setModel(new DefaultEventTableModel<>(mediaRatingList, new MediaRatingTableFormat(editable)));
+    this.ratingList = convertRatingMapToEventList(ratingMap, true);
+    setModel(new TmmTableModel<>(ratingList, new MediaRatingTableFormat(false)));
     setTableHeader(null);
     putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
   }
@@ -65,14 +64,13 @@ public class MediaRatingTable extends TmmTable {
   /**
    * this constructor is used to edit the ratings
    *
-   * @param mediaRatings
+   * @param ratings
    *          an eventlist containing the ratings
    */
-  public MediaRatingTable(EventList<MediaRating> mediaRatings) {
+  public MediaRatingTable(EventList<Rating> ratings) {
     this.ratingMap = null;
-    this.editable = true;
-    this.mediaRatingList = mediaRatings;
-    setModel(new DefaultEventTableModel<>(mediaRatingList, new MediaRatingTableFormat(editable)));
+    this.ratingList = ratings;
+    setModel(new TmmTableModel<>(ratingList, new MediaRatingTableFormat(true)));
     // setTableHeader(null);
     putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
@@ -89,15 +87,15 @@ public class MediaRatingTable extends TmmTable {
     column.setCellEditor(new NumberCellEditor(10, 0));
   }
 
-  public static EventList<MediaRating> convertRatingMapToEventList(Map<String, org.tinymediamanager.core.entities.MediaRating> idMap,
+  public static EventList<Rating> convertRatingMapToEventList(Map<String, org.tinymediamanager.core.entities.MediaRating> idMap,
       boolean withUserRating) {
-    EventList<MediaRating> idList = new BasicEventList<>();
+    EventList<Rating> idList = new BasicEventList<>();
     for (Entry<String, org.tinymediamanager.core.entities.MediaRating> entry : idMap.entrySet()) {
       if (org.tinymediamanager.core.entities.MediaRating.USER.equals(entry.getKey()) && !withUserRating) {
         continue;
       }
 
-      MediaRating id = new MediaRating(entry.getKey());
+      Rating id = new Rating(entry.getKey());
       org.tinymediamanager.core.entities.MediaRating mediaRating = entry.getValue();
 
       id.value = mediaRating.getRating();
@@ -110,10 +108,10 @@ public class MediaRatingTable extends TmmTable {
     return idList;
   }
 
-  public static EventList<MediaRating> convertRatingMapToEventList(List<org.tinymediamanager.core.entities.MediaRating> ratings) {
-    EventList<MediaRating> idList = new BasicEventList<>();
+  public static EventList<Rating> convertRatingMapToEventList(List<org.tinymediamanager.core.entities.MediaRating> ratings) {
+    EventList<Rating> idList = new BasicEventList<>();
     for (org.tinymediamanager.core.entities.MediaRating rating : ratings) {
-      MediaRating id = new MediaRating(rating.getId());
+      Rating id = new Rating(rating.getId());
       org.tinymediamanager.core.entities.MediaRating mediaRating = rating;
 
       id.value = mediaRating.getRating();
@@ -126,13 +124,13 @@ public class MediaRatingTable extends TmmTable {
     return idList;
   }
 
-  public static class MediaRating {
+  public static class Rating {
     public String key;
     public float  value;
     public int    maxValue;
     public int    votes;
 
-    public MediaRating(String key) {
+    public Rating(String key) {
       this.key = key;
     }
 
@@ -143,75 +141,55 @@ public class MediaRatingTable extends TmmTable {
 
     @Override
     public boolean equals(Object obj) {
-      if (!(obj instanceof MediaRating)) {
+      if (!(obj instanceof Rating)) {
         return false;
       }
       if (obj == this) {
         return true;
       }
-      MediaRating other = (MediaRating) obj;
+      Rating other = (Rating) obj;
       return StringUtils.equals(key, other.key);
     }
   }
 
-  private class MediaRatingTableFormat implements WritableTableFormat<MediaRating> {
-    private boolean editable;
+  private class MediaRatingTableFormat extends TmmTableFormat<Rating> implements WritableTableFormat<Rating> {
+    private final boolean editable;
 
     MediaRatingTableFormat(boolean editable) {
       this.editable = editable;
+
+      /*
+       * source
+       */
+      Column col = new Column(BUNDLE.getString("metatag.rating.source"), "source", rating -> rating.key, String.class);
+      addColumn(col);
+
+      /*
+       * rating
+       */
+      col = new Column(BUNDLE.getString("metatag.rating"), "rating", rating -> rating.value, Float.class);
+      addColumn(col);
+
+      /*
+       * maxvalue
+       */
+      col = new Column(BUNDLE.getString("metatag.rating.maxvalue"), "maxvalue", rating -> rating.maxValue, Integer.class);
+      addColumn(col);
+
+      /*
+       * votes
+       */
+      col = new Column(BUNDLE.getString("metatag.rating.votes"), "votes", rating -> rating.votes, Integer.class);
+      addColumn(col);
     }
 
     @Override
-    public int getColumnCount() {
-      return 4;
-    }
-
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("metatag.rating.source");
-
-        case 1:
-          return BUNDLE.getString("metatag.rating");
-
-        case 2:
-          return BUNDLE.getString("metatag.rating.maxvalue");
-
-        case 3:
-          return BUNDLE.getString("metatag.rating.votes");
-      }
-      return "";
-    }
-
-    @Override
-    public boolean isEditable(MediaRating arg0, int arg1) {
+    public boolean isEditable(Rating arg0, int arg1) {
       return editable;
     }
 
     @Override
-    public Object getColumnValue(MediaRating arg0, int arg1) {
-      if (arg0 == null) {
-        return null;
-      }
-      switch (arg1) {
-        case 0:
-          return arg0.key;
-
-        case 1:
-          return arg0.value;
-
-        case 2:
-          return arg0.maxValue;
-
-        case 3:
-          return arg0.votes;
-      }
-      return null;
-    }
-
-    @Override
-    public MediaRating setColumnValue(MediaRating arg0, Object arg1, int arg2) {
+    public Rating setColumnValue(Rating arg0, Object arg1, int arg2) {
       if (arg0 == null || arg1 == null) {
         return null;
       }

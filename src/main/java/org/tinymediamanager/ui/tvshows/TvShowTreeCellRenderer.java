@@ -15,13 +15,12 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
-import static org.tinymediamanager.ui.UIConstants.LINK_COLOR;
-
 import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -39,7 +38,12 @@ public class TvShowTreeCellRenderer extends TmmTreeTableCellRenderer {
   private Color colorDummy;
 
   public TvShowTreeCellRenderer() {
-    this.colorDummy = LINK_COLOR;
+  }
+
+  @Override
+  public void updateUI() {
+    super.updateUI();
+    colorDummy = UIManager.getColor("Component.linkColor");
   }
 
   @Override

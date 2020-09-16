@@ -120,7 +120,13 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle {
     if (cancel) {
       return;
     }
-    Thread.currentThread().setName(Thread.currentThread().getName() + "-G" + uniqueId);
+
+    String name = Thread.currentThread().getName();
+    if (!name.contains("-G")) {
+      name = name + "-G0";
+    }
+    name = name.replaceAll("\\-G\\d+", "-G" + uniqueId);
+    Thread.currentThread().setName(name);
 
     start();
     try {

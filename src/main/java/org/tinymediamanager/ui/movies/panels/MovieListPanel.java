@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.movies.panels;
 
+import static java.awt.event.InputEvent.CTRL_DOWN_MASK;
+
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -30,12 +32,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -44,24 +43,24 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
+import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.TmmListPanel;
-import org.tinymediamanager.ui.components.table.MouseKeyboardSortingStrategy;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
-import org.tinymediamanager.ui.movies.MovieFilterator;
 import org.tinymediamanager.ui.movies.MovieMatcherEditor;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.MovieTableFormat;
+import org.tinymediamanager.ui.movies.MovieTextMatcherEditor;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
@@ -70,10 +69,7 @@ import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.matchers.MatcherEditor;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
-import ca.odell.glazedlists.swing.TableComparatorChooser;
-import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -82,7 +78,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = -1681460428331929420L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   MovieSelectionModel                 selectionModel;
 
@@ -92,6 +88,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private TmmTable                    movieTable;
   private JLabel                      lblMovieCountFiltered;
   private JLabel                      lblMovieCountTotal;
+  private JLabel                      lblLicenseHint;
   private JButton                     btnExtendedFilter;
 
   public MovieListPanel() {
@@ -111,53 +108,26 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     searchField = EnhancedTextField.createSearchTextField();
     add(searchField, "cell 0 0,growx");
 
-    MatcherEditor<Movie> textMatcherEditor = new TextComponentMatcherEditor<>(searchField, new MovieFilterator());
+    // register global short cut for the search field
+    getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
+    getActionMap().put("search", new RequestFocusAction(searchField));
+
+    MatcherEditor<Movie> textMatcherEditor = new MovieTextMatcherEditor(searchField);
     MovieMatcherEditor movieMatcherEditor = new MovieMatcherEditor();
     FilterList<Movie> extendedFilteredMovies = new FilterList<>(sortedMovies, movieMatcherEditor);
     FilterList<Movie> textFilteredMovies = new FilterList<>(extendedFilteredMovies, textMatcherEditor);
     selectionModel = new MovieSelectionModel(sortedMovies, textFilteredMovies, movieMatcherEditor);
-    final DefaultEventTableModel<Movie> movieTableModel = new TmmTableModel<>(textFilteredMovies, new MovieTableFormat());
+    final TmmTableModel<Movie> movieTableModel = new TmmTableModel<>(textFilteredMovies, new MovieTableFormat());
+    // movieTableModel.setManyToOneTableModelEventAdapter();
 
     // build the table
     movieTable = new TmmTable(movieTableModel);
+    movieTable.setName("movies.movieTable");
+    movieTable.installComparatorChooser(sortedMovies);
+    movieTable.getTableComparatorChooser().appendComparator(0, 0, false);
 
-    // install on the Table
-    TableComparatorChooser.install(movieTable, sortedMovies, new MouseKeyboardSortingStrategy()).appendComparator(0, 0, false);
-
-    // restore hidden columns
-    movieTable.readHiddenColumns(MovieModuleManager.SETTINGS.getMovieTableHiddenColumns());
-    movieTable.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
-      @Override
-      public void columnAdded(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnRemoved(TableColumnModelEvent e) {
-        writeSettings();
-      }
-
-      @Override
-      public void columnMoved(TableColumnModelEvent e) {
-      }
-
-      @Override
-      public void columnMarginChanged(ChangeEvent e) {
-
-      }
-
-      @Override
-      public void columnSelectionChanged(ListSelectionEvent e) {
-      }
-
-      private void writeSettings() {
-        movieTable.writeHiddenColumns(cols -> {
-          MovieModuleManager.SETTINGS.setMovieTableHiddenColumns(cols);
-          MovieModuleManager.SETTINGS.saveSettings();
-        });
-      }
-    });
     movieTable.adjustColumnPreferredWidths(3);
+    TmmUILayoutStore.getInstance().install(movieTable);
 
     movieTableModel.addTableModelListener(arg0 -> {
       lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
@@ -168,8 +138,8 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
       }
     });
 
-    JScrollPane scrollPane = new JScrollPane(movieTable);
-    movieTable.configureScrollPane(scrollPane, new int[] { 0 });
+    JScrollPane scrollPane = new JScrollPane();
+    movieTable.configureScrollPane(scrollPane);
     add(scrollPane, "cell 0 1 2 1,grow");
 
     btnExtendedFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));
@@ -193,10 +163,26 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     lblMovieCountTotal = new JLabel("");
     add(lblMovieCountTotal, "cell 0 3 2 1");
 
+    lblLicenseHint = new JLabel(IconManager.WARN_INTENSIFIED);
+    lblLicenseHint.setToolTipText(BUNDLE.getString("tmm.license.hint1"));
+    add(lblLicenseHint, "cell 0 3 2 1");
+
     initDataBindings();
 
     // initialize filteredCount
     lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
+
+    License.getInstance().addEventListener(this::showHideLicenseHint);
+    showHideLicenseHint();
+  }
+
+  private void showHideLicenseHint() {
+    if (License.getInstance().isValidLicense()) {
+      lblLicenseHint.setVisible(false);
+    }
+    else {
+      lblLicenseHint.setVisible(true);
+    }
   }
 
   private void updateFilterIndicator() {

@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.wizard;
 
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Insets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -36,13 +35,13 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -54,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieSourcePanel extends JPanel {
   private static final long           serialVersionUID = -8346420911623937902L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
 
@@ -91,15 +90,20 @@ class MovieSourcePanel extends JPanel {
       scrollPaneDataSources.setViewportView(listDataSources);
     }
     {
-      JButton btnAdd = new JButton(IconManager.ADD_INV);
+      JButton btnAdd = new SquareIconButton(IconManager.ADD_INV);
       panelMovieDataSources.add(btnAdd, "flowy,cell 1 1,aligny top");
       btnAdd.setToolTipText(BUNDLE.getString("Button.add"));
-      btnAdd.setMargin(new Insets(2, 2, 2, 2));
+      btnAdd.addActionListener(arg0 -> {
+        String path = TmmProperties.getInstance().getProperty("movie.datasource.path");
+        Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("Settings.datasource.folderchooser"), path);
+        if (file != null && Files.isDirectory(file)) {
+          MovieModuleManager.SETTINGS.addMovieDataSources(file.toAbsolutePath().toString());
+        }
+      });
 
-      JButton btnRemove = new JButton(IconManager.REMOVE_INV);
+      JButton btnRemove = new SquareIconButton(IconManager.REMOVE_INV);
       panelMovieDataSources.add(btnRemove, "cell 1 1");
       btnRemove.setToolTipText(BUNDLE.getString("Button.remove"));
-      btnRemove.setMargin(new Insets(2, 2, 2, 2));
       btnRemove.addActionListener(arg0 -> {
         int row = listDataSources.getSelectedIndex();
         if (row != -1) { // nothing selected
@@ -113,13 +117,6 @@ class MovieSourcePanel extends JPanel {
             MovieModuleManager.SETTINGS.removeMovieDataSources(path);
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           }
-        }
-      });
-      btnAdd.addActionListener(arg0 -> {
-        String path = TmmProperties.getInstance().getProperty("movie.datasource.path");
-        Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("Settings.datasource.folderchooser"), path);
-        if (file != null && Files.isDirectory(file)) {
-          MovieModuleManager.SETTINGS.addMovieDataSources(file.toAbsolutePath().toString());
         }
       });
     }

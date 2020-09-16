@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.movies.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -44,17 +43,15 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import ca.odell.glazedlists.gui.TableFormat;
 import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -90,12 +87,12 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       getContentPane().add(panelContent, BorderLayout.CENTER);
       panelContent.setLayout(new MigLayout("", "[950lp,grow]", "[600lp,grow]"));
       {
-        JSplitPane splitPane = new TmmSplitPane();
+        JSplitPane splitPane = new JSplitPane();
         splitPane.setResizeWeight(0.4);
         panelContent.add(splitPane, "cell 0 0,grow");
         {
-          DefaultEventTableModel<MovieRenamerPreviewContainer> movieTableModel = new DefaultEventTableModel<>(
-              GlazedListsSwing.swingThreadProxyList(results), new ResultTableFormat());
+          TmmTableModel<MovieRenamerPreviewContainer> movieTableModel = new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(results),
+              new ResultTableFormat());
           tableMovies = new TmmTable(movieTableModel);
 
           DefaultEventSelectionModel<MovieRenamerPreviewContainer> tableSelectionModel = new DefaultEventSelectionModel<>(results);
@@ -115,7 +112,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
             }
           });
 
-          JScrollPane scrollPaneMovies = new JScrollPane(tableMovies);
+          JScrollPane scrollPaneMovies = new JScrollPane();
           tableMovies.configureScrollPane(scrollPaneMovies);
           splitPane.setLeftComponent(scrollPaneMovies);
         }
@@ -161,19 +158,16 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
               panelMediaFiles.add(lblNewfilesT, "cell 1 0,alignx center");
             }
             {
-              DefaultEventTableModel<MediaFileContainer> oldMediaFileTableModel = new DefaultEventTableModel<>(
-                  GlazedListsSwing.swingThreadProxyList(oldMediaFileEventList), new MediaFileTableFormat());
-              TmmTable tableMediaFilesOld = new TmmTable(oldMediaFileTableModel);
-              JScrollPane scrollPaneMediaFilesOld = new JScrollPane(tableMediaFilesOld);
+              TmmTable tableMediaFilesOld = new TmmTable(
+                  new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(oldMediaFileEventList), new MediaFileTableFormat()));
+              JScrollPane scrollPaneMediaFilesOld = new JScrollPane();
               tableMediaFilesOld.configureScrollPane(scrollPaneMediaFilesOld);
               panelMediaFiles.add(scrollPaneMediaFilesOld, "cell 0 1,grow");
               tableMediaFilesOld.getColumnModel().getColumn(0).setMaxWidth(40);
             }
             {
-
-              DefaultEventTableModel<MediaFileContainer> newMediaFileTableModel = new DefaultEventTableModel<>(
-                  GlazedListsSwing.swingThreadProxyList(newMediaFileEventList), new MediaFileTableFormat());
-              TmmTable tableMediaFilesNew = new TmmTable(newMediaFileTableModel);
+              TmmTable tableMediaFilesNew = new TmmTable(
+                  new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(newMediaFileEventList), new MediaFileTableFormat()));
               JScrollPane scrollPaneMediaFilesNew = new JScrollPane(tableMediaFilesNew);
               tableMediaFilesNew.configureScrollPane(scrollPaneMediaFilesNew);
               panelMediaFiles.add(scrollPaneMediaFilesNew, "cell 1 1,grow");
@@ -213,80 +207,32 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
   /**********************************************************************
    * helper classes
    *********************************************************************/
-  private class ResultTableFormat implements TableFormat<MovieRenamerPreviewContainer> {
-    @Override
-    public int getColumnCount() {
-      return 1;
-    }
+  private static class ResultTableFormat extends TmmTableFormat<MovieRenamerPreviewContainer> {
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("metatag.movie");
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(MovieRenamerPreviewContainer result, int column) {
-      switch (column) {
-        case 0:
-          return result.getMovie().getTitleSortable();
-      }
-
-      throw new IllegalStateException();
+    public ResultTableFormat() {
+      /*
+       * movie title
+       */
+      Column col = new Column(BUNDLE.getString("metatag.movie"), "title", container -> container.getMovie().getTitleSortable(), String.class);
+      col.setColumnTooltip(container -> container.getMovie().getTitleSortable());
+      addColumn(col);
     }
   }
 
-  private class MediaFileTableFormat implements AdvancedTableFormat<MediaFileContainer> {
-    @Override
-    public int getColumnCount() {
-      return 2;
-    }
+  private class MediaFileTableFormat extends TmmTableFormat<MediaFileContainer> {
+    public MediaFileTableFormat() {
+      /*
+       * indicator
+       */
+      Column col = new Column("", "indicator", container -> container.icon, ImageIcon.class);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return "";
-
-        case 1:
-          return BUNDLE.getString("metatag.filename");
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(MediaFileContainer mediaFileContainer, int column) {
-      switch (column) {
-        case 0:
-          return mediaFileContainer.icon;
-
-        case 1:
-          return mediaFileContainer.mediaFile.getFilename();
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Class<?> getColumnClass(int column) {
-      switch (column) {
-        case 0:
-          return ImageIcon.class;
-
-        case 1:
-          return String.class;
-      }
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Comparator<MediaFileContainer> getColumnComparator(int column) {
-      return null;
+      /*
+       * filename
+       */
+      col = new Column(BUNDLE.getString("metatag.filename"), "filename", container -> container.mediaFile.getFilename(), String.class);
+      col.setColumnTooltip(container -> container.mediaFile.getFilename());
+      addColumn(col);
     }
   }
 

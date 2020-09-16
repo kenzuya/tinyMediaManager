@@ -27,7 +27,6 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -44,7 +43,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowBulkEditorDialog;
  */
 public class TvShowBulkEditAction extends TmmAction {
   private static final long           serialVersionUID = -1193886444149690516L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public TvShowBulkEditAction() {
     putValue(NAME, BUNDLE.getString("tvshow.bulkedit"));
@@ -79,12 +78,12 @@ public class TvShowBulkEditAction extends TmmAction {
     }
 
     if (selectedTvShows.isEmpty() && selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     TvShowBulkEditorDialog dialog = new TvShowBulkEditorDialog(selectedTvShows, new ArrayList<>(selectedEpisodes));
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
   }
 }

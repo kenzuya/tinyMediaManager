@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.license.SizeLimitExceededException;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -81,10 +82,16 @@ public class MovieCreateOfflineDialog extends TmmDialog {
       String datasource = (String) cbDatasource.getSelectedItem();
       MediaSource mediaSource = (MediaSource) cbMediaSource.getSelectedItem();
       if (StringUtils.isNoneBlank(title, datasource)) {
-        movieList.addOfflineMovie(title, datasource, mediaSource);
-        // message
-        String text = BUNDLE.getString("movie.createoffline.created").replaceAll("\\{\\}", title);
-        JOptionPane.showMessageDialog(MovieCreateOfflineDialog.this, text); // $NON-NLS-1$
+        try {
+          movieList.addOfflineMovie(title, datasource, mediaSource);
+          // message
+          String text = BUNDLE.getString("movie.createoffline.created").replaceAll("\\{\\}", title);
+          JOptionPane.showMessageDialog(MovieCreateOfflineDialog.this, text); // $NON-NLS-1$
+        }
+        catch (SizeLimitExceededException e1) {
+          JOptionPane.showMessageDialog(MovieCreateOfflineDialog.this, BUNDLE.getString("message.sizelimitexceeded"),
+              BUNDLE.getString("movie.createoffline"), JOptionPane.ERROR_MESSAGE); // $NON-NLS-1$
+        }
       }
     });
     panelContent.add(btnAdd, "cell 2 0");

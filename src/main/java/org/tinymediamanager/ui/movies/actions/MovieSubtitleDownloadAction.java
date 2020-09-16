@@ -22,7 +22,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -39,7 +38,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieDownloadSubtitleDialog;
  */
 public class MovieSubtitleDownloadAction extends TmmAction {
   private static final long           serialVersionUID = -6002932119900795735L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieSubtitleDownloadAction() {
     putValue(NAME, BUNDLE.getString("movie.download.subtitle"));
@@ -53,12 +52,12 @@ public class MovieSubtitleDownloadAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     MovieDownloadSubtitleDialog dialog = new MovieDownloadSubtitleDialog(BUNDLE.getString("movie.download.subtitle"));
-    dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+    dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
 
     // do we want to scrape?

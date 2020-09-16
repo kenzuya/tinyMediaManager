@@ -26,11 +26,9 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.swing.Box;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,13 +43,12 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.ColumnLayout;
@@ -60,6 +57,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -83,7 +81,7 @@ public class MovieInformationPanel extends JPanel {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MovieInformationPanel.class);
   private static final long           serialVersionUID = -8527284262749511617L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSelectionModel   movieSelectionModel;
 
@@ -121,6 +119,7 @@ public class MovieInformationPanel extends JPanel {
   private JTextArea                   taNote;
   private JLabel                      lblCertificationLogo;
   private LinkLabel                   lblTraktTvId;
+  private JLabel                      lblShowlink;
 
   /**
    * Instantiates a new movie information panel.
@@ -292,8 +291,9 @@ public class MovieInformationPanel extends JPanel {
       JPanel panelRight = new JPanel();
       panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[100lp,grow]", "[shrink 0][][shrink 0][][][][][shrink 0][][grow,top][][]"));
 
-      scrollPane = new JScrollPane(panelRight);
+      scrollPane = new NoBorderScrollPane(panelRight);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+      scrollPane.getVerticalScrollBar().setUnitIncrement(8);
       add(scrollPane, "cell 1 1,grow, wmin 0");
 
       {
@@ -442,7 +442,7 @@ public class MovieInformationPanel extends JPanel {
       {
         JPanel panelBottomDetails = new JPanel();
         panelRight.add(panelBottomDetails, "cell 0 11,grow");
-        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][200lp,grow]", "[]2lp[]2lp[]2lp[]2lp[]"));
+        panelBottomDetails.setLayout(new MigLayout("insets 0", "[][200lp,grow]", "[]2lp[]2lp[]2lp[]2lp[]2lp[]"));
         {
           JLabel lblMoviesetT = new TmmLabel(BUNDLE.getString("metatag.movieset"));
           panelBottomDetails.add(lblMoviesetT, "cell 0 0");
@@ -451,32 +451,39 @@ public class MovieInformationPanel extends JPanel {
           panelBottomDetails.add(lblMovieSet, "cell 1 0,growx,wmin 0");
         }
         {
+          JLabel lblShowlinkT = new TmmLabel(BUNDLE.getString("metatag.showlink"));
+          panelBottomDetails.add(lblShowlinkT, "cell 0 1");
+
+          lblShowlink = new JLabel("");
+          panelBottomDetails.add(lblShowlink, "cell 1 1");
+        }
+        {
           JLabel lblEditionT = new TmmLabel(BUNDLE.getString("metatag.edition"));
-          panelBottomDetails.add(lblEditionT, "cell 0 1");
+          panelBottomDetails.add(lblEditionT, "cell 0 2");
 
           lblEdition = new JLabel("");
-          panelBottomDetails.add(lblEdition, "cell 1 1,growx,wmin 0");
+          panelBottomDetails.add(lblEdition, "cell 1 2,growx,wmin 0");
         }
         {
           JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
-          panelBottomDetails.add(lblTagsT, "cell 0 2");
+          panelBottomDetails.add(lblTagsT, "cell 0 3");
 
           taTags = new ReadOnlyTextArea();
-          panelBottomDetails.add(taTags, "cell 1 2,growx,wmin 0");
+          panelBottomDetails.add(taTags, "cell 1 3,growx,wmin 0");
         }
         {
           JLabel lblMoviePathT = new TmmLabel(BUNDLE.getString("metatag.path"));
-          panelBottomDetails.add(lblMoviePathT, "cell 0 3");
+          panelBottomDetails.add(lblMoviePathT, "cell 0 4");
 
           lblMoviePath = new LinkLabel("");
-          panelBottomDetails.add(lblMoviePath, "cell 1 3,growx,wmin 0");
+          panelBottomDetails.add(lblMoviePath, "cell 1 4,growx,wmin 0");
         }
         {
           JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
-          panelBottomDetails.add(lblNoteT, "cell 0 4");
+          panelBottomDetails.add(lblNoteT, "cell 0 5");
 
           taNote = new ReadOnlyTextArea();
-          panelBottomDetails.add(taNote, "cell 1 4,growx,wmin 0");
+          panelBottomDetails.add(taNote, "cell 1 5,growx,wmin 0");
         }
       }
     }
@@ -507,142 +514,147 @@ public class MovieInformationPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<MovieSelectionModel, Integer> movieSelectionModelBeanProperty_2 = BeanProperty.create("selectedMovie.rating.votes");
-    BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<MovieSelectionModel, Integer, JLabel, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_2, lblVoteCount, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_2 = BeanProperty.create("selectedMovie.rating.votes");
+    Property jLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_2, lblVoteCount,
+        jLabelBeanProperty);
     autoBinding_2.setConverter(new VoteCountConverter());
     autoBinding_2.bind();
     //
-    BeanProperty<MovieSelectionModel, Integer> movieSelectionModelBeanProperty_8 = BeanProperty.create("selectedMovie.year");
-    AutoBinding<MovieSelectionModel, Integer, JLabel, String> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_8, lblYear, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_8 = BeanProperty.create("selectedMovie.year");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_8, lblYear,
+        jLabelBeanProperty);
     autoBinding_9.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_12 = BeanProperty.create("selectedMovie.imdbId");
-    BeanProperty<JTextArea, String> jTextAreaBeanProperty = BeanProperty.create("text");
-    AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_12, lblImdbid, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_12 = BeanProperty.create("selectedMovie.imdbId");
+    Property jTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_12, lblImdbid,
+        jTextAreaBeanProperty);
     autoBinding_10.bind();
     //
-    BeanProperty<MovieSelectionModel, Integer> movieSelectionModelBeanProperty_13 = BeanProperty.create("selectedMovie.runtime");
-    AutoBinding<MovieSelectionModel, Integer, JLabel, String> autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_13, lblRunningTime, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_13 = BeanProperty.create("selectedMovie.runtime");
+    AutoBinding autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_13,
+        lblRunningTime, jLabelBeanProperty);
     autoBinding_14.setConverter(new RuntimeConverter());
     autoBinding_14.bind();
     //
-    BeanProperty<MovieSelectionModel, Integer> movieSelectionModelBeanProperty_15 = BeanProperty.create("selectedMovie.tmdbId");
-    AutoBinding<MovieSelectionModel, Integer, JTextArea, String> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_15, lblTmdbid, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_15 = BeanProperty.create("selectedMovie.tmdbId");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_15, lblTmdbid,
+        jTextAreaBeanProperty);
     autoBinding_7.setConverter(new ZeroIdConverter());
     autoBinding_7.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_16 = BeanProperty.create("selectedMovie.genresAsString");
-    AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_16, taGenres, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_16 = BeanProperty.create("selectedMovie.genresAsString");
+    AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_16, taGenres,
+        jTextAreaBeanProperty);
     autoBinding_17.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_14 = BeanProperty.create("selectedMovie.plot");
-    AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_14, taPlot, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_14 = BeanProperty.create("selectedMovie.plot");
+    AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_14, taPlot,
+        jTextAreaBeanProperty);
     autoBinding_18.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_3 = BeanProperty.create("selectedMovie.tagline");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_3, lblTagline, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_3 = BeanProperty.create("selectedMovie.tagline");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_3, lblTagline,
+        jLabelBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_4 = BeanProperty.create("selectedMovie.title");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_4, lblMovieName, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_4 = BeanProperty.create("selectedMovie.title");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_4, lblMovieName,
+        jLabelBeanProperty);
     autoBinding_5.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty = BeanProperty.create("selectedMovie.certification.name");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty, lblCertification, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty = BeanProperty.create("selectedMovie.certification.name");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty, lblCertification,
+        jLabelBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_6 = BeanProperty.create("selectedMovie.originalTitle");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_6, lblOriginalTitle, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_6 = BeanProperty.create("selectedMovie.originalTitle");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_6,
+        lblOriginalTitle, jLabelBeanProperty);
     autoBinding_8.bind();
     //
-    BeanProperty<MovieSelectionModel, Map<String, Object>> movieSelectionModelBeanProperty_5 = BeanProperty.create("selectedMovie.ids");
-    AutoBinding<MovieSelectionModel, Map<String, Object>, JTextArea, String> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        movieSelectionModel, movieSelectionModelBeanProperty_5, taOtherIds, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_5 = BeanProperty.create("selectedMovie.ids");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_5, taOtherIds,
+        jTextAreaBeanProperty);
     autoBinding_6.setConverter(new MovieOtherIdsConverter());
     autoBinding_6.bind();
     //
-    BeanProperty<MovieSelectionModel, Float> movieSelectionModelBeanProperty_7 = BeanProperty.create("selectedMovie.rating.ratingNormalized");
-    BeanProperty<StarRater, Float> starRaterBeanProperty = BeanProperty.create("rating");
-    AutoBinding<MovieSelectionModel, Float, StarRater, Float> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_7, starRater, starRaterBeanProperty);
+    Property movieSelectionModelBeanProperty_7 = BeanProperty.create("selectedMovie.rating.ratingNormalized");
+    Property starRaterBeanProperty = BeanProperty.create("rating");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_7, starRater,
+        starRaterBeanProperty);
     autoBinding_3.bind();
     //
-    BeanProperty<MovieSelectionModel, Movie> movieSelectionModelBeanProperty_9 = BeanProperty.create("selectedMovie");
-    BeanProperty<JLabel, String> jLabelBeanProperty_1 = BeanProperty.create("text");
-    AutoBinding<MovieSelectionModel, Movie, JLabel, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_9, lblRating, jLabelBeanProperty_1);
-    autoBinding_1.setConverter(new RatingConverter<>());
+    Property movieSelectionModelBeanProperty_9 = BeanProperty.create("selectedMovie");
+    Property jLabelBeanProperty_1 = BeanProperty.create("text");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_9, lblRating,
+        jLabelBeanProperty_1);
+    autoBinding_1.setConverter(new RatingConverter());
     autoBinding_1.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_1 = BeanProperty.create("selectedMovie.releaseDateAsString");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_1, lblReleaseDate, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_1 = BeanProperty.create("selectedMovie.releaseDateAsString");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_1,
+        lblReleaseDate, jLabelBeanProperty);
     autoBinding_11.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_10 = BeanProperty.create("selectedMovie.productionCompany");
-    AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_10, taProduction, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_10 = BeanProperty.create("selectedMovie.productionCompany");
+    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_10,
+        taProduction, jTextAreaBeanProperty);
     autoBinding_12.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_11 = BeanProperty.create("selectedMovie.country");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_11, lblCountry, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_11 = BeanProperty.create("selectedMovie.country");
+    AutoBinding autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_11, lblCountry,
+        jLabelBeanProperty);
     autoBinding_13.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_17 = BeanProperty.create("selectedMovie.spokenLanguages");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_17, lblSpokenLanguages, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_17 = BeanProperty.create("selectedMovie.spokenLanguages");
+    AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_17,
+        lblSpokenLanguages, jLabelBeanProperty);
     autoBinding_15.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_18 = BeanProperty.create("selectedMovie.movieSetTitle");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_16 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_18, lblMovieSet, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_18 = BeanProperty.create("selectedMovie.movieSetTitle");
+    AutoBinding autoBinding_16 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_18, lblMovieSet,
+        jLabelBeanProperty);
     autoBinding_16.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_19 = BeanProperty.create("selectedMovie.edition.title");
-    AutoBinding<MovieSelectionModel, String, JLabel, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_19, lblEdition, jLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_19 = BeanProperty.create("selectedMovie.edition.title");
+    AutoBinding autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_19, lblEdition,
+        jLabelBeanProperty);
     autoBinding_19.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_20 = BeanProperty.create("selectedMovie.tagsAsString");
-    AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_20, taTags, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_20 = BeanProperty.create("selectedMovie.tagsAsString");
+    AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_20, taTags,
+        jTextAreaBeanProperty);
     autoBinding_20.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_21 = BeanProperty.create("selectedMovie.path");
-    BeanProperty<LinkLabel, String> linkLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<MovieSelectionModel, String, LinkLabel, String> autoBinding_21 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_21, lblMoviePath, linkLabelBeanProperty);
+    Property movieSelectionModelBeanProperty_21 = BeanProperty.create("selectedMovie.path");
+    Property linkLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_21 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_21,
+        lblMoviePath, linkLabelBeanProperty);
     autoBinding_21.bind();
     //
-    BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_22 = BeanProperty.create("selectedMovie.note");
-    AutoBinding<MovieSelectionModel, String, JTextArea, String> autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_22, taNote, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_22 = BeanProperty.create("selectedMovie.note");
+    AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_22, taNote,
+        jTextAreaBeanProperty);
     autoBinding_22.bind();
     //
-    BeanProperty<MovieSelectionModel, MediaCertification> movieSelectionModelBeanProperty_23 = BeanProperty.create("selectedMovie.certification");
-    BeanProperty<JLabel, Icon> jLabelBeanProperty_2 = BeanProperty.create("icon");
-    AutoBinding<MovieSelectionModel, MediaCertification, JLabel, Icon> autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        movieSelectionModel, movieSelectionModelBeanProperty_23, lblCertificationLogo, jLabelBeanProperty_2);
+    Property movieSelectionModelBeanProperty_23 = BeanProperty.create("selectedMovie.certification");
+    Property jLabelBeanProperty_2 = BeanProperty.create("icon");
+    AutoBinding autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_23,
+        lblCertificationLogo, jLabelBeanProperty_2);
     autoBinding_23.setConverter(new CertificationImageConverter());
     autoBinding_23.bind();
     //
-    BeanProperty<MovieSelectionModel, Integer> movieSelectionModelBeanProperty_24 = BeanProperty.create("selectedMovie.traktTvId");
-    AutoBinding<MovieSelectionModel, Integer, JTextArea, String> autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_24, lblTraktTvId, jTextAreaBeanProperty);
+    Property movieSelectionModelBeanProperty_24 = BeanProperty.create("selectedMovie.traktTvId");
+    AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_24,
+        lblTraktTvId, jTextAreaBeanProperty);
     autoBinding_24.setConverter(new ZeroIdConverter());
     autoBinding_24.bind();
+    //
+    Property movieSelectionModelBeanProperty_25 = BeanProperty.create("selectedMovie.showlinksAsString");
+    AutoBinding autoBinding_25 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_25, lblShowlink,
+        jLabelBeanProperty);
+    autoBinding_25.bind();
   }
 }

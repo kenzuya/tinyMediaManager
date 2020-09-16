@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -40,7 +39,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
  */
 public class MovieSingleScrapeAction extends TmmAction {
   private static final long           serialVersionUID = 3066746719177708420L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieSingleScrapeAction() {
     putValue(NAME, BUNDLE.getString("movie.scrape.selected"));
@@ -58,7 +57,7 @@ public class MovieSingleScrapeAction extends TmmAction {
     int index = 0;
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

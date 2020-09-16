@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.components.table;
 
 import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +24,9 @@ import java.util.Map;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,11 +37,20 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class TmmTableColumnSelectionPopup {
 
+  private TmmTableColumnSelectionPopup() {
+    // hide constructor for utility classes
+  }
+
   /**
    * Shows the popup allowing to show/hide columns.
    */
   static void showColumnSelectionPopup(Component c, final TmmTable table) {
+    // collect all checkboxes to check that at least one is checked
+    final List<JCheckBoxMenuItem> checkBoxMenuItems = new ArrayList<>();
 
+    ActionListener actionListener = e -> checkCheckBoxStates(checkBoxMenuItems);
+
+    // build the popup menu
     JPopupMenu popup = new JPopupMenu();
     TableColumnModel columnModel = table.getColumnModel();
     if (!(columnModel instanceof TmmTableColumnModel)) {
@@ -52,16 +62,10 @@ public class TmmTableColumnSelectionPopup {
     Map<String, Object> displayNameToCheckBox = new HashMap<>();
     List<String> displayNames = new ArrayList<>();
 
+    TableModel tableModel = table.getModel();
+
     for (final TableColumn etc : columns) {
-      String columnName = "";
-      if (etc.getHeaderValue() instanceof String) {
-        columnName = etc.getHeaderValue().toString();
-      }
-      else {
-        if (etc.getHeaderRenderer() instanceof DefaultTableCellRenderer) {
-          columnName = ((DefaultTableCellRenderer) etc.getHeaderRenderer()).getToolTipText();
-        }
-      }
+      String columnName = tableModel.getColumnName(etc.getModelIndex());
 
       // prevent removing of the Nodes column in the Tree-Table
       if ("Nodes".equals(columnName) && etc.getModelIndex() == 0) {
@@ -81,13 +85,12 @@ public class TmmTableColumnSelectionPopup {
       JCheckBoxMenuItem checkBox = new JCheckBoxMenuItem();
       checkBox.setText(columnName);
       checkBox.setSelected(!tmmTableColumnModel.isColumnHidden(etc));
-      // checkBox.setEnabled(etc.isHidingAllowed());
+      checkBox.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
+      checkBox.addActionListener(actionListener);
+      checkBoxMenuItems.add(checkBox);
 
       final JCheckBoxMenuItem checkBoxMenuItem = checkBox;
-      checkBox.addActionListener(evt -> {
-        tmmTableColumnModel.setColumnHidden(etc, !checkBoxMenuItem.isSelected());
-        // table.updateColumnSelectionMouseListener();
-      });
+      checkBox.addActionListener(evt -> tmmTableColumnModel.setColumnHidden(etc, !checkBoxMenuItem.isSelected()));
 
       if (!displayNames.contains(columnName)) {
         // the expected case
@@ -117,7 +120,6 @@ public class TmmTableColumnSelectionPopup {
       displayNames.add(columnName);
     }
 
-    // Collections.sort(displayNames, Collator.getInstance());
     int index = 0;
     for (String displayName : displayNames) {
       Object obj = displayNameToCheckBox.get(displayName);
@@ -145,4 +147,29 @@ public class TmmTableColumnSelectionPopup {
     popup.show(c, 8, 8);
   }
 
+  private static void checkCheckBoxStates(List<JCheckBoxMenuItem> checkBoxMenuItems) {
+    int selectedCount = 0;
+    JCheckBoxMenuItem firstSelected = null;
+
+    for (JCheckBoxMenuItem item : checkBoxMenuItems) {
+      if (item.isSelected()) {
+        selectedCount++;
+
+        if (firstSelected == null) {
+          firstSelected = item;
+        }
+      }
+    }
+
+    if (selectedCount == 1) {
+      // only 1 selected, disable the last one from being enabled
+      firstSelected.setEnabled(false);
+    }
+    else {
+      // re-enable all
+      for (JCheckBoxMenuItem item : checkBoxMenuItems) {
+        item.setEnabled(true);
+      }
+    }
+  }
 }

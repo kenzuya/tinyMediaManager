@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -45,12 +44,12 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.gui.TableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -61,24 +60,22 @@ import net.miginfocom.swing.MigLayout;
  */
 public class CleanUpUnwantedFilesDialog extends TmmDialog {
 
-  private static final Logger                                 LOGGER = LoggerFactory.getLogger(CleanUpUnwantedFilesDialog.class);
+  private static final Logger            LOGGER = LoggerFactory.getLogger(CleanUpUnwantedFilesDialog.class);
 
-  private EventList<CleanUpUnwantedFilesDialog.FileContainer> results;
-  private TmmTable                                            table;
-  private JButton                                             btnClean;
-  private JProgressBar                                        progressBar;
-  private JLabel                                              lblProgressAction;
+  private final EventList<FileContainer> results;
+  private final TmmTable                 table;
+  private final JButton                  btnClean;
+  private final JProgressBar             progressBar;
+  private final JLabel                   lblProgressAction;
 
   public CleanUpUnwantedFilesDialog(List<MediaEntity> selectedEntities) {
     super(BUNDLE.getString("cleanupfiles"), "cleanupEntities");
 
     results = GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>()));
-    DefaultEventTableModel<CleanUpUnwantedFilesDialog.FileContainer> cleanUpTableModel = new DefaultEventTableModel<>(
-        GlazedListsSwing.swingThreadProxyList(results), new CleanUpTableFormat());
 
     {
-      table = new TmmTable(cleanUpTableModel);
-      JScrollPane scrollPane = new JScrollPane(table);
+      table = new TmmTable(new TmmTableModel<>(results, new CleanUpTableFormat()));
+      JScrollPane scrollPane = new JScrollPane();
       table.configureScrollPane(scrollPane);
       getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
@@ -114,40 +111,28 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
 
   }
 
-  private static class CleanUpTableFormat implements TableFormat<CleanUpUnwantedFilesDialog.FileContainer> {
-    @Override
-    public int getColumnCount() {
-      return 3;
-    }
+  private static class CleanUpTableFormat extends TmmTableFormat<FileContainer> {
 
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-          return BUNDLE.getString("metatag.filename");
+    public CleanUpTableFormat() {
+      /*
+       * filename
+       */
+      Column col = new Column(BUNDLE.getString("metatag.filename"), "filename", fileContainer -> fileContainer.file.toString(), String.class);
+      col.setColumnTooltip(fileContainer -> fileContainer.file.toString());
+      addColumn(col);
 
-        case 1:
-          return BUNDLE.getString("metatag.size");
+      /*
+       * size
+       */
+      col = new Column(BUNDLE.getString("metatag.size"), "size", FileContainer::getFilesizeInKilobytes, String.class);
+      addColumn(col);
 
-        case 2:
-          return BUNDLE.getString("metatag.filetype");
-      }
-      throw new IllegalStateException();
-    }
+      /*
+       * extension
+       */
+      col = new Column(BUNDLE.getString("metatag.filetype"), "type", FileContainer::getExtension, String.class);
+      addColumn(col);
 
-    @Override
-    public Object getColumnValue(CleanUpUnwantedFilesDialog.FileContainer selectedFile, int column) {
-      switch (column) {
-        case 0:
-          return selectedFile.file.toString();
-
-        case 1:
-          return selectedFile.getFilesizeInKilobytes();
-
-        case 2:
-          return selectedFile.getExtension();
-      }
-      throw new IllegalStateException();
     }
   }
 
@@ -172,8 +157,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
 
   private class TvShowCleanUpWorker extends SwingWorker<Void, Void> {
 
-    private List<MediaEntity>                            selectedEntities;
-    public Set<CleanUpUnwantedFilesDialog.FileContainer> files;
+    private final List<MediaEntity> selectedEntities;
 
     private TvShowCleanUpWorker(List<MediaEntity> entities) {
       this.selectedEntities = entities;
@@ -197,7 +181,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
             continue;
           }
 
-          CleanUpUnwantedFilesDialog.FileContainer fileContainer = new FileContainer();
+          FileContainer fileContainer = new FileContainer();
           fileContainer.entity = entity;
           fileContainer.file = file;
           try {
@@ -225,41 +209,41 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
         results.sort(Comparator.comparing(FileContainer::getFileName));
       });
     }
+
+    private void startProgressBar() {
+      SwingUtilities.invokeLater(() -> {
+        progressBar.setVisible(true);
+        progressBar.setIndeterminate(true);
+        lblProgressAction.setText("movie.searchunwanted");
+      });
+    }
+
+    private void stopProgressBar() {
+      SwingUtilities.invokeLater(() -> {
+        progressBar.setVisible(false);
+        progressBar.setIndeterminate(false);
+        lblProgressAction.setText("");
+      });
+    }
   }
 
   private void cleanFiles(JTable table) {
     // clean selected Files and remove them from the List
     int[] rows = table.getSelectedRows();
-    List<CleanUpUnwantedFilesDialog.FileContainer> fileList = new ArrayList<>();
+    List<FileContainer> fileList = new ArrayList<>();
 
     for (int row : rows) {
+      FileContainer selectedFile = results.get(row);
       try {
-        CleanUpUnwantedFilesDialog.FileContainer selectedFile = results.get(row);
         fileList.add(selectedFile);
-        LOGGER.info("Deleting File " + selectedFile.file.toString());
+        LOGGER.info("Deleting File - {}", selectedFile.file);
         Utils.deleteFileWithBackup(selectedFile.file, selectedFile.entity.getDataSource());
       }
       catch (Exception e) {
-        e.printStackTrace();
+        LOGGER.error("Could not delete file {} - {}", selectedFile.file, e.getMessage());
       }
     }
 
     results.removeAll(fileList);
-  }
-
-  private void startProgressBar() {
-    SwingUtilities.invokeLater(() -> {
-      progressBar.setVisible(true);
-      progressBar.setIndeterminate(true);
-      lblProgressAction.setText("movie.searchunwanted");
-    });
-  }
-
-  private void stopProgressBar() {
-    SwingUtilities.invokeLater(() -> {
-      progressBar.setVisible(false);
-      progressBar.setIndeterminate(false);
-      lblProgressAction.setText("");
-    });
   }
 }

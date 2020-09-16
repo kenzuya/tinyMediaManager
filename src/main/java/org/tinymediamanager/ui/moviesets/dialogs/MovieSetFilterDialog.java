@@ -16,28 +16,47 @@
 
 package org.tinymediamanager.ui.moviesets.dialogs;
 
+import static org.tinymediamanager.ui.TmmFontHelper.L1;
+
 import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.UTF8Control;
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.AbstractSettings;
+import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.TmmWindowSaver;
-import org.tinymediamanager.ui.components.MainTabbedPane;
+import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.FlatButton;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
+import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.moviesets.filters.IMovieSetUIFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetDatasourceFilter;
@@ -47,18 +66,18 @@ import org.tinymediamanager.ui.moviesets.filters.MovieSetWithMoreThanOneMovieFil
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetFilterDialog extends TmmDialog {
-  private static final long                         serialVersionUID = 5003714573168481816L;
+  private static final long                            serialVersionUID = 5003714573168481816L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle             BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle                BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private static final float                        FONT_SIZE        = Math.round(Globals.settings.getFontSize() * 0.916);
-
-  private final TmmTreeTable                        treeTable;
+  private final TmmTreeTable                           treeTable;
 
   // map for storing which filter is in which panel
-  private final Map<JPanel, Set<IMovieSetUIFilter>> filterMap;
+  private final Map<JPanel, Set<IMovieSetUIFilter<?>>> filterMap;
+  private final Set<IMovieSetUIFilter<?>>              filters;
 
-  private JTabbedPane                               tabbedPane;
+  private final JTabbedPane                            tabbedPane;
+  private JComboBox<String>                            cbPreset;
 
   public MovieSetFilterDialog(TmmTreeTable treeTable) {
     super(BUNDLE.getString("movieextendedsearch.options"), "movieSetFilter");
@@ -67,26 +86,27 @@ public class MovieSetFilterDialog extends TmmDialog {
     this.treeTable = treeTable;
 
     this.filterMap = new HashMap<>();
+    this.filters = new HashSet<>();
     this.treeTable.addPropertyChangeListener("filterChanged", evt -> filterChanged());
 
-    {
-      tabbedPane = new MainTabbedPane() {
-        private static final long serialVersionUID = 9041548865608767661L;
+    ActionListener actionListener = e -> {
+      String filterName = (String) cbPreset.getSelectedItem();
+      if (StringUtils.isNotBlank(filterName)) {
+        treeTable.setFilterValues(MovieModuleManager.SETTINGS.getMovieSetUiFilterPresets().get(filterName));
+      }
+      else {
+        treeTable.setFilterValues(Collections.emptyList());
+      }
+    };
 
-        @Override
-        public void updateUI() {
-          putClientProperty("leftBorder", "half");
-          putClientProperty("rightBorder", "half");
-          putClientProperty("bottomBorder", Boolean.FALSE);
-          super.updateUI();
-        }
-      };
+    {
+      tabbedPane = new TmmTabbedPane();
       getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
       {
         // panel Main
         JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
-        JScrollPane scrollPaneMain = new JScrollPane(panelMain);
+        JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(BUNDLE.getString("metatag.details"), scrollPaneMain);
 
@@ -96,6 +116,123 @@ public class MovieSetFilterDialog extends TmmDialog {
         addFilter(new MovieSetWithMoreThanOneMovieFilter(), panelMain);
         addFilter(new MovieSetDatasourceFilter(), panelMain);
       }
+    }
+
+    {
+      // filter preset panel
+      JPanel panelFilterPreset = new JPanel();
+      panelFilterPreset.setLayout(new MigLayout("insets n 0 n 0", "[5lp!][10lp][150lp,grow][5lp!]", "[]"));
+
+      JSeparator separator = new JSeparator();
+      panelFilterPreset.add(separator, "cell 0 1 4 1,growx,aligny top");
+
+      JLabel lblEnableAllT = new TmmLabel(BUNDLE.getString("filter.enableall"));
+      panelFilterPreset.add(lblEnableAllT, "cell 1 2, alignx trailing");
+
+      JCheckBox chkbxEnableAll = new JCheckBox();
+      chkbxEnableAll.setSelected(true);
+      chkbxEnableAll.addActionListener(e -> treeTable.setFiltersActive(chkbxEnableAll.isSelected()));
+      panelFilterPreset.add(chkbxEnableAll, "cell 2 2");
+
+      JLabel lblFilterPresetT = new TmmLabel(BUNDLE.getString("filter.presets"));
+      panelFilterPreset.add(lblFilterPresetT, "cell 1 3, alignx trailing");
+
+      cbPreset = new JComboBox<>();
+      cbPreset.addActionListener(e -> {
+        String filterName = (String) cbPreset.getSelectedItem();
+        if (StringUtils.isNotBlank(filterName)) {
+          treeTable.setFilterValues(MovieModuleManager.SETTINGS.getMovieSetUiFilterPresets().get(filterName));
+        }
+        else {
+          treeTable.setFilterValues(Collections.emptyList());
+        }
+      });
+      panelFilterPreset.add(cbPreset, "cell 2 3");
+
+      JButton btnSavePreset = new FlatButton(IconManager.SAVE);
+      btnSavePreset.setToolTipText(BUNDLE.getString("filter.savepreset"));
+      btnSavePreset.addActionListener(e -> {
+        Set<AbstractSettings.UIFilters> activeUiFilters = getActiveUiFilters();
+        if (!activeUiFilters.isEmpty()) {
+          Map<String, List<AbstractSettings.UIFilters>> uiFilters = new HashMap<>(MovieModuleManager.SETTINGS.getMovieSetUiFilterPresets());
+          FilterSaveDialog saveDialog = new FilterSaveDialog(MovieSetFilterDialog.this, activeUiFilters, uiFilters);
+          saveDialog.setVisible(true);
+
+          String savedPreset = saveDialog.getSavedPreset();
+          if (StringUtils.isNotBlank(savedPreset)) {
+            cbPreset.removeActionListener(actionListener);
+            MovieModuleManager.SETTINGS.setMovieSetUiFilterPresets(uiFilters);
+            loadPresets();
+            cbPreset.setSelectedItem(savedPreset);
+            cbPreset.addActionListener(actionListener);
+          }
+        }
+      });
+      panelFilterPreset.add(btnSavePreset, "cell 2 3");
+
+      JButton btnDeletePreset = new FlatButton(IconManager.DELETE_GRAY);
+      btnDeletePreset.setToolTipText(BUNDLE.getString("filter.remove"));
+      btnDeletePreset.addActionListener(e -> {
+        String filterName = (String) cbPreset.getSelectedItem();
+        if (StringUtils.isBlank(filterName)) {
+          return;
+        }
+
+        // display warning and ask the user again
+        if (!TmmProperties.getInstance().getPropertyAsBoolean("movieset.hidefilterhint")) {
+          JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+          TmmFontHelper.changeFont(checkBox, L1);
+          checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+          Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+          Object[] params = { BUNDLE.getString("filter.remove"), checkBox };
+          int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("filter.remove"),
+              JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+
+          // the user don't want to show this dialog again
+          if (checkBox.isSelected()) {
+            TmmProperties.getInstance().putProperty("movieset.hidefilterhint", String.valueOf(checkBox.isSelected()));
+          }
+
+          if (answer != JOptionPane.YES_OPTION) {
+            return;
+          }
+
+          Map<String, List<AbstractSettings.UIFilters>> uiFilters = new HashMap<>(MovieModuleManager.SETTINGS.getMovieSetUiFilterPresets());
+          if (uiFilters.remove(filterName) != null) {
+            cbPreset.removeActionListener(actionListener);
+            MovieModuleManager.SETTINGS.setMovieSetUiFilterPresets(uiFilters);
+            loadPresets();
+            cbPreset.addActionListener(actionListener);
+          }
+        }
+      });
+      panelFilterPreset.add(btnDeletePreset, "cell 2 3");
+
+      getContentPane().add(panelFilterPreset, BorderLayout.SOUTH);
+    }
+
+    {
+      // init
+      loadPresets();
+
+      cbPreset.addActionListener(actionListener);
+    }
+  }
+
+  private Set<AbstractSettings.UIFilters> getActiveUiFilters() {
+    return new HashSet<>(IMovieSetUIFilter.morphToUiFilters(filters));
+  }
+
+  private void loadPresets() {
+    String preset = (String) cbPreset.getSelectedItem();
+
+    cbPreset.removeAllItems();
+    cbPreset.addItem("");
+    MovieModuleManager.SETTINGS.getMovieSetUiFilterPresets().keySet().stream().sorted().forEach(key -> cbPreset.addItem(key));
+
+    if (StringUtils.isNotBlank(preset)) {
+      cbPreset.setSelectedItem(preset);
     }
   }
 
@@ -118,7 +255,7 @@ public class MovieSetFilterDialog extends TmmDialog {
       panel.add(Box.createGlue(), "wrap");
     }
 
-    Set<IMovieSetUIFilter> filters = filterMap.computeIfAbsent(panel, k -> new HashSet<>());
+    filterMap.computeIfAbsent(panel, k -> new HashSet<>()).add(filter);
     filters.add(filter);
 
     treeTable.addFilter(filter);
@@ -128,9 +265,9 @@ public class MovieSetFilterDialog extends TmmDialog {
    * re-calculate if the active filter icon should be displayed
    */
   private void filterChanged() {
-    for (Map.Entry<JPanel, Set<IMovieSetUIFilter>> entry : filterMap.entrySet()) {
+    for (Map.Entry<JPanel, Set<IMovieSetUIFilter<?>>> entry : filterMap.entrySet()) {
       boolean active = false;
-      for (IMovieSetUIFilter filter : entry.getValue()) {
+      for (IMovieSetUIFilter<?> filter : entry.getValue()) {
         switch (filter.getFilterState()) {
           case ACTIVE:
           case ACTIVE_NEGATIVE:
@@ -169,6 +306,6 @@ public class MovieSetFilterDialog extends TmmDialog {
   @Override
   public void dispose() {
     // do not dispose (singleton), but save the size/position
-    TmmWindowSaver.getInstance().saveSettings(this);
+    TmmUILayoutStore.getInstance().saveSettings(this);
   }
 }

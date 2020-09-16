@@ -59,6 +59,13 @@ public class TmmSettingsNode {
     return component;
   }
 
+  public String getId() {
+    if (component != null) {
+      return component.getClass().getName();
+    }
+    return "";
+  }
+
   @Override
   public String toString() {
     return title;

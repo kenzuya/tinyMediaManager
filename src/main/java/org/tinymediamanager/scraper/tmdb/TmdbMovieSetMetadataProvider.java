@@ -15,8 +15,8 @@
  */
 package org.tinymediamanager.scraper.tmdb;
 
+import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.PROVIDER_INFO;
 import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.getRequestLanguage;
-import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.providerInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,12 +87,12 @@ class TmdbMovieSetMetadataProvider {
         CollectionResultsPage resultsPage = api.searchService().collection(searchString, 1, language).execute().body();
         if (resultsPage != null) {
           for (BaseCollection collection : ListUtils.nullSafe(resultsPage.results)) {
-            MediaSearchResult searchResult = new MediaSearchResult(TmdbMetadataProvider.providerInfo.getId(), MediaType.MOVIE_SET);
+            MediaSearchResult searchResult = new MediaSearchResult(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaType.MOVIE_SET);
             searchResult.setId(Integer.toString(collection.id));
             searchResult.setTitle(collection.name);
             searchResult.setPosterUrl(TmdbMetadataProvider.configuration.images.base_url + "w342" + collection.poster_path);
             searchResult.setScore(MetadataUtil.calculateScore(searchString, collection.name));
-            if (searchResult.getScore() < 0.5 && providerInfo.getConfig().getValueAsBool("titleFallback")) {
+            if (searchResult.getScore() < 0.5 && PROVIDER_INFO.getConfig().getValueAsBool("titleFallback")) {
               if (verifyMovieSetTitleLanguage(movieSetsFound, resultsPage, query)) {
                 break;
               }
@@ -124,7 +124,7 @@ class TmdbMovieSetMetadataProvider {
   private boolean verifyMovieSetTitleLanguage(List<MediaSearchResult> movieSetsFound, CollectionResultsPage original,
       MovieSetSearchAndScrapeOptions query) throws Exception {
 
-    String lang = MediaLanguages.get(providerInfo.getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
+    String lang = MediaLanguages.get(PROVIDER_INFO.getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
     CollectionResultsPage fallBackResultsPage = api.searchService().collection(query.getSearchQuery(), 1, lang).execute().body();
 
     if (fallBackResultsPage != null && original.results != null && fallBackResultsPage.results != null) {
@@ -135,7 +135,7 @@ class TmdbMovieSetMetadataProvider {
         BaseCollection originalCollection = original.results.get(i);
         BaseCollection fallbackCollection = fallBackResultsPage.results.get(i);
 
-        MediaSearchResult searchResult = new MediaSearchResult(TmdbMetadataProvider.providerInfo.getId(), MediaType.MOVIE_SET);
+        MediaSearchResult searchResult = new MediaSearchResult(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaType.MOVIE_SET);
 
         searchResult.setId(Integer.toString(originalCollection.id));
 
@@ -169,7 +169,7 @@ class TmdbMovieSetMetadataProvider {
    *           indicates that there was no usable id to scrape
    */
   MediaMetadata getMetadata(MovieSetSearchAndScrapeOptions options) throws MissingIdException, ScrapeException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TmdbMetadataProvider.providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(TmdbMetadataProvider.PROVIDER_INFO.getId());
 
     // tmdbId from option
     int tmdbId = options.getTmdbId();
@@ -187,9 +187,9 @@ class TmdbMovieSetMetadataProvider {
         collection = api.collectionService().summary(tmdbId, language).execute().body();
         // if collection title/overview is not availbale, rescrape in the fallback language
         if (collection != null && (StringUtils.isBlank(collection.overview) || StringUtils.isBlank(collection.name))
-            && providerInfo.getConfig().getValueAsBool("titleFallback")) {
+            && PROVIDER_INFO.getConfig().getValueAsBool("titleFallback")) {
 
-          String fallbackLang = MediaLanguages.get(providerInfo.getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
+          String fallbackLang = MediaLanguages.get(PROVIDER_INFO.getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
           Collection collectionInFallbackLanguage = api.collectionService().summary(tmdbId, fallbackLang).execute().body();
 
           if (collectionInFallbackLanguage != null) {
@@ -251,7 +251,7 @@ class TmdbMovieSetMetadataProvider {
 
     // Poster
     if (StringUtils.isNotBlank(collection.poster_path)) {
-      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
+      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w185" + collection.poster_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + collection.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
@@ -261,7 +261,7 @@ class TmdbMovieSetMetadataProvider {
 
     // Fanart
     if (StringUtils.isNotBlank(collection.backdrop_path)) {
-      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
+      MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
       ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w300" + collection.backdrop_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + collection.backdrop_path);
       ma.setLanguage(options.getLanguage().getLanguage());
@@ -271,13 +271,13 @@ class TmdbMovieSetMetadataProvider {
 
     // add all movies belonging to this movie set
     for (BaseMovie part : ListUtils.nullSafe(collection.parts)) {
-      MediaMetadata mdSubItem = new MediaMetadata(TmdbMetadataProvider.providerInfo.getId());
-      mdSubItem.setId(TmdbMetadataProvider.providerInfo.getId(), part.id);
+      MediaMetadata mdSubItem = new MediaMetadata(TmdbMetadataProvider.PROVIDER_INFO.getId());
+      mdSubItem.setId(TmdbMetadataProvider.PROVIDER_INFO.getId(), part.id);
       mdSubItem.setTitle(part.title);
 
       // Poster
       if (StringUtils.isNotBlank(part.poster_path)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
         ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w185" + part.poster_path);
         ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + part.poster_path);
         ma.setLanguage(options.getLanguage().getLanguage());
@@ -287,7 +287,7 @@ class TmdbMovieSetMetadataProvider {
 
       // Fanart
       if (StringUtils.isNotBlank(part.backdrop_path)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
         ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w300" + part.backdrop_path);
         ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + part.backdrop_path);
         ma.setLanguage(options.getLanguage().getLanguage());

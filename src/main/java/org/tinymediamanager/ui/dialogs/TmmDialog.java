@@ -33,11 +33,11 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.BindingGroup;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.TmmWindowSaver;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -49,7 +49,7 @@ import net.miginfocom.swing.MigLayout;
 public abstract class TmmDialog extends JDialog {
   private static final long             serialVersionUID = 1L;
   /** @wbp.nls.resourceBundle messages */
-  protected static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  protected static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected BindingGroup                bindingGroup     = null;
 
@@ -61,7 +61,7 @@ public abstract class TmmDialog extends JDialog {
    * @wbp.parser.constructor
    */
   public TmmDialog(String title, String id) {
-    this(MainWindow.getActiveInstance(), title, id);
+    this(MainWindow.getInstance(), title, id);
   }
 
   public TmmDialog(JFrame owner, String title, String id) {
@@ -89,7 +89,9 @@ public abstract class TmmDialog extends JDialog {
    */
   protected void init(String title, String id) {
     setTitle(title);
-    setName(id);
+    if (StringUtils.isNotBlank(id)) {
+      setName(id);
+    }
     setModal(true);
     setModalityType(ModalityType.APPLICATION_MODAL);
 
@@ -235,7 +237,7 @@ public abstract class TmmDialog extends JDialog {
   public void setVisible(boolean visible) {
     if (visible) {
       pack();
-      TmmWindowSaver.getInstance().loadSettings(this);
+      TmmUILayoutStore.getInstance().loadSettings(this);
       super.setVisible(true);
       toFront();
     }

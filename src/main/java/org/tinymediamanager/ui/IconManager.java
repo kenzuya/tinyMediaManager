@@ -15,139 +15,189 @@
  */
 package org.tinymediamanager.ui;
 
-import static org.tinymediamanager.ui.plaf.TmmIcons.EMPTY_IMAGE;
-import static org.tinymediamanager.ui.plaf.TmmIcons.createFontAwesomeIcon;
-import static org.tinymediamanager.ui.plaf.TmmIcons.createTextIcon;
-
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.image.BaseMultiResolutionImage;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 
-import org.tinymediamanager.Globals;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.ui.components.toolbar.ToolbarMenu;
+import org.tinymediamanager.ui.images.TmmAwesomeIcon;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
+import org.tinymediamanager.ui.images.TmmTextIcon;
+
+import com.kitfox.svg.app.beans.SVGIcon;
 
 public class IconManager {
-  private static final Map<URI, ImageIcon> ICON_CACHE                  = new HashMap<>();
-  private static final int                 DEFAULT_FONT_SIZE           = Globals.settings.getFontSize();
-  private static final Color               ICON_COLOR                  = UIManager.getColor("Focus.color");
+  public static final ImageIcon              EMPTY_IMAGE                  = new ImageIcon(IconManager.class.getResource("plaf/empty.png"));
+  private static final Set<TmmSvgIconCache>  SVG_CACHE                    = new HashSet<>();
+  private static final Set<TmmTextIconCache> TEXT_ICON_CACHE              = new HashSet<>();
+  private static final Map<URI, ImageIcon>   ICON_CACHE                   = new HashMap<>();
 
   // toolbar icons
-  public static final ImageIcon            TOOLBAR_ABOUT               = loadImage("icn_about.png");
-  public static final ImageIcon            TOOLBAR_ABOUT_HOVER         = loadImage("icn_about_hover.png");
-  public static final ImageIcon            TOOLBAR_ADD_MOVIE_SET       = loadImage("icn_add_collection.png");
-  public static final ImageIcon            TOOLBAR_ADD_MOVIE_SET_HOVER = loadImage("icn_add_collection_hover.png");
-  public static final ImageIcon            TOOLBAR_EDIT                = loadImage("icn_edit.png");
-  public static final ImageIcon            TOOLBAR_EDIT_HOVER          = loadImage("icn_edit_hover.png");
-  public static final ImageIcon            TOOLBAR_LOGO                = loadImage("icn_logo_toolbar.png");
-  public static final ImageIcon            TOOLBAR_REFRESH             = loadImage("icn_refresh.png");
-  public static final ImageIcon            TOOLBAR_REFRESH_HOVER       = loadImage("icn_refresh_hover.png");
-  public static final ImageIcon            TOOLBAR_RENAME              = loadImage("icn_rename.png");
-  public static final ImageIcon            TOOLBAR_RENAME_HOVER        = loadImage("icn_rename_hover.png");
-  public static final ImageIcon            TOOLBAR_SEARCH              = loadImage("icn_search.png");
-  public static final ImageIcon            TOOLBAR_SEARCH_HOVER        = loadImage("icn_search_hover.png");
-  public static final ImageIcon            TOOLBAR_SETTINGS            = loadImage("icn_settings.png");
-  public static final ImageIcon            TOOLBAR_SETTINGS_HOVER      = loadImage("icn_settings_hover.png");
-  public static final ImageIcon            TOOLBAR_TOOLS               = loadImage("icn_tools.png");
-  public static final ImageIcon            TOOLBAR_TOOLS_HOVER         = loadImage("icn_tools_hover.png");
+  public static final ImageIcon              TOOLBAR_ABOUT                = createSVGIcon("icn_about.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_ABOUT_HOVER          = createSVGIcon("icn_about_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET        = createSVGIcon("icn_add_collection.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_ADD_MOVIE_SET_HOVER  = createSVGIcon("icn_add_collection_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_EDIT                 = createSVGIcon("icn_edit.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_EDIT_HOVER           = createSVGIcon("icn_edit_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_LOGO                 = createSVGIcon("tmm_logo.svg", new Dimension(100, 50));
+  public static final ImageIcon              TOOLBAR_REFRESH              = createSVGIcon("icn_refresh.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_REFRESH_HOVER        = createSVGIcon("icn_refresh_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_RENAME               = createSVGIcon("icn_rename.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_RENAME_HOVER         = createSVGIcon("icn_rename_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SEARCH               = createSVGIcon("icn_search.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SEARCH_HOVER         = createSVGIcon("icn_search_hover.svg", new Dimension(36, 36));
+  public static final ImageIcon              TOOLBAR_SETTINGS             = createSVGIcon("icn_settings.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_SETTINGS_HOVER       = createSVGIcon("icn_settings_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_TOOLS                = createSVGIcon("icn_tools.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_TOOLS_HOVER          = createSVGIcon("icn_tools_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_UNLOCK               = createSVGIcon("icn_unlock.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_UNLOCK_HOVER         = createSVGIcon("icn_unlock_hover.svg", new Dimension(24, 24));
+  public static final ImageIcon              TOOLBAR_MENU_INDICATOR       = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR);
+  public static final ImageIcon              TOOLBAR_MENU_INDICATOR_HOVER = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR_HOVER);
 
   // packaged icons
-  public static final ImageIcon            STAR_FILLED                 = loadImage("star-filled.png");
-  public static final ImageIcon            STAR_EMPTY                  = loadImage("star-empty.png");
+  public static final ImageIcon              STAR_FILLED                  = createSVGIcon("star-filled.svg", new Dimension(24, 24), true);
+  public static final ImageIcon              STAR_EMPTY                   = createSVGIcon("star-empty.svg", new Dimension(24, 24), true);
 
   // font awesome icons for actions in the popup menu
-  public static final ImageIcon            ADD                         = createFontAwesomeIcon('\uF067', ICON_COLOR);
-  public static final ImageIcon            BUG                         = createFontAwesomeIcon('\uF188', ICON_COLOR);
-  public static final ImageIcon            DELETE                      = createFontAwesomeIcon('\uF00D', ICON_COLOR);
-  public static final ImageIcon            DELETE_FOREVER              = createFontAwesomeIcon('\uF2ED', ICON_COLOR);
-  public static final ImageIcon            DOWNLOAD                    = createFontAwesomeIcon('\uF019', ICON_COLOR);
-  public static final ImageIcon            FEEDBACK                    = createFontAwesomeIcon('\uF0E0', ICON_COLOR);
-  public static final ImageIcon            EDIT                        = createFontAwesomeIcon('\uF044', ICON_COLOR);
-  public static final ImageIcon            EXPORT                      = createFontAwesomeIcon('\uF14D', ICON_COLOR);
-  public static final ImageIcon            HINT                        = createFontAwesomeIcon('\uF05A', ICON_COLOR);
-  public static final ImageIcon            IMAGE                       = createFontAwesomeIcon('\uF03E', ICON_COLOR);
-  public static final ImageIcon            MEDIAINFO                   = createFontAwesomeIcon('\uF129', ICON_COLOR);
-  public static final ImageIcon            PLAY                        = createFontAwesomeIcon('\uF04B', ICON_COLOR);
-  public static final ImageIcon            REFRESH                     = createFontAwesomeIcon('\uF01E', ICON_COLOR);
-  public static final ImageIcon            REMOVE                      = createFontAwesomeIcon('\uF068', ICON_COLOR);
-  public static final ImageIcon            SEARCH                      = createFontAwesomeIcon('\uF002', ICON_COLOR);
-  public static final ImageIcon            SUBTITLE                    = createFontAwesomeIcon('\uF086', ICON_COLOR);
-  public static final ImageIcon            SYNC                        = createFontAwesomeIcon('\uF021', ICON_COLOR);
+  public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
+  public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
+  public static final ImageIcon              DELETE                       = createMenuIcon("times.svg");
+  public static final ImageIcon              DELETE_FOREVER               = createMenuIcon("trash-alt.svg");
+  public static final ImageIcon              DOWNLOAD                     = createMenuIcon("download.svg");
+  public static final ImageIcon              FEEDBACK                     = createMenuIcon("envelope.svg");
+  public static final ImageIcon              EDIT                         = createMenuIcon("edit.svg");
+  public static final ImageIcon              EXPORT                       = createMenuIcon("share-square.svg");
+  public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
+  public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
+  public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
+  public static final ImageIcon              PLAY                         = createMenuIcon("play.svg");
+  public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
+  public static final ImageIcon              REMOVE                       = createMenuIcon("minus.svg");
+  public static final ImageIcon              SEARCH                       = createMenuIcon("search.svg");
+  public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
+  public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
 
   // font awesome icons for the table/tree
-  public static final ImageIcon            TABLE_OK                    = createFontAwesomeIcon('\uF00C', new Color(31, 187, 0));
-  public static final ImageIcon            TABLE_PROBLEM               = createFontAwesomeIcon('\uF071', new Color(204, 120, 50));
-  public static final ImageIcon            TABLE_NOT_OK                = createFontAwesomeIcon('\uF00D', new Color(204, 2, 2));
+  public static final ImageIcon              TABLE_OK                     = createSVGIcon("check.svg", new Color(31, 187, 0));
+  public static final ImageIcon              TABLE_PROBLEM                = createSVGIcon("exclamation-triangle.svg", new Color(204, 120, 50));
+  public static final ImageIcon              TABLE_NOT_OK                 = createSVGIcon("times.svg", new Color(204, 2, 2));
 
   // font awesome icons normal
-  public static final ImageIcon            CANCEL                      = createFontAwesomeIcon('\uF057');
-  public static final ImageIcon            CARET_UP                    = createFontAwesomeIcon('\uF0D8');
-  public static final ImageIcon            CARET_DOWN                  = createFontAwesomeIcon('\uF0D7');
-  public static final ImageIcon            CLEAR_GREY                  = createFontAwesomeIcon('\uF057');
-  public static final ImageIcon            COLLAPSED                   = createFontAwesomeIcon('\uF329');
-  public static final ImageIcon            CONFIGURE                   = createFontAwesomeIcon('\uF0AD');
-  public static final ImageIcon            DELETE_GRAY                 = createFontAwesomeIcon('\uF2ED');
-  public static final ImageIcon            ERROR                       = createFontAwesomeIcon('\uF057');
-  public static final ImageIcon            EXPANDED                    = createFontAwesomeIcon('\uF32B');
-  public static final ImageIcon            WARN                        = createFontAwesomeIcon('\uF071');
-  public static final ImageIcon            WARN_INTENSIFIED            = createFontAwesomeIcon('\uF071', Color.RED);
-  public static final ImageIcon            INFO                        = createFontAwesomeIcon('\uF05A');
-  public static final ImageIcon            FILTER_ACTIVE               = createFontAwesomeIcon('\uF672', new Color(255, 119, 0));
-  public static final ImageIcon            NEW                         = createTextIcon("new", DEFAULT_FONT_SIZE, new Color(31, 187, 0));
-  public static final ImageIcon            PLAY_LARGE                  = createFontAwesomeIcon('\uF144', 28);
-  public static final ImageIcon            SEARCH_GREY                 = createFontAwesomeIcon('\uF002');
-  public static final ImageIcon            STOP                        = createFontAwesomeIcon('\uF28D');
-  public static final ImageIcon            UNDO_GREY                   = createFontAwesomeIcon('\uF0E2');
+  public static final ImageIcon              CANCEL                       = createSVGIcon("times-circle.svg");
+  public static final ImageIcon              CARET_UP                     = createSVGIcon("chevron-up.svg");
+  public static final ImageIcon              CARET_DOWN                   = createSVGIcon("chevron-down.svg");
+  public static final ImageIcon              CLEAR_GREY                   = createSVGIcon("times-circle.svg");
+  public static final ImageIcon              COLLAPSED                    = createSVGIcon("chevron-square-down.svg");
+  public static final ImageIcon              CONFIGURE                    = createSVGIcon("wrench.svg");
+  public static final ImageIcon              DELETE_GRAY                  = createSVGIcon("trash-alt.svg");
+  public static final ImageIcon              ERROR                        = createSVGIcon("times-circle.svg");
+  public static final ImageIcon              EXPANDED                     = createSVGIcon("chevron-square-right.svg");
+  public static final ImageIcon              WARN                         = createSVGIcon("exclamation-triangle.svg");
+  public static final ImageIcon              WARN_INTENSIFIED             = createSVGIcon("exclamation-triangle.svg", Color.RED);
+  public static final ImageIcon              INFO                         = createSVGIcon("info-circle.svg");
+  public static final ImageIcon              HELP                         = createSVGIcon("question-circle.svg");
+  public static final ImageIcon              FILTER_ACTIVE                = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
+  public static final ImageIcon              NEW                          = createTextIcon("new", new Color(31, 187, 0));
+  public static final ImageIcon              PLAY_LARGE                   = createSVGIcon("play-circle.svg", 2.33333);
+  public static final ImageIcon              SAVE                         = createSVGIcon("save.svg");
+  public static final ImageIcon              SEARCH_GREY                  = createSVGIcon("search.svg");
+  public static final ImageIcon              STOP                         = createSVGIcon("stop-circle.svg");
+  public static final ImageIcon              UNDO_GREY                    = createSVGIcon("undo.svg");
 
   // font awesome icons light (button usage)
-  public static final ImageIcon            ADD_INV                     = createFontAwesomeIcon('\uF067', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            ARROW_UP_INV                = createFontAwesomeIcon('\uF077', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            ARROW_DOWN_INV              = createFontAwesomeIcon('\uF078', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            APPLY_INV                   = createFontAwesomeIcon('\uF058', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            BACK_INV                    = createFontAwesomeIcon('\uF137', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            CANCEL_INV                  = createFontAwesomeIcon('\uF057', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            CHECK_ALL                   = createFontAwesomeIcon('\uF14A', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            CLEAR_ALL                   = createFontAwesomeIcon('\uF0C8', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            COPY_INV                    = createFontAwesomeIcon('\uF24D', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            DATE_PICKER                 = createFontAwesomeIcon('\uF073', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            DELETE_INV                  = createFontAwesomeIcon('\uF2ED', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            FILTER_INV                  = createFontAwesomeIcon('\uF0B0', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            FILE_OPEN_INV               = createFontAwesomeIcon('\uF07C', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            IMAGE_INV                   = createFontAwesomeIcon('\uF03E', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            PLAY_INV                    = createFontAwesomeIcon('\uF04B', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            REMOVE_INV                  = createFontAwesomeIcon('\uF068', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            SEARCH_INV                  = createFontAwesomeIcon('\uF002', UIManager.getColor("Button.foreground"));
-  public static final ImageIcon            STOP_INV                    = createFontAwesomeIcon('\uF28D', UIManager.getColor("Button.foreground"));
+  public static final ImageIcon              ADD_INV                      = createButtonIcon("plus.svg");
+  public static final ImageIcon              ARROW_UP_INV                 = createButtonIcon("chevron-up.svg");
+  public static final ImageIcon              ARROW_DOWN_INV               = createButtonIcon("chevron-down.svg");
+  public static final ImageIcon              APPLY_INV                    = createButtonIcon("check-circle.svg");
+  public static final ImageIcon              BACK_INV                     = createButtonIcon("chevron-circle-left.svg");
+  public static final ImageIcon              CANCEL_INV                   = createButtonIcon("times-circle.svg");
+  public static final ImageIcon              CHECK_ALL                    = createButtonIcon("check-square.svg");
+  public static final ImageIcon              CLEAR_ALL                    = createButtonIcon("square.svg");
+  public static final ImageIcon              COPY_INV                     = createButtonIcon("clone.svg");
+  public static final ImageIcon              DATE_PICKER                  = createButtonIcon("calendar-alt.svg");
+  public static final ImageIcon              DELETE_INV                   = createButtonIcon("trash-alt.svg");
+  public static final ImageIcon              FILE_OPEN_INV                = createButtonIcon("folder-open.svg");
+  public static final ImageIcon              IMAGE_INV                    = createButtonIcon("image.svg");
+  public static final ImageIcon              PLAY_INV                     = createButtonIcon("play.svg");
+  public static final ImageIcon              REMOVE_INV                   = createButtonIcon("minus.svg");
+  public static final ImageIcon              SEARCH_INV                   = createButtonIcon("search.svg");
+  public static final ImageIcon              STOP_INV                     = createButtonIcon("stop-circle.svg");
 
   // font awesome icons - column headers
-  public static final ImageIcon            AUDIO                       = createFontAwesomeIcon('\uF028', 16);
-  public static final ImageIcon            CERTIFICATION               = createFontAwesomeIcon('\uF29A', 16);
-  public static final ImageIcon            COUNT                       = createFontAwesomeIcon('\uF292', 16);
-  public static final ImageIcon            DATE_ADDED                  = createFontAwesomeIcon('\uF271', 16);
-  public static final ImageIcon            EDITION                     = createFontAwesomeIcon('\uF51F', 16);
-  public static final ImageIcon            EDIT_HEADER                 = createFontAwesomeIcon('\uF044', 16);
-  public static final ImageIcon            EPISODES                    = createTextIcon("E", 18);
-  public static final ImageIcon            FILE_SIZE                   = createFontAwesomeIcon('\uF0C7', 16);
-  public static final ImageIcon            IMAGES                      = createFontAwesomeIcon('\uF302', 16);
-  public static final ImageIcon            IDCARD                      = createFontAwesomeIcon('\uF2C2', 16);
-  public static final ImageIcon            NFO                         = createFontAwesomeIcon('\uF15C', 16);
-  public static final ImageIcon            RATING                      = createFontAwesomeIcon('\uF005', 16);
-  public static final ImageIcon            SEASONS                     = createTextIcon("S", 18);
-  public static final ImageIcon            SOURCE                      = createFontAwesomeIcon('\uF601', 16);
-  public static final ImageIcon            SUBTITLES                   = createFontAwesomeIcon('\uF086', 16);
-  public static final ImageIcon            TRAILER                     = createFontAwesomeIcon('\uF008', 16);
-  public static final ImageIcon            VIDEO_3D                    = createFontAwesomeIcon('\uF1B2', 16);
-  public static final ImageIcon            VIDEO_FORMAT                = createFontAwesomeIcon('\uF320', 16);
-  public static final ImageIcon            VOTES                       = createFontAwesomeIcon('\uF164', 16);
-  public static final ImageIcon            WATCHED                     = createFontAwesomeIcon('\uF04B', 16);
+  public static final ImageIcon              AUDIO                        = createTableHeaderIcon("volume-up.svg");
+  public static final ImageIcon              CERTIFICATION                = createTableHeaderIcon("universal-access.svg");
+  public static final ImageIcon              COUNT                        = createTableHeaderIcon("hashtag.svg");
+  public static final ImageIcon              DATE_ADDED                   = createTableHeaderIcon("calendar-plus.svg");
+  public static final ImageIcon              DATE_AIRED                   = createTableHeaderIcon("calendar-alt.svg");
+  public static final ImageIcon              DATE_CREATED                 = createTableHeaderIcon("calendar-star.svg");
+  public static final ImageIcon              EDITION                      = createTableHeaderIcon("compact-disc.svg");
+  public static final ImageIcon              EDIT_HEADER                  = createTableHeaderIcon("edit.svg");
+  public static final ImageIcon              EPISODES                     = createTextIcon("E", 1.5);
+  public static final ImageIcon              FILE_SIZE                    = createTableHeaderIcon("save.svg");
+  public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
+  public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
+  public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
+  public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
+  public static final ImageIcon              RUNTIME                      = createTableHeaderIcon("clock.svg");
+  public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
+  public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location.svg");
+  public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");
+  public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
+  public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");
+  public static final ImageIcon              VIDEO_FORMAT                 = createTableHeaderIcon("expand-wide.svg");
+  public static final ImageIcon              VIDEO_CODEC                  = createTableHeaderIcon("file-video-o.svg");
+  public static final ImageIcon              VOTES                        = createTableHeaderIcon("thumbs-up.svg");
+  public static final ImageIcon              WATCHED                      = createTableHeaderIcon("play.svg");
 
-  public static ImageIcon loadImage(String name) {
+  // sort icons for glazedlists
+  public static final ImageIcon              SORT_UP_PRIMARY              = createSVGIcon("chevron-up.svg", 0.833);
+  public static final ImageIcon              SORT_UP_SECONDARY            = createSVGIcon("chevron-double-up.svg", 0.833);
+  public static final ImageIcon              SORT_DOWN_PRIMARY            = createSVGIcon("chevron-down.svg", 0.833);
+  public static final ImageIcon              SORT_DOWN_SECONDARY          = createSVGIcon("chevron-double-down.svg", 0.833);
+
+  private static ImageIcon loadImage(String name) {
     URL file = IconManager.class.getResource("images/interface/" + name);
     if (file != null) {
       return new ImageIcon(file);
+    }
+
+    return EMPTY_IMAGE;
+  }
+
+  private static ImageIcon loadMultiResolutionImage(String name) {
+    List<String> resolutions = Arrays.asList("", "@125", "@150", "@200");
+    try {
+      List<Image> images = new ArrayList<>();
+
+      String extension = FilenameUtils.getExtension(name);
+      String basename = FilenameUtils.getBaseName(name);
+
+      for (String resolution : resolutions) {
+        URL file = IconManager.class.getResource("images/interface/" + basename + resolution + "." + extension);
+        if (file != null) {
+          images.add(new ImageIcon(file).getImage());
+        }
+      }
+
+      return new ImageIcon(new BaseMultiResolutionImage(images.toArray(new Image[0])));
+    }
+    catch (Exception ignored) {
     }
 
     return EMPTY_IMAGE;
@@ -169,9 +219,6 @@ public class IconManager {
 
     try {
       uri = url.toURI();
-      if (uri == null) {
-        return EMPTY_IMAGE;
-      }
     }
     catch (Exception e) {
       return EMPTY_IMAGE;
@@ -186,15 +233,158 @@ public class IconManager {
       }
       catch (Exception ignored) {
       }
-      finally {
-        if (icon == null) {
-          icon = EMPTY_IMAGE;
-        }
+
+      if (icon == null) {
+        icon = EMPTY_IMAGE;
       }
+
       ICON_CACHE.put(uri, icon);
     }
 
     return icon;
   }
 
+  private static ImageIcon createMenuIcon(String name) {
+    return createSVGIcon(name, "Component.focusColor", TmmFontHelper.H3);
+  }
+
+  private static ImageIcon createButtonIcon(String name) {
+    return createSVGIcon(name, "Button.foreground", TmmFontHelper.H3);
+  }
+
+  private static ImageIcon createTableHeaderIcon(String name) {
+    return createSVGIcon(name, "TableHeader.foreground", TmmFontHelper.H2);
+  }
+
+  private static ImageIcon createSVGIcon(String name) {
+    return createSVGIcon(name, "Label.foreground", TmmFontHelper.H3);
+  }
+
+  private static ImageIcon createSVGIcon(String name, String colorReference) {
+    return createSVGIcon(name, colorReference, TmmFontHelper.H3);
+  }
+
+  private static ImageIcon createSVGIcon(String name, double scaleFactor) {
+    return createSVGIcon(name, "Label.foreground", scaleFactor);
+  }
+
+  private static ImageIcon createSVGIcon(String name, Color color) {
+    return createSVGIcon(name, color, TmmFontHelper.H2);
+  }
+
+  private static ImageIcon createSVGIcon(String name, String colorReference, double scaleFactor) {
+    // create the icon
+    ImageIcon icon = createSVGIcon(name, UIManager.getColor(colorReference), scaleFactor);
+
+    // and put it to the cache (for recoloring/rescaling if needed)
+    if (icon != EMPTY_IMAGE) {
+      SVG_CACHE.add(new TmmSvgIconCache((TmmSvgIcon) icon, scaleFactor, colorReference));
+    }
+    return icon;
+  }
+
+  private static ImageIcon createSVGIcon(String name, Dimension size) {
+    return createSVGIcon(name, size, false);
+  }
+
+  private static ImageIcon createSVGIcon(String name, Dimension size, boolean autoSize) {
+    try {
+      // create the icon
+      URI uri = IconManager.class.getResource("images/svg/" + name).toURI();
+      TmmSvgIcon icon = new TmmSvgIcon(uri);
+      icon.setPreferredSize(size);
+      if (!autoSize) {
+        icon.setAutosize(SVGIcon.AUTOSIZE_NONE);
+      }
+      return icon;
+    }
+    catch (Exception e) {
+      return EMPTY_IMAGE;
+    }
+  }
+
+  private static ImageIcon createSVGIcon(String name, Color color, double scaleFactor) {
+    try {
+      // create the icon
+      URI uri = IconManager.class.getResource("images/svg/" + name).toURI();
+      TmmAwesomeIcon icon = new TmmAwesomeIcon(uri, color);
+
+      icon.setPreferredHeight(calculateFontIconSize(scaleFactor));
+
+      SVG_CACHE.add(new TmmSvgIconCache(icon, scaleFactor, null));
+      return icon;
+    }
+    catch (Exception e) {
+      return EMPTY_IMAGE;
+    }
+  }
+
+  private static int calculateFontIconSize(double scaleFactor) {
+    try {
+      return (int) Math.floor(UIManager.getFont("defaultFont").getSize() * scaleFactor);
+    }
+    catch (Exception e) {
+      return (int) Math.floor(12 * scaleFactor);
+    }
+  }
+
+  private static ImageIcon createTextIcon(String text, Color color) {
+    return createTextIcon(text, 1, color);
+  }
+
+  private static ImageIcon createTextIcon(String text, double scaleFactor) {
+    ImageIcon icon = createTextIcon(text, scaleFactor, UIManager.getColor("Label.foreground"));
+    TEXT_ICON_CACHE.add(new TmmTextIconCache((TmmTextIcon) icon, scaleFactor, null));
+    return icon;
+  }
+
+  private static ImageIcon createTextIcon(String text, double scaleFactor, Color color) {
+    int size = calculateFontIconSize(scaleFactor);
+    TmmTextIcon icon = new TmmTextIcon(text, size, color);
+
+    TEXT_ICON_CACHE.add(new TmmTextIconCache(icon, scaleFactor, null));
+    return icon;
+  }
+
+  private static class TmmSvgIconCache {
+    private TmmSvgIcon   icon;
+    private final double scaleFactor;
+    private final String colorReference;
+
+    public TmmSvgIconCache(TmmSvgIcon icon, double scaleFactor, String colorReference) {
+      this.icon = icon;
+      this.scaleFactor = scaleFactor;
+      this.colorReference = colorReference;
+    }
+  }
+
+  private static class TmmTextIconCache {
+    private TmmTextIcon  icon;
+    private final double scaleFactor;
+    private final String colorReference;
+
+    public TmmTextIconCache(TmmTextIcon icon, double scaleFactor, String colorReference) {
+      this.icon = icon;
+      this.scaleFactor = scaleFactor;
+      this.colorReference = colorReference;
+    }
+  }
+
+  static void updateIcons() {
+    for (TmmSvgIconCache iconCache : SVG_CACHE) {
+      if (StringUtils.isNotBlank(iconCache.colorReference)) {
+        iconCache.icon.setColor(UIManager.getColor(iconCache.colorReference));
+      }
+      int size = calculateFontIconSize(iconCache.scaleFactor);
+      iconCache.icon.setPreferredSize(new Dimension(size, size));
+    }
+    for (TmmTextIconCache iconCache : TEXT_ICON_CACHE) {
+      if (StringUtils.isNotBlank(iconCache.colorReference)) {
+        iconCache.icon.setColor(UIManager.getColor(iconCache.colorReference));
+      }
+      int size = calculateFontIconSize(iconCache.scaleFactor);
+      iconCache.icon.setFontSize(size);
+      iconCache.icon.update();
+    }
+  }
 }

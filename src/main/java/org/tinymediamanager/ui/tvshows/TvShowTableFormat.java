@@ -23,7 +23,6 @@ import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -44,7 +43,7 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public TvShowTableFormat() {
     FontMetrics fontMetrics = getFontMetrics();
@@ -83,12 +82,44 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * aired
      */
     col = new Column(BUNDLE.getString("metatag.aired"), "aired", this::getAiredDate, Date.class);
-    col.setHeaderIcon(IconManager.DATE_ADDED);
+    col.setHeaderIcon(IconManager.DATE_AIRED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);
     try {
       Date date = StrgUtils.parseDate("2012-12-12");
       col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f));
+    }
+    catch (Exception ignored) {
+    }
+    addColumn(col);
+
+    /*
+     * date added (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.dateadded"), "dateAdded", this::getDateAdded, Date.class);
+    col.setHeaderIcon(IconManager.DATE_ADDED);
+    col.setCellRenderer(new DateTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    try {
+      Date date = StrgUtils.parseDate("2012-12-12");
+      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
+    }
+    catch (Exception ignored) {
+    }
+    addColumn(col);
+
+    /*
+     * file creation date (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.filecreationdate"), "fileCreationDate", this::getFileCreationDate, Date.class);
+    col.setHeaderIcon(IconManager.DATE_CREATED);
+    col.setCellRenderer(new DateTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    try {
+      Date date = StrgUtils.parseDate("2012-12-12");
+      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
     }
     catch (Exception ignored) {
     }
@@ -101,6 +132,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * video codec (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.videocodec"), "videoCodec", this::getVideoCodec, String.class);
+    col.setHeaderIcon(IconManager.VIDEO_CODEC);
+    col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -111,6 +152,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -183,21 +225,37 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private Date getAiredDate(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow) {
-      Date airedDate = ((TvShow) userObject).getFirstAired();
-      if (airedDate != null) {
-        return airedDate;
-      }
+      return ((TvShow) userObject).getFirstAired();
     }
     if (userObject instanceof TvShowSeason) {
-      Date airedDate = ((TvShowSeason) userObject).getFirstAired();
-      if (airedDate != null) {
-        return airedDate;
-      }
+      return ((TvShowSeason) userObject).getFirstAired();
     }
     if (userObject instanceof TvShowEpisode) {
-      Date airedDate = ((TvShowEpisode) userObject).getFirstAired();
-      if (airedDate != null) {
-        return airedDate;
+      return ((TvShowEpisode) userObject).getFirstAired();
+    }
+    return null;
+  }
+
+  private Date getDateAdded(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      return ((TvShow) userObject).getDateAddedForUi();
+    }
+    if (userObject instanceof TvShowEpisode) {
+      TvShowEpisode episode = (TvShowEpisode) userObject;
+      if (!episode.isDummy()) {
+        return episode.getDateAddedForUi();
+      }
+    }
+    return null;
+  }
+
+  private Date getFileCreationDate(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode) {
+      TvShowEpisode episode = (TvShowEpisode) userObject;
+      if (!episode.isDummy()) {
+        return episode.getMainVideoFile().getDateCreated();
       }
     }
     return null;
@@ -207,6 +265,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode) {
       return ((TvShowEpisode) userObject).getMediaInfoVideoFormat();
+    }
+    return "";
+  }
+
+  private String getVideoCodec(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode) {
+      return ((TvShowEpisode) userObject).getMediaInfoVideoCodec();
     }
     return "";
   }

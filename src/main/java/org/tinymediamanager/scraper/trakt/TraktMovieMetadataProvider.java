@@ -33,13 +33,19 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.CastMember;
@@ -66,6 +72,8 @@ class TraktMovieMetadataProvider {
   }
 
   SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+
+    TmdbMetadataProvider tmdb = new TmdbMetadataProvider();
 
     String searchString = "";
     if (StringUtils.isEmpty(searchString) && StringUtils.isNotEmpty(options.getSearchQuery())) {
@@ -98,6 +106,24 @@ class TraktMovieMetadataProvider {
 
     for (SearchResult result : searchResults) {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
+
+      // also try to get the poster url from tmdb
+      if (MetadataUtil.isValidImdbId(m.getIMDBId()) || m.getIdAsInt(TMDB) > 0) {
+        try {
+          ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+          tmdbOptions.setIds(m.getIds());
+          tmdbOptions.setLanguage(options.getLanguage());
+          tmdbOptions.setArtworkType(MediaArtwork.MediaArtworkType.POSTER);
+          List<MediaArtwork> artworks = tmdb.getArtwork(tmdbOptions);
+          if (ListUtils.isNotEmpty(artworks)) {
+            m.setPosterUrl(artworks.get(0).getPreviewUrl());
+          }
+        }
+        catch (Exception e) {
+          LOGGER.warn("Could not get artwork from tmdb - {}", e.getMessage());
+        }
+      }
+
       results.add(m);
     }
 
@@ -105,8 +131,8 @@ class TraktMovieMetadataProvider {
   }
 
   MediaMetadata scrape(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.providerInfo.getId());
-    String id = options.getIdAsString(TraktMetadataProvider.providerInfo.getId());
+    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
+    String id = options.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
 
     // alternatively we can take the imdbid
     if (StringUtils.isBlank(id)) {
@@ -115,7 +141,7 @@ class TraktMovieMetadataProvider {
 
     if (StringUtils.isBlank(id)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(MediaMetadata.IMDB, TraktMetadataProvider.providerInfo.getId());
+      throw new MissingIdException(MediaMetadata.IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
     }
 
     // scrape
@@ -182,11 +208,11 @@ class TraktMovieMetadataProvider {
 
     // ids
     if (movie.ids != null) {
-      md.setId(TraktMetadataProvider.providerInfo.getId(), movie.ids.trakt);
+      md.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), movie.ids.trakt);
       if (movie.ids.tmdb != null && movie.ids.tmdb > 0) {
         md.setId(TMDB, movie.ids.tmdb);
       }
-      if (StringUtils.isNotBlank(movie.ids.imdb)) {
+      if (MetadataUtil.isValidImdbId(movie.ids.imdb)) {
         md.setId(IMDB, movie.ids.imdb);
       }
     }
@@ -210,6 +236,19 @@ class TraktMovieMetadataProvider {
         for (CrewMember crew : ListUtils.nullSafe(credits.crew.writing)) {
           md.addCastMember(TraktUtils.toTmmCast(crew, WRITER));
         }
+      }
+    }
+
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
       }
     }
 

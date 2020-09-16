@@ -15,20 +15,25 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import static org.tinymediamanager.ui.TmmFontHelper.L1;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
@@ -39,12 +44,12 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRemoveAction extends TmmAction {
   private static final long           serialVersionUID = -984567332370801730L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieRemoveAction() {
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(NAME, BUNDLE.getString("movie.remove"));
-    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke((char) KeyEvent.VK_DELETE));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
   }
 
   @Override
@@ -52,8 +57,29 @@ public class MovieRemoveAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
+    }
+
+    // display warning and ask the user again
+    if (!TmmProperties.getInstance().getPropertyAsBoolean("movie.hideremovehint")) {
+      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+      TmmFontHelper.changeFont(checkBox, L1);
+      checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
+      Object[] params = { BUNDLE.getString("movie.remove.desc"), checkBox };
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("movie.remove"), JOptionPane.YES_NO_OPTION,
+          JOptionPane.QUESTION_MESSAGE, null, options, null);
+
+      // the user don't want to show this dialog again
+      if (checkBox.isSelected()) {
+        TmmProperties.getInstance().putProperty("movie.hideremovehint", String.valueOf(checkBox.isSelected()));
+      }
+
+      if (answer != JOptionPane.YES_OPTION) {
+        return;
+      }
     }
 
     // remove selected movies

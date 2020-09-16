@@ -142,15 +142,15 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
       super();
       putClientProperty("class", "roundedPanel");
       setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-      setBorder(BorderFactory.createEmptyBorder(1, 10, 1, 5));
+      setBorder(null);
 
       JLabel label = new JLabel(userObject.getDescription());
       label.setToolTipText(userObject.getToolTip());
-      label.setBorder(BorderFactory.createEmptyBorder());
+      label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       add(label);
 
       JButton button = new FlatButton(IconManager.DELETE);
-      button.setBorder(BorderFactory.createEmptyBorder());
+      button.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       button.addActionListener(e -> {
         selectedItems.put(userObject, false);
         reset();

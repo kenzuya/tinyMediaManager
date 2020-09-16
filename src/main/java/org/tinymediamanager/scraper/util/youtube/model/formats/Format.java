@@ -43,20 +43,27 @@ public abstract class Format {
     url = Objects.requireNonNull(YoutubeHelper.getString(json, "url")).replace("\\u0026", "&");
     mimeType = YoutubeHelper.getString(json, "mimeType");
     bitrate = YoutubeHelper.getInt(json, "bitrate");
-    contentLength = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "contentLength")));
-    lastModified = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "lastModified")));
+    contentLength = YoutubeHelper.getLong(json, "contentLength");
+    lastModified = YoutubeHelper.getLong(json, "lastModified");
 
     if (Objects.requireNonNull(mimeType).contains(Extension.MP4.getText())) {
-      extension = Extension.MP4;
+      if (this instanceof AudioFormat) {
+        extension = Extension.M4A;
+      }
+      else {
+        extension = Extension.MP4;
+      }
     }
     else if (mimeType.contains(Extension.WEBM.getText())) {
-      extension = Extension.WEBM;
+      if (this instanceof AudioFormat) {
+        extension = Extension.WEBA;
+      }
+      else {
+        extension = Extension.WEBM;
+      }
     }
     else if (mimeType.contains(Extension.FLV.getText())) {
       extension = Extension.FLV;
-    }
-    else if (mimeType.contains(Extension.HLS.getText())) {
-      extension = Extension.HLS;
     }
     else if (mimeType.contains(Extension.THREEGP.getText())) {
       extension = Extension.THREEGP;

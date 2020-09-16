@@ -28,6 +28,7 @@ import org.tinymediamanager.scraper.util.UrlUtil;
 import org.tinymediamanager.scraper.util.youtube.cipher.Cipher;
 import org.tinymediamanager.scraper.util.youtube.cipher.CipherFactory;
 import org.tinymediamanager.scraper.util.youtube.model.formats.AudioFormat;
+import org.tinymediamanager.scraper.util.youtube.model.formats.AudioVideoFormat;
 import org.tinymediamanager.scraper.util.youtube.model.formats.Format;
 import org.tinymediamanager.scraper.util.youtube.model.formats.VideoFormat;
 import org.tinymediamanager.scraper.util.youtube.model.quality.AudioQuality;
@@ -50,13 +51,13 @@ public class YoutubeMedia {
   private List<Format>              formats;
   private String                    videoId;
 
-  private static final Logger       LOGGER           = LoggerFactory.getLogger(YoutubeMedia.class);
-  private static final String       CONFIG_START     = "ytplayer.config = ";
-  private static final String       CONFIG_END       = ";ytplayer.load";
-  private static final String       ERROR            = "\"status\":\"ERROR\",\"reason\":\"";
-  private static final String       URL              = "https://www.youtube.com/watch?v=";
-  public static Map<String, Cipher> ciphers          = new HashMap<>();
-
+  private static final Logger       LOGGER       = LoggerFactory.getLogger(YoutubeMedia.class);
+  private static final String       CONFIG_START = "ytplayer.config = ";
+  private static final String       CONFIG_END   = ";ytplayer.load";
+  private static final String       ERROR        = "\"status\":\"ERROR\",\"reason\":\"";
+  private static final String       URL          = "https://www.youtube.com/watch?v=";
+  public static Map<String, Cipher> ciphers      = new HashMap<>();
+  private ObjectMapper              objectMapper = new ObjectMapper();
 
   public YoutubeMedia(String videoId) {
     this.videoId = videoId;
@@ -72,7 +73,27 @@ public class YoutubeMedia {
   }
 
   /**
-   * Finds media information for video
+   * Finds the audio/video format for the given criteria
+   *
+   * @param videoQuality
+   *          the @{@link VideoQuality} to find
+   * @param extension
+   *          the @Link {@link Extension} to find
+   * @return the video information
+   */
+  public AudioVideoFormat findAudioVideo(VideoQuality videoQuality, Extension extension) {
+    for (Format format : formats) {
+      if (format instanceof AudioVideoFormat && ((AudioVideoFormat) format).videoQuality() == videoQuality && format.extension().equals(extension)) {
+        return ((AudioVideoFormat) format);
+      }
+    }
+
+    LOGGER.error("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
+    return null;
+  }
+
+  /**
+   * Finds the video format for the given criteria
    *
    * @param videoQuality
    *          the @{@link VideoQuality} to find
@@ -87,7 +108,7 @@ public class YoutubeMedia {
       }
     }
 
-    LOGGER.error("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
+    LOGGER.warn("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
     return null;
   }
 
@@ -115,7 +136,7 @@ public class YoutubeMedia {
     }
 
     // nothing found so far
-    LOGGER.error("Could not find audio format for extension {}", extension.getText());
+    LOGGER.warn("Could not find audio format for extension {}", extension.getText());
     return null;
   }
 
@@ -129,8 +150,6 @@ public class YoutubeMedia {
    *           indicates that the thread has been interrupted
    */
   public void parseVideo() throws Exception {
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
     // Load Page into String
     String page;
@@ -161,6 +180,11 @@ public class YoutubeMedia {
 
     videoDetails.setDetails(player_response.get("videoDetails"));
 
+    // Get Live URL if available
+    if (videoDetails.getIsLive()) {
+      videoDetails.setLiveUrl(getLiveHLSUrl(streamingData));
+    }
+
     // Get Video / Audio Formats
     ArrayNode jsonFormats = (ArrayNode) streamingData.get("formats");
     ArrayNode jsonAdaptiveFormats = (ArrayNode) streamingData.get("adaptiveFormats");
@@ -174,11 +198,14 @@ public class YoutubeMedia {
     for (int i = 0; i < jsonAdaptiveFormats.size(); i++) {
       JsonNode json = jsonAdaptiveFormats.get(i);
 
+      if ("FORMAT_STREAM_TYPE_OTF".equals(json.get("type")))
+        continue; // unsupported otf formats which cause 404 not found
+
       // Check for ciphered Youtube Link
 
-      if (json.has("cipher")) {
+      if (json.has("signatureCipher")) {
         HashMap<String, String> cipherMap = new HashMap<>();
-        String[] cipherdata = json.get("cipher").asText().replace("\\u0026", "&").split("&");
+        String[] cipherdata = json.get("signatureCipher").asText().replace("\\u0026", "&").split("&");
 
         for (String s : cipherdata) {
           String[] keyValue = s.split("=");
@@ -215,16 +242,22 @@ public class YoutubeMedia {
           continue;
         }
 
-        if (itag.isVideo()) {
+        boolean hasVideo = itag.isVideo() || json.has("size") || json.has("width");
+        boolean hasAudio = itag.isAudio() || json.has("audioQuality");
+
+        if (hasVideo && hasAudio) {
+          formats.add(new AudioVideoFormat(json, itag));
+        }
+        else if (hasVideo) {
           formats.add(new VideoFormat(json, itag));
         }
-        else if (itag.isAudio()) {
+        else if (hasAudio) {
           formats.add(new AudioFormat(json, itag));
         }
 
       }
       catch (Exception e) {
-        LOGGER.warn("Itag : " + Itag.findItag(json.get("itag").asInt(0)) + " seems to be  Audio/Video Stream -> not supported yet" );
+        LOGGER.warn("unknown format with itag " + Itag.findItag(json.get("itag").asInt(0)));
       }
     }
   }
@@ -234,5 +267,14 @@ public class YoutubeMedia {
       LOGGER.error("Could not extract js url");
     }
     return "https://youtube.com" + config.get("js").asText();
+  }
+
+  private String getLiveHLSUrl(ObjectNode data) {
+    if (data.has("hlsManifestUrl")) {
+      return data.get("hlsManifestUrl").asText();
+    }
+    else {
+      return "";
+    }
   }
 }

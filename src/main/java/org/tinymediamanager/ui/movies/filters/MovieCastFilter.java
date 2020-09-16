@@ -16,11 +16,8 @@
 package org.tinymediamanager.ui.movies.filters;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.entities.Person;
@@ -33,8 +30,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Manuel Laggner
  */
-public class MovieCastFilter extends AbstractMovieUIFilter {
-  private JTextField textField;
+public class MovieCastFilter extends AbstractTextMovieUIFilter {
 
   @Override
   public String getId() {
@@ -42,31 +38,15 @@ public class MovieCastFilter extends AbstractMovieUIFilter {
   }
 
   @Override
-  public String getFilterValueAsString() {
-    return textField.getText();
-  }
-
-  @Override
-  public void setFilterValue(Object value) {
-    if (value instanceof String) {
-      textField.setText((String) value);
-    }
-  }
-
-  @Override
   public boolean accept(Movie movie) {
-    String name = StrgUtils.normalizeString(textField.getText());
-
-    if (StringUtils.isBlank(name)) {
+    if (StringUtils.isBlank(normalizedFilterText)) {
       return true;
     }
     try {
-      Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
-
       // director
       for (Person director : movie.getDirectors()) {
         if (StringUtils.isNotEmpty(director.getName())) {
-          Matcher matcher = pattern.matcher(StrgUtils.normalizeString(director.getName()));
+          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(director.getName()));
           if (matcher.find()) {
             return true;
           }
@@ -76,7 +56,7 @@ public class MovieCastFilter extends AbstractMovieUIFilter {
       // writer
       for (Person writer : movie.getWriters()) {
         if (StringUtils.isNotEmpty(writer.getName())) {
-          Matcher matcher = pattern.matcher(StrgUtils.normalizeString(writer.getName()));
+          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(writer.getName()));
           if (matcher.find()) {
             return true;
           }
@@ -86,7 +66,7 @@ public class MovieCastFilter extends AbstractMovieUIFilter {
       // actors
       for (Person cast : movie.getActors()) {
         if (StringUtils.isNotEmpty(cast.getName())) {
-          Matcher matcher = pattern.matcher(StrgUtils.normalizeString(cast.getName()));
+          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(cast.getName()));
           if (matcher.find()) {
             return true;
           }
@@ -96,7 +76,7 @@ public class MovieCastFilter extends AbstractMovieUIFilter {
       // producers
       for (Person producer : movie.getProducers()) {
         if (StringUtils.isNotEmpty(producer.getName())) {
-          Matcher matcher = pattern.matcher(StrgUtils.normalizeString(producer.getName()));
+          Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(producer.getName()));
           return matcher.find();
         }
       }
@@ -112,11 +92,5 @@ public class MovieCastFilter extends AbstractMovieUIFilter {
   @Override
   protected JLabel createLabel() {
     return new TmmLabel(BUNDLE.getString("movieextendedsearch.cast"));
-  }
-
-  @Override
-  protected JComponent createFilterComponent() {
-    textField = new JTextField();
-    return textField;
   }
 }

@@ -40,7 +40,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -51,6 +50,7 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.movies.MovieScraper;
 import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
@@ -68,7 +68,7 @@ class MovieScraperPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
   private final List<MovieScraper>    scrapers         = ObservableCollections.observableList(new ArrayList<>());
@@ -170,7 +170,7 @@ class MovieScraperPanel extends JPanel {
     JPanel panelMovieScrapers = new JPanel();
 
     add(panelMovieScrapers, "cell 0 1,grow");
-    panelMovieScrapers.setLayout(new MigLayout("", "[][][500lp,grow]", "[150lp:200lp,grow][][][][20lp][][]"));
+    panelMovieScrapers.setLayout(new MigLayout("", "[][][600lp,grow]", "[150lp:200lp,grow][][][][][20lp][][]"));
 
     JScrollPane scrollPaneScraper = new JScrollPane();
     panelMovieScrapers.add(scrollPaneScraper, "cell 0 0 2 1,grow");
@@ -180,10 +180,9 @@ class MovieScraperPanel extends JPanel {
     scrollPaneScraper.setViewportView(tableScraper);
 
     {
-      JScrollPane scrollPaneScraperDetails = new JScrollPane();
-      panelMovieScrapers.add(scrollPaneScraperDetails, "cell 2 0 1 4,grow");
+      JScrollPane scrollPaneScraperDetails = new NoBorderScrollPane();
+      panelMovieScrapers.add(scrollPaneScraperDetails, "cell 2 0 1 8,grow");
       scrollPaneScraperDetails.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-      scrollPaneScraperDetails.setBorder(null);
 
       JPanel panelScraperDetails = new ScrollablePanel();
       scrollPaneScraperDetails.setViewportView(panelScraperDetails);
@@ -200,29 +199,29 @@ class MovieScraperPanel extends JPanel {
     }
 
     JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage"));
-    panelMovieScrapers.add(lblScraperLanguage, "cell 0 1");
+    panelMovieScrapers.add(lblScraperLanguage, "cell 0 2");
 
     cbScraperLanguage = new JComboBox();
     cbScraperLanguage.setModel(new DefaultComboBoxModel<>(MediaLanguages.valuesSorted()));
-    panelMovieScrapers.add(cbScraperLanguage, "cell 1 1");
+    panelMovieScrapers.add(cbScraperLanguage, "cell 1 2");
 
     JLabel lblCountry = new JLabel(BUNDLE.getString("Settings.certificationCountry"));
-    panelMovieScrapers.add(lblCountry, "cell 0 2");
+    panelMovieScrapers.add(lblCountry, "cell 0 3");
 
     cbCertificationCountry = new JComboBox(CountryCode.values());
     cbCertificationCountry.setModel(new DefaultComboBoxModel<>(CountryCode.values()));
-    panelMovieScrapers.add(cbCertificationCountry, "cell 1 2");
+    panelMovieScrapers.add(cbCertificationCountry, "cell 1 3");
 
     chckbxScraperFallback = new JCheckBox(BUNDLE.getString("Settings.scraperfallback"));
-    panelMovieScrapers.add(chckbxScraperFallback, "cell 0 3 2 1");
+    panelMovieScrapers.add(chckbxScraperFallback, "cell 0 4 2 1");
     {
       JLabel lblNfoFormat = new JLabel("NFO format");
-      panelMovieScrapers.add(lblNfoFormat, "flowx,cell 0 5 2 1");
+      panelMovieScrapers.add(lblNfoFormat, "flowx,cell 0 6 2 1");
     }
     {
       JPanel panel = new JPanel();
-      panelMovieScrapers.add(panel, "cell 0 6 2 1,growx");
-      panel.setLayout(new MigLayout("", "[][][][]", "[][]"));
+      panelMovieScrapers.add(panel, "cell 0 7 2 1,growx");
+      panel.setLayout(new MigLayout("insets 0", "[][][][]", "[][]"));
 
       JLabel lblNfoFileNaming = new JLabel(BUNDLE.getString("Settings.nofFileNaming"));
       panel.add(lblNfoFileNaming, "cell 0 0");
@@ -235,13 +234,7 @@ class MovieScraperPanel extends JPanel {
     }
     {
       cbNfoFormat = new JComboBox(MovieConnectors.values());
-      panelMovieScrapers.add(cbNfoFormat, "cell 0 5 2 1");
-
-      JTextPane textPane = new JTextPane();
-      textPane.setOpaque(false);
-      textPane.setEditable(false);
-      textPane.setText(BUNDLE.getString("wizard.nfo.hint"));
-      panelMovieScrapers.add(textPane, "cell 2 6,growx,aligny top");
+      panelMovieScrapers.add(cbNfoFormat, "cell 0 6 2 1");
     }
   }
 

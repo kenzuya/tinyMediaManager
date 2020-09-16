@@ -34,6 +34,8 @@ public class MediaDetails {
   private double  averageRating;
   private String  author;
   private int     viewCount;
+  private String  liveUrl;
+  private boolean isLive;
 
   public MediaDetails(String videoId) {
 
@@ -54,6 +56,7 @@ public class MediaDetails {
     this.averageRating = mediaDetails.get("averageRating").asDouble();
     this.author = mediaDetails.get("author").asText();
     this.viewCount = mediaDetails.get("viewCount").asInt();
+    this.isLive = mediaDetails.get("isLiveContent").asBoolean();
 
   }
 
@@ -96,4 +99,17 @@ public class MediaDetails {
   public int getViewCount() {
     return viewCount;
   }
+
+  public Boolean getIsLive() {
+    return isLive;
+  }
+
+  public String liveUrl() {
+    return liveUrl;
+  }
+
+  public void setLiveUrl(String url) {
+    liveUrl = url;
+  }
+
 }

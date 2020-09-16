@@ -155,6 +155,8 @@
     </producer>
     <languages>English</languages>
     <trailer>https://www.youtube.com/watch?v=nFD4f1_eZno</trailer>
+    <showlink>Foo</showlink>
+    <showlink>Foo2</showlink>
     <fileinfo>
         <streamdetails>
             <video>

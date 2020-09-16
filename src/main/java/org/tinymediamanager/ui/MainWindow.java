@@ -20,14 +20,15 @@ import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -39,27 +40,23 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker.StateValue;
-import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.UTF8Control;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.tasks.UpdaterTask;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TextFieldPopupMenu;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.toolbar.ToolbarPanel;
-import org.tinymediamanager.ui.dialogs.UpdateDialog;
 import org.tinymediamanager.ui.images.LogoCircle;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
@@ -77,18 +74,28 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainWindow extends JFrame {
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MainWindow.class);
   private static final long           serialVersionUID = 1L;
 
   public static final List<Image>     LOGOS            = createLogos();
+
   private static MainWindow           instance;
 
-  private ToolbarPanel                toolbarPanel;
   private JTabbedPane                 tabbedPane;
   private JPanel                      detailPanel;
-  private JSplitPane                  splitPane;
-  private JPanel                      panelStatusBar;
+
+  /**
+   * Gets the active instance.
+   *
+   * @return the active instance
+   */
+  public static synchronized MainWindow getInstance() {
+    if (instance == null) {
+      new MainWindow("tinyMediaManager / " + ReleaseInfo.getRealVersion());
+    }
+    return instance;
+  }
 
   /**
    * Create the application.
@@ -96,18 +103,14 @@ public class MainWindow extends JFrame {
    * @param name
    *          the name
    */
-  public MainWindow(String name) {
+  private MainWindow(String name) {
     super(name);
     setName("mainWindow");
     setMinimumSize(new Dimension(1050, 700));
 
-    instance = this;
+    instance = this; // NOSONAR
 
     initialize();
-
-    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) != true) {
-      checkForUpdate();
-    }
   }
 
   /**
@@ -124,60 +127,7 @@ public class MainWindow extends JFrame {
     logos.add(new LogoCircle(128).getImage());
     logos.add(new LogoCircle(256).getImage());
 
-    return logos;
-  }
-
-  private void checkForUpdate() {
-    try {
-      final UpdaterTask updateWorker = new UpdaterTask();
-
-      updateWorker.addPropertyChangeListener(evt -> {
-        if ("state".equals(evt.getPropertyName()) && evt.getNewValue() == StateValue.DONE) {
-          try {
-            boolean update = updateWorker.get();
-            LOGGER.debug("update result was: " + update);
-            if (update) {
-
-              // we might need this somewhen...
-              if (updateWorker.isForcedUpdate()) {
-                LOGGER.info("Updating (forced)...");
-                closeTmmAndStart(Utils.getPBforTMMupdate());
-                return;
-              }
-
-              // show whatsnewdialog with the option to update
-              if (StringUtils.isNotBlank(updateWorker.getChangelog())) {
-                UpdateDialog dialog = new UpdateDialog(updateWorker.getChangelog());
-                dialog.setVisible(true);
-              }
-              else {
-                // do the update without changelog popup
-                Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-                int answer = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.update.message"), BUNDLE.getString("tmm.update.title"),
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
-                if (answer == JOptionPane.YES_OPTION) {
-                  LOGGER.info("Updating...");
-
-                  // spawn getdown and exit TMM
-                  closeTmmAndStart(Utils.getPBforTMMupdate());
-                }
-              }
-            }
-          }
-          catch (Exception e) {
-            LOGGER.error("Update task failed!" + e.getMessage());
-          }
-        }
-      });
-
-      // update task start a few secs after GUI...
-      Timer timer = new Timer(5000, e -> updateWorker.execute());
-      timer.setRepeats(false);
-      timer.start();
-    }
-    catch (Exception e) {
-      LOGGER.error("Update task failed!" + e.getMessage());
-    }
+    return Collections.unmodifiableList(logos);
   }
 
   /**
@@ -188,20 +138,26 @@ public class MainWindow extends JFrame {
     setIconImages(LOGOS);
     setBounds(5, 5, 1100, 727);
     // do nothing, we have our own windowClosing() listener
-    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
-    toolbarPanel = new ToolbarPanel();
+    ToolbarPanel toolbarPanel = new ToolbarPanel();
     getContentPane().add(toolbarPanel, BorderLayout.NORTH);
 
     JPanel rootPanel = new JPanel();
-    rootPanel.putClientProperty("class", "rootPanel");
+    Color color = UIManager.getColor("Panel.tmmAlternateBackground");
+    if (color != null) {
+      rootPanel.setBackground(color);
+    }
     rootPanel.setLayout(new MigLayout("insets 0", "[900lp:n,grow]", "[300lp:400lp,grow,shrink 0]0[shrink 0]"));
 
     // to draw the shadow beneath the toolbar, encapsulate the panel
     JLayer<JComponent> rootLayer = new JLayer<>(rootPanel, new ShadowLayerUI()); // $hide$ - do not parse this in wbpro
     getContentPane().add(rootLayer, BorderLayout.CENTER);
 
-    splitPane = new TmmSplitPane();
+    JSplitPane splitPane = new JSplitPane();
+    splitPane.setOneTouchExpandable(true);
+    splitPane.setName("mainWindow.splitPane");
+    TmmUILayoutStore.getInstance().install(splitPane);
     rootPanel.add(splitPane, "cell 0 0, grow");
 
     tabbedPane = new MainTabbedPane() {
@@ -210,7 +166,6 @@ public class MainWindow extends JFrame {
       @Override
       public void updateUI() {
         putClientProperty("rightBorder", "half");
-        putClientProperty("bottomBorder", Boolean.FALSE);
         super.updateUI();
       }
     };
@@ -221,7 +176,7 @@ public class MainWindow extends JFrame {
     detailPanel.setLayout(new CardLayout(0, 0));
     splitPane.setRightComponent(detailPanel);
 
-    panelStatusBar = new StatusBarPanel();
+    JPanel panelStatusBar = new StatusBarPanel();
     rootPanel.add(panelStatusBar, "cell 0 1,grow");
 
     addModule(MovieUIModule.getInstance());
@@ -263,18 +218,14 @@ public class MainWindow extends JFrame {
 
     // inform user that MI could not be loaded
     if (Platform.isLinux() && StringUtils.isBlank(MediaInfo.version())) {
-      SwingUtilities.invokeLater(() -> {
-        JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux"));
-      });
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux")));
     }
 
     // inform user that something happened while loading the modules
     for (ITmmModule module : TmmModuleManager.getInstance().getModules()) {
       if (!module.getStartupMessages().isEmpty()) {
         for (String message : module.getStartupMessages()) {
-          SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(MainWindow.this, message); // $NON-NLS-1$
-          });
+          SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, message));
         }
       }
     }
@@ -300,6 +251,9 @@ public class MainWindow extends JFrame {
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");
       try {
+        // persist all stored properties
+        TmmProperties.getInstance().writeProperties();
+
         // send shutdown signal
         TmmTaskManager.getInstance().shutdown();
         // save unsaved settings
@@ -317,29 +271,16 @@ public class MainWindow extends JFrame {
       // spawn our process
       if (pb != null) {
         try {
-          LOGGER.info("Going to execute: " + pb.command());
+          LOGGER.info("Going to execute: {}", pb.command());
           pb.start();
         }
-        catch (IOException e) {
+        catch (Exception e) {
           LOGGER.error("Cannot spawn process:", e);
         }
       }
       shutdownLogger();
       System.exit(0); // calling the method is a must
     }
-  }
-
-  JSplitPane getSplitPane() {
-    return splitPane;
-  }
-
-  /**
-   * Gets the active instance.
-   * 
-   * @return the active instance
-   */
-  public static MainWindow getActiveInstance() {
-    return instance;
   }
 
   /**

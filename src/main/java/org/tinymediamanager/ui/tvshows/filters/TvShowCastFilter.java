@@ -17,11 +17,8 @@ package org.tinymediamanager.ui.tvshows.filters;
 
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.entities.Person;
@@ -35,8 +32,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Manuel Laggner
  */
-public class TvShowCastFilter extends AbstractTvShowUIFilter {
-  private JTextField textField;
+public class TvShowCastFilter extends AbstractTextTvShowUIFilter {
 
   @Override
   public String getId() {
@@ -44,31 +40,16 @@ public class TvShowCastFilter extends AbstractTvShowUIFilter {
   }
 
   @Override
-  public String getFilterValueAsString() {
-    return textField.getText();
-  }
-
-  @Override
-  public void setFilterValue(Object value) {
-    if (value instanceof String) {
-      textField.setText((String) value);
-    }
-  }
-
-  @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
-    String filterText = StrgUtils.normalizeString(textField.getText());
-    if (StringUtils.isBlank(filterText)) {
+    if (StringUtils.isBlank(normalizedFilterText)) {
       return true;
     }
 
     try {
-      Pattern pattern = Pattern.compile(filterText, Pattern.CASE_INSENSITIVE);
-
       // first: filter on the base cast of the TV show
       boolean foundShow = false;
       for (Person actor : tvShow.getActors()) {
-        Matcher matcher = pattern.matcher(StrgUtils.normalizeString(actor.getName()));
+        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(actor.getName()));
         if (matcher.find()) {
           foundShow = true;
         }
@@ -90,7 +71,7 @@ public class TvShowCastFilter extends AbstractTvShowUIFilter {
 
         for (Person director : episode.getDirectors()) {
           if (StringUtils.isNotBlank(director.getName())) {
-            Matcher matcher = pattern.matcher(StrgUtils.normalizeString(director.getName()));
+            Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(director.getName()));
             if (matcher.find()) {
               foundDirector = true;
               break;
@@ -99,7 +80,7 @@ public class TvShowCastFilter extends AbstractTvShowUIFilter {
         }
         for (Person writer : episode.getWriters()) {
           if (StringUtils.isNotBlank(writer.getName())) {
-            Matcher matcher = pattern.matcher(StrgUtils.normalizeString(writer.getName()));
+            Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(writer.getName()));
             if (matcher.find()) {
               foundWriter = true;
               break;
@@ -108,7 +89,7 @@ public class TvShowCastFilter extends AbstractTvShowUIFilter {
         }
         for (Person actor : episode.getGuests()) {
           if (StringUtils.isNotBlank(actor.getName())) {
-            Matcher matcher = pattern.matcher(StrgUtils.normalizeString(actor.getName()));
+            Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(actor.getName()));
             if (matcher.find()) {
               foundGuest = true;
               break;
@@ -136,11 +117,5 @@ public class TvShowCastFilter extends AbstractTvShowUIFilter {
   @Override
   protected JLabel createLabel() {
     return new TmmLabel(BUNDLE.getString("movieextendedsearch.cast"));
-  }
-
-  @Override
-  protected JComponent createFilterComponent() {
-    textField = new JTextField();
-    return textField;
   }
 }

@@ -120,6 +120,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
    */
   public MovieSearchAndScrapeOptions getMovieSearchAndScrapeOptions() {
     MovieSearchAndScrapeOptions movieSearchAndScrapeConfig = new MovieSearchAndScrapeOptions();
+    movieSearchAndScrapeConfig.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
 
     // artwork scrapers
     movieSearchAndScrapeConfig.setArtworkScraper(cbArtworkScraper.getSelectedItems());

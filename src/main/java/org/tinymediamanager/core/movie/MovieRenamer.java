@@ -89,7 +89,6 @@ public class MovieRenamer {
   private static final List<String>       KNOWN_IMAGE_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "bmp", "tbn", "gif");
 
   // to not use posix here
-  private static final Pattern            ALPHANUM                    = Pattern.compile(".*?([a-zA-Z0-9]{1}).*$");
   private static final Pattern            TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
   private static final Pattern            YEAR_ID_PATTERN             = Pattern.compile("\\$\\{.*?(year|imdb|tmdb).*?\\}", Pattern.CASE_INSENSITIVE);
 
@@ -1185,22 +1184,6 @@ public class MovieRenamer {
   }
 
   /**
-   * gets the first alpha-numeric character
-   *
-   * @param text
-   * @return A-Z0-9 or empty
-   */
-  protected static String getFirstAlphaNum(String text) {
-    if (StringUtils.isNotBlank(text)) {
-      Matcher m = ALPHANUM.matcher(text);
-      if (m.find()) {
-        return m.group(1).toUpperCase(Locale.ROOT);
-      }
-    }
-    return ""; // text empty/null/no alphanum
-  }
-
-  /**
    * Creates the new file/folder name according to template string
    * 
    * @param template
@@ -1459,21 +1442,18 @@ public class MovieRenamer {
     @Override
     public String render(Object o, String s, Locale locale, Map<String, Object> map) {
       if (o instanceof String && StringUtils.isNotBlank((String) o)) {
-        String source = (String) o;
-        if (MovieModuleManager.SETTINGS.isAsciiReplacement()) {
-          source = StrgUtils.convertToAscii(source, false);
-        }
+        String source = StrgUtils.convertToAscii((String) o, false);
         String first = source.trim().substring(0, 1);
         if (first.matches("[\\p{L}]")) {
           return first.toUpperCase(Locale.ROOT);
         }
-        return "#";
+        return MovieModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       if (o instanceof Number) {
-        return "#";
+        return MovieModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       if (o instanceof Date) {
-        return "#";
+        return MovieModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       return "";
     }

@@ -15,33 +15,36 @@
  */
 package org.tinymediamanager.ui.plaf;
 
-import java.awt.Composite;
+import java.awt.Adjustable;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicScrollBarUI;
 
-import com.jtattoo.plaf.AbstractLookAndFeel;
+import org.tinymediamanager.ui.components.table.TmmTable;
+
+import com.formdev.flatlaf.ui.FlatScrollBarUI;
 
 /**
  * The Class TmmScrollBarUI.
  *
  * @author Manuel Laggner
  */
-public class TmmScrollBarUI extends BasicScrollBarUI {
-  protected static int SCROLL_BAR_WIDTH = 16;
-  protected static int TRACK_WIDTH      = 8;
+public class TmmScrollBarUI extends FlatScrollBarUI {
 
-  protected static int GAP              = 4;
+  private int   width;
+  private int   thumbWidth;
+  private int   gap;
 
-  protected boolean    swapColors;
+  private Color borderColor;
 
   public static ComponentUI createUI(JComponent c) {
     return new TmmScrollBarUI();
@@ -55,85 +58,36 @@ public class TmmScrollBarUI extends BasicScrollBarUI {
   protected void installDefaults() {
     super.installDefaults();
 
-    Object swapColors = scrollbar.getClientProperty("swapColors");
-    if (swapColors != null && "true".equals(swapColors.toString())) {
-      this.swapColors = true;
+    width = UIManager.getInt("ScrollBar.width");
+    thumbWidth = UIManager.getInt("ScrollBar.thumbWidth");
+    if (thumbWidth == 0) {
+      thumbWidth = width / 2;
     }
-    else {
-      this.swapColors = false;
-    }
-  }
-
-  @Override
-  public Dimension getPreferredSize(JComponent c) {
-    if (scrollbar.getOrientation() == JScrollBar.VERTICAL) {
-      return new Dimension(SCROLL_BAR_WIDTH, SCROLL_BAR_WIDTH * 2 + 16);
-    }
-    else {
-      return new Dimension(SCROLL_BAR_WIDTH * 2 + 16, SCROLL_BAR_WIDTH);
-    }
-  }
-
-  @Override
-  protected Dimension getMinimumThumbSize() {
-    if (scrollbar.getOrientation() == JScrollBar.VERTICAL) {
-      return new Dimension(TRACK_WIDTH - 2, SCROLL_BAR_WIDTH * 2);
-    }
-    else {
-      return new Dimension(SCROLL_BAR_WIDTH * 2, TRACK_WIDTH - 2);
-    }
-  }
-
-  @Override
-  protected Dimension getMaximumThumbSize() {
-    if (scrollbar.getOrientation() == JScrollBar.VERTICAL) {
-      return new Dimension(TRACK_WIDTH - 2, SCROLL_BAR_WIDTH * 3);
-    }
-    else {
-      return new Dimension(SCROLL_BAR_WIDTH * 3, TRACK_WIDTH - 2);
-    }
-  }
-
-  @Override
-  protected JButton createDecreaseButton(int orientation) {
-    return createZeroButton();
-  }
-
-  @Override
-  protected JButton createIncreaseButton(int orientation) {
-    return createZeroButton();
-  }
-
-  protected JButton createZeroButton() {
-    JButton button = new JButton("zero button");
-    Dimension zeroDim = new Dimension(0, 0);
-    button.setPreferredSize(zeroDim);
-    button.setMinimumSize(zeroDim);
-    button.setMaximumSize(zeroDim);
-    return button;
+    gap = UIManager.getInt("ScrollBar.gap");
+    borderColor = UIManager.getColor("Component.borderColor");
   }
 
   @Override
   protected void layoutVScrollbar(JScrollBar sb) {
     super.layoutVScrollbar(sb);
 
-    // special case: no scrolling is needed; the logic above will paint the thumb at bottom;
+    // special case: no scrolling is needed; the logic above will paint the thumb at bottom
     // paint it on top
     if (sb.getValue() == 0) {
-      thumbRect.setBounds(thumbRect.x, -1 + GAP, thumbRect.width, thumbRect.height - 2 * GAP);
+      thumbRect.setBounds(thumbRect.x, -1 + gap, thumbRect.width, thumbRect.height - 2 * gap);
     }
     else {
-      thumbRect.setBounds(thumbRect.x, thumbRect.y + GAP, thumbRect.width, thumbRect.height - 2 * GAP);
+      thumbRect.setBounds(thumbRect.x, thumbRect.y + gap, thumbRect.width, thumbRect.height - 2 * gap);
     }
-    trackRect.setBounds(trackRect.x, trackRect.y + GAP, trackRect.width, trackRect.height - 2 * GAP);
+    trackRect.setBounds(trackRect.x, trackRect.y + gap, trackRect.width, trackRect.height - 2 * gap);
   }
 
   @Override
   protected void layoutHScrollbar(JScrollBar sb) {
     super.layoutHScrollbar(sb);
 
-    trackRect.setBounds(trackRect.x + GAP, trackRect.y, trackRect.width - 2 * GAP, trackRect.height);
-    thumbRect.setBounds(thumbRect.x + GAP, thumbRect.y, thumbRect.width - 2 * GAP, thumbRect.height);
+    trackRect.setBounds(trackRect.x + gap, trackRect.y, trackRect.width - 2 * gap, trackRect.height);
+    thumbRect.setBounds(thumbRect.x + gap, thumbRect.y, thumbRect.width - 2 * gap, thumbRect.height);
   }
 
   @Override
@@ -143,35 +97,30 @@ public class TmmScrollBarUI extends BasicScrollBarUI {
       return;
     }
 
-    // background
-    if (scrollbar.isOpaque()) {
-      if (swapColors) {
-        c.setBackground(AbstractLookAndFeel.getTheme().getTrackColors()[0]);
-        g.setColor(AbstractLookAndFeel.getTheme().getBackgroundColorDark());
-      }
-      else {
-        c.setBackground(AbstractLookAndFeel.getTheme().getBackgroundColor());
-        g.setColor(AbstractLookAndFeel.getTheme().getTrackColors()[0]);
-      }
-    }
+    g.setColor(trackColor);
 
     // track
-    Graphics2D g2D = (Graphics2D) g;
-    Composite savedComposite = g2D.getComposite();
-    RenderingHints savedRenderingHints = g2D.getRenderingHints();
-    g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    if (scrollbar.getOrientation() == JScrollBar.VERTICAL) {
-      int x = (SCROLL_BAR_WIDTH - TRACK_WIDTH) / 2;
-      g.fillRoundRect(trackBounds.x + x, trackBounds.y, TRACK_WIDTH, trackBounds.height, TRACK_WIDTH, TRACK_WIDTH);
-    }
-    else {
-      int y = (SCROLL_BAR_WIDTH - TRACK_WIDTH) / 2;
-      g.fillRoundRect(trackBounds.x, trackBounds.y + y, trackBounds.width, TRACK_WIDTH, TRACK_WIDTH, TRACK_WIDTH);
+    if (scrollbar.isEnabled()) {
+      if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
+        int x = (width - thumbWidth) / 2;
+        g.fillRoundRect(trackBounds.x + x, trackBounds.y, thumbWidth, trackBounds.height, thumbWidth, thumbWidth);
+      }
+      else {
+        int y = (width - thumbWidth) / 2;
+        g.fillRoundRect(trackBounds.x, trackBounds.y + y, trackBounds.width, thumbWidth, thumbWidth, thumbWidth);
+      }
     }
 
-    g2D.setComposite(savedComposite);
-    g2D.setRenderingHints(savedRenderingHints);
+    if (c.getParent() instanceof JScrollPane
+        && (((JScrollPane) c.getParent()).getBorder() != null || ((JScrollPane) c.getParent()).getViewport().getView() instanceof TmmTable)) {
+      g.setColor(borderColor);
+      if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
+        g.drawLine(0, 0, 0, c.getHeight());
+      }
+      else {
+        g.drawLine(0, 0, c.getWidth(), 0);
+      }
+    }
   }
 
   @Override
@@ -180,32 +129,44 @@ public class TmmScrollBarUI extends BasicScrollBarUI {
       return;
     }
 
+    if (thumbBounds.isEmpty() || !scrollbar.isEnabled()) {
+      return;
+    }
+
+    Graphics2D g2d = (Graphics2D) g;
+    g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+
+    g.setColor(thumbColor);
     g.translate(thumbBounds.x, thumbBounds.y);
 
-    Graphics2D g2D = (Graphics2D) g;
-    Composite savedComposite = g2D.getComposite();
-    RenderingHints savedRenderingHints = g2D.getRenderingHints();
-    g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    if (swapColors) {
-      g.setColor(AbstractLookAndFeel.getTheme().getTrackColors()[0]);
+    if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
+      int x = (width - thumbWidth) / 2;
+      g.fillRoundRect(x + 1, 2, thumbWidth - 2, thumbBounds.height - 4, thumbWidth - 2, thumbWidth - 2);
     }
     else {
-      g.setColor(AbstractLookAndFeel.getTheme().getThumbColors()[0]);
+      int y = (width - thumbWidth) / 2;
+      g.fillRoundRect(2, y + 1, thumbBounds.width - 4, thumbWidth - 2, thumbWidth - 2, thumbWidth - 2);
     }
+  }
 
-    if (scrollbar.getOrientation() == JScrollBar.VERTICAL) {
-      int x = (SCROLL_BAR_WIDTH - TRACK_WIDTH) / 2;
-      g.fillRoundRect(x + 1, 2, TRACK_WIDTH - 2, thumbBounds.height - 4, TRACK_WIDTH - 2, TRACK_WIDTH - 2);
+  @Override
+  protected Dimension getMinimumThumbSize() {
+
+    if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
+      return new Dimension(thumbWidth - 2, width * 2);
     }
     else {
-      int y = (SCROLL_BAR_WIDTH - TRACK_WIDTH) / 2;
-      g.fillRoundRect(2, y + 1, thumbBounds.width - 4, TRACK_WIDTH - 2, TRACK_WIDTH - 2, TRACK_WIDTH - 2);
+      return new Dimension(width * 2, thumbWidth - 2);
     }
+  }
 
-    g2D.setComposite(savedComposite);
-    g2D.setRenderingHints(savedRenderingHints);
-
-    g.translate(-thumbBounds.x, -thumbBounds.y);
+  @Override
+  protected Dimension getMaximumThumbSize() {
+    if (scrollbar.getOrientation() == Adjustable.VERTICAL) {
+      return new Dimension(thumbWidth - 2, width * 3);
+    }
+    else {
+      return new Dimension(width * 3, thumbWidth - 2);
+    }
   }
 }

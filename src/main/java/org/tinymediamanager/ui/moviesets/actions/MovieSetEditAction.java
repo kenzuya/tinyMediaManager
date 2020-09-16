@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
@@ -38,7 +37,7 @@ import org.tinymediamanager.ui.moviesets.dialogs.MovieSetEditorDialog;
  */
 public class MovieSetEditAction extends TmmAction {
   private static final long           serialVersionUID = 1848573591741154631L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieSetEditAction() {
     putValue(NAME, BUNDLE.getString("movieset.edit"));
@@ -55,7 +54,7 @@ public class MovieSetEditAction extends TmmAction {
     int index = 0;
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

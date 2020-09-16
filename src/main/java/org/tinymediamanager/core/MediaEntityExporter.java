@@ -72,9 +72,9 @@ public abstract class MediaEntityExporter {
 
     // load settings from template
     properties = new Properties();
-    BufferedInputStream stream = new BufferedInputStream(new FileInputStream(configFile.toFile()));
-    properties.load(stream);
-    stream.close();
+    try (FileInputStream fis = new FileInputStream(configFile.toFile()); BufferedInputStream bis = new BufferedInputStream(fis)) {
+      properties.load(bis);
+    }
 
     // check needed settings
     String typeInConfig = properties.getProperty("type");
@@ -89,9 +89,7 @@ public abstract class MediaEntityExporter {
 
     // get other settings
     String detailTemplateFile = properties.getProperty("detail");
-    fileExtension = StringUtils.isBlank(properties.getProperty("extension")) 
-        ? "html" 
-        : properties.getProperty("extension").toLowerCase();
+    fileExtension = StringUtils.isBlank(properties.getProperty("extension")) ? "html" : properties.getProperty("extension").toLowerCase();
 
     // set up engine
     engine = Engine.createEngine();
@@ -148,13 +146,11 @@ public abstract class MediaEntityExporter {
 
           // load settings from template
           Properties properties = new Properties();
-          try {
-            BufferedInputStream stream = new BufferedInputStream(new FileInputStream(config.toFile()));
-            properties.load(stream);
-            stream.close();
+          try (FileInputStream fis = new FileInputStream(config.toFile()); BufferedInputStream bis = new BufferedInputStream(fis)) {
+            properties.load(bis);
           }
           catch (Exception e) {
-            LOGGER.warn("error in config: " + path + " | " + e.getMessage());
+            LOGGER.warn("error in config \"{}\" - {} ", path, e.getMessage());
             continue;
           }
 
@@ -184,6 +180,7 @@ public abstract class MediaEntityExporter {
       }
     }
     catch (IOException ignored) {
+      // nothing to do
     }
 
     return templatesFound;

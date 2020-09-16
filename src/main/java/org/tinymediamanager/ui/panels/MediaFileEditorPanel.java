@@ -22,7 +22,6 @@ import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListCellRenderer;
@@ -55,12 +53,12 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -68,8 +66,8 @@ import org.tinymediamanager.ui.DoubleInputVerifier;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
-import org.tinymediamanager.ui.components.TmmSplitPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
 import net.miginfocom.swing.MigLayout;
@@ -82,7 +80,7 @@ import net.miginfocom.swing.MigLayout;
 public class MediaFileEditorPanel extends JPanel {
   private static final long               serialVersionUID = -2416409052145301941L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle     BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle     BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static final Map<Float, String> ASPECT_RATIOS    = createAspectRatios();
 
@@ -106,6 +104,8 @@ public class MediaFileEditorPanel extends JPanel {
   private JTextField                      tfFrameRate;
   private JTextField                      tfBitDepth;
   private JTextField                      tfHdrFormat;
+  private JTextField                      tfVideoBitrate;
+  private JTextField                      tfRuntime;
 
   public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
     this.mediaFiles = ObservableCollections.observableList(new ArrayList<>());
@@ -114,21 +114,15 @@ public class MediaFileEditorPanel extends JPanel {
       this.mediaFiles.add(container);
     }
 
-    Vector<Float> aspectRatios = new Vector<>(ASPECT_RATIOS.keySet());
+    Float[] aspectRatios = ASPECT_RATIOS.keySet().toArray(new Float[0]);
 
     // predefined 3D Formats
-    Vector<String> threeDFormats = new Vector<>();
-    threeDFormats.add("");
-    threeDFormats.add(MediaFileHelper.VIDEO_3D);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_SBS);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_HSBS);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_TAB);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_HTAB);
-    threeDFormats.add(MediaFileHelper.VIDEO_3D_MVC);
+    String[] threeDFormats = { "", MediaFileHelper.VIDEO_3D, MediaFileHelper.VIDEO_3D_SBS, MediaFileHelper.VIDEO_3D_HSBS,
+        MediaFileHelper.VIDEO_3D_TAB, MediaFileHelper.VIDEO_3D_HTAB, MediaFileHelper.VIDEO_3D_MVC };
 
     setLayout(new MigLayout("", "[300lp:450lp,grow]", "[200lp:450lp,grow]"));
     {
-      JSplitPane splitPane = new TmmSplitPane();
+      JSplitPane splitPane = new JSplitPane();
       add(splitPane, "cell 0 0,grow");
       {
         JPanel panelMediaFiles = new JPanel();
@@ -140,13 +134,12 @@ public class MediaFileEditorPanel extends JPanel {
 
         tableMediaFiles = new TmmTable();
         tableMediaFiles.configureScrollPane(scrollPaneMediaFiles);
-        scrollPaneMediaFiles.setViewportView(tableMediaFiles);
       }
       {
         JPanel panelDetails = new JPanel();
         splitPane.setRightComponent(panelDetails);
-        panelDetails.setLayout(
-            new MigLayout("", "[][65lp:65lp,grow][20lp:n][][65lp:65lp,grow][20lp:n][][][50lp:n,grow]", "[][][][][][100lp:150lp][100lp:150lp]"));
+        panelDetails
+            .setLayout(new MigLayout("", "[][75lp:n][20lp:n][][75lp:n][20lp:n][][75lp:n][50lp:n,grow]", "[][][][][][100lp:150lp][100lp:150lp]"));
         {
           lblFilename = new JLabel("");
           TmmFontHelper.changeFont(lblFilename, 1.167, Font.BOLD);
@@ -202,7 +195,7 @@ public class MediaFileEditorPanel extends JPanel {
               return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
             }
           });
-          panelDetails.add(cbAspectRatio, "cell 7 2,growx");
+          panelDetails.add(cbAspectRatio, "cell 7 2");
         }
         {
           JLabel lblFrameRate = new TmmLabel(BUNDLE.getString("metatag.framerate"));
@@ -214,12 +207,21 @@ public class MediaFileEditorPanel extends JPanel {
           tfFrameRate.setColumns(10);
         }
         {
-          JLabel lbld = new TmmLabel("3D Format");
-          panelDetails.add(lbld, "cell 3 3,alignx right");
-
-          cb3dFormat = new JComboBox(threeDFormats);
-          panelDetails.add(cb3dFormat, "cell 4 3,growx,aligny top");
+          JLabel lblVideoBitrate = new TmmLabel(BUNDLE.getString("metatag.bitrate"));
+          panelDetails.add(lblVideoBitrate, "cell 3 3,alignx trailing");
         }
+
+        tfVideoBitrate = new JTextField();
+        panelDetails.add(tfVideoBitrate, "cell 4 3");
+        tfVideoBitrate.setColumns(10);
+        tfVideoBitrate.setInputVerifier(new IntegerInputVerifier());
+        {
+          JLabel lbl3d = new TmmLabel("3D Format");
+          panelDetails.add(lbl3d, "cell 6 3,alignx right");
+        }
+
+        cb3dFormat = new JComboBox(threeDFormats);
+        panelDetails.add(cb3dFormat, "cell 7 3");
         {
           JLabel lblBitDepthT = new TmmLabel(BUNDLE.getString("metatag.videobitdepth"));
           panelDetails.add(lblBitDepthT, "cell 0 4,alignx trailing");
@@ -238,6 +240,15 @@ public class MediaFileEditorPanel extends JPanel {
           tfHdrFormat.setColumns(10);
         }
         {
+          JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+          panelDetails.add(lblRuntimeT, "cell 6 4,alignx trailing");
+
+          tfRuntime = new JTextField();
+          panelDetails.add(tfRuntime, "cell 7 4");
+          tfRuntime.setColumns(5);
+          tfRuntime.setInputVerifier(new IntegerInputVerifier());
+        }
+        {
           JLabel lblAudiostreams = new TmmLabel("AudioStreams");
           panelDetails.add(lblAudiostreams, "flowy,cell 0 5,alignx right,aligny top");
 
@@ -246,7 +257,6 @@ public class MediaFileEditorPanel extends JPanel {
 
           tableAudioStreams = new TmmTable();
           tableAudioStreams.configureScrollPane(scrollPane);
-          scrollPane.setViewportView(tableAudioStreams);
         }
         {
           JLabel lblSubtitles = new TmmLabel("Subtitles");
@@ -257,34 +267,21 @@ public class MediaFileEditorPanel extends JPanel {
 
           tableSubtitles = new TmmTable();
           tableSubtitles.configureScrollPane(scrollPane);
-          scrollPane.setViewportView(tableSubtitles);
         }
         {
-          btnAddAudioStream = new JButton("");
-          btnAddAudioStream.setAction(new AddAudioStreamAction());
-          btnAddAudioStream.setMargin(new Insets(2, 2, 2, 2));
-          btnAddAudioStream.setIcon(IconManager.ADD_INV);
+          btnAddAudioStream = new SquareIconButton(new AddAudioStreamAction());
           panelDetails.add(btnAddAudioStream, "cell 0 5,alignx right,aligny top");
         }
         {
-          btnRemoveAudioStream = new JButton("");
-          btnRemoveAudioStream.setAction(new RemoveAudioStreamAction());
-          btnRemoveAudioStream.setMargin(new Insets(2, 2, 2, 2));
-          btnRemoveAudioStream.setIcon(IconManager.REMOVE_INV);
+          btnRemoveAudioStream = new SquareIconButton(new RemoveAudioStreamAction());
           panelDetails.add(btnRemoveAudioStream, "cell 0 5,alignx right,aligny top");
         }
         {
-          btnAddSubtitle = new JButton("");
-          btnAddSubtitle.setAction(new AddSubtitleAction());
-          btnAddSubtitle.setMargin(new Insets(2, 2, 2, 2));
-          btnAddSubtitle.setIcon(IconManager.ADD_INV);
+          btnAddSubtitle = new SquareIconButton(new AddSubtitleAction());
           panelDetails.add(btnAddSubtitle, "cell 0 6,alignx right,aligny top");
         }
         {
-          btnRemoveSubtitle = new JButton("");
-          btnRemoveSubtitle.setAction(new RemoveSubtitleAction());
-          btnRemoveSubtitle.setMargin(new Insets(2, 2, 2, 2));
-          btnRemoveSubtitle.setIcon(IconManager.REMOVE_INV);
+          btnRemoveSubtitle = new SquareIconButton(new RemoveSubtitleAction());
           panelDetails.add(btnRemoveSubtitle, "cell 0 6,alignx right,aligny top");
         }
       }
@@ -300,7 +297,7 @@ public class MediaFileEditorPanel extends JPanel {
     // add selection listener to disable editing when needed
     tableMediaFiles.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
-      private Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
+      private final Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
 
       @Override
       public void valueChanged(ListSelectionEvent arg0) {
@@ -317,6 +314,8 @@ public class MediaFileEditorPanel extends JPanel {
             btnRemoveSubtitle.setEnabled(videoTypes.contains(mf.getType()));
             // 3D is only available for video types
             cb3dFormat.setEnabled(videoTypes.contains(mf.getType()));
+            // runtime is also only available for video types
+            tfRuntime.setEnabled(videoTypes.contains(mf.getType()));
           }
         }
       }
@@ -327,13 +326,17 @@ public class MediaFileEditorPanel extends JPanel {
   private static Map<Float, String> createAspectRatios() {
     LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
     predefinedValues.put(0f, "calculated");
-    predefinedValues.put(1.33f, "1.33 (4:3)");
-    predefinedValues.put(1.77f, "1.755 (16:9)");
-    predefinedValues.put(1.85f, "1.85 (16:9 / widescreen)");
-    predefinedValues.put(2.0f, "2.00 (18:9 / Univisium)");
-    predefinedValues.put(2.35f, "2.35 (21:9 / cinemascope)");
-    predefinedValues.put(2.39f, "2.39 (12:5 / theatrical widescreen)");
-
+    predefinedValues.put(1.33f, "4:3 (1.33:1)");
+    predefinedValues.put(1.37f, "11:8 (1.37:1)");
+    predefinedValues.put(1.43f, "IMAX (1.43:1)");
+    predefinedValues.put(1.56f, "14:9 (1.56:1)");
+    predefinedValues.put(1.66f, "5:3 (1.66:1)");
+    predefinedValues.put(1.78f, "16:9 (1.78:1)");
+    predefinedValues.put(1.85f, "Widescreen (1.85:1)");
+    predefinedValues.put(1.90f, "Digital IMAX (1.90:1)");
+    predefinedValues.put(2.20f, "70mm (2.20:1)");
+    predefinedValues.put(2.35f, "Anamorphic (2.35:1)");
+    predefinedValues.put(2.40f, "Anamorphic widescreen (2.39:1 & 12:5)");
     return predefinedValues;
   }
 
@@ -342,6 +345,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public AddAudioStreamAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("audiostream.add"));
+      putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
@@ -360,6 +364,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public RemoveAudioStreamAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("audiostream.remove"));
+      putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
     @Override
@@ -384,6 +389,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public AddSubtitleAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("subtitle.add"));
+      putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
@@ -402,6 +408,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public RemoveSubtitleAction() {
       putValue(SHORT_DESCRIPTION, BUNDLE.getString("subtitle.remove"));
+      putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
     @Override
@@ -436,10 +443,10 @@ public class MediaFileEditorPanel extends JPanel {
   /*
    * Container needed to make the audio streams and subtitles editable
    */
-  public class MediaFileContainer {
-    private MediaFile                  mediaFile;
-    private List<MediaFileAudioStream> audioStreams;
-    private List<MediaFileSubtitle>    subtitles;
+  public static class MediaFileContainer {
+    private final MediaFile                  mediaFile;
+    private final List<MediaFileAudioStream> audioStreams;
+    private final List<MediaFileSubtitle>    subtitles;
 
     private MediaFileContainer(MediaFile mediaFile) {
       this.mediaFile = mediaFile;
@@ -520,6 +527,12 @@ public class MediaFileEditorPanel extends JPanel {
           if (mfEditor.getBitDepth() != mfOriginal.getBitDepth()) {
             mfOriginal.setBitDepth(mfEditor.getBitDepth());
           }
+          if (mfEditor.getOverallBitRate() != mfOriginal.getOverallBitRate()) {
+            mfOriginal.setOverallBitRate(mfEditor.getOverallBitRate());
+          }
+          if (mfEditor.getDuration() != mfOriginal.getDuration()) {
+            mfOriginal.setDuration(mfEditor.getDuration());
+          }
           // audio streams and subtitles will be completely set
           mfOriginal.setAudioStreams(mfEditor.getAudioStreams());
           mfOriginal.setSubtitles(mfEditor.getSubtitles());
@@ -538,102 +551,113 @@ public class MediaFileEditorPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    JTableBinding<MediaFileContainer, List<MediaFileContainer>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE,
-        mediaFiles, tableMediaFiles);
+    JTableBinding jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, mediaFiles, tableMediaFiles);
     //
-    BeanProperty<MediaFileContainer, String> mediaFileContainerBeanProperty = BeanProperty.create("mediaFile.filename");
+    Property mediaFileContainerBeanProperty = BeanProperty.create("mediaFile.filename");
     jTableBinding.addColumnBinding(mediaFileContainerBeanProperty).setColumnName("Filename").setEditable(false);
     //
     jTableBinding.setEditable(false);
     jTableBinding.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.mediaFile.filename");
-    BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<JTable, String, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        jTableBeanProperty, lblFilename, jLabelBeanProperty);
+    Property jTableBeanProperty = BeanProperty.create("selectedElement.mediaFile.filename");
+    Property jLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty, lblFilename,
+        jLabelBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty_1 = BeanProperty.create("selectedElement.mediaFile.videoCodec");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty.create("text");
-    AutoBinding<JTable, String, JTextField, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        jTableBeanProperty_1, tfCodec, jTextFieldBeanProperty);
+    Property jTableBeanProperty_1 = BeanProperty.create("selectedElement.mediaFile.videoCodec");
+    Property jTextFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_1, tfCodec,
+        jTextFieldBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty_3 = BeanProperty.create("selectedElement.mediaFile.containerFormat");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_2 = BeanProperty.create("text");
-    AutoBinding<JTable, String, JTextField, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        jTableBeanProperty_3, tfContainerFormat, jTextFieldBeanProperty_2);
+    Property jTableBeanProperty_3 = BeanProperty.create("selectedElement.mediaFile.containerFormat");
+    Property jTextFieldBeanProperty_2 = BeanProperty.create("text");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_3, tfContainerFormat,
+        jTextFieldBeanProperty_2);
     autoBinding_3.bind();
     //
-    BeanProperty<JTable, Integer> jTableBeanProperty_5 = BeanProperty.create("selectedElement.mediaFile.videoWidth");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_4 = BeanProperty.create("text");
-    AutoBinding<JTable, Integer, JTextField, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        jTableBeanProperty_5, tfWidth, jTextFieldBeanProperty_4);
+    Property jTableBeanProperty_5 = BeanProperty.create("selectedElement.mediaFile.videoWidth");
+    Property jTextFieldBeanProperty_4 = BeanProperty.create("text");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_5, tfWidth,
+        jTextFieldBeanProperty_4);
     autoBinding_5.bind();
     //
-    BeanProperty<JTable, Integer> jTableBeanProperty_6 = BeanProperty.create("selectedElement.mediaFile.videoHeight");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_5 = BeanProperty.create("text");
-    AutoBinding<JTable, Integer, JTextField, String> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        jTableBeanProperty_6, tfHeight, jTextFieldBeanProperty_5);
+    Property jTableBeanProperty_6 = BeanProperty.create("selectedElement.mediaFile.videoHeight");
+    Property jTextFieldBeanProperty_5 = BeanProperty.create("text");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_6, tfHeight,
+        jTextFieldBeanProperty_5);
     autoBinding_6.bind();
     //
-    BeanProperty<JTable, List<MediaFileAudioStream>> jTableBeanProperty_2 = BeanProperty.create("selectedElement.audioStreams");
-    JTableBinding<MediaFileAudioStream, JTable, JTable> jTableBinding_1 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE,
-        tableMediaFiles, jTableBeanProperty_2, tableAudioStreams);
+    Property jTableBeanProperty_2 = BeanProperty.create("selectedElement.audioStreams");
+    JTableBinding jTableBinding_1 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_2,
+        tableAudioStreams);
     //
-    BeanProperty<MediaFileAudioStream, String> mediaFileAudioStreamBeanProperty = BeanProperty.create("language");
+    Property mediaFileAudioStreamBeanProperty = BeanProperty.create("language");
     jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty).setColumnName("Language").setColumnClass(String.class);
     //
-    BeanProperty<MediaFileAudioStream, String> mediaFileAudioStreamBeanProperty_1 = BeanProperty.create("codec");
+    Property mediaFileAudioStreamBeanProperty_1 = BeanProperty.create("codec");
     jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_1).setColumnName("Codec");
     //
-    BeanProperty<MediaFileAudioStream, String> mediaFileAudioStreamBeanProperty_2 = BeanProperty.create("audioChannels");
+    Property mediaFileAudioStreamBeanProperty_2 = BeanProperty.create("audioChannels");
     jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_2).setColumnName("Channels");
     //
-    BeanProperty<MediaFileAudioStream, Integer> mediaFileAudioStreamBeanProperty_3 = BeanProperty.create("bitrate");
+    Property mediaFileAudioStreamBeanProperty_3 = BeanProperty.create("bitrate");
     jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_3).setColumnName("Bitrate").setColumnClass(Integer.class);
     //
     jTableBinding_1.bind();
     //
-    BeanProperty<JTable, List<MediaFileSubtitle>> jTableBeanProperty_4 = BeanProperty.create("selectedElement.subtitles");
-    JTableBinding<MediaFileSubtitle, JTable, JTable> jTableBinding_2 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        jTableBeanProperty_4, tableSubtitles);
+    Property jTableBeanProperty_4 = BeanProperty.create("selectedElement.subtitles");
+    JTableBinding jTableBinding_2 = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_4,
+        tableSubtitles);
     //
-    BeanProperty<MediaFileSubtitle, String> mediaFileSubtitleBeanProperty = BeanProperty.create("language");
+    Property mediaFileSubtitleBeanProperty = BeanProperty.create("language");
     jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty).setColumnName("Language").setColumnClass(String.class);
     //
-    BeanProperty<MediaFileSubtitle, Boolean> mediaFileSubtitleBeanProperty_1 = BeanProperty.create("forced");
+    Property mediaFileSubtitleBeanProperty_1 = BeanProperty.create("forced");
     jTableBinding_2.addColumnBinding(mediaFileSubtitleBeanProperty_1).setColumnName("Forced").setColumnClass(Boolean.class);
     //
     jTableBinding_2.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty_7 = BeanProperty.create("selectedElement.mediaFile.video3DFormat");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<JTable, String, JComboBox, Object> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        jTableBeanProperty_7, cb3dFormat, jComboBoxBeanProperty);
+    Property jTableBeanProperty_7 = BeanProperty.create("selectedElement.mediaFile.video3DFormat");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, jTableBeanProperty_7, cb3dFormat,
+        jComboBoxBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<TmmTable, Float> tmmTableBeanProperty = BeanProperty.create("selectedElement.mediaFile.aspectRatio");
-    AutoBinding<TmmTable, Float, JComboBox, Object> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        tmmTableBeanProperty, cbAspectRatio, jComboBoxBeanProperty);
+    Property tmmTableBeanProperty = BeanProperty.create("selectedElement.mediaFile.aspectRatio");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty, cbAspectRatio,
+        jComboBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<TmmTable, Double> tmmTableBeanProperty_1 = BeanProperty.create("selectedElement.mediaFile.frameRate");
-    BeanProperty<JTextField, String> jFormattedTextFieldBeanProperty = BeanProperty.create("text");
-    AutoBinding<TmmTable, Double, JTextField, String> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        tmmTableBeanProperty_1, tfFrameRate, jFormattedTextFieldBeanProperty);
+    Property tmmTableBeanProperty_1 = BeanProperty.create("selectedElement.mediaFile.frameRate");
+    Property jFormattedTextFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_1, tfFrameRate,
+        jFormattedTextFieldBeanProperty);
     autoBinding_7.bind();
     //
-    BeanProperty<TmmTable, Integer> tmmTableBeanProperty_2 = BeanProperty.create("selectedElement.mediaFile.bitDepth");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty.create("text");
-    AutoBinding<TmmTable, Integer, JTextField, String> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        tmmTableBeanProperty_2, tfBitDepth, jTextFieldBeanProperty_1);
+    Property tmmTableBeanProperty_2 = BeanProperty.create("selectedElement.mediaFile.bitDepth");
+    Property jTextFieldBeanProperty_1 = BeanProperty.create("text");
+    AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_2, tfBitDepth,
+        jTextFieldBeanProperty_1);
     autoBinding_8.bind();
     //
-    BeanProperty<TmmTable, String> tmmTableBeanProperty_3 = BeanProperty.create("selectedElement.mediaFile.hdrFormat");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_3 = BeanProperty.create("text");
-    AutoBinding<TmmTable, String, JTextField, String> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles,
-        tmmTableBeanProperty_3, tfHdrFormat, jTextFieldBeanProperty_3);
+    Property tmmTableBeanProperty_3 = BeanProperty.create("selectedElement.mediaFile.overallBitRate");
+    Property jTextFieldBeanProperty_3 = BeanProperty.create("text");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_3, tfVideoBitrate,
+        jTextFieldBeanProperty_3);
     autoBinding_9.bind();
+    //
+    Property tmmTableBeanProperty_4 = BeanProperty.create("selectedElement.mediaFile.hdrFormat");
+    Property jTextFieldBeanProperty_6 = BeanProperty.create("text");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_4, tfHdrFormat,
+        jTextFieldBeanProperty_6);
+    autoBinding_10.bind();
+    //
+    Property tmmTableBeanProperty_5 = BeanProperty.create("selectedElement.mediaFile.durationInMinutes");
+    Property jTextFieldBeanProperty_7 = BeanProperty.create("text");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_5, tfRuntime,
+        jTextFieldBeanProperty_7);
+    autoBinding_11.bind();
   }
 }

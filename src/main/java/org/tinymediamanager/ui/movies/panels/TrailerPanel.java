@@ -21,7 +21,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeListener;
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -39,15 +38,16 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
 import org.tinymediamanager.scraper.util.UrlUtil;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 
@@ -55,8 +55,6 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.gui.AdvancedTableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
 
@@ -70,13 +68,13 @@ public class TrailerPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
 
   private MovieSelectionModel         movieSelectionModel;
   private TvShowSelectionModel        tvShowSelectionModel;
   private TmmTable                    table;
-  private EventList<MediaTrailer>     trailerEventList = null;
+  private EventList<MediaTrailer>     trailerEventList;
 
   /**
    * Instantiates a new movie details panel.
@@ -88,6 +86,9 @@ public class TrailerPanel extends JPanel {
     this.movieSelectionModel = model;
 
     createLayout();
+
+    table.setName("movies.trailerTable");
+    TmmUILayoutStore.getInstance().install(table);
 
     // install the propertychangelistener
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
@@ -111,9 +112,8 @@ public class TrailerPanel extends JPanel {
         }
         finally {
           trailerEventList.getReadWriteLock().writeLock().unlock();
+          table.adjustColumnPreferredWidths(7);
         }
-
-        TableColumnResizer.adjustColumnPreferredWidths(table, 7);
       }
     };
 
@@ -125,6 +125,9 @@ public class TrailerPanel extends JPanel {
     this.tvShowSelectionModel = model;
 
     createLayout();
+
+    table.setName("movies.trailerTable");
+    TmmUILayoutStore.getInstance().install(table);
 
     // install the propertychangelistener
     PropertyChangeListener propertyChangeListener = propertyChangeEvent -> {
@@ -148,9 +151,8 @@ public class TrailerPanel extends JPanel {
         }
         finally {
           trailerEventList.getReadWriteLock().writeLock().unlock();
+          table.adjustColumnPreferredWidths(7);
         }
-
-        TableColumnResizer.adjustColumnPreferredWidths(table, 7);
       }
     };
 
@@ -159,16 +161,12 @@ public class TrailerPanel extends JPanel {
   }
 
   private void createLayout() {
-    trailerEventList = GlazedListsSwing.swingThreadProxyList(
-        new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaTrailer.class)));
-    DefaultEventTableModel<MediaTrailer> trailerTableModel = new DefaultEventTableModel<>(GlazedListsSwing.swingThreadProxyList(trailerEventList),
-        new TrailerTableFormat());
+    trailerEventList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaTrailer.class));
     setLayout(new MigLayout("", "[400lp,grow]", "[250lp,grow]"));
-    table = new TmmTable(trailerTableModel);
-    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    table = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(trailerEventList), new TrailerTableFormat()));
     table.setSelectionModel(new NullSelectionModel());
 
-    JScrollPane scrollPane = new JScrollPane(table);
+    JScrollPane scrollPane = new JScrollPane();
     table.configureScrollPane(scrollPane);
     add(scrollPane, "cell 0 0,grow");
     scrollPane.setViewportView(table);
@@ -178,106 +176,69 @@ public class TrailerPanel extends JPanel {
     table.addMouseMotionListener(linkListener);
   }
 
-  private class TrailerTableFormat implements AdvancedTableFormat<MediaTrailer> {
+  private static class TrailerTableFormat extends TmmTableFormat<MediaTrailer> {
     public TrailerTableFormat() {
-    }
-
-    @Override
-    public int getColumnCount() {
-      return 7;
-    }
-
-    @Override
-    public String getColumnName(int column) {
-      switch (column) {
-        case 0:
-        case 1:
-          return "";
-
-        case 2:
-          return BUNDLE.getString("metatag.nfo");
-
-        case 3:
-          return BUNDLE.getString("metatag.name");
-
-        case 4:
-          return BUNDLE.getString("metatag.source");
-
-        case 5:
-          return BUNDLE.getString("metatag.quality");
-
-        case 6:
-          return BUNDLE.getString("metatag.format");
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @Override
-    public Object getColumnValue(MediaTrailer trailer, int column) {
-      if (trailer == null) {
+      /*
+       * download
+       */
+      Column col = new Column("", "download", trailer -> {
+        if (StringUtils.isNotBlank(trailer.getUrl()) && trailer.getUrl().toLowerCase(Locale.ROOT).startsWith("http")) {
+          return IconManager.DOWNLOAD;
+        }
         return null;
-      }
+      }, ImageIcon.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-      switch (column) {
-        case 0:
-          if (StringUtils.isNotBlank(trailer.getUrl()) && trailer.getUrl().toLowerCase(Locale.ROOT).startsWith("http")) {
-            return IconManager.DOWNLOAD;
-          }
-          return null;
+      /*
+       * play
+       */
+      col = new Column("", "play", trailer -> IconManager.PLAY, ImageIcon.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 1:
-          return IconManager.PLAY;
+      /*
+       * nfo
+       */
+      col = new Column(BUNDLE.getString("metatag.nfo"), "nfo", MediaTrailer::getInNfo, Boolean.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 2:
-          return trailer.getInNfo();
+      /*
+       * name
+       */
+      col = new Column(BUNDLE.getString("metatag.name"), "name", MediaTrailer::getName, String.class);
+      col.setColumnTooltip(MediaTrailer::getName);
+      addColumn(col);
 
-        case 3:
-          return trailer.getName();
+      /*
+       * source
+       */
+      col = new Column(BUNDLE.getString("metatag.source"), "source", MediaTrailer::getProvider, String.class);
+      col.setColumnTooltip(MediaTrailer::getProvider);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 4:
-          return trailer.getProvider();
+      /*
+       * quality
+       */
+      col = new Column(BUNDLE.getString("metatag.quality"), "quality", MediaTrailer::getQuality, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
 
-        case 5:
-          return trailer.getQuality();
-
-        case 6:
-          String ext = UrlUtil.getExtension(trailer.getUrl()).toLowerCase(Locale.ROOT);
-          if (!Globals.settings.getVideoFileType().contains("." + ext)) {
-            // .php redirection scripts et all
-            ext = "";
-          }
-          return ext;
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Class getColumnClass(int column) {
-      switch (column) {
-        case 0:
-        case 1:
-          return ImageIcon.class;
-
-        case 2:
-          return Boolean.class;
-
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-          return String.class;
-      }
-
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    public Comparator getColumnComparator(int arg0) {
-      return null;
+      /*
+       * format
+       */
+      col = new Column(BUNDLE.getString("metatag.format"), "format", trailer -> {
+        String ext = UrlUtil.getExtension(trailer.getUrl()).toLowerCase(Locale.ROOT);
+        if (!Globals.settings.getVideoFileType().contains("." + ext)) {
+          // .php redirection scripts et all
+          ext = "";
+        }
+        return ext;
+      }, String.class);
+      col.setColumnResizeable(false);
+      addColumn(col);
     }
   }
 
@@ -363,7 +324,7 @@ public class TrailerPanel extends JPanel {
     }
   }
 
-  private class NullSelectionModel extends DefaultListSelectionModel {
+  private static class NullSelectionModel extends DefaultListSelectionModel {
     private static final long serialVersionUID = -1956483331520197616L;
 
     @Override
@@ -398,38 +359,47 @@ public class TrailerPanel extends JPanel {
 
     @Override
     public void setSelectionInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void setLeadSelectionIndex(int index) {
+      // nothing to do
     }
 
     @Override
     public void setAnchorSelectionIndex(int index) {
+      // nothing to do
     }
 
     @Override
     public void addSelectionInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void insertIndexInterval(int index, int length, boolean before) {
+      // nothing to do
     }
 
     @Override
     public void clearSelection() {
+      // nothing to do
     }
 
     @Override
     public void removeSelectionInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void removeIndexInterval(int index0, int index1) {
+      // nothing to do
     }
 
     @Override
     public void setSelectionMode(int selectionMode) {
+      // nothing to do
     }
 
     @Override
@@ -439,14 +409,17 @@ public class TrailerPanel extends JPanel {
 
     @Override
     public void addListSelectionListener(ListSelectionListener lsl) {
+      // nothing to do
     }
 
     @Override
     public void removeListSelectionListener(ListSelectionListener lsl) {
+      // nothing to do
     }
 
     @Override
     public void setValueIsAdjusting(boolean valueIsAdjusting) {
+      // nothing to do
     }
 
     @Override

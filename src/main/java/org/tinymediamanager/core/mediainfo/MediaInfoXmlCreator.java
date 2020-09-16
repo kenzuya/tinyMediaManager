@@ -1,0 +1,158 @@
+/*
+ * Copyright 2012 - 2019 Manuel Laggner
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.tinymediamanager.core.mediainfo;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.thirdparty.MediaInfo;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+public class MediaInfoXmlCreator {
+  private static final Logger  LOGGER                        = LoggerFactory.getLogger(MediaInfoXmlCreator.class);
+  private static final String  ORACLE_IS_STANDALONE          = "http://www.oracle.com/xml/is-standalone";
+  private static final Pattern FIRST_CHARACTER_DIGIT_PATTERN = Pattern.compile("^\\d");
+
+  private Document             document;
+
+  private MediaFile            mediaFile;
+  private List<MediaInfoFile>  mediaInfoFiles;
+
+  public MediaInfoXmlCreator(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
+    this.mediaFile = mediaFile;
+    this.mediaInfoFiles = mediaInfoFiles;
+  }
+
+  public void write() throws Exception {
+    // create the new NFO file according to the specifications
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); // NOSONAR
+    document = factory.newDocumentBuilder().newDocument();
+    document.setXmlStandalone(true);
+
+    // tmm comment
+    Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String dat = formatter.format(new Date());
+    document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Globals.settings.getVersion()));
+
+    Element mediaInfo = document.createElement("MediaInfo");
+    mediaInfo.setAttribute("xmlns", "https://mediaarea.net/mediainfo");
+    mediaInfo.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+    mediaInfo.setAttribute("version", "2.0");
+    document.appendChild(mediaInfo);
+
+    for (MediaInfoFile mediaInfoFile : mediaInfoFiles) {
+      Element media = document.createElement("media");
+      File file = new File(mediaInfoFile.getPath(), mediaInfoFile.getFilename());
+      media.setAttribute("ref", file.getAbsolutePath());
+
+      for (Map.Entry<MediaInfo.StreamKind, List<Map<String, String>>> entry : mediaInfoFile.getSnapshot().entrySet()) {
+        for (Map<String, String> map : entry.getValue()) {
+          Element track = document.createElement("track");
+          track.setAttribute("type", entry.getKey().name());
+          String streamKindPos = map.get("StreamKindPos");
+          if (StringUtils.isNotBlank(streamKindPos)) {
+            track.setAttribute("typeorder", streamKindPos);
+          }
+          map.forEach((tag, content) -> addItems(track, tag, content));
+
+          media.appendChild(track);
+        }
+      }
+
+      mediaInfo.appendChild(media);
+    }
+    File file = new File(mediaFile.getPath(), mediaFile.getBasename() + "-mediainfo.xml");
+    try (FileWriter out = new FileWriter(file)) {
+      getTransformer().transform(new DOMSource(document), new StreamResult(out));
+    }
+  }
+
+  private void addItems(Element track, String tag, String textContent) {
+    try {
+      Element item = document.createElement(cleanTag(tag));
+      item.setTextContent(textContent);
+      track.appendChild(item);
+    }
+    catch (Exception e) {
+      LOGGER.trace("Could not write tag {} - {}", tag, e.getMessage());
+    }
+  }
+
+  private String cleanTag(String tag) {
+    // remove ()
+    String normalizedTag = tag.replace("(", ""); // faster than replaceAll
+    normalizedTag = normalizedTag.replace(")", ""); // faster than replaceAll
+    // replace /*:. with _
+    normalizedTag = normalizedTag.replace('/', '_'); // faster than replaceAll
+    normalizedTag = normalizedTag.replace('*', '_'); // faster than replaceAll
+    normalizedTag = normalizedTag.replace(':', '_'); // faster than replaceAll
+    normalizedTag = normalizedTag.replace('.', '_'); // faster than replaceAll
+
+    // first character must not be a digit
+    if (FIRST_CHARACTER_DIGIT_PATTERN.matcher(normalizedTag).find()) {
+      normalizedTag = "_" + normalizedTag;
+    }
+
+    return normalizedTag;
+  }
+
+  /**
+   * get the transformer for XML output
+   *
+   * @return the transformer
+   * @throws Exception
+   *           any Exception that has been thrown
+   */
+  private Transformer getTransformer() throws Exception {
+    Transformer transformer = TransformerFactory.newInstance().newTransformer(); // NOSONAR
+
+    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+    transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
+    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+    // not supported in all JVMs
+    try {
+      transformer.setOutputProperty(ORACLE_IS_STANDALONE, "yes");
+    }
+    catch (Exception ignored) {
+      // okay, seems we're not on OracleJDK, OpenJDK or AdopOpenJDK
+    }
+
+    return transformer;
+  }
+}

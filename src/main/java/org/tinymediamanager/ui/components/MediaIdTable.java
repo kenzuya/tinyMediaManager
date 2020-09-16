@@ -21,11 +21,12 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.gui.WritableTableFormat;
-import ca.odell.glazedlists.swing.DefaultEventTableModel;
 
 /**
  * The class MediaIdTable is used to display / edit media ids
@@ -33,11 +34,10 @@ import ca.odell.glazedlists.swing.DefaultEventTableModel;
  * @author Manuel Laggner
  */
 public class MediaIdTable extends TmmTable {
-  private static final long   serialVersionUID = 8010722883277208728L;
+  private static final long         serialVersionUID = 8010722883277208728L;
 
-  private Map<String, Object> idMap;
-  private EventList<MediaId>  idList;
-  private boolean             editable;
+  private final Map<String, Object> idMap;
+  private final EventList<MediaId>  idList;
 
   /**
    * this constructor is used to display the ids
@@ -47,18 +47,16 @@ public class MediaIdTable extends TmmTable {
    */
   public MediaIdTable(Map<String, Object> ids) {
     this.idMap = ids;
-    this.editable = false;
     this.idList = convertIdMapToEventList(idMap);
-    setModel(new DefaultEventTableModel<>(idList, new MediaIdTableFormat(editable)));
+    setModel(new TmmTableModel<>(idList, new MediaIdTableFormat(false)));
     setTableHeader(null);
     putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
   }
 
   public MediaIdTable(EventList<MediaId> ids) {
     this.idMap = null;
-    this.editable = true;
     this.idList = ids;
-    setModel(new DefaultEventTableModel<>(idList, new MediaIdTableFormat(editable)));
+    setModel(new TmmTableModel<>(idList, new MediaIdTableFormat(true)));
     setTableHeader(null);
     putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
   }
@@ -109,41 +107,28 @@ public class MediaIdTable extends TmmTable {
     }
   }
 
-  private class MediaIdTableFormat implements WritableTableFormat<MediaId> {
-    private boolean editable;
+  private static class MediaIdTableFormat extends TmmTableFormat<MediaId> implements WritableTableFormat<MediaId> {
+    private final boolean editable;
 
     public MediaIdTableFormat(boolean editable) {
       this.editable = editable;
-    }
 
-    @Override
-    public int getColumnCount() {
-      return 2;
-    }
+      /*
+       * key
+       */
+      Column col = new Column("", "key", mediaId -> mediaId.key, String.class);
+      addColumn(col);
 
-    @Override
-    public String getColumnName(int column) {
-      return "";
+      /*
+       * value
+       */
+      col = new Column("", "value", mediaId -> mediaId.value, String.class);
+      addColumn(col);
     }
 
     @Override
     public boolean isEditable(MediaId arg0, int arg1) {
       return editable && arg1 == 1;
-    }
-
-    @Override
-    public Object getColumnValue(MediaId arg0, int arg1) {
-      if (arg0 == null) {
-        return null;
-      }
-      switch (arg1) {
-        case 0:
-          return arg0.key;
-
-        case 1:
-          return arg0.value;
-      }
-      return null;
     }
 
     @Override

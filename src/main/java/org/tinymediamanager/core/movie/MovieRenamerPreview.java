@@ -86,7 +86,6 @@ public class MovieRenamerPreview {
     // change status of MFs, if they have been added or not
     for (MediaFile mf : newFiles) {
       if (!oldFiles.containsKey(mf.getFileAsPath().toString())) {
-        // System.out.println(mf);
         container.needsRename = true;
         break;
       }
@@ -94,7 +93,6 @@ public class MovieRenamerPreview {
 
     for (MediaFile mf : oldFiles.values()) {
       if (!newFiles.contains(mf)) {
-        // System.out.println(mf);
         container.needsRename = true;
         break;
       }

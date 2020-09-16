@@ -21,13 +21,13 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -91,16 +91,16 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.UIConstants;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
-import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.MediaIdTable;
 import org.tinymediamanager.ui.components.MediaIdTable.MediaId;
 import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.PersonTable;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.datepicker.YearSpinner;
@@ -126,93 +126,95 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieEditorDialog extends TmmDialog {
-  private static final long                       serialVersionUID    = -286251957529920347L;
-  private static final Logger                     LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
-  private static final Insets                     BUTTON_MARGIN       = UIConstants.SMALL_BUTTON_MARGIN;
-  private static final String                     ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String                     SPACER              = "        ";
+  private static final long                  serialVersionUID    = -286251957529920347L;
+  private static final Logger                LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
+  private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
+  private static final String                SPACER              = "    ";
 
-  private Movie                                   movieToEdit;
-  private MovieList                               movieList           = MovieList.getInstance();
+  private Movie                              movieToEdit;
+  private MovieList                          movieList           = MovieList.getInstance();
 
-  private List<MediaGenres>                       genres              = ObservableCollections.observableList(new ArrayList<>());
-  private List<MediaTrailer>                      trailers            = ObservableCollections.observableList(new ArrayList<>());
-  private List<String>                            tags                = ObservableCollections.observableList(new ArrayList<>());
-  private EventList<MediaId>                      ids;
-  private EventList<MediaRatingTable.MediaRating> mediaRatings;
-  private List<MediaFile>                         mediaFiles          = new ArrayList<>();
-  private List<String>                            extrathumbs         = null;
-  private List<String>                            extrafanarts        = null;
-  private MediaRating                             userMediaRating;
-  private boolean                                 continueQueue       = true;
-  private boolean                                 navigateBack        = false;
-  private int                                     queueIndex;
-  private int                                     queueSize;
+  private List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
+  private List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
+  private List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
+  private List<String>                       showlinks           = ObservableCollections.observableList(new ArrayList<>());
+  private EventList<MediaId>                 ids;
+  private EventList<MediaRatingTable.Rating> ratings;
+  private List<MediaFile>                    mediaFiles          = new ArrayList<>();
+  private List<String>                       extrathumbs         = null;
+  private List<String>                       extrafanarts        = null;
+  private MediaRating                        userMediaRating;
+  private boolean                            continueQueue       = true;
+  private boolean                            navigateBack        = false;
+  private int                                queueIndex;
+  private int                                queueSize;
 
-  private EventList<Person>                       cast;
-  private EventList<Person>                       producers;
-  private EventList<Person>                       directors;
-  private EventList<Person>                       writers;
+  private EventList<Person>                  cast;
+  private EventList<Person>                  producers;
+  private EventList<Person>                  directors;
+  private EventList<Person>                  writers;
 
-  private JTextField                              tfTitle;
-  private JTextField                              tfOriginalTitle;
-  private YearSpinner                             spYear;
-  private JTextArea                               taPlot;
+  private JTextField                         tfTitle;
+  private JTextField                         tfOriginalTitle;
+  private YearSpinner                        spYear;
+  private JTextArea                          taPlot;
 
-  private ImageLabel                              lblPoster;
-  private ImageLabel                              lblFanart;
-  private JSpinner                                spRuntime;
-  private JTextField                              tfProductionCompanies;
-  private JList<MediaGenres>                      listGenres;
-  private AutocompleteComboBox<MediaGenres>       cbGenres;
-  private AutoCompleteSupport<MediaGenres>        cbGenresAutoCompleteSupport;
-  private JSpinner                                spRating;
-  private JComboBox<MediaCertification>           cbCertification;
-  private JCheckBox                               cbWatched;
-  private JTextField                              tfTagline;
-  private JTextField                              tfNote;
+  private ImageLabel                         lblPoster;
+  private ImageLabel                         lblFanart;
+  private JSpinner                           spRuntime;
+  private JTextField                         tfProductionCompanies;
+  private JList<MediaGenres>                 listGenres;
+  private AutocompleteComboBox               cbGenres;
+  private AutoCompleteSupport                cbGenresAutoCompleteSupport;
+  private JSpinner                           spRating;
+  private JComboBox<MediaCertification>      cbCertification;
+  private JCheckBox                          cbWatched;
+  private JTextField                         tfTagline;
+  private JTextField                         tfNote;
 
-  private JCheckBox                               chckbxVideo3D;
+  private JCheckBox                          chckbxVideo3D;
 
-  private AutocompleteComboBox<String>            cbTags;
-  private AutoCompleteSupport<String>             cbTagsAutoCompleteSupport;
-  private JList<String>                           listTags;
-  private JSpinner                                spDateAdded;
-  private JComboBox                               cbMovieSet;
-  private JTextField                              tfSorttitle;
-  private JTextField                              tfSpokenLanguages;
-  private JTextField                              tfCountry;
-  private DatePicker                              dpReleaseDate;
-  private JSpinner                                spTop250;
-  private AutocompleteComboBox<MediaSource>       cbSource;
-  private MediaFileEditorPanel                    mediaFilesPanel;
-  private AutocompleteComboBox<MovieEdition>      cbEdition;
+  private AutocompleteComboBox               cbTags;
+  private AutoCompleteSupport<String>        cbTagsAutoCompleteSupport;
+  private JList<String>                      listTags;
+  private JList<String>                      listShowlink;
+  private JSpinner                           spDateAdded;
+  private JComboBox                          cbMovieSet;
+  private JTextField                         tfSorttitle;
+  private JTextField                         tfSpokenLanguages;
+  private JTextField                         tfCountry;
+  private DatePicker                         dpReleaseDate;
+  private JSpinner                           spTop250;
+  private AutocompleteComboBox               cbSource;
+  private MediaFileEditorPanel               mediaFilesPanel;
+  private AutocompleteComboBox               cbEdition;
+  private JComboBox                          cbShowlink;
 
-  private JTextField                              tfPoster;
-  private JTextField                              tfFanart;
-  private JTextField                              tfLogo;
-  private JTextField                              tfClearLogo;
-  private JTextField                              tfBanner;
-  private JTextField                              tfClearArt;
-  private JTextField                              tfThumb;
-  private JTextField                              tfDisc;
-  private JTextField                              tfKeyart;
+  private JTextField                         tfPoster;
+  private JTextField                         tfFanart;
+  private JTextField                         tfLogo;
+  private JTextField                         tfClearLogo;
+  private JTextField                         tfBanner;
+  private JTextField                         tfClearArt;
+  private JTextField                         tfThumb;
+  private JTextField                         tfDisc;
+  private JTextField                         tfKeyart;
 
-  private ImageLabel                              lblLogo;
-  private ImageLabel                              lblClearlogo;
-  private ImageLabel                              lblBanner;
-  private ImageLabel                              lblClearart;
-  private ImageLabel                              lblThumb;
-  private ImageLabel                              lblDisc;
-  private ImageLabel                              lblKeyart;
+  private ImageLabel                         lblLogo;
+  private ImageLabel                         lblClearlogo;
+  private ImageLabel                         lblBanner;
+  private ImageLabel                         lblClearart;
+  private ImageLabel                         lblThumb;
+  private ImageLabel                         lblDisc;
+  private ImageLabel                         lblKeyart;
 
-  private TmmTable                                tableIds;
-  private TmmTable                                tableRatings;
-  private TmmTable                                tableTrailer;
-  private TmmTable                                tableActors;
-  private TmmTable                                tableProducers;
-  private TmmTable                                tableDirectors;
-  private TmmTable                                tableWriters;
+  private TmmTable                           tableIds;
+  private TmmTable                           tableRatings;
+  private TmmTable                           tableTrailer;
+  private TmmTable                           tableActors;
+  private TmmTable                           tableProducers;
+  private TmmTable                           tableDirectors;
+  private TmmTable                           tableWriters;
 
   /**
    * Create the dialog.
@@ -238,7 +240,7 @@ public class MovieEditorDialog extends TmmDialog {
     this.queueIndex = queueIndex;
     this.queueSize = queueSize;
     this.ids = MediaIdTable.convertIdMapToEventList(movieToEdit.getIds());
-    this.mediaRatings = MediaRatingTable.convertRatingMapToEventList(movieToEdit.getRatings(), false);
+    this.ratings = MediaRatingTable.convertRatingMapToEventList(movieToEdit.getRatings(), false);
     this.userMediaRating = movieToEdit.getRating(MediaRating.USER);
 
     for (MediaFile mf : movie.getMediaFiles()) {
@@ -323,6 +325,8 @@ public class MovieEditorDialog extends TmmDialog {
           tags.add(tag);
         }
       }
+      showlinks.addAll(movieToEdit.getShowlinks());
+      showlinks.sort(Comparator.naturalOrder());
 
       if (MovieModuleManager.SETTINGS.isImageExtraThumbs()) {
         extrathumbs = new ArrayList<>(movieToEdit.getExtraThumbs());
@@ -335,6 +339,9 @@ public class MovieEditorDialog extends TmmDialog {
         if (movieToEdit.getMovieSet() == movieSet) {
           cbMovieSet.setSelectedItem(movieSet);
         }
+      }
+      for (String showTitle : movieList.getTvShowTitles()) {
+        cbShowlink.addItem(showTitle);
       }
     }
     // adjust columnn titles - we have to do it this way - thx to windowbuilder pro
@@ -369,15 +376,7 @@ public class MovieEditorDialog extends TmmDialog {
   }
 
   private void initComponents() {
-    JTabbedPane tabbedPane = new MainTabbedPane() {
-      private static final long serialVersionUID = 71548865608767532L;
-
-      @Override
-      public void updateUI() {
-        putClientProperty("bottomBorder", Boolean.FALSE);
-        super.updateUI();
-      }
-    };
+    JTabbedPane tabbedPane = new TmmTabbedPane();
 
     // to draw the shadow beneath window frame, encapsulate the panel
     JLayer<JComponent> rootLayer = new JLayer(tabbedPane, new ShadowLayerUI()); // removed <> because this leads WBP to crash
@@ -390,7 +389,7 @@ public class MovieEditorDialog extends TmmDialog {
       JPanel details1Panel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details"), details1Panel);
       details1Panel.setLayout(new MigLayout("", "[][grow][50lp:75lp][][60lp:75lp][100lp:n][50lp:75lp,grow][25lp:n][200lp:250lp,grow]",
-          "[][][][][100lp:175lp][][][][][][][75lp:100lp][]"));
+          "[][][][][100lp:25%:25%,grow][][pref!][][][][][75lp:20%:20%,grow][pref!]"));
 
       {
         JLabel lblTitle = new TmmLabel(BUNDLE.getString("metatag.title"));
@@ -406,7 +405,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.POSTER,
                 movieList.getDefaultArtworkScrapers(), lblPoster, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblPoster, tfPoster);
           }
@@ -521,9 +520,8 @@ public class MovieEditorDialog extends TmmDialog {
         JScrollPane scrollPaneRatings = new JScrollPane();
         details1Panel.add(scrollPaneRatings, "cell 1 11 5 1,grow,wmin 0");
 
-        tableRatings = new MediaRatingTable(mediaRatings);
+        tableRatings = new MediaRatingTable(ratings);
         tableRatings.configureScrollPane(scrollPaneRatings);
-        scrollPaneRatings.setViewportView(tableRatings);
       }
       {
         JLabel lblTop = new TmmLabel(BUNDLE.getString("metatag.top250"));
@@ -540,7 +538,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.FANART,
                 movieList.getDefaultArtworkScrapers(), lblFanart, extrathumbs, extrafanarts, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblFanart, tfFanart);
           }
@@ -562,15 +560,13 @@ public class MovieEditorDialog extends TmmDialog {
         lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, MediaFileType.FANART));
       }
 
-      JButton btnAddRating = new JButton(new AddRatingAction());
-      btnAddRating.setMargin(BUTTON_MARGIN);
+      JButton btnAddRating = new SquareIconButton(new AddRatingAction());
       details1Panel.add(btnAddRating, "cell 0 11,alignx right,aligny top");
 
-      JButton btnRemoveRating = new JButton(new RemoveRatingAction());
-      btnRemoveRating.setMargin(BUTTON_MARGIN);
+      JButton btnRemoveRating = new SquareIconButton(new RemoveRatingAction());
       details1Panel.add(btnRemoveRating, "cell 0 11,alignx right,aligny top");
       {
-        final JButton btnPlay = new JButton(IconManager.PLAY_INV);
+        final JButton btnPlay = new SquareIconButton(IconManager.PLAY_INV);
         btnPlay.setFocusable(false);
         btnPlay.addActionListener(e -> {
           MediaFile mf = movieToEdit.getMainVideoFile();
@@ -601,8 +597,8 @@ public class MovieEditorDialog extends TmmDialog {
       JPanel details2Panel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.details2"), details2Panel);
 
-      details2Panel.setLayout(
-          new MigLayout("", "[][][20lp:50lp][][50lp:100lp][20lp:n][][300lp:300lp]", "[][][][][][pref!][20lp:n][100lp:150lp,grow][][grow 200]"));
+      details2Panel.setLayout(new MigLayout("", "[][][20lp:50lp][][50lp:100lp][20lp:n][grow][300lp:300lp,grow]",
+          "[][][][][][75lp][pref!][20lp:n][100lp:150lp,grow][][grow]"));
       {
         JLabel lblDateAdded = new TmmLabel(BUNDLE.getString("metatag.dateadded"));
         details2Panel.add(lblDateAdded, "cell 0 0,alignx right");
@@ -613,17 +609,32 @@ public class MovieEditorDialog extends TmmDialog {
       {
         JLabel lblWatched = new TmmLabel(BUNDLE.getString("metatag.watched"));
         details2Panel.add(lblWatched, "flowx,cell 3 0");
+
+        cbWatched = new JCheckBox("");
+        details2Panel.add(cbWatched, "cell 3 0");
       }
       {
-        JLabel label = new TmmLabel(BUNDLE.getString("metatag.ids"));
-        details2Panel.add(label, "flowy,cell 6 0 1 3,alignx right,aligny top");
+        JLabel label = new TmmLabel("3D");
+        details2Panel.add(label, "flowx,cell 3 1");
+
+        chckbxVideo3D = new JCheckBox("");
+        details2Panel.add(chckbxVideo3D, "cell 3 1");
+      }
+      {
+        JLabel lblIds = new TmmLabel(BUNDLE.getString("metatag.ids"));
+        details2Panel.add(lblIds, "flowy,cell 6 0 1 3,alignx right,aligny top");
 
         JScrollPane scrollPaneIds = new JScrollPane();
-        details2Panel.add(scrollPaneIds, "cell 7 0 1 6,growx");
+        details2Panel.add(scrollPaneIds, "cell 7 0 1 7,growx");
 
         tableIds = new MediaIdTable(ids);
         tableIds.configureScrollPane(scrollPaneIds);
-        scrollPaneIds.setViewportView(tableIds);
+
+        JButton btnAddId = new SquareIconButton(new AddIdAction());
+        details2Panel.add(btnAddId, "cell 6 0 1 3,alignx right,aligny top");
+
+        JButton btnRemoveId = new SquareIconButton(new RemoveIdAction());
+        details2Panel.add(btnRemoveId, "cell 6 0 1 3,alignx right,aligny top");
       }
       {
         JLabel lblSourceT = new TmmLabel(BUNDLE.getString("metatag.source"));
@@ -631,10 +642,6 @@ public class MovieEditorDialog extends TmmDialog {
 
         cbSource = new AutocompleteComboBox(MediaSource.values());
         details2Panel.add(cbSource, "cell 1 1,growx");
-      }
-      {
-        JLabel label = new TmmLabel("3D");
-        details2Panel.add(label, "flowx,cell 3 1");
       }
       {
         JLabel lblEditionT = new TmmLabel(BUNDLE.getString("metatag.edition"));
@@ -659,14 +666,26 @@ public class MovieEditorDialog extends TmmDialog {
 
         cbMovieSet = new JComboBox();
         cbMovieSet.addItem("");
-        details2Panel.add(cbMovieSet, "cell 1 4 4 1, growx, wmin 0");
+        details2Panel.add(cbMovieSet, "cell 1 4 4 1,growx,wmin 0");
+      }
+      {
+        JLabel lblShowlinkT = new TmmLabel(BUNDLE.getString("metatag.showlink"));
+        details2Panel.add(lblShowlinkT, "flowy,cell 0 5,alignx right,aligny top");
+
+        listShowlink = new JList();
+        JScrollPane scrollPaneShowlink = new JScrollPane();
+        scrollPaneShowlink.setViewportView(listShowlink);
+        details2Panel.add(scrollPaneShowlink, "cell 1 5 4 1,grow");
+
+        cbShowlink = new JComboBox();
+        details2Panel.add(cbShowlink, "cell 1 6 4 1,growx");
       }
       {
         JLabel lblGenres = new TmmLabel(BUNDLE.getString("metatag.genre"));
-        details2Panel.add(lblGenres, "flowy,cell 0 7,alignx right,aligny top");
+        details2Panel.add(lblGenres, "flowy,cell 0 8,alignx right,aligny top");
 
         JScrollPane scrollPaneGenres = new JScrollPane();
-        details2Panel.add(scrollPaneGenres, "cell 1 7 4 1,grow");
+        details2Panel.add(scrollPaneGenres, "cell 1 8 4 1,grow");
 
         listGenres = new JList();
         scrollPaneGenres.setViewportView(listGenres);
@@ -676,14 +695,26 @@ public class MovieEditorDialog extends TmmDialog {
         InputMap im = cbGenres.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         Object enterAction = im.get(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
         cbGenres.getActionMap().put(enterAction, new AddGenreAction());
-        details2Panel.add(cbGenres, "cell 1 8 4 1, growx, wmin 0");
+        details2Panel.add(cbGenres, "cell 1 9 4 1,growx,wmin 0");
+
+        JButton btnAddGenre = new SquareIconButton(new AddGenreAction());
+        details2Panel.add(btnAddGenre, "cell 0 8,alignx right,aligny top");
+
+        JButton btnRemoveGenre = new SquareIconButton(new RemoveGenreAction());
+        details2Panel.add(btnRemoveGenre, "cell 0 8,alignx right,aligny top");
+
+        JButton btnMoveGenreUp = new SquareIconButton(new MoveGenreUpAction());
+        details2Panel.add(btnMoveGenreUp, "cell 0 8,alignx right,aligny top");
+
+        JButton btnMoveGenreDown = new SquareIconButton(new MoveGenreDownAction());
+        details2Panel.add(btnMoveGenreDown, "cell 0 8,alignx right,aligny top");
       }
       {
         JLabel lblTags = new TmmLabel(BUNDLE.getString("metatag.tags"));
-        details2Panel.add(lblTags, "flowy,cell 6 7,alignx right,aligny top");
+        details2Panel.add(lblTags, "flowy,cell 6 8,alignx right,aligny top");
 
         JScrollPane scrollPaneTags = new JScrollPane();
-        details2Panel.add(scrollPaneTags, "cell 7 7,grow");
+        details2Panel.add(scrollPaneTags, "cell 7 8,grow");
 
         listTags = new JList();
         scrollPaneTags.setViewportView(listTags);
@@ -693,67 +724,25 @@ public class MovieEditorDialog extends TmmDialog {
         InputMap im = cbTags.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         Object enterAction = im.get(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
         cbTags.getActionMap().put(enterAction, new AddTagAction());
-        details2Panel.add(cbTags, "cell 7 8, growx, wmin 0");
-      }
+        details2Panel.add(cbTags, "cell 7 9,growx,wmin 0");
 
-      {
-        JButton btnAddGenre = new JButton(new AddGenreAction());
-        btnAddGenre.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnAddGenre, "cell 0 7,alignx right,aligny top");
-      }
+        JButton btnAddTag = new SquareIconButton(new AddTagAction());
+        details2Panel.add(btnAddTag, "cell 6 8,alignx right,aligny top");
 
-      {
-        JButton btnRemoveGenre = new JButton(new RemoveGenreAction());
-        btnRemoveGenre.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnRemoveGenre, "cell 0 7,alignx right,aligny top");
-      }
-      {
-        JButton btnMoveGenreUp = new JButton(new MoveGenreUpAction());
-        btnMoveGenreUp.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnMoveGenreUp, "cell 0 7,alignx right,aligny top");
-      }
-      {
-        JButton btnMoveGenreDown = new JButton(new MoveGenreDownAction());
-        btnMoveGenreDown.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnMoveGenreDown, "cell 0 7,alignx right,aligny top");
-      }
-      {
-        JButton btnAddTag = new JButton(new AddTagAction());
-        btnAddTag.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnAddTag, "cell 6 7,alignx right,aligny top");
-      }
-      {
-        JButton btnRemoveTag = new JButton(new RemoveTagAction());
-        btnRemoveTag.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnRemoveTag, "cell 6 7,alignx right,aligny top");
-      }
-      {
-        JButton btnMoveTagUp = new JButton(new MoveTagUpAction());
-        btnMoveTagUp.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnMoveTagUp, "cell 6 7,alignx right,aligny top");
-      }
-      {
-        JButton btnMoveTagDown = new JButton(new MoveTagDownAction());
-        btnMoveTagDown.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnMoveTagDown, "cell 6 7,alignx right,aligny top");
-      }
-      {
-        JButton btnAddId = new JButton(new AddIdAction());
-        btnAddId.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnAddId, "cell 6 0 1 3,alignx right,aligny top");
-      }
-      {
-        JButton btnRemoveId = new JButton(new RemoveIdAction());
-        btnRemoveId.setMargin(BUTTON_MARGIN);
-        details2Panel.add(btnRemoveId, "cell 6 0 1 3,alignx right,aligny top");
-      }
-      {
-        cbWatched = new JCheckBox("");
-        details2Panel.add(cbWatched, "cell 3 0");
-      }
-      {
-        chckbxVideo3D = new JCheckBox("");
-        details2Panel.add(chckbxVideo3D, "cell 3 1");
+        JButton btnRemoveTag = new SquareIconButton(new RemoveTagAction());
+        details2Panel.add(btnRemoveTag, "cell 6 8,alignx right,aligny top");
+
+        JButton btnMoveTagUp = new SquareIconButton(new MoveTagUpAction());
+        details2Panel.add(btnMoveTagUp, "cell 6 8,alignx right,aligny top");
+
+        JButton btnMoveTagDown = new SquareIconButton(new MoveTagDownAction());
+        details2Panel.add(btnMoveTagDown, "cell 6 8,alignx right,aligny top");
+
+        JButton btnAddShowlink = new SquareIconButton(new AddShowlinkAction());
+        details2Panel.add(btnAddShowlink, "cell 0 5,alignx right");
+
+        JButton btnRemoveShowlink = new SquareIconButton(new RemoveShowlinkAction());
+        details2Panel.add(btnRemoveShowlink, "cell 0 5,alignx right");
       }
     }
 
@@ -769,120 +758,104 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblActors = new TmmLabel(BUNDLE.getString("metatag.actors"));
         crewPanel.add(lblActors, "flowy,cell 0 0,alignx right,aligny top");
 
-        JScrollPane scrollPane = new JScrollPane();
-        crewPanel.add(scrollPane, "cell 1 0,grow");
-
         tableActors = new PersonTable(cast, true);
+
+        JScrollPane scrollPane = new JScrollPane();
         tableActors.configureScrollPane(scrollPane);
+        crewPanel.add(scrollPane, "cell 1 0,grow");
       }
       {
         JLabel lblProducers = new TmmLabel(BUNDLE.getString("metatag.producers"));
         crewPanel.add(lblProducers, "flowy,cell 3 0,alignx right,aligny top");
 
-        JScrollPane scrollPane = new JScrollPane();
-        crewPanel.add(scrollPane, "cell 4 0,grow");
-
         tableProducers = new PersonTable(producers, true);
+
+        JScrollPane scrollPane = new JScrollPane();
         tableProducers.configureScrollPane(scrollPane);
+        crewPanel.add(scrollPane, "cell 4 0,grow");
       }
       {
         JLabel lblDirectorsT = new TmmLabel(BUNDLE.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
-        JScrollPane scrollPane = new JScrollPane();
-        crewPanel.add(scrollPane, "cell 1 2,grow");
-
         tableDirectors = new PersonTable(directors, true);
+
+        JScrollPane scrollPane = new JScrollPane(tableDirectors);
         tableDirectors.configureScrollPane(scrollPane);
+        crewPanel.add(scrollPane, "cell 1 2,grow");
       }
       {
         JLabel lblWritersT = new TmmLabel(BUNDLE.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
-        JScrollPane scrollPane = new JScrollPane();
-        crewPanel.add(scrollPane, "cell 4 2,grow");
-
         tableWriters = new PersonTable(writers, true);
+
+        JScrollPane scrollPane = new JScrollPane(tableWriters);
         tableWriters.configureScrollPane(scrollPane);
+        crewPanel.add(scrollPane, "cell 4 2,grow");
       }
       {
-        JButton btnAddActor = new JButton(new AddActorAction());
-        btnAddActor.setMargin(BUTTON_MARGIN);
+        JButton btnAddActor = new SquareIconButton(new AddActorAction());
         crewPanel.add(btnAddActor, "cell 0 0,alignx right");
       }
       {
-        JButton btnRemoveActor = new JButton(new RemoveActorAction());
-        btnRemoveActor.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveActor = new SquareIconButton(new RemoveActorAction());
         crewPanel.add(btnRemoveActor, "cell 0 0,alignx right");
       }
       {
-        JButton btnMoveActorUp = new JButton(new MoveActorUpAction());
-        btnMoveActorUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveActorUp = new SquareIconButton(new MoveActorUpAction());
         crewPanel.add(btnMoveActorUp, "cell 0 0,alignx right");
       }
       {
-        JButton btnMoveActorDown = new JButton(new MoveActorDownAction());
-        btnMoveActorDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveActorDown = new SquareIconButton(new MoveActorDownAction());
         crewPanel.add(btnMoveActorDown, "cell 0 0,alignx right,aligny top");
       }
       {
-        JButton btnAddProducer = new JButton(new AddProducerAction());
-        btnAddProducer.setMargin(BUTTON_MARGIN);
+        JButton btnAddProducer = new SquareIconButton(new AddProducerAction());
         crewPanel.add(btnAddProducer, "cell 3 0,alignx right");
       }
       {
-        JButton btnRemoveProducer = new JButton(new RemoveProducerAction());
-        btnRemoveProducer.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveProducer = new SquareIconButton(new RemoveProducerAction());
         crewPanel.add(btnRemoveProducer, "cell 3 0,alignx right");
       }
       {
-        JButton btnMoveProducerUp = new JButton(new MoveProducerUpAction());
-        btnMoveProducerUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveProducerUp = new SquareIconButton(new MoveProducerUpAction());
         crewPanel.add(btnMoveProducerUp, "cell 3 0,alignx right");
       }
       {
-        JButton btnMoveProducerDown = new JButton(new MoveProducerDownAction());
-        btnMoveProducerDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveProducerDown = new SquareIconButton(new MoveProducerDownAction());
         crewPanel.add(btnMoveProducerDown, "cell 3 0,alignx right,aligny top");
       }
       {
-        JButton btnAddDirector = new JButton(new AddDirectorAction());
-        btnAddDirector.setMargin(BUTTON_MARGIN);
+        JButton btnAddDirector = new SquareIconButton(new AddDirectorAction());
         crewPanel.add(btnAddDirector, "cell 0 2,alignx right");
       }
       {
-        JButton btnRemoveDirector = new JButton(new RemoveDirectorAction());
-        btnRemoveDirector.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveDirector = new SquareIconButton(new RemoveDirectorAction());
         crewPanel.add(btnRemoveDirector, "cell 0 2,alignx right");
       }
       {
-        JButton btnMoveDirectorUp = new JButton(new MoveDirectorUpAction());
-        btnMoveDirectorUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveDirectorUp = new SquareIconButton(new MoveDirectorUpAction());
         crewPanel.add(btnMoveDirectorUp, "cell 0 2,alignx right");
       }
       {
-        JButton btnMoveDirectorDown = new JButton(new MoveDirectorDownAction());
-        btnMoveDirectorDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveDirectorDown = new SquareIconButton(new MoveDirectorDownAction());
         crewPanel.add(btnMoveDirectorDown, "cell 0 2,alignx right,aligny top");
       }
       {
-        JButton btnAddWriter = new JButton(new AddWriterAction());
-        btnAddWriter.setMargin(BUTTON_MARGIN);
+        JButton btnAddWriter = new SquareIconButton(new AddWriterAction());
         crewPanel.add(btnAddWriter, "cell 3 2,alignx right");
       }
       {
-        JButton btnRemoveWriter = new JButton(new RemoveWriterAction());
-        btnRemoveWriter.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveWriter = new SquareIconButton(new RemoveWriterAction());
         crewPanel.add(btnRemoveWriter, "cell 3 2,alignx right");
       }
       {
-        JButton btnMoveWriterUp = new JButton(new MoveWriterUpAction());
-        btnMoveWriterUp.setMargin(BUTTON_MARGIN);
+        JButton btnMoveWriterUp = new SquareIconButton(new MoveWriterUpAction());
         crewPanel.add(btnMoveWriterUp, "cell 3 2,alignx right");
       }
       {
-        JButton btnMoveWriterDown = new JButton(new MoveWriterDownAction());
-        btnMoveWriterDown.setMargin(BUTTON_MARGIN);
+        JButton btnMoveWriterDown = new SquareIconButton(new MoveWriterDownAction());
         crewPanel.add(btnMoveWriterDown, "cell 3 2,alignx right,aligny top");
       }
     }
@@ -893,8 +866,8 @@ public class MovieEditorDialog extends TmmDialog {
     {
       JPanel artworkPanel = new JPanel();
       tabbedPane.addTab(BUNDLE.getString("metatag.extraartwork"), null, artworkPanel, null);
-      artworkPanel.setLayout(new MigLayout("", "[200lp:300lp,grow][20lp:n][200lp:300lp,grow][20lp:n][100lp:200lp,grow]",
-          "[][100lp:125lp,grow][20lp:n][][100lp:125lp,grow][20lp:n][][100lp:150lp,grow]"));
+      artworkPanel.setLayout(new MigLayout("", "[20%:35%:35%,grow][20lp:n][20%:35%:35%,grow][20lp:n][15%:20%:20%,grow]",
+          "[][150lp:35%:35%,grow][20lp:n][][100lp:20%:20%,grow][20lp:n][][150lp:35%:35%,grow]"));
       {
         JLabel lblLogoT = new TmmLabel(BUNDLE.getString("mediafiletype.logo"));
         artworkPanel.add(lblLogoT, "cell 0 0");
@@ -916,7 +889,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.LOGO,
                 movieList.getDefaultArtworkScrapers(), lblLogo, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblLogo, tfLogo);
 
@@ -948,7 +921,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.KEYART,
                 movieList.getDefaultArtworkScrapers(), lblKeyart, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblKeyart, tfKeyart);
           }
@@ -978,7 +951,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.CLEARLOGO,
                 movieList.getDefaultArtworkScrapers(), lblClearlogo, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblClearlogo, tfClearLogo);
           }
@@ -1009,7 +982,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.BANNER,
                 movieList.getDefaultArtworkScrapers(), lblBanner, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblBanner, tfBanner);
           }
@@ -1039,7 +1012,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.CLEARART,
                 movieList.getDefaultArtworkScrapers(), lblClearart, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblClearart, tfClearArt);
           }
@@ -1071,7 +1044,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.THUMB,
                 movieList.getDefaultArtworkScrapers(), lblThumb, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblThumb, tfThumb);
           }
@@ -1101,7 +1074,7 @@ public class MovieEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), ImageType.DISC,
                 movieList.getDefaultArtworkScrapers(), lblDisc, null, null, MediaType.MOVIE);
-            dialog.setLocationRelativeTo(MainWindow.getActiveInstance());
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblDisc, tfDisc);
           }
@@ -1187,12 +1160,10 @@ public class MovieEditorDialog extends TmmDialog {
         JLabel lblTrailer = new TmmLabel(BUNDLE.getString("metatag.trailer"));
         artworkAndTrailerPanel.add(lblTrailer, "flowy,cell 0 10,alignx right,aligny top");
 
-        JButton btnAddTrailer = new JButton(new AddTrailerAction());
-        btnAddTrailer.setMargin(BUTTON_MARGIN);
+        JButton btnAddTrailer = new SquareIconButton(new AddTrailerAction());
         artworkAndTrailerPanel.add(btnAddTrailer, "cell 0 10,alignx right,aligny top");
 
-        JButton btnRemoveTrailer = new JButton(new RemoveTrailerAction());
-        btnRemoveTrailer.setMargin(BUTTON_MARGIN);
+        JButton btnRemoveTrailer = new SquareIconButton(new RemoveTrailerAction());
         artworkAndTrailerPanel.add(btnRemoveTrailer, "cell 0 10,alignx right,aligny top");
 
         JScrollPane scrollPaneTrailer = new JScrollPane();
@@ -1200,7 +1171,6 @@ public class MovieEditorDialog extends TmmDialog {
         tableTrailer = new TmmTable();
         tableTrailer.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         tableTrailer.configureScrollPane(scrollPaneTrailer);
-        scrollPaneTrailer.setViewportView(tableTrailer);
       }
     }
 
@@ -1375,6 +1345,7 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       movieToEdit.setTags(tags);
+      movieToEdit.setShowlinks(showlinks);
       movieToEdit.setDateAdded((Date) spDateAdded.getValue());
       movieToEdit.setSortTitle(tfSorttitle.getText());
 
@@ -1401,9 +1372,9 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       // other ratings
-      for (MediaRatingTable.MediaRating mediaRating : MovieEditorDialog.this.mediaRatings) {
-        if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0) {
-          newRatings.put(mediaRating.key, new MediaRating(mediaRating.key, mediaRating.value, mediaRating.votes, mediaRating.maxValue));
+      for (MediaRatingTable.Rating rating : MovieEditorDialog.this.ratings) {
+        if (StringUtils.isNotBlank(rating.key) && rating.value > 0) {
+          newRatings.put(rating.key, new MediaRating(rating.key, rating.value, rating.votes, rating.maxValue));
         }
       }
       movieToEdit.setRatings(newRatings);
@@ -1463,16 +1434,16 @@ public class MovieEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      MediaRatingTable.MediaRating mediaRating = new MediaRatingTable.MediaRating("");
+      MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
       // default values
-      mediaRating.maxValue = 10;
-      mediaRating.votes = 1;
+      rating.maxValue = 10;
+      rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), BUNDLE.getString("rating.add"), mediaRating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), BUNDLE.getString("rating.add"), rating);
       dialog.setVisible(true);
 
-      if (StringUtils.isNotBlank(mediaRating.key) && mediaRating.value > 0 && mediaRating.maxValue > 0 && mediaRating.votes > 0) {
-        mediaRatings.add(mediaRating);
+      if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
+        ratings.add(rating);
       }
     }
   }
@@ -1490,7 +1461,7 @@ public class MovieEditorDialog extends TmmDialog {
       int row = tableRatings.getSelectedRow();
       if (row > -1) {
         row = tableRatings.convertRowIndexToModel(row);
-        mediaRatings.remove(row);
+        ratings.remove(row);
       }
     }
   }
@@ -1721,7 +1692,7 @@ public class MovieEditorDialog extends TmmDialog {
    * @return true, if successful
    */
   public boolean showDialog() {
-    setLocationRelativeTo(MainWindow.getActiveInstance());
+    setLocationRelativeTo(MainWindow.getInstance());
     setVisible(true);
     return continueQueue;
   }
@@ -1793,6 +1764,46 @@ public class MovieEditorDialog extends TmmDialog {
       List<String> selectedTags = listTags.getSelectedValuesList();
       for (String tag : selectedTags) {
         tags.remove(tag);
+      }
+    }
+  }
+
+  private class AddShowlinkAction extends AbstractAction {
+    private static final long serialVersionUID = 9160043031922897715L;
+
+    public AddShowlinkAction() {
+      putValue(SHORT_DESCRIPTION, BUNDLE.getString("showlink.add"));
+      putValue(SMALL_ICON, IconManager.ADD_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      String newShowlink = (String) cbShowlink.getSelectedItem();
+
+      // do not continue with empty showlinks
+      if (StringUtils.isBlank(newShowlink)) {
+        return;
+      }
+
+      if (!showlinks.contains(newShowlink)) {
+        showlinks.add(newShowlink);
+      }
+    }
+  }
+
+  private class RemoveShowlinkAction extends AbstractAction {
+    private static final long serialVersionUID = -1580945350962234215L;
+
+    public RemoveShowlinkAction() {
+      putValue(SHORT_DESCRIPTION, BUNDLE.getString("showlink.remove"));
+      putValue(SMALL_ICON, IconManager.REMOVE_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      List<String> selectedShowlinks = listShowlink.getSelectedValuesList();
+      for (String showlink : selectedShowlinks) {
+        showlinks.remove(showlink);
       }
     }
   }
@@ -2154,6 +2165,9 @@ public class MovieEditorDialog extends TmmDialog {
     //
     JListBinding<String, List<String>, JList> jListBinding_1 = SwingBindings.createJListBinding(UpdateStrategy.READ, tags, listTags);
     jListBinding_1.bind();
+    //
+    JListBinding<String, List<String>, JList> jListBinding_2 = SwingBindings.createJListBinding(UpdateStrategy.READ, showlinks, listShowlink);
+    jListBinding_2.bind();
     //
     BindingGroup bindingGroup = new BindingGroup();
     //

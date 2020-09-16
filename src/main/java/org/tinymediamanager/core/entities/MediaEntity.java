@@ -69,6 +69,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -670,6 +671,11 @@ public abstract class MediaEntity extends AbstractModelObject {
       ids.remove(key);
     }
     else {
+      // if the given ID is an imdb id but is not valid, then do not add
+      if (Constants.IMDB.equals(key) && !MetadataUtil.isValidImdbId(v)) {
+        return;
+      }
+
       ids.put(key, value);
     }
     firePropertyChange(key, null, value);

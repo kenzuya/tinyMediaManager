@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -54,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ImagePreviewDialog extends TmmDialog {
   private static final long           serialVersionUID = -7479476493187235867L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ImagePreviewDialog.class);
 
   private String                      imageUrl;
@@ -136,7 +135,7 @@ public class ImagePreviewDialog extends TmmDialog {
       });
 
       pack();
-      setLocationRelativeTo(MainWindow.getActiveInstance());
+      setLocationRelativeTo(MainWindow.getInstance());
       super.setVisible(true);
     }
     else {

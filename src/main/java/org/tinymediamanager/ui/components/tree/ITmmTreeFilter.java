@@ -28,6 +28,13 @@ public interface ITmmTreeFilter<E extends TmmTreeNode> {
   String TREE_FILTER_CHANGED = "treeFilterChanged";
 
   /**
+   * get the id of this filter. Used for storing/loading filters
+   *
+   * @return the id of this filter
+   */
+  String getId();
+
+  /**
    * is this filter active?
    *
    * @return true if this filter is active

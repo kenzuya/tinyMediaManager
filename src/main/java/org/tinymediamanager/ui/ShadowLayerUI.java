@@ -21,6 +21,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JComponent;
@@ -44,5 +45,7 @@ public class ShadowLayerUI extends LayerUI<JComponent> {
     g2.fill(new Rectangle2D.Double(0, 0, c.getWidth(), 7));
 
     g2.dispose();
+
+    Toolkit.getDefaultToolkit().sync();
   }
 }

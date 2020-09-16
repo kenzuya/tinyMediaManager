@@ -193,11 +193,11 @@ public enum Itag {
   }
 
   public boolean isVideo() {
-    return videoQuality != VideoQuality.NO_VIDEO;
+    return videoQuality != VideoQuality.NO_VIDEO && videoQuality != VideoQuality.UNKNOWN;
   }
 
   public boolean isAudio() {
-    return audioQuality != AudioQuality.NO_AUDIO;
+    return audioQuality != AudioQuality.NO_AUDIO && audioQuality != AudioQuality.UNKNOWN;
   }
 
   public boolean isVRor3D() {

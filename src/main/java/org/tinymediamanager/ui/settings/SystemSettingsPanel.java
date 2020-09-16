@@ -21,7 +21,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L2;
 import java.awt.Dimension;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,20 +38,21 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.LauncherExtraConfig;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SettingsPanelFactory;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import com.sun.jna.Platform;
@@ -67,7 +67,8 @@ import net.miginfocom.swing.MigLayout;
 class SystemSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 500841588272296493L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final Logger         LOGGER           = LoggerFactory.getLogger(SystemSettingsPanel.class);
   private static final Pattern        MEMORY_PATTERN   = Pattern.compile("-Xmx([0-9]*)(.)");
 
   private Settings                    settings         = Settings.getInstance();
@@ -108,10 +109,12 @@ class SystemSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
-      JPanel panelMediaPlayer = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMediaPlayer = new JPanel();
+      panelMediaPlayer.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("Settings.mediaplayer"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaPlayer, lblLanguageT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#media-player"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         tfMediaPlayer = new JTextField();
@@ -131,6 +134,7 @@ class SystemSettingsPanel extends JPanel {
 
       JLabel lblMemoryT = new TmmLabel(BUNDLE.getString("Settings.memoryborder"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMemory, lblMemoryT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#memory-settings"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
         lblMemoryT = new JLabel(BUNDLE.getString("Settings.memory"));
@@ -164,10 +168,12 @@ class SystemSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelProxy = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelProxy = new JPanel();
+      panelProxy.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblProxyT = new TmmLabel(BUNDLE.getString("Settings.proxy"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelProxy, lblProxyT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#proxy-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JLabel lblProxyHostT = new JLabel(BUNDLE.getString("Settings.proxyhost"));
@@ -204,10 +210,12 @@ class SystemSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelMisc = SettingsPanelFactory.createSettingsPanel();
+      JPanel panelMisc = new JPanel();
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-1"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblParallelDownloadCountT = new JLabel(BUNDLE.getString("Settings.paralleldownload"));
@@ -224,13 +232,13 @@ class SystemSettingsPanel extends JPanel {
   }
 
   private void initMemorySlider() {
-    Path file = Paths.get("extra.txt");
+    Path file = Paths.get(LauncherExtraConfig.LAUNCHER_EXTRA_YML);
     int maxMemory = 512;
     if (Files.exists(file)) {
       // parse out memory option from extra.txt
       try {
-        String extraTxt = Utils.readFileToString(file);
-        Matcher matcher = MEMORY_PATTERN.matcher(extraTxt);
+        LauncherExtraConfig extraConfig = LauncherExtraConfig.readFile(file.toFile());
+        Matcher matcher = MEMORY_PATTERN.matcher(String.join("\n", extraConfig.jvmOpts));
         if (matcher.find()) {
           maxMemory = Integer.parseInt(matcher.group(1));
           String dimension = matcher.group(2);
@@ -267,44 +275,24 @@ class SystemSettingsPanel extends JPanel {
 
   private void writeMemorySettings() {
     int memoryAmount = sliderMemory.getValue();
-    String jvmArg = "-Xmx" + memoryAmount + "m";
 
-    // no need of putting the default value in the file
-    if (memoryAmount == 512) {
-      jvmArg = "";
-    }
+    Path file = Paths.get(LauncherExtraConfig.LAUNCHER_EXTRA_YML);
+    try {
+      LauncherExtraConfig extraConfig = LauncherExtraConfig.readFile(file.toFile());
 
-    Path file = Paths.get("extra.txt");
-    // new file - do not write when 512MB is set
-    if (memoryAmount != 512 && !Files.exists(file)) {
-      try {
-        Utils.writeStringToFile(file, jvmArg);
+      // delete any old memory setting
+      extraConfig.jvmOpts.removeIf(option -> MEMORY_PATTERN.matcher(option).find());
+
+      // set the new one if it differs from the default
+      if (memoryAmount != 512) {
+        extraConfig.jvmOpts.add("-Xmx" + memoryAmount + "m");
       }
-      catch (IOException ignored) {
-      }
+
+      // and re-write the settings
+      extraConfig.save();
     }
-    else if (Files.exists(file)) {
-      try {
-        String extraTxt = Utils.readFileToString(file);
-        Matcher matcher = MEMORY_PATTERN.matcher(extraTxt);
-        if (matcher.find()) {
-          extraTxt = extraTxt.replace(matcher.group(0), jvmArg);
-        }
-        else {
-          extraTxt += "\r\n" + jvmArg;
-        }
-        // nothing in the file?
-        if (StringUtils.isBlank(extraTxt)) {
-          // yes -> delete it
-          Utils.deleteFileSafely(file);
-        }
-        else {
-          // no -> rewrite it
-          Utils.writeStringToFile(file, extraTxt);
-        }
-      }
-      catch (Exception ignored) {
-      }
+    catch (Exception e) {
+      LOGGER.warn("Could not write memory settings - {}", e.getMessage());
     }
   }
 

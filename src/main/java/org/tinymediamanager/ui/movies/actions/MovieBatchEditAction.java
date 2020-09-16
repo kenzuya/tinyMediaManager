@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -40,7 +39,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieBulkEditorDialog;
  */
 public class MovieBatchEditAction extends TmmAction {
   private static final long           serialVersionUID = -3974602352019088416L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieBatchEditAction() {
     putValue(NAME, BUNDLE.getString("movie.bulkedit"));
@@ -55,13 +54,13 @@ public class MovieBatchEditAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
     // get data of all files within all selected movies
     MovieBulkEditorDialog editor = new MovieBulkEditorDialog(selectedMovies);
-    editor.setLocationRelativeTo(MainWindow.getActiveInstance());
+    editor.setLocationRelativeTo(MainWindow.getInstance());
     editor.pack();
     editor.setVisible(true);
   }

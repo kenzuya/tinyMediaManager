@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:cc="http://creativecommons.org/ns#"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+        sodipodi:docname="icn_rename_hover.svg"
+        id="svg3"
+        style="clip-rule:evenodd;fill-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
+        xml:space="preserve"
+        version="1.1"
+        viewBox="0 0 34.026001 30.999499"
+        height="30.9995"
+        width="34.026001"><metadata
+   id="metadata9"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+        rdf:resource="http://purl.org/dc/dcmitype/StillImage"/><dc:title></dc:title></cc:Work></rdf:RDF></metadata>
+    <defs
+            id="defs7"><linearGradient
+     inkscape:collect="always"
+     id="linearGradient11"><stop
+       style="stop-color:#ff7413;stop-opacity:1;"
+       offset="0"
+       id="stop7" /><stop
+            style="stop-color:#ff8f00;stop-opacity:1;"
+            offset="1"
+            id="stop9"/></linearGradient>
+        <linearGradient
+                gradientTransform="matrix(1.1722594,0,0,1.2083168,-1.1722594,-3.2291088)"
+                inkscape:collect="always"
+                xlink:href="#linearGradient11"
+                id="linearGradient13"
+                x1="14.810931"
+                y1="27.489853"
+                x2="14.783938"
+                y2="3.5280848"
+                gradientUnits="userSpaceOnUse"/></defs>
+    <sodipodi:namedview
+            lock-margins="false"
+            inkscape:current-layer="svg3"
+            inkscape:window-maximized="0"
+            inkscape:window-y="31"
+            inkscape:window-x="53"
+            inkscape:cy="15.49975"
+            inkscape:cx="7.9848386"
+            inkscape:zoom="20.16"
+            fit-margin-bottom="3.5"
+            fit-margin-right="1"
+            fit-margin-left="1"
+            fit-margin-top="3.5"
+            showgrid="false"
+            id="namedview5"
+            inkscape:window-height="1130"
+            inkscape:window-width="1956"
+            inkscape:pageshadow="2"
+            inkscape:pageopacity="0"
+            guidetolerance="10"
+            gridtolerance="10"
+            objecttolerance="10"
+            borderopacity="1"
+            bordercolor="#666666"
+            pagecolor="#ffffff"
+            inkscape:document-rotation="0"/>
+    <path
+            style="fill:url(#linearGradient13);fill-opacity:1;fill-rule:nonzero;stroke-width:1.19015"
+            d="M 24.653786,3.4392896 26.6689,1.3996508 c 0.527517,-0.53286773 1.3903,-0.53286773 1.917817,0 0.527516,0.534076 0.527516,1.4076891 0,1.9417652 l -2.512152,2.5435069 v 0.8373636 h 6.311444 c 0.0082,0 0.01641,0 0.02462,0 0.07971,0 0.157082,0.00604 0.233279,0.016916 0.771347,0.1135818 1.365682,0.7769477 1.380922,1.5853117 l 0.0012,0.032625 v 14.2194728 0.0012 c 0,0.902613 -0.723284,1.634853 -1.615373,1.634853 h -6.336062 v 0.901404 l 2.512152,2.543507 c 0.527516,0.534076 0.527516,1.407689 0,1.941765 -0.527517,0.532868 -1.3903,0.532868 -1.917817,0 l -2.015114,-2.039639 -2.013941,2.039639 c -0.527517,0.532868 -1.3903,0.532868 -1.917816,0 -0.527517,-0.534076 -0.527517,-1.407689 0,-1.941765 l 2.61531,-2.647422 V 5.9888382 L 20.722059,3.341416 c -0.527517,-0.5340761 -0.527517,-1.4076892 0,-1.9417652 0.527516,-0.53286773 1.390299,-0.53286773 1.917816,0 z M 0,8.3571392 C 0,7.4545265 0.72328402,6.7222865 1.6153734,6.7222865 H 17.585063 c 0.892089,0 1.614201,0.73224 1.614201,1.6348527 0,0.9026126 -0.722112,1.6348526 -1.614201,1.6348526 H 3.2295745 V 20.944176 H 17.585063 c 0.892089,0 1.614201,0.731031 1.614201,1.633644 0,0.902613 -0.722112,1.634853 -1.614201,1.634853 H 1.6153734 C 0.72328402,24.212673 0,23.480433 0,22.57782 Z M 30.796425,20.944176 V 9.9919918 h -4.72186 V 20.944176 Z"
+            id="icn_Rename_hv"/>
+</svg>

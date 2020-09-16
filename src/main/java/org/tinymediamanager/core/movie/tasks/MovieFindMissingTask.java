@@ -40,7 +40,6 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
@@ -56,7 +55,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
 
 public class MovieFindMissingTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieFindMissingTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private List<String>                dataSources;
   private MovieList                   movieList;

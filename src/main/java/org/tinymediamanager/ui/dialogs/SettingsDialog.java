@@ -15,33 +15,34 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTree;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.components.TmmSplitPane;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.tree.TmmTree;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
@@ -56,14 +57,15 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class SettingsDialog extends TmmDialog {
-  private static final long              serialVersionUID = 2435834806519338339L;
+  private static final long             serialVersionUID = 2435834806519338339L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
-  private static JDialog                 instance;
+  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
+  private static JDialog                instance;
 
-  private TmmTree<TmmTreeNode>           tree;
-  private JSplitPane                     splitPane;
-  private TmmTreeTextFilter<TmmTreeNode> tfFilter;
+  private final TmmSettingsDataProvider dataProvider;
+  private TmmTree<TmmTreeNode>          tree;
+  private JPanel                        rightPanel;
+  private TmmSettingsTreeFilter         tfFilter;
 
   /**
    * Get the single instance of the settings dialog
@@ -80,26 +82,22 @@ public class SettingsDialog extends TmmDialog {
   private SettingsDialog() {
     super(BUNDLE.getString("tmm.settings"), "settings");
 
+    dataProvider = new TmmSettingsDataProvider();
+
     initComponents();
+    initPanels();
 
     tree.addFilter(tfFilter);
     tree.setRootVisible(false);
     tree.setShowsRootHandles(true);
-    tree.setRowHeight(0);
-    tree.setCellRenderer(new SettingsTreeCellRenderer());
 
     tree.addTreeSelectionListener(e -> {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
       if (node != null) {
         // click on a settings node
         if (node.getUserObject() instanceof TmmSettingsNode) {
-          TmmSettingsNode tmmSettingsNode = (TmmSettingsNode) node.getUserObject();
-          if (tmmSettingsNode.getComponent() != null) {
-            JScrollPane scrollPane = new JScrollPane(tmmSettingsNode.getComponent());
-            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-            splitPane.setRightComponent(scrollPane);
-            revalidate();
-          }
+          CardLayout cl = (CardLayout) rightPanel.getLayout();
+          cl.show(rightPanel, ((TmmSettingsNode) node.getUserObject()).getId());
         }
       }
     });
@@ -118,42 +116,62 @@ public class SettingsDialog extends TmmDialog {
     });
   }
 
+  private void initPanels() {
+    for (TmmTreeNode node : tree.getDataProvider().getChildren(tree.getDataProvider().getRoot()))
+      addSettingsPanel(node);
+  }
+
+  private void addSettingsPanel(TmmTreeNode node) {
+    if (!(node.getUserObject() instanceof TmmSettingsNode)) {
+      return;
+    }
+    JComponent component = ((TmmSettingsNode) node.getUserObject()).getComponent();
+    if (component != null) {
+      JScrollPane scrollPane = new NoBorderScrollPane(component);
+      scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+      rightPanel.add(scrollPane, ((TmmSettingsNode) node.getUserObject()).getId());
+    }
+    for (TmmTreeNode child : tree.getDataProvider().getChildren(node)) {
+      addSettingsPanel(child);
+    }
+  }
+
   private void initComponents() {
     {
       JPanel contentPanel = new JPanel();
       contentPanel.setLayout(new MigLayout("", "[600lp:1000lp,grow]", "[600lp,grow]"));
       getContentPane().add(contentPanel, BorderLayout.CENTER);
 
-      splitPane = new TmmSplitPane();
+      JSplitPane splitPane = new JSplitPane();
       contentPanel.add(splitPane, "cell 0 0, grow");
+
+      rightPanel = new JPanel();
+      rightPanel.setLayout(new CardLayout(0, 0));
+      splitPane.setRightComponent(rightPanel);
 
       JPanel panelLeft = new JPanel();
       splitPane.setLeftComponent(panelLeft);
       panelLeft.setLayout(new MigLayout("", "[200lp:200lp,grow]", "[][400lp,grow]"));
       {
-        tfFilter = new TmmTreeTextFilter<>();
+        tfFilter = new TmmSettingsTreeFilter();
         panelLeft.add(tfFilter, "cell 0 0,grow");
         tfFilter.setColumns(10);
       }
 
-      JScrollPane scrollPaneLeft = new JScrollPane();
+      JScrollPane scrollPaneLeft = new NoBorderScrollPane();
       panelLeft.add(scrollPaneLeft, "cell 0 1,grow");
 
-      tree = new TmmTree<>(new TmmSettingsDataProvider());
+      tree = new TmmTree<>(dataProvider);
       scrollPaneLeft.setViewportView(tree);
-      scrollPaneLeft.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    }
-    {
-
+      scrollPaneLeft.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
     }
     {
       JPanel southPanel = new JPanel();
       getContentPane().add(southPanel, BorderLayout.SOUTH);
       southPanel.setLayout(new MigLayout("insets n 0 0 0, gap rel 0", "[grow][]", "[shrink 0][]"));
-      {
-        JSeparator separator = new JSeparator();
-        southPanel.add(separator, "cell 0 0 2 1,growx");
-      }
+
+      JSeparator separator = new JSeparator();
+      southPanel.add(separator, "cell 0 0 2 1,growx");
 
       JPanel panelButtons = new JPanel();
       EqualsLayout layout = new EqualsLayout(5);
@@ -192,35 +210,32 @@ public class SettingsDialog extends TmmDialog {
     super.setVisible(visible);
   }
 
-  private class SettingsTreeCellRenderer implements TreeCellRenderer {
-
-    private JLabel label;
-
-    SettingsTreeCellRenderer() {
-      label = new JLabel() {
-        @Override
-        public void updateUI() {
-          super.updateUI();
-          Object obj = UIManager.get("Tree.nodeBorder");
-          if (obj instanceof Border) {
-            setBorder((Border) obj);
-          }
-        }
-      };
-    }
-
+  private static class TmmSettingsTreeFilter extends TmmTreeTextFilter<TmmTreeNode> {
     @Override
-    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row,
-        boolean hasFocus) {
-      if (selected) {
-        label.setForeground(UIManager.getColor("Tree.selectionForeground"));
+    public boolean accept(TmmTreeNode node) {
+      if (StringUtils.isBlank(filterText)) {
+        return true;
       }
-      else {
-        label.setForeground(UIManager.getColor("Tree.textForeground"));
+
+      // first: filter on the node text
+      Matcher matcher = filterPattern.matcher(node.toString());
+      if (matcher.find()) {
+        return true;
       }
-      label.setText(value.toString());
-      label.invalidate();
-      return label;
+
+      // second: parse all children too
+      for (Enumeration<? extends TreeNode> e = node.children(); e.hasMoreElements();) {
+        if (accept((TmmTreeNode) e.nextElement())) {
+          return true;
+        }
+      }
+
+      // third: check the parent(s)
+      if (checkParent(node.getDataProvider().getParent(node), filterPattern)) {
+        return true;
+      }
+
+      return false;
     }
   }
 }

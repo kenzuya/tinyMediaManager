@@ -1667,21 +1667,18 @@ public class TvShowRenamer {
     @Override
     public String render(Object o, String s, Locale locale, Map<String, Object> map) {
       if (o instanceof String && StringUtils.isNotBlank((String) o)) {
-        String source = (String) o;
-        if (TvShowModuleManager.SETTINGS.isAsciiReplacement()) {
-          source = StrgUtils.convertToAscii(source, false);
-        }
+        String source = StrgUtils.convertToAscii((String) o, false);
         String first = source.trim().substring(0, 1);
         if (first.matches("[\\p{L}]")) {
           return first.toUpperCase(Locale.ROOT);
         }
-        return "#";
+        return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       if (o instanceof Number) {
-        return "#";
+        return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       if (o instanceof Date) {
-        return "#";
+        return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       return "";
     }

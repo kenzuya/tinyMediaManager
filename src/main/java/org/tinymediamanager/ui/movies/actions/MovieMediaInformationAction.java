@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieReloadMediaInformationTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -42,7 +41,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieMediaInformationAction extends TmmAction {
   private static final long           serialVersionUID = 4927466975489852998L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public MovieMediaInformationAction() {
     putValue(NAME, BUNDLE.getString("movie.updatemediainfo"));
@@ -56,7 +55,7 @@ public class MovieMediaInformationAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getActiveInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 

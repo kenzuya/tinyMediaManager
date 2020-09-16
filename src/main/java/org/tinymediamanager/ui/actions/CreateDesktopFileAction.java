@@ -22,10 +22,7 @@ import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.TmmOsUtils;
-import org.tinymediamanager.core.UTF8Control;
 
 /**
  * The {@link CreateDesktopFileAction} is used the create a .desktop file in ~/.local/share/applications on linux
@@ -34,8 +31,7 @@ import org.tinymediamanager.core.UTF8Control;
  */
 public class CreateDesktopFileAction extends TmmAction {
   private static final long           serialVersionUID = 1668251251156765161L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages", new UTF8Control());
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(CreateDesktopFileAction.class);
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   public CreateDesktopFileAction() {
     putValue(NAME, BUNDLE.getString("tmm.createdesktopentry"));

@@ -61,17 +61,21 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.license.License;
+import org.tinymediamanager.license.MovieEventList;
+import org.tinymediamanager.license.SizeLimitExceededException;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
-import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -96,6 +100,8 @@ public class MovieList extends AbstractModelObject {
   private final Set<String>             audioCodecsInMovies;
   private final Set<MediaCertification> certificationsInMovies;
   private final Set<Double>             frameRatesInMovies;
+  private final Set<Integer>            audioStreamsInMovies;
+  private final Set<Integer>            subtitlesInMovies;
 
   private final PropertyChangeListener  movieListener;
   private final PropertyChangeListener  movieSetListener;
@@ -106,7 +112,7 @@ public class MovieList extends AbstractModelObject {
    */
   private MovieList() {
     // create all lists
-    movieList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Movie.class));
+    movieList = new ObservableElementList<>(new MovieEventList<>(), GlazedLists.beanConnector(Movie.class));
     movieSetList = new ObservableCopyOnWriteArrayList<>();
 
     yearsInMovies = new CopyOnWriteArraySet<>();
@@ -117,6 +123,8 @@ public class MovieList extends AbstractModelObject {
     audioCodecsInMovies = new CopyOnWriteArraySet<>();
     certificationsInMovies = new CopyOnWriteArraySet<>();
     frameRatesInMovies = new CopyOnWriteArraySet<>();
+    audioStreamsInMovies = new CopyOnWriteArraySet<>();
+    subtitlesInMovies = new CopyOnWriteArraySet<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -135,6 +143,7 @@ public class MovieList extends AbstractModelObject {
 
           case GENRE:
             updateGenres(movie);
+            break;
 
           case TAG:
             updateTags(movie);
@@ -143,6 +152,9 @@ public class MovieList extends AbstractModelObject {
           case MEDIA_FILES:
           case MEDIA_INFORMATION:
             updateMediaInformationLists(movie);
+            break;
+
+          default:
             break;
         }
       }
@@ -161,6 +173,12 @@ public class MovieList extends AbstractModelObject {
     };
 
     movieSettings = MovieModuleManager.SETTINGS;
+
+    License.getInstance().addEventListener(() -> {
+      firePropertyChange("movieCount", 0, movieList.size());
+      firePropertyChange("movieSetCount", 0, movieSetList.size());
+      firePropertyChange("movieInMovieSetCount", 0, getMovieInMovieSetCount());
+    });
   }
 
   /**
@@ -168,7 +186,7 @@ public class MovieList extends AbstractModelObject {
    * 
    * @return single instance of MovieList
    */
-  public synchronized static MovieList getInstance() {
+  public static synchronized MovieList getInstance() {
     if (MovieList.instance == null) {
       MovieList.instance = new MovieList();
     }
@@ -359,6 +377,10 @@ public class MovieList extends AbstractModelObject {
         // for performance reasons we add movies directly
         movieList.add(movie);
       }
+      catch (SizeLimitExceededException e) {
+        LOGGER.debug("size limit exceeded - ignoring DB entry");
+        break;
+      }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt movie: {}", json);
@@ -547,6 +569,7 @@ public class MovieList extends AbstractModelObject {
       // set what we have, so the provider could chose from all :)
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(language);
+      options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
       options.setMetadataScraper(mediaScraper);
 
       if (ids != null) {
@@ -554,7 +577,7 @@ public class MovieList extends AbstractModelObject {
       }
 
       if (!searchTerm.isEmpty()) {
-        if (Utils.isValidImdbId(searchTerm)) {
+        if (MetadataUtil.isValidImdbId(searchTerm)) {
           options.setImdbId(searchTerm);
         }
         options.setSearchQuery(searchTerm);
@@ -572,7 +595,7 @@ public class MovieList extends AbstractModelObject {
       // if result is empty, try all scrapers
       if (sr.isEmpty() && movieSettings.isScraperFallback()) {
         for (MediaScraper ms : getAvailableMediaScrapers()) {
-          if (!ms.isEnabled() || provider.getProviderInfo().equals(ms.getMediaProvider().getProviderInfo())
+          if (provider.getProviderInfo().equals(ms.getMediaProvider().getProviderInfo())
               || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi")) {
             continue;
           }
@@ -877,6 +900,15 @@ public class MovieList extends AbstractModelObject {
           firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInMovies);
         }
       }
+      // audio streams
+      if (!mf.getAudioStreams().isEmpty() && audioStreamsInMovies.add(mf.getAudioStreams().size())) {
+        firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInMovies);
+      }
+
+      // subtitles
+      if (!mf.getSubtitles().isEmpty() && subtitlesInMovies.add(mf.getSubtitles().size())) {
+        firePropertyChange(Constants.SUBTITLES_COUNT, null, subtitlesInMovies);
+      }
     }
   }
 
@@ -922,6 +954,14 @@ public class MovieList extends AbstractModelObject {
 
   public Set<Double> getFrameRatesInMovies() {
     return frameRatesInMovies;
+  }
+
+  public Set<Integer> getAudioStreamsInMovies() {
+    return audioStreamsInMovies;
+  }
+
+  public Set<Integer> getSubtitlesInMovies() {
+    return subtitlesInMovies;
   }
 
   private void addCertification(MediaCertification newCert) {
@@ -1176,7 +1216,7 @@ public class MovieList extends AbstractModelObject {
       Files.createFile(stubFile);
     }
     catch (IOException e) {
-      LOGGER.error("could not create stub file: " + e.getMessage());
+      LOGGER.error("could not create stub file - {}", e.getMessage());
       return;
     }
 
@@ -1193,8 +1233,31 @@ public class MovieList extends AbstractModelObject {
     movie.addToMediaFiles(mf);
     movie.setOffline(true);
     movie.setNewlyAdded(true);
-    addMovie(movie);
-    movie.saveToDb();
+
+    try {
+      addMovie(movie);
+      movie.saveToDb();
+    }
+    catch (Exception e) {
+      try {
+        Utils.deleteDirectoryRecursive(stubFolder);
+      }
+      catch (Exception e1) {
+        LOGGER.debug("could not delete stub folder - {}", e1.getMessage());
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * get all titles from TV shows (mainly for the showlink feature)
+   *
+   * @return a {@link List} of all TV show titles
+   */
+  public List<String> getTvShowTitles() {
+    List<String> tvShowTitles = new ArrayList<>();
+    TvShowList.getInstance().getTvShows().forEach(tvShow -> tvShowTitles.add(tvShow.getTitle()));
+    return tvShowTitles;
   }
 
   private class MovieSetComparator implements Comparator<MovieSet> {

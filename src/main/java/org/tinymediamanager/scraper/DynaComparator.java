@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 // implemented own method, but included this to be more generic
 // https://github.com/jeevatkm/generic-repo/blob/master/genericComparator/src/main/java/com/myjeeva/comparator/GenericComparator.java
-public class DynaComparator implements Comparator, Serializable {
+public class DynaComparator<E> implements Comparator<E>, Serializable {
 
   private static final long   serialVersionUID = -1L;
   private static final Logger LOGGER           = LoggerFactory.getLogger(DynaComparator.class);
@@ -269,9 +269,10 @@ public class DynaComparator implements Comparator, Serializable {
    *          - a {@link java.lang.Object} - input object
    * @return method - a {@link java.lang.reflect.Method}
    * @throws NoSuchMethodException
+   *           is thrown when this method does not exist
    */
-  private final Method getMethod(Object obj) throws NoSuchMethodException {
-    return obj.getClass().getMethod(targetMethod, null);
+  private Method getMethod(Object obj) throws NoSuchMethodException {
+    return obj.getClass().getMethod(targetMethod);
   }
 
   /**
@@ -283,10 +284,12 @@ public class DynaComparator implements Comparator, Serializable {
    *          - a {@link java.lang.Object}
    * @return object - a {@link java.lang.Object} - return of given method
    * @throws InvocationTargetException
+   *           if the underlying method throws an exception.
    * @throws IllegalAccessException
+   *           if this {@code Method} object is enforcing Java language access control and the underlying method is inaccessible.
    */
-  private static final Object invoke(Method method, Object obj) throws InvocationTargetException, IllegalAccessException {
-    return method.invoke(obj, null);
+  private static Object invoke(Method method, Object obj) throws InvocationTargetException, IllegalAccessException {
+    return method.invoke(obj);
   }
 
   /**
@@ -296,8 +299,11 @@ public class DynaComparator implements Comparator, Serializable {
    *          - a {@link java.lang.Object}
    * @return object - a {@link java.lang.Object} - return of given method
    * @throws InvocationTargetException
+   *           if the underlying method throws an exception.
    * @throws IllegalAccessException
+   *           if this {@code Method} object is enforcing Java language access control and the underlying method is inaccessible.
    * @throws NoSuchMethodException
+   *           is thrown when this method does not exist
    */
   private Object getValue(Object obj) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
     return invoke(getMethod(obj), obj);
@@ -310,7 +316,7 @@ public class DynaComparator implements Comparator, Serializable {
    *          - a {@link java.lang.Object}
    * @param o2
    *          - a {@link java.lang.Object}
-   * @return compareMode - a {@link com.myjeeva.comparator.GenericComparator.CompareMode}
+   * @return compareMode - a {@link CompareMode}
    */
   private CompareMode findCompareMode(Object o1, Object o2) {
     CompareMode cm = CompareMode.LESS_THAN;

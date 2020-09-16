@@ -32,6 +32,7 @@ public final class Constants {
   public static final String AIRED_EPISODE          = "airedEpisode";
   public static final String AIRED_SEASON           = "airedSeason";
   public static final String AUDIO_CODEC            = "audioCodec";
+  public static final String AUDIOSTREAMS_COUNT     = "audioStreams";
   public static final String BANNER                 = "banner";
   public static final String BANNER_URL             = "bannerUrl";
   public static final String CAST                   = "cast";
@@ -103,6 +104,8 @@ public final class Constants {
   public static final String SPOKEN_LANGUAGES       = "spokenLanguages";
   public static final String STATUS                 = "status";
   public static final String STUDIO                 = "studio";
+  public static final String SUBTITLES              = "subtitles";
+  public static final String SUBTITLES_COUNT        = "countSubtitles";
   public static final String TAG                    = "tag";
   public static final String TAGS_AS_STRING         = "tagsAsString";
   public static final String THUMB                  = "thumb";

@@ -24,13 +24,11 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.JTextComponent;
 
-import org.tinymediamanager.core.UTF8Control;
-
 /**
  * The Class TextFieldPopupMenu.
  */
 public class TextFieldPopupMenu {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", new UTF8Control());
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private static JMenuItem getCutMenuItem(final JPopupMenu menu) {
     final JMenuItem mntmCut = new JMenuItem(BUNDLE.getString("menuitem.cut"));

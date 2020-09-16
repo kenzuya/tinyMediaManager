@@ -35,6 +35,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
@@ -54,7 +55,6 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
 
   private static final Logger      LOGGER          = LoggerFactory.getLogger(OpensubtitlesMetadataProvider.class);
   private static final String      SERVICE         = "http://api.opensubtitles.org/xml-rpc";
-  private static final String      USER_AGENT      = "tinyMediaManager v1";
   private static final int         HASH_CHUNK_SIZE = 64 * 1024;
 
   private static MediaProviderInfo providerInfo    = createMediaProviderInfo();
@@ -87,14 +87,23 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
     return ID;
   }
 
-  private static synchronized void initAPI() {
+  private static synchronized void initAPI() throws ScrapeException {
     if (client == null) {
       try {
-        client = new TmmXmlRpcClient(new URL(SERVICE), USER_AGENT);
+        client = new TmmXmlRpcClient(new URL(SERVICE));
       }
       catch (MalformedURLException e) {
         LOGGER.error("cannot create XmlRpcClient", e);
+        throw new ScrapeException(e);
       }
+    }
+
+    // API key check
+    try {
+      client.setUserAgent(License.getInstance().getApiKey(providerInfo.getId()));
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
     }
   }
 
@@ -283,15 +292,15 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
    * @return return value
    * @throws TmmXmlRpcException
    */
-  private Object methodCall(String method, Object params) throws TmmXmlRpcException {
+  private Object methodCall(String method, Object params) throws TmmXmlRpcException, ScrapeException {
     startSession();
     Object response = null;
     if (StringUtils.isNotBlank(sessionToken)) {
       if (params != null) {
-        response = client.call(method, new Object[] { sessionToken, params });
+        response = client.call(method, sessionToken, params);
       }
       else {
-        response = client.call(method, new Object[] { sessionToken, });
+        response = client.call(method, sessionToken);
       }
     }
     else {
@@ -325,7 +334,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
    * (either registered user or anonymous). If user has no account, blank username and password should be used.
    */
   @SuppressWarnings("unchecked")
-  private static synchronized void startSession() throws TmmXmlRpcException {
+  private static synchronized void startSession() throws ScrapeException {
     if ((providerInfo.getConfig().getValue("username") != null && !username.equals(providerInfo.getConfig().getValue("username")))
         || (providerInfo.getConfig().getValue("password") != null && !password.equals(providerInfo.getConfig().getValue("password")))) {
       username = providerInfo.getConfig().getValue("username");
@@ -334,9 +343,15 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
     }
 
     if (StringUtils.isBlank(sessionToken)) {
-      Map<String, Object> response = (Map<String, Object>) client.call("LogIn", new Object[] { username, password, "", USER_AGENT });
-      sessionToken = (String) response.get("token");
-      LOGGER.debug("Login OK");
+      try {
+        Map<String, Object> response = (Map<String, Object>) client.call("LogIn", username, password, "",
+            License.getInstance().getApiKey(providerInfo.getId()));
+        sessionToken = (String) response.get("token");
+        LOGGER.debug("Login OK");
+      }
+      catch (Exception e) {
+        throw new ScrapeException(e);
+      }
     }
   }
 

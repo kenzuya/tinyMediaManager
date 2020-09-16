@@ -118,7 +118,7 @@ class TmdbArtworkProvider {
 
         // if the thread has been interrupted, to no rethrow that exception
         if (e instanceof InterruptedException || e instanceof InterruptedIOException) {
-          return new ArrayList<>();
+          return Collections.emptyList();
         }
 
         throw new ScrapeException(e);
@@ -126,7 +126,7 @@ class TmdbArtworkProvider {
     }
 
     if (images == null) {
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
 
     List<MediaArtwork> artwork = prepareArtwork(images, artworkType, tmdbId, options);
@@ -160,7 +160,7 @@ class TmdbArtworkProvider {
     // prepare posters
     if (artworkType == MediaArtwork.MediaArtworkType.POSTER || artworkType == MediaArtwork.MediaArtworkType.ALL) {
       for (Image image : ListUtils.nullSafe(tmdbArtwork.posters)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtworkType.POSTER);
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtworkType.POSTER);
         ma.setPreviewUrl(baseUrl + "w185" + image.file_path);
         ma.setLanguage(image.iso_639_1);
         ma.setTmdbId(tmdbId);
@@ -190,7 +190,7 @@ class TmdbArtworkProvider {
 
     if (artworkType == MediaArtwork.MediaArtworkType.BACKGROUND || artworkType == MediaArtwork.MediaArtworkType.ALL) {
       for (Image image : ListUtils.nullSafe(tmdbArtwork.backdrops)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.providerInfo.getId(), MediaArtworkType.BACKGROUND);
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtworkType.BACKGROUND);
         ma.setPreviewUrl(baseUrl + "w300" + image.file_path);
         ma.setLanguage(image.iso_639_1);
         ma.setTmdbId(tmdbId);
