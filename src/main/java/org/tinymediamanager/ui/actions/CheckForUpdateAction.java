@@ -34,9 +34,6 @@ public class CheckForUpdateAction extends TmmAction {
   public CheckForUpdateAction() {
     putValue(NAME, BUNDLE.getString("tmm.updater.check"));
     putValue(SHORT_DESCRIPTION, BUNDLE.getString("tmm.updater.check"));
-    setEnabled(License.getInstance().isValidLicense());
-
-    License.getInstance().addEventListener(() -> setEnabled(License.getInstance().isValidLicense()));
   }
 
   @Override
