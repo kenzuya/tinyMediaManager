@@ -24,7 +24,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +55,16 @@ public class ImageCache {
   private static final Path   CACHE_DIR  = Paths.get(Globals.CACHE_FOLDER + "/image");
   private static final char[] HEX_DIGITS = "0123456789ABCDEF".toCharArray();
 
+  public enum CacheSize {
+    SMALL,
+    BIG,
+    ORIGINAL
+  }
+
   public enum CacheType {
-    FAST,
-    SMOOTH
+    BALANCED,
+    QUALITY,
+    ULTRA_QUALITY
   }
 
   static {
@@ -84,20 +91,6 @@ public class ImageCache {
       }
       catch (IOException e) {
         LOGGER.warn("Could not create cache sub dir '{}' - {}", sub, e.getMessage());
-      }
-    }
-  }
-
-  @Deprecated
-  public static void migrate() {
-    List<Path> files = Utils.listFiles(getCacheDir());
-    for (Path f : files) {
-      Path f2 = getCacheDir().resolve(Paths.get(f.getFileName().toString().substring(0, 1), f.getFileName().toString()));
-      try {
-        Files.move(f, f2, StandardCopyOption.ATOMIC_MOVE);
-      }
-      catch (IOException ignore) {
-        // ignored - do not care
       }
     }
   }
@@ -137,9 +130,10 @@ public class ImageCache {
 
   public static String getMD5WithSubfolder(String path) {
     String md5 = getMD5(path);
-    if (path == null) {
+    if (StringUtils.isBlank(md5)) {
       return null;
     }
+
     return Paths.get(md5.substring(0, 1), md5).toString();
   }
 
@@ -208,20 +202,7 @@ public class ImageCache {
       }
 
       // calculate width based on MF type
-      int desiredWidth = originalImage.getWidth(); // initialize with fallback
-      // decide the scale-side depending on the aspect ratio
-      if (((float) originalImage.getWidth()) / ((float) originalImage.getHeight()) > 1) {
-        // landscape
-        if (originalImage.getWidth() > 400) {
-          desiredWidth = 400;
-        }
-      }
-      else {
-        // portrait
-        if (originalImage.getHeight() > 400) {
-          desiredWidth = 400 * originalImage.getWidth() / originalImage.getHeight();
-        }
-      }
+      int desiredWidth = calculateCacheImageWidth(originalImage);
 
       Point size = ImageUtils.calculateSize(desiredWidth, (int) (originalImage.getHeight() / 1.5), originalImage.getWidth(),
           originalImage.getHeight(), true);
@@ -231,19 +212,27 @@ public class ImageCache {
       retries = 5;
       do {
         try {
-          if (Globals.settings.getImageCacheType() == CacheType.FAST) {
-            // scale fast
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.BALANCED, Scalr.Mode.FIT_EXACT, size.x, size.y);
-          }
-          else {
-            // scale with good quality
-            scaledImage = Scalr.resize(originalImage, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, size.x, size.y);
+          switch (Globals.settings.getImageCacheType()) {
+            case BALANCED:
+              // scale fast
+              scaledImage = Scalr.resize(originalImage, Scalr.Method.BALANCED, Scalr.Mode.FIT_EXACT, size.x, size.y);
+              break;
+
+            case QUALITY:
+              // scale with good quality
+              scaledImage = Scalr.resize(originalImage, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, size.x, size.y);
+              break;
+
+            case ULTRA_QUALITY:
+              // scale with good quality
+              scaledImage = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, size.x, size.y);
+              break;
           }
           break;
         }
         catch (OutOfMemoryError e) {
           // memory limit hit; give it another 500ms time to recover
-          LOGGER.warn("hit memory cap: {}", e.getMessage());
+          LOGGER.debug("hit memory cap: {}", e.getMessage());
           Thread.sleep(500);
         }
         retries--;
@@ -293,6 +282,52 @@ public class ImageCache {
     }
 
     return cachedFile;
+  }
+
+  private static int calculateCacheImageWidth(BufferedImage originalImage) {
+    // initialize with the original width
+    int desiredWidth = originalImage.getWidth();
+
+    switch (Settings.getInstance().getImageCacheSize()) {
+      case ORIGINAL:
+        // nothing to do - desiredWidth already initialized
+        break;
+
+      case BIG:
+        // decide the scale-side depending on the aspect ratio
+        if (((float) originalImage.getWidth()) / ((float) originalImage.getHeight()) > 1) {
+          // landscape
+          if (originalImage.getWidth() > 1000) {
+            desiredWidth = 1000;
+          }
+        }
+        else {
+          // portrait
+          if (originalImage.getHeight() > 1000) {
+            desiredWidth = 1000 * originalImage.getWidth() / originalImage.getHeight();
+          }
+        }
+        break;
+
+      case SMALL:
+        // decide the scale-side depending on the aspect ratio
+        if (((float) originalImage.getWidth()) / ((float) originalImage.getHeight()) > 1) {
+          // landscape
+          if (originalImage.getWidth() > 400) {
+            desiredWidth = 400;
+          }
+        }
+        else {
+          // portrait
+          if (originalImage.getHeight() > 400) {
+            desiredWidth = 400 * originalImage.getWidth() / originalImage.getHeight();
+          }
+        }
+        break;
+
+    }
+
+    return desiredWidth;
   }
 
   /**
