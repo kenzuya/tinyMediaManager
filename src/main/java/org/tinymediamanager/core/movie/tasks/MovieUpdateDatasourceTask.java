@@ -86,51 +86,48 @@ import com.sun.jna.Platform;
  * @author Myron Boyle
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER            = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages");
+  private static final Logger         LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   // constants
-  private static final String         VIDEO_TS          = "VIDEO_TS";
-  private static final String         BDMV              = "BDMV";
-  private static final String         HVDVD_TS          = "HVDVD_TS";
+  private static final String         VIDEO_TS         = "VIDEO_TS";
+  private static final String         BDMV             = "BDMV";
+  private static final String         HVDVD_TS         = "HVDVD_TS";
 
-  private static long                 preDir            = 0;
-  private static long                 postDir           = 0;
-  private static long                 visFile           = 0;
-  private static long                 preDirAll         = 0;
-  private static long                 postDirAll        = 0;
-  private static long                 visFileAll        = 0;
+  private static long                 preDir           = 0;
+  private static long                 postDir          = 0;
+  private static long                 visFile          = 0;
+  private static long                 preDirAll        = 0;
+  private static long                 postDirAll       = 0;
+  private static long                 visFileAll       = 0;
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String>   SKIP_FOLDERS      = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
+  private static final List<String>   SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
       "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ");
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
-  private static final String         SKIP_REGEX        = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
-  private static final Pattern        VIDEO_3D_PATTERN  = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
+  private static final String         SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
+  private static final Pattern        VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
-  private List<String>                dataSources;
-  private List<Movie>                 movieFolders      = new ArrayList<>();
-  private MovieList                   movieList;
-  private Set<Path>                   filesFound        = ConcurrentHashMap.newKeySet();
-  private List<Runnable>              miTasks           = Collections.synchronizedList(new ArrayList<>());
+  private final List<String>          dataSources;
+  private final List<Movie>           movieFolders     = new ArrayList<>();
+  private final MovieList             movieList        = MovieList.getInstance();
+  private final Set<Path>             filesFound       = ConcurrentHashMap.newKeySet();
+  private final List<Runnable>        miTasks          = Collections.synchronizedList(new ArrayList<>());
 
   public MovieUpdateDatasourceTask() {
     super(BUNDLE.getString("update.datasource"));
-    movieList = MovieList.getInstance();
     dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
   }
 
   public MovieUpdateDatasourceTask(String datasource) {
     super(BUNDLE.getString("update.datasource") + " (" + datasource + ")");
-    movieList = MovieList.getInstance();
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
   }
 
   public MovieUpdateDatasourceTask(List<Movie> movies) {
     super(BUNDLE.getString("update.datasource"));
-    movieList = MovieList.getInstance();
     dataSources = new ArrayList<>(0);
     movieFolders.addAll(movies);
   }
@@ -1156,11 +1153,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     // and now get all mediafile from the movies to gather
-    for (int i = movieList.getMovies().size() - 1; i >= 0; i--) {
+    for (Movie movie : movieList.getMovies()) {
       if (cancel) {
         break;
       }
-      Movie movie = movieList.getMovies().get(i);
 
       // check only movies matching datasource
       if (!Paths.get(datasource).equals(Paths.get(movie.getDataSource()))) {
