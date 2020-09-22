@@ -35,7 +35,6 @@ import de.timroes.axmlrpc.XMLRPCServerException;
 import de.timroes.axmlrpc.XMLUtil;
 import de.timroes.axmlrpc.serializer.SerializerHandler;
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -45,24 +44,19 @@ import okhttp3.Response;
  *
  * @author Manuel Laggner
  */
-public class TmmXmlRpcClient {
-  private static final boolean DEBUG     = false;
-  private static OkHttpClient  client;
-  private Map<String, Object>  callCache = new HashMap<>();
+class TmmXmlRpcClient {
+  private static final boolean      DEBUG     = false;
+  private final Map<String, Object> callCache = new HashMap<>();
 
-  private URL                  url;
-  private String               userAgent;
-  private ResponseParser       responseParser;
-  private SerializerHandler    serializerHandler;
+  private final URL                 url;
+  private String                    userAgent;
+  private final ResponseParser      responseParser;
+  private final SerializerHandler   serializerHandler;
 
   public TmmXmlRpcClient(URL url) {
     this.url = url;
     serializerHandler = new SerializerHandler(XMLRPCClient.FLAGS_8BYTE_INT);
     responseParser = new ResponseParser();
-
-    if (client == null) {
-      client = TmmHttpClient.getHttpClient();
-    }
   }
 
   public void setUserAgent(String userAgent) {
@@ -128,9 +122,9 @@ public class TmmXmlRpcClient {
           return cachedResponse;
         }
 
-        RequestBody body = RequestBody.create(XML, callXml);
+        RequestBody body = RequestBody.create(callXml, XML);
         Request request = new Request.Builder().url(url).header(USER_AGENT, userAgent).addHeader("Connection", "close").post(body).build();
-        Response response = client.newCall(request).execute();
+        Response response = TmmHttpClient.getHttpClient().newCall(request).execute();
 
         // Try to get the status code from the connection
         int statusCode = response.code();

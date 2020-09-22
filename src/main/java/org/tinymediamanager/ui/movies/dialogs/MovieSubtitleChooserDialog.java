@@ -53,7 +53,6 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleDownloadTask;
 import org.tinymediamanager.core.tasks.DownloadTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
@@ -219,7 +218,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
     {
       JPanel infoPanel = new JPanel();
-      infoPanel.setLayout(new MigLayout("", "[][grow]", "[]"));
+      infoPanel.setLayout(new MigLayout("hidemode 3", "[][grow]", "[]"));
 
       progressBar = new JProgressBar();
       infoPanel.add(progressBar, "cell 0 0");
@@ -428,7 +427,15 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
             lang = model.getLanguage().name();
           }
           DownloadTask task = new MovieSubtitleDownloadTask(model.getDownloadUrl(), fileToScrape.getFileAsPath(), lang, movieToScrape);
-          TmmTaskManager.getInstance().addDownloadTask(task);
+          try {
+            task.run();
+            lblProgressAction.setVisible(true);
+            lblProgressAction.setText(BUNDLE.getString("subtitle.downloaded") + " - " + model.getReleaseName());
+          }
+          catch (Exception ex) {
+            lblProgressAction.setVisible(true);
+            lblProgressAction.setText(BUNDLE.getString("message.scrape.subtitlefaileddownload") + " - " + ex.getLocalizedMessage());
+          }
         }
       }
     }
