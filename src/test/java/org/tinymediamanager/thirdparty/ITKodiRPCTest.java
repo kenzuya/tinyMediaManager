@@ -41,6 +41,7 @@ public class ITKodiRPCTest {
 
   @Test
   public void testUris() {
+    testUri("dav://user:pass@192.168.0.6:12345/videos/movie (2020)");
     testUri("smb://user:pass@localhost/videos/movie (2020)");
     testUri("user:pass@localhost/videos/movie (2020)");
     testUri(".a");
