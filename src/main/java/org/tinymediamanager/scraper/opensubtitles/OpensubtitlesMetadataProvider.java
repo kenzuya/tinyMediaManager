@@ -348,10 +348,15 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
 
     if (StringUtils.isBlank(sessionToken)) {
       try {
+        OpenSubtitlesConnectionCounter.trackConnections();
+
         Map<String, Object> response = (Map<String, Object>) client.call("LogIn", username, password, "",
             License.getInstance().getApiKey(providerInfo.getId()));
         sessionToken = (String) response.get("token");
         LOGGER.debug("Login OK");
+      }
+      catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       }
       catch (Exception e) {
         throw new ScrapeException(e);
