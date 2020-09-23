@@ -91,7 +91,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
   private final MediaFile                       fileToScrape;
   private SearchTask                            activeSearchTask = null;
 
-  private EventList<TvShowSubtitleChooserModel> subtitleEventList;
+  private final EventList<TvShowSubtitleChooserModel> subtitleEventList;
 
   private final boolean                         inQueue;
   private boolean                               continueQueue    = true;
@@ -159,7 +159,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
 
       final JLabel lblEpisodeTitle = new JLabel(episodeToScrape.getTitle());
       TmmFontHelper.changeFont(lblEpisodeTitle, 1.33, Font.BOLD);
-      panelTitle.add(lblEpisodeTitle, "cell 0 0 5 1,growx");
+      panelTitle.add(lblEpisodeTitle, "cell 0 0 5 1,growx, wmin 0");
 
       setTopIformationPanel(panelTitle);
     }
@@ -184,7 +184,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       panelContent.add(lblMediaFileNameT, "cell 0 2,alignx right");
 
       final JLabel lblMediaFileName = new JLabel(fileToScrape.getFilename());
-      panelContent.add(lblMediaFileName, "cell 1 2 2 1,growx");
+      panelContent.add(lblMediaFileName, "cell 1 2 2 1,growx, wmin 0 ");
 
       final JLabel lblScraperT = new TmmLabel(BUNDLE.getString("scraper"));
       panelContent.add(lblScraperT, "cell 0 3,alignx right");
@@ -209,7 +209,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       panelContent.add(scrollPaneSubs, "cell 0 6 3 1,grow");
 
       tableSubs = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat()));
-      scrollPaneSubs.setViewportView(tableSubs);
+      tableSubs.configureScrollPane(scrollPaneSubs);
     }
 
     {

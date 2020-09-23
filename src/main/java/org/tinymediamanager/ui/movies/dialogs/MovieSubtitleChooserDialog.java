@@ -99,7 +99,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
   private boolean                                    continueQueue    = true;
 
   // UI components
-  private JTable                                     tableSubs;
+  private TmmTable                                   tableSubs;
   private JTextField                                 tfSearchQuery;
   private JComboBox<MediaLanguages>                  cbLanguage;
   private MediaScraperCheckComboBox                  cbScraper;
@@ -172,7 +172,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
       panelContent.add(lblMediaFileNameT, "cell 0 0,alignx right");
 
       final JLabel lblMediaFileName = new JLabel(fileToScrape.getFile().toString());
-      panelContent.add(lblMediaFileName, "cell 1 0 4 1,growx");
+      panelContent.add(lblMediaFileName, "cell 1 0 4 1,growx, wmin 0");
 
       final JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
       panelContent.add(lblRuntimeT, "cell 0 1,alignx right");
@@ -193,12 +193,11 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
       panelContent.add(cbScraper, "cell 1 2,growx");
 
       tfSearchQuery = new JTextField(movieToScrape.getTitle());
-      panelContent.add(tfSearchQuery, "cell 2 2 2 1,growx,aligny center");
+      panelContent.add(tfSearchQuery, "cell 2 2 3 1,growx,aligny center");
       tfSearchQuery.setColumns(10);
 
-      // $NON-NLS-1$
       btnSearch = new JButton(BUNDLE.getString("Button.search"));
-      panelContent.add(btnSearch, "cell 4 2,alignx left,aligny top");
+      panelContent.add(btnSearch, "cell 2 2,alignx left,aligny top");
 
       final JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("metatag.language"));
       panelContent.add(lblLanguageT, "cell 0 3,alignx right");
@@ -214,7 +213,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
       tableSubs = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(subtitleEventList), new SubtitleTableFormat()));
       tableSubs.setDefaultRenderer(ImageIcon.class, new Renderer());
-      scrollPaneSubs.setViewportView(tableSubs);
+      tableSubs.configureScrollPane(scrollPaneSubs);
     }
     {
       JPanel infoPanel = new JPanel();
