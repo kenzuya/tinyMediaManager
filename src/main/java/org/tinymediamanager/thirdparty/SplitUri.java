@@ -85,7 +85,9 @@ public class SplitUri {
     try {
       URI dsuri = parseToUri(datasource);
       // datasource is ONLY the path without server and anything...
-      this.datasource = dsuri.getPath();
+      if (dsuri != null) {
+        this.datasource = dsuri.getPath();
+      }
     }
     catch (Exception e) {
       LOGGER.warn("Could not parse datasource: {}", datasource);
@@ -181,6 +183,7 @@ public class SplitUri {
   }
 
   private URI parseToUri(String file) {
+    LOGGER.trace("*** IN: " + file);
     URI u = null;
     try {
       try {
@@ -192,6 +195,7 @@ public class SplitUri {
         LOGGER.warn("Could not decode uri '{}': {}", file, e.getMessage());
       }
       file = file.replaceAll("\\\\", "/");
+
       if (file.contains(":///")) {
         // 3 = file with scheme - parse as URI, but keep one slash
         file = file.replaceAll(" ", "%20"); // space in urls
@@ -220,7 +224,14 @@ public class SplitUri {
     }
     catch (InvalidPathException e) {
       LOGGER.warn("Invalid path: {} - {}", file, e.getMessage());
+      // we might have an user:pass@server string, but without schema?
+      // add one...m since url parser NEEDS one...
+      if (!file.contains("://") && (file.contains("@") || file.contains(":"))) {
+        file = "file:///" + file;
+      }
+      u = parseToUri(file); // retry
     }
+    LOGGER.trace("***OUT: " + u);
     return u;
   }
 
