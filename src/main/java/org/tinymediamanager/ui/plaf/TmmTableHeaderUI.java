@@ -57,29 +57,29 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
     super.paint(g, c);
 
     TableCellRenderer defaultRenderer = this.header.getDefaultRenderer();
-    boolean paintBorders = this.isSystemDefaultRenderer(defaultRenderer);
+    boolean paintBorders = this.isDefaultRenderer(defaultRenderer);
     if (!paintBorders && this.header.getColumnModel().getColumnCount() > 0) {
       Component rendererComponent = defaultRenderer.getTableCellRendererComponent(this.header.getTable(), "", false, false, -1, 0);
-      paintBorders = this.isSystemDefaultRenderer(rendererComponent);
+      paintBorders = this.isDefaultRenderer(rendererComponent);
     }
 
     // re-paint the column borders
     if (paintBorders) {
-      this.paintColumnBorders(g, c);
+      this.paintMyColumnBorders(g, c);
     }
 
     if (paintBorders) {
-      this.paintDraggedColumnBorders(g, c);
+      this.paintMyDraggedColumnBorders(g, c);
     }
   }
 
-  private boolean isSystemDefaultRenderer(Object headerRenderer) {
+  private boolean isDefaultRenderer(Object headerRenderer) {
     String rendererClassName = headerRenderer.getClass().getName();
     return rendererClassName.equals("sun.swing.table.DefaultTableCellHeaderRenderer")
         || rendererClassName.equals("sun.swing.FilePane$AlignableTableHeaderRenderer");
   }
 
-  private void paintColumnBorders(Graphics g, JComponent c) {
+  private void paintMyColumnBorders(Graphics g, JComponent c) {
     int width = c.getWidth();
     int height = c.getHeight();
     float lineWidth = UIScale.scale(1.0F);
@@ -136,7 +136,7 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
 
   }
 
-  private void paintDraggedColumnBorders(Graphics g, JComponent c) {
+  private void paintMyDraggedColumnBorders(Graphics g, JComponent c) {
     TableColumn draggedColumn = this.header.getDraggedColumn();
     if (draggedColumn != null) {
       TableColumnModel columnModel = this.header.getColumnModel();
@@ -175,7 +175,7 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
     }
   }
 
-  private JScrollPane getScrollPane() {
+  private JScrollPane getMyScrollPane() {
     Container parent = this.header.getParent();
     if (parent == null) {
       return null;

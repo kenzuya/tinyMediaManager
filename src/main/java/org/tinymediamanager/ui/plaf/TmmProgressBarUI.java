@@ -150,9 +150,9 @@ public class TmmProgressBarUI extends FlatProgressBarUI {
           int x = getAnimationIndex();
           GeneralPath p = new GeneralPath();
 
-          p.moveTo(boxRect.x, boxRect.y + boxRect.height);
-          p.lineTo(boxRect.x + w * .5f, boxRect.y + boxRect.height);
-          p.lineTo(boxRect.x + w, boxRect.y);
+          p.moveTo(boxRect.x, boxRect.y + (float) boxRect.height);
+          p.lineTo(boxRect.x + w * .5f, boxRect.y + (float) boxRect.height);
+          p.lineTo(boxRect.x + (float) w, boxRect.y);
           p.lineTo(boxRect.x + w * .5f, boxRect.y);
 
           p.closePath();

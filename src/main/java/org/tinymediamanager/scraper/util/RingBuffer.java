@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.util;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -416,7 +417,7 @@ public class RingBuffer<T> {
     @Override
     public T next() {
       if (!hasNext) {
-        return null;
+        throw new NoSuchElementException();
       }
       T item = null;
       try {

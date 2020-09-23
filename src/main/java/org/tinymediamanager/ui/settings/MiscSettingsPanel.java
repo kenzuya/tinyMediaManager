@@ -54,7 +54,6 @@ class MiscSettingsPanel extends JPanel {
   private JCheckBox                   chckbxImageCache;
   private JCheckBox                   chckbxDeleteTrash;
   private JCheckBox                   chckbxMediaInfoXml;
-  private JLabel                      lblImageCacheSize;
   private JComboBox                   cbImageCacheSize;
 
   /**
@@ -80,7 +79,7 @@ class MiscSettingsPanel extends JPanel {
         chckbxImageCache = new JCheckBox(BUNDLE.getString("Settings.imagecache"));
         panelMisc.add(chckbxImageCache, "cell 1 0 2 1");
 
-        lblImageCacheSize = new JLabel(BUNDLE.getString("Settings.imagecachesize"));
+        JLabel lblImageCacheSize = new JLabel(BUNDLE.getString("Settings.imagecachesize"));
         panelMisc.add(lblImageCacheSize, "flowx,cell 2 1");
 
         cbImageCacheSize = new JComboBox(ImageCache.CacheSize.values());

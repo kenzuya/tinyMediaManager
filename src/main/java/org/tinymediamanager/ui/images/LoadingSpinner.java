@@ -109,7 +109,7 @@ public class LoadingSpinner implements Icon {
           alpha = 0;
         }
         Color[] colors = calculateColors(factor, alpha);
-        g2.setPaint(new GradientPaint(width / 2, 0, colors[1], width / 2, height, colors[0]));
+        g2.setPaint(new GradientPaint(width / 2.f, 0, colors[1], width / 2.f, height, colors[0]));
         // g2.setColor(new Color(color, color, color, alpha));
         g2.fill(ticker[i]);
       }
@@ -125,7 +125,7 @@ public class LoadingSpinner implements Icon {
       // draw spinner
       for (Area aTicker : ticker) {
         Color[] colors = calculateColors(1, 255);
-        g2.setPaint(new GradientPaint(width / 2, 0, colors[1], width / 2, height, colors[0]));
+        g2.setPaint(new GradientPaint(width / 2.f, 0, colors[1], width / 2.f, height, colors[0]));
         g2.fill(aTicker);
       }
     }
@@ -195,14 +195,14 @@ public class LoadingSpinner implements Icon {
 
   private Area[] buildTicker() {
     Area[] ticker = new Area[barsCount];
-    Point2D.Double center = new Point2D.Double((double) width / 2, (double) (height / 2));
+    Point2D.Double center = new Point2D.Double((double) width / 2, (double) (height / 2.f));
     double fixedAngle = 2.0 * Math.PI / ((double) barsCount);
 
     for (double i = 0.0; i < (double) barsCount; i++) {
-      Area primitive = new Area(new RoundRectangle2D.Double(0, 0, width / 4, height / 15, height / 15, height / 15));
+      Area primitive = new Area(new RoundRectangle2D.Double(0, 0, width / 4.f, height / 15.f, height / 15.f, height / 15.f));
 
       AffineTransform toCenter = AffineTransform.getTranslateInstance(center.getX(), center.getY());
-      AffineTransform toBorder = AffineTransform.getTranslateInstance(width / 10, -height / 15);
+      AffineTransform toBorder = AffineTransform.getTranslateInstance(width / 10.f, -height / 15.f);
       AffineTransform toCircle = AffineTransform.getRotateInstance(-i * fixedAngle, center.getX(), center.getY());
 
       AffineTransform toWheel = new AffineTransform();
@@ -220,14 +220,14 @@ public class LoadingSpinner implements Icon {
 
   private Area[] buildShadow() {
     Area[] shadow = new Area[barsCount];
-    Point2D.Double center = new Point2D.Double((double) width / 2, (double) (height / 2));
+    Point2D.Double center = new Point2D.Double((double) width / 2, (double) (height / 2.f));
     double fixedAngle = 2.0 * Math.PI / ((double) barsCount);
 
     for (double i = 0.0; i < (double) barsCount; i++) {
-      Area primitive = new Area(new RoundRectangle2D.Double(0, 0, width / 4, height / 15, height / 15, height / 15));
+      Area primitive = new Area(new RoundRectangle2D.Double(0, 0, width / 4.f, height / 15.f, height / 15.f, height / 15.f));
 
       AffineTransform toCenter = AffineTransform.getTranslateInstance(center.getX(), center.getY() + 1);
-      AffineTransform toBorder = AffineTransform.getTranslateInstance(width / 10, -height / 15);
+      AffineTransform toBorder = AffineTransform.getTranslateInstance(width / 10.f, -height / 15.f);
       AffineTransform toCircle = AffineTransform.getRotateInstance(-i * fixedAngle, center.getX(), center.getY() + 1);
 
       AffineTransform toWheel = new AffineTransform();

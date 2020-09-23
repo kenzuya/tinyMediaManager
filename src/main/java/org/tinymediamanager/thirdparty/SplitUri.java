@@ -85,7 +85,9 @@ public class SplitUri {
     try {
       URI dsuri = parseToUri(datasource);
       // datasource is ONLY the path without server and anything...
-      this.datasource = dsuri.getPath();
+      if (dsuri != null) {
+        this.datasource = dsuri.getPath();
+      }
     }
     catch (Exception e) {
       LOGGER.warn("Could not parse datasource: {}", datasource);

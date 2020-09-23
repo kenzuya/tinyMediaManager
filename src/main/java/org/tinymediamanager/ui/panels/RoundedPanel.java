@@ -96,7 +96,8 @@ public class RoundedPanel extends JPanel {
       if (shadowBuffer == null || (bounds.width + 2 * shadowSize) != shadowBuffer.getWidth()
           || (bounds.getHeight() + shadowSize != shadowBuffer.getHeight())) {
         BufferedImage img = createCompatibleImage(bounds.width, bounds.height);
-        RoundRectangle2D shadowShape = new RoundRectangle2D.Float(bounds.x, bounds.y, bounds.width + shadowSize, bounds.height - shadowSize,
+        RoundRectangle2D shadowShape = new RoundRectangle2D.Float(bounds.x, bounds.y, bounds.width + (float) shadowSize,
+            bounds.height - (float) shadowSize,
             arcs.width, arcs.height);
         Graphics2D tg2d = img.createGraphics();
         setRenderingHints(g2d);

@@ -217,7 +217,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
           Container cont = (Container) obj;
           didl = createContentDidl(cont, firstResult, maxResults);
           // total size of objects - can be different to actual didl
-          total = cont.getContainers().size() + cont.getItems().size();
+          total = (long) cont.getContainers().size() + (long) cont.getItems().size();
         }
         return returnResult(didl, total);
       }

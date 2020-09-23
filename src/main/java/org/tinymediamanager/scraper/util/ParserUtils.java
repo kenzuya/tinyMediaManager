@@ -389,13 +389,13 @@ public class ParserUtils {
     if (info.clean.isEmpty()) {
       return -1;
     }
-    int rate = 0;
+    int rate;
 
     int words = info.clean.split(" ").length; // count words
     int seps = info.clean.split("[_.-]").length - 1; // count other separators
     int uc = info.clean.replaceAll("[^A-Z]", "").length(); // count uppercase
     int lc = info.clean.replaceAll("[A-Z]", "").length(); // count lowercase
-    double cleaned = 100 - info.clean.length() * 100 / info.name.length();
+    double cleaned = 100 - info.clean.length() * 100.f / info.name.length();
 
     int cc = 0; // count CamelCase
     Pattern pattern = Pattern.compile("[A-Z][a-z]");

@@ -109,18 +109,16 @@ public class VSMeta {
   private static final byte             TAG3_BACKDROP_MD5         = 0x12;
   private static final byte             TAG3_TIMESTAMP            = 0x18;
 
-  private static final SimpleDateFormat FORMAT_DATE               = new SimpleDateFormat("yyyy-MM-dd");
+  private final SimpleDateFormat        dateFormat                = new SimpleDateFormat("yyyy-MM-dd");
 
-  // global array & position
-  private MemorySyncStream              data;
-  private Info                          info                      = new Info();
-  private HashMap<String, Object>       ids                       = new HashMap<>(0);
+  private final Info                    info                      = new Info();
+  private final HashMap<String, Object> ids                       = new HashMap<>(0);
 
   private Path                          vsMetaFile                = null;
   private String                        basename                  = "";
   private MovieSet                      movieSet                  = null;
   private float                         rating                    = 0.0f;
-  private List<MediaArtwork>            artworks                  = new ArrayList<>(0);
+  private final List<MediaArtwork>      artworks                  = new ArrayList<>(0);
 
   static class Info {
     public String    title1            = "";             // movie/show title
@@ -232,11 +230,11 @@ public class VSMeta {
   /**
    * tries to parse a .VSMETA file
    * 
-   * @param vsMetaFile
    */
   public void parseFile() {
     try {
-      data = new MemorySyncStream(Files.readAllBytes(vsMetaFile));
+      // global array & position
+      MemorySyncStream data = new MemorySyncStream(Files.readAllBytes(vsMetaFile));
 
       int magic = data.readU8();
       int version = data.readU8();
@@ -266,7 +264,7 @@ public class VSMeta {
             break;
           case TAG_RELEASE_DATE:
             try {
-              info.releaseDate = FORMAT_DATE.parse(data.readStringVL());
+              info.releaseDate = dateFormat.parse(data.readStringVL());
             }
             catch (ParseException e) {
               LOGGER.warn("Could not parse date...");
@@ -371,7 +369,7 @@ public class VSMeta {
           break;
         case TAG2_RELEASE_DATE_TV_SHOW:
           try {
-            info.tvshowReleaseDate = FORMAT_DATE.parse(s.readStringVL());
+            info.tvshowReleaseDate = dateFormat.parse(s.readStringVL());
           }
           catch (ParseException e) {
             LOGGER.warn("Could not parse date...");

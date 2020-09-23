@@ -198,7 +198,7 @@ public class YoutubeMedia {
     for (int i = 0; i < jsonAdaptiveFormats.size(); i++) {
       JsonNode json = jsonAdaptiveFormats.get(i);
 
-      if ("FORMAT_STREAM_TYPE_OTF".equals(json.get("type")))
+      if ("FORMAT_STREAM_TYPE_OTF".equals(json.get("type").asText()))
         continue; // unsupported otf formats which cause 404 not found
 
       // Check for ciphered Youtube Link
