@@ -3,6 +3,7 @@ Version 4.0
 
 + bundled JRE and rewritten launcher (no installed Java needed any more)
 + real HiDPI support (slightly changed look and feel to achieve correct UI scaling)
++ mix in IMDB ratings for almost every scraper without the need of the universal scrapers
 + universal TV show scraper
 + completely reworked libmediainfo usage:
   - full support of reading/writing mediainfo XML files
