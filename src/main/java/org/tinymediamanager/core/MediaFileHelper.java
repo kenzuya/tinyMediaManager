@@ -1862,6 +1862,17 @@ public class MediaFileHelper {
     mediaFile.setVideoWidth(width);
     mediaFile.setVideoHeight(height);
 
+    // video bitrate (BitRate)
+    String br = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "BitRate");
+    if (StringUtils.isNotBlank(br)) {
+      try {
+        mediaFile.setVideoBitRate(Integer.parseInt(br) / 1000); // in kbps
+      }
+      catch (NumberFormatException e) {
+        mediaFile.setVideoBitRate(0);
+      }
+    }
+
     String scanType = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "ScanType");
 
     String codecId = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "CodecID");
