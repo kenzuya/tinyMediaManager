@@ -97,7 +97,7 @@ deploy:nightly:
       - dist/
     expire_in: 1 week
 
-deploy:prerel:
+deploy:PRE-RELEASE:
   stage: deploy
   image: maven:3-jdk-11  # stay with stretch
   environment:

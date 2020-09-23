@@ -274,8 +274,8 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowDownloadMissingArtworkAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDownloadActorImagesAction.class));
-    popupMenu.add(createAndRegisterAction(TvShowSubtitleDownloadAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleSearchAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowSubtitleDownloadAction.class));
 
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");

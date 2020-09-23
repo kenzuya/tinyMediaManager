@@ -50,22 +50,22 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
 
   public MediaScraperComboBox() {
     super();
-    init();
+    initialize();
   }
 
   public MediaScraperComboBox(MediaScraper[] scrapers) {
     super(scrapers);
-    init();
+    initialize();
   }
 
   public MediaScraperComboBox(Vector<MediaScraper> scrapers) {
     super(scrapers);
-    init();
+    initialize();
   }
 
   public MediaScraperComboBox(List<MediaScraper> scrapers) {
     super(new Vector<>(scrapers));
-    init();
+    initialize();
   }
 
   @Override
@@ -98,10 +98,8 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
     return dimension;
   }
 
-  private void init() {
+  private void initialize() {
     setRenderer(new MediaScraperComboBoxRenderer());
-    // setEditable(true);
-    // setEditor(new MediaScraperComboBoxEditor());
     updateUI();
   }
 

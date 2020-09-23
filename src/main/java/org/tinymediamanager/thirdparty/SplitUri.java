@@ -69,85 +69,38 @@ public class SplitUri {
     this(ds, file, "", "");
   }
 
-  public SplitUri(String ds, String file, String label, String ipForLocal) {
-
-    // if we have a user:pass@server format - strip it off
-    if (file.contains("@")) {
-      file = file.substring(file.indexOf('@') + 1);
-      // and since we do not have a schema, but we ARE remote, add a dummy one
-      file = "smb://" + file;
-    }
-
-    // remove trailing slashes
-    if (ds.matches(".*[\\\\/]$")) {
-      ds = ds.substring(0, ds.length() - 1);
-    }
-    // remove datasource from file
-    if (file.startsWith(ds)) {
-      file = file.substring(ds.length());
-    }
-
-    this.datasource = ds;
+  /**
+   * goal is, to normalize the string, so that we can URI parse it...
+   * 
+   * @param datasource
+   *          the detected datasource
+   * @param file
+   * @param label
+   * @param ipForLocal
+   */
+  public SplitUri(String datasource, String file, String label, String ipForLocal) {
+    this.datasource = datasource;
     this.file = file;
 
-    int schema = file.indexOf("://");
-    if (schema == -1) {
-      schema = file.indexOf(":\\\\");
-    }
-    if (schema > 0) {
-      this.file = this.file.substring(schema + 3);
-    }
-    this.file = Paths.get(this.file).toString(); // unify slashes
-    this.label = label;
-
-    // try to parse datasource and unify
-    URI u = null;
     try {
-      try {
-        ds = URLDecoder.decode(ds, "UTF-8");
-        ds = URLDecoder.decode(ds, "UTF-8");
-        ds = URLDecoder.decode(ds, "UTF-8");
-      }
-      catch (Exception e) {
-        LOGGER.warn("Could not decode uri '{}': {}", ds, e.getMessage());
-      }
-      ds = ds.replaceAll("\\\\", "/");
-      // for directories, we might get a trailing delimiter - remove
-      if (ds.endsWith("/")) {
-        ds = ds.substring(0, ds.length() - 1);
-      }
-      if (ds.contains(":///")) {
-        // 3 = file with scheme - parse as URI, but keep one slash
-        ds = ds.replaceAll(" ", "%20"); // space in urls
-        ds = ds.replaceAll("#", "%23"); // hash sign in urls
-        u = new URI(ds.substring(ds.indexOf(":///") + 3));
-      }
-      else if (ds.contains("://")) {
-        // 2 = //hostname/path - parse as URI
-        ds = ds.replaceAll(" ", "%20"); // space in urls
-        ds = ds.replaceAll("#", "%23"); // hash sign in urls
-        u = new URI(ds);
-      }
-      else {
-        // 0 = local file - parse as Path
-        u = Paths.get(ds).toUri();
+      URI dsuri = parseToUri(datasource);
+      // datasource is ONLY the path without server and anything...
+      if (dsuri != null) {
+        this.datasource = dsuri.getPath();
       }
     }
-    catch (URISyntaxException e) {
-      try {
-        ds = ds.replaceAll(".*?:/{2,3}", ""); // replace scheme
-        u = Paths.get(ds).toAbsolutePath().toUri();
-      }
-      catch (InvalidPathException e2) {
-        LOGGER.warn("Invalid path: {} - {}", ds, e2.getMessage());
-      }
-    }
-    catch (InvalidPathException e) {
-      LOGGER.warn("Invalid path: {} - {}", ds, e.getMessage());
+    catch (Exception e) {
+      LOGGER.warn("Could not parse datasource: {}", datasource);
     }
 
+    // remove datasource, and keep in original format (uri parsing with modified file)
+    if (file.startsWith(datasource)) {
+      this.file = file.substring(datasource.length());
+    }
+
+    URI u = parseToUri(file);
     if (u != null && !StringUtils.isBlank(u.getHost())) {
-      if (ds.startsWith("upnp")) {
+      if (file.startsWith("upnp")) {
         this.type = "UPNP";
         this.hostname = getMacFromUpnpUUID(u.getHost());
 
@@ -180,7 +133,6 @@ public class SplitUri {
           LOGGER.warn("Could not lookup IP for {}: {}", u.getHost(), e.getMessage());
         }
       }
-      this.datasource = u.getPath(); // datasource is just path without server
     }
     else {
       this.type = "LOCAL";
@@ -205,12 +157,73 @@ public class SplitUri {
       }
     }
 
+    // convert forward & backslashes to same format
+    this.datasource = clean(this.datasource);
+    this.file = clean(this.file);
+  }
+
+  /**
+   * trim leading & trailing slashes; and change backslashes to forward slashes
+   * 
+   * @param file
+   * @return
+   */
+  private String clean(String file) {
+    if (file == null || file.isEmpty()) {
+      return "";
+    }
+    file = file.replaceAll("\\\\", "/");
+    if (file.endsWith("/")) {
+      file = file.substring(0, file.length() - 1);
+    }
+    if (file.startsWith("/")) {
+      file = file.substring(1);
+    }
+    return file;
+  }
+
+  private URI parseToUri(String file) {
+    URI u = null;
     try {
-      this.datasource = Paths.get(this.datasource).toString(); // convert forward & backslashes to same format
+      try {
+        file = URLDecoder.decode(file, "UTF-8");
+        file = URLDecoder.decode(file, "UTF-8");
+        file = URLDecoder.decode(file, "UTF-8");
+      }
+      catch (Exception e) {
+        LOGGER.warn("Could not decode uri '{}': {}", file, e.getMessage());
+      }
+      file = file.replaceAll("\\\\", "/");
+      if (file.contains(":///")) {
+        // 3 = file with scheme - parse as URI, but keep one slash
+        file = file.replaceAll(" ", "%20"); // space in urls
+        file = file.replaceAll("#", "%23"); // hash sign in urls
+        u = new URI(file.substring(file.indexOf(":///") + 3));
+      }
+      else if (file.contains("://")) {
+        // 2 = //hostname/path - parse as URI
+        file = file.replaceAll(" ", "%20"); // space in urls
+        file = file.replaceAll("#", "%23"); // hash sign in urls
+        u = new URI(file);
+      }
+      else {
+        // 0 = local file - parse as Path
+        u = Paths.get(file).toUri();
+      }
     }
-    catch (Exception e) {
-      LOGGER.warn("Invalid path: {} - {}", ds, e.getMessage());
+    catch (URISyntaxException e) {
+      try {
+        file = file.replaceAll(".*?:/{2,3}", ""); // replace scheme
+        u = Paths.get(file).toAbsolutePath().toUri();
+      }
+      catch (InvalidPathException e2) {
+        LOGGER.warn("Invalid path: {} - {}", file, e2.getMessage());
+      }
     }
+    catch (InvalidPathException e) {
+      LOGGER.warn("Invalid path: {} - {}", file, e.getMessage());
+    }
+    return u;
   }
 
   @Override

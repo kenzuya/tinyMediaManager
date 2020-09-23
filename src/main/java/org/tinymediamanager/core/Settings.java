@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.DateField;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
+import org.tinymediamanager.core.ImageCache.CacheSize;
 import org.tinymediamanager.core.ImageCache.CacheType;
 import org.tinymediamanager.scraper.http.ProxySettings;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
@@ -90,7 +91,8 @@ public class Settings extends AbstractSettings {
   private String                kodiPassword           = "";
 
   private boolean               imageCache             = true;
-  private CacheType             imageCacheType         = CacheType.SMOOTH;
+  private CacheSize             imageCacheSize         = CacheSize.BIG;
+  private CacheType             imageCacheType         = CacheType.QUALITY;
 
   // language 2 char - saved to config
   private String                language;
@@ -648,6 +650,27 @@ public class Settings extends AbstractSettings {
     boolean oldValue = this.imageCache;
     this.imageCache = newValue;
     firePropertyChange("imageCache", oldValue, newValue);
+  }
+
+  /**
+   * Gets the image cache size.
+   *
+   * @return the image cache size
+   */
+  public CacheSize getImageCacheSize() {
+    return imageCacheSize;
+  }
+
+  /**
+   * Sets the image cache size.
+   *
+   * @param newValue
+   *          the new image cache size
+   */
+  public void setImageCacheSize(CacheSize newValue) {
+    CacheSize oldValue = this.imageCacheSize;
+    this.imageCacheSize = newValue;
+    firePropertyChange("imageCacheSize", oldValue, newValue);
   }
 
   /**

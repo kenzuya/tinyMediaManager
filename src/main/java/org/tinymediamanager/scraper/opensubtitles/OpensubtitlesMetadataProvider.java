@@ -129,6 +129,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
         mapQuery.put("moviehash", hash);
         mapQuery.put("sublanguageid", getLanguageCode(options.getLanguage().toLocale()));
         try {
+          OpenSubtitlesConnectionCounter.trackConnections();
           Object[] arrayQuery = { mapQuery };
           Info info = new Info((Map<String, Object>) methodCall("SearchSubtitles", arrayQuery));
 
@@ -189,6 +190,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
       }
 
       try {
+        OpenSubtitlesConnectionCounter.trackConnections();
         Object[] arrayQuery = { mapQuery };
         Info info = new Info((Map<String, Object>) methodCall("SearchSubtitles", arrayQuery));
 
@@ -237,6 +239,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
       mapQuery.put("query", options.getSearchQuery());
       mapQuery.put("sublanguageid", getLanguageCode(options.getLanguage().toLocale()));
       try {
+        OpenSubtitlesConnectionCounter.trackConnections();
         Object[] arrayQuery = { mapQuery };
         Info info = new Info((Map<String, Object>) methodCall("SearchSubtitles", arrayQuery));
         for (Info.MovieInfo movieInfo : info.getMovieInfo()) {
@@ -291,6 +294,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
    *          the params
    * @return return value
    * @throws TmmXmlRpcException
+   * @throws ScrapeException
    */
   private Object methodCall(String method, Object params) throws TmmXmlRpcException, ScrapeException {
     startSession();
@@ -344,10 +348,15 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
 
     if (StringUtils.isBlank(sessionToken)) {
       try {
+        OpenSubtitlesConnectionCounter.trackConnections();
+
         Map<String, Object> response = (Map<String, Object>) client.call("LogIn", username, password, "",
             License.getInstance().getApiKey(providerInfo.getId()));
         sessionToken = (String) response.get("token");
         LOGGER.debug("Login OK");
+      }
+      catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       }
       catch (Exception e) {
         throw new ScrapeException(e);

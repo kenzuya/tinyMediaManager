@@ -344,7 +344,7 @@ class DayPanel extends JPanel implements ActionListener {
     }
 
     @Override
-    public void addMouseListener(MouseListener l) {
+    public synchronized void addMouseListener(MouseListener l) {
     }
   }
 }

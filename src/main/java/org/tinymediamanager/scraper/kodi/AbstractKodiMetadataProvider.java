@@ -513,10 +513,9 @@ public abstract class AbstractKodiMetadataProvider implements IKodiMetadataProvi
     for (int i = 0; i < subDetails.getLength(); i++) {
       Element subDetail = (Element) subDetails.item(i);
       NodeList nl = subDetail.getElementsByTagName(tag);
-      for (int j = 0; j < nl.getLength();) {
-        Element el = (Element) nl.item(j);
+      if (nl.getLength() > 0) {
+        Element el = (Element) nl.item(0);
         info = el.getTextContent();
-        break;
       }
       if (!StringUtils.isBlank(info))
         break;

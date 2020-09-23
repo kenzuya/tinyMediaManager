@@ -43,6 +43,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
+import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
@@ -89,6 +90,7 @@ public class TvShowExporter extends MediaEntityExporter {
     engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
     engine.registerNamedRenderer(new TvShowFilenameRenderer());
     engine.registerNamedRenderer(new TvShowArtworkCopyRenderer(exportDir));
+    engine.registerNamedRenderer(new NamedFilesizeRenderer());
 
     // prepare export destination
     if (!Files.exists(exportDir)) {

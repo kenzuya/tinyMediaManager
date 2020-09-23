@@ -40,8 +40,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Represents the parsed media information from the Youtube Parser for a given
- * Youtube link
+ * Represents the parsed media information from the Youtube Parser for a given Youtube link
  *
  * @author Wolfgang Janes
  */
@@ -141,8 +140,7 @@ public class YoutubeMedia {
   }
 
   /**
-   * Parsing the Youtube Webpage from the given YoutubeID to get all the
-   * information for downloading audio and video
+   * Parsing the Youtube Webpage from the given YoutubeID to get all the information for downloading audio and video
    *
    * @throws IOException
    *           any {@link IOException occurred while downloading}
@@ -198,9 +196,10 @@ public class YoutubeMedia {
     for (int i = 0; i < jsonAdaptiveFormats.size(); i++) {
       JsonNode json = jsonAdaptiveFormats.get(i);
 
-      if ("FORMAT_STREAM_TYPE_OTF".equals(json.get("type")))
+      JsonNode typeNode = json.get("type");
+      if (typeNode != null && "FORMAT_STREAM_TYPE_OTF".equals(typeNode.asText())) {
         continue; // unsupported otf formats which cause 404 not found
-
+      }
       // Check for ciphered Youtube Link
 
       if (json.has("signatureCipher")) {
