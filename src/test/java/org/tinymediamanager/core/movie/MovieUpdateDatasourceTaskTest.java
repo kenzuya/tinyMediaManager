@@ -62,7 +62,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
     task.run();
 
     // let the propertychangeevents finish
-    Thread.sleep(2000);
+    Thread.sleep(3000);
 
     showEntries();
   }
