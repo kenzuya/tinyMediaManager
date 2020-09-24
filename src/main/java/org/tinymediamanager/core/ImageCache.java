@@ -204,8 +204,7 @@ public class ImageCache {
       // calculate width based on MF type
       int desiredWidth = calculateCacheImageWidth(originalImage);
 
-      Point size = ImageUtils.calculateSize(desiredWidth, (int) (originalImage.getHeight() / 1.5), originalImage.getWidth(),
-          originalImage.getHeight(), true);
+      Point size = ImageUtils.calculateSize(desiredWidth, originalImage.getHeight(), originalImage.getWidth(), originalImage.getHeight(), true);
       BufferedImage scaledImage = null;
 
       // we have up to 5 retries here if we hit the memory cap since we are hitting the machine hard due to multi CPU image caching
@@ -484,7 +483,7 @@ public class ImageCache {
     }
 
     try {
-      Path p = ImageCache.cacheImage(mediaFile);
+      Path p = cacheImage(mediaFile);
       LOGGER.trace("cached file successfully :) {}", p);
       return p;
     }
