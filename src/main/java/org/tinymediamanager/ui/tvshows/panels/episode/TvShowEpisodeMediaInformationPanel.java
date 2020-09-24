@@ -134,7 +134,7 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
     else {
       lblVideoResolution.setText(mediaFile.getVideoResolution());
     }
-    lblVideoBitrate.setText(mediaFile.getBiteRateInKbps());
+    lblVideoBitrate.setText(mediaFile.getVideoBitRateInKbps());
     lblVideoBitDepth.setText(mediaFile.getBitDepthString());
     lblSource.setText(tvShowEpisode.getMediaSource().toString());
     lblFrameRate.setText(String.format("%.2f fps", mediaFile.getFrameRate()));

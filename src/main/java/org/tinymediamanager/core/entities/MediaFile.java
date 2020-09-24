@@ -83,6 +83,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private float                      aspectRatio       = 0f;
   @JsonProperty
+  private int                        videoBitRate      = 0;
+  @JsonProperty
   private int                        overallBitRate    = 0;
   @JsonProperty
   private int                        bitDepth          = 0;
@@ -1056,6 +1058,48 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
+   * returns the video bit rate for this file
+   * 
+   * @return bitrate in kbps
+   */
+  public int getVideoBitRate() {
+    if (videoBitRate == 0 && overallBitRate != 0) {
+      // LEGACY - only overall bitrate filled. Calculate the video bitrate
+      int calculatedVideoBitRate = overallBitRate;
+      for (MediaFileAudioStream audioStream : ListUtils.nullSafe(audioStreams)) {
+        calculatedVideoBitRate -= audioStream.getBitrate();
+      }
+
+      if (calculatedVideoBitRate > 0) {
+        return calculatedVideoBitRate;
+      }
+    }
+    return videoBitRate;
+  }
+
+  /**
+   * sets the video bit rate for this file (in kbps).
+   *
+   * @param newValue
+   *          the new video bit rate
+   */
+  public void setVideoBitRate(int newValue) {
+    int oldValue = this.videoBitRate;
+    this.videoBitRate = newValue;
+    firePropertyChange("videoBitRate", oldValue, newValue);
+    firePropertyChange("bitRateInKbps", oldValue, newValue);
+  }
+
+  /**
+   * Gets the video bit rate in kbps.
+   *
+   * @return the video bit rate in kbps
+   */
+  public String getVideoBitRateInKbps() {
+    return getVideoBitRate() + " kbps";
+  }
+
+  /**
    * returns the overall bit rate for this file.
    *
    * @return bitrate in kbps
@@ -1074,16 +1118,15 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     int oldValue = this.overallBitRate;
     this.overallBitRate = newValue;
     firePropertyChange("overallBitRate", oldValue, newValue);
-    firePropertyChange("bitRateInKbps", oldValue, newValue);
   }
 
   /**
-   * Gets the bite rate in kbps.
+   * Gets the overall bit rate in kbps.
    *
-   * @return the bite rate in kbps
+   * @return the overall bit rate in kbps
    */
-  public String getBiteRateInKbps() {
-    return this.overallBitRate + " kbps";
+  public String getOverallBitRateInKbps() {
+    return getOverallBitRate() + " kbps";
   }
 
   public double getFrameRate() {

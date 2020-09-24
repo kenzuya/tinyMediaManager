@@ -114,6 +114,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("episodePlot", "metatag.plot", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeCastMembers", "metatag.cast", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeRatings", "metatag.rating", compatibleScraperIds, UNDEFINED);
+    config.addSelect("episodeMediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
 
     config.load();
   }
@@ -452,6 +453,10 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (entry.getKey().startsWith("episode") && !UNDEFINED.equals(entry.getValue())) {
         MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());
+
+        if (mediaMetadata == null) {
+          continue;
+        }
 
         // "common" data from the same scraper
         if ("episodes".equals(entry.getKey())) {
