@@ -45,6 +45,8 @@ import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+
 /**
  * The Class ImageCache - used to build a local image cache (scaled down versions & thumbnails - also for offline access).
  * 
@@ -57,12 +59,14 @@ public class ImageCache {
 
   public enum CacheSize {
     SMALL,
+    @JsonEnumDefaultValue
     BIG,
     ORIGINAL
   }
 
   public enum CacheType {
     BALANCED,
+    @JsonEnumDefaultValue
     QUALITY,
     ULTRA_QUALITY
   }
