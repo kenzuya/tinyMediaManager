@@ -68,6 +68,7 @@ import org.tinymediamanager.scraper.interfaces.ITvShowTvdbMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.TvUtils;
 
@@ -314,6 +315,19 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     // genres
     for (String genreAsString : ListUtils.nullSafe(show.genre)) {
       md.addGenre(MediaGenres.getGenre(genreAsString));
+    }
+
+    // also try to get the IMDB rating
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      try {
+        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null) {
+          md.addRating(imdbRating);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      }
     }
 
     return md;
@@ -887,6 +901,19 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
         episode.addMediaArt(ma);
       }
 
+      // also try to get the IMDB rating
+      if (episode.getId(MediaMetadata.IMDB) instanceof String) {
+        try {
+          MediaRating imdbRating = RatingUtil.getImdbRating((String) episode.getId(MediaMetadata.IMDB));
+          if (imdbRating != null) {
+            episode.addRating(imdbRating);
+          }
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+        }
+      }
+
       episodes.add(episode);
     }
 
@@ -896,25 +923,6 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     }
 
     return episodes;
-  }
-
-  /**
-   * Is i1 != i2 (when >0)
-   */
-  private boolean yearDiffers(int i1, int i2) {
-    return i1 != 0 && i2 != 0 && i1 != i2;
-  }
-
-  // unneeded, tested it, and (semi)colons in query work well
-  @Deprecated
-  private String cleanString(String oldString) {
-    if (StringUtils.isEmpty(oldString)) {
-      return "";
-    }
-    // remove semicolons (for searies like "ChäoS;Child" or "Steins;Gate")
-    String newString = oldString.replaceAll(";", "");
-
-    return newString.trim();
   }
 
   /**********************************************************************
@@ -941,28 +949,37 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
     @Override
     public int compare(SeriesImageQueryResult arg0, SeriesImageQueryResult arg1) {
       // check if first image is preferred langu
+      int languageId0 = MetadataUtil.unboxInteger(arg0.languageId, -1);
+      int languageId1 = MetadataUtil.unboxInteger(arg1.languageId, -1);
 
-      if (arg0.languageId == preferredLangu && arg1.languageId != preferredLangu) {
+      if (languageId0 == preferredLangu && languageId1 != preferredLangu) {
         return -1;
       }
 
       // check if second image is preferred langu
-      if (arg0.languageId != preferredLangu && arg1.languageId == preferredLangu) {
+      if (languageId0 != preferredLangu && languageId1 == preferredLangu) {
         return 1;
       }
 
       // check if the first image is en
-      if (arg0.languageId == english && arg1.languageId != english) {
+      if (languageId0 == english && languageId1 != english) {
         return -1;
       }
 
       // check if the second image is en
-      if (arg0.languageId != english && arg1.languageId == english) {
+      if (languageId0 != english && languageId1 == english) {
         return 1;
       }
 
-      // swap arg0 and arg1 to sort reverse
-      int result = Integer.compare(arg1.ratingsInfo.count, arg0.ratingsInfo.count);
+      int result = 0;
+
+      if (arg0.ratingsInfo != null && arg1.ratingsInfo != null) {
+        int ratingCount0 = MetadataUtil.unboxInteger(arg0.ratingsInfo.count);
+        int ratingCount1 = MetadataUtil.unboxInteger(arg1.ratingsInfo.count);
+
+        // swap arg0 and arg1 to sort reverse
+        result = Integer.compare(ratingCount1, ratingCount0);
+      }
 
       // if the result is still 0, we need to compare by ID (returning a zero here will treat it as a duplicate and remove the previous one)
       if (result == 0) {
