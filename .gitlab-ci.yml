@@ -83,7 +83,7 @@ deploy:nightly:
     # generate changelog.txt for nightly builds
     - ./generate_changelog.sh
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean compile package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean compile package
 
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/7895208/repository/files/v4_job_id.txt
@@ -110,7 +110,7 @@ deploy:PRE-RELEASE:
     # update package sources and install ant + 32 bit libs
     - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 lftp curl
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean compile package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean compile package
 
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 prerelease\"}" https://gitlab.com/api/v4/projects/10869644/repository/files/v4_job_id.txt
@@ -180,7 +180,7 @@ deploy:RELEASE:
     ##
     ## perform the release
     ##
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHA:0:8} -Dgetdown=getdown.txt -Dthread_pool_size=1 release:prepare release:perform -Dresume=false -DautoVersionSubmodules=true -DdryRun=false -Dmaven.test.skip=true -DskipITs -DscmCommentPrefix="[ci skip]"
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown.txt -Dthread_pool_size=1 release:prepare release:perform -Dresume=false -DautoVersionSubmodules=true -DdryRun=false -Dmaven.test.skip=true -DskipITs -DscmCommentPrefix="[ci skip]"
 
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 release\"}" https://gitlab.com/api/v4/projects/10869704/repository/files/v4_job_id.txt
