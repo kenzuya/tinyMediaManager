@@ -188,6 +188,7 @@
         <echo message="====================================================="/>
         <copy file="${dist.dir}/win/tinyMediaManager.exe" todir="${build.dir}"/>
         <copy file="${dist.dir}/linux/tinyMediaManager" todir="${build.dir}"/>
+        <copy file="AppBundler/dist-linux/tinyMediaManager.sh" todir="${build.dir}"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager"
               todir="${build.dir}/macOS/MacOS"/>
         <copy file="${dist.dir}/arm/tinyMediaManager" tofile="${build.dir}/tinyMediaManager-arm"/>
