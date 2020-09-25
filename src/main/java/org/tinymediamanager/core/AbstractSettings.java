@@ -81,6 +81,7 @@ public abstract class AbstractSettings extends AbstractModelObject {
     objectMapper.configure(MapperFeature.AUTO_DETECT_SETTERS, true);
     objectMapper.configure(MapperFeature.AUTO_DETECT_FIELDS, true);
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    objectMapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true);
     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     objectMapper.setTimeZone(TimeZone.getDefault());
     objectMapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);

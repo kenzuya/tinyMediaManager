@@ -237,6 +237,7 @@ public class TinyMediaManager {
           // upgrade check
           UpgradeTasks.setOldVersion();
           if (newVersion) {
+            LOGGER.info("Upgrade from " + UpgradeTasks.getOldVersion() + " to " + ReleaseInfo.getVersion());
             if (g2 != null) {
               updateProgress(g2, "upgrading to new version", 10);
               splash.update();
