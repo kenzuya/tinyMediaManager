@@ -75,6 +75,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
@@ -104,6 +105,7 @@ import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
+import org.tinymediamanager.core.movie.connector.MovieNfoParser;
 import org.tinymediamanager.core.movie.connector.MovieToKodiConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpLegacyConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpMovingPicturesConnector;
@@ -123,6 +125,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
+import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -203,6 +206,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private String                                titleSortable              = "";
   private String                                originalTitleSortable      = "";
   private Date                                  lastWatched                = null;
+  private String                                localizedSpokenLanguages   = "";
 
   /**
    * Instantiates a new movie. To initialize the propertychangesupport after loading
@@ -1663,6 +1667,22 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   public String getSpokenLanguages() {
     return this.spokenLanguages;
+  }
+
+  public String getLocalizedSpokenLanguages() {
+    if (StringUtils.isBlank(localizedSpokenLanguages)) {
+      List<String> translatedLanguages = new ArrayList<>();
+      for (String langu : MovieNfoParser.split(getSpokenLanguages())) {
+        String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(Utils.getLocaleFromLanguage(Globals.settings.getLanguage()),
+            langu.trim());
+        translatedLanguages.add(translated);
+      }
+
+      localizedSpokenLanguages = String.join(", ", translatedLanguages);
+    }
+
+    // prepare the languages to be printed in localized form
+    return localizedSpokenLanguages;
   }
 
   public String getCountry() {

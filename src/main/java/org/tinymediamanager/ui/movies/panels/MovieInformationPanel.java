@@ -608,7 +608,7 @@ public class MovieInformationPanel extends JPanel {
         jLabelBeanProperty);
     autoBinding_13.bind();
     //
-    Property movieSelectionModelBeanProperty_17 = BeanProperty.create("selectedMovie.spokenLanguages");
+    Property movieSelectionModelBeanProperty_17 = BeanProperty.create("selectedMovie.localizedSpokenLanguages");
     AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_17,
         lblSpokenLanguages, jLabelBeanProperty);
     autoBinding_15.bind();

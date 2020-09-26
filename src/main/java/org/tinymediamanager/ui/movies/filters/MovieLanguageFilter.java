@@ -45,6 +45,12 @@ public class MovieLanguageFilter extends AbstractTextMovieUIFilter {
     try {
       if (StringUtils.isNotBlank(movie.getSpokenLanguages())) {
         Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getSpokenLanguages()));
+        if (matcher.find()) {
+          return true;
+        }
+      }
+      if (StringUtils.isNotBlank(movie.getLocalizedSpokenLanguages())) {
+        Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getLocalizedSpokenLanguages()));
         return matcher.find();
       }
     }

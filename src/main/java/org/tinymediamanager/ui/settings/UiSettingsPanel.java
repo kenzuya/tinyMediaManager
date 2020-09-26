@@ -297,9 +297,9 @@ class UiSettingsPanel extends JPanel {
   /**
    * Helper class for customized toString() method, to get the Name in localized language.
    */
-  private class LocaleComboBox implements Comparable<LocaleComboBox> {
-    private Locale       loc;
-    private List<Locale> countries;
+  private static class LocaleComboBox implements Comparable<LocaleComboBox> {
+    private final Locale       loc;
+    private final List<Locale> countries;
 
     LocaleComboBox(Locale loc) {
       this.loc = loc;

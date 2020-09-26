@@ -1,6 +1,7 @@
 Version 4.0.2
 =======================
 x cleanup of changed artwork extensions #1015
+x show language names in UI language #1010
 
 
 Version 4.0.1
