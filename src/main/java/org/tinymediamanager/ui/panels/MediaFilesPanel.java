@@ -46,6 +46,7 @@ import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
 
 import ca.odell.glazedlists.EventList;
 import net.miginfocom.swing.MigLayout;
@@ -135,6 +136,13 @@ public abstract class MediaFilesPanel extends JPanel {
        */
       col = new Column(BUNDLE.getString("metatag.mediafiletype"), "filetype", mediaFile -> getMediaFileTypeLocalized(mediaFile.getType()),
           String.class);
+      addColumn(col);
+
+      /*
+       * file size
+       */
+      col = new Column(BUNDLE.getString("metatag.size"), "filesize", MediaFile::getFilesizeInMegabytes, String.class);
+      col.setCellRenderer(new RightAlignTableCellRenderer());
       addColumn(col);
 
       /*
