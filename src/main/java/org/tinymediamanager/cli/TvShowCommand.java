@@ -55,6 +55,7 @@ import picocli.CommandLine;
         mixinStandardHelpOptions = true,
         sortOptions = false,
         synopsisHeading = "%n",
+        footerHeading = "%nExamples:%n",
         footer = {
                 "  tinyMediaManager tvshow -u -n -r",
                 "    to find/scrape and rename new TV shows/episodes%n",
@@ -352,7 +353,7 @@ class TvShowCommand implements Runnable {
     boolean updateAll;
 
     @CommandLine.Option(names = {
-        "--updateX" }, required = true, paramLabel = "index", description = "Scan the given data sources for new content. The indices are in the same order as in the UI/settings")
+        "--updateX" }, required = true, paramLabel = "<index>", description = "Scan the given data sources for new content. The indices are in the same order as in the UI/settings")
     int[]   indices;
   }
 
@@ -371,7 +372,7 @@ class TvShowCommand implements Runnable {
     @CommandLine.Option(names = { "-s", "--downloadSubtitles" }, required = true, description = "Download missing subtitles")
     boolean  download;
 
-    @CommandLine.Option(names = { "-sL", "--subtitleLanguage" }, paramLabel = "language", description = "Desired subtitle language(s) (optional)")
+    @CommandLine.Option(names = { "-sL", "--subtitleLanguage" }, paramLabel = "<language>", description = "Desired subtitle language(s) (optional)")
     String[] languages;
   }
 
