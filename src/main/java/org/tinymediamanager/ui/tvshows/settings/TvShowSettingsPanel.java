@@ -292,7 +292,7 @@ class TvShowSettingsPanel extends JPanel {
         JLabel lblRating = new JLabel(BUNDLE.getString("Settings.preferredrating"));
         panelUiSettings.add(lblRating, "flowx,cell 1 3 2 1");
 
-        cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb"));
+        cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes"));
         panelUiSettings.add(cbRating, "cell 1 3");
 
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));

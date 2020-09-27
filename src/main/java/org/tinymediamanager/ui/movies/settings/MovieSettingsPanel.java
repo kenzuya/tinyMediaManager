@@ -225,7 +225,7 @@ public class MovieSettingsPanel extends JPanel {
         JLabel lblRating = new JLabel(BUNDLE.getString("Settings.preferredrating"));
         panelUiSettings.add(lblRating, "cell 1 1 2 1");
 
-        cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "rottenTomatoes"));
+        cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metascore", "rottenTomatoes"));
         panelUiSettings.add(cbRating, "cell 1 1");
       }
       {
