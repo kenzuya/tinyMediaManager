@@ -5,6 +5,7 @@ x cleanup of changed artwork extensions #1015
 x show language names in UI language #1010
 x added more rating providers to the settings
 x re-added file size to the media files table
+x preserve epbookmark tag in episode NFOs
 
 
 Version 4.0.1

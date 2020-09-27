@@ -165,6 +165,7 @@ public class TvShowEpisodeNfoParser {
     public int                        playcount           = 0;
     public MediaSource                source              = MediaSource.UNKNOWN;
     public String                     userNote            = "";
+    public String                     originalFileName    = "";
 
     public Map<String, Object>        ids                 = new HashMap<>();
     public Map<String, Rating>        ratings             = new HashMap<>();
@@ -190,7 +191,6 @@ public class TvShowEpisodeNfoParser {
     public Date                       lastplayed          = null;
     public String                     code                = "";
     public Date                       dateadded           = null;
-    public String                     originalFileName    = "";
 
     private Episode(Element root) {
       this.root = root;
