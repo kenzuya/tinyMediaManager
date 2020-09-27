@@ -579,7 +579,7 @@ public class MovieInformationPanel extends JPanel {
         starRaterBeanProperty);
     autoBinding_3.bind();
     //
-    Property movieSelectionModelBeanProperty_9 = BeanProperty.create("selectedMovie");
+    Property movieSelectionModelBeanProperty_9 = BeanProperty.create("selectedMovie.rating");
     Property jLabelBeanProperty_1 = BeanProperty.create("text");
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_9, lblRating,
         jLabelBeanProperty_1);

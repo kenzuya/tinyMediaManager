@@ -52,6 +52,7 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -496,8 +497,9 @@ public class TvShowInformationPanel extends JPanel {
         tvShowSelectionModelBeanProperty_2, panelRatingStars, starRaterBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<TvShowSelectionModel, TvShow> tvShowSelectionModelBeanProperty_5 = BeanProperty.create("selectedTvShow");
-    AutoBinding<TvShowSelectionModel, TvShow, JLabel, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
+    BeanProperty<TvShowSelectionModel, MediaRating> tvShowSelectionModelBeanProperty_5 = BeanProperty.create("selectedTvShow.rating");
+    AutoBinding<TvShowSelectionModel, MediaRating, JLabel, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel,
         tvShowSelectionModelBeanProperty_5, lblRating, jLabelBeanProperty);
     autoBinding_3.setConverter(new RatingConverter<>());
     autoBinding_3.bind();
