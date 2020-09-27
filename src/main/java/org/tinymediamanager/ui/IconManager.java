@@ -86,6 +86,7 @@ public class IconManager {
   public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
   public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
+  public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
   public static final ImageIcon              PLAY                         = createMenuIcon("play.svg");
   public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
   public static final ImageIcon              REMOVE                       = createMenuIcon("minus.svg");
