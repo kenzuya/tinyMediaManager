@@ -15,7 +15,9 @@
  */
 package org.tinymediamanager.ui.moviesets.panels;
 
+import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
+import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.ui.moviesets.MovieSetSelectionModel.SELECTED_MOVIE_SET;
 
 import java.awt.Cursor;
@@ -113,10 +115,16 @@ public class MovieSetInformationPanel extends JPanel {
       if (SELECTED_MOVIE_SET.equals(property) || MEDIA_FILES.equals(property) || "movies".equals(property)) {
         movieEventList.clear();
         movieEventList.addAll(selectionModel.getSelectedMovieSet().getMovies());
+      }
 
-        setFanart(model.getSelectedMovieSet());
+      if (SELECTED_MOVIE_SET.equals(property) || POSTER.equals(property)) {
         setPoster(model.getSelectedMovieSet());
       }
+
+      if (SELECTED_MOVIE_SET.equals(property) || FANART.equals(property)) {
+        setFanart(model.getSelectedMovieSet());
+      }
+
     };
 
     selectionModel.addPropertyChangeListener(propertyChangeListener);
