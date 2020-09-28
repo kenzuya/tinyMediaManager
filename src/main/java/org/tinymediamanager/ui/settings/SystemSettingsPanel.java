@@ -37,6 +37,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -53,6 +54,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import com.sun.jna.Platform;
@@ -211,7 +213,7 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][grow]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -227,6 +229,11 @@ class SystemSettingsPanel extends JPanel {
 
         chckbxIgnoreSSLProblems = new JCheckBox(BUNDLE.getString("Settings.ignoressl"));
         panelMisc.add(chckbxIgnoreSSLProblems, "cell 1 1 2 1");
+
+        JTextPane tpSSLHint = new ReadOnlyTextPane();
+        tpSSLHint.setText(BUNDLE.getString("Settings.ignoressl.desc"));
+        TmmFontHelper.changeFont(tpSSLHint, L2);
+        panelMisc.add(tpSSLHint, "cell 2 2,grow");
       }
     }
   }
