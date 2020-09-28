@@ -5,6 +5,7 @@ x added some changes to improve youtube trailer downloading
 x included a search rate throttling for opensubtitles #988
 x KodiRPC uri matching
 x preserve epbookmark in episode NFOs
+x (tvdb) also show the artwork on a second search
 
 
 Version 3.1.9

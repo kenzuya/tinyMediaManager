@@ -15,30 +15,22 @@
  */
 package org.tinymediamanager.scraper.thetvdb;
 
-import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
-import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
-import static org.tinymediamanager.core.entities.Person.Type.WRITER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.ALL;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.uwetrottmann.thetvdb.TheTvdb;
+import com.uwetrottmann.thetvdb.entities.Actor;
+import com.uwetrottmann.thetvdb.entities.ActorsResponse;
+import com.uwetrottmann.thetvdb.entities.Episode;
+import com.uwetrottmann.thetvdb.entities.EpisodeResponse;
+import com.uwetrottmann.thetvdb.entities.EpisodesResponse;
+import com.uwetrottmann.thetvdb.entities.Language;
+import com.uwetrottmann.thetvdb.entities.LanguagesResponse;
+import com.uwetrottmann.thetvdb.entities.Series;
+import com.uwetrottmann.thetvdb.entities.SeriesImageQueryResult;
+import com.uwetrottmann.thetvdb.entities.SeriesImageQueryResultResponse;
+import com.uwetrottmann.thetvdb.entities.SeriesImagesQueryParam;
+import com.uwetrottmann.thetvdb.entities.SeriesImagesQueryParamResponse;
+import com.uwetrottmann.thetvdb.entities.SeriesResponse;
+import com.uwetrottmann.thetvdb.entities.SeriesResultsResponse;
+import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,25 +61,31 @@ import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.TvUtils;
-
-import com.uwetrottmann.thetvdb.TheTvdb;
-import com.uwetrottmann.thetvdb.entities.Actor;
-import com.uwetrottmann.thetvdb.entities.ActorsResponse;
-import com.uwetrottmann.thetvdb.entities.Episode;
-import com.uwetrottmann.thetvdb.entities.EpisodeResponse;
-import com.uwetrottmann.thetvdb.entities.EpisodesResponse;
-import com.uwetrottmann.thetvdb.entities.Language;
-import com.uwetrottmann.thetvdb.entities.LanguagesResponse;
-import com.uwetrottmann.thetvdb.entities.Series;
-import com.uwetrottmann.thetvdb.entities.SeriesImageQueryResult;
-import com.uwetrottmann.thetvdb.entities.SeriesImageQueryResultResponse;
-import com.uwetrottmann.thetvdb.entities.SeriesImagesQueryParam;
-import com.uwetrottmann.thetvdb.entities.SeriesImagesQueryParamResponse;
-import com.uwetrottmann.thetvdb.entities.SeriesResponse;
-import com.uwetrottmann.thetvdb.entities.SeriesResultsResponse;
-
-import okhttp3.OkHttpClient;
 import retrofit2.Response;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
+import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
+import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.ALL;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 
 /**
  * The Class TheTvDbMetadataProvider.
@@ -499,7 +497,8 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       }
 
       if (StringUtils.isNotBlank(show.poster)) {
-        result.setPosterUrl(ARTWORK_URL + show.poster);
+        // sometimes the API results the artwork path with /banner/, sometimes without !?
+        result.setPosterUrl(ARTWORK_URL + show.poster.replace("/banners/", ""));
       }
 
       // calculate score
