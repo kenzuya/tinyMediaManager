@@ -15,13 +15,12 @@
  */
 package org.tinymediamanager.scraper.util.youtube.model.formats;
 
-import java.util.Objects;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import org.tinymediamanager.scraper.util.youtube.YoutubeHelper;
 import org.tinymediamanager.scraper.util.youtube.model.Extension;
 import org.tinymediamanager.scraper.util.youtube.model.Itag;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Objects;
 
 /**
  * The Format class
@@ -43,16 +42,14 @@ public abstract class Format {
     url = Objects.requireNonNull(YoutubeHelper.getString(json, "url")).replace("\\u0026", "&");
     mimeType = YoutubeHelper.getString(json, "mimeType");
     bitrate = YoutubeHelper.getInt(json, "bitrate");
-    contentLength = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "contentLength")));
-    lastModified = Long.valueOf(Objects.requireNonNull(YoutubeHelper.getString(json, "lastModified")));
+    contentLength = YoutubeHelper.getLong(json, "contentLength");
+    lastModified = YoutubeHelper.getLong(json, "lastModified");
 
     if (Objects.requireNonNull(mimeType).contains(Extension.MP4.getText())) {
       extension = Extension.MP4;
-    }
-    else if (mimeType.contains(Extension.WEBM.getText())) {
+    } else if (mimeType.contains(Extension.WEBM.getText())) {
       extension = Extension.WEBM;
-    }
-    else if (mimeType.contains(Extension.FLV.getText())) {
+    } else if (mimeType.contains(Extension.FLV.getText())) {
       extension = Extension.FLV;
     }
     else if (mimeType.contains(Extension.HLS.getText())) {

@@ -15,10 +15,10 @@
  */
 package org.tinymediamanager.scraper.util.youtube;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Helper Class for getting the right Type of JSON return
@@ -33,8 +33,15 @@ public class YoutubeHelper {
   public static Integer getInt(JsonNode node, String name) {
     if (node.get(name) != null && node.get(name).isInt()) {
       return node.get(name).asInt();
+    } else {
+      return null;
     }
-    else {
+  }
+
+  public static Long getLong(JsonNode node, String name) {
+    if (node.get(name) != null && node.get(name).isLong()) {
+      return node.get(name).asLong();
+    } else {
       return null;
     }
   }
@@ -42,8 +49,7 @@ public class YoutubeHelper {
   public static String getString(JsonNode node, String name) {
     if (node.get(name) != null && node.get(name).isTextual()) {
       return node.get(name).asText();
-    }
-    else {
+    } else {
       return null;
     }
   }

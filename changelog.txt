@@ -1,6 +1,7 @@
 Version 3.1.10
 =======================
 + added a file size renderer to the export templates
+x added some changes to improve youtube trailer downloading
 x included a search rate throttling for opensubtitles #988
 x fix: KodiRPC uri matching 
 

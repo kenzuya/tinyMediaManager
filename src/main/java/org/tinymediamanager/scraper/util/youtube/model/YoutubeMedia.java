@@ -15,6 +15,22 @@
  */
 package org.tinymediamanager.scraper.util.youtube.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.util.UrlUtil;
+import org.tinymediamanager.scraper.util.youtube.cipher.Cipher;
+import org.tinymediamanager.scraper.util.youtube.cipher.CipherFactory;
+import org.tinymediamanager.scraper.util.youtube.model.formats.AudioFormat;
+import org.tinymediamanager.scraper.util.youtube.model.formats.AudioVideoFormat;
+import org.tinymediamanager.scraper.util.youtube.model.formats.Format;
+import org.tinymediamanager.scraper.util.youtube.model.formats.VideoFormat;
+import org.tinymediamanager.scraper.util.youtube.model.quality.AudioQuality;
+import org.tinymediamanager.scraper.util.youtube.model.quality.VideoQuality;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -22,41 +38,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.scraper.util.UrlUtil;
-import org.tinymediamanager.scraper.util.youtube.cipher.Cipher;
-import org.tinymediamanager.scraper.util.youtube.cipher.CipherFactory;
-import org.tinymediamanager.scraper.util.youtube.model.formats.AudioFormat;
-import org.tinymediamanager.scraper.util.youtube.model.formats.Format;
-import org.tinymediamanager.scraper.util.youtube.model.formats.VideoFormat;
-import org.tinymediamanager.scraper.util.youtube.model.quality.AudioQuality;
-import org.tinymediamanager.scraper.util.youtube.model.quality.VideoQuality;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 /**
- * Represents the parsed media information from the Youtube Parser for a given
- * Youtube link
+ * Represents the parsed media information from the Youtube Parser for a given Youtube link
  *
  * @author Wolfgang Janes
  */
 public class YoutubeMedia {
 
-  private MediaDetails              videoDetails;
-  private List<Format>              formats;
-  private String                    videoId;
+  private MediaDetails videoDetails;
+  private List<Format> formats;
+  private String videoId;
 
-  private static final Logger       LOGGER           = LoggerFactory.getLogger(YoutubeMedia.class);
-  private static final String       CONFIG_START     = "ytplayer.config = ";
-  private static final String       CONFIG_END       = ";ytplayer.load";
-  private static final String       ERROR            = "\"status\":\"ERROR\",\"reason\":\"";
-  private static final String       URL              = "https://www.youtube.com/watch?v=";
-  public static Map<String, Cipher> ciphers          = new HashMap<>();
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(YoutubeMedia.class);
+  private static final String CONFIG_START = "ytplayer.config = ";
+  private static final String CONFIG_END = ";ytplayer.load";
+  private static final String ERROR = "\"status\":\"ERROR\",\"reason\":\"";
+  private static final String URL = "https://www.youtube.com/watch?v=";
+  public static Map<String, Cipher> ciphers = new HashMap<>();
 
   public YoutubeMedia(String videoId) {
     this.videoId = videoId;
@@ -72,12 +70,28 @@ public class YoutubeMedia {
   }
 
   /**
-   * Finds media information for video
+   * Finds the audio/video format for the given criteria
    *
-   * @param videoQuality
-   *          the @{@link VideoQuality} to find
-   * @param extension
-   *          the @Link {@link Extension} to find
+   * @param videoQuality the @{@link VideoQuality} to find
+   * @param extension    the @Link {@link Extension} to find
+   * @return the video information
+   */
+  public AudioVideoFormat findAudioVideo(VideoQuality videoQuality, Extension extension) {
+    for (Format format : formats) {
+      if (format instanceof AudioVideoFormat && ((AudioVideoFormat) format).videoQuality() == videoQuality && format.extension().equals(extension)) {
+        return ((AudioVideoFormat) format);
+      }
+    }
+
+    LOGGER.error("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
+    return null;
+  }
+
+  /**
+   * Finds the video format for the given criteria
+   *
+   * @param videoQuality the @{@link VideoQuality} to find
+   * @param extension    the @Link {@link Extension} to find
    * @return the video information
    */
   public VideoFormat findVideo(VideoQuality videoQuality, Extension extension) {
@@ -87,7 +101,7 @@ public class YoutubeMedia {
       }
     }
 
-    LOGGER.error("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
+    LOGGER.warn("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
     return null;
   }
 
@@ -115,13 +129,12 @@ public class YoutubeMedia {
     }
 
     // nothing found so far
-    LOGGER.error("Could not find audio format for extension {}", extension.getText());
+    LOGGER.warn("Could not find audio format for extension {}", extension.getText());
     return null;
   }
 
   /**
-   * Parsing the Youtube Webpage from the given YoutubeID to get all the
-   * information for downloading audio and video
+   * Parsing the Youtube Webpage from the given YoutubeID to get all the information for downloading audio and video
    *
    * @throws IOException
    *           any {@link IOException occurred while downloading}
@@ -215,16 +228,16 @@ public class YoutubeMedia {
           continue;
         }
 
-        if (itag.isVideo()) {
+        if (itag.isVideo() && itag.isAudio()) {
+          formats.add(new AudioVideoFormat(json, itag));
+        } else if (itag.isVideo()) {
           formats.add(new VideoFormat(json, itag));
-        }
-        else if (itag.isAudio()) {
+        } else if (itag.isAudio()) {
           formats.add(new AudioFormat(json, itag));
         }
 
-      }
-      catch (Exception e) {
-        LOGGER.warn("Itag : " + Itag.findItag(json.get("itag").asInt(0)) + " seems to be  Audio/Video Stream -> not supported yet" );
+      } catch (Exception e) {
+        LOGGER.warn("Itag : " + Itag.findItag(json.get("itag").asInt(0)) + " seems to be  Audio/Video Stream -> not supported yet");
       }
     }
   }
