@@ -19,11 +19,9 @@ package org.tinymediamanager.ui.movies;
 import java.awt.Component;
 
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.TableColumn;
 
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
 
 /**
@@ -33,7 +31,7 @@ public class MovieBorderTableCellRenderer extends BorderTableCellRenderer {
 
   @Override
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-    String text = "";
+    String text;
     if (value instanceof Movie) {
       Movie movie = (Movie) value;
 
@@ -44,15 +42,6 @@ public class MovieBorderTableCellRenderer extends BorderTableCellRenderer {
       }
       else {
         text = movie.getTitleSortable();
-      }
-
-      if (movie.isNewlyAdded()) {
-        setHorizontalTextPosition(SwingConstants.LEADING);
-        setIconTextGap(10);
-        setIcon(IconManager.NEW);
-      }
-      else {
-        setIcon(null);
       }
 
       return super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);

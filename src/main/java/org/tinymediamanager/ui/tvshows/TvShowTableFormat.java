@@ -156,6 +156,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * new indicator
+     */
+    col = new Column(BUNDLE.getString("movieextendedsearch.newepisodes"), "new", this::getNewIcon, ImageIcon.class);
+    col.setHeaderIcon(IconManager.NEW);
+    col.setColumnResizeable(false);
+    addColumn(col);
+
+    /*
      * NFO
      */
     col = new Column(BUNDLE.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
@@ -209,6 +217,23 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       }
     }
     return "";
+  }
+
+  private ImageIcon getNewIcon(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      TvShow tvShow = (TvShow) userObject;
+      return getNewIcon(tvShow.isNewlyAdded() || tvShow.hasNewlyAddedEpisodes());
+    }
+    else if (userObject instanceof TvShowSeason) {
+      TvShowSeason season = (TvShowSeason) userObject;
+      return getNewIcon(season.isNewlyAdded());
+    }
+    else if (userObject instanceof TvShowEpisode) {
+      TvShowEpisode episode = (TvShowEpisode) userObject;
+      return getNewIcon(episode.isNewlyAdded());
+    }
+    return null;
   }
 
   private String getRating(TmmTreeNode node) {

@@ -114,7 +114,7 @@ public class IconManager {
   public static final ImageIcon              INFO                         = createSVGIcon("info-circle.svg");
   public static final ImageIcon              HELP                         = createSVGIcon("question-circle.svg");
   public static final ImageIcon              FILTER_ACTIVE                = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
-  public static final ImageIcon              NEW                          = createTextIcon("new", new Color(31, 187, 0));
+  public static final ImageIcon              NEW_GREEN                    = createSVGIcon("plus-circle.svg", new Color(31, 187, 0));
   public static final ImageIcon              PLAY_LARGE                   = createSVGIcon("play-circle.svg", 2.33333);
   public static final ImageIcon              SAVE                         = createSVGIcon("save.svg");
   public static final ImageIcon              SEARCH_GREY                  = createSVGIcon("search.svg");
@@ -153,6 +153,7 @@ public class IconManager {
   public static final ImageIcon              FILE_SIZE                    = createTableHeaderIcon("save.svg");
   public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
+  public static final ImageIcon              NEW                          = createTableHeaderIcon("plus-circle.svg");
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
   public static final ImageIcon              RUNTIME                      = createTableHeaderIcon("clock.svg");

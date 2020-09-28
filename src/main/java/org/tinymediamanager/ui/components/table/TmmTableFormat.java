@@ -191,6 +191,13 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     return IconManager.TABLE_NOT_OK;
   }
 
+  protected ImageIcon getNewIcon(boolean bool) {
+    if (bool) {
+      return IconManager.NEW_GREEN;
+    }
+    return null;
+  }
+
   public static class StringComparator implements Comparator<String> {
     protected Collator stringCollator;
 

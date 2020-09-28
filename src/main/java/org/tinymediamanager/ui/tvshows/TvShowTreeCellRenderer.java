@@ -19,14 +19,11 @@ import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
-import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
 
 /**
@@ -56,29 +53,11 @@ public class TvShowTreeCellRenderer extends TmmTreeTableCellRenderer {
       if (season.isDummy()) {
         renderer.setForeground(colorDummy);
       }
-      if (season.isNewlyAdded()) {
-        renderer.setHorizontalTextPosition(SwingConstants.LEADING);
-        renderer.setIconTextGap(10);
-        renderer.setIcon(IconManager.NEW);
-      }
     }
     else if (value instanceof TvShowTreeDataProvider.TvShowEpisodeTreeNode) {
       TvShowEpisode episode = (TvShowEpisode) ((TvShowTreeDataProvider.TvShowEpisodeTreeNode) value).getUserObject();
       if (episode.isDummy()) {
         renderer.setForeground(colorDummy);
-      }
-      if (episode.isNewlyAdded()) {
-        renderer.setHorizontalTextPosition(SwingConstants.LEADING);
-        renderer.setIconTextGap(10);
-        renderer.setIcon(IconManager.NEW);
-      }
-    }
-    else if (value instanceof TvShowTreeDataProvider.TvShowTreeNode) {
-      TvShow tvShow = (TvShow) ((TvShowTreeDataProvider.TvShowTreeNode) value).getUserObject();
-      if (tvShow.isNewlyAdded() || tvShow.hasNewlyAddedEpisodes()) {
-        renderer.setHorizontalTextPosition(SwingConstants.LEADING);
-        renderer.setIconTextGap(10);
-        renderer.setIcon(IconManager.NEW);
       }
     }
 

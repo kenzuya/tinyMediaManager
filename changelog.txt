@@ -6,6 +6,7 @@ x show language names in UI language #1010
 x added more rating providers to the settings
 x re-added file size to the media files table
 x preserve epbookmark tag in episode NFOs
+x reworked the new indicator to use less space
 
 
 Version 4.0.1
