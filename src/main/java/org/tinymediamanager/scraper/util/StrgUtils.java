@@ -47,6 +47,7 @@ public class StrgUtils {
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$", "dd.MM.yyyy");
     DATE_FORMAT_REGEXPS.put("^\\d{4}\\.\\d{1,2}\\.\\d{1,2}$", "yyyy.MM.dd");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}$", "dd MMM yyyy");
+    DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{3}\\.\\s\\d{4}$", "dd MMM. yyyy");
     DATE_FORMAT_REGEXPS.put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}$", "dd MMMM yyyy");
     DATE_FORMAT_REGEXPS.put("^\\d{12}$", "yyyyMMddHHmm");
     DATE_FORMAT_REGEXPS.put("^\\d{8}\\s\\d{4}$", "yyyyMMdd HHmm");
@@ -239,7 +240,14 @@ public class StrgUtils {
 
     String format = determineDateFormat(dateAsString);
     if (format != null) {
-      date = new SimpleDateFormat(format).parse(dateAsString);
+      try {
+        // try localized
+        date = new SimpleDateFormat(format).parse(dateAsString);
+      }
+      catch (Exception e) {
+        // try US style
+        date = new SimpleDateFormat(format, Locale.US).parse(dateAsString);
+      }
     }
     else {
       throw new ParseException("could not parse date from: \"" + dateAsString + "\"", 0);

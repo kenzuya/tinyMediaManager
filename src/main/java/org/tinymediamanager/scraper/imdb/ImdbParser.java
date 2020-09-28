@@ -30,7 +30,6 @@ import java.io.InterruptedIOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +64,7 @@ import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
 /**
@@ -77,11 +77,6 @@ public abstract class ImdbParser {
   protected static final Pattern PERSON_ID_PATTERN = Pattern.compile("/name/(nm[0-9]{6,})/");
 
   protected final MediaType      type;
-
-  protected SimpleDateFormat     sdf1              = new SimpleDateFormat("d MMMM yyyy", Locale.US);
-  protected SimpleDateFormat     sdf2              = new SimpleDateFormat("MMMM yyyy", Locale.US);
-  protected SimpleDateFormat     sdf3              = new SimpleDateFormat("d MMM. yyyy", Locale.US);
-  protected SimpleDateFormat     sdf4              = new SimpleDateFormat("d MMM yyyy", Locale.US); // no dot like "May"
 
   protected ImdbParser(MediaType type) {
     this.type = type;
@@ -1063,25 +1058,7 @@ public abstract class ImdbParser {
 
   protected Date parseDate(String dateAsSting) {
     try {
-      return sdf1.parse(dateAsSting);
-    }
-    catch (ParseException e) {
-      getLogger().trace("could not parse date: {}", e.getMessage());
-    }
-    try {
-      return sdf2.parse(dateAsSting);
-    }
-    catch (ParseException e) {
-      getLogger().trace("could not parse date: {}", e.getMessage());
-    }
-    try {
-      return sdf3.parse(dateAsSting);
-    }
-    catch (ParseException e) {
-      getLogger().trace("could not parse date: {}", e.getMessage());
-    }
-    try {
-      return sdf4.parse(dateAsSting);
+      return StrgUtils.parseDate(dateAsSting);
     }
     catch (ParseException e) {
       getLogger().trace("could not parse date: {}", e.getMessage());

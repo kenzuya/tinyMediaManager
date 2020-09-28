@@ -29,6 +29,8 @@ public class StrgUtilsTest {
 
   @Test
   public void parseDateTests() throws ParseException {
+    Assert.assertNotNull(StrgUtils.parseDate("11 Oct. 2001"));
+    // Assert.assertNotNull(StrgUtils.parseDate("11 Okt. 2001"));
     Assert.assertNotNull(StrgUtils.parseDate("2019-02-12"));
     Assert.assertNotNull(StrgUtils.parseDate("12-02-2019"));
     Assert.assertNotNull(StrgUtils.parseDate("2019-02-12 15:16"));
