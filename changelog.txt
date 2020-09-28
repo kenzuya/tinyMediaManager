@@ -1,6 +1,7 @@
 Version 4.0.2
 =======================
 + enhanced display of ratings
++ added action to re-fetch IMDB ratings #989
 x set "Disable SSL certificate verification" to true per default to avoid connection problems
 x cleanup of changed artwork extensions #1015
 x show language names in UI language #1010

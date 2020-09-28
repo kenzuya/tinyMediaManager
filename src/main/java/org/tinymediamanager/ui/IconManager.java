@@ -91,6 +91,7 @@ public class IconManager {
   public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
   public static final ImageIcon              REMOVE                       = createMenuIcon("minus.svg");
   public static final ImageIcon              SEARCH                       = createMenuIcon("search.svg");
+  public static final ImageIcon              RATING_BLUE                  = createMenuIcon("star.svg");
   public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
   public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
 
