@@ -16,8 +16,6 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
@@ -27,6 +25,8 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.w3c.dom.Element;
+
+import java.util.List;
 
 /**
  * the class TvShowToXbmcConnector is used to write a legacy XBMC compatible NFO file
@@ -47,7 +47,31 @@ public class TvShowEpisodeToXbmcConnector extends TvShowEpisodeGenericXmlConnect
 
   @Override
   protected void addOwnTags(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    addEpbookmark(episode, parser);
+    addCode(episode, parser);
     addFileinfo(episode, parser);
+  }
+
+  /**
+   * add the <epbookmark>xxx</epbookmark>
+   */
+  private void addEpbookmark(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element epbookmark = document.createElement("epbookmark");
+    if (parser != null) {
+      epbookmark.setTextContent(parser.epbookmark);
+    }
+    root.appendChild(epbookmark);
+  }
+
+  /**
+   * add the <code>xxx</code>
+   */
+  private void addCode(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element code = document.createElement("code");
+    if (parser != null) {
+      code.setTextContent(parser.code);
+    }
+    root.appendChild(code);
   }
 
   /**
@@ -67,8 +91,7 @@ public class TvShowEpisodeToXbmcConnector extends TvShowEpisodeGenericXmlConnect
       // https://forum.kodi.tv/showthread.php?tid=354886&pid=2955329#pid2955329
       if ("h265".equalsIgnoreCase(videoFile.getVideoCodec())) {
         codec.setTextContent("HEVC");
-      }
-      else {
+      } else {
         codec.setTextContent(videoFile.getVideoCodec());
       }
       video.appendChild(codec);
