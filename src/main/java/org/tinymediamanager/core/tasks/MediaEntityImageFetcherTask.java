@@ -29,6 +29,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -39,13 +40,13 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
  * @author Manuel Laggner
  */
 public class MediaEntityImageFetcherTask implements Runnable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MediaEntityImageFetcherTask.class);
+  private static final Logger    LOGGER = LoggerFactory.getLogger(MediaEntityImageFetcherTask.class);
 
-  private MediaEntity         entity;
-  private String              url;
-  private MediaArtworkType    type;
-  private String              filename;
-  private boolean             firstImage;
+  private final MediaEntity      entity;
+  private final String           url;
+  private final MediaArtworkType type;
+  private final String           filename;
+  private final boolean          firstImage;
 
   public MediaEntityImageFetcherTask(MediaEntity entity, String url, MediaArtworkType type, String filename, boolean firstImage) {
     this.entity = entity;
@@ -89,6 +90,13 @@ public class MediaEntityImageFetcherTask implements Runnable {
       LOGGER.debug("writing {} - {}", type, filename);
       Path destFile = ImageUtils.downloadImage(url, entity.getPathNIO(), filename);
 
+      // if the old filename differs from the new one (e.g. .jpg -> .png), remove the old one
+      Path oldFile = Paths.get(oldFilename);
+      if (!oldFile.equals(destFile)) {
+        ImageCache.invalidateCachedImage(oldFile);
+        Utils.deleteFileSafely(oldFile);
+      }
+
       // set the new image if its the first image
       if (firstImage) {
         LOGGER.debug("set {} - {}", type, FilenameUtils.getName(filename));
@@ -113,7 +121,7 @@ public class MediaEntityImageFetcherTask implements Runnable {
             break;
 
           default:
-            return;
+            break;
         }
       }
       else {

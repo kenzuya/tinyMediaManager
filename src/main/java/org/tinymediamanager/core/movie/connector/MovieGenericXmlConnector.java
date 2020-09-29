@@ -54,6 +54,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.CountryCode;
+import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -696,7 +697,16 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addLanguages() {
     Element languages = document.createElement("languages");
-    languages.setTextContent(movie.getSpokenLanguages());
+
+    // prepare the languages to be printed in localized form
+    List<String> translatedLanguages = new ArrayList<>();
+    for (String langu : MovieNfoParser.split(movie.getSpokenLanguages())) {
+      String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale(),
+          langu.trim());
+      translatedLanguages.add(translated);
+    }
+
+    languages.setTextContent(String.join(", ", translatedLanguages));
     root.appendChild(languages);
   }
 

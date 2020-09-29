@@ -24,12 +24,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
 import org.tinymediamanager.ui.movies.panels.TrailerPanel;
@@ -49,6 +52,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadActorImagesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowFetchImdbRating;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMediaInformationAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMissingEpisodeListAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowReadEpisodeNfoAction;
@@ -249,18 +253,20 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowUpdateAction.class));
     popupMenu.add(createAndRegisterAction(TvShowReadNfoAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
     popupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowEditAction.class));
     popupMenu.add(createAndRegisterAction(TvShowBulkEditAction.class));
-    popupMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
 
     JMenu enhancedEditMenu = new JMenu(BUNDLE.getString("edit.enhanced"));
+    enhancedEditMenu.setIcon(IconManager.MENU);
+    enhancedEditMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowFetchImdbRating.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
@@ -279,6 +285,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
+    traktMenu.setIcon(IconManager.MENU);
     traktMenu.add(createAndRegisterAction(TvShowSyncTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedTraktTvAction.class));
@@ -299,6 +306,35 @@ public class TvShowUIModule extends AbstractTmmUIModule {
       popupMenu.addSeparator();
       popupMenu.add(debugMenu);
     }
+
+    // activate/deactivate menu items based on some status
+    popupMenu.addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
+        if (KodiRPC.getInstance().isConnected()) {
+          kodiRPCMenu.setEnabled(true);
+        }
+        else {
+          kodiRPCMenu.setEnabled(false);
+        }
+
+        if (StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+          traktMenu.setEnabled(true);
+        }
+        else {
+          traktMenu.setEnabled(false);
+        }
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+      }
+    });
 
     listPanel.setPopupMenu(popupMenu);
 

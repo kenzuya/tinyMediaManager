@@ -112,6 +112,11 @@ public class UpgradeTasks {
       Utils.deleteFileSafely(Paths.get("getdown.jar"));
     }
 
+    if (StrgUtils.compareVersion(v, "4.0.2") < 0) {
+      LOGGER.info("Performing upgrade tasks to version 4.0.2");
+      Globals.settings.setIgnoreSSLProblems(true);
+      Globals.settings.saveSettings();
+    }
   }
 
   /**

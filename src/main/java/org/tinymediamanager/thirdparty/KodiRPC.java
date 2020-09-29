@@ -124,7 +124,7 @@ public class KodiRPC {
     if (kodiVersion.isEmpty() && isConnected()) {
       getAndSetKodiVersion();
     }
-    return (kodiVersion.isEmpty() || kodiVersion.contains("nknown")) ? "Kodi (Unknown)" : kodiVersion;
+    return (kodiVersion.isEmpty() || kodiVersion.contains("nknown")) ? "Kodi" : kodiVersion;
   }
 
   private void getAndSetKodiVersion() {

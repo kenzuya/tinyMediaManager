@@ -111,7 +111,7 @@ public class Settings extends AbstractSettings {
   private boolean               upnpShareLibrary       = false;
   private boolean               upnpRemotePlay         = false;
 
-  private boolean               ignoreSSLProblems      = false;
+  private boolean               ignoreSSLProblems      = true;
 
   private boolean               writeMediaInfoXml      = false;
 

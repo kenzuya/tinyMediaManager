@@ -18,7 +18,6 @@ package org.tinymediamanager.core.movie.connector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,6 +26,7 @@ import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -145,18 +145,11 @@ public class MovieToMpMyVideoConnector extends MovieGenericXmlConnector {
   @Override
   protected void addLanguages() {
     // prepare spoken language for MP - try to extract the iso codes to the UI language separated by a pipe
-    Locale uiLanguage = Locale.getDefault();
     List<String> languages = new ArrayList<>();
     for (String langu : MovieNfoParser.split(movie.getSpokenLanguages())) {
-      langu = langu.trim();
-      Locale locale = new Locale(langu);
-      String languageLocalized = locale.getDisplayLanguage(uiLanguage);
-      if (StringUtils.isNotBlank(languageLocalized) && !langu.equalsIgnoreCase(languageLocalized)) {
-        languages.add(languageLocalized);
-      }
-      else {
-        languages.add(langu);
-      }
+      String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale(),
+          langu.trim());
+      languages.add(translated);
     }
 
     Element element = document.createElement("language");

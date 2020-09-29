@@ -228,8 +228,6 @@ public class MovieArtworkHelper {
    *          the config which artwork to download
    */
   public static void downloadMissingArtwork(Movie movie, List<MediaArtwork> artwork, List<MovieScraperMetadataConfig> metadataConfig) {
-    // sort artwork once again (langu/rating)
-    artwork.sort(new MediaArtwork.MediaArtworkComparator(MovieModuleManager.SETTINGS.getImageScraperLanguage().getLanguage()));
 
     // poster
     if (metadataConfig.contains(MovieScraperMetadataConfig.POSTER) && movie.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
@@ -767,9 +765,6 @@ public class MovieArtworkHelper {
       return;
     }
 
-    // sort artwork once again (langu/rating)
-    artwork.sort(new MediaArtwork.MediaArtworkComparator(MovieModuleManager.SETTINGS.getImageScraperLanguage().getLanguage()));
-
     // poster
     if (config.contains(MovieScraperMetadataConfig.POSTER)) {
       setBestPoster(movie, artwork);
@@ -1001,7 +996,12 @@ public class MovieArtworkHelper {
    *          indicates, whether to download and add, OR JUST SAVE THE URL for a later download
    */
   private static void setBestArtwork(Movie movie, List<MediaArtwork> artwork, MediaArtworkType type, boolean download) {
-    for (MediaArtwork art : artwork) {
+    // sort artwork due to our preferences
+    int preferredSizeOrder = MovieModuleManager.SETTINGS.getImageFanartSize().getOrder();
+    String preferredLanguage = MovieModuleManager.SETTINGS.getImageScraperLanguage().getLanguage();
+    List<MediaArtwork> sortedArtworks = sortArtwork(artwork, type, preferredSizeOrder, preferredLanguage);
+
+    for (MediaArtwork art : sortedArtworks) {
       if (art.getType() == type && StringUtils.isNotBlank(art.getDefaultUrl())) {
         movie.setArtworkUrl(art.getDefaultUrl(), MediaFileType.getMediaFileType(type));
         if (download) {

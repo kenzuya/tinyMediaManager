@@ -96,8 +96,12 @@ public class SettingsDialog extends TmmDialog {
       if (node != null) {
         // click on a settings node
         if (node.getUserObject() instanceof TmmSettingsNode) {
+          TmmSettingsNode settingsNode = (TmmSettingsNode) node.getUserObject();
           CardLayout cl = (CardLayout) rightPanel.getLayout();
-          cl.show(rightPanel, ((TmmSettingsNode) node.getUserObject()).getId());
+          cl.show(rightPanel, settingsNode.getId());
+          if (settingsNode.getComponent() != null) {
+            settingsNode.getComponent().invalidate();
+          }
         }
       }
     });

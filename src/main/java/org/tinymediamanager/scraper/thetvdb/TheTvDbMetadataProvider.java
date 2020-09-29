@@ -526,7 +526,8 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       }
 
       if (StringUtils.isNotBlank(show.poster)) {
-        result.setPosterUrl(ARTWORK_URL + show.poster);
+        // sometimes the API results the artwork path with /banner/, sometimes without !?
+        result.setPosterUrl(ARTWORK_URL + show.poster.replace("/banners/", ""));
       }
 
       // calculate score

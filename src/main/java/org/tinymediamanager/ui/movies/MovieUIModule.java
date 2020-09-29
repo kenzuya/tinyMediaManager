@@ -25,10 +25,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
@@ -44,6 +46,7 @@ import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
+import org.tinymediamanager.ui.movies.actions.MovieFetchImdbRating;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
 import org.tinymediamanager.ui.movies.actions.MovieMediaInformationAction;
 import org.tinymediamanager.ui.movies.actions.MovieReadNfoAction;
@@ -180,8 +183,10 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieEditAction.class));
     popupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
-    popupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     JMenu enhancedEditMenu = new JMenu(BUNDLE.getString("edit.enhanced"));
+    enhancedEditMenu.setIcon(IconManager.MENU);
+    enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbRating.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
@@ -201,6 +206,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
+    traktMenu.setIcon(IconManager.MENU);
     traktMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
@@ -232,6 +238,13 @@ public class MovieUIModule extends AbstractTmmUIModule {
         }
         else {
           kodiRPCMenu.setEnabled(false);
+        }
+
+        if (StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+          traktMenu.setEnabled(true);
+        }
+        else {
+          traktMenu.setEnabled(false);
         }
       }
 

@@ -1,3 +1,23 @@
+Version 4.0.2
+=======================
++ enhanced display of ratings
++ added action to re-fetch IMDB ratings #989
+x set "Disable SSL certificate verification" to true per default to avoid connection problems
+x cleanup of changed artwork extensions #1015
+x show language names in UI language #1010
+x added more rating providers to the settings
+x re-added file size to the media files table
+x preserve epbookmark tag in episode NFOs
+x reworked the new indicator to use less space
+x rebuild image cache when changing data source #1021
+x writing/cleanup of downloaded subtitle files #993
+
+
+Version 4.0.1
+=======================
+x fixed upgrade of v3 settings
+
+
 Version 4.0
 =======================
 

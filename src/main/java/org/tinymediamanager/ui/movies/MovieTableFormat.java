@@ -306,6 +306,15 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
+     * new indicator
+     */
+    col = new Column(BUNDLE.getString("movieextendedsearch.newmovies"), "new", movie -> getNewIcon(movie.isNewlyAdded()), ImageIcon.class);
+    col.setColumnComparator(imageComparator);
+    col.setHeaderIcon(IconManager.NEW);
+    col.setColumnResizeable(false);
+    addColumn(col);
+
+    /*
      * 3D (hidden per default)
      */
     col = new Column(BUNDLE.getString("metatag.3d"), "video3d", movie -> getCheckIcon(movie.isVideoIn3D()), ImageIcon.class);

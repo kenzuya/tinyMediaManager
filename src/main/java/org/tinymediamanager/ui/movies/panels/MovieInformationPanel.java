@@ -64,7 +64,6 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
-import org.tinymediamanager.ui.converter.VoteCountConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.movies.MovieOtherIdsConverter;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
@@ -514,13 +513,7 @@ public class MovieInformationPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    Property movieSelectionModelBeanProperty_2 = BeanProperty.create("selectedMovie.rating.votes");
     Property jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_2, lblVoteCount,
-        jLabelBeanProperty);
-    autoBinding_2.setConverter(new VoteCountConverter());
-    autoBinding_2.bind();
-    //
     Property movieSelectionModelBeanProperty_8 = BeanProperty.create("selectedMovie.year");
     AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_8, lblYear,
         jLabelBeanProperty);
@@ -586,7 +579,7 @@ public class MovieInformationPanel extends JPanel {
         starRaterBeanProperty);
     autoBinding_3.bind();
     //
-    Property movieSelectionModelBeanProperty_9 = BeanProperty.create("selectedMovie");
+    Property movieSelectionModelBeanProperty_9 = BeanProperty.create("selectedMovie.rating");
     Property jLabelBeanProperty_1 = BeanProperty.create("text");
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_9, lblRating,
         jLabelBeanProperty_1);
@@ -608,7 +601,7 @@ public class MovieInformationPanel extends JPanel {
         jLabelBeanProperty);
     autoBinding_13.bind();
     //
-    Property movieSelectionModelBeanProperty_17 = BeanProperty.create("selectedMovie.spokenLanguages");
+    Property movieSelectionModelBeanProperty_17 = BeanProperty.create("selectedMovie.localizedSpokenLanguages");
     AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_17,
         lblSpokenLanguages, jLabelBeanProperty);
     autoBinding_15.bind();

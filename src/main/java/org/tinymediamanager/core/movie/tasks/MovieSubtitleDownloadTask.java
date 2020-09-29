@@ -17,12 +17,14 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -60,43 +62,45 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
     Path old = mf.getFileAsPath();
 
     if (mf.getType() != MediaFileType.SUBTITLE) {
-      String basename = FilenameUtils.getBaseName(videoFilePath.toString()) + "." + languageTag;
-
       // try to decompress
       try (FileInputStream fis = new FileInputStream(file.toFile()); ZipInputStream is = new ZipInputStream(fis)) {
-        byte[] buffer = new byte[1024];
 
         // get the zipped file list entry
         ZipEntry ze = is.getNextEntry();
 
+        // we prefer well known subtitle file formats, but also remember .txt files
+        SubtitleEntry firstSubtitle = null;
+        SubtitleEntry firstTxt = null;
+
         while (ze != null) {
-          String zipEntryFilename = ze.getName();
-          String extension = FilenameUtils.getExtension(zipEntryFilename).toLowerCase(Locale.ROOT);
+          String extension = FilenameUtils.getExtension(ze.getName()).toLowerCase(Locale.ROOT);
 
           // check is that is a valid file type
-          if (!Globals.settings.getSubtitleFileType().contains("." + extension) && !"idx".equals(extension)) {
-            ze = is.getNextEntry();
-            continue;
+          if (Globals.settings.getSubtitleFileType().contains("." + extension) || "idx".equals(extension)) {
+            firstSubtitle = new SubtitleEntry(extension, is.readAllBytes());
           }
 
-          Path destination = file.getParent().resolve(basename + "." + extension);
-          try (FileOutputStream os = new FileOutputStream(destination.toFile())) {
-
-            int len;
-            while ((len = is.read(buffer)) > 0) {
-              os.write(buffer, 0, len);
-            }
-
-            mf = new MediaFile(destination);
-
-            // only take the first subtitle
-            break;
+          if (firstTxt == null && "txt".equals(extension)) {
+            firstTxt = new SubtitleEntry(extension, is.readAllBytes());
           }
+
+          ze = is.getNextEntry();
         }
+
+        if (firstSubtitle != null) {
+          mf = copySubtitleFile(firstSubtitle);
+        }
+        else if (firstTxt != null) {
+          mf = copySubtitleFile(firstTxt);
+        }
+
         is.closeEntry();
       }
       catch (Exception e) {
         LOGGER.debug("could not extract subtitle: {}", e.getMessage());
+      }
+      finally {
+        Utils.deleteFileSafely(file);
       }
     }
     if (!old.equals(mf.getFileAsPath())) {
@@ -108,5 +112,33 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
     movie.removeFromMediaFiles(mf); // remove old (possibly same) file
     movie.addToMediaFiles(mf); // add file, but maybe with other MI values
     movie.saveToDb();
+  }
+
+  private MediaFile copySubtitleFile(SubtitleEntry entry) throws IOException {
+    String basename = FilenameUtils.getBaseName(videoFilePath.toString()) + "." + languageTag;
+
+    String extension;
+    if ("txt".equals(entry.extension)) {
+      extension = "srt";
+    }
+    else {
+      extension = entry.extension;
+    }
+
+    Path destination = file.getParent().resolve(basename + "." + extension);
+    try (FileOutputStream os = new FileOutputStream(destination.toFile())) {
+      IOUtils.write(entry.buffer, os);
+      return new MediaFile(destination);
+    }
+  }
+
+  private static class SubtitleEntry {
+    private final String extension;
+    private final byte[] buffer;
+
+    public SubtitleEntry(String extenstion, byte[] buffer) {
+      this.extension = extenstion;
+      this.buffer = buffer;
+    }
   }
 }

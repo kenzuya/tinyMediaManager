@@ -42,7 +42,7 @@ public class RatingUtil {
 
     if (IMDB_RATINGS.isEmpty()) {
       // no rating here yet
-      OnDiskCachedUrl cachedUrl = new OnDiskCachedUrl("https://datasets.imdbws.com/title.ratings.tsv.gz", 5, TimeUnit.DAYS);
+      OnDiskCachedUrl cachedUrl = new OnDiskCachedUrl("https://datasets.imdbws.com/title.ratings.tsv.gz", 1, TimeUnit.DAYS);
 
       try (InputStream httpInputStream = cachedUrl.getInputStream(); GzipCompressorInputStream in = new GzipCompressorInputStream(httpInputStream)) {
         String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);

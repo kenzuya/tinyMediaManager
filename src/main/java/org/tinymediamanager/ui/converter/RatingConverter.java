@@ -16,9 +16,9 @@
 package org.tinymediamanager.ui.converter;
 
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.jdesktop.beansbinding.Converter;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaRating;
 
 /**
@@ -26,14 +26,36 @@ import org.tinymediamanager.core.entities.MediaRating;
  *
  * @author Manuel Laggner
  */
-public class RatingConverter<T extends MediaEntity> extends Converter<T, String> {
-  private Locale locale = Locale.getDefault();
+public class RatingConverter<T extends MediaRating> extends Converter<T, String> {
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  private final Locale                locale = Locale.getDefault();
 
   @Override
-  public String convertForward(T arg0) {
-    if (arg0 != null) {
-      MediaRating rating = arg0.getRating();
-      return String.format(locale, "%.1f / %,d", rating.getRating(), rating.getMaxValue());
+  public String convertForward(T rating) {
+    if (rating != null) {
+      // we want to display the rating in the following form
+      // 7.4 / 10 (3457 Votes / imdb)
+      // but we do not have the vote count and/or rating provider in all cases
+      // just do not display
+      // 0-1 votes
+      // default/user rating
+
+      boolean defaultUserRating = "default".equals(rating.getId()) || "user".equals(rating.getId());
+
+      if (rating.getVotes() > 1 && !defaultUserRating) {
+        return String.format(locale, "%.1f / %,d (%,d %s / %s)", rating.getRating(), rating.getMaxValue(), rating.getVotes(),
+            BUNDLE.getString("metatag.votes"), rating.getId());
+      }
+      else if (rating.getVotes() > 1 && defaultUserRating) {
+        return String.format(locale, "%.1f / %,d (%,d %s)", rating.getRating(), rating.getMaxValue(), rating.getVotes(),
+            BUNDLE.getString("metatag.votes"));
+      }
+      else if (!defaultUserRating && rating.getVotes() <= 1) {
+        return String.format(locale, "%.1f / %,d (%s)", rating.getRating(), rating.getMaxValue(), rating.getId());
+      }
+      else {
+        return String.format(locale, "%.1f / %,d", rating.getRating(), rating.getMaxValue());
+      }
     }
     return "";
   }

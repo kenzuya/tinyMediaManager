@@ -47,7 +47,31 @@ public class TvShowEpisodeToXbmcConnector extends TvShowEpisodeGenericXmlConnect
 
   @Override
   protected void addOwnTags(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    addEpbookmark(episode, parser);
+    addCode(episode, parser);
     addFileinfo(episode, parser);
+  }
+
+  /**
+   * add the <epbookmark>xxx</epbookmark>
+   */
+  private void addEpbookmark(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element epbookmark = document.createElement("epbookmark");
+    if (parser != null) {
+      epbookmark.setTextContent(parser.epbookmark);
+    }
+    root.appendChild(epbookmark);
+  }
+
+  /**
+   * add the <code>xxx</code>
+   */
+  private void addCode(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
+    Element code = document.createElement("code");
+    if (parser != null) {
+      code.setTextContent(parser.code);
+    }
+    root.appendChild(code);
   }
 
   /**
