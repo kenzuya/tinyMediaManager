@@ -58,6 +58,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -68,6 +69,8 @@ import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
@@ -1090,6 +1093,17 @@ public abstract class MediaEntity extends AbstractModelObject {
       }
 
       mf.replacePathForRenamedFolder(oldPath, newPath);
+    }
+  }
+
+  public void cacheImages() {
+    // re-build the image cache afterwards in an own thread
+    if (Settings.getInstance().isImageCache()) {
+      List<MediaFile> imageFiles = getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
+      if (!imageFiles.isEmpty()) {
+        ImageCacheTask task = new ImageCacheTask(imageFiles);
+        TmmTaskManager.getInstance().addUnnamedTask(task);
+      }
     }
   }
 

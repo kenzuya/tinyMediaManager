@@ -64,7 +64,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -84,7 +83,6 @@ import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
@@ -114,7 +112,6 @@ import org.tinymediamanager.core.movie.connector.MovieToXbmcConnector;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
-import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -976,13 +973,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       MovieRenamer.renameMovie(this);
 
       // re-build the image cache afterwards in an own thread
-      if (Settings.getInstance().isImageCache()) {
-        List<MediaFile> imageFiles = getMediaFiles().stream().filter(mf -> mf.isGraphic()).collect(Collectors.toList());
-        if (!imageFiles.isEmpty()) {
-          ImageCacheTask task = new ImageCacheTask(imageFiles);
-          TmmTaskManager.getInstance().addUnnamedTask(task);
-        }
-      }
+      cacheImages();
     }
 
     // write actor images after possible rename (to have a good folder structure)

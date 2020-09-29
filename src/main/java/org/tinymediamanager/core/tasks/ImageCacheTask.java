@@ -37,7 +37,7 @@ public class ImageCacheTask extends TmmThreadPool {
   private static final Logger         LOGGER       = LoggerFactory.getLogger(ImageCacheTask.class);
   private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
 
-  private List<MediaFile>             filesToCache = new ArrayList<>();
+  private final List<MediaFile>       filesToCache = new ArrayList<>();
 
   @Override
   public void callback(Object obj) {
@@ -68,7 +68,7 @@ public class ImageCacheTask extends TmmThreadPool {
     waitForCompletionOrCancel();
   }
 
-  private class CacheTask implements Callable<Object> {
+  private static class CacheTask implements Callable<Object> {
     private final MediaFile fileToCache;
 
     CacheTask(MediaFile fileToCache) {

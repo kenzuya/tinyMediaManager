@@ -9,6 +9,7 @@ x added more rating providers to the settings
 x re-added file size to the media files table
 x preserve epbookmark tag in episode NFOs
 x reworked the new indicator to use less space
+x rebuild image cache when changing data source #1021
 
 
 Version 4.0.1

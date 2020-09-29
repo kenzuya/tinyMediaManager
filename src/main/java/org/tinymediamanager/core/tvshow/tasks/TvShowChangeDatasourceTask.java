@@ -75,7 +75,7 @@ public class TvShowChangeDatasourceTask extends TmmThreadPool {
 
     @Override
     public void run() {
-      LOGGER.info("changing data source of TV show [" + tvShow.getTitle() + "] to " + datasource);
+      LOGGER.info("changing data source of TV show '{}' to '{}", tvShow.getTitle(), datasource);
 
       if (tvShow.getDataSource().equals(datasource)) {
         LOGGER.warn("old and new data source is the same");
@@ -88,11 +88,10 @@ public class TvShowChangeDatasourceTask extends TmmThreadPool {
       Path srcDir = tvShow.getPathNIO();
       Path destDir = Paths.get(datasource, Paths.get(tvShow.getDataSource()).relativize(tvShow.getPathNIO()).toString());
 
-      LOGGER.debug("moving TV show dir " + srcDir.toString() + " to " + destDir.toString());
+      LOGGER.debug("moving TV show dir '{}' to '{}'", srcDir, destDir);
 
-      boolean ok = false;
       try {
-        ok = Utils.moveDirectorySafe(srcDir, destDir);
+        boolean ok = Utils.moveDirectorySafe(srcDir, destDir);
         if (ok) {
           tvShow.setDataSource(datasource);
           tvShow.setPath(destDir.toAbsolutePath().toString());
@@ -102,19 +101,24 @@ public class TvShowChangeDatasourceTask extends TmmThreadPool {
             episode.replacePathForRenamedFolder(srcDir, destDir);
             episode.updateMediaFilePath(srcDir, destDir);
             episode.saveToDb();
+
+            // re-build the image cache afterwards in an own thread
+            episode.cacheImages();
           }
           tvShow.saveToDb(); // since we moved already, save it
+
+          // re-build the image cache afterwards in an own thread
+          tvShow.cacheImages();
+        }
+        else {
+          LOGGER.error("Could not move to destination '{}' - NOT changing datasource", destDir);
+          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove"));
         }
       }
       catch (Exception e) {
         LOGGER.error("error moving folder: ", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove", new String[] { ":", e.getLocalizedMessage() }));
-      }
-      if (!ok) {
-        // FIXME: when we were not able to rename folder, display error msg and abort!!!
-        LOGGER.error("Could not move to destination '" + destDir + "' - NOT changing datasource");
-        return;
       }
     }
   }

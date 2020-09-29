@@ -76,7 +76,7 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
 
     @Override
     public void run() {
-      LOGGER.info("changing data source of movie [" + movie.getTitle() + "] to " + datasource);
+      LOGGER.info("changing data source of movie '{}' to '{}'", movie.getTitle(), datasource);
 
       if (movie.getDataSource().equals(datasource)) {
         LOGGER.warn("old and new data source is the same");
@@ -96,16 +96,22 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
       Path srcDir = movie.getPathNIO();
       Path destDir = Paths.get(datasource, Paths.get(movie.getDataSource()).relativize(movie.getPathNIO()).toString());
 
-      LOGGER.debug("moving movie dir " + srcDir.toString() + " to " + destDir.toString());
+      LOGGER.debug("moving movie dir '{}' to '{}", srcDir, destDir);
 
-      boolean ok = false;
       try {
-        ok = Utils.moveDirectorySafe(srcDir, destDir);
+        boolean ok = Utils.moveDirectorySafe(srcDir, destDir);
         if (ok) {
           movie.setDataSource(datasource);
           movie.setPath(destDir.toAbsolutePath().toString());
           movie.updateMediaFilePath(srcDir, destDir);
           movie.saveToDb(); // since we moved already, save it
+
+          // re-build the image cache afterwards in an own thread
+          movie.cacheImages();
+        }
+        else {
+          LOGGER.error("Could not move to destination '{}' - NOT changing datasource", destDir);
+          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove"));
         }
       }
       catch (Exception e) {
@@ -113,27 +119,22 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove", new String[] { ":", e.getLocalizedMessage() }));
       }
-      if (!ok) {
-        // FIXME: when we were not able to rename folder, display error msg and abort!!!
-        LOGGER.error("Could not move to destination '" + destDir + "' - NOT changing datasource");
-        return;
-      }
     }
 
     private void moveMovieFromMMD() {
       Path srcDir = movie.getPathNIO();
       Path destDir = Paths.get(datasource, Paths.get(movie.getDataSource()).relativize(movie.getPathNIO()).toString());
 
-      LOGGER.debug("moving multi movie dir " + srcDir.toString() + " to " + destDir.toString());
+      LOGGER.debug("moving multi movie dir '{}' to '{}'", srcDir, destDir);
 
-      boolean ok = false;
       try {
         if (!Files.exists(destDir)) {
           Files.createDirectories(destDir);
         }
         else {
-          LOGGER.error("Directory already exists! '" + destDir + "' - NOT renaming folder ('upgrade' movie)");
+          LOGGER.error("Directory already exists! '{}' - NOT renaming folder ('upgrade' movie)", destDir);
           // well, better not to move
+          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove"));
           return;
         }
 
@@ -147,17 +148,14 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
         movie.setPath(destDir.toAbsolutePath().toString());
         movie.updateMediaFilePath(srcDir, destDir);
         movie.saveToDb(); // since we moved already, save it
-        ok = true;
+
+        // re-build the image cache afterwards in an own thread
+        movie.cacheImages();
       }
       catch (Exception e) {
         LOGGER.error("error moving movie files: ", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove", new String[] { ":", e.getLocalizedMessage() }));
-      }
-      if (!ok) {
-        // FIXME: when we were not able to rename folder, display error msg and abort!!!
-        LOGGER.error("Could not move to destination '" + destDir + "' - NOT changing datasource");
-        return;
       }
     }
   }
