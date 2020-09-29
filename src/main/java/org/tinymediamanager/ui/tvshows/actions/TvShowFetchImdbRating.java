@@ -74,6 +74,8 @@ public class TvShowFetchImdbRating extends TmmAction {
         MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
         if (rating != null) {
           tvShow.setRating(rating);
+          tvShow.saveToDb();
+          tvShow.writeNFO();
         }
       }
       catch (InterruptedException ex) {
@@ -89,6 +91,8 @@ public class TvShowFetchImdbRating extends TmmAction {
         MediaRating rating = RatingUtil.getImdbRating(episode.getIdAsString(IMDB));
         if (rating != null) {
           episode.setRating(rating);
+          episode.saveToDb();
+          episode.writeNFO();
         }
       }
       catch (InterruptedException ex) {
