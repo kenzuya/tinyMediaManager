@@ -60,6 +60,8 @@ public class MovieFetchImdbRating extends TmmAction {
         MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
         if (rating != null) {
           movie.setRating(rating);
+          movie.saveToDb();
+          movie.writeNFO();
         }
       }
       catch (InterruptedException ex) {
