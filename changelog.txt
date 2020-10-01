@@ -1,6 +1,8 @@
 Version 4.0.3
 =======================
 x several fixes for the universal TV show scraper #1024
+x added second runtime column
+
 
 Version 4.0.2
 =======================

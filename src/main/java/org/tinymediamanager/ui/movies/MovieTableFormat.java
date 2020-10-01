@@ -39,6 +39,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
+import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
 
 /**
  * The MovieTableFormat. Used as definition for the movie table in the movie module
@@ -219,8 +220,21 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col = new Column(BUNDLE.getString("metatag.runtime") + " [min]", "runtime", Movie::getRuntime, Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("200") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * runtime HH:MM (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.runtime") + " [hh:mm]", "runtime2", Movie::getRuntime, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("4:00") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
