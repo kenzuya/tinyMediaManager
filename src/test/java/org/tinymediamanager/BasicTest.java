@@ -2,11 +2,13 @@ package org.tinymediamanager;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Random;
+import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -103,6 +105,17 @@ public class BasicTest {
     }
   }
 
+  public static Date getRandomDate() {
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    cal.set(1950, 1, 1, 0, 0, 0);
+    Date startInclusive = cal.getTime();
+    Date endExclusive = Calendar.getInstance().getTime();
+    long startMillis = startInclusive.getTime();
+    long endMillis = endExclusive.getTime();
+    long randomMillisSinceEpoch = ThreadLocalRandom.current().nextLong(startMillis, endMillis);
+    return new Date(randomMillisSinceEpoch);
+  }
+
   public static void createFakeMovie(String title) {
     Movie movie = new Movie();
     movie.setDbId(getUUID(title)); // fixate
@@ -111,26 +124,19 @@ public class BasicTest {
     movie.setPath("/media/movies/" + title);
     movie.setOriginalTitle("Original " + title);
     movie.setSortTitle(title);
-    movie.setRating(new MediaRating(MediaRating.NFO, 7.2f, 5987));
-    movie.setYear(1992);
-    movie.setTop250(199);
+    movie.setRating(new MediaRating(MediaRating.NFO, (float) ThreadLocalRandom.current().nextDouble(1.0d, 9.0d), 5987, 10));
+    movie.setYear(1950 + ThreadLocalRandom.current().nextInt(20, 60));
+    movie.setTop250(ThreadLocalRandom.current().nextInt(250));
     movie.setPlot(LOREM);
     movie.setTagline("Wish granted");
-    movie.setRuntime(90);
+    movie.setRuntime(70 + ThreadLocalRandom.current().nextInt(20, 50));
     movie.setImdbId("tt0103639");
-    movie.setTmdbId(812);
-    movie.setId("trakt", 655);
+    movie.setTmdbId(ThreadLocalRandom.current().nextInt(1000, 5000));
+    movie.setId("trakt", ThreadLocalRandom.current().nextInt(1000, 5000));
     movie.setProductionCompany("Walt Disney");
     movie.setCountry("US");
     movie.setCertification(MediaCertification.US_G);
-
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    try {
-      movie.setReleaseDate(sdf.parse("1992-11-25"));
-    }
-    catch (ParseException e) {
-      // ignore
-    }
+    movie.setReleaseDate(getRandomDate());
 
     MediaTrailer trailer = new MediaTrailer();
     trailer.setUrl("https://trailer");
@@ -172,7 +178,10 @@ public class BasicTest {
     movie.addToMediaFiles(mf);
 
     movie.setWatched(true);
-    movie.setGenres(Arrays.asList(MediaGenres.ADVENTURE, MediaGenres.FAMILY));
+    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
     movie.addWriter(new Person(Person.Type.WRITER, "Ted Elliott", "Writer"));
     movie.addWriter(new Person(Person.Type.WRITER, "Terry Rossio", "Writer"));
     movie.addWriter(new Person(Person.Type.WRITER, "Ron Clements", "Writer"));
@@ -189,8 +198,8 @@ public class BasicTest {
     movie.addProducer(new Person(Person.Type.PRODUCER, "Donald W. Ernst", "Producer"));
 
     movie.setSpokenLanguages("en");
-    movie.setMediaSource(MediaSource.BLURAY);
-    movie.setEdition(MovieEdition.DIRECTORS_CUT);
+    movie.setMediaSource(MediaSource.values()[new Random().nextInt(MediaSource.values().length)]);
+    movie.setEdition(MovieEdition.values()[new Random().nextInt(MovieEdition.values().length)]);
 
     MovieList.getInstance().addMovie(movie);
     movie.saveToDb();
@@ -203,12 +212,15 @@ public class BasicTest {
 
     tvShow.setTitle(title);
     tvShow.setPath("/media/tvshows/" + title);
-    tvShow.setYear(1987);
-    tvShow.setRating(new MediaRating(MediaRating.NFO, 7.4f, 8));
+    tvShow.setYear(1950 + ThreadLocalRandom.current().nextInt(20, 60));
+    tvShow.setRating(new MediaRating(MediaRating.NFO, (float) ThreadLocalRandom.current().nextDouble(1.0d, 9.0d), 5987, 10));
     tvShow.setCertification(MediaCertification.US_TVPG);
-    tvShow.setGenres(Arrays.asList(MediaGenres.ACTION, MediaGenres.ADVENTURE, MediaGenres.DRAMA));
-    tvShow.setTvdbId("77585");
-    tvShow.setFirstAired("1987-04-12");
+    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    tvShow.setTvdbId(String.valueOf(ThreadLocalRandom.current().nextInt(1000, 5000)));
+    tvShow.setFirstAired(getRandomDate());
     tvShow.setProductionCompany("FOX (US)");
     tvShow.setPlot(LOREM);
 
@@ -229,8 +241,8 @@ public class BasicTest {
     episode.setDvdSeason(3);
     episode.setDvdEpisode(4);
     episode.setTitle("Don't Pet the Teacher");
-    episode.setYear(1987);
-    episode.setFirstAired("1987-04-26");
+    episode.setYear(1950 + ThreadLocalRandom.current().nextInt(20, 60));
+    episode.setFirstAired(getRandomDate());
     episode.setMediaSource(MediaSource.BLURAY);
     episode.setPlot(LOREM);
 
@@ -240,7 +252,7 @@ public class BasicTest {
     mf.setVideoCodec("h264");
     mf.setVideoHeight(720);
     mf.setVideoWidth(1280);
-    mf.setDuration(3600);
+    mf.setDuration(70 + ThreadLocalRandom.current().nextInt(20, 60));
     mf.setOverallBitRate(3500);
     mf.setVideo3DFormat(MediaFileHelper.VIDEO_3D_SBS);
 
