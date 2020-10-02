@@ -57,6 +57,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -90,6 +91,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message.MessageLevel;
+import org.tinymediamanager.core.movie.MovieSettings;
+import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
@@ -239,6 +242,29 @@ public class Utils {
    */
   public static String relPath(Path parent, Path child) {
     return parent.relativize(child).toString();
+  }
+
+  /**
+   * gets a list of all datasources, sorted by the "longest" first
+   * 
+   * @return
+   */
+  public static List<String> getAllDatasources() {
+    List<String> ret = new ArrayList<String>();
+
+    for (String m : MovieSettings.getInstance().getMovieDataSource()) {
+      ret.add(m);
+    }
+    for (String t : TvShowSettings.getInstance().getTvShowDataSource()) {
+      ret.add(t);
+    }
+
+    // sort by length (longest first)
+    Comparator<String> c = Comparator.comparingInt(String::length);
+    Collections.sort(ret, c);
+    Collections.reverse(ret);
+
+    return ret;
   }
 
   /**

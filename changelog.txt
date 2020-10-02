@@ -3,6 +3,7 @@ Version 4.0.3
 x do not cleanup episodes if the TV show has not been loaded
 x several fixes for the universal TV show scraper #1024
 x added second runtime column
+x better movie detection when having them in 'reserved names' folders
 
 
 Version 4.0.2

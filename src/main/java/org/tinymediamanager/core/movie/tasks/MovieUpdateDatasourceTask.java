@@ -394,7 +394,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         MediaFile mf = new MediaFile();
         mf.setPath(path.getParent().toString());
         mf.setFilename(path.getFileName().toString());
-        mf.setType(MediaFileHelper.parseMediaFileType(path));
+        mf.setType(MediaFileHelper.parseMediaFileType(path, dataSource));
 
         if (mf.getType() == MediaFileType.VIDEO) {
           videoFileFound = true;

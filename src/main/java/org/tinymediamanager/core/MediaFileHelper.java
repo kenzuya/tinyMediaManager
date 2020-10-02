@@ -189,6 +189,16 @@ public class MediaFileHelper {
     return videoFormats;
   }
 
+  private static Path detectDatasource(Path file) {
+    for (String ds : Utils.getAllDatasources()) {
+      if (file.toAbsolutePath().startsWith(ds)) {
+        return Paths.get(ds);
+      }
+    }
+    // should not happen, else we would have some orphaned entries...?
+    return null;
+  }
+
   /**
    * Parses the media file type out of the given path
    * 
@@ -197,6 +207,19 @@ public class MediaFileHelper {
    * @return the detected media file type or MediaFileType.UNKNOWN
    */
   public static MediaFileType parseMediaFileType(Path pathToFile) {
+    return parseMediaFileType(pathToFile, detectDatasource(pathToFile));
+  }
+
+  /**
+   * Parses the media file type out of the given path
+   * 
+   * @param pathToFile
+   *          the path/file to parse
+   * @param datasource
+   *          to not evaluate higher than that!
+   * @return the detected media file type or MediaFileType.UNKNOWN
+   */
+  public static MediaFileType parseMediaFileType(Path pathToFile, Path datasource) {
     String filename = pathToFile.getFileName().toString();
 
     String ext = FilenameUtils.getExtension(filename).toLowerCase(Locale.ROOT);
@@ -204,13 +227,18 @@ public class MediaFileHelper {
     // just path w/o filename
     String foldername = FilenameUtils.getBaseName(pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT));
 
+    Path releative = pathToFile.getParent(); // old style
+    if (datasource != null) {
+      // set path for evaluation not higher than datasource!
+      releative = Paths.get(Utils.relPath(datasource, pathToFile.getParent()));
+    }
     String pparent = "";
     String ppparent = "";
     String pppparent = "";
     try {
-      pparent = FilenameUtils.getBaseName(pathToFile.getParent().getParent().toString()).toLowerCase(Locale.ROOT);
-      ppparent = FilenameUtils.getBaseName(pathToFile.getParent().getParent().getParent().toString()).toLowerCase(Locale.ROOT);
-      pppparent = FilenameUtils.getBaseName(pathToFile.getParent().getParent().getParent().getParent().toString()).toLowerCase(Locale.ROOT);
+      pparent = FilenameUtils.getBaseName(releative.getParent().toString()).toLowerCase(Locale.ROOT);
+      ppparent = FilenameUtils.getBaseName(releative.getParent().getParent().toString()).toLowerCase(Locale.ROOT);
+      pppparent = FilenameUtils.getBaseName(releative.getParent().getParent().getParent().toString()).toLowerCase(Locale.ROOT);
     }
     catch (Exception ignored) {
       // could happen if we are no 2 levels deep
