@@ -439,8 +439,11 @@ public class TvShowList extends AbstractModelObject {
           }
         }
 
-        if (!found) {
-          orphanedEpisodes.add(uuid);
+        // ONLY DO THE CLEANUP IF NOT IN TRIAL VERSION
+        if (License.getInstance().isValidLicense()) {
+          if (!found) {
+            orphanedEpisodes.add(uuid);
+          }
         }
       }
       catch (Exception e) {

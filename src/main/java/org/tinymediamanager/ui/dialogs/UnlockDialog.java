@@ -101,6 +101,7 @@ public class UnlockDialog extends TmmDialog {
             Utils.writeStringToFile(Paths.get(Globals.DATA_FOLDER, "tmm.lic"), taLicenseCode.getText());
 
             JOptionPane.showMessageDialog(UnlockDialog.this, BUNDLE.getString("tmm.license.thanks"));
+            JOptionPane.showMessageDialog(UnlockDialog.this, BUNDLE.getString("tmm.license.restart"));
             setVisible(false);
           }
           else {
