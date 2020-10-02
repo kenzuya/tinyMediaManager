@@ -59,8 +59,11 @@ import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.thirdparty.KodiRPC;
@@ -364,6 +367,18 @@ public class TinyMediaManager {
             // did we just upgrade to v4?
             if (newVersion && UpgradeTasks.getOldVersion().startsWith("3")) {
               restartWarningAfterV4Upgrade();
+            }
+
+            // If auto update on start for movies data sources is enable, execute it
+            if (MovieModuleManager.SETTINGS.isUpdateOnStart()) {
+              TmmThreadPool task = new MovieUpdateDatasourceTask();
+              TmmTaskManager.getInstance().addMainTask(task);
+            }
+
+            // If auto update on start for TV shows data sources is enable, execute it
+            if (TvShowModuleManager.SETTINGS.isUpdateOnStart()) {
+              TmmThreadPool task = new TvShowUpdateDatasourceTask();
+              TmmTaskManager.getInstance().addMainTask(task);
             }
           }
           else {

@@ -61,6 +61,7 @@ public class MovieSettingsPanel extends JPanel {
   private JButton                      btnClearTraktData;
   private JCheckBox                    chckbxTraktSync;
   private JCheckBox                    chckbxRenameAfterScrape;
+  private JCheckBox                    chckbxAutoUpdateOnStart;
   private JCheckBox                    chckbxBuildImageCache;
   private JCheckBox                    chckbxExtractArtworkFromVsmeta;
   private JCheckBox                    chckbxRuntimeFromMi;
@@ -254,6 +255,14 @@ public class MovieSettingsPanel extends JPanel {
 
         btnClearTraktData = new JButton(BUNDLE.getString("Settings.trakt.clearmovies"));
         panelAutomaticTasks.add(btnClearTraktData, "cell 1 1 2 1");
+
+        chckbxAutoUpdateOnStart = new JCheckBox(BUNDLE.getString("Settings.movie.automaticupdate"));
+        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 2 2 1");
+
+        JLabel lblAutomaticUpdateHint = new JLabel(IconManager.HINT);
+        lblAutomaticUpdateHint.setToolTipText(BUNDLE.getString("Settings.movie.automaticupdate.desc"));
+        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 2 2 1");
+
       }
     }
     {
@@ -391,5 +400,10 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_11,
         chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
     autoBinding_11.bind();
+    //
+    Property movieSettingsBeanProperty_12 = BeanProperty.create("updateOnStart");
+    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_12,
+        chckbxAutoUpdateOnStart, jCheckBoxBeanProperty);
+    autoBinding_12.bind();
   }
 }

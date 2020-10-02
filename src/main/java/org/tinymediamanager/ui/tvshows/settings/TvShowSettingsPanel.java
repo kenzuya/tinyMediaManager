@@ -71,6 +71,7 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxPersonalRatingFirst;
   private AutocompleteComboBox<String> cbRating;
   private JCheckBox                    chckbxRenameAfterScrape;
+  private JCheckBox                    chckbxAutoUpdateOnStart;
   private JCheckBox                    chckbxShowMissingSpecials;
 
   private JCheckBox                    chckbxTvShowCheckPoster;
@@ -320,6 +321,13 @@ class TvShowSettingsPanel extends JPanel {
 
         btnClearTraktTvShows = new JButton(BUNDLE.getString("Settings.trakt.cleartvshows"));
         panelAutomaticTasks.add(btnClearTraktTvShows, "cell 1 1");
+
+        chckbxAutoUpdateOnStart = new JCheckBox(BUNDLE.getString("Settings.tvshow.automaticupdate"));
+        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 2 2 1");
+
+        JLabel lblAutomaticUpdateHint = new JLabel(IconManager.HINT);
+        lblAutomaticUpdateHint.setToolTipText(BUNDLE.getString("Settings.tvshow.automaticupdate.desc"));
+        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 2 2 1");
       }
     }
     {
@@ -478,5 +486,11 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_8,
         chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
     autoBinding_10.bind();
+
+    //
+    Property tvShowSettingsBeanProperty_11 = BeanProperty.create("updateOnStart");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_11,
+        chckbxAutoUpdateOnStart, jCheckBoxBeanProperty);
+    autoBinding_11.bind();
   }
 }
