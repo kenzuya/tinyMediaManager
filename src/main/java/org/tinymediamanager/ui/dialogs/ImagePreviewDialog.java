@@ -22,13 +22,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.FilenameUtils;
@@ -38,11 +44,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.TmmAction;
-import org.tinymediamanager.ui.components.ImageLabel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -59,7 +65,8 @@ public class ImagePreviewDialog extends TmmDialog {
   private String                      imageUrl;
   private String                      imagePath;
 
-  private ImageLabel                  image;
+  private JLabel                      image;
+  private byte[]                      originalImageBytes;
 
   public ImagePreviewDialog(String urlToImage) {
     super(BUNDLE.getString("image.show"), "imagePreview");
@@ -82,13 +89,11 @@ public class ImagePreviewDialog extends TmmDialog {
     {
       JPanel imagePanel = new JPanel();
       imagePanel.setLayout(new MigLayout("", "[300lp,grow]", "[300lp,grow]"));
-      getContentPane().add(imagePanel);
+      JScrollPane scrollPane = new JScrollPane(imagePanel);
+      getContentPane().add(scrollPane);
 
-      image = new ImageLabel(true);
-      image.setPreferCache(false);
-      image.setIsLightbox(true);
-      image.setPosition(ImageLabel.Position.CENTER);
-      image.setCacheUrl(true);
+      image = new JLabel();
+      image.setHorizontalAlignment(SwingConstants.CENTER);
 
       image.addMouseListener(new MouseAdapter() {
         @Override
@@ -106,7 +111,7 @@ public class ImagePreviewDialog extends TmmDialog {
         }
       });
 
-      imagePanel.add(image, "cell 0 0,grow");
+      imagePanel.add(image, "cell 0 0, grow, center");
     }
     {
       JButton closeButton = new JButton(BUNDLE.getString("Button.close"));
@@ -124,15 +129,29 @@ public class ImagePreviewDialog extends TmmDialog {
       int height = gd.getDisplayMode().getHeight();
       setMaximumSize(new Dimension(width, height));
 
-      // run later to avoid strange loading artefacts
-      SwingUtilities.invokeLater(() -> {
-        if (StringUtils.isNotBlank(imagePath)) {
-          image.setImagePath(imagePath);
+      // run async to avoid strange loading artefacts
+      SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() throws Exception {
+          if (StringUtils.isNotBlank(imagePath)) {
+            Path file = Paths.get(imagePath);
+            originalImageBytes = Files.readAllBytes(file);
+            image.setIcon(new ImageIcon(originalImageBytes));
+          }
+          else if (StringUtils.isNotBlank(imageUrl)) {
+            try {
+              Url url = new Url(imageUrl);
+              originalImageBytes = url.getBytesWithRetry(5);
+              image.setIcon(new ImageIcon(originalImageBytes));
+            }
+            catch (Exception e) {
+              LOGGER.error("could not load image - {}", e.getMessage());
+            }
+          }
+          return null;
         }
-        else if (StringUtils.isNotBlank(imageUrl)) {
-          image.setImageUrl(imageUrl);
-        }
-      });
+      };
+      worker.execute();
 
       pack();
       setLocationRelativeTo(MainWindow.getInstance());
@@ -164,11 +183,10 @@ public class ImagePreviewDialog extends TmmDialog {
         else if (StringUtils.isNotBlank(imageUrl)) {
           filename = FilenameUtils.getBaseName(imageUrl);
         }
-        file = TmmUIHelper.saveFile(BUNDLE.getString("image.savetodisk"), "", filename,
-            new FileNameExtensionFilter("Image files", ".jpg", ".png"));
+        file = TmmUIHelper.saveFile(BUNDLE.getString("image.savetodisk"), "", filename, new FileNameExtensionFilter("Image files", ".jpg", ".png"));
         if (file != null) {
           try (FileOutputStream os = new FileOutputStream(file.toFile())) {
-            IOUtils.write(image.getOriginalImageBytes(), os);
+            IOUtils.write(originalImageBytes, os);
           }
         }
       }
