@@ -889,9 +889,9 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   private class DownloadTask extends SwingWorker<Void, DownloadChunk> {
-    private Map<String, Object> ids;
-    private List<MediaScraper>  artworkScrapers;
-    private boolean             imagesFound = false;
+    private final Map<String, Object> ids;
+    private final List<MediaScraper>  artworkScrapers;
+    private boolean                   imagesFound = false;
 
     public DownloadTask(Map<String, Object> ids, List<MediaScraper> artworkScrapers) {
       this.ids = ids;
@@ -1062,7 +1062,7 @@ public class ImageChooserDialog extends TmmDialog {
           return null;
         }
         catch (ExecutionException e) {
-          LOGGER.error("ThreadPool imageChooser: Error getting result! - {}", e);
+          LOGGER.error("ThreadPool imageChooser: Error getting result! - {}", e.getMessage());
         }
       }
 
@@ -1089,7 +1089,7 @@ public class ImageChooserDialog extends TmmDialog {
     }
   }
 
-  private class DownloadChunk {
+  private static class DownloadChunk {
     private BufferedImage image;
     private MediaArtwork  artwork;
   }
@@ -1120,7 +1120,7 @@ public class ImageChooserDialog extends TmmDialog {
     }
   }
 
-  private final class LockableViewPort extends JViewport {
+  private static final class LockableViewPort extends JViewport {
 
     private boolean locked = false;
 

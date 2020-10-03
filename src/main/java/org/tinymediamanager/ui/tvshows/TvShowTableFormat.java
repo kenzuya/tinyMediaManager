@@ -49,9 +49,17 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     FontMetrics fontMetrics = getFontMetrics();
 
     /*
+     * year
+     */
+    Column col = new Column(BUNDLE.getString("metatag.year"), "year", this::getYear, Integer.class);
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
+    addColumn(col);
+
+    /*
      * season count
      */
-    Column col = new Column(BUNDLE.getString("metatag.seasons"), "seasons", this::getSeasons, String.class);
+    col = new Column(BUNDLE.getString("metatag.seasons"), "seasons", this::getSeasons, String.class);
     col.setHeaderIcon(IconManager.SEASONS);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -196,6 +204,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     addColumn(col);
+  }
+
+  private Integer getYear(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      return ((TvShow) userObject).getYear();
+    }
+    return null;
   }
 
   private String getSeasons(TmmTreeNode node) {

@@ -442,13 +442,13 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   }
 
   private void assignEpisodeResults(MediaMetadata md, Map<String, MediaMetadata> metadataMap) {
-    // // take all ids we can get
-    // for (Map.Entry<String, MediaMetadata> entry : metadataMap.entrySet()) {
-    // for (Map.Entry<String, Object> id : entry.getValue().getIds().entrySet()) {
-    // md.setId(id.getKey(), id.getValue());
-    // }
-    // }
-    //
+    // take all ids we can get
+    for (Map.Entry<String, MediaMetadata> entry : metadataMap.entrySet()) {
+      for (Map.Entry<String, Object> id : entry.getValue().getIds().entrySet()) {
+        md.setId(id.getKey(), id.getValue());
+      }
+    }
+
     // assign the requested metadata
     for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (entry.getKey().startsWith("episode") && !UNDEFINED.equals(entry.getValue())) {
@@ -462,6 +462,11 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
         if ("episodes".equals(entry.getKey())) {
           md.setSeasonNumber(mediaMetadata.getSeasonNumber());
           md.setEpisodeNumber(mediaMetadata.getEpisodeNumber());
+          md.setDisplaySeasonNumber(mediaMetadata.getDisplaySeasonNumber());
+          md.setDisplayEpisodeNumber(mediaMetadata.getDisplayEpisodeNumber());
+          md.setDvdSeasonNumber(mediaMetadata.getDvdSeasonNumber());
+          md.setDvdEpisodeNumber(mediaMetadata.getDvdEpisodeNumber());
+          md.setAbsoluteNumber(mediaMetadata.getAbsoluteNumber());
           md.setReleaseDate(mediaMetadata.getReleaseDate());
         }
         else {

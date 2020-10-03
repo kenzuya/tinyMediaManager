@@ -1,3 +1,14 @@
+Version 4.0.3
+=======================
++ added a year column in the TV show tree #1026
+x do not cleanup episodes if the TV show has not been loaded
+x several fixes for the universal TV show scraper #1024
+x added second runtime column
+x better movie detection when having them in 'reserved names' folders
+x also respect current file names in the file name filter #1007
+x show original image in original size #992
+
+
 Version 4.0.2
 =======================
 + enhanced display of ratings
