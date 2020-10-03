@@ -40,6 +40,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 
@@ -70,6 +71,13 @@ public class UpgradeDialog extends TmmDialog {
       panelContent.add(tpTop, "cell 0 1,grow");
 
       LinkLabel lblLinkLabel = new LinkLabel("https://www.tinymediamanager.org/blog/version-4-0/");
+      lblLinkLabel.addActionListener(arg0 -> {
+        try {
+          TmmUIHelper.browseUrl("https://www.tinymediamanager.org/blog/version-4-0/");
+        }
+        catch (Exception ignored) {
+        }
+      });
       panelContent.add(lblLinkLabel, "cell 0 2, grow");
 
       JSeparator separator = new JSeparator();
