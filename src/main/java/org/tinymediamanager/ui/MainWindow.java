@@ -127,7 +127,7 @@ public class MainWindow extends JFrame {
     return logos;
   }
 
-  private void checkForUpdate() {
+  public void checkForUpdate() {
     try {
       final UpdaterTask updateWorker = new UpdaterTask();
 

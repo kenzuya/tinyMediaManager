@@ -66,6 +66,7 @@ import org.tinymediamanager.ui.actions.LaunchUpdaterAction;
 import org.tinymediamanager.ui.actions.RebuildImageCacheAction;
 import org.tinymediamanager.ui.actions.SettingsAction;
 import org.tinymediamanager.ui.actions.ShowChangelogAction;
+import org.tinymediamanager.ui.actions.UpgradeAction;
 import org.tinymediamanager.ui.dialogs.FullLogDialog;
 import org.tinymediamanager.ui.dialogs.LogDialog;
 import org.tinymediamanager.ui.dialogs.MessageHistoryDialog;
@@ -100,7 +101,7 @@ public class ToolbarPanel extends JPanel {
     JPanel panelCenter = new JPanel();
     add(panelCenter, BorderLayout.CENTER);
     panelCenter.setOpaque(false);
-    panelCenter.setLayout(new MigLayout("insets 0", "[5lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[][5lp:n]", "[]1lp[]5lp"));
+    panelCenter.setLayout(new MigLayout("insets 0", "[5lp:n][]20lp[]20lp[]20lp[]20lp[][grow][]15lp[]15lp[]15lp[]15lp[][5lp:n]", "[]1lp[]5lp"));
 
     panelCenter.add(new JLabel(IconManager.TOOLBAR_LOGO), "cell 1 0 1 2,alignx center");
 
@@ -129,26 +130,34 @@ public class ToolbarPanel extends JPanel {
     JButton btnInfo = new ToolbarButton(IconManager.TOOLBAR_ABOUT, IconManager.TOOLBAR_ABOUT_HOVER, infoPopupMenu);
     panelCenter.add(btnInfo, "cell 10 0,alignx center,aligny bottom");
 
+    JButton btnUpgrade = new ToolbarButton(IconManager.TOOLBAR_UPGRADE, IconManager.TOOLBAR_UPGRADE);
+    Action upgradeAction = new UpgradeAction();
+    btnUpgrade.setAction(upgradeAction);
+    panelCenter.add(btnUpgrade, "cell 11 0,alignx center,aligny bottom");
+
     menuUpdate = new ToolbarMenu(BUNDLE.getString("Toolbar.update"));
-    panelCenter.add(menuUpdate, "cell 2 1,alignx center");
+    panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
 
     menuSearch = new ToolbarMenu(BUNDLE.getString("Toolbar.search"));
-    panelCenter.add(menuSearch, "cell 3 1,alignx center");
+    panelCenter.add(menuSearch, "cell 3 1,alignx center, wmin 0");
 
     menuEdit = new ToolbarMenu(BUNDLE.getString("Toolbar.edit"));
-    panelCenter.add(menuEdit, "cell 4 1,alignx center");
+    panelCenter.add(menuEdit, "cell 4 1,alignx center, wmin 0");
 
     menuRename = new ToolbarMenu(BUNDLE.getString("Toolbar.rename"));
-    panelCenter.add(menuRename, "cell 5 1,alignx center");
+    panelCenter.add(menuRename, "cell 5 1,alignx center, wmin 0");
 
     JLabel lblSettings = new ToolbarLabel(BUNDLE.getString("Toolbar.settings"), settingsAction);
-    panelCenter.add(lblSettings, "cell 8 1,alignx center");
+    panelCenter.add(lblSettings, "cell 8 1,alignx center, wmin 0");
 
     ToolbarMenu lblTools = new ToolbarMenu(BUNDLE.getString("Toolbar.tools"), toolsPopupMenu);
-    panelCenter.add(lblTools, "cell 9 1,alignx center");
+    panelCenter.add(lblTools, "cell 9 1,alignx center, wmin 0");
 
     ToolbarMenu menuHelp = new ToolbarMenu(BUNDLE.getString("Toolbar.help"), infoPopupMenu);
-    panelCenter.add(menuHelp, "cell 10 1,alignx center");
+    panelCenter.add(menuHelp, "cell 10 1,alignx center, wmin 0");
+
+    JLabel lblUpgrade = new ToolbarLabel(BUNDLE.getString("tmm.upgradev4"), upgradeAction);
+    panelCenter.add(lblUpgrade, "cell 11 1,alignx center, wmin 0");
 
     JPanel panelEast = new JPanel();
     add(panelEast, BorderLayout.EAST);

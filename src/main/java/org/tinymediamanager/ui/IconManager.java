@@ -53,6 +53,7 @@ public class IconManager {
   public static final ImageIcon            TOOLBAR_SETTINGS_HOVER      = loadImage("icn_settings_hover.png");
   public static final ImageIcon            TOOLBAR_TOOLS               = loadImage("icn_tools.png");
   public static final ImageIcon            TOOLBAR_TOOLS_HOVER         = loadImage("icn_tools_hover.png");
+  public static final ImageIcon            TOOLBAR_UPGRADE             = loadImage("icn_upgrade.png");
 
   // packaged icons
   public static final ImageIcon            STAR_FILLED                 = loadImage("star-filled.png");
