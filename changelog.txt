@@ -8,6 +8,7 @@ x added second runtime column
 x better movie detection when having them in 'reserved names' folders
 x also respect current file names in the file name filter #1007
 x show original image in original size #992
+x several fixes to the command line interface
 
 
 Version 4.0.2
