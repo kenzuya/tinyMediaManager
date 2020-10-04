@@ -76,9 +76,9 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -1377,8 +1377,7 @@ public class Utils {
       filesToArchive.add(toBeAdded.toFile());
     }
 
-    try (FileOutputStream fos = new FileOutputStream(zipFile.toFile());
-        ArchiveOutputStream archive = new ArchiveStreamFactory().createArchiveOutputStream("zip", fos)) {
+    try (ZipArchiveOutputStream archive = new ZipArchiveOutputStream(zipFile.toFile())) {
       for (File file : filesToArchive) {
         String entryName = getEntryName(toBeAdded.toFile(), file);
         ZipArchiveEntry entry = new ZipArchiveEntry(entryName);

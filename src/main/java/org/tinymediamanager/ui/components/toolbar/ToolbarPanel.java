@@ -140,29 +140,29 @@ public class ToolbarPanel extends JPanel {
     panelCenter.add(btnUnlock, "cell 11 0, alignx center,aligny bottom, gap 10lp");
 
     menuUpdate = new ToolbarMenu(BUNDLE.getString("Toolbar.update"));
-    panelCenter.add(menuUpdate, "cell 2 1,alignx center");
+    panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
 
     menuSearch = new ToolbarMenu(BUNDLE.getString("Toolbar.search"));
-    panelCenter.add(menuSearch, "cell 3 1,alignx center");
+    panelCenter.add(menuSearch, "cell 3 1,alignx center, wmin 0");
 
     menuEdit = new ToolbarMenu(BUNDLE.getString("Toolbar.edit"));
-    panelCenter.add(menuEdit, "cell 4 1,alignx center");
+    panelCenter.add(menuEdit, "cell 4 1,alignx center, wmin 0");
 
     menuRename = new ToolbarMenu(BUNDLE.getString("Toolbar.rename"));
-    panelCenter.add(menuRename, "cell 5 1,alignx center");
+    panelCenter.add(menuRename, "cell 5 1,alignx center, wmin 0");
 
     JLabel lblSettings = new ToolbarLabel(BUNDLE.getString("Toolbar.settings"), settingsAction);
-    panelCenter.add(lblSettings, "cell 8 1,alignx center");
+    panelCenter.add(lblSettings, "cell 8 1,alignx center, wmin 0");
 
     ToolbarMenu lblTools = new ToolbarMenu(BUNDLE.getString("Toolbar.tools"), toolsPopupMenu);
-    panelCenter.add(lblTools, "cell 9 1,alignx center");
+    panelCenter.add(lblTools, "cell 9 1,alignx center, wmin 0");
 
     ToolbarMenu menuHelp = new ToolbarMenu(BUNDLE.getString("Toolbar.help"), infoPopupMenu);
-    panelCenter.add(menuHelp, "cell 10 1,alignx center");
+    panelCenter.add(menuHelp, "cell 10 1,alignx center, wmin 0");
 
     lblUnlock = new ToolbarLabel(BUNDLE.getString("Toolbar.unlock"), unlockAction);
     lblUnlock.setToolTipText(BUNDLE.getString("Toolbar.unlock.desc"));
-    panelCenter.add(lblUnlock, "cell 11 1,alignx center, gap 10lp");
+    panelCenter.add(lblUnlock, "cell 11 1,alignx center, gap 10lp, wmin 0");
 
     License.getInstance().addEventListener(this::showHideUnlock);
 

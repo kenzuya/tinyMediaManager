@@ -136,18 +136,28 @@ public class ImagePreviewDialog extends TmmDialog {
           if (StringUtils.isNotBlank(imagePath)) {
             Path file = Paths.get(imagePath);
             originalImageBytes = Files.readAllBytes(file);
-            image.setIcon(new ImageIcon(originalImageBytes));
           }
           else if (StringUtils.isNotBlank(imageUrl)) {
             try {
               Url url = new Url(imageUrl);
               originalImageBytes = url.getBytesWithRetry(5);
-              image.setIcon(new ImageIcon(originalImageBytes));
             }
             catch (Exception e) {
               LOGGER.error("could not load image - {}", e.getMessage());
             }
           }
+
+          if (originalImageBytes.length > 0) {
+            ImageIcon imageIcon = new ImageIcon(originalImageBytes);
+            int width = imageIcon.getImage().getWidth(null);
+            int height = imageIcon.getImage().getHeight(null);
+            image.setIcon(imageIcon);
+
+            if (width > 0 && height > 0) {
+              setTitle(BUNDLE.getString("image.show") + " - " + width + "x" + height);
+            }
+          }
+
           return null;
         }
       };

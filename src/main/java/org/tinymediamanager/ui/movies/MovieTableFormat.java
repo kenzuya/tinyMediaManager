@@ -113,6 +113,23 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
+     * date added (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.releasedate"), "releaseDate", Movie::getReleaseDate, Date.class);
+    col.setColumnComparator(dateComparator);
+    col.setHeaderIcon(IconManager.DATE_AIRED);
+    col.setCellRenderer(new DateTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    try {
+      Date date = StrgUtils.parseDate("2012-12-12");
+      col.setMinWidth((int) (fontMetrics.stringWidth(TmmDateFormat.MEDIUM_DATE_FORMAT.format(date)) * 1.2f + 10));
+    }
+    catch (Exception ignored) {
+    }
+    addColumn(col);
+
+    /*
      * file name (hidden per default)
      */
     col = new Column(BUNDLE.getString("metatag.filename"), "filename", movie -> movie.getMainVideoFile().getFilename(), String.class);
