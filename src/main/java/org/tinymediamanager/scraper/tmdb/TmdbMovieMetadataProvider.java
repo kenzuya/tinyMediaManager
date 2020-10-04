@@ -461,8 +461,9 @@ class TmdbMovieMetadataProvider {
     // Poster
     if (StringUtils.isNotBlank(movie.poster_path)) {
       MediaArtwork ma = new MediaArtwork(PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
-      ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w185" + movie.poster_path);
-      ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "w342" + movie.poster_path);
+      ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w342" + movie.poster_path);
+      ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + movie.poster_path);
+      ma.setOriginalUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + movie.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(movie.id);
       md.addMediaArt(ma);

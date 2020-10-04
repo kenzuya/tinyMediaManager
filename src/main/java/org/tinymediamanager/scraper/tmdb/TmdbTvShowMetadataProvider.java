@@ -414,8 +414,9 @@ class TmdbTvShowMetadataProvider {
     // Poster
     if (StringUtils.isNotBlank(complete.poster_path)) {
       MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
-      ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w185" + complete.poster_path);
-      ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "w342" + complete.poster_path);
+      ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w342" + complete.poster_path);
+      ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + complete.poster_path);
+      ma.setOriginalUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + complete.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(complete.id);
       md.addMediaArt(ma);
@@ -811,8 +812,9 @@ class TmdbTvShowMetadataProvider {
     // Thumb
     if (StringUtils.isNotBlank(episode.still_path)) {
       MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtworkType.THUMB);
-      ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + episode.still_path);
+      ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w300" + episode.still_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + episode.still_path);
+      ma.setOriginalUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + episode.still_path);
       md.addMediaArt(ma);
     }
 

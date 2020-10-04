@@ -564,7 +564,7 @@ public class ImageChooserDialog extends TmmDialog {
 
     LinkLabel lblShowImage = new LinkLabel(BUNDLE.getString("image.showoriginal"));
     lblShowImage.addActionListener(e -> {
-      ImagePreviewDialog dialog = new ImagePreviewDialog(artwork.getDefaultUrl());
+      ImagePreviewDialog dialog = new ImagePreviewDialog(artwork.getOriginalUrl());
       dialog.setVisible(true);
     });
     imagePanel.add(lblShowImage, gbc);
@@ -626,6 +626,7 @@ public class ImageChooserDialog extends TmmDialog {
         }
         art.setDefaultUrl(url);
         art.setPreviewUrl(url);
+        art.setOriginalUrl(url);
 
         Url url1 = new Url(art.getPreviewUrl());
         final BufferedImage bufferedImage = ImageUtils.createImage(url1.getBytesWithRetry(5));

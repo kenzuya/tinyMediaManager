@@ -194,6 +194,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
         MediaArtwork ma = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
         ma.setPreviewUrl(IMAGE_SERVER + e.text());
         ma.setDefaultUrl(IMAGE_SERVER + e.text());
+        ma.setOriginalUrl(IMAGE_SERVER + e.text());
         ma.setLanguage(options.getLanguage().getLanguage());
         md.addMediaArt(ma);
       }

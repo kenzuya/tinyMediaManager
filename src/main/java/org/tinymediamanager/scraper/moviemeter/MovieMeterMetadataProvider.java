@@ -204,6 +204,7 @@ public class MovieMeterMetadataProvider implements IMovieMetadataProvider, IMovi
     MediaArtwork ma = new MediaArtwork(PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
     ma.setPreviewUrl(fd.posters.small);
     ma.setDefaultUrl(fd.posters.large);
+    ma.setOriginalUrl(fd.posters.large);
     ma.setLanguage(options.getLanguage().getLanguage());
     md.addMediaArt(ma);
 

@@ -1,3 +1,8 @@
+Version 4.0.4
+=======================
+x (image chooser) show original image always in original size
+
+
 Version 4.0.3
 =======================
 + added a year column in the TV show tree #1026

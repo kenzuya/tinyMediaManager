@@ -261,6 +261,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.POSTER);
       mediaArtwork.setPreviewUrl(poster.preview);
       mediaArtwork.setDefaultUrl(poster.original);
+      mediaArtwork.setOriginalUrl(poster.original);
       mediaArtwork.setLikes(poster.votes);
 
       metadata.addMediaArt(mediaArtwork);
@@ -271,6 +272,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
       mediaArtwork.setPreviewUrl(fanart.preview);
       mediaArtwork.setDefaultUrl(fanart.original);
+      mediaArtwork.setOriginalUrl(fanart.original);
       mediaArtwork.setLikes(fanart.votes);
 
       metadata.addMediaArt(mediaArtwork);
@@ -281,6 +283,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.DISC);
       mediaArtwork.setPreviewUrl(discArt.preview);
       mediaArtwork.setDefaultUrl(discArt.original);
+      mediaArtwork.setOriginalUrl(discArt.original);
       mediaArtwork.setLikes(discArt.votes);
 
       metadata.addMediaArt(mediaArtwork);
@@ -291,6 +294,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.CLEARART);
       mediaArtwork.setPreviewUrl(hdClearArt.preview);
       mediaArtwork.setDefaultUrl(hdClearArt.original);
+      mediaArtwork.setOriginalUrl(hdClearArt.original);
       mediaArtwork.setLikes(hdClearArt.votes);
 
       metadata.addMediaArt(mediaArtwork);
@@ -301,6 +305,7 @@ public class MpdbMetadataProvider implements IMovieMetadataProvider {
       MediaArtwork mediaArtwork = new MediaArtwork(providerInfo.getId(), MediaArtwork.MediaArtworkType.CLEARLOGO);
       mediaArtwork.setPreviewUrl(hdLogo.preview);
       mediaArtwork.setDefaultUrl(hdLogo.original);
+      mediaArtwork.setOriginalUrl(hdLogo.original);
       mediaArtwork.setLikes(hdLogo.votes);
     }
 

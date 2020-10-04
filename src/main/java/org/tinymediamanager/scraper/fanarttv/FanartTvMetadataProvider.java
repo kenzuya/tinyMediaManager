@@ -401,6 +401,7 @@ public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowA
 
       MediaArtwork ma = new MediaArtwork(providerInfo.getId(), type.type);
       ma.setDefaultUrl(image.url);
+      ma.setOriginalUrl(image.url);
 
       // replace the url to get the preview AND switch to assetcache.fanart.tv (as suggested in discord)
       ma.setPreviewUrl(image.url.replace("/fanart/", "/preview/").replace("assets.fanart.tv", "assetcache.fanart.tv"));

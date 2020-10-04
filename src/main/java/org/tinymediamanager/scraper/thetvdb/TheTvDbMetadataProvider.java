@@ -751,6 +751,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
       }
 
       ma.setDefaultUrl(ARTWORK_URL + image.fileName);
+      ma.setOriginalUrl(ARTWORK_URL + image.fileName);
       if (StringUtils.isNotBlank(image.thumbnail)) {
         ma.setPreviewUrl(ARTWORK_URL + image.thumbnail);
       }
@@ -899,6 +900,7 @@ public class TheTvDbMetadataProvider implements ITvShowMetadataProvider, ITvShow
         MediaArtwork ma = new MediaArtwork(PROVIDER_INFO.getId(), MediaArtworkType.THUMB);
         ma.setPreviewUrl(ARTWORK_URL + ep.filename);
         ma.setDefaultUrl(ARTWORK_URL + ep.filename);
+        ma.setOriginalUrl(ARTWORK_URL + ep.filename);
         episode.addMediaArt(ma);
       }
 

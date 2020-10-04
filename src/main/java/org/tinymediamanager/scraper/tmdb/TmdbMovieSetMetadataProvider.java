@@ -254,6 +254,7 @@ class TmdbMovieSetMetadataProvider {
       MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
       ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w185" + collection.poster_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + collection.poster_path);
+      ma.setOriginalUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + collection.poster_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(tmdbId);
       md.addMediaArt(ma);
@@ -264,6 +265,7 @@ class TmdbMovieSetMetadataProvider {
       MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
       ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w300" + collection.backdrop_path);
       ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + collection.backdrop_path);
+      ma.setOriginalUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + collection.backdrop_path);
       ma.setLanguage(options.getLanguage().getLanguage());
       ma.setTmdbId(tmdbId);
       md.addMediaArt(ma);
@@ -280,6 +282,7 @@ class TmdbMovieSetMetadataProvider {
         MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.POSTER);
         ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w185" + part.poster_path);
         ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + part.poster_path);
+        ma.setOriginalUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + part.poster_path);
         ma.setLanguage(options.getLanguage().getLanguage());
         ma.setTmdbId(part.id);
         mdSubItem.addMediaArt(ma);
@@ -290,6 +293,7 @@ class TmdbMovieSetMetadataProvider {
         MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
         ma.setPreviewUrl(TmdbMetadataProvider.configuration.images.base_url + "w300" + part.backdrop_path);
         ma.setDefaultUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + part.backdrop_path);
+        ma.setOriginalUrl(TmdbMetadataProvider.configuration.images.base_url + "original" + part.backdrop_path);
         ma.setLanguage(options.getLanguage().getLanguage());
         ma.setTmdbId(part.id);
         mdSubItem.addMediaArt(ma);
