@@ -31,6 +31,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.DateField;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaCertification;
@@ -56,7 +57,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TvShowSettings                       settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings                 settings         = TvShowModuleManager.SETTINGS;
   private JComboBox<TvShowConnectors>          cbNfoFormat;
   private JComboBox<CertificationStyleWrapper> cbCertificationStyle;
   private JCheckBox                            chckbxWriteCleanNfo;
@@ -65,8 +66,9 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   private JCheckBox                            chckbxEpisodeNfo1;
   private JCheckBox                            chckbxTvShowNfo1;
 
-  private ItemListener                         checkBoxListener;
-  private ItemListener                         comboBoxListener;
+  private final ItemListener                   checkBoxListener;
+  private final ItemListener                   comboBoxListener;
+  private JCheckBox                            chckbxWriteEpisodeguide;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -97,7 +99,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[grow]", "[]"));
     {
       JPanel panelNfo = new JPanel();
-      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblNfoT = new TmmLabel(BUNDLE.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
@@ -108,7 +110,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblNfoFormatT, "cell 1 0 2 1");
 
         cbNfoFormat = new JComboBox(TvShowConnectors.values());
-        panelNfo.add(cbNfoFormat, "cell 1 0");
+        panelNfo.add(cbNfoFormat, "cell 1 0 2 1");
 
         {
           JLabel lblNfoFileNaming = new JLabel(BUNDLE.getString("Settings.nofFileNaming"));
@@ -135,13 +137,13 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblNfoDatefield, "cell 1 4 2 1");
 
         cbDatefield = new JComboBox(DateField.values());
-        panelNfo.add(cbDatefield, "cell 1 4");
+        panelNfo.add(cbDatefield, "cell 1 4 2 1");
 
         JLabel lblNfoLanguage = new JLabel(BUNDLE.getString("Settings.nfolanguage"));
         panelNfo.add(lblNfoLanguage, "cell 1 5 2 1");
 
         cbNfoLanguage = new JComboBox(MediaLanguages.valuesSorted());
-        panelNfo.add(cbNfoLanguage, "cell 1 5");
+        panelNfo.add(cbNfoLanguage, "cell 1 5 2 1");
 
         JLabel lblNfoLanguageDesc = new JLabel(BUNDLE.getString("Settings.nfolanguage.desc"));
         panelNfo.add(lblNfoLanguageDesc, "cell 2 6");
@@ -150,10 +152,13 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblCertificationFormatT, "cell 1 7 2 1");
 
         cbCertificationStyle = new JComboBox();
-        panelNfo.add(cbCertificationStyle, "cell 1 7");
+        panelNfo.add(cbCertificationStyle, "cell 1 7 2 1");
+
+        chckbxWriteEpisodeguide = new JCheckBox(BUNDLE.getString("Settings.writeepisodeguide"));
+        panelNfo.add(chckbxWriteEpisodeguide, "cell 1 8 2 1");
 
         chckbxWriteCleanNfo = new JCheckBox(BUNDLE.getString("Settings.writecleannfo"));
-        panelNfo.add(chckbxWriteCleanNfo, "cell 1 8 2 1");
+        panelNfo.add(chckbxWriteCleanNfo, "cell 1 9 2 1");
       }
     }
   }
@@ -236,26 +241,31 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<TvShowSettings, TvShowConnectors> tvShowSettingsBeanProperty = BeanProperty.create("tvShowConnector");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<TvShowSettings, TvShowConnectors, JComboBox, Object> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty, cbNfoFormat, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty = BeanProperty.create("tvShowConnector");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, cbNfoFormat,
+        jComboBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_1 = BeanProperty.create("writeCleanNfo");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_1, chckbxWriteCleanNfo, jCheckBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_1 = BeanProperty.create("writeCleanNfo");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, chckbxWriteCleanNfo,
+        jCheckBoxBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<TvShowSettings, MediaLanguages> tvShowSettingsBeanProperty_2 = BeanProperty.create("nfoLanguage");
-    AutoBinding<TvShowSettings, MediaLanguages, JComboBox, Object> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_2, cbNfoLanguage, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("nfoLanguage");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, cbNfoLanguage,
+        jComboBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<TvShowSettings, DateField> tvShowSettingsBeanProperty_3 = BeanProperty.create("nfoDateAddedField");
-    AutoBinding<TvShowSettings, DateField, JComboBox, Object> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_3, cbDatefield, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_3 = BeanProperty.create("nfoDateAddedField");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbDatefield,
+        jComboBoxBeanProperty);
     autoBinding_5.bind();
+    //
+    Property tvShowSettingsBeanProperty_4 = BeanProperty.create("nfoWriteEpisodeguide");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4, chckbxWriteEpisodeguide,
+        jCheckBoxBeanProperty);
+    autoBinding.bind();
   }
 }

@@ -544,6 +544,10 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the episode guide in <episodeguide>xxx</episodeguide>
    */
   protected void addEpisodeguide() {
+    if (!TvShowModuleManager.SETTINGS.isNfoWriteEpisodeguide()) {
+      return;
+    }
+
     // create the new episodeguide format
     // <episodeguide>
     // <url post="yes"

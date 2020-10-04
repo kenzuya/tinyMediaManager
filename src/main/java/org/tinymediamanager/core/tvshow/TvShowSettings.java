@@ -157,6 +157,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        writeCleanNfo                          = false;
   private DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
   private MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
+  private boolean                                        nfoWriteEpisodeguide                   = true;
 
   // renamer
   private boolean                                        renameAfterScrape                      = false;
@@ -1249,6 +1250,16 @@ public class TvShowSettings extends AbstractSettings {
     MediaLanguages oldValue = nfoLanguage;
     this.nfoLanguage = newValue;
     firePropertyChange("nfoLanguage", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteEpisodeguide() {
+    return nfoWriteEpisodeguide;
+  }
+
+  public void setNfoWriteEpisodeguide(boolean newValue) {
+    boolean oldValue = this.nfoWriteEpisodeguide;
+    this.nfoWriteEpisodeguide = newValue;
+    firePropertyChange("nfoWriteEpisodeguide", oldValue, newValue);
   }
 
   public boolean getPreferPersonalRating() {

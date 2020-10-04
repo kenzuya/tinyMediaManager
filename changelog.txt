@@ -1,5 +1,6 @@
 Version 4.0.4
 =======================
++ added setting to suppress writing of <episodeguide> tag
 x (image chooser) show original image always in original size
 x errors when downloading images #1039
 
