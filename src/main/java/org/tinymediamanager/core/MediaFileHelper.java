@@ -831,10 +831,22 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isDVDFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path).toLowerCase(Locale.ROOT);
-    if ("VIDEO_TS".equalsIgnoreCase(filename) || pathname.endsWith("video_ts")) {
+    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
+
+    if (StringUtils.isBlank(pathname)) {
+      return false;
+    }
+
+    pathname = pathname.toLowerCase(Locale.ROOT);
+
+    if ("video_ts".equals(filename) || pathname.endsWith("video_ts")) {
       return true;
     }
+
+    if (StringUtils.isBlank(filename)) {
+      return false;
+    }
+
     return filename.toLowerCase(Locale.ROOT).matches("(video_ts|vts_\\d\\d_\\d)\\.(vob|bup|ifo)");
   }
 
@@ -864,7 +876,14 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isHDDVDFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path).toLowerCase(Locale.ROOT);
+    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
+
+    if (StringUtils.isBlank(pathname)) {
+      return false;
+    }
+
+    pathname = pathname.toLowerCase(Locale.ROOT);
+
     return "hvdvd_ts".equalsIgnoreCase(filename) || pathname.endsWith("hvdvd_ts");
   }
 
@@ -894,10 +913,22 @@ public class MediaFileHelper {
    * @return true/false
    */
   public static boolean isBlurayFile(String filename, String path) {
-    String pathname = FilenameUtils.normalizeNoEndSeparator(path).toLowerCase(Locale.ROOT);
-    if ("bdmv".equalsIgnoreCase(filename) || pathname.endsWith("bdmv")) {
+    String pathname = FilenameUtils.normalizeNoEndSeparator(path);
+
+    if (StringUtils.isBlank(pathname)) {
+      return false;
+    }
+
+    pathname = pathname.toLowerCase(Locale.ROOT);
+
+    if ("bdmv".equals(filename) || pathname.endsWith("bdmv")) {
       return true;
     }
+
+    if (StringUtils.isBlank(filename)) {
+      return false;
+    }
+
     return filename.toLowerCase(Locale.ROOT).matches("(index\\.bdmv|movieobject\\.bdmv|\\d{5}\\.m2ts|\\d{5}\\.clpi|\\d{5}\\.mpls)");
   }
 

@@ -1,6 +1,7 @@
 Version 4.0.4
 =======================
 x (image chooser) show original image always in original size
+x errors when downloading images #1039
 
 
 Version 4.0.3
