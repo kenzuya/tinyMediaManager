@@ -187,7 +187,7 @@ public class TmmHttpClient {
     builder.proxy(proxyHost);
     // authenticate
     if (StringUtils.isNotBlank(ProxySettings.INSTANCE.getUsername()) && StringUtils.isNotBlank(ProxySettings.INSTANCE.getPassword())) {
-      builder.authenticator((route, response) -> {
+      builder.proxyAuthenticator((route, response) -> {
         String credential = Credentials.basic(ProxySettings.INSTANCE.getUsername(), ProxySettings.INSTANCE.getPassword());
         return response.request().newBuilder().header("Proxy-Authorization", credential).build();
       });
