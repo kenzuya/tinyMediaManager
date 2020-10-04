@@ -66,6 +66,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   private static final Logger                               LOGGER              = LoggerFactory.getLogger(UniversalTvShowMetadataProvider.class);
   private static final MediaProviderInfo                    PROVIDER_INFO       = createMediaProviderInfo();
   private static final Map<String, ITvShowMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
+  private static final ExecutorService                      EXECUTOR            = Executors.newFixedThreadPool(4);
 
   private static MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, "Universal TV show scraper",
@@ -173,8 +174,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     Map<String, MediaMetadata> metadataMap = injectMissingIds(metadataProviders, options);
 
     // start the workers to get the metadata from the different providers
-    ExecutorService executorService = Executors.newFixedThreadPool(metadataProviders.size());
-    ExecutorCompletionService<MediaMetadata> completionService = new ExecutorCompletionService<>(executorService);
+    ExecutorCompletionService<MediaMetadata> completionService = new ExecutorCompletionService<>(EXECUTOR);
     List<Future<MediaMetadata>> futures = new ArrayList<>();
     for (ITvShowMetadataProvider mp : metadataProviders) {
       // look into the cache - maybe we do not need to call it again
@@ -215,8 +215,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     Map<String, MediaMetadata> metadataMap = injectMissingIds(metadataProviders, options);
 
     // start the workers to get the metadata from the different providers
-    ExecutorService executorService = Executors.newFixedThreadPool(metadataProviders.size());
-    ExecutorCompletionService<MediaMetadata> completionService = new ExecutorCompletionService<>(executorService);
+    ExecutorCompletionService<MediaMetadata> completionService = new ExecutorCompletionService<>(EXECUTOR);
     List<Future<MediaMetadata>> futures = new ArrayList<>();
     for (ITvShowMetadataProvider mp : metadataProviders) {
       // look into the cache - maybe we do not need to call it again
@@ -429,15 +428,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
     // and now assign the values per reflection
     assignEpisodeResults(md, metadataMap);
-    //
-    // ITvShowMetadataProvider metadataProvider = COMPATIBLE_SCRAPERS.get(PROVIDER_INFO.getConfig().getConfigKeyValuePairs().get("episodes"));
-    // if (metadataProvider != null) {
-    // // get all relevant ids (if not present)
-    // injectMissingIds(metadataProvider, options);
-    //
-    // md.mergeFrom(metadataProvider.getMetadata(options));
-    // }
-    //
+
     return md;
   }
 
@@ -472,16 +463,14 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
         else {
           String episodeField = Introspector.decapitalize(entry.getKey().replace("episode", ""));
           // all specified fields should be filled from the desired scraper
-          if (mediaMetadata != null) {
-            try {
-              Method getter = new PropertyDescriptor(episodeField, MediaMetadata.class).getReadMethod();
-              Method setter = new PropertyDescriptor(episodeField, MediaMetadata.class).getWriteMethod();
+          try {
+            Method getter = new PropertyDescriptor(episodeField, MediaMetadata.class).getReadMethod();
+            Method setter = new PropertyDescriptor(episodeField, MediaMetadata.class).getWriteMethod();
 
-              setter.invoke(md, getter.invoke(mediaMetadata));
-            }
-            catch (Exception e) {
-              LOGGER.warn("Problem assigning {} - {}", episodeField, e.getMessage());
-            }
+            setter.invoke(md, getter.invoke(mediaMetadata));
+          }
+          catch (Exception e) {
+            LOGGER.warn("Problem assigning {} - {}", episodeField, e.getMessage());
           }
 
           // last but not least we take all ratings we got ;) the more the better
@@ -523,7 +512,10 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   /**
    * inject missing ids for episode data
    * 
+   * @param metadataProviders
+   *          the meta data providers
    * @param options
+   *          the scraping options
    */
   private Map<String, MediaMetadata> injectMissingIds(Set<ITvShowMetadataProvider> metadataProviders, TvShowEpisodeSearchAndScrapeOptions options) {
     // check if we have all needed IDs
