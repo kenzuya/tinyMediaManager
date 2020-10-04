@@ -130,6 +130,7 @@ public class MovieSettings extends AbstractSettings {
 
   // renamer
   private boolean                            renameAfterScrape                      = false;
+  private boolean                            updateOnStart                          = false;
   private String                             renamerPathname                        = DEFAULT_RENAMER_FOLDER_PATTERN;
   private String                             renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
   private boolean                            renamerPathnameSpaceSubstitution       = false;
@@ -708,6 +709,16 @@ public class MovieSettings extends AbstractSettings {
 
   public boolean isRenameAfterScrape() {
     return this.renameAfterScrape;
+  }
+
+  public boolean isUpdateOnStart() {
+    return this.updateOnStart;
+  }
+
+  public void setUpdateOnStart(boolean newValue) {
+    boolean oldValue = this.updateOnStart;
+    this.updateOnStart = newValue;
+    firePropertyChange("updateOnStart", oldValue, newValue);
   }
 
   public String getRenamerPathnameSpaceReplacement() {
