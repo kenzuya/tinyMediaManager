@@ -18,6 +18,7 @@ ui.hide_decorations = true
 
 # Application jar files, on classpath (generated from classpath in build.xml)
 code = tmm.jar
+code = restart.jar
 %CODELIBS%
 
 resource = [windows-amd64] tinyMediaManager.exe
