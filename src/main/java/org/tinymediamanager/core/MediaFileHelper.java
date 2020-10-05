@@ -833,13 +833,13 @@ public class MediaFileHelper {
   public static boolean isDVDFile(String filename, String path) {
     String pathname = FilenameUtils.normalizeNoEndSeparator(path);
 
-    if (StringUtils.isBlank(pathname)) {
-      return false;
+    if (pathname == null) {
+      pathname = "";
     }
 
     pathname = pathname.toLowerCase(Locale.ROOT);
 
-    if ("video_ts".equals(filename) || pathname.endsWith("video_ts")) {
+    if ("video_ts".equalsIgnoreCase(filename) || pathname.endsWith("video_ts")) {
       return true;
     }
 
@@ -878,8 +878,8 @@ public class MediaFileHelper {
   public static boolean isHDDVDFile(String filename, String path) {
     String pathname = FilenameUtils.normalizeNoEndSeparator(path);
 
-    if (StringUtils.isBlank(pathname)) {
-      return false;
+    if (pathname == null) {
+      pathname = "";
     }
 
     pathname = pathname.toLowerCase(Locale.ROOT);
@@ -915,13 +915,13 @@ public class MediaFileHelper {
   public static boolean isBlurayFile(String filename, String path) {
     String pathname = FilenameUtils.normalizeNoEndSeparator(path);
 
-    if (StringUtils.isBlank(pathname)) {
-      return false;
+    if (pathname == null) {
+      pathname = "";
     }
 
     pathname = pathname.toLowerCase(Locale.ROOT);
 
-    if ("bdmv".equals(filename) || pathname.endsWith("bdmv")) {
+    if ("bdmv".equalsIgnoreCase(filename) || pathname.endsWith("bdmv")) {
       return true;
     }
 
