@@ -84,6 +84,7 @@ public class TvShowInformationPanel extends JPanel {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowInformationPanel.class);
 
   private final TvShowSelectionModel  tvShowSelectionModel;
+  private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
 
   private JTextArea                   taGenres;
   private JLabel                      lblCertification;
@@ -103,7 +104,6 @@ public class TvShowInformationPanel extends JPanel {
   private StarRater                   panelRatingStars;
   private JLabel                      lblTvShowName;
   private JLabel                      lblRating;
-  private JLabel                      lblVoteCount;
   private ImageLabel                  lblTvShowBackground;
   private JLabel                      lblFanartSize;
   private ImageLabel                  lblTvShowPoster;
@@ -111,7 +111,6 @@ public class TvShowInformationPanel extends JPanel {
   private ImageLabel                  lblTvShowBanner;
   private JLabel                      lblBannerSize;
   private JTextArea                   taOverview;
-  private JSeparator                  sepLogos;
   private MediaInformationLogosPanel  panelLogos;
   private JLabel                      lblOriginalTitle;
   private JScrollPane                 scrollPane;
@@ -212,6 +211,7 @@ public class TvShowInformationPanel extends JPanel {
 
       if ("selectedTvShow".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
         panelLogos.setMediaInformationSource(tvShow);
+        setRating(tvShow);
       }
 
       if ("selectedTvShow".equals(property)) {
@@ -386,12 +386,9 @@ public class TvShowInformationPanel extends JPanel {
 
         lblRating = new JLabel("");
         panelRight.add(lblRating, "cell 0 2,aligny center");
-
-        lblVoteCount = new JLabel("");
-        panelRight.add(lblVoteCount, "cell 0 2,aligny center");
       }
       {
-        sepLogos = new JSeparator();
+        JSeparator sepLogos = new JSeparator();
         panelRight.add(sepLogos, "cell 0 3,growx");
       }
       {
@@ -478,6 +475,19 @@ public class TvShowInformationPanel extends JPanel {
     }
   }
 
+  private void setRating(TvShow tvShow) {
+    MediaRating rating = tvShow.getRating();
+
+    if (rating == null) {
+      panelRatingStars.setRating(0);
+      lblRating.setText("");
+    }
+    else {
+      panelRatingStars.setRating(rating.getRatingNormalized());
+      lblRating.setText(ratingRatingConverter.convertForward(rating));
+    }
+  }
+
   protected void initDataBindings() {
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty = BeanProperty.create("selectedTvShow.title");
     BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
@@ -490,19 +500,6 @@ public class TvShowInformationPanel extends JPanel {
     AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
         tvShowSelectionModelBeanProperty_1, taOverview, jTextAreaBeanProperty);
     autoBinding_1.bind();
-    //
-    BeanProperty<TvShowSelectionModel, Float> tvShowSelectionModelBeanProperty_2 = BeanProperty.create("selectedTvShow.rating.ratingNormalized");
-    BeanProperty<StarRater, Float> starRaterBeanProperty = BeanProperty.create("rating");
-    AutoBinding<TvShowSelectionModel, Float, StarRater, Float> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_2, panelRatingStars, starRaterBeanProperty);
-    autoBinding_2.bind();
-    //
-    BeanProperty<TvShowSelectionModel, MediaRating> tvShowSelectionModelBeanProperty_5 = BeanProperty.create("selectedTvShow.rating");
-    AutoBinding<TvShowSelectionModel, MediaRating, JLabel, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_5, lblRating, jLabelBeanProperty);
-    autoBinding_3.setConverter(new RatingConverter<>());
-    autoBinding_3.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_4 = BeanProperty.create("selectedTvShow.originalTitle");
     AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,

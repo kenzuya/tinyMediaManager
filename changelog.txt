@@ -4,6 +4,7 @@ Version 4.0.4
 x (image chooser) show original image always in original size
 x errors when downloading images #1039
 x (TV show) write trailer urls in Kodi compatible format into NFO #1040
+x proper update of vote count for ratings
 
 
 Version 4.0.3
