@@ -71,7 +71,7 @@ public class TmmTreeTable extends TmmTable {
 
   private int[]                              lastEditPosition;
 
-  public TmmTreeTable(TmmTreeDataProvider<? extends TmmTreeNode> dataProvider, TmmTableFormat tableFormat) {
+  public TmmTreeTable(TmmTreeDataProvider<? extends TmmTreeNode> dataProvider, TmmTreeTableFormat tableFormat) {
     treeFilters = new CopyOnWriteArraySet<>();
     treeTableModel = new TmmTreeTableModel(new TmmTreeModelConnector<>(dataProvider), tableFormat);
     ((TmmTreeModel) treeTableModel.getTreeModel()).getDataProvider().setTreeFilters(treeFilters);

@@ -27,6 +27,8 @@ import org.tinymediamanager.ui.components.table.TmmTableFormat;
  * @author Manuel Laggner
  */
 public abstract class TmmTreeTableFormat<E> extends TmmTableFormat<E> {
+  protected static final int NODE_COLUMN = -1;
+
   protected enum TRI_STATE {
     ALL_OK,
     TOP_OK,

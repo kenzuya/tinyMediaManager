@@ -158,11 +158,11 @@ class UiSettingsPanel extends JPanel {
 
     ButtonGroup buttonGroup = new ButtonGroup();
 
-    rdbtnLight = new JRadioButton("Light");
+    rdbtnLight = new JRadioButton(BUNDLE.getString("Settings.uitheme.light"));
     buttonGroup.add(rdbtnLight);
     add(rdbtnLight, "cell 1 7,alignx center");
 
-    rdbtnDark = new JRadioButton("Dark");
+    rdbtnDark = new JRadioButton(BUNDLE.getString("Settings.uitheme.dark"));
     buttonGroup.add(rdbtnDark);
     add(rdbtnDark, "cell 2 7,alignx center");
 

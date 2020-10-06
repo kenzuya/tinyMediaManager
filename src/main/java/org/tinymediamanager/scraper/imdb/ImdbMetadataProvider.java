@@ -142,6 +142,7 @@ public class ImdbMetadataProvider
     MediaArtwork ma = new MediaArtwork(providerInfo.getId(), type);
 
     ma.setDefaultUrl(image);
+    ma.setOriginalUrl(image);
 
     // create preview url (width = 342 as in TMDB)
     String extension = FilenameUtils.getExtension(image);

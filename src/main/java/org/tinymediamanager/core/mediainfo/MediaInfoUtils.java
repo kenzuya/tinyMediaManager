@@ -71,23 +71,14 @@ public class MediaInfoUtils {
         nativepath += "mac";
       }
 
-      // need that, since we cannot try and reload/unload a Class
-      // MI does not load over UNC, so copy to temp
-      if (System.getProperty("user.dir", "").startsWith("\\\\") || System.getProperty("user.dir", "").startsWith("//")) {
-        LOGGER.debug("We're on a network UNC path!");
-        Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"), "tmm");
-        Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
-        Utils.copyDirectoryRecursive(Paths.get(nativepath), nativeDir);
+      // copy and load the native libs to the temp dir to avoid anforseeable issues
+      Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"), "tmm");
+      Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
+      Utils.copyDirectoryRecursive(Paths.get(nativepath), nativeDir);
 
-        System.setProperty("jna.library.path", nativeDir.toString()); // MI
-        System.setProperty("org.lwjgl.librarypath", nativeDir.toString()); // nfd
-        LOGGER.debug("Loading native libs from: {}", nativeDir);
-      }
-      else {
-        System.setProperty("jna.library.path", nativepath); // MI
-        System.setProperty("org.lwjgl.librarypath", nativepath); // nfd
-        LOGGER.debug("Loading native libs from: {}", nativepath);
-      }
+      System.setProperty("jna.library.path", nativeDir.toString()); // MI
+      System.setProperty("org.lwjgl.librarypath", nativeDir.toString()); // nfd
+      LOGGER.debug("Loading native libs from: {}", nativeDir);
 
       miv = MediaInfo.version(); // load class
 

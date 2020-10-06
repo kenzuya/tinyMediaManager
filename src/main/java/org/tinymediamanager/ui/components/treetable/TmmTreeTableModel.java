@@ -34,15 +34,13 @@ import org.tinymediamanager.ui.components.table.TmmTableFormat;
  * @author Manuel Laggner
  */
 public class TmmTreeTableModel implements ITmmTreeTableModel {
-  private static String                NODES_COLUMN_LABEL = "Nodes";
+  private final TreeModel                    treeModel;
+  private final ConnectorTableModel          tableModel;
+  private final AbstractLayoutCache          layout;
+  private final TmmTreeTableEventBroadcaster eventBroadcaster;
+  private final TmmTreeTableTreePathSupport  treePathSupport;
 
-  private TreeModel                    treeModel;
-  private ConnectorTableModel          tableModel;
-  private AbstractLayoutCache          layout;
-  private TmmTreeTableEventBroadcaster eventBroadcaster;
-  private TmmTreeTableTreePathSupport  treePathSupport;
-
-  public TmmTreeTableModel(TreeModel treeModel, TmmTableFormat tableFormat) {
+  public TmmTreeTableModel(TreeModel treeModel, TmmTreeTableFormat tableFormat) {
     this.treeModel = treeModel;
     this.tableModel = new ConnectorTableModel(tableFormat, this);
 
@@ -69,12 +67,12 @@ public class TmmTreeTableModel implements ITmmTreeTableModel {
 
   @Override
   public String getColumnName(int columnIndex) {
-    if (columnIndex == 0) {
-      return NODES_COLUMN_LABEL;
-    }
-    else {
-      return tableModel.getColumnName(columnIndex - 1);
-    }
+    // if (columnIndex == 0) {
+    // return NODES_COLUMN_LABEL;
+    // }
+    // else {
+    return tableModel.getColumnName(columnIndex - 1);
+    // }
   }
 
   @Override

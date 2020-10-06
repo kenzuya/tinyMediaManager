@@ -16,9 +16,16 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.w3c.dom.Element;
 
 /**
  * the class TvShowToXbmcConnector is used to write a legacy XBMC compatible NFO file
@@ -39,5 +46,41 @@ public class TvShowToXbmcConnector extends TvShowGenericXmlConnector {
 
   @Override
   protected void addOwnTags() {
+  }
+
+  @Override
+  protected void addTrailer() {
+    Element trailer = document.createElement("trailer");
+    for (MediaTrailer mediaTrailer : new ArrayList<>(tvShow.getTrailer())) {
+      if (mediaTrailer.getInNfo() && !mediaTrailer.getUrl().startsWith("file")) {
+        trailer.setTextContent(prepareTrailerForXbmc(mediaTrailer));
+        break;
+      }
+    }
+    root.appendChild(trailer);
+  }
+
+  private String prepareTrailerForXbmc(MediaTrailer trailer) {
+    // youtube trailer are stored in a special notation: plugin://plugin.video.youtube/?action=play_video&videoid=<ID>
+    // parse out the ID from the url and store it in the right notation
+    Pattern pattern = Pattern.compile("https{0,1}://.*youtube..*/watch\\?v=(.*)$");
+    Matcher matcher = pattern.matcher(trailer.getUrl());
+    if (matcher.matches()) {
+      return "plugin://plugin.video.youtube/?action=play_video&videoid=" + matcher.group(1);
+    }
+
+    // other urls are handled by the hd-trailers.net plugin
+    pattern = Pattern.compile("https{0,1}://.*(apple.com|yahoo-redir|yahoo.com|youtube.com|moviefone.com|ign.com|hd-trailers.net|aol.com).*");
+    matcher = pattern.matcher(trailer.getUrl());
+    if (matcher.matches()) {
+      try {
+        return "plugin://plugin.video.hdtrailers_net/video/" + matcher.group(1) + "/" + URLEncoder.encode(trailer.getUrl(), "UTF-8");
+      }
+      catch (Exception e) {
+        LOGGER.error("failed to escape '{}'", trailer.getUrl());
+      }
+    }
+    // everything else is stored directly
+    return trailer.getUrl();
   }
 }

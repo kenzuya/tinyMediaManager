@@ -22,7 +22,7 @@ test:jdk11:
   only:
     - pushes
   script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean compile test
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
   artifacts:
     expire_in: 1 days
 
@@ -34,7 +34,7 @@ test:jdk14:
   only:
     - pushes
   script:
-    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean compile test
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
   artifacts:
     expire_in: 1 days
 
@@ -83,7 +83,7 @@ deploy:nightly:
     # generate changelog.txt for nightly builds
     - ./generate_changelog.sh
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean compile package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
 
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/7895208/repository/files/v4_job_id.txt
@@ -110,7 +110,7 @@ deploy:PRE-RELEASE:
     # update package sources and install ant + 32 bit libs
     - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 lftp curl
     # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean compile package
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean package
 
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 prerelease\"}" https://gitlab.com/api/v4/projects/10869644/repository/files/v4_job_id.txt

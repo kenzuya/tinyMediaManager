@@ -74,35 +74,35 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeInformationPanel extends JPanel {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
-  private static final long           serialVersionUID = 2032708149757390567L;
+  private static final Logger                LOGGER                = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
+  private static final long                  serialVersionUID      = 2032708149757390567L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final ResourceBundle        BUNDLE                = ResourceBundle.getBundle("messages");
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
-  private TvShowEpisodeSelectionModel tvShowEpisodeSelectionModel;
+  private final TvShowSettings               settings              = TvShowModuleManager.SETTINGS;
+  private final TvShowEpisodeSelectionModel  tvShowEpisodeSelectionModel;
+  private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
 
   /** UI components */
-  private StarRater                   panelRatingStars;
-  private JLabel                      lblTvShowName;
-  private JLabel                      lblRating;
-  private JLabel                      lblVoteCount;
-  private JLabel                      lblEpisodeTitle;
-  private ImageLabel                  lblEpisodeThumb;
-  private ImageLabel                  lblSeasonPoster;
-  private JTextArea                   taOverview;
-  private MediaInformationLogosPanel  panelLogos;
-  private JSeparator                  sepLogos;
-  private JLabel                      lblSeasonPosterSize;
-  private JLabel                      lblEpisodeThumbSize;
-  private JLabel                      lblOriginalTitle;
-  private JButton                     btnPlay;
-  private JLabel                      lblSeason;
-  private JLabel                      lblEpisode;
-  private JLabel                      lblAired;
-  private JTextArea                   taTags;
-  private LinkLabel                   lblPath;
-  private JLabel                      lblNote;
+  private StarRater                          panelRatingStars;
+  private JLabel                             lblTvShowName;
+  private JLabel                             lblRating;
+  private JLabel                             lblEpisodeTitle;
+  private ImageLabel                         lblEpisodeThumb;
+  private ImageLabel                         lblSeasonPoster;
+  private JTextArea                          taOverview;
+  private MediaInformationLogosPanel         panelLogos;
+  private JSeparator                         sepLogos;
+  private JLabel                             lblSeasonPosterSize;
+  private JLabel                             lblEpisodeThumbSize;
+  private JLabel                             lblOriginalTitle;
+  private JButton                            btnPlay;
+  private JLabel                             lblSeason;
+  private JLabel                             lblEpisode;
+  private JLabel                             lblAired;
+  private JTextArea                          taTags;
+  private LinkLabel                          lblPath;
+  private JLabel                             lblNote;
 
   /**
    * Instantiates a new tv show information panel.
@@ -138,6 +138,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
       if ("selectedTvShowEpisode".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
         panelLogos.setMediaInformationSource(episode);
+        setRating(episode);
       }
     };
 
@@ -271,9 +272,6 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
         lblRating = new JLabel("");
         panelRight.add(lblRating, "cell 0 2,aligny center");
-
-        lblVoteCount = new JLabel("");
-        panelRight.add(lblVoteCount, "cell 0 2,aligny center");
       }
       {
         sepLogos = new JSeparator();
@@ -351,6 +349,19 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     }
   }
 
+  private void setRating(TvShowEpisode episode) {
+    MediaRating rating = episode.getRating();
+
+    if (rating == null) {
+      panelRatingStars.setRating(0);
+      lblRating.setText("");
+    }
+    else {
+      panelRatingStars.setRating(rating.getRatingNormalized());
+      lblRating.setText(ratingRatingConverter.convertForward(rating));
+    }
+  }
+
   protected void initDataBindings() {
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty = BeanProperty
         .create("selectedTvShowEpisode.tvShow.title");
@@ -370,20 +381,6 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     AutoBinding<TvShowEpisodeSelectionModel, String, JTextArea, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_3, taOverview, JTextAreaBeanProperty);
     autoBinding_3.bind();
-    //
-    BeanProperty<TvShowEpisodeSelectionModel, Float> tvShowEpisodeSelectionModelBeanProperty_4 = BeanProperty
-        .create("selectedTvShowEpisode.rating.ratingNormalized");
-    BeanProperty<StarRater, Float> starRaterBeanProperty = BeanProperty.create("rating");
-    AutoBinding<TvShowEpisodeSelectionModel, Float, StarRater, Float> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_4, panelRatingStars, starRaterBeanProperty);
-    autoBinding_4.bind();
-    //
-    BeanProperty<TvShowEpisodeSelectionModel, MediaRating> tvShowEpisodeSelectionModelBeanProperty_6 = BeanProperty
-        .create("selectedTvShowEpisode.rating");
-    AutoBinding<TvShowEpisodeSelectionModel, MediaRating, JLabel, String> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_6, lblRating, jLabelBeanProperty);
-    autoBinding_5.setConverter(new RatingConverter<>());
-    autoBinding_5.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_2 = BeanProperty
         .create("selectedTvShowEpisode.originalTitle");

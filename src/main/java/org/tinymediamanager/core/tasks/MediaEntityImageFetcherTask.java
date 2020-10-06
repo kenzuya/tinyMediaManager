@@ -91,10 +91,12 @@ public class MediaEntityImageFetcherTask implements Runnable {
       Path destFile = ImageUtils.downloadImage(url, entity.getPathNIO(), filename);
 
       // if the old filename differs from the new one (e.g. .jpg -> .png), remove the old one
-      Path oldFile = Paths.get(oldFilename);
-      if (!oldFile.equals(destFile)) {
-        ImageCache.invalidateCachedImage(oldFile);
-        Utils.deleteFileSafely(oldFile);
+      if (StringUtils.isNotBlank(oldFilename)) {
+        Path oldFile = Paths.get(oldFilename);
+        if (!oldFile.equals(destFile)) {
+          ImageCache.invalidateCachedImage(oldFile);
+          Utils.deleteFileSafely(oldFile);
+        }
       }
 
       // set the new image if its the first image

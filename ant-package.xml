@@ -46,6 +46,7 @@
         <copy file="changelog.txt" todir="${build.dir}"/>
         <copy file="AppBundler/${getdown}" tofile="${build.dir}/getdown.txt"/>
         <copy file="AppBundler/launcher.yml" todir="${build.dir}"/>
+        <copy file="AppBundler/restart.jar" todir="${build.dir}"/>
         <copy file="LICENSE" todir="${build.dir}"/>
         <copy file="AppBundler/splashscreen.png" todir="${build.dir}"/>
         <copy file="AppBundler/env.txt" todir="${build.dir}"/>

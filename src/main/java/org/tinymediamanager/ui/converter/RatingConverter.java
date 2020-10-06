@@ -40,7 +40,20 @@ public class RatingConverter<T extends MediaRating> extends Converter<T, String>
       // 0-1 votes
       // default/user rating
 
-      boolean defaultUserRating = "default".equals(rating.getId()) || "user".equals(rating.getId());
+      boolean defaultUserRating;
+
+      switch (rating.getId()) {
+        case MediaRating.DEFAULT:
+        case MediaRating.USER:
+        case MediaRating.NFO:
+          defaultUserRating = true;
+          break;
+
+        default:
+          defaultUserRating = false;
+          break;
+
+      }
 
       if (rating.getVotes() > 1 && !defaultUserRating) {
         return String.format(locale, "%.1f / %,d (%,d %s / %s)", rating.getRating(), rating.getMaxValue(), rating.getVotes(),
@@ -50,7 +63,7 @@ public class RatingConverter<T extends MediaRating> extends Converter<T, String>
         return String.format(locale, "%.1f / %,d (%,d %s)", rating.getRating(), rating.getMaxValue(), rating.getVotes(),
             BUNDLE.getString("metatag.votes"));
       }
-      else if (!defaultUserRating && rating.getVotes() <= 1) {
+      else if (!defaultUserRating && rating.getVotes() >= 1) {
         return String.format(locale, "%.1f / %,d (%s)", rating.getRating(), rating.getMaxValue(), rating.getId());
       }
       else {

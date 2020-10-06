@@ -1,3 +1,14 @@
+Version 4.0.4
+=======================
++ added setting to suppress writing of <episodeguide> tag
+x (image chooser) show original image always in original size
+x errors when downloading images #1039
+x (TV show) write trailer urls in Kodi compatible format into NFO #1040
+x proper update of vote count for ratings
+x fixed writing of the .desktop files in linux
+x fixed restart of tinyMediaManager after upgrade to v4
+
+
 Version 4.0.3
 =======================
 + added a year column in the TV show tree #1026

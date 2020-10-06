@@ -691,6 +691,7 @@ public class ImdbTvShowParser extends ImdbParser {
                 MediaArtwork ma = new MediaArtwork(ImdbMetadataProvider.providerInfo.getId(), THUMB);
                 ma.setPreviewUrl(posterUrl);
                 ma.setDefaultUrl(posterUrl);
+                ma.setOriginalUrl(posterUrl);
                 ep.addMediaArt(ma);
               }
             }

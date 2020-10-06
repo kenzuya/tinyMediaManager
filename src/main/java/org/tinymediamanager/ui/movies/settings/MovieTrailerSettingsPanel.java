@@ -302,13 +302,14 @@ class MovieTrailerSettingsPanel extends JPanel {
         tableScraperInTable);
     //
     BeanProperty<ScraperInTable, Boolean> ScraperInTableBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(ScraperInTableBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> ScraperInTableBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> ScraperInTableBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+        .setColumnClass(String.class);
     //
     jTableBinding.bind();
     //

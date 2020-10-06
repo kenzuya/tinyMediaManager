@@ -157,9 +157,11 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        writeCleanNfo                          = false;
   private DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
   private MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
+  private boolean                                        nfoWriteEpisodeguide                   = true;
 
   // renamer
   private boolean                                        renameAfterScrape                      = false;
+  private boolean                                        updateOnStart                          = false;
   private String                                         renamerTvShowFoldername                = DEFAULT_RENAMER_FOLDER_PATTERN;
   private String                                         renamerSeasonFoldername                = DEFAULT_RENAMER_SEASON_PATTERN;
   private String                                         renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
@@ -576,6 +578,16 @@ public class TvShowSettings extends AbstractSettings {
     String oldValue = this.renamerFilename;
     this.renamerFilename = newValue;
     firePropertyChange("renamerFilename", oldValue, newValue);
+  }
+
+  public boolean isUpdateOnStart() {
+    return this.updateOnStart;
+  }
+
+  public void setUpdateOnStart(boolean newValue) {
+    boolean oldValue = this.updateOnStart;
+    this.updateOnStart = newValue;
+    firePropertyChange("updateOnStart", oldValue, newValue);
   }
 
   public boolean isBuildImageCacheOnImport() {
@@ -1238,6 +1250,16 @@ public class TvShowSettings extends AbstractSettings {
     MediaLanguages oldValue = nfoLanguage;
     this.nfoLanguage = newValue;
     firePropertyChange("nfoLanguage", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteEpisodeguide() {
+    return nfoWriteEpisodeguide;
+  }
+
+  public void setNfoWriteEpisodeguide(boolean newValue) {
+    boolean oldValue = this.nfoWriteEpisodeguide;
+    this.nfoWriteEpisodeguide = newValue;
+    firePropertyChange("nfoWriteEpisodeguide", oldValue, newValue);
   }
 
   public boolean getPreferPersonalRating() {

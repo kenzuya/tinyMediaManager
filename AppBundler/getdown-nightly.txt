@@ -18,6 +18,7 @@ ui.hide_decorations = true
 
 # Application jar files, on classpath (generated from classpath in build.xml)
 code = tmm.jar
+code = restart.jar
 %CODELIBS%
 
 resource = [windows-amd64] tinyMediaManager.exe
@@ -36,6 +37,7 @@ resource = splashscreen.png
 resource = tmm.png
 resource = changelog.txt
 resource = launcher.yml
+resource = restart.jar
 
 # JRE - will be mixed into the path by the ant build
 # DO NOT MAKE uresource HERE, BECAUSE UNTAR OF SYMLINKS DOES NOT WORK IN JAVA
@@ -61,8 +63,8 @@ resource = [linux-amd64] native/linux/liblwjgl_nfd.so
 resource = templates/templates.tar.bz2
 
 # The main entry point for the application (prefix needed for GD params)
-class = org.tinymediamanager.TinyMediaManager
-tmm.class = org.tinymediamanager.TinyMediaManager
+class = Restart
+tmm.class = Restart
 
 # allow offline use
 allow_offline = true

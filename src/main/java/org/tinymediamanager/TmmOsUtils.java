@@ -64,7 +64,7 @@ public class TmmOsUtils {
     sb.append("Path=");
     sb.append(path);
     sb.append('\n');
-    sb.append("Exec=/usr/bin/env bash \"");
+    sb.append("Exec=/bin/sh -c \"");
     sb.append(path);
     sb.append("/tinyMediaManager\"\n");
     sb.append("Icon=");

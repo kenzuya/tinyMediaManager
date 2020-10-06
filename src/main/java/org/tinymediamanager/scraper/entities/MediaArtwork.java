@@ -126,17 +126,18 @@ public class MediaArtwork {
 
   private String                imdbId;
   private int                   tmdbId;
-  private int                   season     = -1;
-  private String                previewUrl = "";
-  private String                defaultUrl = "";
-  private String                language   = "";
+  private int                   season      = -1;
+  private String                previewUrl  = "";
+  private String                defaultUrl  = "";
+  private String                originalUrl = "";
+  private String                language    = "";
   private String                providerId;
   private MediaArtworkType      type;
-  private int                   sizeOrder  = 0;
-  private int                   likes      = 0;
-  private boolean               animated   = false;
+  private int                   sizeOrder   = 0;
+  private int                   likes       = 0;
+  private boolean               animated    = false;
 
-  private List<ImageSizeAndUrl> imageSizes = new ArrayList<>();
+  private List<ImageSizeAndUrl> imageSizes  = new ArrayList<>();
 
   /**
    * Create a new instance of MediaArtwork for the given provider and type
@@ -165,6 +166,7 @@ public class MediaArtwork {
     this.season = oldArtwork.getSeason();
     this.previewUrl = oldArtwork.getPreviewUrl();
     this.defaultUrl = oldArtwork.getDefaultUrl();
+    this.originalUrl = oldArtwork.getOriginalUrl();
     this.language = oldArtwork.getLanguage();
     this.providerId = oldArtwork.getProviderId();
     this.sizeOrder = oldArtwork.getSizeOrder();
@@ -217,6 +219,25 @@ public class MediaArtwork {
    */
   public void setDefaultUrl(String defaultUrl) {
     this.defaultUrl = defaultUrl;
+  }
+
+  /**
+   * Get the original url for this artwork
+   *
+   * @return the original url
+   */
+  public String getOriginalUrl() {
+    return originalUrl;
+  }
+
+  /**
+   * Set the original url
+   *
+   * @param originalUrl
+   *          the original url
+   */
+  public void setOriginalUrl(String originalUrl) {
+    this.originalUrl = originalUrl;
   }
 
   /**

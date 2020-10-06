@@ -563,6 +563,7 @@ public abstract class AbstractKodiMetadataProvider implements IKodiMetadataProvi
   private void processMediaArt(MediaMetadata md, MediaArtworkType type, String label, String image) {
     MediaArtwork ma = new MediaArtwork(md.getProviderId(), type);
     ma.setPreviewUrl(image);
+    ma.setOriginalUrl(image);
     ma.setDefaultUrl(image);
     md.addMediaArt(ma);
   }

@@ -278,13 +278,14 @@ public class TvShowTrailerSettingsPanel extends JPanel {
         .createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, scrapers, tableTrailerScraper);
     //
     BeanProperty<ScraperInTable, Boolean> trailerScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> trailerScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> trailerScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+        .setColumnClass(String.class);
     //
     jTableBinding.bind();
     //

@@ -210,13 +210,14 @@ class TvShowSubtitleSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> subtitleScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+        .setColumnClass(String.class);
     //
     jTableBinding.bind();
     //
