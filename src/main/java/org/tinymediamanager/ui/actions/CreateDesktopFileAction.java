@@ -40,12 +40,23 @@ public class CreateDesktopFileAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    String currentUsersHomeDir = System.getProperty("user.home");
-    if (StringUtils.isNotBlank(currentUsersHomeDir)) {
-      // build the path to the
-      Path desktopFile = Paths.get(currentUsersHomeDir, ".local", "share", "applications", "tinyMediaManager2.desktop");
-      if (Files.isWritable(desktopFile.getParent())) {
-        TmmOsUtils.createDesktopFileForLinux(desktopFile.toFile());
+    // create in ~/.local/share/applications
+    {
+      String currentUsersHomeDir = System.getProperty("user.home");
+      if (StringUtils.isNotBlank(currentUsersHomeDir)) {
+        // build the path to the
+        Path desktopFile = Paths.get(currentUsersHomeDir, ".local", "share", "applications", "tinyMediaManager.desktop").toAbsolutePath();
+        if (Files.isWritable(desktopFile.getParent())) {
+          TmmOsUtils.createDesktopFileForLinux(desktopFile.toFile());
+        }
+      }
+    }
+
+    // create in tmm folder
+    {
+      Path desktop = Paths.get(TmmOsUtils.DESKTOP_FILE).toAbsolutePath();
+      if (Files.isWritable(desktop.getParent())) {
+        TmmOsUtils.createDesktopFileForLinux(desktop.toFile());
       }
     }
   }
