@@ -25,10 +25,10 @@ import org.tinymediamanager.ui.components.table.TmmTableFormat;
  * @author Manuel Laggner
  */
 class ConnectorTableModel extends AbstractTableModel {
-  private TmmTableFormat    tableFormat;
-  private TmmTreeTableModel treeTableModel;
+  private final TmmTreeTableFormat tableFormat;
+  private final TmmTreeTableModel  treeTableModel;
 
-  public ConnectorTableModel(TmmTableFormat tableFormat, TmmTreeTableModel treeTableModel) {
+  public ConnectorTableModel(TmmTreeTableFormat tableFormat, TmmTreeTableModel treeTableModel) {
     this.tableFormat = tableFormat;
     this.treeTableModel = treeTableModel;
   }

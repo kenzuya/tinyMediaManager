@@ -243,13 +243,14 @@ class TvShowImageSettingsPanel extends JPanel {
         artworkScrapers, tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> artworkScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+        .setColumnClass(String.class);
     //
     jTableBinding_1.bind();
     //

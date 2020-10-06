@@ -239,13 +239,14 @@ class MovieImageSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> artworkScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(artworkScraperBeanProperty).setColumnName("Active").setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(artworkScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(artworkScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(artworkScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(artworkScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
+    jTableBinding.addColumnBinding(artworkScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+        .setColumnClass(String.class);
     //
     jTableBinding.bind();
     //

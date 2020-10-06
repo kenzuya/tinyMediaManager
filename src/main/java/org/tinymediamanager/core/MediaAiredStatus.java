@@ -56,8 +56,22 @@ public enum MediaAiredStatus {
     return UNKNOWN;
   }
 
+  /**
+   * gets the name
+   *
+   * @return the name
+   */
   public String getName() {
     return this.name;
+  }
+
+  /**
+   * gets the localized name
+   *
+   * @return the localized name
+   */
+  public String getLocalizedName() {
+    return toString();
   }
 
   @Override

@@ -517,7 +517,7 @@ public class TvShowInformationPanel extends JPanel {
         tvShowSelectionModelBeanProperty_7, lblImdbId, linkLabelBeanProperty);
     autoBinding_7.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_8 = BeanProperty.create("selectedTvShow.certification.name");
+    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_8 = BeanProperty.create("selectedTvShow.certification.localizedName");
     AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
         tvShowSelectionModelBeanProperty_8, lblCertification, jLabelBeanProperty);
     autoBinding_8.bind();
@@ -538,7 +538,7 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding_11.setConverter(new TvShowOtherIdsConverter());
     autoBinding_11.bind();
     //
-    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShow.status.name");
+    BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShow.status.localizedName");
     AutoBinding<TvShowSelectionModel, String, JLabel, String> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
         tvShowSelectionModelBeanProperty_12, lblStatus, jLabelBeanProperty);
     autoBinding_12.bind();

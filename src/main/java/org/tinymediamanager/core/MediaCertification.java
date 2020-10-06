@@ -18,6 +18,7 @@ package org.tinymediamanager.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.tinymediamanager.scraper.entities.CountryCode;
 
@@ -240,9 +241,11 @@ public enum MediaCertification {
     UNKNOWN(null, "unknown", new String[] { "unknown" });
   // @formatter:on
 
-  private CountryCode country;
-  private String      name;
-  private String[]    possibleNotations;
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
+  private CountryCode                 country;
+  private String                      name;
+  private String[]                    possibleNotations;
 
   /**
    * Instantiates a new certification.
@@ -276,6 +279,15 @@ public enum MediaCertification {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * gets the localized name
+   * 
+   * @return the localized name
+   */
+  public String getLocalizedName() {
+    return toString();
   }
 
   /**
@@ -313,7 +325,18 @@ public enum MediaCertification {
 
   @Override
   public String toString() {
-    return name;
+    if (this == UNKNOWN) {
+      try {
+        return BUNDLE.getString("MediaCertification." + name());
+      }
+      catch (Exception ignored) {
+        // fallback
+        return this.name;
+      }
+    }
+    else {
+      return name;
+    }
   }
 
   /**

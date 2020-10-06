@@ -568,7 +568,7 @@ public class MovieInformationPanel extends JPanel {
         jLabelBeanProperty);
     autoBinding_5.bind();
     //
-    Property movieSelectionModelBeanProperty = BeanProperty.create("selectedMovie.certification.name");
+    Property movieSelectionModelBeanProperty = BeanProperty.create("selectedMovie.certification.localizedName");
     AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty, lblCertification,
         jLabelBeanProperty);
     autoBinding.bind();

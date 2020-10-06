@@ -206,6 +206,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
   }
 
+  @Override
+  public String getColumnName(int i) {
+    if (i == NODE_COLUMN) {
+      return BUNDLE.getString("metatag.title");
+    }
+    else {
+      return super.getColumnName(i);
+    }
+  }
+
   private Integer getYear(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow) {

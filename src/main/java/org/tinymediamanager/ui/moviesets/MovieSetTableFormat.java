@@ -27,8 +27,8 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
 
 /**
@@ -36,7 +36,7 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  *
  * @author Manuel Laggner
  */
-public class MovieSetTableFormat extends TmmTableFormat<TmmTreeNode> {
+public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieSetTableFormat() {
@@ -105,6 +105,16 @@ public class MovieSetTableFormat extends TmmTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     addColumn(col);
+  }
+
+  @Override
+  public String getColumnName(int i) {
+    if (i == NODE_COLUMN) {
+      return BUNDLE.getString("metatag.title");
+    }
+    else {
+      return super.getColumnName(i);
+    }
   }
 
   private String getMovieCount(TmmTreeNode node) {
