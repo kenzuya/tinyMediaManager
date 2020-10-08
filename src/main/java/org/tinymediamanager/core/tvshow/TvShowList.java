@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -88,6 +89,7 @@ public class TvShowList extends AbstractModelObject {
   private final List<String>             audioCodecsObservable;
   private final List<Double>             frameRateObservable;
   private final List<MediaCertification> certificationObservable;
+  private final Set<Integer>             audioStreamsinEpisodes;
 
   private PropertyChangeListener         propertyChangeListener;
 
@@ -104,6 +106,7 @@ public class TvShowList extends AbstractModelObject {
     audioCodecsObservable = new ObservableCopyOnWriteArrayList<>();
     frameRateObservable = new ObservableCopyOnWriteArrayList<>();
     certificationObservable = new ObservableCopyOnWriteArrayList<>();
+    audioStreamsinEpisodes = new CopyOnWriteArraySet<>();
 
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
@@ -226,6 +229,15 @@ public class TvShowList extends AbstractModelObject {
       }
     }
     return unscrapedShows;
+  }
+
+
+  /**
+   * Gets the count of audiostreams in an episode
+   * @return
+   */
+  public Set<Integer> getAudioStreamsinEpisodes() {
+    return audioStreamsinEpisodes;
   }
 
   /**
@@ -783,6 +795,12 @@ public class TvShowList extends AbstractModelObject {
           addAudioCodec(audioCodec);
         }
       }
+
+      // audio streams
+      if (!mf.getAudioStreams().isEmpty() && audioStreamsinEpisodes.add(mf.getAudioStreams().size())) {
+        firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsinEpisodes);
+      }
+
     }
   }
 
