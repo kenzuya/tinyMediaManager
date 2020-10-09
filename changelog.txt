@@ -1,3 +1,8 @@
+Version 4.0.5
+=======================
+x lowered memory consumption of the imdb rating fetching
+
+
 Version 4.0.4
 =======================
 + added setting to suppress writing of <episodeguide> tag

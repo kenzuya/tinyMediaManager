@@ -264,16 +264,11 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
 
     // get the imdb rating from the imdb dataset too (and probably replace an outdated rating from omdb)
     if (metadata.getId(MediaMetadata.IMDB) instanceof String) {
-      try {
-        MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
-        MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
-        if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
-          metadata.getRatings().remove(omdbRating);
-          metadata.addRating(imdbRating);
-        }
-      }
-      catch (Exception e) {
-        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
+      MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
+      if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
+        metadata.getRatings().remove(omdbRating);
+        metadata.addRating(imdbRating);
       }
     }
 

@@ -21,6 +21,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 /**
  * The class TmmModuleManager. Used to manage all modules inside tmm
@@ -86,12 +87,13 @@ public class TmmModuleManager {
           module.shutDown();
         }
         catch (Exception e) {
-          LOGGER.error("problem shutting down " + module.getModuleTitle() + ": " + e.getMessage());
+          LOGGER.error("problem shutting down '{}' - {}", module.getModuleTitle(), e.getMessage());
         }
       }
     }
 
     // do cleanup tasks
+    RatingUtil.shutdown();
   }
 
   /**
