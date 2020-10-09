@@ -73,11 +73,11 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
 
     // data init
     Hashtable<Integer, JLabel> labelTable = new java.util.Hashtable<>();
-    labelTable.put(100, new JLabel("1.0"));
-    labelTable.put(75, new JLabel("0.75"));
-    labelTable.put(50, new JLabel("0.50"));
-    labelTable.put(25, new JLabel("0.25"));
-    labelTable.put(0, new JLabel("0.0"));
+    labelTable.put(100, new JLabel("100"));
+    labelTable.put(75, new JLabel("75"));
+    labelTable.put(50, new JLabel("50"));
+    labelTable.put(25, new JLabel("25"));
+    labelTable.put(0, new JLabel("0"));
     sliderThreshold.setLabelTable(labelTable);
     sliderThreshold.setValue((int) (settings.getScraperThreshold() * 100));
     sliderThreshold.addChangeListener(arg0 -> settings.setScraperThreshold(sliderThreshold.getValue() / 100.0));
