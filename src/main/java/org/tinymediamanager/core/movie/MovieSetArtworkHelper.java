@@ -33,7 +33,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -621,10 +620,17 @@ public class MovieSetArtworkHelper {
     if (StringUtils.isBlank(url)) {
       return;
     }
-
-    // get image in thread
-    MovieSetImageFetcherTask task = new MovieSetImageFetcherTask(movieSet, url, type);
-    TmmTaskManager.getInstance().addImageDownloadTask(task);
+    try {
+      // get image in thread
+      MovieSetImageFetcherTask task = new MovieSetImageFetcherTask(movieSet, url, type);
+      TmmTaskManager.getInstance().addImageDownloadTask(task);
+    }
+    finally {
+      // if that has been a local file, remove it from the artwork urls after we've already started the download(copy) task
+      if (url.startsWith("file:")) {
+        movieSet.removeArtworkUrl(type);
+      }
+    }
   }
 
   /**
@@ -848,7 +854,7 @@ public class MovieSetArtworkHelper {
       try {
         byte[] bytes = UrlUtil.getByteArrayFromUrl(urlToArtwork);
 
-        String extension = FilenameUtils.getExtension(urlToArtwork);
+        String extension = Utils.getArtworkExtension(urlToArtwork);
 
         // and then write it to the desired files
         movieSet.removeAllMediaFiles(type);
@@ -898,7 +904,7 @@ public class MovieSetArtworkHelper {
           Files.createDirectories(artworkFolderPath);
         }
         catch (IOException e) {
-          LOGGER.warn("could not create directory: " + artworkFolderPath, e);
+          LOGGER.warn("could not create directory '{}' - {} ", artworkFolderPath, e.getMessage());
         }
       }
 

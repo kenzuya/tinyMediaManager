@@ -85,7 +85,7 @@ public class UrlUtil {
   public static String getFileExtension(String url) throws URISyntaxException {
     String ext = getURIEncoded(url).getPath();
     if (ext == null || ext.isEmpty() || !ext.contains(".")) {
-      LOGGER.warn("Url " + url + " has no extension!");
+      LOGGER.debug("Url '{}' has no extension!", url);
       return "";
     }
     else {
@@ -156,7 +156,7 @@ public class UrlUtil {
       return String.format("%s://%s/", u.getProtocol(), u.getHost());
     }
     catch (MalformedURLException e) {
-      LOGGER.error("Failed to get domain url for: " + url);
+      LOGGER.warn("Failed to get domain url for '{}'", url);
     }
     return null;
   }
@@ -194,7 +194,7 @@ public class UrlUtil {
       return u.getPath();
     }
     catch (MalformedURLException e) {
-      LOGGER.error("getPathName() Failed! " + url, e);
+      LOGGER.error("getPathName() Failed for '{}' - {} ", url, e.getMessage());
     }
     return null;
   }
