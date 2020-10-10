@@ -101,6 +101,12 @@ public class TmmTableUI extends FlatTableUI {
           JComponent jcomponent = (JComponent) component;
           jcomponent.setOpaque(isSelected);
 
+          // bottom border
+          if (isSelected) {
+            jcomponent.setBorder(BorderFactory.createCompoundBorder(new BottomSideBorder(selectedGridColor), jcomponent.getBorder()));
+          }
+
+          // right side border
           if (isSelected && !colsNotToDraw.contains(columnAtPoint) && columnAtPoint != table.getColumnCount() - 1) {
             jcomponent.setBorder(BorderFactory.createCompoundBorder(new RightSideBorder(selectedGridColor), jcomponent.getBorder()));
           }
@@ -109,6 +115,26 @@ public class TmmTableUI extends FlatTableUI {
         super.paintComponent(graphics, component, container, x, y, w, h, shouldValidate);
       }
     };
+  }
+
+  private static class BottomSideBorder extends AbstractBorder {
+
+    private static final int THICKNESS = 1;
+
+    private final Color      color;
+
+    public BottomSideBorder(Color color) {
+      this.color = color;
+    }
+
+    @Override
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+      Graphics2D g2d = (Graphics2D) g.create();
+      g2d.setColor(this.color);
+      g2d.setStroke(new BasicStroke(THICKNESS));
+      g2d.drawLine(0, height - 1, width - 1, height - 1);
+      g2d.dispose();
+    }
   }
 
   private static class RightSideBorder extends AbstractBorder {

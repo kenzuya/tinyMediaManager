@@ -1,6 +1,7 @@
 Version 4.0.5
 =======================
 x lowered memory consumption of the imdb rating fetching
+x draw table/tree grid when multiple rows are selected
 
 
 Version 4.0.4
