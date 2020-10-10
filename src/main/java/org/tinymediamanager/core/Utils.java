@@ -93,6 +93,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
+import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
@@ -1543,8 +1544,29 @@ public class Utils {
     }
   }
 
-  public static String getArtworkExtension(String url) {
+  /**
+   * detect the artwork extension from the url
+   * 
+   * @param url
+   *          the url to analyze
+   * @return the detected artwork type or jpg as fallback
+   */
+  public static String getArtworkExtensionFromUrl(String url) {
     String ext = UrlUtil.getExtension(url).toLowerCase(Locale.ROOT);
+    if (StringUtils.isBlank(ext)) {
+      // no extension from the url? try a head request to detect the artwork type
+      try {
+        Url url1 = new Url(url);
+        InputStream is = url1.getInputStream(true);
+        ext = Utils.getArtworkExtensionFromContentType(url1.getHeader("content-type"));
+        is.close();
+      }
+      catch (Exception e) {
+        // ignored
+      }
+    }
+
+    // still blank or tbn -> fallback to jpg
     if (StringUtils.isBlank(ext) || "tbn".equals(ext)) {
       // no extension or tbn? fall back to jpg
       ext = "jpg";
@@ -1556,6 +1578,47 @@ public class Utils {
     }
 
     return ext.toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * detect the artwork extension from the content type<br />
+   * taken from https://wiki.selfhtml.org/wiki/MIME-Type/%C3%9Cbersicht#I
+   * 
+   * @param contentType
+   *          the HTTP header "content type"
+   * @return the artwork extension or an empty string if not detectable
+   */
+  public static String getArtworkExtensionFromContentType(String contentType) {
+    if (StringUtils.isBlank(contentType)) {
+      return "";
+    }
+
+    if (contentType.startsWith("image/")) {
+      // handle our well known extensions
+      switch (contentType.replace("image/", "")) {
+        case "bmp":
+        case "x-bmp":
+        case "x-ms-bmp":
+          return "bmp";
+
+        case "gif":
+          return "gif";
+
+        case "jpeg":
+          return "jpg";
+
+        case "png":
+          return "png";
+
+        case "tiff":
+          return "tif";
+
+        default:
+          return "";
+      }
+    }
+
+    return "";
   }
 
   /**

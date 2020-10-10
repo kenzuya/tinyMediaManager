@@ -144,7 +144,7 @@ public class TvShowArtworkHelper {
       int i = 0;
       for (IFileNaming naming : fileNamings) {
         boolean firstImage = false;
-        String filename = naming.getFilename("", Utils.getArtworkExtension(url));
+        String filename = naming.getFilename("", Utils.getArtworkExtensionFromUrl(url));
 
         if (StringUtils.isBlank(filename)) {
           continue;
@@ -398,7 +398,7 @@ public class TvShowArtworkHelper {
     }
 
     for (TvShowSeasonPosterNaming seasonPosterNaming : TvShowModuleManager.SETTINGS.getSeasonPosterFilenames()) {
-      String filename = seasonPosterNaming.getFilename(show, season, Utils.getArtworkExtension(seasonPosterUrl));
+      String filename = seasonPosterNaming.getFilename(show, season, Utils.getArtworkExtensionFromUrl(seasonPosterUrl));
       if (StringUtils.isBlank(filename)) {
         LOGGER.warn("empty filename for artwork: {} - {}", seasonPosterNaming.name(), show); // NOSONAR
         MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, show, "tvshow.seasondownload.failed"));
@@ -450,7 +450,7 @@ public class TvShowArtworkHelper {
     }
 
     for (TvShowSeasonBannerNaming seasonBannerNaming : TvShowModuleManager.SETTINGS.getSeasonBannerFilenames()) {
-      String filename = seasonBannerNaming.getFilename(show, season, Utils.getArtworkExtension(seasonBannerUrl));
+      String filename = seasonBannerNaming.getFilename(show, season, Utils.getArtworkExtensionFromUrl(seasonBannerUrl));
       if (StringUtils.isBlank(filename)) {
         LOGGER.warn("empty filename for artwork: {} - {}", seasonBannerNaming.name(), show);
         MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, show, "tvshow.seasondownload.failed"));
@@ -502,7 +502,7 @@ public class TvShowArtworkHelper {
     }
 
     for (TvShowSeasonThumbNaming seasonThumbNaming : TvShowModuleManager.SETTINGS.getSeasonThumbFilenames()) {
-      String filename = seasonThumbNaming.getFilename(show, season, Utils.getArtworkExtension(seasonThumbUrl));
+      String filename = seasonThumbNaming.getFilename(show, season, Utils.getArtworkExtensionFromUrl(seasonThumbUrl));
       if (StringUtils.isBlank(filename)) {
         LOGGER.warn("empty filename for artwork: {} - {}", seasonThumbNaming.name(), show);
         MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, show, "tvshow.seasondownload.failed"));

@@ -48,7 +48,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.scraper.util.UrlUtil;
+import org.tinymediamanager.scraper.http.Url;
 
 /**
  * The class MovieSetArtworkHelper. A helper class for managing movie set artwork
@@ -852,26 +852,33 @@ public class MovieSetArtworkHelper {
     public void run() {
       // first, fetch image
       try {
-        byte[] bytes = UrlUtil.getByteArrayFromUrl(urlToArtwork);
+        Url url = new Url(urlToArtwork);
+        try (InputStream is = url.getInputStream()) {
+          // do not use UrlUtil.getByteArrayFromUrl because we may need the HTTP headers for artwork type detection
+          byte[] bytes = IOUtils.toByteArray(is);
 
-        String extension = Utils.getArtworkExtension(urlToArtwork);
+          String extension = Utils.getArtworkExtensionFromContentType(url.getHeader("content-type"));
+          if (StringUtils.isBlank(extension)) {
+            extension = Utils.getArtworkExtensionFromUrl(urlToArtwork);
+          }
 
-        // and then write it to the desired files
-        movieSet.removeAllMediaFiles(type);
-        if (writeToArtworkFolder) {
-          writeImageToArtworkFolder(bytes, extension);
-        }
-        if (writeToMovieFolder) {
-          writeImageToMovieFolders(bytes, extension);
-        }
-        if (!writeToArtworkFolder && !writeToMovieFolder) {
-          // at least cache it
-          writeImageToCacheFolder(bytes);
-        }
+          // and then write it to the desired files
+          movieSet.removeAllMediaFiles(type);
+          if (writeToArtworkFolder) {
+            writeImageToArtworkFolder(bytes, extension);
+          }
+          if (writeToMovieFolder) {
+            writeImageToMovieFolders(bytes, extension);
+          }
+          if (!writeToArtworkFolder && !writeToMovieFolder) {
+            // at least cache it
+            writeImageToCacheFolder(bytes);
+          }
 
-        // add all written media files to the movie set
-        movieSet.addToMediaFiles(writtenArtworkFiles);
-        movieSet.saveToDb();
+          // add all written media files to the movie set
+          movieSet.addToMediaFiles(writtenArtworkFiles);
+          movieSet.saveToDb();
+        }
       }
       catch (InterruptedException | InterruptedIOException e) {
         // do not swallow these Exceptions
