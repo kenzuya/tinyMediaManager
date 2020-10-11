@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -30,11 +31,11 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
 
-public class TvShowCountAudioStreamFilter extends AbstractCheckComboBoxTvShowUIFilter<Integer> {
+public class TvShowAudioStreamCountFilter extends AbstractCheckComboBoxTvShowUIFilter<Integer> {
 
   private TvShowList tvShowList = TvShowList.getInstance();
 
-  public TvShowCountAudioStreamFilter() {
+  public TvShowAudioStreamCountFilter() {
     super();
     buildCountAudioStreamArray();
     tvShowList.addPropertyChangeListener(Constants.AUDIOSTREAMS_COUNT, evt -> SwingUtilities.invokeLater(this::buildCountAudioStreamArray));
@@ -77,7 +78,7 @@ public class TvShowCountAudioStreamFilter extends AbstractCheckComboBoxTvShowUIF
   }
 
   private void buildCountAudioStreamArray() {
-    List<Integer> audiostreams = new ArrayList<>(tvShowList.getAudioStreamsinEpisodes());
+    List<Integer> audiostreams = new ArrayList<>(tvShowList.getAudioStreamsInEpisodes());
     Collections.sort(audiostreams);
     setValues(audiostreams);
   }

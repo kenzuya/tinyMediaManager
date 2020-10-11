@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The class ListUtils is a helper class, providing some special functions for Lists
@@ -149,5 +150,25 @@ public class ListUtils {
     List<T> list = new ArrayList<>(collection);
     list.sort(comparator);
     return list;
+  }
+
+  /**
+   * add the given {@link Collection<E>} of values to the given {@link CopyOnWriteArrayList<E>} in a performant way
+   * 
+   * @param list
+   *          the {@link CopyOnWriteArrayList<E>}
+   * @param values
+   *          the {@link Collection<E>} of values
+   * @param <E>
+   *          the type of the value
+   * @return true if any value has been added
+   */
+  public static <E> boolean addToCopyOnWriteArrayListIfAbsent(CopyOnWriteArrayList<E> list, Collection<E> values) { // NOSONAR
+    if (list.isEmpty()) {
+      return list.addAll(values);
+    }
+    else {
+      return list.addAllAbsent(values) > 0;
+    }
   }
 }
