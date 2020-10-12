@@ -123,7 +123,7 @@ public class Controller {
       plotStyle = "full";
     }
 
-    return getService().movieScrapeById(apiKey, id, type, null, plotStyle).execute().body();
+    return getService().movieScrapeById(apiKey, id, type, null, plotStyle,true).execute().body();
   }
 
   public SeasonSearch getSeasonsById(String apiKey, String id, String type, int season) throws IOException {

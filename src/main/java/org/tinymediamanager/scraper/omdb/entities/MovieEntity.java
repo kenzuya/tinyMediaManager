@@ -66,4 +66,20 @@ public class MovieEntity {
   public String            response;
   @SerializedName("Ratings")
   public List<MovieRating> ratings;
+  @SerializedName("tomatoMeter")
+  public String            tomatoMeter;
+  @SerializedName("tomatoRating")
+  public String            tomatoRating;
+  @SerializedName("tomatoReviews")
+  public String            tomatoReviews;
+  @SerializedName("tomatoFresh")
+  public String            tomatoFresh;
+  @SerializedName("tomatoRotten")
+  public String            tomatoRotten;
+  @SerializedName("tomatoUserMeter")
+  public String            tomatoUserMeter;
+  @SerializedName("tomatoUserRating")
+  public String            tomatoUserRating;
+  @SerializedName("tomatoUserReviews")
+  public String            tomatoUserReviews;
 }
