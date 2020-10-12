@@ -1,5 +1,6 @@
 Version 4.0.5
 =======================
++ re-added tinyMediaManagerCMD.exe for Windows command line execution
 + added subtitle count filter for TV shows
 x lowered memory consumption of the imdb rating fetching
 x draw table/tree grid when multiple rows are selected

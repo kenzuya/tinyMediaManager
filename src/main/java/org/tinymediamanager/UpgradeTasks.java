@@ -100,7 +100,6 @@ public class UpgradeTasks {
       }
 
       // delete old files
-      Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMD.exe"));
       Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMDUpd.exe"));
       Utils.deleteFileSafely(Paths.get("tinyMediaManagerUpd.exe"));
       Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMD.sh"));
