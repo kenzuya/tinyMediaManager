@@ -5,6 +5,7 @@ Version 4.0.5
 x lowered memory consumption of the imdb rating fetching
 x draw table/tree grid when multiple rows are selected
 x improved loading time of large libraries
+x more precise search results when searching for text only
 
 
 Version 4.0.4
