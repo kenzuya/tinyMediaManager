@@ -372,7 +372,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     }
 
     DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getTreeTableModel().getRoot();
-    Enumeration enumeration = root.depthFirstEnumeration();
+    Enumeration<?> enumeration = root.depthFirstEnumeration();
     while (enumeration.hasMoreElements()) {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
 

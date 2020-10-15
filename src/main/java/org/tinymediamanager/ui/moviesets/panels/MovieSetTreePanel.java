@@ -25,6 +25,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
@@ -71,10 +72,12 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TmmTreeTable                tree;
-
   private final MovieList             movieList        = MovieList.getInstance();
 
+  private int                         rowcount;
+  private long                        rowcountLastUpdate;
+
+  private TmmTreeTable                tree;
   private JLabel                      lblMovieCountFiltered;
   private JLabel                      lblMovieCountTotal;
   private JLabel                      lblMovieSetCountFiltered;
@@ -89,6 +92,18 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
     // initialize filteredCount
     updateFilteredCount();
+
+    movieList.addPropertyChangeListener(evt -> {
+      switch (evt.getPropertyName()) {
+        case "movieSetCount":
+        case "movieInMovieSetCount":
+          updateFilteredCount();
+          break;
+
+        default:
+          break;
+      }
+    });
   }
 
   private void initComponents() {
@@ -254,16 +269,37 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   private void updateFilteredCount() {
     int movieSetCount = 0;
     int movieCount = 0;
-    for (int i = 0; i < tree.getTreeTableModel().getRowCount(); i++) {
-      DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getValueAt(i, 0);
-      if (node != null) {
-        // movie set node
-        if (node.getUserObject() instanceof MovieSet) {
-          movieSetCount++;
-          movieCount += node.getChildCount();
-        }
+
+    // check rowcount if there has been a change in the display
+    // if the row count from the last run matches with this, we assume that the tree did not change
+    // the biggest error we can create here is to show a wrong count of filtered TV shows/episodes,
+    // but we gain a ton of performance if we do not re-evaluate the count at every change
+    int rowcount = tree.getTreeTableModel().getRowCount();
+    long rowcountLastUpdate = System.currentTimeMillis();
+
+    // update if the rowcount changed or at least after 2 seconds after the last update
+    if (this.rowcount == rowcount && (rowcountLastUpdate - this.rowcountLastUpdate) < 2000) {
+      return;
+    }
+
+    DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getTreeTableModel().getRoot();
+    Enumeration<?> enumeration = root.depthFirstEnumeration();
+    while (enumeration.hasMoreElements()) {
+      DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
+
+      Object userObject = node.getUserObject();
+
+      if (userObject instanceof MovieSet) {
+        movieSetCount++;
+      }
+      else if (userObject instanceof Movie) {
+        movieCount++;
       }
     }
+
+    this.rowcount = rowcount;
+    this.rowcountLastUpdate = rowcountLastUpdate;
+
     lblMovieSetCountFiltered.setText(String.valueOf(movieSetCount));
     lblMovieCountFiltered.setText(String.valueOf(movieCount));
   }

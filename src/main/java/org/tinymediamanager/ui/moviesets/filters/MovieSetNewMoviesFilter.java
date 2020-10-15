@@ -47,7 +47,13 @@ public class MovieSetNewMoviesFilter extends AbstractMovieSetUIFilter {
 
   @Override
   protected boolean accept(MovieSet movieSet, List<Movie> movies) {
-    return movieSet.isNewlyAdded() || movieSet.hasNewlyAddedMovies();
+    for (Movie movie : movies) {
+      if (movie.isNewlyAdded()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override

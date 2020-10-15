@@ -7,6 +7,7 @@ x draw table/tree grid when multiple rows are selected
 x improved loading time of large libraries
 x more precise search results when searching for text only
 x added an option to specify which actors should be fetched from IMDB #1062
+x updated live calculation of movie set/movie count #1064
 
 
 Version 4.0.4
