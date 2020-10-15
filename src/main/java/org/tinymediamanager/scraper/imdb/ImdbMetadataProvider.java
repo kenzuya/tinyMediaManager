@@ -72,6 +72,7 @@ public class ImdbMetadataProvider
     providerInfo.getConfig().addBoolean(USE_TMDB_FOR_TV_SHOWS, false);
     providerInfo.getConfig().addBoolean("scrapeCollectionInfo", false);
     providerInfo.getConfig().addBoolean("localReleaseDate", true);
+    providerInfo.getConfig().addBoolean("scrapeUncreditedActors", true);
     providerInfo.getConfig().addBoolean("scrapeLanguageNames", true);
     providerInfo.getConfig().addBoolean("scrapeKeywordsPage", false);
     providerInfo.getConfig().addInteger("maxKeywordCount", 10);
