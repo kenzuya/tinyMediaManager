@@ -518,9 +518,9 @@ public class TinyMediaManager {
     try {
       // sanity check
       Font font = Font.decode(Globals.settings.getFontFamily());
-      if (font != null) {
-        UIManager.put("defaultFont", font);
-      }
+      Font savedFont = new Font(font.getFamily(), font.getStyle(), Globals.settings.getFontSize());
+
+      UIManager.put("defaultFont", savedFont);
     }
     catch (Exception e) {
       LOGGER.warn("could not set default font - {}", e.getMessage());
