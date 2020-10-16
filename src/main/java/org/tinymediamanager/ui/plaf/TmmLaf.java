@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.ui.plaf;
 
-import javax.swing.PopupFactory;
-
 import com.formdev.flatlaf.FlatLaf;
 
 /**
@@ -26,23 +24,4 @@ import com.formdev.flatlaf.FlatLaf;
  */
 public abstract class TmmLaf extends FlatLaf {
 
-  private PopupFactory oldPopupFactory;
-
-  @Override
-  public void initialize() {
-    super.initialize();
-    // install popup factory
-    oldPopupFactory = PopupFactory.getSharedInstance();
-    PopupFactory.setSharedInstance(new TmmPopupFactory());
-  }
-
-  @Override
-  public void uninitialize() {
-    if (oldPopupFactory != null) {
-      PopupFactory.setSharedInstance(oldPopupFactory);
-      oldPopupFactory = null;
-    }
-
-    super.uninitialize();
-  }
 }
