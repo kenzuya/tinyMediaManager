@@ -17,12 +17,12 @@ package org.tinymediamanager.scraper.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -280,57 +280,34 @@ public class UrlUtil {
     if (data == null) {
       return "";
     }
-    try {
-      return URLEncoder.encode(data, "UTF-8");
-    }
-    catch (UnsupportedEncodingException e) {
-      LOGGER.warn("Failed to url encode data: " + data + " as UTF-8; will try again using default encoding", e);
-      return URLEncoder.encode(data);
-    }
+    return URLEncoder.encode(data, StandardCharsets.UTF_8);
   }
 
   /**
    * generates a valid user-agent <br>
    * something like:<br>
-   * Mozilla/5.0 (Windows; Windows NT 6.1; Windows 7 6.1; U; amd64; de-DE; rv:57.0) Gecko/20100101 Firefox/57.0<br>
-   * but with correct OS and language values
+   * Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36
+   * 
    */
   public static String generateUA() {
-    return generateUA(Locale.getDefault().getLanguage());
-  }
+    // create a common user agent rather than generating an own
+    // the most common user agents are taken from the web site https://developers.whatismybrowser.com/useragents/explore/
 
-  /**
-   * generates a valid user-agent <br>
-   * something like:<br>
-   * Mozilla/5.0 (Windows; Windows NT 6.1; Windows 7 6.1; U; amd64; de-DE; rv:57.0) Gecko/20100101 Firefox/57.0<br>
-   * but with correct OS and language values
-   * 
-   * @param language
-   *          take the given language rather than the systems default
-   */
-  public static String generateUA(String language) {
-    // this is due to the fact, that the OS is not correctly recognized (eg
-    // Mobile FirefoxOS, where it isn't)
-    String hardcodeOS = "";
     if (SystemUtils.IS_OS_WINDOWS) {
-      hardcodeOS = "Windows; Windows NT " + System.getProperty("os.version");
+      // Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36
+      return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36";
     }
     else if (SystemUtils.IS_OS_MAC) {
-      hardcodeOS = "Macintosh";
+      // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36
+      return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36";
     }
     else if (SystemUtils.IS_OS_LINUX) {
-      hardcodeOS = "X11";
-    }
-    else {
-      hardcodeOS = System.getProperty("os.name");
+      // Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36
+      return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36";
     }
 
-    Locale l = getLocaleFromLanguage(language);
-
-    // @formatter:off
-    return String.format("Mozilla/5.0 (%1$s; %2$s %3$s; U; %4$s; %5$s-%6$s; rv:71.0) Gecko/20100101 Firefox/71.0", hardcodeOS,
-        System.getProperty("os.name", ""), System.getProperty("os.version", ""), System.getProperty("os.arch", ""), l.getLanguage(), l.getCountry());
-    // @formatter:on
+    // just a dummy one
+    return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36";
   }
 
   /**
