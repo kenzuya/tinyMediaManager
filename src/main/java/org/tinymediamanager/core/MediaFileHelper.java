@@ -71,6 +71,7 @@ import com.github.stephenc.javaisotools.loopfs.udf.UDFFileSystem;
 public class MediaFileHelper {
   private static final Logger      LOGGER             = LoggerFactory.getLogger(MediaFileHelper.class);
 
+  public static final List<String> TRAILER_FOLDERS    = Arrays.asList("trailer", "trailers");
   public static final List<String> PLEX_EXTRA_FOLDERS = Arrays.asList("behind the scenes", "behindthescenes", "deleted scenes", "deletedscenes",
       "featurettes", "interviews", "scenes", "shorts", "other");
 
@@ -293,7 +294,7 @@ public class MediaFileHelper {
     if (Globals.settings.getVideoFileType().contains("." + ext)) {
       // is this maybe a trailer?
       if (basename.matches("(?i).*[\\[\\]\\(\\)_.-]+trailer[\\[\\]\\(\\)_.-]?$") || basename.equalsIgnoreCase("movie-trailer")
-          || foldername.equalsIgnoreCase("trailer") || foldername.equalsIgnoreCase("trailers")) {
+          || TRAILER_FOLDERS.contains(foldername)) {
         return MediaFileType.TRAILER;
       }
 

@@ -256,7 +256,7 @@ public class Utils {
    * @return
    */
   public static List<String> getAllDatasources() {
-    List<String> ret = new ArrayList<String>();
+    List<String> ret = new ArrayList<>();
 
     for (String m : MovieSettings.getInstance().getMovieDataSource()) {
       ret.add(m);

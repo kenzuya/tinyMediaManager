@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IFileNaming;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -772,6 +773,8 @@ public class MovieRenamer {
     MediaFile defaultMF = new MediaFile(mf);
     defaultMF.replacePathForRenamedFolder(movie.getPathNIO(), newMovieDir);
 
+    Path relativePathOfMediafile = movie.getPathNIO().relativize(mf.getFileAsPath());
+
     if (!isFilePatternValid() && !movie.isDisc()) {
       // not renaming files, but IF we have a folder pattern, we need to move around! (but NOT disc movies!)
       newFiles.add(defaultMF);
@@ -794,30 +797,40 @@ public class MovieRenamer {
         break;
 
       case TRAILER:
-        if (MovieModuleManager.SETTINGS.getTrailerFilenames().isEmpty()) {
-          // we do not want trailers to be renamed? so they will be removed....
-          break;
-        }
-
-        List<MovieTrailerNaming> trailernames = new ArrayList<>();
-        if (newDestIsMultiMovieDir) {
-          // Fixate the name regardless of setting
-          trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
-        }
-        else if (movie.isDisc()) {
-          trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
+        // if the trailer in in a /trailer subfolder, just move it to the destination
+        if (relativePathOfMediafile.getNameCount() > 1
+            && MediaFileHelper.TRAILER_FOLDERS.contains(relativePathOfMediafile.subpath(0, 1).toString())) {
+          // the trailer is in a /trailer(s) subfolder
+          if (!newDestIsMultiMovieDir) {
+            newFiles.add(defaultMF);
+          }
         }
         else {
-          trailernames = MovieModuleManager.SETTINGS.getTrailerFilenames();
-        }
-        for (MovieTrailerNaming name : trailernames) {
-          String newTrailerName = movie.getTrailerFilename(name, newFilename + ".avi"); // basename used, so add fake extension
-          if (newTrailerName.isEmpty()) {
-            continue;
+          // not in a /trailer(s) subfolder
+          List<MovieTrailerNaming> trailernames = new ArrayList<>();
+          if (newDestIsMultiMovieDir) {
+            // Fixate the name regardless of setting
+            trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
           }
-          MediaFile trail = new MediaFile(mf);
-          trail.setFile(newMovieDir.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
-          newFiles.add(trail);
+          else if (movie.isDisc()) {
+            trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
+          }
+          else {
+            trailernames.addAll(MovieModuleManager.SETTINGS.getTrailerFilenames());
+            if (trailernames.isEmpty()) {
+              // we have a trailer, but no settings for it?! don't delete it, just rename it to the default
+              trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
+            }
+          }
+          for (MovieTrailerNaming name : trailernames) {
+            String newTrailerName = movie.getTrailerFilename(name, newFilename + ".avi"); // basename used, so add fake extension
+            if (newTrailerName.isEmpty()) {
+              continue;
+            }
+            MediaFile trail = new MediaFile(mf);
+            trail.setFile(newMovieDir.resolve(newTrailerName + "." + mf.getExtension())); // get w/o extension to add same
+            newFiles.add(trail);
+          }
         }
         break;
 
@@ -1031,7 +1044,7 @@ public class MovieRenamer {
       // *************
       case EXTRAFANART:
       case EXTRATHUMB:
-        // pass the file regardless of the settings (they're her so we just rename them)
+        // pass the file regardless of the settings (they're here so we just rename them)
         if (!newDestIsMultiMovieDir) {
           newFiles.add(defaultMF);
         }

@@ -228,6 +228,11 @@ public abstract class YoutubeDownloadTask extends TmmTask {
       // delete any existing trailer files
       Utils.deleteFileSafely(trailer);
 
+      // create parent if needed
+      if (!Files.exists(trailer.getParent())) {
+        Files.createDirectory(trailer.getParent());
+      }
+
       // and move the temporary file
       Utils.moveFileSafe(tempFile, trailer);
 

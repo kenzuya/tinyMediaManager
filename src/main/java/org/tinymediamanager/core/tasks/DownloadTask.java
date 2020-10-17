@@ -275,6 +275,12 @@ public abstract class DownloadTask extends TmmTask {
     }
 
     Utils.deleteFileSafely(destination); // delete existing file
+
+    // create parent if needed
+    if (!Files.exists(destination.getParent())) {
+      Files.createDirectory(destination.getParent());
+    }
+
     boolean ok = Utils.moveFileSafe(tempFile, destination);
     if (ok) {
       Utils.deleteFileSafely(tempFile);
