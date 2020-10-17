@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -45,9 +46,8 @@ import org.w3c.dom.Element;
  * @author Manuel Laggner
  */
 public class MovieToKodiConnector extends MovieGenericXmlConnector {
-  private static final Logger  LOGGER                   = LoggerFactory.getLogger(MovieToKodiConnector.class);
-  private static final Pattern YOUTUBE_VIDEO_ID_PATTERN = Pattern.compile("https?://.*youtube..*/watch\\?v=([^&]+).*$");
-  private static final Pattern HD_TRAILERS_PATTERN      = Pattern
+  private static final Logger  LOGGER              = LoggerFactory.getLogger(MovieToKodiConnector.class);
+  private static final Pattern HD_TRAILERS_PATTERN = Pattern
       .compile("https?://.*(apple.com|yahoo-redir|yahoo.com|youtube.com|moviefone.com|ign.com|hd-trailers.net|aol.com).*");
 
   public MovieToKodiConnector(Movie movie) {
@@ -175,9 +175,9 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   private String prepareTrailerForKodi(MediaTrailer trailer) {
     // youtube trailer are stored in a special notation: plugin://plugin.video.youtube/?action=play_video&videoid=<ID>
     // parse out the ID from the url and store it in the right notation
-    Matcher matcher = YOUTUBE_VIDEO_ID_PATTERN.matcher(trailer.getUrl());
+    Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
     if (matcher.matches()) {
-      return "plugin://plugin.video.youtube/?action=play_video&videoid=" + matcher.group(1);
+      return "plugin://plugin.video.youtube/?action=play_video&videoid=" + matcher.group(5);
     }
 
     // other urls are handled by the hd-trailers.net plugin
