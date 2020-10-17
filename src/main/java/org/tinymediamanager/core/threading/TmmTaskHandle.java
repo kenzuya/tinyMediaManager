@@ -27,7 +27,8 @@ public interface TmmTaskHandle {
     QUEUED,
     STARTED,
     CANCELLED,
-    FINISHED
+    FINISHED,
+    FAILED
   }
 
   String getTaskName();

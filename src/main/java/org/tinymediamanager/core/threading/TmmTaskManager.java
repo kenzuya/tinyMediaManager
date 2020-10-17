@@ -360,7 +360,7 @@ public class TmmTaskManager implements TmmTaskListener {
     if (task.getState() == TaskState.STARTED) {
       runningTasks.add(task);
     }
-    if (task.getState() == TaskState.FINISHED || task.getState() == TaskState.CANCELLED) {
+    if (task.getState() == TaskState.FINISHED || task.getState() == TaskState.CANCELLED || task.getState() == TaskState.FAILED) {
       runningTasks.remove(task);
     }
     for (TmmTaskListener listener : taskListener) {

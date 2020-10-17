@@ -125,7 +125,12 @@ public class Utils {
   private static final Pattern folderStackingPattern = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
 
+  // pattern for matching youtube links
+  public static final Pattern  YOUTUBE_PATTERN       = Pattern
+      .compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
+
   public static final String   DISC_FOLDER_REGEX     = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
+
 
   private static List<Locale>  availableLocales      = new ArrayList<>();
 
@@ -1509,7 +1514,7 @@ public class Utils {
    *           any {@link IOException} thrown
    */
   public static void copyDirectoryRecursive(Path from, Path to) throws IOException {
-    LOGGER.info("Copyin complete directory from {} to {}", from, to);
+    LOGGER.info("Copying complete directory from {} to {}", from, to);
     Files.walkFileTree(from, new CopyFileVisitor(to));
   }
 

@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.util.youtube.model.formats;
 
+import java.util.Locale;
+
 import org.tinymediamanager.scraper.util.youtube.YoutubeHelper;
 import org.tinymediamanager.scraper.util.youtube.model.Itag;
 import org.tinymediamanager.scraper.util.youtube.model.quality.VideoQuality;
@@ -51,7 +53,7 @@ public class VideoFormat extends Format {
     VideoQuality videoQuality = null;
     if (json.has("quality")) {
       try {
-        videoQuality = VideoQuality.valueOf(json.get("quality").asText());
+        videoQuality = VideoQuality.valueOf(json.get("quality").asText().toUpperCase(Locale.ROOT));
       } catch (IllegalArgumentException ignore) {
       }
     }

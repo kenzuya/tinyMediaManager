@@ -28,7 +28,6 @@ import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieExporter;
-import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -37,7 +36,9 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieScrapeTask;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
+import org.tinymediamanager.core.movie.tasks.MovieTrailerDownloadTask;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -191,17 +192,8 @@ class MovieCommand implements Runnable {
         .filter(movie -> movie.getMediaFiles(MediaFileType.TRAILER).isEmpty()).collect(Collectors.toList());
 
     for (Movie movie : moviesWithoutTrailer) {
-      MovieHelpers.downloadBestTrailer(movie);
-    }
-
-    // wait for other download threads
-    while (TmmTaskManager.getInstance().poolRunning()) {
-      try {
-        Thread.sleep(2000);
-      }
-      catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
+      TmmTask task = new MovieTrailerDownloadTask(movie);
+      task.run(); // blocking
     }
   }
 
