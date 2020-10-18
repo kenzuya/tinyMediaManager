@@ -72,8 +72,9 @@ public class MediaFileHelper {
   private static final Logger      LOGGER             = LoggerFactory.getLogger(MediaFileHelper.class);
 
   public static final List<String> TRAILER_FOLDERS    = Arrays.asList("trailer", "trailers");
-  public static final List<String> PLEX_EXTRA_FOLDERS = Arrays.asList("behind the scenes", "behindthescenes", "deleted scenes", "deletedscenes",
-      "featurettes", "interviews", "scenes", "shorts", "other");
+  public static final List<String> EXTRA_FOLDERS      = Arrays.asList("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
+      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");                                                                                                                             // lower
+                                                                                                                                                                                                              // case
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -128,22 +129,22 @@ public class MediaFileHelper {
   public static final String       VIDEO_3D_MVC       = "3D MVC";
 
   static {
-    SUPPORTED_ARTWORK_FILETYPES = Collections.unmodifiableList(Arrays.asList("jpg", "jpeg,", "png", "tbn", "gif", "bmp"));
+    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp");
 
     // .disc = video stubs
     // .evo = hd-dvd
     // .ifo = DVD; only needed for KodiRPC
-    DEFAULT_VIDEO_FILETYPES = Collections.unmodifiableList(Arrays.asList(".3gp", ".asf", ".asx", ".avc", ".avi", ".bdmv", ".bin", ".bivx", ".braw",
-        ".dat", ".divx", ".dv", ".dvr-ms", ".disc", ".evo", ".fli", ".flv", ".h264", ".ifo", ".img", ".iso", ".mts", ".mt2s", ".m2ts", ".m2v", ".m4v",
-        ".mkv", ".mk3d", ".mov", ".mp4", ".mpeg", ".mpg", ".nrg", ".nsv", ".nuv", ".ogm", ".pva", ".qt", ".rm", ".rmvb", ".strm", ".svq3", ".ts",
-        ".ty", ".viv", ".vob", ".vp3", ".wmv", ".webm", ".xvid"));
+    DEFAULT_VIDEO_FILETYPES = List.of(".3gp", ".asf", ".asx", ".avc", ".avi", ".bdmv", ".bin", ".bivx", ".braw", ".dat", ".divx", ".dv", ".dvr-ms",
+        ".disc", ".evo", ".fli", ".flv", ".h264", ".ifo", ".img", ".iso", ".mts", ".mt2s", ".m2ts", ".m2v", ".m4v", ".mkv", ".mk3d", ".mov", ".mp4",
+        ".mpeg", ".mpg", ".nrg", ".nsv", ".nuv", ".ogm", ".pva", ".qt", ".rm", ".rmvb", ".strm", ".svq3", ".ts", ".ty", ".viv", ".vob", ".vp3",
+        ".wmv", ".webm", ".xvid");
 
-    DEFAULT_AUDIO_FILETYPES = Collections.unmodifiableList(Arrays.asList(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac",
-        ".ape", ".at3", ".atrac", ".au", ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg",
-        ".pcm", ".ra", ".ram", ".rm", ".tta", ".thd", ".wav", ".wave", ".wma"));
+    DEFAULT_AUDIO_FILETYPES = List.of(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac", ".ape", ".at3", ".atrac", ".au",
+        ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram", ".rm",
+        ".tta", ".thd", ".wav", ".wave", ".wma");
 
-    DEFAULT_SUBTITLE_FILETYPES = Collections.unmodifiableList(Arrays.asList(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs",
-        ".psb", ".rt", ".srt", ".smi", ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub"));
+    DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
+        ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub");
 
     String extensions = String.join("|", SUPPORTED_ARTWORK_FILETYPES);
 
@@ -228,21 +229,25 @@ public class MediaFileHelper {
     // just path w/o filename
     String foldername = FilenameUtils.getBaseName(pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT));
 
-    Path releative = pathToFile.getParent(); // old style
+    Path relative;
     if (datasource != null) {
       // set path for evaluation not higher than datasource!
-      releative = Paths.get(Utils.relPath(datasource, pathToFile.getParent()));
+      relative = datasource.relativize(pathToFile);
     }
-    String pparent = "";
-    String ppparent = "";
-    String pppparent = "";
-    try {
-      pparent = FilenameUtils.getBaseName(releative.getParent().toString()).toLowerCase(Locale.ROOT);
-      ppparent = FilenameUtils.getBaseName(releative.getParent().getParent().toString()).toLowerCase(Locale.ROOT);
-      pppparent = FilenameUtils.getBaseName(releative.getParent().getParent().getParent().toString()).toLowerCase(Locale.ROOT);
+    else {
+      relative = pathToFile;
     }
-    catch (Exception ignored) {
-      // could happen if we are no 2 levels deep
+
+    // okay, we've got the relative path between (hopefully) the datasource and the media file itself
+    // the first subfolder of this relative path cannot/must not an extra/trailer/whatsoever folder (because that would mean that the DS itself is a
+    // MMD and there are not such folders allowed)
+    // we just ignore that and search forward in the path for extra folders
+    List<String> relativePathJunks = new ArrayList<>();
+    if (relative.getNameCount() > 2) {
+      relative = relative.subpath(1, relative.getNameCount() - 1); // -1 because we're not interested in the file name itself
+      for (int i = 1; i <= relative.getNameCount(); i++) {
+        relativePathJunks.add(relative.subpath(i - 1, i).toString().toLowerCase(Locale.ROOT));
+      }
     }
 
     // check EXTRAS first
@@ -251,14 +256,8 @@ public class MediaFileHelper {
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name
-        || (!pparent.isEmpty() && pparent.matches("extra[s]?")) // extras folder a level deeper
-        || (!ppparent.isEmpty() && ppparent.matches("extra[s]?")) // extras folder a level deeper
-        || (!pppparent.isEmpty() && pppparent.matches("extra[s]?")) // extras folder a level deeper
         || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)$") // Plex (w/o trailer)
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(foldername) // Plex Extra folders
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(pparent) // Plex Extra folders
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(ppparent) // Plex Extra folders
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(pppparent)) // Plex Extra folders
+        || MediaFileHelper.EXTRA_FOLDERS.stream().anyMatch(relativePathJunks::contains)) // extra folders
     {
       return MediaFileType.EXTRA;
     }
