@@ -78,7 +78,7 @@ public class MediaInfoXMLParser {
 
     // process every file in the ISO
     for (Element fileInXML : fileElements) {
-      MediaInfoFile miFile = new MediaInfoFile(DUMMY_FILENAME);
+      MediaInfoFile miFile = new MediaInfoFile(Paths.get(DUMMY_FILENAME));
       miFile.setSnapshot(new EnumMap<>(StreamKind.class));
       if (StringUtils.isNotBlank(fileInXML.attr("ref")) && fileInXML.attr("ref").length() > 5) {
         miFile.setFilename(fileInXML.attr("ref"));

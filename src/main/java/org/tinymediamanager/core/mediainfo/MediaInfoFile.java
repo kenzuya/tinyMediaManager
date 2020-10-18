@@ -16,6 +16,7 @@
 
 package org.tinymediamanager.core.mediainfo;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -47,13 +48,13 @@ public class MediaInfoFile {
   private String                                     path     = "";
   private String                                     filename = "";
 
-  public MediaInfoFile(String filename) {
-    this.path = FilenameUtils.getFullPathNoEndSeparator(filename);
-    this.filename = FilenameUtils.getName(filename);
+  public MediaInfoFile(Path file) {
+    this.path = file.toAbsolutePath().getParent().toString();
+    this.filename = file.getFileName().toString();
   }
 
-  public MediaInfoFile(String filename, long filesize) {
-    this(filename);
+  public MediaInfoFile(Path file, long filesize) {
+    this(file);
     this.filesize = filesize;
   }
 

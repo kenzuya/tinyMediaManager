@@ -995,7 +995,7 @@ public class MediaFileHelper {
     if (Files.isDirectory(mediaFile.getFileAsPath())) {
       for (Path path : Utils.listFilesRecursive(mediaFile.getFileAsPath())) {
         try {
-          mediaInfoFiles.add(new MediaInfoFile(path.toAbsolutePath().toString(), Files.size(path)));
+          mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
         }
         catch (Exception e) {
           LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
@@ -1004,7 +1004,7 @@ public class MediaFileHelper {
       mediaInfoFiles = detectRelevantFiles(mediaInfoFiles);
     }
     else {
-      mediaInfoFiles.add(new MediaInfoFile(mediaFile.getFileAsPath().toAbsolutePath().toString()));
+      mediaInfoFiles.add(new MediaInfoFile(mediaFile.getFile()));
     }
 
     for (MediaInfoFile file : mediaInfoFiles) {
@@ -1119,13 +1119,13 @@ public class MediaFileHelper {
           continue;
         }
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(entry.getPath(), entry.getSize()));
+        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
 
       for (Iso9660FileEntry entry : fileEntries) {
-        MediaInfoFile mif = new MediaInfoFile(entry.getPath(), entry.getSize());
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
         if (!relevantFiles.contains(mif)) {
           continue;
         }
@@ -1204,13 +1204,13 @@ public class MediaFileHelper {
           continue;
         }
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(entry.getPath(), entry.getSize()));
+        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
 
       for (UDFFileEntry entry : fileEntries) {
-        MediaInfoFile mif = new MediaInfoFile(entry.getPath(), entry.getSize());
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
         if (!relevantFiles.contains(mif)) {
           continue;
         }
