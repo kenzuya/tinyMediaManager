@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.entities;
 
 import static org.tinymediamanager.core.Constants.SUBTITLES;
+import static org.tinymediamanager.core.MediaFileHelper.BINARY_FILETYPES;
 import static org.tinymediamanager.core.MediaFileHelper.getFirstEntryViaScanner;
 
 import java.nio.file.Files;
@@ -209,10 +210,13 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   public boolean isValidMediainfoFormat() {
     String extension = getExtension();
 
-    // check unsupported extensions
-    if ("bin".equalsIgnoreCase(extension) || "dat".equalsIgnoreCase(extension) || "img".equalsIgnoreCase(extension)
-        || "nrg".equalsIgnoreCase(extension) || "disc".equalsIgnoreCase(extension)) {
-      return false;
+    if (StringUtils.isNotBlank(extension)) {
+      extension = extension.toLowerCase(Locale.ROOT);
+    }
+
+    // check binary extensions (only valid via mediainfo.xml)
+    if (BINARY_FILETYPES.contains(extension)) {
+      return true;
     }
     else if ("iso".equalsIgnoreCase(extension) || isDiscFile()) {
       return true;

@@ -80,6 +80,7 @@ public class MediaFileHelper {
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
   public static final List<String> DEFAULT_AUDIO_FILETYPES;
   public static final List<String> DEFAULT_SUBTITLE_FILETYPES;
+  public static final List<String> BINARY_FILETYPES;
 
   public static final Pattern      MOVIESET_ARTWORK_PATTERN;
   public static final Pattern      POSTER_PATTERN;
@@ -145,6 +146,8 @@ public class MediaFileHelper {
 
     DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
         ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub");
+
+    BINARY_FILETYPES = List.of("bin", "dat", "img", "nrg", "disc");
 
     String extensions = String.join("|", SUPPORTED_ARTWORK_FILETYPES);
 
@@ -696,6 +699,12 @@ public class MediaFileHelper {
    *          forces the execution, will not stop on already imported files
    */
   public static void gatherMediaInformation(MediaFile mediaFile, boolean force) {
+    String extension = mediaFile.getExtension();
+
+    if (StringUtils.isNotBlank(extension)) {
+      extension = extension.toLowerCase(Locale.ROOT);
+    }
+
     // get basic infos; file size, creation date and last modified
     gatherFileInformation(mediaFile);
 
@@ -703,7 +712,7 @@ public class MediaFileHelper {
     if (!mediaFile.isValidMediainfoFormat()) {
       // okay, we have no valid MI file, be sure it will not be triggered any more
       if (StringUtils.isBlank(mediaFile.getContainerFormat())) {
-        mediaFile.setContainerFormat(mediaFile.getExtension());
+        mediaFile.setContainerFormat(extension);
       }
       return;
     }
@@ -722,7 +731,7 @@ public class MediaFileHelper {
     if (mediaFile.getFilesize() == 0) {
       LOGGER.debug("0 Byte file detected: {}", mediaFile.getFilename());
       // set container format to do not trigger it again
-      mediaFile.setContainerFormat(mediaFile.getExtension());
+      mediaFile.setContainerFormat(extension);
       return;
     }
 
@@ -747,7 +756,12 @@ public class MediaFileHelper {
     LOGGER.debug("start MediaInfo for {}", mediaFile.getFileAsPath());
     try {
       List<MediaInfoFile> mediaInfoFiles;
-      if (mediaFile.isISO()) {
+      if (BINARY_FILETYPES.contains(extension)) {
+        // just parse via XML
+        Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
+        mediaInfoFiles = detectRelevantFiles(parseMediaInfoXml(xmlFile));
+      }
+      else if (mediaFile.isISO()) {
         mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, true);
       }
       else {
