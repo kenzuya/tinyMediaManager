@@ -14,6 +14,8 @@ x inversion of media file filter for TV shows #1063
 x prevent trailer from being renamed from within /trailer(s) folder
 x support reading of the mediainfo.xml for unsupported files (.disc, .img, ...)
 x fixed reading of mediainfo via UNC paths #1071
+x fixed some updater issues
+x fixed macOS dock pin issue
 
 
 Version 4.0.4
