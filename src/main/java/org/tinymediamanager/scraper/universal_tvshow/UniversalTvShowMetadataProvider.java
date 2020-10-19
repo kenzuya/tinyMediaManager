@@ -89,9 +89,12 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     List<String> compatibleScraperIds = new ArrayList<>(COMPATIBLE_SCRAPERS.keySet());
     compatibleScraperIds.add(0, UNDEFINED); // no scraper
 
+    config.addLabel("searchLabel", "Button.search");
     config.addSelect(SEARCH, compatibleScraperIds, UNDEFINED);
+
     // use the right key to let reflection work
     // getter in MediaMetadata must be get + Key (first letter upper case)
+    config.addLabel("tvShowLabel", "tmm.tvshow");
     config.addSelect("title", "metatag.title", compatibleScraperIds, UNDEFINED);
     config.addSelect("originalTitle", "metatag.originaltitle", compatibleScraperIds, UNDEFINED);
     config.addSelect("year", "metatag.year", compatibleScraperIds, UNDEFINED);
@@ -110,6 +113,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect("status", "metatag.status", compatibleScraperIds, UNDEFINED);
     config.addSelect("country", "metatag.country", compatibleScraperIds, UNDEFINED);
 
+    config.addLabel("episodeLabel", "metatag.episode");
     config.addSelect("episodes", "metatag.episodes", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodeTitle", "metatag.title", compatibleScraperIds, UNDEFINED);
     config.addSelect("episodePlot", "metatag.plot", compatibleScraperIds, UNDEFINED);

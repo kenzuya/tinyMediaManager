@@ -33,7 +33,8 @@ public class MediaProviderConfigObject {
     BOOL,
     SELECT,
     SELECT_INDEX,
-    INTEGER
+    INTEGER,
+    LABEL // just for labeling in the UI
   }
 
   private static final Logger LOGGER          = LoggerFactory.getLogger(MediaProviderConfigObject.class);

@@ -84,9 +84,12 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     List<String> compatibleScraperIds = new ArrayList<>(COMPATIBLE_SCRAPERS.keySet());
     compatibleScraperIds.add(0, UNDEFINED); // no scraper
 
-    config.addSelect(SEARCH, compatibleScraperIds, UNDEFINED);
+    config.addLabel("searchLabel", "Button.search");
+    config.addSelect(SEARCH, SEARCH, compatibleScraperIds, UNDEFINED);
+
     // use the right key to let reflection work
     // getter in MediaMetadata must be get + Key (first letter upper case)
+    config.addLabel("movieLabel", "tmm.metadata");
     config.addSelect("title", "metatag.title", compatibleScraperIds, UNDEFINED);
     config.addSelect("originalTitle", "metatag.originaltitle", compatibleScraperIds, UNDEFINED);
     config.addSelect("tagline", "metatag.tagline", compatibleScraperIds, UNDEFINED);
