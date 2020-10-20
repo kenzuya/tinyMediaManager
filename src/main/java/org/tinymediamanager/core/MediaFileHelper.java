@@ -73,8 +73,8 @@ public class MediaFileHelper {
 
   public static final List<String> TRAILER_FOLDERS    = Arrays.asList("trailer", "trailers");
   public static final List<String> EXTRA_FOLDERS      = Arrays.asList("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
-      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");                                                                                                                             // lower
-                                                                                                                                                                                                              // case
+      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");                                                                 // lower
+                                                                                                                                                  // case
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -2004,27 +2004,18 @@ public class MediaFileHelper {
       mediaFile.setContainerFormat(mediaFile.getExtension());
     }
 
-    String ar = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "DisplayAspectRatio", "Display_aspect_ratio", "DisplayAspectRatio/String",
-        "DisplayAspectRatio_Origin");
+    // we use the storage ratio (width / heigth) and multiply by PAR
+    // we do not care about the DAR
+    String parString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio", "Pixel_aspect_ratio");
+    if (parString.isEmpty()) {
+      parString = "1.0";
+    }
     try {
-      // make it easier - replace all *:1 because there is no need to calculate
-      ar = ar.replace(":1", "");
-
-      // check if we still have a : in our aspect ratio
-      if (ar.contains(":")) {
-        String[] operands = ar.split(":");
-        if (operands.length == 2) {
-          // calculate
-          mediaFile.setAspectRatio(Float.parseFloat(operands[0]) / Float.parseFloat(operands[1]));
-        }
-      }
-      else {
-        // just parse
-        mediaFile.setAspectRatio(Float.parseFloat(ar));
-      }
+      float par = Float.parseFloat(parString);
+      mediaFile.setAspectRatio((float) mediaFile.getVideoWidth() * par / mediaFile.getVideoHeight());
     }
     catch (Exception e) {
-      LOGGER.trace("Could not parse AspectRatio '{}'", ar);
+      LOGGER.warn("Could not parse AspectRatio '{}'", parString);
     }
 
     mediaFile.setVideo3DFormat(parse3DFormat(mediaFile, miSnapshot));

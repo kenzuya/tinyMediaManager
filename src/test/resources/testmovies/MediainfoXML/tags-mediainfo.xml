@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo
+    xmlns="https://mediaarea.net/mediainfo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+    version="2.0">
+	<creatingLibrary version="20.08" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+	<media ref="Zulu.m4v">
+		<track type="General">
+			<VideoCount>1</VideoCount>
+			<AudioCount>1</AudioCount>
+			<MenuCount>2</MenuCount>
+			<FileExtension>m4v</FileExtension>
+			<Format>MPEG-4</Format>
+			<Format_Profile>Base Media</Format_Profile>
+			<CodecID>mp42</CodecID>
+			<CodecID_Compatible>mp42/isom/avc1</CodecID_Compatible>
+			<FileSize>1549862209</FileSize>
+			<Duration>8301.610</Duration>
+			<OverallBitRate_Mode>VBR</OverallBitRate_Mode>
+			<OverallBitRate>1493553</OverallBitRate>
+			<FrameRate>23.976</FrameRate>
+			<FrameCount>199040</FrameCount>
+			<StreamSize>6926440</StreamSize>
+			<HeaderSize>160</HeaderSize>
+			<DataSize>1542936361</DataSize>
+			<FooterSize>6925688</FooterSize>
+			<IsStreamable>No</IsStreamable>
+
+
+			<Title>Zulu</Title>
+			<Movie>Zulu</Movie>
+			<Performer>Stanley Baker, Jack Hawkins, Ulla Jacobsson, James Booth, Michael Caine, Nigel Green, Paul Daneman, Patrick Magee</Performer>
+			<Director>Cy Endfield</Director>
+			<Actor>Stanley Baker / Jack Hawkins / Ulla Jacobsson / James Booth / Michael Caine / Nigel Green / Paul Daneman / Patrick Magee</Actor>
+			<ScreenplayBy>John Prebble / Cy Endfield</ScreenplayBy>
+			<Producer>Stanley Baker / Cy Endfield</Producer>
+			<ProductionStudio>MGM</ProductionStudio>
+			<Genre>War</Genre>
+			<ContentType>Short Film</ContentType>
+			<Description>In 1879, during the Zulu wars, man of the people Lt. John Chard (Stanley Baker) and snooty Lt Gonville Bromhead (Michael Caine) are in charge of defending the isolated Natal outpost of Rorke&apos;s Drift from tribal hordes, holding out during an Alamo-like se</Description>
+			
+			
+			<Recorded_Date>1964-6-17T09:00:00Z</Recorded_Date>
+			<Encoded_Date>UTC 2012-02-07 13:14:07</Encoded_Date>
+			<Tagged_Date>UTC 2013-10-26 03:50:26</Tagged_Date>
+			<File_Modified_Date>UTC 2018-11-25 21:13:19</File_Modified_Date>
+			<File_Modified_Date_Local>2018-11-25 15:13:19</File_Modified_Date_Local>
+			<Encoded_Application>HandBrake 0.9.5 2011010300</Encoded_Application>
+			<ServiceName>iTunes</ServiceName>
+			<Cover>Yes</Cover>
+			<Rating>None</Rating>
+			<extra>
+				<LongDescription>In 1879, during the Zulu wars, man of the people Lt. John Chard (Stanley Baker) and snooty Lt Gonville Bromhead (Michael Caine) are in charge of defending the isolated Natal outpost of Rorke&apos;s Drift from tribal hordes, holding out during an Alamo-like seige until they are overwhelmed, losing the battle, but going down in history as heroes. 150 soldiers defended a supply station against some 4000 Zulus, aided by the Martini-Henry rifle &apos;with some guts behind it. &quot;At Rorke&apos;s Drift, eleven Victoria Crosses were awarded. Seven to the 2nd Battalion, 24th (2nd Warwickshire) Regiment of Foot, one to the Army Medical Department, one to the Royal Engineers, one to the Commissariat and Transport Department and one to the Natal Native Contingent.</LongDescription>
+				<AppleStoreAccountType>iTunes</AppleStoreAccountType>
+				<AppleStoreCountry>0</AppleStoreCountry>
+				<AlbumTitleID>0</AlbumTitleID>
+				<PlayListID>0</PlayListID>
+				<GenreID>0</GenreID>
+			</extra>
+		</track>
+		<track type="Video">
+			<StreamOrder>0</StreamOrder>
+			<ID>1</ID>
+			<Format>AVC</Format>
+			<Format_Profile>High</Format_Profile>
+			<Format_Level>3</Format_Level>
+			<Format_Settings_CABAC>Yes</Format_Settings_CABAC>
+			<Format_Settings_RefFrames>4</Format_Settings_RefFrames>
+			<CodecID>avc1</CodecID>
+			<Duration>8301.610</Duration>
+			<BitRate>1385831</BitRate>
+			<Width>720</Width>
+			<Height>368</Height>
+			<Sampled_Width>720</Sampled_Width>
+			<Sampled_Height>368</Sampled_Height>
+			<PixelAspectRatio>1.185</PixelAspectRatio>
+			<DisplayAspectRatio>2.318</DisplayAspectRatio>
+			<Rotation>0.000</Rotation>
+			<FrameRate_Mode>VFR</FrameRate_Mode>
+			<FrameRate>23.976</FrameRate>
+			<FrameRate_Minimum>19.965</FrameRate_Minimum>
+			<FrameRate_Maximum>29.970</FrameRate_Maximum>
+			<FrameCount>199040</FrameCount>
+			<ColorSpace>YUV</ColorSpace>
+			<ChromaSubsampling>4:2:0</ChromaSubsampling>
+			<BitDepth>8</BitDepth>
+			<ScanType>Progressive</ScanType>
+			<StreamSize>1438082786</StreamSize>
+			<Encoded_Library>x264 - core 112</Encoded_Library>
+			<Encoded_Library_Name>x264</Encoded_Library_Name>
+			<Encoded_Library_Version>core 112</Encoded_Library_Version>
+			<Encoded_Library_Settings>cabac=1 / ref=3 / deblock=1:0:0 / analyse=0x3:0x113 / me=hex / subme=7 / psy=1 / psy_rd=1.00:0.00 / mixed_ref=1 / me_range=16 / chroma_me=1 / trellis=1 / 8x8dct=1 / cqm=0 / deadzone=21,11 / fast_pskip=1 / chroma_qp_offset=-2 / threads=6 / sliced_threads=0 / nr=0 / decimate=1 / interlaced=0 / constrained_intra=0 / bframes=3 / b_pyramid=2 / b_adapt=1 / b_bias=0 / direct=1 / weightb=1 / open_gop=0 / weightp=2 / keyint=300 / keyint_min=29 / scenecut=40 / intra_refresh=0 / rc_lookahead=40 / rc=crf / mbtree=1 / crf=20.0 / qcomp=0.60 / qpmin=3 / qpmax=51 / qpstep=4 / ip_ratio=1.40 / aq=1:1.00</Encoded_Library_Settings>
+			<Encoded_Date>UTC 2012-02-07 13:14:07</Encoded_Date>
+			<Tagged_Date>UTC 2012-02-07 14:28:54</Tagged_Date>
+			<colour_description_present>Yes</colour_description_present>
+			<colour_description_present_Source>Container / Stream</colour_description_present_Source>
+			<colour_range>Limited</colour_range>
+			<colour_range_Source>Stream</colour_range_Source>
+			<colour_primaries>BT.601 NTSC</colour_primaries>
+			<colour_primaries_Source>Container / Stream</colour_primaries_Source>
+			<transfer_characteristics>BT.709</transfer_characteristics>
+			<transfer_characteristics_Source>Container / Stream</transfer_characteristics_Source>
+			<matrix_coefficients>BT.601</matrix_coefficients>
+			<matrix_coefficients_Source>Container / Stream</matrix_coefficients_Source>
+			<extra>
+				<Menus>4</Menus>
+				<CodecConfigurationBox>avcC</CodecConfigurationBox>
+			</extra>
+		</track>
+		<track type="Audio">
+			<StreamOrder>1</StreamOrder>
+			<ID>2</ID>
+			<Format>AAC</Format>
+			<Format_AdditionalFeatures>LC</Format_AdditionalFeatures>
+			<CodecID>mp4a-40-2</CodecID>
+			<Duration>8301.589</Duration>
+			<BitRate_Mode>VBR</BitRate_Mode>
+			<BitRate>101044</BitRate>
+			<BitRate_Maximum>136640</BitRate_Maximum>
+			<Channels>2</Channels>
+			<ChannelPositions>Front: L R</ChannelPositions>
+			<ChannelLayout>L R</ChannelLayout>
+			<SamplesPerFrame>1024</SamplesPerFrame>
+			<SamplingRate>48000</SamplingRate>
+			<SamplingCount>398476272</SamplingCount>
+			<FrameRate>46.875</FrameRate>
+			<FrameCount>389137</FrameCount>
+			<Compression_Mode>Lossy</Compression_Mode>
+			<StreamSize>104852983</StreamSize>
+			<StreamSize_Proportion>0.06765</StreamSize_Proportion>
+			<Title>Stereo</Title>
+			<Language>en</Language>
+			<Encoded_Date>UTC 2012-02-07 13:14:07</Encoded_Date>
+			<Tagged_Date>UTC 2012-02-07 14:28:54</Tagged_Date>
+		</track>
+		<track type="Menu" typeorder="1">
+			<extra>
+				<_00_00_00_000>Feature Start</_00_00_00_000>
+				<_00_03_20_316>Building the Bridge</_00_03_20_316>
+				<_00_10_27_042>A New Leader Emerges</_00_10_27_042>
+				<_00_13_02_363>Preparing for Battle</_00_13_02_363>
+				<_00_24_28_248>Facing Reality</_00_24_28_248>
+				<_00_30_30_910>Test of Wills</_00_30_30_910>
+				<_00_35_29_157>Death Awaits</_00_35_29_157>
+				<_00_38_17_375>The Battle Rages On</_00_38_17_375>
+				<_00_41_31_902>January 23rd, 1879</_00_41_31_902>
+				<_00_49_02_352>Cetewayo&apos;s Kraal</_00_49_02_352>
+				<_00_56_42_478>Rorke&apos;s Drift</_00_56_42_478>
+				<_01_02_22_017>Preparations</_01_02_22_017>
+				<_01_12_31_425>Like a Train in the Distance</_01_12_31_425>
+				<_01_17_17_210>Fix Bayonets</_01_17_17_210>
+				<_01_25_00_673>Load...Present...Fire!</_01_25_00_673>
+				<_01_29_08_587>&quot;You&apos;re all Going to Die&quot;</_01_29_08_587>
+				<_01_35_43_648>&quot;Attack, Damn You!&quot;</_01_35_43_648>
+				<_01_39_13_524>Volley Fire!</_01_39_13_524>
+				<_01_43_06_873>Attack on the Blind Spot</_01_43_06_873>
+				<_01_52_03_659>Dawn:Day 2</_01_52_03_659>
+				<_01_57_48_503>Men of Harlech/ Final Redoubt</_01_57_48_503>
+				<_02_05_36_103>&quot;...They&apos;re Saluting You&quot;</_02_05_36_103>
+				<_02_09_59_399>The Eleven V.C.&apos;s</_02_09_59_399>
+				<_02_14_25_131>End Credits</_02_14_25_131>
+			</extra>
+		</track>
+		<track type="Menu" typeorder="2">
+			<StreamOrder>2</StreamOrder>
+			<ID>4</ID>
+			<Format>Timed Text</Format>
+			<CodecID>text</CodecID>
+			<Duration>8301.609</Duration>
+			<extra>
+				<Encoded_Date>UTC 2013-10-26 03:50:26</Encoded_Date>
+				<Tagged_Date>UTC 2013-10-26 03:50:26</Tagged_Date>
+				<Menu_For>1</Menu_For>
+				<_00_00_00_000>Feature Start</_00_00_00_000>
+				<_00_03_20_316>Building the Bridge</_00_03_20_316>
+				<_00_10_27_042>A New Leader Emerges</_00_10_27_042>
+				<_00_13_02_363>Preparing for Battle</_00_13_02_363>
+				<_00_24_28_248>Facing Reality</_00_24_28_248>
+				<_00_30_30_910>Test of Wills</_00_30_30_910>
+				<_00_35_29_157>Death Awaits</_00_35_29_157>
+				<_00_38_17_375>The Battle Rages On</_00_38_17_375>
+				<_00_41_31_902>January 23rd, 1879</_00_41_31_902>
+				<_00_49_02_352>Cetewayo&apos;s Kraal</_00_49_02_352>
+				<_00_56_42_478>Rorke&apos;s Drift</_00_56_42_478>
+				<_01_02_22_017>Preparations</_01_02_22_017>
+				<_01_12_31_425>Like a Train in the Distance</_01_12_31_425>
+				<_01_17_17_210>Fix Bayonets</_01_17_17_210>
+				<_01_25_00_673>Load...Present...Fire!</_01_25_00_673>
+				<_01_29_08_587>&quot;You&apos;re all Going to Die&quot;</_01_29_08_587>
+				<_01_35_43_648>&quot;Attack, Damn You!&quot;</_01_35_43_648>
+				<_01_39_13_524>Volley Fire!</_01_39_13_524>
+				<_01_43_06_873>Attack on the Blind Spot</_01_43_06_873>
+				<_01_52_03_659>Dawn:Day 2</_01_52_03_659>
+				<_01_57_48_503>Men of Harlech/ Final Redoubt</_01_57_48_503>
+				<_02_05_36_103>&quot;...They&apos;re Saluting You&quot;</_02_05_36_103>
+				<_02_09_59_399>The Eleven V.C.&apos;s</_02_09_59_399>
+				<_02_14_25_131>End Credits</_02_14_25_131>
+			</extra>
+		</track>
+	</media>
+</MediaInfo>
+
