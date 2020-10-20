@@ -1,6 +1,7 @@
 Version 3.1.11
 =======================
 x reading of hybrid DVD ISO files
++ updated libmediainfo to 20.09
 
 
 Version 3.1.10
