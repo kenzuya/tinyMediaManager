@@ -646,6 +646,7 @@ public abstract class ImdbParser {
       }
 
       if (elementText.equals("Country")) {
+        boolean scrapeLanguageNames = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeLanguageNames");
         Element nextElement = element.nextElementSibling();
         if (nextElement != null) {
           Elements countryElements = nextElement.getElementsByAttributeValueStarting("href", "/country/");
@@ -654,7 +655,7 @@ public abstract class ImdbParser {
           for (Element countryElement : countryElements) {
             Matcher matcher = pattern.matcher(countryElement.attr("href"));
             if (matcher.matches()) {
-              if (ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeLanguageNames")) {
+              if (scrapeLanguageNames) {
                 md.addCountry(
                     LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().getLanguage(), countryElement.text(), matcher.group(1)));
               }
@@ -667,6 +668,7 @@ public abstract class ImdbParser {
       }
 
       if (elementText.equals("Language")) {
+        boolean scrapeLanguageNames = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeLanguageNames");
         Element nextElement = element.nextElementSibling();
         if (nextElement != null) {
           Elements languageElements = nextElement.getElementsByAttributeValueStarting("href", "/language/");
@@ -675,7 +677,7 @@ public abstract class ImdbParser {
           for (Element languageElement : languageElements) {
             Matcher matcher = pattern.matcher(languageElement.attr("href"));
             if (matcher.matches()) {
-              if (ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeLanguageNames")) {
+              if (scrapeLanguageNames) {
                 md.addSpokenLanguage(LanguageUtils.getLocalizedLanguageNameFromLocalizedString(options.getLanguage().toLocale(),
                     languageElement.text(), matcher.group(1)));
               }
@@ -760,15 +762,18 @@ public abstract class ImdbParser {
     }
 
     // actors
+    boolean scrapeUncreditedActors = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeUncreditedActors");
+
     Element castTableElement = doc.getElementsByClass("cast_list").first();
     if (castTableElement != null) {
       Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
       Elements tr = castTableElement.getElementsByTag("tr");
       for (Element row : tr) {
         // check if we're at the uncredited cast members
-        if (castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
+        if (!scrapeUncreditedActors && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
           break;
         }
+
         Person cm = parseCastMember(row);
         if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
           cm.setType(ACTOR);

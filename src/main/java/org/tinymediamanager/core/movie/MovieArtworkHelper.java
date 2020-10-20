@@ -88,7 +88,7 @@ public class MovieArtworkHelper {
       for (IFileNaming fileNaming : fileNamings) {
         boolean firstImage = false;
 
-        String filename = getArtworkFilename(movie, fileNaming, Utils.getArtworkExtension(url));
+        String filename = getArtworkFilename(movie, fileNaming, Utils.getArtworkExtensionFromUrl(url));
         if (StringUtils.isBlank(filename)) {
           continue;
         }

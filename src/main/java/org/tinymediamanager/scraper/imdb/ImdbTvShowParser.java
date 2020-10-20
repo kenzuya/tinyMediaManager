@@ -168,9 +168,9 @@ public class ImdbTvShowParser extends ImdbParser {
     futurePlotsummary = compSvcImdb.submit(worker);
 
     // worker for imdb request (/releaseinfo)
-    Future<Document> futureReleaseinfo;
-    url = apiKey + "title/" + imdbId + "/releaseinfo";
-    worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    // Future<Document> futureReleaseinfo;
+    // url = apiKey + "title/" + imdbId + "/releaseinfo";
+    // worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
@@ -378,10 +378,18 @@ public class ImdbTvShowParser extends ImdbParser {
           }
 
           // actors
+          boolean scrapeUncreditedActors = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeUncreditedActors");
+
           Element castTableElement = doc.getElementsByClass("cast_list").first();
           if (castTableElement != null) {
+            Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
             Elements tr = castTableElement.getElementsByTag("tr");
             for (Element row : tr) {
+              // check if we're at the uncredited cast members
+              if (!scrapeUncreditedActors && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
+                break;
+              }
+
               Person cm = parseCastMember(row);
               if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
                 cm.setType(ACTOR);

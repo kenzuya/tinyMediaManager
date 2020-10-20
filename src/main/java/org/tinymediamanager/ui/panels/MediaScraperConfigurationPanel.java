@@ -100,7 +100,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
   }
 
   private JPanel createConfigPanel() {
-    JPanel panel = new JPanel(new MigLayout("gapy 0lp", "[][20lp!][]", ""));
+    JPanel panel = new JPanel(new MigLayout("gapy 2lp", "[][20lp!][]", ""));
 
     int row = 0;
 
@@ -120,11 +120,24 @@ public class MediaScraperConfigurationPanel extends JPanel {
       if (StringUtils.isBlank(keyDescription)) {
         keyDescription = entry.getValue().getKeyDescription();
       }
-      JLabel label = new JLabel(keyDescription);
+      JLabel label;
+      if (entry.getValue().getType() == MediaProviderConfigObject.ConfigType.LABEL) {
+        // if we have a LABEL here, use a bold style label
+        label = new TmmLabel(keyDescription);
+        // and insert a empty line
+        row++;
+      }
+      else {
+        label = new JLabel(keyDescription);
+      }
       panel.add(label, "cell 0 " + row);
 
-      JComponent comp;
+      JComponent comp = null;
       switch (entry.getValue().getType()) {
+        case LABEL:
+          // just use a Label here
+          break;
+
         case BOOL:
           // display as checkbox
           JCheckBox checkbox = new JCheckBox();
@@ -182,8 +195,10 @@ public class MediaScraperConfigurationPanel extends JPanel {
           break;
       }
 
-      comp.putClientProperty(entry.getKey(), entry.getKey());
-      panel.add(comp, "cell 3 " + row);
+      if (comp != null) {
+        comp.putClientProperty(entry.getKey(), entry.getKey());
+        panel.add(comp, "cell 3 " + row);
+      }
 
       // add a hint if a long text has been found
       try {

@@ -28,15 +28,15 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  */
 public abstract class TmmTask implements Runnable, TmmTaskHandle {
   private final Set<TmmTaskListener> listeners = new CopyOnWriteArraySet<>();
-  private TaskType                   type;
-  protected TaskState                state     = TaskState.CREATED;
+  private final TaskType             type;
+  private final long                 uniqueId;
 
+  protected TaskState                state     = TaskState.CREATED;
   protected String                   taskName;
   protected String                   taskDescription;
   protected int                      workUnits;
   protected int                      progressDone;
   protected boolean                  cancel;
-  private long                       uniqueId;
   protected Thread                   thread;
 
   protected TmmTask(String taskName, int workUnits, TaskType type) {
@@ -99,7 +99,7 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle {
     listeners.add(listener);
   }
 
-  void setState(TaskState newState) {
+  protected void setState(TaskState newState) {
     this.state = newState;
     informListeners();
   }
@@ -165,7 +165,9 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle {
   }
 
   protected void finish() {
-    setState(TaskState.FINISHED);
+    if (state != TaskState.FAILED && state != TaskState.CANCELLED) {
+      setState(TaskState.FINISHED);
+    }
     thread = null;
   }
 

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo
+    xmlns="https://mediaarea.net/mediainfo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+    version="2.0">
+	<creatingLibrary version="20.03" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+	<media ref="V:\Movies\Dance with a Stranger\Dance with a Stranger.mkv">
+		<track type="General">
+			<UniqueID>41948203557937710197638697226384341699</UniqueID>
+			<VideoCount>1</VideoCount>
+			<AudioCount>1</AudioCount>
+			<MenuCount>1</MenuCount>
+			<FileExtension>mkv</FileExtension>
+			<Format>Matroska</Format>
+			<Format_Version>4</Format_Version>
+			<FileSize>1685288046</FileSize>
+			<Duration>6051.960</Duration>
+			<OverallBitRate>2227758</OverallBitRate>
+			<FrameRate>23.976</FrameRate>
+			<FrameCount>145102</FrameCount>
+			<IsStreamable>Yes</IsStreamable>
+			<Encoded_Date>UTC 2017-03-26T01:59:43Z</Encoded_Date>
+			<File_Created_Date>UTC 2017-03-26 02:00:27.994</File_Created_Date>
+			<File_Created_Date_Local>2017-03-25 21:00:27.994</File_Created_Date_Local>
+			<File_Modified_Date>UTC 2017-03-26 03:59:01.712</File_Modified_Date>
+			<File_Modified_Date_Local>2017-03-25 22:59:01.712</File_Modified_Date_Local>
+			<Encoded_Application>HandBrake 1.0.1 2016122900</Encoded_Application>
+			<Encoded_Library>Lavf57.7.2</Encoded_Library>
+		</track>
+		<track type="Video">
+			<StreamOrder>0</StreamOrder>
+			<ID>1</ID>
+			<UniqueID>1</UniqueID>
+			<Format>AVC</Format>
+			<Format_Profile>High</Format_Profile>
+			<Format_Level>4</Format_Level>
+			<Format_Settings_CABAC>Yes</Format_Settings_CABAC>
+			<Format_Settings_RefFrames>6</Format_Settings_RefFrames>
+			<CodecID>V_MPEG4/ISO/AVC</CodecID>
+			<Duration>6051.969</Duration>
+			<Width>704</Width>
+			<Height>400</Height>
+			<Sampled_Width>704</Sampled_Width>
+			<Sampled_Height>400</Sampled_Height>
+			<PixelAspectRatio>0.922</PixelAspectRatio>
+			<DisplayAspectRatio>1.622</DisplayAspectRatio>
+			<DisplayAspectRatio_Original>1.624</DisplayAspectRatio_Original>
+			<FrameRate_Mode>CFR</FrameRate_Mode>
+			<FrameRate_Mode_Original>VFR</FrameRate_Mode_Original>
+			<FrameRate>23.976</FrameRate>
+			<FrameCount>145102</FrameCount>
+			<ColorSpace>YUV</ColorSpace>
+			<ChromaSubsampling>4:2:0</ChromaSubsampling>
+			<BitDepth>8</BitDepth>
+			<ScanType>Progressive</ScanType>
+			<Delay>0.021</Delay>
+			<Encoded_Library>x264 - core 148 r2708 86b7198</Encoded_Library>
+			<Encoded_Library_Name>x264</Encoded_Library_Name>
+			<Encoded_Library_Version>core 148 r2708 86b7198</Encoded_Library_Version>
+			<Encoded_Library_Settings>cabac=1 / ref=6 / deblock=1:0:0 / analyse=0x3:0x113 / me=umh / subme=10 / psy=1 / psy_rd=1.00:0.00 / mixed_ref=1 / me_range=16 / chroma_me=1 / trellis=2 / 8x8dct=1 / cqm=0 / deadzone=21,11 / fast_pskip=1 / chroma_qp_offset=-2 / threads=12 / lookahead_threads=1 / sliced_threads=0 / nr=0 / decimate=0 / interlaced=0 / bluray_compat=0 / constrained_intra=0 / bframes=5 / b_pyramid=2 / b_adapt=2 / b_bias=0 / direct=3 / weightb=1 / open_gop=0 / weightp=2 / keyint=240 / keyint_min=24 / scenecut=40 / intra_refresh=0 / rc_lookahead=30 / rc=crf / mbtree=1 / crf=16.0 / qcomp=0.60 / qpmin=0 / qpmax=69 / qpstep=4 / vbv_maxrate=20000 / vbv_bufsize=25000 / crf_max=0.0 / nal_hrd=none / filler=0 / ip_ratio=1.40 / aq=1:1.00</Encoded_Library_Settings>
+			<Default>Yes</Default>
+			<Forced>No</Forced>
+			<colour_description_present>Yes</colour_description_present>
+			<colour_description_present_Source>Stream</colour_description_present_Source>
+			<colour_range>Limited</colour_range>
+			<colour_range_Source>Stream</colour_range_Source>
+			<colour_primaries>BT.601 NTSC</colour_primaries>
+			<colour_primaries_Source>Stream</colour_primaries_Source>
+			<transfer_characteristics>BT.709</transfer_characteristics>
+			<transfer_characteristics_Source>Stream</transfer_characteristics_Source>
+			<matrix_coefficients>BT.601</matrix_coefficients>
+			<matrix_coefficients_Source>Stream</matrix_coefficients_Source>
+			<extra>
+				<Duration_Source>General_Duration</Duration_Source>
+			</extra>
+		</track>
+		<track type="Audio">
+			<StreamOrder>1</StreamOrder>
+			<ID>2</ID>
+			<UniqueID>2</UniqueID>
+			<Format>AAC</Format>
+			<Format_Settings_SBR>No (Explicit)</Format_Settings_SBR>
+			<Format_AdditionalFeatures>LC</Format_AdditionalFeatures>
+			<CodecID>A_AAC-2</CodecID>
+			<Duration>6051.960</Duration>
+			<Channels>2</Channels>
+			<ChannelPositions>Front: L R</ChannelPositions>
+			<ChannelLayout>L R</ChannelLayout>
+			<SamplesPerFrame>1024</SamplesPerFrame>
+			<SamplingRate>48000</SamplingRate>
+			<SamplingCount>290494080</SamplingCount>
+			<FrameRate>46.875</FrameRate>
+			<Compression_Mode>Lossy</Compression_Mode>
+			<Delay>0.000</Delay>
+			<Delay_Source>Container</Delay_Source>
+			<Title>Stereo</Title>
+			<Language>en</Language>
+			<Default>Yes</Default>
+			<Forced>No</Forced>
+			<extra>
+				<Duration_Source>General_Duration</Duration_Source>
+			</extra>
+		</track>
+		<track type="Menu">
+			<extra>
+				<_00_00_00_134>:Chapter 1</_00_00_00_134>
+				<_00_01_50_046>:Chapter 2</_00_01_50_046>
+				<_00_10_32_560>:Chapter 3</_00_10_32_560>
+				<_00_17_25_639>:Chapter 4</_00_17_25_639>
+				<_00_23_04_935>:Chapter 5</_00_23_04_935>
+				<_00_31_13_465>:Chapter 6</_00_31_13_465>
+				<_00_36_52_810>:Chapter 7</_00_36_52_810>
+				<_00_45_45_335>:Chapter 8</_00_45_45_335>
+				<_00_50_42_006>:Chapter 9</_00_50_42_006>
+				<_00_56_37_153>:Chapter 10</_00_56_37_153>
+				<_01_01_33_982>:Chapter 11</_01_01_33_982>
+				<_01_07_45_025>:Chapter 12</_01_07_45_025>
+				<_01_13_28_075>:Chapter 13</_01_13_28_075>
+				<_01_21_20_752>:Chapter 14</_01_21_20_752>
+				<_01_30_13_532>:Chapter 15</_01_30_13_532>
+				<_01_37_10_033>:Chapter 16</_01_37_10_033>
+			</extra>
+		</track>
+	</media>
+</MediaInfo>

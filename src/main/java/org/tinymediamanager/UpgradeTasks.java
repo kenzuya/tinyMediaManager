@@ -100,7 +100,6 @@ public class UpgradeTasks {
       }
 
       // delete old files
-      Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMD.exe"));
       Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMDUpd.exe"));
       Utils.deleteFileSafely(Paths.get("tinyMediaManagerUpd.exe"));
       Utils.deleteFileSafely(Paths.get("tinyMediaManagerCMD.sh"));
@@ -158,11 +157,9 @@ public class UpgradeTasks {
           LOGGER.error("Could not update MacOS/tinyMediaManager");
         }
       }
-    }
 
-    // legacy OSX launcher (need for a smooth transition from v3)
-    if (Platform.isMac()) {
-      File file = new File("macOS/MacOS/JavaApplicationStub");
+      // legacy OSX launcher (need for a smooth transition from v3)
+      file = new File("macOS/MacOS/JavaApplicationStub");
       if (file.exists() && file.length() > 0) {
         File cur = new File("../../MacOS/JavaApplicationStub");
         try {
@@ -173,11 +170,9 @@ public class UpgradeTasks {
           LOGGER.error("Could not update MacOS/JavaApplicationStub");
         }
       }
-    }
 
-    // OSX Info.plist
-    if (Platform.isMac()) {
-      File file = new File("macOS/Info.plist");
+      // OSX Info.plist
+      file = new File("macOS/Info.plist");
       if (file.exists() && file.length() > 0) {
         File cur = new File("../../Info.plist");
         try {
@@ -187,11 +182,9 @@ public class UpgradeTasks {
           LOGGER.error("Could not update Info.plist");
         }
       }
-    }
 
-    // OSX tmm.icns
-    if (Platform.isMac()) {
-      File file = new File("macOS/Resources/tmm.icns");
+      // OSX tmm.icns
+      file = new File("macOS/Resources/tmm.icns");
       if (file.exists() && file.length() > 0) {
         File cur = new File("../tmm.icns");
         try {
@@ -199,6 +192,17 @@ public class UpgradeTasks {
         }
         catch (IOException e) {
           LOGGER.error("Could not update tmm.icns");
+        }
+      }
+
+      // remove macOS folder
+      Path macOS = Paths.get("macOS");
+      if (macOS.toFile().exists()) {
+        try {
+          Utils.deleteDirectoryRecursive(macOS);
+        }
+        catch (Exception e) {
+          LOGGER.error("could not delete macOS folder - {}", e.getMessage());
         }
       }
     }

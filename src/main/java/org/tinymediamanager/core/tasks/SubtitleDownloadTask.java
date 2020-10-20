@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.core.movie.tasks;
+package org.tinymediamanager.core.tasks;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,40 +31,72 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.tasks.DownloadTask;
 
 /**
  * This class handles the download and additional unpacking of a subtitle
  * 
  * @author Manuel Laggner
  */
-public class MovieSubtitleDownloadTask extends DownloadTask {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieSubtitleDownloadTask.class);
+public class SubtitleDownloadTask extends DownloadTask {
+  private static final Logger         LOGGER = LoggerFactory.getLogger(SubtitleDownloadTask.class);
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
-  private final Movie         movie;
-  private final String        languageTag;
-  private final Path          videoFilePath;
+  private final MediaEntity           mediaEntity;
+  private final Path                  destinationFile;
 
-  public MovieSubtitleDownloadTask(String url, Path videoFilePath, String languageTag, Movie movie) {
-    super(url, movie.getPathNIO().resolve(FilenameUtils.getBaseName(videoFilePath.getFileName().toString()) + "." + languageTag));
-    this.movie = movie;
-    this.languageTag = languageTag;
-    this.videoFilePath = videoFilePath;
+  public SubtitleDownloadTask(String url, Path destinationFile, MediaEntity mediaEntity) {
+    super(BUNDLE.getString("subtitle.downloading"), url);
+    this.mediaEntity = mediaEntity;
+    this.destinationFile = destinationFile;
   }
 
   @Override
-  protected void doInBackground() {
-    // let the DownloadTask handle the whole download
-    super.doInBackground();
+  protected Path getDestinationWoExtension() {
+    return destinationFile;
+  }
 
-    MediaFile mf = new MediaFile(file);
-    Path old = mf.getFileAsPath();
+  @Override
+  protected MediaEntity getMediaEntityToAdd() {
+    return mediaEntity;
+  }
 
-    if (mf.getType() != MediaFileType.SUBTITLE) {
+  @Override
+  protected void moveDownloadedFile(String fileExtension) throws IOException {
+    Path destination = getDestinationWoExtension();
+    if (!fileExtension.isEmpty()) {
+      destination = destination.getParent().resolve(destination.getFileName() + "." + fileExtension);
+    }
+
+    MediaFile tempMediaFile = new MediaFile(tempFile);
+
+    if (tempMediaFile.getType() == MediaFileType.SUBTITLE) {
+      // a direct subtitle download - we can just move it an add it to the movie
+      Utils.deleteFileSafely(destination); // delete existing file
+      boolean ok = Utils.moveFileSafe(tempFile, destination);
+      if (ok) {
+        Utils.deleteFileSafely(tempFile);
+
+        if (mediaEntity != null) {
+          MediaFile mf = new MediaFile(destination);
+          mf.gatherMediaInformation();
+          mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
+          mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
+          mediaEntity.saveToDb();
+        }
+      }
+      else {
+        LOGGER.warn("Download to '{}' was ok, but couldn't move to '{}'", tempFile, destination);
+        setState(TaskState.FAILED);
+      }
+    }
+    else {
+      // no subtitle - maybe a zip file
+      MediaFile mf = null;
+
       // try to decompress
-      try (FileInputStream fis = new FileInputStream(file.toFile()); ZipInputStream is = new ZipInputStream(fis)) {
+      try (FileInputStream fis = new FileInputStream(tempFile.toFile()); ZipInputStream is = new ZipInputStream(fis)) {
 
         // get the zipped file list entry
         ZipEntry ze = is.getNextEntry();
@@ -98,25 +131,27 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
       }
       catch (Exception e) {
         LOGGER.debug("could not extract subtitle: {}", e.getMessage());
+        setState(TaskState.FAILED);
       }
       finally {
-        Utils.deleteFileSafely(file);
+        Utils.deleteFileSafely(destinationFile);
+      }
+
+      if (mf != null && mf.getType() == MediaFileType.SUBTITLE) {
+        if (mediaEntity != null) {
+          mf.gatherMediaInformation();
+          mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
+          mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
+          mediaEntity.saveToDb();
+        }
+      }
+      else {
+        setState(TaskState.FAILED);
       }
     }
-    if (!old.equals(mf.getFileAsPath())) {
-      // if it not the same (zip vs sub) - delete ZIP
-      Utils.deleteFileSafely(old);
-    }
-
-    mf.gatherMediaInformation();
-    movie.removeFromMediaFiles(mf); // remove old (possibly same) file
-    movie.addToMediaFiles(mf); // add file, but maybe with other MI values
-    movie.saveToDb();
   }
 
   private MediaFile copySubtitleFile(SubtitleEntry entry) throws IOException {
-    String basename = FilenameUtils.getBaseName(videoFilePath.toString()) + "." + languageTag;
-
     String extension;
     if ("txt".equals(entry.extension)) {
       extension = "srt";
@@ -125,7 +160,8 @@ public class MovieSubtitleDownloadTask extends DownloadTask {
       extension = entry.extension;
     }
 
-    Path destination = file.getParent().resolve(basename + "." + extension);
+    Path destination = getDestinationWoExtension();
+    destination = destination.getParent().resolve(destination.getFileName() + "." + extension);
     try (FileOutputStream os = new FileOutputStream(destination.toFile())) {
       IOUtils.write(entry.buffer, os);
       return new MediaFile(destination);

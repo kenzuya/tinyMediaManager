@@ -135,6 +135,8 @@
         <!--        </copy>-->
         <copy file="target/launcher/windows/tinyMediaManager.exe"
               tofile="${dist.dir}/win/tinyMediaManager.exe"/>
+        <copy file="target/launcher/windows/tinyMediaManagerCMD.exe"
+              tofile="${dist.dir}/win/tinyMediaManagerCMD.exe"/>
         <copy todir="${dist.dir}/win">
             <fileset dir="${build.dir}">
                 <include name="**/*"/>
@@ -188,6 +190,7 @@
         <echo message="default files, NOT to include in DIST, but in GD"/>
         <echo message="====================================================="/>
         <copy file="${dist.dir}/win/tinyMediaManager.exe" todir="${build.dir}"/>
+        <copy file="${dist.dir}/win/tinyMediaManagerCMD.exe" todir="${build.dir}"/>
         <copy file="${dist.dir}/linux/tinyMediaManager" todir="${build.dir}"/>
         <copy file="AppBundler/dist-linux/tinyMediaManager.sh" todir="${build.dir}"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager"

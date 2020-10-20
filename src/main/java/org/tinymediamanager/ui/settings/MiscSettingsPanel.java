@@ -90,13 +90,13 @@ class MiscSettingsPanel extends JPanel {
           panelMisc.add(panel, "cell 2 2,grow");
           panel.setLayout(new MigLayout("", "[10lp:n][grow]", "[]"));
 
-          JTextArea lblImageCacheSizeSmallT = new ReadOnlyTextArea(BUNDLE.getString("Settings.imagecachesize.small"));
+          JTextArea lblImageCacheSizeSmallT = new ReadOnlyTextArea("SMALL - " + BUNDLE.getString("Settings.imagecachesize.small"));
           panel.add(lblImageCacheSizeSmallT, "flowy,cell 1 0,growx");
 
-          JTextArea lblImageCacheSizeBigT = new ReadOnlyTextArea(BUNDLE.getString("Settings.imagecachesize.big"));
+          JTextArea lblImageCacheSizeBigT = new ReadOnlyTextArea("BIG - " + BUNDLE.getString("Settings.imagecachesize.big"));
           panel.add(lblImageCacheSizeBigT, "cell 1 0,growx");
 
-          JTextArea lblImageCacheSizeOriginalT = new ReadOnlyTextArea(BUNDLE.getString("Settings.imagecachesize.original"));
+          JTextArea lblImageCacheSizeOriginalT = new ReadOnlyTextArea("ORIGINAL - " + BUNDLE.getString("Settings.imagecachesize.original"));
           panel.add(lblImageCacheSizeOriginalT, "cell 1 0,growx");
         }
         JLabel lblImageCacheQuality = new JLabel(BUNDLE.getString("Settings.imagecachetype"));
@@ -110,13 +110,14 @@ class MiscSettingsPanel extends JPanel {
           panelMisc.add(panel, "cell 2 4,grow");
           panel.setLayout(new MigLayout("", "[10lp:n][grow]", "[]"));
 
-          JTextArea lblImageCacheTypeBalancedT = new ReadOnlyTextArea(BUNDLE.getString("Settings.imagecachetype.balanced"));
+          JTextArea lblImageCacheTypeBalancedT = new ReadOnlyTextArea("BALANCED - " + BUNDLE.getString("Settings.imagecachetype.balanced"));
           panel.add(lblImageCacheTypeBalancedT, "flowy,cell 1 0,growx");
 
-          JTextArea lblImageCacheTypeQualityT = new ReadOnlyTextArea(BUNDLE.getString("Settings.imagecachetype.quality"));
+          JTextArea lblImageCacheTypeQualityT = new ReadOnlyTextArea("QUALITY - " + BUNDLE.getString("Settings.imagecachetype.quality"));
           panel.add(lblImageCacheTypeQualityT, "cell 1 0,growx");
 
-          JTextArea lblImageCacheTypeUltraQualityT = new ReadOnlyTextArea(BUNDLE.getString("Settings.imagecachetype.ultra_quality"));
+          JTextArea lblImageCacheTypeUltraQualityT = new ReadOnlyTextArea(
+              "ULTRA_QUALITY - " + BUNDLE.getString("Settings.imagecachetype.ultra_quality"));
           panel.add(lblImageCacheTypeUltraQualityT, "cell 1 0,growx");
         }
 

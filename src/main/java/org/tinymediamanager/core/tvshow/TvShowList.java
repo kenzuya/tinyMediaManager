@@ -16,27 +16,30 @@
 package org.tinymediamanager.core.tvshow;
 
 import static org.tinymediamanager.core.Constants.ADDED_TV_SHOW;
-import static org.tinymediamanager.core.Constants.AUDIO_CODEC;
 import static org.tinymediamanager.core.Constants.EPISODE_COUNT;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.REMOVED_TV_SHOW;
+import static org.tinymediamanager.core.Constants.TAG;
 import static org.tinymediamanager.core.Constants.TV_SHOWS;
 import static org.tinymediamanager.core.Constants.TV_SHOW_COUNT;
-import static org.tinymediamanager.core.Constants.VIDEO_CODEC;
 
 import java.beans.PropertyChangeListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -49,7 +52,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -63,6 +65,7 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,19 +80,22 @@ import ca.odell.glazedlists.ObservableElementList;
  * @author Manuel Laggner
  */
 public class TvShowList extends AbstractModelObject {
-  private static final Logger            LOGGER   = LoggerFactory.getLogger(TvShowList.class);
-  private static TvShowList              instance = null;
+  private static final Logger                            LOGGER   = LoggerFactory.getLogger(TvShowList.class);
+  private static TvShowList                              instance = null;
 
-  private final List<TvShow>             tvShowList;
-  private final List<String>             tvShowTagsObservable;
-  private final List<String>             episodeTagsObservable;
-  private final List<String>             videoCodecsObservable;
-  private final List<String>             videoContainersObservable;
-  private final List<String>             audioCodecsObservable;
-  private final List<Double>             frameRateObservable;
-  private final List<MediaCertification> certificationObservable;
+  private final List<TvShow>                             tvShowList;
 
-  private PropertyChangeListener         propertyChangeListener;
+  private final CopyOnWriteArrayList<String>             tagsInTvShows;
+  private final CopyOnWriteArrayList<String>             tagsInEpisodes;
+  private final CopyOnWriteArrayList<String>             videoCodecsInEpisodes;
+  private final CopyOnWriteArrayList<String>             videoContainersInEpisodes;
+  private final CopyOnWriteArrayList<String>             audioCodecsInEpisodes;
+  private final CopyOnWriteArrayList<Double>             frameRatesInEpisodes;
+  private final CopyOnWriteArrayList<MediaCertification> certificationsInTvShows;
+  private final CopyOnWriteArrayList<Integer>            audioStreamsInEpisodes;
+  private final CopyOnWriteArrayList<Integer>            subtitlesInEpisodes;
+
+  private final PropertyChangeListener                   propertyChangeListener;
 
   /**
    * Instantiates a new TvShowList.
@@ -97,29 +103,31 @@ public class TvShowList extends AbstractModelObject {
   private TvShowList() {
     // create the lists
     tvShowList = new ObservableElementList<>(new TvShowEventList<>(), GlazedLists.beanConnector(TvShow.class));
-    tvShowTagsObservable = new ObservableCopyOnWriteArrayList<>();
-    episodeTagsObservable = new ObservableCopyOnWriteArrayList<>();
-    videoCodecsObservable = new ObservableCopyOnWriteArrayList<>();
-    videoContainersObservable = new ObservableCopyOnWriteArrayList<>();
-    audioCodecsObservable = new ObservableCopyOnWriteArrayList<>();
-    frameRateObservable = new ObservableCopyOnWriteArrayList<>();
-    certificationObservable = new ObservableCopyOnWriteArrayList<>();
+    tagsInTvShows = new CopyOnWriteArrayList<>();
+    tagsInEpisodes = new CopyOnWriteArrayList<>();
+    videoCodecsInEpisodes = new CopyOnWriteArrayList<>();
+    videoContainersInEpisodes = new CopyOnWriteArrayList<>();
+    audioCodecsInEpisodes = new CopyOnWriteArrayList<>();
+    frameRatesInEpisodes = new CopyOnWriteArrayList<>();
+    certificationsInTvShows = new CopyOnWriteArrayList<>();
+    audioStreamsInEpisodes = new CopyOnWriteArrayList<>();
+    subtitlesInEpisodes = new CopyOnWriteArrayList<>();
 
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
       if (Constants.TAG.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow) {
         TvShow tvShow = (TvShow) evt.getSource();
-        updateTvShowTags(tvShow);
+        updateTvShowTags(Collections.singleton(tvShow));
       }
       if (Constants.TAG.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode) {
         TvShowEpisode episode = (TvShowEpisode) evt.getSource();
-        updateEpisodeTags(episode);
+        updateEpisodeTags(Collections.singleton(episode));
       }
       if ((MEDIA_FILES.equals(evt.getPropertyName()) || MEDIA_INFORMATION.equals(evt.getPropertyName()))
           && evt.getSource() instanceof TvShowEpisode) {
         TvShowEpisode episode = (TvShowEpisode) evt.getSource();
-        updateMediaInformationLists(episode);
+        updateMediaInformationLists(Collections.singleton(episode));
       }
       if (EPISODE_COUNT.equals(evt.getPropertyName())) {
         firePropertyChange(EPISODE_COUNT, 0, 1);
@@ -465,20 +473,25 @@ public class TvShowList extends AbstractModelObject {
     // check for corrupted media entities
     checkAndCleanupMediaFiles();
 
+    List<TvShowEpisode> episodes = new ArrayList<>();
+
     // init everything after loading
     for (TvShow tvShow : tvShowList) {
       tvShow.initializeAfterLoading();
-      updateTvShowTags(tvShow);
-      updateCertification(tvShow);
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.initializeAfterLoading();
-        updateEpisodeTags(episode);
-        updateMediaInformationLists(episode);
+        episodes.add(episode);
       }
 
       tvShow.addPropertyChangeListener(propertyChangeListener);
     }
+
+    updateTvShowTags(tvShowList);
+    updateCertification(tvShowList);
+
+    updateEpisodeTags(episodes);
+    updateMediaInformationLists(episodes);
   }
 
   public void persistTvShow(TvShow tvShow) {
@@ -487,7 +500,7 @@ public class TvShowList extends AbstractModelObject {
       TvShowModuleManager.getInstance().persistTvShow(tvShow);
     }
     catch (Exception e) {
-      LOGGER.error("failed to persist episode: {}  {}", tvShow.getTitle(), e.getMessage());
+      LOGGER.error("failed to persist episode: {} - {}", tvShow.getTitle(), e.getMessage());
     }
   }
 
@@ -589,9 +602,9 @@ public class TvShowList extends AbstractModelObject {
    * @param searchTerm
    *          the search term
    * @param year
-   *          the year of the movie (if available, otherwise <= 0)
+   *          the year of the TV show (if available, otherwise <= 0)
    * @param ids
-   *          a map of all available ids of the movie or null if no id based search is requested
+   *          a map of all available ids of the TV show or null if no id based search is requested
    * @param mediaScraper
    *          the media scraper
    * @return the list
@@ -606,9 +619,9 @@ public class TvShowList extends AbstractModelObject {
    * @param searchTerm
    *          the search term
    * @param year
-   *          the year of the movie (if available, otherwise <= 0)
+   *          the year of the TV show (if available, otherwise <= 0)
    * @param ids
-   *          a map of all available ids of the movie or null if no id based search is requested
+   *          a map of all available ids of the TV show or null if no id based search is requested
    * @param mediaScraper
    *          the media scraper
    * @param language
@@ -650,7 +663,7 @@ public class TvShowList extends AbstractModelObject {
 
       LOGGER.info("=====================================================");
       LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
-      LOGGER.info(options.toString());
+      LOGGER.info("options: {}", options);
       LOGGER.info("=====================================================");
       results.addAll(provider.search(options));
 
@@ -679,191 +692,142 @@ public class TvShowList extends AbstractModelObject {
     return new ArrayList<>(results);
   }
 
-  private void updateTvShowTags(TvShow tvShow) {
-    List<String> availableTags = new ArrayList<>(tvShowTagsObservable);
+  private void updateTvShowTags(Collection<TvShow> tvShows) {
+    Set<String> tags = new HashSet<>();
+    tvShows.forEach(tvShow -> tags.addAll(tvShow.getTags()));
 
-    for (String tagInTvShow : new ArrayList<>(tvShow.getTags())) {
-      boolean tagFound = false;
-      for (String tag : availableTags) {
-        if (tagInTvShow.equals(tag)) {
-          tagFound = true;
-          break;
-        }
-      }
-      if (!tagFound) {
-        addTvShowTag(tagInTvShow);
-      }
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInTvShows, tags)) {
+      firePropertyChange(TAG, null, tagsInTvShows);
     }
   }
 
-  private void updateCertification(TvShow tvShow) {
-    if (!certificationObservable.contains(tvShow.getCertification())) {
-      certificationObservable.add(tvShow.getCertification());
-    }
-  }
+  private void updateCertification(Collection<TvShow> tvShows) {
+    Set<MediaCertification> certifications = new HashSet<>();
+    tvShows.forEach(tvShow -> certifications.add(tvShow.getCertification()));
 
-  private void addTvShowTag(String newTag) {
-    if (StringUtils.isBlank(newTag)) {
-      return;
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(certificationsInTvShows, certifications)) {
+      firePropertyChange(Constants.CERTIFICATION, null, certificationsInTvShows);
     }
-
-    synchronized (tvShowTagsObservable) {
-      if (tvShowTagsObservable.contains(newTag)) {
-        return;
-      }
-      tvShowTagsObservable.add(newTag);
-    }
-
-    firePropertyChange(Constants.TAG, null, tvShowTagsObservable);
   }
 
   public List<String> getTagsInTvShows() {
-    return tvShowTagsObservable;
+    return tagsInTvShows;
   }
 
-  private void updateEpisodeTags(TvShowEpisode episode) {
-    List<String> availableTags = new ArrayList<>(episodeTagsObservable);
-    for (String tagEpisode : new ArrayList<>(episode.getTags())) {
-      boolean tagFound = false;
-      for (String tag : availableTags) {
-        if (tagEpisode.equals(tag)) {
-          tagFound = true;
-          break;
+  private void updateEpisodeTags(Collection<TvShowEpisode> episodes) {
+    Set<String> tags = new HashSet<>();
+    episodes.forEach(episode -> tags.addAll(episode.getTags()));
+
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInEpisodes, tags)) {
+      firePropertyChange(TAG, null, tagsInEpisodes);
+    }
+  }
+
+  public Collection<String> getTagsInEpisodes() {
+    return tagsInEpisodes;
+  }
+
+  private void updateMediaInformationLists(Collection<TvShowEpisode> episodes) {
+    Set<String> videoCodecs = new HashSet<>();
+    Set<Double> frameRates = new HashSet<>();
+    Set<String> videoContainers = new HashSet<>();
+    Set<String> audioCodecs = new HashSet<>();
+    Set<Integer> audioStreamCount = new HashSet<>();
+    Set<Integer> subtitleCount = new HashSet<>();
+
+    for (TvShowEpisode episode : episodes) {
+      for (MediaFile mf : episode.getMediaFiles(MediaFileType.VIDEO)) {
+        // video codec
+        if (StringUtils.isNotBlank(mf.getVideoCodec())) {
+          videoCodecs.add(mf.getVideoCodec());
         }
-      }
-      if (!tagFound) {
-        addEpisodeTag(tagEpisode);
-      }
-    }
-  }
 
-  private void addEpisodeTag(String newTag) {
-    if (StringUtils.isBlank(newTag)) {
-      return;
-    }
+        // frame rate
+        if (mf.getFrameRate() > 0) {
+          frameRates.add(mf.getFrameRate());
+        }
 
-    synchronized (episodeTagsObservable) {
-      if (episodeTagsObservable.contains(newTag)) {
-        return;
-      }
-      episodeTagsObservable.add(newTag);
-    }
+        // video container
+        if (StringUtils.isNotBlank(mf.getContainerFormat())) {
+          videoContainers.add(mf.getContainerFormat().toLowerCase(Locale.ROOT));
+        }
 
-    firePropertyChange(Constants.TAG, null, episodeTagsObservable);
-  }
+        // audio codec
+        for (MediaFileAudioStream audio : mf.getAudioStreams()) {
+          if (StringUtils.isNotBlank(audio.getCodec())) {
+            audioCodecs.add(audio.getCodec());
+          }
+        }
+        // audio streams
+        if (!mf.getAudioStreams().isEmpty()) {
+          audioStreamCount.add(mf.getAudioStreams().size());
+        }
 
-  public List<String> getTagsInEpisodes() {
-    return episodeTagsObservable;
-  }
-
-  private void updateMediaInformationLists(TvShowEpisode episode) {
-    for (MediaFile mf : episode.getMediaFiles(MediaFileType.VIDEO)) {
-      // video codec
-      String codec = mf.getVideoCodec();
-      if (StringUtils.isNotBlank(codec) && !videoCodecsObservable.contains(codec)) {
-        addVideoCodec(codec);
-      }
-
-      // frame rate
-      Double frameRate = mf.getFrameRate();
-      if (frameRate > 0 && !frameRateObservable.contains(frameRate)) {
-        addFrameRate(frameRate);
-      }
-
-      // video container
-      String container = mf.getContainerFormat();
-      if (StringUtils.isNotBlank(container) && !videoContainersObservable.contains(container.toLowerCase(Locale.ROOT))) {
-        addVideoContainer(container.toLowerCase(Locale.ROOT));
-      }
-
-      // audio codec
-      for (MediaFileAudioStream audio : mf.getAudioStreams()) {
-        String audioCodec = audio.getCodec();
-        if (StringUtils.isNotBlank(audioCodec) && !audioCodecsObservable.contains(audioCodec)) {
-          addAudioCodec(audioCodec);
+        // subtitles
+        if (!mf.getSubtitles().isEmpty()) {
+          subtitleCount.add(mf.getSubtitles().size());
         }
       }
     }
-  }
 
-  private void addVideoCodec(String newCodec) {
-    if (StringUtils.isBlank(newCodec)) {
-      return;
+    // video codecs
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoCodecsInEpisodes, videoCodecs)) {
+      firePropertyChange(Constants.VIDEO_CODEC, null, videoCodecsInEpisodes);
+
     }
 
-    synchronized (videoCodecsObservable) {
-      if (videoCodecsObservable.contains(newCodec)) {
-        return;
-      }
-      videoCodecsObservable.add(newCodec);
+    // frame rate
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(frameRatesInEpisodes, frameRates)) {
+      firePropertyChange(Constants.FRAME_RATE, null, frameRatesInEpisodes);
     }
 
-    firePropertyChange(VIDEO_CODEC, null, videoCodecsObservable);
-  }
-
-  private void addVideoContainer(String newContainer) {
-    if (StringUtils.isBlank(newContainer)) {
-      return;
+    // video container
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoContainersInEpisodes, videoContainers)) {
+      firePropertyChange(Constants.VIDEO_CONTAINER, null, videoContainersInEpisodes);
     }
 
-    synchronized (videoContainersObservable) {
-      if (videoContainersObservable.contains(newContainer)) {
-        return;
-      }
-      videoContainersObservable.add(newContainer);
+    // audio codec
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioCodecsInEpisodes, audioCodecs)) {
+      firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInEpisodes);
     }
 
-    firePropertyChange(Constants.VIDEO_CONTAINER, null, videoContainersObservable);
-  }
-
-  private void addFrameRate(Double newFrameRate) {
-    if (newFrameRate == 0) {
-      return;
+    // audio streams
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioStreamsInEpisodes, audioStreamCount)) {
+      firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInEpisodes);
     }
 
-    synchronized (frameRateObservable) {
-      if (frameRateObservable.contains(newFrameRate)) {
-        return;
-      }
-      frameRateObservable.add(newFrameRate);
+    // subtitles
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitlesInEpisodes, subtitleCount)) {
+      firePropertyChange(Constants.SUBTITLES_COUNT, null, subtitlesInEpisodes);
     }
-
-    firePropertyChange(Constants.FRAME_RATE, null, frameRateObservable);
   }
 
-  private void addAudioCodec(String newCodec) {
-    if (StringUtils.isBlank(newCodec)) {
-      return;
-    }
-
-    synchronized (audioCodecsObservable) {
-      if (audioCodecsObservable.contains(newCodec)) {
-        return;
-      }
-      audioCodecsObservable.add(newCodec);
-    }
-
-    firePropertyChange(AUDIO_CODEC, null, audioCodecsObservable);
+  public Collection<String> getVideoCodecsInEpisodes() {
+    return videoCodecsInEpisodes;
   }
 
-  public List<String> getVideoCodecsInEpisodes() {
-    return videoCodecsObservable;
+  public Collection<String> getVideoContainersInEpisodes() {
+    return videoContainersInEpisodes;
   }
 
-  public List<String> getVideoContainersInEpisodes() {
-    return videoContainersObservable;
+  public Collection<Double> getFrameRatesInEpisodes() {
+    return frameRatesInEpisodes;
   }
 
-  public List<Double> getFrameRatesInEpisodes() {
-    return frameRateObservable;
+  public Collection<String> getAudioCodecsInEpisodes() {
+    return audioCodecsInEpisodes;
   }
 
-  public List<String> getAudioCodecsInEpisodes() {
-    return audioCodecsObservable;
+  public Collection<MediaCertification> getCertification() {
+    return certificationsInTvShows;
   }
 
-  public List<MediaCertification> getCertification() {
-    return certificationObservable;
+  public Collection<Integer> getAudioStreamsInEpisodes() {
+    return audioStreamsInEpisodes;
+  }
+
+  public Collection<Integer> getSubtitlesInEpisodes() {
+    return subtitlesInEpisodes;
   }
 
   /**

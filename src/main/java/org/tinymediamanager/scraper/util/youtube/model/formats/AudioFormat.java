@@ -15,10 +15,13 @@
  */
 package org.tinymediamanager.scraper.util.youtube.model.formats;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Locale;
+
 import org.tinymediamanager.scraper.util.youtube.YoutubeHelper;
 import org.tinymediamanager.scraper.util.youtube.model.Itag;
 import org.tinymediamanager.scraper.util.youtube.model.quality.AudioQuality;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * AudioFormat
@@ -39,7 +42,7 @@ public class AudioFormat extends Format {
     AudioQuality audioQuality = null;
     if (json.has("audioQuality")) {
       String[] split = json.get("audioQuality").asText().split("_");
-      String quality = split[split.length - 1].toLowerCase();
+      String quality = split[split.length - 1].toUpperCase(Locale.ROOT);
       try {
         audioQuality = AudioQuality.valueOf(quality);
       } catch (IllegalArgumentException ignore) {}

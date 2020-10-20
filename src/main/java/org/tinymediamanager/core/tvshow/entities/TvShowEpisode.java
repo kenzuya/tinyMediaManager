@@ -611,7 +611,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
       int i = 0;
       for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.SETTINGS.getEpisodeThumbFilenames()) {
-        String filename = thumbNaming.getFilename(basename, Utils.getArtworkExtension(thumbUrl));
+        String filename = thumbNaming.getFilename(basename, Utils.getArtworkExtensionFromUrl(thumbUrl));
         if (StringUtils.isBlank(filename)) {
           continue;
         }

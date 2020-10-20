@@ -24,11 +24,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.LanguageStyle;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -145,9 +148,15 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
               continue;
             }
 
-            String filename = FilenameUtils.getBaseName(mf.getFilename()) + "." + language.name();
+            // the right language tag from the renamer settings
+            String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), MovieModuleManager.SETTINGS.getSubtitleLanguageStyle());
+            if (StringUtils.isBlank(lang)) {
+              lang = language.name();
+            }
+
+            String filename = FilenameUtils.getBaseName(mf.getFilename()) + "." + lang;
             TmmTaskManager.getInstance()
-                .addDownloadTask(new TvShowSubtitleDownloadTask(firstResult.getUrl(), episode.getPathNIO().resolve(filename), episode));
+                .addDownloadTask(new SubtitleDownloadTask(firstResult.getUrl(), episode.getPathNIO().resolve(filename), episode));
           }
           catch (ScrapeException e) {
             LOGGER.error("getSubtitles", e);

@@ -70,36 +70,20 @@ public class TvShowFetchImdbRating extends TmmAction {
     }
 
     for (TvShow tvShow : selectedTvShows) {
-      try {
-        MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
-        if (rating != null) {
-          tvShow.setRating(rating);
-          tvShow.saveToDb();
-          tvShow.writeNFO();
-        }
-      }
-      catch (InterruptedException ex) {
-        Thread.currentThread().interrupt();
-      }
-      catch (Exception ex) {
-        LOGGER.error("could not fetch imdb rating - {}", ex.getMessage());
+      MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
+      if (rating != null) {
+        tvShow.setRating(rating);
+        tvShow.saveToDb();
+        tvShow.writeNFO();
       }
     }
 
     for (TvShowEpisode episode : selectedEpisodes) {
-      try {
-        MediaRating rating = RatingUtil.getImdbRating(episode.getIdAsString(IMDB));
-        if (rating != null) {
-          episode.setRating(rating);
-          episode.saveToDb();
-          episode.writeNFO();
-        }
-      }
-      catch (InterruptedException ex) {
-        Thread.currentThread().interrupt();
-      }
-      catch (Exception ex) {
-        LOGGER.error("could not fetch imdb rating - {}", ex.getMessage());
+      MediaRating rating = RatingUtil.getImdbRating(episode.getIdAsString(IMDB));
+      if (rating != null) {
+        episode.setRating(rating);
+        episode.saveToDb();
+        episode.writeNFO();
       }
     }
   }

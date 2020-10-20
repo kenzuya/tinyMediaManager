@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MediaInfo
+    xmlns="https://mediaarea.net/mediainfo"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+    version="2.0">
+	<creatingLibrary version="20.03" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+	<media ref="V:\Movies\Station to Station\Station to Station.mkv">
+		<track type="General">
+			<UniqueID>179628283124357306512256946553100974458</UniqueID>
+			<VideoCount>1</VideoCount>
+			<AudioCount>1</AudioCount>
+			<MenuCount>1</MenuCount>
+			<FileExtension>mkv</FileExtension>
+			<Format>Matroska</Format>
+			<Format_Version>4</Format_Version>
+			<FileSize>1336584626</FileSize>
+			<Duration>4042.960</Duration>
+			<OverallBitRate>2644764</OverallBitRate>
+			<FrameRate>25.000</FrameRate>
+			<FrameCount>101074</FrameCount>
+			<StreamSize>909132</StreamSize>
+			<IsStreamable>Yes</IsStreamable>
+			<Encoded_Date>UTC 2017-05-14 09:07:02</Encoded_Date>
+			<File_Created_Date>UTC 2017-05-14 09:07:02.350</File_Created_Date>
+			<File_Created_Date_Local>2017-05-14 04:07:02.350</File_Created_Date_Local>
+			<File_Modified_Date>UTC 2017-05-14 09:09:01.840</File_Modified_Date>
+			<File_Modified_Date_Local>2017-05-14 04:09:01.840</File_Modified_Date_Local>
+			<Encoded_Application>mkvmerge v9.9.0 (&apos;Pick Up&apos;) 64bit</Encoded_Application>
+			<Encoded_Library>libebml v1.3.4 + libmatroska v1.4.5</Encoded_Library>
+		</track>
+		<track type="Video">
+			<StreamOrder>0</StreamOrder>
+			<ID>1</ID>
+			<UniqueID>3358291720500083124</UniqueID>
+			<Format>HEVC</Format>
+			<Format_Profile>Main 10</Format_Profile>
+			<Format_Level>4</Format_Level>
+			<Format_Tier>Main</Format_Tier>
+			<CodecID>V_MPEGH/ISO/HEVC</CodecID>
+			<Duration>4042.960000000</Duration>
+			<BitRate>2450967</BitRate>
+			<Width>720</Width>
+			<Height>572</Height>
+			<Stored_Width>736</Stored_Width>
+			<Stored_Height>576</Stored_Height>
+			<Sampled_Width>720</Sampled_Width>
+			<Sampled_Height>572</Sampled_Height>
+			<PixelAspectRatio>1.422</PixelAspectRatio>
+			<DisplayAspectRatio>1.790</DisplayAspectRatio>
+			<FrameRate_Mode>CFR</FrameRate_Mode>
+			<FrameRate>25.000</FrameRate>
+			<FrameCount>101074</FrameCount>
+			<ColorSpace>YUV</ColorSpace>
+			<ChromaSubsampling>4:2:0</ChromaSubsampling>
+			<BitDepth>10</BitDepth>
+			<Delay>0.000</Delay>
+			<StreamSize>1238645606</StreamSize>
+			<Language>en</Language>
+			<Default>Yes</Default>
+			<Forced>Yes</Forced>
+		</track>
+		<track type="Audio">
+			<StreamOrder>1</StreamOrder>
+			<ID>2</ID>
+			<UniqueID>2</UniqueID>
+			<Format>AC-3</Format>
+			<Format_Commercial_IfAny>Dolby Digital</Format_Commercial_IfAny>
+			<Format_Settings_Endianness>Big</Format_Settings_Endianness>
+			<CodecID>A_AC3</CodecID>
+			<Duration>4042.912000000</Duration>
+			<BitRate_Mode>CBR</BitRate_Mode>
+			<BitRate>192000</BitRate>
+			<Channels>2</Channels>
+			<ChannelPositions>Front: L R</ChannelPositions>
+			<ChannelLayout>L R</ChannelLayout>
+			<SamplesPerFrame>1536</SamplesPerFrame>
+			<SamplingRate>48000</SamplingRate>
+			<SamplingCount>194059776</SamplingCount>
+			<FrameRate>31.250</FrameRate>
+			<FrameCount>126341</FrameCount>
+			<Compression_Mode>Lossy</Compression_Mode>
+			<Delay>0.000</Delay>
+			<Delay_Source>Container</Delay_Source>
+			<StreamSize>97029888</StreamSize>
+			<StreamSize_Proportion>0.07260</StreamSize_Proportion>
+			<Title>Stereo</Title>
+			<Language>en</Language>
+			<ServiceKind>CM</ServiceKind>
+			<Default>Yes</Default>
+			<Forced>No</Forced>
+			<extra>
+				<bsid>8</bsid>
+				<dialnorm>-31</dialnorm>
+				<compr>-0.28</compr>
+				<dsurmod>0</dsurmod>
+				<acmod>2</acmod>
+				<lfeon>0</lfeon>
+				<dialnorm_Average>-31</dialnorm_Average>
+				<dialnorm_Minimum>-31</dialnorm_Minimum>
+			</extra>
+		</track>
+		<track type="Menu">
+			<extra>
+				<_00_00_00_000>en:Chapter 01</_00_00_00_000>
+				<_00_03_00_160>en:Chapter 02</_00_03_00_160>
+				<_00_03_57_760>en:Chapter 03</_00_03_57_760>
+				<_00_04_55_360>en:Chapter 04</_00_04_55_360>
+				<_00_05_52_960>en:Chapter 05</_00_05_52_960>
+				<_00_06_50_560>en:Chapter 06</_00_06_50_560>
+				<_00_07_48_160>en:Chapter 07</_00_07_48_160>
+				<_00_08_45_760>en:Chapter 08</_00_08_45_760>
+				<_00_09_43_360>en:Chapter 09</_00_09_43_360>
+				<_00_10_40_960>en:Chapter 10</_00_10_40_960>
+				<_00_11_38_560>en:Chapter 11</_00_11_38_560>
+				<_00_12_36_160>en:Chapter 12</_00_12_36_160>
+				<_00_13_33_720>en:Chapter 13</_00_13_33_720>
+				<_00_14_31_360>en:Chapter 14</_00_14_31_360>
+				<_00_15_28_960>en:Chapter 15</_00_15_28_960>
+				<_00_16_26_560>en:Chapter 16</_00_16_26_560>
+				<_00_17_24_160>en:Chapter 17</_00_17_24_160>
+				<_00_18_21_760>en:Chapter 18</_00_18_21_760>
+				<_00_19_19_360>en:Chapter 19</_00_19_19_360>
+				<_00_20_16_960>en:Chapter 20</_00_20_16_960>
+				<_00_21_14_560>en:Chapter 21</_00_21_14_560>
+				<_00_22_12_160>en:Chapter 22</_00_22_12_160>
+				<_00_23_09_760>en:Chapter 23</_00_23_09_760>
+				<_00_24_07_360>en:Chapter 24</_00_24_07_360>
+				<_00_25_04_960>en:Chapter 25</_00_25_04_960>
+				<_00_26_02_560>en:Chapter 26</_00_26_02_560>
+				<_00_27_00_120>en:Chapter 27</_00_27_00_120>
+				<_00_27_57_760>en:Chapter 28</_00_27_57_760>
+				<_00_28_55_360>en:Chapter 29</_00_28_55_360>
+				<_00_29_52_960>en:Chapter 30</_00_29_52_960>
+				<_00_30_50_560>en:Chapter 31</_00_30_50_560>
+				<_00_31_48_160>en:Chapter 32</_00_31_48_160>
+				<_00_32_45_760>en:Chapter 33</_00_32_45_760>
+				<_00_33_43_360>en:Chapter 34</_00_33_43_360>
+				<_00_34_40_960>en:Chapter 35</_00_34_40_960>
+				<_00_35_38_560>en:Chapter 36</_00_35_38_560>
+				<_00_36_36_120>en:Chapter 37</_00_36_36_120>
+				<_00_37_33_760>en:Chapter 38</_00_37_33_760>
+				<_00_38_31_360>en:Chapter 39</_00_38_31_360>
+				<_00_39_28_960>en:Chapter 40</_00_39_28_960>
+				<_00_40_26_560>en:Chapter 41</_00_40_26_560>
+				<_00_41_24_160>en:Chapter 42</_00_41_24_160>
+				<_00_42_21_760>en:Chapter 43</_00_42_21_760>
+				<_00_43_19_360>en:Chapter 44</_00_43_19_360>
+				<_00_44_16_960>en:Chapter 45</_00_44_16_960>
+				<_00_45_14_560>en:Chapter 46</_00_45_14_560>
+				<_00_46_12_160>en:Chapter 47</_00_46_12_160>
+				<_00_47_09_760>en:Chapter 48</_00_47_09_760>
+				<_00_48_07_360>en:Chapter 49</_00_48_07_360>
+				<_00_49_04_960>en:Chapter 50</_00_49_04_960>
+				<_00_50_02_560>en:Chapter 51</_00_50_02_560>
+				<_00_51_00_160>en:Chapter 52</_00_51_00_160>
+				<_00_51_57_760>en:Chapter 53</_00_51_57_760>
+				<_00_52_55_360>en:Chapter 54</_00_52_55_360>
+				<_00_53_52_960>en:Chapter 55</_00_53_52_960>
+				<_00_54_50_560>en:Chapter 56</_00_54_50_560>
+				<_00_55_48_160>en:Chapter 57</_00_55_48_160>
+				<_00_56_45_760>en:Chapter 58</_00_56_45_760>
+				<_00_57_43_360>en:Chapter 59</_00_57_43_360>
+				<_00_58_40_960>en:Chapter 60</_00_58_40_960>
+				<_00_59_38_560>en:Chapter 61</_00_59_38_560>
+				<_01_00_36_160>en:Chapter 62</_01_00_36_160>
+			</extra>
+		</track>
+	</media>
+</MediaInfo>

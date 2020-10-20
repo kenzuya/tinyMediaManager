@@ -1220,9 +1220,14 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public String getTrailerFilename(MovieTrailerNaming trailer) {
     String filename = "";
 
-    MediaFile mainFile = getMainFile();
-    if (mainFile != null) {
-      filename = mainFile.getFilename();
+    if (isDisc) {
+      filename = findDiscMainFile();
+    }
+    else {
+      MediaFile mainFile = getMainFile();
+      if (mainFile != null) {
+        filename = mainFile.getFilename();
+      }
     }
 
     if (isStacked()) {
@@ -1245,29 +1250,10 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the associated trailer filename <b>(WITHOUT EXTENSION!!!!)</b>
    */
   public String getTrailerFilename(MovieTrailerNaming trailer, String newMovieFilename) {
-    String filename = "";
-    switch (trailer) {
-      case FILENAME_TRAILER:
-        if (isDisc()) {
-          // in case of disc, this is the name of the "main" disc identifier file!
-          filename = FilenameUtils.removeExtension(findDiscMainFile());
-        }
-        else {
-          filename = FilenameUtils.removeExtension(newMovieFilename);
-        }
-        if (!filename.isEmpty()) {
-          filename += "-trailer";
-        }
-        break;
+    String filename = trailer.getFilename(FilenameUtils.getBaseName(newMovieFilename), FilenameUtils.getExtension(newMovieFilename));
 
-      case MOVIE_TRAILER:
-        filename = "movie-trailer";
-        break;
-
-      default:
-        filename = "";
-        break;
-    }
+    // remove the extension - will be re-added later
+    filename = FilenameUtils.removeExtension(filename);
 
     LOGGER.trace("getTrailerFilename: '{}' / {} -> '{}'", newMovieFilename, trailer, filename);
     return filename;

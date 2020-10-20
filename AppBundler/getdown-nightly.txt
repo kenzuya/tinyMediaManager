@@ -22,6 +22,7 @@ code = restart.jar
 %CODELIBS%
 
 resource = [windows-amd64] tinyMediaManager.exe
+resource = [windows-amd64] tinyMediaManagerCMD.exe
 xresource = [linux-amd64] tinyMediaManager
 xresource = [linux-arm] tinyMediaManager-arm
 xresource = [linux-aarch64] tinyMediaManager-arm

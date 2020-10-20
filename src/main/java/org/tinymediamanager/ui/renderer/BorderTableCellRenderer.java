@@ -38,14 +38,17 @@ public class BorderTableCellRenderer extends DefaultTableCellRenderer {
    */
   public BorderTableCellRenderer() {
     border = BorderFactory.createEmptyBorder(0, 2, 0, 0);
+    setOpaque(false);
   }
 
   public BorderTableCellRenderer(int top, int left, int bottom, int right) {
     border = BorderFactory.createEmptyBorder(top, left, bottom, right);
+    setOpaque(false);
   }
 
   public BorderTableCellRenderer(Insets insets) {
     border = BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right);
+    setOpaque(false);
   }
 
   @Override

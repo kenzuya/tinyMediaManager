@@ -244,7 +244,7 @@ public class VSMeta {
       if (version != 0x02) {
         // throw new Exception("Only supported vsmeta version 2");
       }
-      LOGGER.debug("SYNO: found valid .vsmeta (Version " + version + ") - try to parse metadata...");
+      LOGGER.debug("SYNO: found valid .vsmeta ({}, Version " + version + ") - try to parse metadata...", this.vsMetaFile);
 
       while (!data.eof()) {
         long pos = data.position();

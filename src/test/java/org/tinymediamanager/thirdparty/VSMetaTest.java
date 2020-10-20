@@ -48,20 +48,22 @@ public class VSMetaTest extends BasicTest {
     VSMeta vsmeta = new VSMeta(file);
     vsmeta.parseFile();
     TvShowEpisode ep = vsmeta.getTvShowEpisode();
+    System.out.println(vsmeta);
+    System.out.println(ep);
     assertEqual("Maja wird geboren", ep.getTitle());
     assertEqual(1, ep.getSeason());
     assertEqual(1, ep.getEpisode());
     assertEqual("117124", ep.getTvdbId());
-    System.out.println(ep);
 
     file = Paths.get("src/test/resources/syno_vsmeta/Die Biene Maja - S01E02 - Maja lernt Fliegen.avi.vsmeta");
     vsmeta = new VSMeta(file);
     vsmeta.parseFile();
     ep = vsmeta.getTvShowEpisode();
+    System.out.println(vsmeta);
+    System.out.println(ep);
     assertEqual(1, ep.getSeason());
     assertEqual(2, ep.getEpisode());
     assertEqual("117125", ep.getTvdbId());
-    System.out.println(ep);
   }
 
 }

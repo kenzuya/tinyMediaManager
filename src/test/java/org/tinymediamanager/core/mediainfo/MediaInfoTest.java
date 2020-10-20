@@ -372,7 +372,7 @@ public class MediaInfoTest extends BasicTest {
   public void mediaFile() {
     setTraceLogging();
 
-    MediaFile mf = new MediaFile(Paths.get("src/test/resources/samples/h265.mp4"));
+    MediaFile mf = new MediaFile(Paths.get("src/test/resources/testmovies/MediainfoXML/tags.mkv"));
     mf.gatherMediaInformation();
 
     System.out.println("----------------------");
@@ -390,7 +390,7 @@ public class MediaInfoTest extends BasicTest {
     System.out.println("vcodec: " + mf.getVideoCodec());
     System.out.println("vdef: " + mf.getVideoDefinitionCategory());
     System.out.println("FPS: " + mf.getFrameRate());
-    System.out.println("var: " + mf.getAspectRatio());
+    System.out.println("aspect: " + mf.getAspectRatio());
     System.out.println("ws?: " + mf.isWidescreen());
     System.out.println("hdr?: " + mf.getHdrFormat());
 

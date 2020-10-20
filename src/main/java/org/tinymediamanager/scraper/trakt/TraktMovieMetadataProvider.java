@@ -241,14 +241,9 @@ class TraktMovieMetadataProvider {
 
     // also try to get the IMDB rating
     if (md.getId(MediaMetadata.IMDB) instanceof String) {
-      try {
-        MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-        if (imdbRating != null) {
-          md.addRating(imdbRating);
-        }
-      }
-      catch (Exception e) {
-        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+      if (imdbRating != null) {
+        md.addRating(imdbRating);
       }
     }
 

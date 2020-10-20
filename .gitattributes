@@ -10,3 +10,11 @@
 *.jpg binary
 *.jar binary
 *.exe binary
+*.vsmeta binary
+*.avi binary
+*.mkv binary
+*.mka binary
+*.ac3 binary
+*.dts binary
+*.ts binary
+

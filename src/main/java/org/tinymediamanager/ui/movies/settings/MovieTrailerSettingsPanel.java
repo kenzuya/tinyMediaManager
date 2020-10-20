@@ -73,26 +73,27 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieTrailerSettingsPanel extends JPanel {
-  private static final long serialVersionUID = -1607146878528487625L;
+  private static final long           serialVersionUID = -1607146878528487625L;
   /**
    * @wbp.nls.resourceBundle messages
    */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private MovieSettings settings = MovieModuleManager.SETTINGS;
-  private List<ScraperInTable>        scrapers         = ObservableCollections.observableList(new ArrayList<>());
-  private TmmTable                    tableScraperInTable;
-  private JTextPane tpScraperDescription;
-  private JComboBox<TrailerSources> cbTrailerSource;
-  private JComboBox<TrailerQuality> cbTrailerQuality;
-  private JCheckBox checkBox;
-  private JCheckBox chckbxAutomaticTrailerDownload;
-  private JPanel panelScraperOptions;
-  private JCheckBox cbTrailerFilename1;
-  private JCheckBox cbTrailerFilename2;
+  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+  private final List<ScraperInTable>  scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final ItemListener          checkBoxListener;
 
-  private ItemListener checkBoxListener;
-  private JLabel lblAutomaticTrailerDownloadHint;
+  private TmmTable                    tableScraperInTable;
+  private JTextPane                   tpScraperDescription;
+  private JComboBox<TrailerSources>   cbTrailerSource;
+  private JComboBox<TrailerQuality>   cbTrailerQuality;
+  private JCheckBox                   checkBox;
+  private JCheckBox                   chckbxAutomaticTrailerDownload;
+  private JPanel                      panelScraperOptions;
+  private JCheckBox                   cbTrailerFilename1;
+  private JCheckBox                   cbTrailerFilename2;
+  private JCheckBox                   cbTrailerFilename3;
+  private JLabel                      lblAutomaticTrailerDownloadHint;
 
   MovieTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -181,7 +182,8 @@ class MovieTrailerSettingsPanel extends JPanel {
   private void buildCheckBoxes() {
     cbTrailerFilename1.removeItemListener(checkBoxListener);
     cbTrailerFilename2.removeItemListener(checkBoxListener);
-    clearSelection(cbTrailerFilename1, cbTrailerFilename2);
+    cbTrailerFilename3.removeItemListener(checkBoxListener);
+    clearSelection(cbTrailerFilename1, cbTrailerFilename2, cbTrailerFilename3);
 
     // trailer filenames
     List<MovieTrailerNaming> movieTrailerFilenames = settings.getTrailerFilenames();
@@ -191,9 +193,13 @@ class MovieTrailerSettingsPanel extends JPanel {
     if (movieTrailerFilenames.contains(MovieTrailerNaming.MOVIE_TRAILER)) {
       cbTrailerFilename2.setSelected(true);
     }
+    if (movieTrailerFilenames.contains(MovieTrailerNaming.TRAILERS_FILENAME_TRAILER)) {
+      cbTrailerFilename3.setSelected(true);
+    }
 
     cbTrailerFilename1.addItemListener(checkBoxListener);
     cbTrailerFilename2.addItemListener(checkBoxListener);
+    cbTrailerFilename3.addItemListener(checkBoxListener);
   }
 
   private void clearSelection(JCheckBox... checkBoxes) {
@@ -213,6 +219,9 @@ class MovieTrailerSettingsPanel extends JPanel {
     }
     if (cbTrailerFilename2.isSelected()) {
       settings.addTrailerFilename(MovieTrailerNaming.MOVIE_TRAILER);
+    }
+    if (cbTrailerFilename3.isSelected()) {
+      settings.addTrailerFilename(MovieTrailerNaming.TRAILERS_FILENAME_TRAILER);
     }
   }
 
@@ -282,7 +291,7 @@ class MovieTrailerSettingsPanel extends JPanel {
 
         JPanel panelTrailerFilenames = new JPanel();
         panelOptions.add(panelTrailerFilenames, "cell 1 5 2 1");
-        panelTrailerFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][]"));
+        panelTrailerFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][][]"));
 
         JLabel lblTrailerFileNaming = new JLabel(BUNDLE.getString("Settings.trailerFileNaming"));
         panelTrailerFilenames.add(lblTrailerFileNaming, "cell 0 0");
@@ -292,10 +301,12 @@ class MovieTrailerSettingsPanel extends JPanel {
 
         cbTrailerFilename2 = new JCheckBox("movie-trailer.ext");
         panelTrailerFilenames.add(cbTrailerFilename2, "cell 1 1");
+
+        cbTrailerFilename3 = new JCheckBox("trailers/movie-trailer.ext");
+        panelTrailerFilenames.add(cbTrailerFilename3, "cell 1 2");
       }
     }
   }
-
 
   protected void initDataBindings() {
     JTableBinding<ScraperInTable, List<ScraperInTable>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers,
@@ -316,25 +327,25 @@ class MovieTrailerSettingsPanel extends JPanel {
     BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
     BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
     AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraperInTable,
-            jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
+        jTableBeanProperty, tpScraperDescription, jTextPaneBeanProperty);
     autoBinding.bind();
     //
     BeanProperty<MovieSettings, TrailerSources> movieSettingsBeanProperty = BeanProperty.create("trailerSource");
     BeanProperty<JComboBox<TrailerSources>, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding<MovieSettings, TrailerSources, JComboBox<TrailerSources>, Object> autoBinding_1 = Bindings
-            .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, cbTrailerSource, jComboBoxBeanProperty);
+        .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, cbTrailerSource, jComboBoxBeanProperty);
     autoBinding_1.bind();
     //
     BeanProperty<MovieSettings, TrailerQuality> movieSettingsBeanProperty_1 = BeanProperty.create("trailerQuality");
     BeanProperty<JComboBox<TrailerQuality>, Object> jComboBoxBeanProperty_1 = BeanProperty.create("selectedItem");
     AutoBinding<MovieSettings, TrailerQuality, JComboBox<TrailerQuality>, Object> autoBinding_2 = Bindings
-            .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, cbTrailerQuality, jComboBoxBeanProperty_1);
+        .createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, cbTrailerQuality, jComboBoxBeanProperty_1);
     autoBinding_2.bind();
     //
     BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_2 = BeanProperty.create("useTrailerPreference");
     BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
     AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-            movieSettingsBeanProperty_2, checkBox, jCheckBoxBeanProperty);
+        movieSettingsBeanProperty_2, checkBox, jCheckBoxBeanProperty);
     autoBinding_3.bind();
     //
     BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_3 = BeanProperty.create("automaticTrailerDownload");

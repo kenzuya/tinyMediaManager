@@ -25,7 +25,7 @@ import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
  */
 public class MovieUpdateDatasourceTaskTest extends BasicTest {
 
-  private static final int NUMBER_OF_EXPECTED_MOVIES = 68;
+  private static final int NUMBER_OF_EXPECTED_MOVIES = 70;
   private static final int NUMBER_OF_STACKED_MOVIES  = 12;
   private static final int NUMBER_OF_DISC_MOVIES     = 6;
 
@@ -45,7 +45,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
 
     // just a copy; we might have another movie test which uses these files
     FileUtils.copyDirectory(new File("target/test-classes/testmovies"), new File(getSettingsFolder(), "testmovies"));
-    MovieModuleManager.SETTINGS.addMovieDataSources(getSettingsFolder() + "/testmovies");
+    MovieModuleManager.SETTINGS.addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies").toAbsolutePath().toString());
   }
 
   @After

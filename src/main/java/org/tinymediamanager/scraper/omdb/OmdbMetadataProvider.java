@@ -246,6 +246,60 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
     catch (NumberFormatException e) {
       LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
+
+    // Tomatoratings
+
+    try {
+      if (!result.tomatoMeter.contains("N/A")) {
+        MediaRating rating = new MediaRating("tomatometerallcritics");
+        rating.setRating(Float.parseFloat(result.tomatoMeter));
+        rating.setMaxValue(100);
+        rating.setVotes(MetadataUtil.parseInt(result.tomatoReviews));
+        metadata.addRating(rating);
+      }
+    }
+    catch (NumberFormatException e) {
+      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    try {
+      if (!result.tomatoUserMeter.contains("N/A")) {
+        MediaRating rating = new MediaRating("tomatometerallaudience");
+        rating.setRating(Float.parseFloat(result.tomatoUserMeter));
+        rating.setMaxValue(100);
+        rating.setVotes(MetadataUtil.parseInt(result.tomatoUserReviews));
+        metadata.addRating(rating);
+      }
+    }
+    catch (NumberFormatException e) {
+      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    try {
+      if (!result.tomatoRating.contains("N/A")) {
+        MediaRating rating = new MediaRating("tomatometeravgcritics");
+        rating.setRating(Float.parseFloat(result.tomatoRating));
+        rating.setMaxValue(100);
+        rating.setVotes(MetadataUtil.parseInt(result.tomatoReviews));
+        metadata.addRating(rating);
+      }
+    }
+    catch (NumberFormatException e) {
+      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    try {
+      if (!result.tomatoUserRating.contains("N/A")) {
+        MediaRating rating = new MediaRating("tomatometeravgaudience");
+        rating.setRating(Float.parseFloat(result.tomatoUserRating));
+        rating.setMaxValue(100);
+        rating.setVotes(MetadataUtil.parseInt(result.tomatoUserReviews));
+        metadata.addRating(rating);
+      }
+    }
+    catch (NumberFormatException e) {
+      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    }
     // use rotten tomates from the Ratings block
     for (MovieRating movieRating : ListUtils.nullSafe(result.ratings)) {
       switch (movieRating.source) {
@@ -262,18 +316,14 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
       }
     }
 
-    // get the imdb rating from the imdb dataset too (and probably replace an outdated rating from omdb)
+    // get the imdb rating from the imdb dataset too (and probably replace an
+    // outdated rating from omdb)
     if (metadata.getId(MediaMetadata.IMDB) instanceof String) {
-      try {
-        MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
-        MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
-        if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
-          metadata.getRatings().remove(omdbRating);
-          metadata.addRating(imdbRating);
-        }
-      }
-      catch (Exception e) {
-        LOGGER.debug("could not get imdb rating - {}", e.getMessage());
+      MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
+      MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
+      if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
+        metadata.getRatings().remove(omdbRating);
+        metadata.addRating(imdbRating);
       }
     }
 
@@ -349,7 +399,8 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
   }
 
   // @Override
-  // public List<MediaEpisode> getEpisodeList(MediaScrapeOptions query) throws Exception {
+  // public List<MediaEpisode> getEpisodeList(MediaScrapeOptions query) throws
+  // Exception {
   //
   // LOGGER.debug("scrape() Episodes " + query.toString());
   // List<MediaEpisode> mediaEpisode = new ArrayList<>();
@@ -364,7 +415,8 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
   // OmdbConnectionCounter.trackConnections();
   // }
   // LOGGER.debug("Getting TotalSeasons From Scraping");
-  // result = controller.getScrapeDataById(apiKey, query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", true);
+  // result = controller.getScrapeDataById(apiKey,
+  // query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", true);
   // }
   // catch (Exception e) {
   // LOGGER.error("error scraping: " + e.getMessage());
@@ -372,11 +424,14 @@ public class OmdbMetadataProvider implements IMovieMetadataProvider, IMovieImdbM
   //
   // for (int i = 1; i <= Integer.parseInt(result.totalSeasons); i++) {
   // LOGGER.debug("Scrape Season " + i);
-  // season = controller.getSeasonsById(apiKey, query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", i);
+  // season = controller.getSeasonsById(apiKey,
+  // query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", i);
   //
   // for (SeasonEntity episodeResult : ListUtils.nullSafe(season.episodes)) {
-  // MediaEpisode mediaResult = new MediaEpisode(OmdbMetadataProvider.providerinfo.getId());
-  // episodes = controller.getEpisodesBySeasons(apiKey, query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", i,
+  // MediaEpisode mediaResult = new
+  // MediaEpisode(OmdbMetadataProvider.providerinfo.getId());
+  // episodes = controller.getEpisodesBySeasons(apiKey,
+  // query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", i,
   // Integer.parseInt(episodeResult.episode));
   //
   // mediaResult.season = i;

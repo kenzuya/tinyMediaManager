@@ -56,20 +56,13 @@ public class MovieFetchImdbRating extends TmmAction {
     }
 
     for (Movie movie : movies) {
-      try {
-        MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
-        if (rating != null) {
-          movie.setRating(rating);
-          movie.saveToDb();
-          movie.writeNFO();
-        }
+      MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
+      if (rating != null) {
+        movie.setRating(rating);
+        movie.saveToDb();
+        movie.writeNFO();
       }
-      catch (InterruptedException ex) {
-        Thread.currentThread().interrupt();
-      }
-      catch (Exception ex) {
-        LOGGER.error("could not fetch imdb rating - {}", ex.getMessage());
-      }
+
     }
   }
 }

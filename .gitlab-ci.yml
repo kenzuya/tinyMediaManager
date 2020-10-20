@@ -48,6 +48,7 @@ gemnasium-maven-dependency_scanning:
   rules:
     - if: '$QA_BUILD == "true"'
   artifacts:
+    expire_in: 1 days
     reports:
       dependency_scanning: gl-dependency-scanning-report.json
 
@@ -92,10 +93,10 @@ deploy:nightly:
     - curl -X POST -F "token=${NIGHTLY_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/7895208/trigger/pipeline
 
   artifacts:
+    expire_in: 2 days
     paths:
       - build/
       - dist/
-    expire_in: 1 week
 
 deploy:PRE-RELEASE:
   stage: deploy
@@ -119,6 +120,7 @@ deploy:PRE-RELEASE:
     - curl -X POST -F "token=${PREREL_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/10869644/trigger/pipeline
 
   artifacts:
+    expire_in: 30 days
     paths:
       - build/
       - dist/
@@ -189,6 +191,7 @@ deploy:RELEASE:
     - curl -X POST -F "token=${RELEASE_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/10869704/trigger/pipeline
 
   artifacts:
+    expire_in: never
     paths:
       - build/
       - dist/

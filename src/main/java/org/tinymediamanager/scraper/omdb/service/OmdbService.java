@@ -31,7 +31,7 @@ public interface OmdbService {
 
   @GET("/")
   Call<MovieEntity> movieScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("y") String year,
-      @Query("plot") String plot);
+      @Query("plot") String plot, @Query("tomatoes") boolean useTomatoRating);
 
   @GET("/")
   Call<SeasonSearch> seasonScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("Season") int season);

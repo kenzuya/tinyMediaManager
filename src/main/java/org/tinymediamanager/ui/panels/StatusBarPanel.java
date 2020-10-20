@@ -215,14 +215,19 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
   public synchronized void processTaskEvent(final TmmTaskHandle task) {
     SwingUtilities.invokeLater(() -> {
 
-      if (task.getState() == TmmTaskHandle.TaskState.CREATED || task.getState() == TmmTaskHandle.TaskState.QUEUED) {
-        taskSet.add(task);
-      }
-      else if (task.getState() == TmmTaskHandle.TaskState.STARTED) {
-        taskSet.add(task);
-      }
-      else if (task.getState() == TmmTaskHandle.TaskState.CANCELLED || task.getState() == TmmTaskHandle.TaskState.FINISHED) {
-        taskSet.remove(task);
+      switch (task.getState()) {
+        case CREATED:
+        case QUEUED:
+        case STARTED:
+          taskSet.add(task);
+          break;
+
+        case CANCELLED:
+        case FINISHED:
+        case FAILED:
+          taskSet.remove(task);
+          break;
+
       }
 
       // search for a new activetask to be displayed in the statusbar

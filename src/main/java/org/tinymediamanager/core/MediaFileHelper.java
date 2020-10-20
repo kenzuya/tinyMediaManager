@@ -71,13 +71,16 @@ import com.github.stephenc.javaisotools.loopfs.udf.UDFFileSystem;
 public class MediaFileHelper {
   private static final Logger      LOGGER             = LoggerFactory.getLogger(MediaFileHelper.class);
 
-  public static final List<String> PLEX_EXTRA_FOLDERS = Arrays.asList("behind the scenes", "behindthescenes", "deleted scenes", "deletedscenes",
-      "featurettes", "interviews", "scenes", "shorts", "other");
+  public static final List<String> TRAILER_FOLDERS    = Arrays.asList("trailer", "trailers");
+  public static final List<String> EXTRA_FOLDERS      = Arrays.asList("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
+      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");                                                                 // lower
+                                                                                                                                                  // case
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
   public static final List<String> DEFAULT_AUDIO_FILETYPES;
   public static final List<String> DEFAULT_SUBTITLE_FILETYPES;
+  public static final List<String> BINARY_FILETYPES;
 
   public static final Pattern      MOVIESET_ARTWORK_PATTERN;
   public static final Pattern      POSTER_PATTERN;
@@ -127,22 +130,24 @@ public class MediaFileHelper {
   public static final String       VIDEO_3D_MVC       = "3D MVC";
 
   static {
-    SUPPORTED_ARTWORK_FILETYPES = Collections.unmodifiableList(Arrays.asList("jpg", "jpeg,", "png", "tbn", "gif", "bmp"));
+    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp");
 
     // .disc = video stubs
     // .evo = hd-dvd
     // .ifo = DVD; only needed for KodiRPC
-    DEFAULT_VIDEO_FILETYPES = Collections.unmodifiableList(Arrays.asList(".3gp", ".asf", ".asx", ".avc", ".avi", ".bdmv", ".bin", ".bivx", ".braw",
-        ".dat", ".divx", ".dv", ".dvr-ms", ".disc", ".evo", ".fli", ".flv", ".h264", ".ifo", ".img", ".iso", ".mts", ".mt2s", ".m2ts", ".m2v", ".m4v",
-        ".mkv", ".mk3d", ".mov", ".mp4", ".mpeg", ".mpg", ".nrg", ".nsv", ".nuv", ".ogm", ".pva", ".qt", ".rm", ".rmvb", ".strm", ".svq3", ".ts",
-        ".ty", ".viv", ".vob", ".vp3", ".wmv", ".webm", ".xvid"));
+    DEFAULT_VIDEO_FILETYPES = List.of(".3gp", ".asf", ".asx", ".avc", ".avi", ".bdmv", ".bin", ".bivx", ".braw", ".dat", ".divx", ".dv", ".dvr-ms",
+        ".disc", ".evo", ".fli", ".flv", ".h264", ".ifo", ".img", ".iso", ".mts", ".mt2s", ".m2ts", ".m2v", ".m4v", ".mkv", ".mk3d", ".mov", ".mp4",
+        ".mpeg", ".mpg", ".nrg", ".nsv", ".nuv", ".ogm", ".pva", ".qt", ".rm", ".rmvb", ".strm", ".svq3", ".ts", ".ty", ".viv", ".vob", ".vp3",
+        ".wmv", ".webm", ".xvid");
 
-    DEFAULT_AUDIO_FILETYPES = Collections.unmodifiableList(Arrays.asList(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac",
-        ".ape", ".at3", ".atrac", ".au", ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg",
-        ".pcm", ".ra", ".ram", ".rm", ".tta", ".thd", ".wav", ".wave", ".wma"));
+    DEFAULT_AUDIO_FILETYPES = List.of(".a52", ".aa3", ".aac", ".ac3", ".adt", ".adts", ".aif", ".aiff", ".alac", ".ape", ".at3", ".atrac", ".au",
+        ".dts", ".flac", ".m4a", ".m4b", ".m4p", ".mid", ".midi", ".mka", ".mp3", ".mpa", ".mlp", ".oga", ".ogg", ".pcm", ".ra", ".ram", ".rm",
+        ".tta", ".thd", ".wav", ".wave", ".wma");
 
-    DEFAULT_SUBTITLE_FILETYPES = Collections.unmodifiableList(Arrays.asList(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs",
-        ".psb", ".rt", ".srt", ".smi", ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub"));
+    DEFAULT_SUBTITLE_FILETYPES = List.of(".aqt", ".cvd", ".dks", ".jss", ".sub", ".sup", ".ttxt", ".mpl", ".pjs", ".psb", ".rt", ".srt", ".smi",
+        ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub");
+
+    BINARY_FILETYPES = List.of("bin", "dat", "img", "nrg", "disc");
 
     String extensions = String.join("|", SUPPORTED_ARTWORK_FILETYPES);
 
@@ -227,21 +232,25 @@ public class MediaFileHelper {
     // just path w/o filename
     String foldername = FilenameUtils.getBaseName(pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT));
 
-    Path releative = pathToFile.getParent(); // old style
+    Path relative;
     if (datasource != null) {
       // set path for evaluation not higher than datasource!
-      releative = Paths.get(Utils.relPath(datasource, pathToFile.getParent()));
+      relative = datasource.relativize(pathToFile);
     }
-    String pparent = "";
-    String ppparent = "";
-    String pppparent = "";
-    try {
-      pparent = FilenameUtils.getBaseName(releative.getParent().toString()).toLowerCase(Locale.ROOT);
-      ppparent = FilenameUtils.getBaseName(releative.getParent().getParent().toString()).toLowerCase(Locale.ROOT);
-      pppparent = FilenameUtils.getBaseName(releative.getParent().getParent().getParent().toString()).toLowerCase(Locale.ROOT);
+    else {
+      relative = pathToFile;
     }
-    catch (Exception ignored) {
-      // could happen if we are no 2 levels deep
+
+    // okay, we've got the relative path between (hopefully) the datasource and the media file itself
+    // the first subfolder of this relative path cannot/must not an extra/trailer/whatsoever folder (because that would mean that the DS itself is a
+    // MMD and there are not such folders allowed)
+    // we just ignore that and search forward in the path for extra folders
+    List<String> relativePathJunks = new ArrayList<>();
+    if (relative.getNameCount() > 2) {
+      relative = relative.subpath(1, relative.getNameCount() - 1); // -1 because we're not interested in the file name itself
+      for (int i = 1; i <= relative.getNameCount(); i++) {
+        relativePathJunks.add(relative.subpath(i - 1, i).toString().toLowerCase(Locale.ROOT));
+      }
     }
 
     // check EXTRAS first
@@ -250,14 +259,8 @@ public class MediaFileHelper {
         || basename.matches("(?i).*[-]+extra[s]?[-].*") // extra[s] just with surrounding dash (other delims problem)
         || foldername.equalsIgnoreCase("extras") // preferred folder name
         || foldername.equalsIgnoreCase("extra") // preferred folder name
-        || (!pparent.isEmpty() && pparent.matches("extra[s]?")) // extras folder a level deeper
-        || (!ppparent.isEmpty() && ppparent.matches("extra[s]?")) // extras folder a level deeper
-        || (!pppparent.isEmpty() && pppparent.matches("extra[s]?")) // extras folder a level deeper
         || basename.matches("(?i).*[-](behindthescenes|deleted|featurette|interview|scene|short|other)$") // Plex (w/o trailer)
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(foldername) // Plex Extra folders
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(pparent) // Plex Extra folders
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(ppparent) // Plex Extra folders
-        || MediaFileHelper.PLEX_EXTRA_FOLDERS.contains(pppparent)) // Plex Extra folders
+        || MediaFileHelper.EXTRA_FOLDERS.stream().anyMatch(relativePathJunks::contains)) // extra folders
     {
       return MediaFileType.EXTRA;
     }
@@ -293,7 +296,7 @@ public class MediaFileHelper {
     if (Globals.settings.getVideoFileType().contains("." + ext)) {
       // is this maybe a trailer?
       if (basename.matches("(?i).*[\\[\\]\\(\\)_.-]+trailer[\\[\\]\\(\\)_.-]?$") || basename.equalsIgnoreCase("movie-trailer")
-          || foldername.equalsIgnoreCase("trailer") || foldername.equalsIgnoreCase("trailers")) {
+          || TRAILER_FOLDERS.contains(foldername)) {
         return MediaFileType.TRAILER;
       }
 
@@ -696,6 +699,12 @@ public class MediaFileHelper {
    *          forces the execution, will not stop on already imported files
    */
   public static void gatherMediaInformation(MediaFile mediaFile, boolean force) {
+    String extension = mediaFile.getExtension();
+
+    if (StringUtils.isNotBlank(extension)) {
+      extension = extension.toLowerCase(Locale.ROOT);
+    }
+
     // get basic infos; file size, creation date and last modified
     gatherFileInformation(mediaFile);
 
@@ -703,7 +712,7 @@ public class MediaFileHelper {
     if (!mediaFile.isValidMediainfoFormat()) {
       // okay, we have no valid MI file, be sure it will not be triggered any more
       if (StringUtils.isBlank(mediaFile.getContainerFormat())) {
-        mediaFile.setContainerFormat(mediaFile.getExtension());
+        mediaFile.setContainerFormat(extension);
       }
       return;
     }
@@ -722,7 +731,7 @@ public class MediaFileHelper {
     if (mediaFile.getFilesize() == 0) {
       LOGGER.debug("0 Byte file detected: {}", mediaFile.getFilename());
       // set container format to do not trigger it again
-      mediaFile.setContainerFormat(mediaFile.getExtension());
+      mediaFile.setContainerFormat(extension);
       return;
     }
 
@@ -747,7 +756,12 @@ public class MediaFileHelper {
     LOGGER.debug("start MediaInfo for {}", mediaFile.getFileAsPath());
     try {
       List<MediaInfoFile> mediaInfoFiles;
-      if (mediaFile.isISO()) {
+      if (BINARY_FILETYPES.contains(extension)) {
+        // just parse via XML
+        Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
+        mediaInfoFiles = detectRelevantFiles(parseMediaInfoXml(xmlFile));
+      }
+      else if (mediaFile.isISO()) {
         mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, true);
       }
       else {
@@ -981,7 +995,7 @@ public class MediaFileHelper {
     if (Files.isDirectory(mediaFile.getFileAsPath())) {
       for (Path path : Utils.listFilesRecursive(mediaFile.getFileAsPath())) {
         try {
-          mediaInfoFiles.add(new MediaInfoFile(path.toAbsolutePath().toString(), Files.size(path)));
+          mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
         }
         catch (Exception e) {
           LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
@@ -990,7 +1004,7 @@ public class MediaFileHelper {
       mediaInfoFiles = detectRelevantFiles(mediaInfoFiles);
     }
     else {
-      mediaInfoFiles.add(new MediaInfoFile(mediaFile.getFileAsPath().toAbsolutePath().toString()));
+      mediaInfoFiles.add(new MediaInfoFile(mediaFile.getFile()));
     }
 
     for (MediaInfoFile file : mediaInfoFiles) {
@@ -1105,13 +1119,13 @@ public class MediaFileHelper {
           continue;
         }
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(entry.getPath(), entry.getSize()));
+        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
 
       for (Iso9660FileEntry entry : fileEntries) {
-        MediaInfoFile mif = new MediaInfoFile(entry.getPath(), entry.getSize());
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
         if (!relevantFiles.contains(mif)) {
           continue;
         }
@@ -1190,13 +1204,13 @@ public class MediaFileHelper {
           continue;
         }
         fileEntries.add(entry);
-        allFiles.add(new MediaInfoFile(entry.getPath(), entry.getSize()));
+        allFiles.add(new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize()));
       }
 
       List<MediaInfoFile> relevantFiles = detectRelevantFiles(allFiles);
 
       for (UDFFileEntry entry : fileEntries) {
-        MediaInfoFile mif = new MediaInfoFile(entry.getPath(), entry.getSize());
+        MediaInfoFile mif = new MediaInfoFile(Paths.get(entry.getPath()), entry.getSize());
         if (!relevantFiles.contains(mif)) {
           continue;
         }
@@ -1990,27 +2004,18 @@ public class MediaFileHelper {
       mediaFile.setContainerFormat(mediaFile.getExtension());
     }
 
-    String ar = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "DisplayAspectRatio", "Display_aspect_ratio", "DisplayAspectRatio/String",
-        "DisplayAspectRatio_Origin");
+    // we use the storage ratio (width / heigth) and multiply by PAR
+    // we do not care about the DAR
+    String parString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio", "Pixel_aspect_ratio");
+    if (parString.isEmpty()) {
+      parString = "1.0";
+    }
     try {
-      // make it easier - replace all *:1 because there is no need to calculate
-      ar = ar.replace(":1", "");
-
-      // check if we still have a : in our aspect ratio
-      if (ar.contains(":")) {
-        String[] operands = ar.split(":");
-        if (operands.length == 2) {
-          // calculate
-          mediaFile.setAspectRatio(Float.parseFloat(operands[0]) / Float.parseFloat(operands[1]));
-        }
-      }
-      else {
-        // just parse
-        mediaFile.setAspectRatio(Float.parseFloat(ar));
-      }
+      float par = Float.parseFloat(parString);
+      mediaFile.setAspectRatio((float) mediaFile.getVideoWidth() * par / mediaFile.getVideoHeight());
     }
     catch (Exception e) {
-      LOGGER.trace("Could not parse AspectRatio '{}'", ar);
+      LOGGER.warn("Could not parse AspectRatio '{}'", parString);
     }
 
     mediaFile.setVideo3DFormat(parse3DFormat(mediaFile, miSnapshot));

@@ -39,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -53,7 +52,6 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -427,13 +425,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     Element mpaa = document.createElement("mpaa");
 
     if (movie.getCertification() != null) {
-      if (movie.getCertification().getCountry() == CountryCode.US) {
-        // if we have US certs, write correct "Rated XX" String
-        mpaa.setTextContent(MediaCertification.getMPAAString(movie.getCertification()));
-      }
-      else {
-        mpaa.setTextContent(CertificationStyle.formatCertification(movie.getCertification(), MovieModuleManager.SETTINGS.getCertificationStyle()));
-      }
+      mpaa.setTextContent(CertificationStyle.formatCertification(movie.getCertification(), MovieModuleManager.SETTINGS.getCertificationStyle()));
     }
     root.appendChild(mpaa);
   }

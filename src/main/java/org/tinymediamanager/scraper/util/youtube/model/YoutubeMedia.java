@@ -87,7 +87,7 @@ public class YoutubeMedia {
       }
     }
 
-    LOGGER.error("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
+    LOGGER.debug("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
     return null;
   }
 
@@ -107,7 +107,7 @@ public class YoutubeMedia {
       }
     }
 
-    LOGGER.warn("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
+    LOGGER.debug("could not find video with quality {} and format {}", videoQuality.getText(), extension.getText());
     return null;
   }
 
@@ -135,7 +135,7 @@ public class YoutubeMedia {
     }
 
     // nothing found so far
-    LOGGER.warn("Could not find audio format for extension {}", extension.getText());
+    LOGGER.debug("Could not find audio format for extension {}", extension.getText());
     return null;
   }
 

@@ -50,7 +50,6 @@ import org.slf4j.Logger;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -64,7 +63,6 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
-import org.tinymediamanager.scraper.entities.CountryCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -517,13 +515,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     Element mpaa = document.createElement("mpaa");
 
     if (tvShow.getCertification() != null) {
-      if (tvShow.getCertification().getCountry() == CountryCode.US) {
-        // if we have US certs, write correct "Rated XX" String
-        mpaa.setTextContent(MediaCertification.getMPAAString(tvShow.getCertification()));
-      }
-      else {
-        mpaa.setTextContent(CertificationStyle.formatCertification(tvShow.getCertification(), TvShowModuleManager.SETTINGS.getCertificationStyle()));
-      }
+      mpaa.setTextContent(CertificationStyle.formatCertification(tvShow.getCertification(), TvShowModuleManager.SETTINGS.getCertificationStyle()));
     }
     root.appendChild(mpaa);
   }

@@ -1,3 +1,25 @@
+Version 4.0.5
+=======================
++ added support for trailer download to /trailers #787
++ re-added tinyMediaManagerCMD.exe for Windows command line execution
++ added subtitle count filter for TV shows
++ updated libmediainfo to 20.09
+x completely reworked trailer downloading to fix several issues #1060
+x reworked aspect ratio calculation
+x lowered memory consumption of the imdb rating fetching
+x draw table/tree grid when multiple rows are selected
+x improved loading time of large libraries
+x more precise search results when searching for text only
+x added an option to specify which actors should be fetched from IMDB #1062
+x updated live calculation of movie set/movie count #1064
+x inversion of media file filter for TV shows #1063
+x prevent trailer from being renamed from within /trailer(s) folder
+x support reading of the mediainfo.xml for unsupported files (.disc, .img, ...)
+x fixed reading of mediainfo via UNC paths #1071
+x fixed some updater issues
+x fixed macOS dock pin issue
+x MPAA tag in the NFO now also respects the certification style setting
+
 Version 4.0.4
 =======================
 + added setting to suppress writing of <episodeguide> tag

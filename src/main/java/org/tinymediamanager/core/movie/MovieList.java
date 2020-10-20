@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -71,6 +71,7 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,27 +86,27 @@ import ca.odell.glazedlists.ObservableElementList;
  * @author Manuel Laggner
  */
 public class MovieList extends AbstractModelObject {
-  private static final Logger           LOGGER             = LoggerFactory.getLogger(MovieList.class);
-  private static MovieList              instance;
+  private static final Logger                            LOGGER             = LoggerFactory.getLogger(MovieList.class);
+  private static MovieList                               instance;
 
-  private final MovieSettings           movieSettings;
-  private final List<Movie>             movieList;
-  private final List<MovieSet>          movieSetList;
+  private final MovieSettings                            movieSettings;
+  private final List<Movie>                              movieList;
+  private final List<MovieSet>                           movieSetList;
 
-  private final Set<Integer>            yearsInMovies;
-  private final Set<String>             tagsInMovies;
-  private final Set<MediaGenres>        genresInMovies;
-  private final Set<String>             videoCodecsInMovies;
-  private final Set<String>             videoContainersInMovies;
-  private final Set<String>             audioCodecsInMovies;
-  private final Set<MediaCertification> certificationsInMovies;
-  private final Set<Double>             frameRatesInMovies;
-  private final Set<Integer>            audioStreamsInMovies;
-  private final Set<Integer>            subtitlesInMovies;
+  private final CopyOnWriteArrayList<Integer>            yearsInMovies;
+  private final CopyOnWriteArrayList<String>             tagsInMovies;
+  private final CopyOnWriteArrayList<MediaGenres>        genresInMovies;
+  private final CopyOnWriteArrayList<String>             videoCodecsInMovies;
+  private final CopyOnWriteArrayList<String>             videoContainersInMovies;
+  private final CopyOnWriteArrayList<String>             audioCodecsInMovies;
+  private final CopyOnWriteArrayList<MediaCertification> certificationsInMovies;
+  private final CopyOnWriteArrayList<Double>             frameRatesInMovies;
+  private final CopyOnWriteArrayList<Integer>            audioStreamsInMovies;
+  private final CopyOnWriteArrayList<Integer>            subtitlesInMovies;
 
-  private final PropertyChangeListener  movieListener;
-  private final PropertyChangeListener  movieSetListener;
-  private final Comparator<MovieSet>    movieSetComparator = new MovieSetComparator();
+  private final PropertyChangeListener                   movieListener;
+  private final PropertyChangeListener                   movieSetListener;
+  private final Comparator<MovieSet>                     movieSetComparator = new MovieSetComparator();
 
   /**
    * Instantiates a new movie list.
@@ -115,16 +116,16 @@ public class MovieList extends AbstractModelObject {
     movieList = new ObservableElementList<>(new MovieEventList<>(), GlazedLists.beanConnector(Movie.class));
     movieSetList = new ObservableCopyOnWriteArrayList<>();
 
-    yearsInMovies = new CopyOnWriteArraySet<>();
-    tagsInMovies = new CopyOnWriteArraySet<>();
-    genresInMovies = new CopyOnWriteArraySet<>();
-    videoCodecsInMovies = new CopyOnWriteArraySet<>();
-    videoContainersInMovies = new CopyOnWriteArraySet<>();
-    audioCodecsInMovies = new CopyOnWriteArraySet<>();
-    certificationsInMovies = new CopyOnWriteArraySet<>();
-    frameRatesInMovies = new CopyOnWriteArraySet<>();
-    audioStreamsInMovies = new CopyOnWriteArraySet<>();
-    subtitlesInMovies = new CopyOnWriteArraySet<>();
+    yearsInMovies = new CopyOnWriteArrayList<>();
+    tagsInMovies = new CopyOnWriteArrayList<>();
+    genresInMovies = new CopyOnWriteArrayList<>();
+    videoCodecsInMovies = new CopyOnWriteArrayList<>();
+    videoContainersInMovies = new CopyOnWriteArrayList<>();
+    audioCodecsInMovies = new CopyOnWriteArrayList<>();
+    certificationsInMovies = new CopyOnWriteArrayList<>();
+    frameRatesInMovies = new CopyOnWriteArrayList<>();
+    audioStreamsInMovies = new CopyOnWriteArrayList<>();
+    subtitlesInMovies = new CopyOnWriteArrayList<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -134,24 +135,24 @@ public class MovieList extends AbstractModelObject {
         // do not update all list at the same time - could be a performance issue
         switch (evt.getPropertyName()) {
           case YEAR:
-            updateYear(movie);
+            updateYear(Collections.singletonList(movie));
             break;
 
           case CERTIFICATION:
-            updateCertifications(movie);
+            updateCertifications(Collections.singletonList(movie));
             break;
 
           case GENRE:
-            updateGenres(movie);
+            updateGenres(Collections.singletonList(movie));
             break;
 
           case TAG:
-            updateTags(movie);
+            updateTags(Collections.singletonList(movie));
             break;
 
           case MEDIA_FILES:
           case MEDIA_INFORMATION:
-            updateMediaInformationLists(movie);
+            updateMediaInformationLists(Collections.singletonList(movie));
             break;
 
           default:
@@ -204,7 +205,7 @@ public class MovieList extends AbstractModelObject {
       int oldValue = movieList.size();
       movieList.add(movie);
 
-      updateLists(movie);
+      updateLists(Collections.singletonList(movie));
       movie.addPropertyChangeListener(movieListener);
       firePropertyChange("movies", null, movieList);
       firePropertyChange("movieCount", oldValue, movieList.size());
@@ -269,7 +270,7 @@ public class MovieList extends AbstractModelObject {
    * @return MediaGenres list
    */
   public Collection<MediaGenres> getUsedGenres() {
-    return Collections.unmodifiableSet(genresInMovies);
+    return Collections.unmodifiableList(genresInMovies);
   }
 
   /**
@@ -415,12 +416,14 @@ public class MovieList extends AbstractModelObject {
     // remove invalid movies which have no VIDEO files
     checkAndCleanupMediaFiles();
 
-    // 3. initialize movies/movie sets (e.g. link with each others)
+    // initialize movies/movie sets (e.g. link with each others)
+    // updateLists is slow here calling for a bunch of movies, so we do the work directly
     for (Movie movie : movieList) {
       movie.initializeAfterLoading();
-      updateLists(movie);
       movie.addPropertyChangeListener(movieListener);
     }
+
+    updateLists(movieList);
 
     for (MovieSet movieSet : movieSetList) {
       movieSet.initializeAfterLoading();
@@ -589,7 +592,7 @@ public class MovieList extends AbstractModelObject {
 
       LOGGER.info("=====================================================");
       LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
-      LOGGER.info(options.toString());
+      LOGGER.info("options: {}", options);
       LOGGER.info("=====================================================");
       sr.addAll(provider.search(options));
       // if result is empty, try all scrapers
@@ -602,9 +605,8 @@ public class MovieList extends AbstractModelObject {
           LOGGER.info("no result yet - trying alternate scraper: {}", ms.getName());
           try {
             LOGGER.info("=====================================================");
-            LOGGER.info("Searching with alternate scraper: " + ms.getMediaProvider().getProviderInfo().getId() + ", "
-                + provider.getProviderInfo().getVersion());
-            LOGGER.info(options.toString());
+            LOGGER.info("Searching with alternate scraper: '{}', '{}'", ms.getMediaProvider().getId(), provider.getProviderInfo().getVersion());
+            LOGGER.info("options: {}", options);
             LOGGER.info("=====================================================");
             sr.addAll(((IMovieMetadataProvider) ms.getMediaProvider()).search(options));
           }
@@ -809,22 +811,25 @@ public class MovieList extends AbstractModelObject {
     return count;
   }
 
-  private void updateLists(Movie movie) {
-    updateYear(movie);
-    updateTags(movie);
-    updateGenres(movie);
-    updateCertifications(movie);
-    updateMediaInformationLists(movie);
+  private void updateLists(Collection<Movie> movies) {
+    updateYear(movies);
+    updateTags(movies);
+    updateGenres(movies);
+    updateCertifications(movies);
+    updateMediaInformationLists(movies);
   }
 
   /**
    * Update year in movies
    *
-   * @param movie
-   *          the movie
+   * @param movies
+   *          all movies to update
    */
-  private void updateYear(Movie movie) {
-    if (yearsInMovies.add(movie.getYear())) {
+  private void updateYear(Collection<Movie> movies) {
+    Set<Integer> years = new HashSet<>();
+    movies.forEach(movie -> years.add(movie.getYear()));
+
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(yearsInMovies, years)) {
       firePropertyChange(YEAR, null, yearsInMovies);
     }
   }
@@ -832,89 +837,125 @@ public class MovieList extends AbstractModelObject {
   /**
    * Update genres used in movies.
    *
-   * @param movie
-   *          the movie
+   * @param movies
+   *          all movies to update
    */
-  private void updateGenres(Movie movie) {
-    boolean dirty = false;
+  private void updateGenres(Collection<Movie> movies) {
+    Set<MediaGenres> genres = new HashSet<>();
+    movies.forEach(movie -> genres.addAll(movie.getGenres()));
 
-    for (MediaGenres genre : movie.getGenres()) {
-      if (genresInMovies.add(genre)) {
-        dirty = true;
-      }
-    }
-
-    if (dirty) {
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(genresInMovies, genres)) {
       firePropertyChange(GENRE, null, genresInMovies);
     }
   }
 
   /**
    * Update tags used in movies.
-   * 
-   * @param movie
-   *          the movie
+   *
+   * @param movies
+   *          all movies to update
    */
-  private void updateTags(Movie movie) {
-    boolean dirty = false;
+  private void updateTags(Collection<Movie> movies) {
+    Set<String> tags = new HashSet<>();
+    movies.forEach(movie -> tags.addAll(movie.getTags()));
 
-    for (String tag : movie.getTags()) {
-      if (tagsInMovies.add(tag)) {
-        // to avoid firing the event multiple times
-        dirty = true;
-      }
-    }
-
-    if (dirty) {
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInMovies, tags)) {
       firePropertyChange(TAG, null, tagsInMovies);
     }
   }
 
   /**
    * Update media information used in movies.
-   * 
-   * @param movie
-   *          the movie
+   *
+   * @param movies
+   *          all movies to update
    */
-  private void updateMediaInformationLists(Movie movie) {
-    for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
-      // video codec
-      if (StringUtils.isNotBlank(mf.getVideoCodec()) && videoCodecsInMovies.add(mf.getVideoCodec())) {
-        firePropertyChange(Constants.VIDEO_CODEC, null, videoCodecsInMovies);
-      }
+  private void updateMediaInformationLists(Collection<Movie> movies) {
+    Set<String> videoCodecs = new HashSet<>();
+    Set<Double> frameRates = new HashSet<>();
+    Set<String> videoContainers = new HashSet<>();
+    Set<String> audioCodecs = new HashSet<>();
+    Set<Integer> audioStreamCount = new HashSet<>();
+    Set<Integer> subtitleCount = new HashSet<>();
 
-      // frame rate
-      if (mf.getFrameRate() > 0 && frameRatesInMovies.add(mf.getFrameRate())) {
-        firePropertyChange(Constants.FRAME_RATE, null, frameRatesInMovies);
-      }
+    for (Movie movie : movies) {
+      for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
+        // video codec
+        if (StringUtils.isNotBlank(mf.getVideoCodec())) {
+          videoCodecs.add(mf.getVideoCodec());
+        }
 
-      // video container
-      String container = mf.getContainerFormat();
-      if (StringUtils.isNotBlank(container) && videoContainersInMovies.add(container.toLowerCase(Locale.ROOT))) {
-        firePropertyChange(Constants.VIDEO_CONTAINER, null, videoContainersInMovies);
-      }
+        // frame rate
+        if (mf.getFrameRate() > 0) {
+          frameRates.add(mf.getFrameRate());
+        }
 
-      // audio codec
-      for (MediaFileAudioStream audio : mf.getAudioStreams()) {
-        if (StringUtils.isNotBlank(audio.getCodec()) && audioCodecsInMovies.add(audio.getCodec())) {
-          firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInMovies);
+        // video container
+        if (StringUtils.isNotBlank(mf.getContainerFormat())) {
+          videoContainers.add(mf.getContainerFormat().toLowerCase(Locale.ROOT));
+        }
+
+        // audio codec
+        for (MediaFileAudioStream audio : mf.getAudioStreams()) {
+          if (StringUtils.isNotBlank(audio.getCodec())) {
+            audioCodecs.add(audio.getCodec());
+          }
+        }
+        // audio streams
+        if (!mf.getAudioStreams().isEmpty()) {
+          audioStreamCount.add(mf.getAudioStreams().size());
+        }
+
+        // subtitles
+        if (!mf.getSubtitles().isEmpty()) {
+          subtitleCount.add(mf.getSubtitles().size());
         }
       }
-      // audio streams
-      if (!mf.getAudioStreams().isEmpty() && audioStreamsInMovies.add(mf.getAudioStreams().size())) {
-        firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInMovies);
-      }
+    }
 
-      // subtitles
-      if (!mf.getSubtitles().isEmpty() && subtitlesInMovies.add(mf.getSubtitles().size())) {
-        firePropertyChange(Constants.SUBTITLES_COUNT, null, subtitlesInMovies);
-      }
+    // video codecs
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoCodecsInMovies, videoCodecs)) {
+      firePropertyChange(Constants.VIDEO_CODEC, null, videoCodecsInMovies);
+    }
+
+    // frame rate
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(frameRatesInMovies, frameRates)) {
+      firePropertyChange(Constants.FRAME_RATE, null, frameRatesInMovies);
+    }
+
+    // video container
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoContainersInMovies, videoContainers)) {
+      firePropertyChange(Constants.VIDEO_CONTAINER, null, videoContainersInMovies);
+    }
+
+    // audio codec
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioCodecsInMovies, audioCodecs)) {
+      firePropertyChange(Constants.AUDIO_CODEC, null, audioCodecsInMovies);
+    }
+
+    // audio streams
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioStreamsInMovies, audioStreamCount)) {
+      firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInMovies);
+    }
+
+    // subtitles
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitlesInMovies, subtitleCount)) {
+      firePropertyChange(Constants.SUBTITLES_COUNT, null, subtitlesInMovies);
     }
   }
 
-  private void updateCertifications(Movie movie) {
-    if (!certificationsInMovies.contains(movie.getCertification())) {
-      addCertification(movie.getCertification());
+  /**
+   * Update certifications used in movies.
+   *
+   * @param movies
+   *          all movies to update
+   */
+  private void updateCertifications(Collection<Movie> movies) {
+    Set<MediaCertification> certifications = new HashSet<>();
+    movies.forEach(movie -> certifications.add(movie.getCertification()));
+
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(certificationsInMovies, certifications)) {
+      firePropertyChange(Constants.CERTIFICATION, null, certificationsInMovies);
     }
   }
 
@@ -923,7 +964,7 @@ public class MovieList extends AbstractModelObject {
    * 
    * @return a {@link Set} of all years
    */
-  public Set<Integer> getYearsInMovies() {
+  public Collection<Integer> getYearsInMovies() {
     return yearsInMovies;
   }
 
@@ -932,51 +973,36 @@ public class MovieList extends AbstractModelObject {
    *
    * @return a {@link Set} of all tags
    */
-  public Set<String> getTagsInMovies() {
+  public Collection<String> getTagsInMovies() {
     return tagsInMovies;
   }
 
-  public Set<String> getVideoCodecsInMovies() {
+  public Collection<String> getVideoCodecsInMovies() {
     return videoCodecsInMovies;
   }
 
-  public Set<String> getVideoContainersInMovies() {
+  public Collection<String> getVideoContainersInMovies() {
     return videoContainersInMovies;
   }
 
-  public Set<String> getAudioCodecsInMovies() {
+  public Collection<String> getAudioCodecsInMovies() {
     return audioCodecsInMovies;
   }
 
-  public Set<MediaCertification> getCertificationsInMovies() {
+  public Collection<MediaCertification> getCertificationsInMovies() {
     return certificationsInMovies;
   }
 
-  public Set<Double> getFrameRatesInMovies() {
+  public Collection<Double> getFrameRatesInMovies() {
     return frameRatesInMovies;
   }
 
-  public Set<Integer> getAudioStreamsInMovies() {
+  public Collection<Integer> getAudioStreamsInMovies() {
     return audioStreamsInMovies;
   }
 
-  public Set<Integer> getSubtitlesInMovies() {
+  public Collection<Integer> getSubtitlesInMovies() {
     return subtitlesInMovies;
-  }
-
-  private void addCertification(MediaCertification newCert) {
-    if (newCert == null) {
-      return;
-    }
-
-    synchronized (certificationsInMovies) {
-      if (certificationsInMovies.contains(newCert)) {
-        return;
-      }
-      certificationsInMovies.add(newCert);
-    }
-
-    firePropertyChange(Constants.CERTIFICATION, null, certificationsInMovies);
   }
 
   /**

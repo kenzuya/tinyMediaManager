@@ -57,6 +57,8 @@ public class TmmViewportUI extends FlatViewportUI {
 
   @Override
   public void paint(Graphics g, JComponent c) {
+    super.paint(g, c);
+
     if (paintTmmGrid) {
       JViewport viewport = (JViewport) c;
       JTable table = null;
@@ -71,8 +73,6 @@ public class TmmViewportUI extends FlatViewportUI {
         paintHorizontalGridLines(g, c, table);
       }
     }
-
-    super.paint(g, c);
   }
 
   private void paintVerticalGridLines(Graphics g, JComponent c, JTable fTable) {
@@ -88,7 +88,7 @@ public class TmmViewportUI extends FlatViewportUI {
       if (x >= 0) {
         g.setColor(gridColor);
         // draw the grid line (not sure what the -1 is for, but BasicTableUI also does it.
-        g.drawLine(x - 1, g.getClipBounds().y, x - 1, viewport.getHeight());
+        g.drawLine(x - 1, 0, x - 1, viewport.getHeight());
       }
     }
   }
@@ -112,9 +112,9 @@ public class TmmViewportUI extends FlatViewportUI {
     while (topY < g.getClipBounds().y + g.getClipBounds().height) {
       int bottomY = topY + fTable.getRowHeight(currentRow);
       g.setColor(gridColor);
-      g.drawLine(g.getClipBounds().x + 5, bottomY - 1, g.getClipBounds().width, bottomY - 1);
+      g.drawLine(5, bottomY - 1, viewport.getWidth(), bottomY - 1);
       g.setColor(gridColor2);
-      g.drawLine(g.getClipBounds().x + 5, bottomY, g.getClipBounds().width, bottomY);
+      g.drawLine(5, bottomY, viewport.getWidth(), bottomY);
       topY = bottomY;
       currentRow++;
     }
