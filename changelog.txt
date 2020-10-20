@@ -17,6 +17,7 @@ x support reading of the mediainfo.xml for unsupported files (.disc, .img, ...)
 x fixed reading of mediainfo via UNC paths #1071
 x fixed some updater issues
 x fixed macOS dock pin issue
+x MPAA tag in the NFO now also respects the certification style setting
 
 
 Version 4.0.4
