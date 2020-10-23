@@ -248,7 +248,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
   /*
    * helper for displaying the combobox with an example
    */
-  private class CertificationStyleWrapper {
+  private static class CertificationStyleWrapper {
     private CertificationStyle style;
 
     @Override
