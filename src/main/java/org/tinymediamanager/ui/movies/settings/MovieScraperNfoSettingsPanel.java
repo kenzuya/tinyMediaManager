@@ -213,7 +213,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblCertificationStyle, "flowx,cell 1 7 2 1");
 
         cbCertificationStyle = new JComboBox();
-        panelNfo.add(cbCertificationStyle, "cell 1 7");
+        panelNfo.add(cbCertificationStyle, "cell 1 7, wmin 0");
 
         chckbxCreateOutline = new JHintCheckBox(BUNDLE.getString("Settings.createoutline"));
         chckbxCreateOutline.setToolTipText(BUNDLE.getString("Settings.createoutline.hint"));

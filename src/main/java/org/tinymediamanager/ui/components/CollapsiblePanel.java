@@ -153,7 +153,7 @@ public class CollapsiblePanel extends JPanel {
       remove(content);
     }
     else {
-      add(content, "cell 0 1 2 1, grow");
+      add(content, "cell 0 1 2 1, grow, wmin 0");
     }
 
     isCollapsed = collapse;
