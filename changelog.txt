@@ -4,6 +4,7 @@ Version 4.0.5
 + re-added tinyMediaManagerCMD.exe for Windows command line execution
 + added subtitle count filter for TV shows
 + updated libmediainfo to 20.09
+x fixed reading hybrid DVD ISOs
 x completely reworked trailer downloading to fix several issues #1060
 x reworked aspect ratio calculation
 x lowered memory consumption of the imdb rating fetching

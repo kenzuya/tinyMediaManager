@@ -152,7 +152,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblCertificationFormatT, "cell 1 7 2 1");
 
         cbCertificationStyle = new JComboBox();
-        panelNfo.add(cbCertificationStyle, "cell 1 7 2 1");
+        panelNfo.add(cbCertificationStyle, "cell 1 7 2 1, wmin 0");
 
         chckbxWriteEpisodeguide = new JCheckBox(BUNDLE.getString("Settings.writeepisodeguide"));
         panelNfo.add(chckbxWriteEpisodeguide, "cell 1 8 2 1");

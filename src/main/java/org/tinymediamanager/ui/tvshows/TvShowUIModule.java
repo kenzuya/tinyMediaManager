@@ -267,8 +267,8 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowFetchImdbRating.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
     popupMenu.add(enhancedEditMenu);

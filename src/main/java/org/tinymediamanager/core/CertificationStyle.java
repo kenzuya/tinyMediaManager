@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.core;
 
+import org.tinymediamanager.scraper.entities.CountryCode;
+
 /**
  * The enum CertificationStyle represents all certification styles which we support writing
  *
@@ -22,6 +24,7 @@ package org.tinymediamanager.core;
  */
 public enum CertificationStyle {
   SHORT, // FSK 16
+  SHORT_MPAA, // short for all but the term "Rated" in front of all US certs
   MEDIUM, // DE: FSK 16
   MEDIUM_FULL, // Germany: FSK 16
   LARGE, // DE:FSK 16 / DE:FSK16 / DE:16 / DE:ab 16
@@ -44,6 +47,12 @@ public enum CertificationStyle {
 
     switch (style) {
       case SHORT:
+        return cert.getName();
+
+      case SHORT_MPAA:
+        if (cert.getCountry() == CountryCode.US) {
+          return MediaCertification.getMPAAString(cert);
+        }
         return cert.getName();
 
       case MEDIUM:

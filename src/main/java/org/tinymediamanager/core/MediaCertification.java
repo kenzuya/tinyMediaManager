@@ -360,7 +360,7 @@ public enum MediaCertification {
    *          list of certifications
    * @return certification string like "US:R / UK:15 / SW:15"
    */
-  public static String generateCertificationStringFromList(ArrayList<MediaCertification> certs) {
+  public static String generateCertificationStringFromList(List<MediaCertification> certs) {
     if (certs == null || certs.isEmpty()) {
       return "";
     }

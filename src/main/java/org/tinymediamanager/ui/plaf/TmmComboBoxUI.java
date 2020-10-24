@@ -15,10 +15,7 @@
  */
 package org.tinymediamanager.ui.plaf;
 
-import static com.formdev.flatlaf.util.UIScale.scale;
-
 import java.awt.Dimension;
-import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -26,7 +23,6 @@ import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 
 import com.formdev.flatlaf.ui.FlatComboBoxUI;
-import com.formdev.flatlaf.ui.FlatUIUtils;
 
 /**
  * Provides the Flat LaF UI delegate for {@link javax.swing.JComboBox}.
@@ -75,29 +71,11 @@ public class TmmComboBoxUI extends FlatComboBoxUI {
     return arrowButton;
   }
 
-  /**
-   * The minimum size is the size of the display area plus insets plus the button.
-   */
   @Override
   public Dimension getMinimumSize(JComponent c) {
-    if (!isMinimumSizeDirty) {
-      return new Dimension(cachedMinimumSize);
-    }
-    Dimension size = getDisplaySize();
-    Insets insets = getInsets();
-    Insets arrowInsets = arrowButton.getInsets();
-    // calculate the width and height of the button
-    int buttonHeight = size.height;
-    int buttonWidth = squareButton ? buttonHeight : arrowButton.getPreferredSize().width + arrowInsets.left + arrowInsets.right;
-    // adjust the size based on the button width
-    size.height += insets.top + insets.bottom;
-    size.width += insets.left + insets.right + buttonWidth;
-
-    cachedMinimumSize.setSize(size.width, size.height);
-    isMinimumSizeDirty = false;
-
-    size.width = Math.max(size.width, scale(FlatUIUtils.minimumWidth(c, minimumWidth)));
-    return new Dimension(size);
+    Dimension minimumSize = super.getMinimumSize(c);
+    minimumSize.width += 3;
+    return minimumSize;
   }
 
   private class TmmComboBoxButton extends FlatComboBoxButton {
