@@ -666,7 +666,7 @@ public class MovieEditorDialog extends TmmDialog {
 
         cbMovieSet = new JComboBox();
         cbMovieSet.addItem("");
-        details2Panel.add(cbMovieSet, "cell 1 4 4 1,growx,wmin 0");
+        details2Panel.add(cbMovieSet, "cell 1 4 4 1, growx, wmin 0");
       }
       {
         JLabel lblShowlinkT = new TmmLabel(BUNDLE.getString("metatag.showlink"));
@@ -678,7 +678,7 @@ public class MovieEditorDialog extends TmmDialog {
         details2Panel.add(scrollPaneShowlink, "cell 1 5 4 1,grow");
 
         cbShowlink = new JComboBox();
-        details2Panel.add(cbShowlink, "cell 1 6 4 1,growx");
+        details2Panel.add(cbShowlink, "cell 1 6 4 1, growx, wmin 0");
       }
       {
         JLabel lblGenres = new TmmLabel(BUNDLE.getString("metatag.genre"));
