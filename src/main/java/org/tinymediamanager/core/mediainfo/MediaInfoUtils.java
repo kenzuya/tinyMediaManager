@@ -16,7 +16,6 @@
 
 package org.tinymediamanager.core.mediainfo;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -71,14 +70,25 @@ public class MediaInfoUtils {
         nativepath += "mac";
       }
 
-      // copy and load the native libs to the temp dir to avoid anforseeable issues
-      Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"), "tmm");
-      Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
-      Utils.copyDirectoryRecursive(Paths.get(nativepath), nativeDir);
+      Path tmmNativeDir = Paths.get(nativepath).toAbsolutePath();
 
-      System.setProperty("jna.library.path", nativeDir.toString()); // MI
-      System.setProperty("org.lwjgl.librarypath", nativeDir.toString()); // nfd
-      LOGGER.debug("Loading native libs from: {}", nativeDir);
+      try {
+        // copy and load the native libs to the temp dir to avoid unforseeable issues
+        Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"), "tmm");
+        Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
+        Utils.copyDirectoryRecursive(tmmNativeDir, nativeDir);
+
+        System.setProperty("jna.library.path", nativeDir.toString()); // MI
+        System.setProperty("org.lwjgl.librarypath", nativeDir.toString()); // nfd
+        LOGGER.debug("Loading native libs from: {}", nativeDir);
+      }
+      catch (Exception e) {
+        // not possible somehow -> load directly from tmm folder
+        LOGGER.info("could not copy native libs to the temp folder -> try to load from install dir");
+        System.setProperty("jna.library.path", tmmNativeDir.toString()); // MI
+        System.setProperty("org.lwjgl.librarypath", tmmNativeDir.toString()); // nfd
+        LOGGER.debug("Loading native libs from: {}", tmmNativeDir);
+      }
 
       miv = MediaInfo.version(); // load class
 
@@ -93,7 +103,7 @@ public class MediaInfoUtils {
       }
 
     }
-    catch (IOException e) {
+    catch (Exception e) {
       LOGGER.error("Could not load mediainfo", e);
     }
   }
