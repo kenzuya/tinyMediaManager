@@ -147,7 +147,7 @@ class UiSettingsPanel extends JPanel {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private void initComponents() {
-    setLayout(new MigLayout("hidemode 1", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("hidemode 1", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelLanguage = new JPanel();
       panelLanguage.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the

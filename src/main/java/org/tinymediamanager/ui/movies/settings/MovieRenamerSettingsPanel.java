@@ -245,7 +245,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("hidemode 1", "[grow]", "[][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("hidemode 1", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
       JPanel panelPatterns = new JPanel(new MigLayout("insets 0, hidemode 1", "[20lp!][15lp][][300lp,grow]", "[][][][][][]"));
 

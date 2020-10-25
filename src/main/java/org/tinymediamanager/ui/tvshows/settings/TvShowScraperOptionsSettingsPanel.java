@@ -65,7 +65,7 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[grow,shrink 0]", "[][]15lp![][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][]15lp![][15lp!][][15lp!][]"));
     {
       JPanel panelOptions = new JPanel();
       panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
