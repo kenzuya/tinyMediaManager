@@ -101,7 +101,7 @@ class SystemSettingsPanel extends JPanel {
     btnSearchMediaPlayer.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseplayer.path");
       Path file = TmmUIHelper.selectFile(BUNDLE.getString("Button.chooseplayer"), path, null);
-      if (file != null && Utils.isRegularFile(file) || Platform.isMac()) {
+      if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
         tfMediaPlayer.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseplayer.path", file.getParent().toString());
       }
