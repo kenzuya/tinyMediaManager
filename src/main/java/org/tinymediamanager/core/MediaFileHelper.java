@@ -753,6 +753,7 @@ public class MediaFileHelper {
     }
 
     // get media info
+    boolean readXml = !force; // we try to read the XML unless we force re-reading of MI
     LOGGER.debug("start MediaInfo for {}", mediaFile.getFileAsPath());
     try {
       List<MediaInfoFile> mediaInfoFiles;
@@ -762,26 +763,27 @@ public class MediaFileHelper {
         mediaInfoFiles = detectRelevantFiles(parseMediaInfoXml(xmlFile));
       }
       else if (mediaFile.isISO()) {
-        mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, true);
+        mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, readXml);
       }
       else {
-        mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile, true);
+        mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile, readXml);
       }
       parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
     }
     catch (Exception e) {
-      // reading mediainfo failed; re-read without XML
-      LOGGER.debug("could not read mediainfo data - maybe a broken XML? {}", e.getMessage());
+      if (readXml) {
+        // reading mediainfo failed; re-read without XML
+        LOGGER.debug("could not read mediainfo data - maybe a broken XML? {}", e.getMessage());
 
-      List<MediaInfoFile> mediaInfoFiles;
-      if (mediaFile.isISO()) {
-        mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, false);
+        List<MediaInfoFile> mediaInfoFiles;
+        if (mediaFile.isISO()) {
+          mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, false);
+        }
+        else {
+          mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile, false);
+        }
+        parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
       }
-      else {
-        mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile, false);
-      }
-      parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
-
     }
   }
 
