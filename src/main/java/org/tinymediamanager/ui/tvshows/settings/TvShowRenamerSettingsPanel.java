@@ -255,7 +255,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
       JPanel panelPatterns = new JPanel(new MigLayout("insets 0, hidemode 1", "[20lp!][15lp][][300lp,grow]", "[][][][][][][]"));
 

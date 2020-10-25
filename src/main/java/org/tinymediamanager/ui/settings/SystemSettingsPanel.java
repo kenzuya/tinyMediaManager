@@ -101,7 +101,7 @@ class SystemSettingsPanel extends JPanel {
     btnSearchMediaPlayer.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseplayer.path");
       Path file = TmmUIHelper.selectFile(BUNDLE.getString("Button.chooseplayer"), path, null);
-      if (file != null && Utils.isRegularFile(file) || Platform.isMac()) {
+      if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
         tfMediaPlayer.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseplayer.path", file.getParent().toString());
       }
@@ -109,7 +109,7 @@ class SystemSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelMediaPlayer = new JPanel();
       panelMediaPlayer.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
@@ -127,7 +127,7 @@ class SystemSettingsPanel extends JPanel {
         panelMediaPlayer.add(btnSearchMediaPlayer, "cell 1 0");
 
         JTextArea tpMediaPlayer = new ReadOnlyTextArea(BUNDLE.getString("Settings.mediaplayer.hint"));
-        panelMediaPlayer.add(tpMediaPlayer, "cell 1 1 2 1,growx");
+        panelMediaPlayer.add(tpMediaPlayer, "cell 1 1 2 1,growx, wmin 0");
         TmmFontHelper.changeFont(tpMediaPlayer, L2);
       }
     }
@@ -165,7 +165,7 @@ class SystemSettingsPanel extends JPanel {
         panelMemory.add(lblMb, "cell 3 0,aligny top");
 
         JTextArea tpMemoryHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.memory.hint"));
-        panelMemory.add(tpMemoryHint, "cell 1 1 3 1,growx");
+        panelMemory.add(tpMemoryHint, "cell 1 1 3 1,growx, wmin 0");
         TmmFontHelper.changeFont(tpMemoryHint, L2);
       }
     }

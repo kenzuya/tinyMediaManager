@@ -153,7 +153,7 @@ class MovieSubtitleSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("hidemode 0", "[400lp,grow]", "[][15lp!][]"));
+    setLayout(new MigLayout("hidemode 0", "[600lp,grow]", "[][15lp!][]"));
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 

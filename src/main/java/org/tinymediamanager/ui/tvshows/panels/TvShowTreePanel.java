@@ -58,6 +58,7 @@ import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
+import org.tinymediamanager.ui.components.tree.TmmTreeModel;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
@@ -148,6 +149,12 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     tree.getModel().addTableModelListener(arg0 -> {
       updateFilteredCount();
 
+      if (tree.getTreeTableModel().getTreeModel() instanceof TmmTreeModel) {
+        if (((TmmTreeModel<?>) tree.getTreeTableModel().getTreeModel()).isAdjusting()) {
+          return;
+        }
+      }
+
       // select first Tvshow if nothing is selected
       ListSelectionModel selectionModel1 = tree.getSelectionModel();
       if (selectionModel1.isSelectionEmpty() && tree.getModel().getRowCount() > 0) {
@@ -190,13 +197,9 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           TvShowUIModule.getInstance().setSelectedTvShowEpisode(tvShowEpisode);
         }
       }
-      else {
-        TvShowUIModule.getInstance().setSelectedTvShow(null);
-      }
     });
 
     // selecting first TV show at startup
-    TvShowList tvShowList = TvShowList.getInstance();
     if (tvShowList.getTvShows() != null && !tvShowList.getTvShows().isEmpty()) {
       SwingUtilities.invokeLater(() -> {
         ListSelectionModel selectionModel1 = tree.getSelectionModel();
