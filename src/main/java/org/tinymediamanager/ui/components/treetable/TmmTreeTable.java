@@ -663,8 +663,10 @@ public class TmmTreeTable extends TmmTable {
 
     @Override
     public void updateSortingAndFiltering(TmmTreeNode parent) {
-      // store selected rows
+      // store selected nodes
       int[] selectedRows = getSelectedRows();
+
+      setAdjusting(true);
 
       // Updating root node children
       boolean structureChanged = performFilteringAndSortingRecursively(parent);
@@ -673,6 +675,7 @@ public class TmmTreeTable extends TmmTable {
 
         // Restoring tree state including all selections and expansions
         clearSelection();
+        setAdjusting(false);
         for (int row : selectedRows) {
           getSelectionModel().addSelectionInterval(row, row);
         }

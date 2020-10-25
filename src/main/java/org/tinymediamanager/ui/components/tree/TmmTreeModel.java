@@ -56,6 +56,8 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
   // lock for accessing the cache
   protected final ReadWriteLock          readWriteLock        = new ReentrantReadWriteLock();
 
+  protected boolean                      isAdjusting          = false;
+
   /**
    * Create a new instance of the TmmTreeModel for the given TmmTree and data provider
    * 
@@ -238,6 +240,10 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
    * Updates nodes sorting and filtering for the specified parent and its children
    */
   public void updateSortingAndFiltering(E parent) {
+    if (!hasActiveFilters()) {
+      return;
+    }
+
     // Saving tree state to restore it right after children update
     TmmTreeState treeState = null;
     if (this.tree != null) {
@@ -245,7 +251,10 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     }
 
     // Updating root node children
+    setAdjusting(true);
     performFilteringAndSortingRecursively(parent);
+
+    setAdjusting(false);
     nodeStructureChanged(getRoot());
 
     // Restoring tree state including all selections and expansions
@@ -400,6 +409,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     if (children == null || children.isEmpty() || parent == null) {
       return;
     }
+    setAdjusting(true);
 
     // Adding new raw children
     readWriteLock.writeLock().lock();
@@ -435,6 +445,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     if (node == null) {
       return;
     }
+    setAdjusting(true);
 
     final E parent = (E) node.getParent();
 
@@ -463,6 +474,9 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
 
     // Updating parent node sorting and filtering
     updateSortingAndFiltering(parent);
+
+    setAdjusting(false);
+    nodeStructureChanged(parent);
   }
 
   /**
@@ -644,5 +658,24 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     final Boolean cached = nodeCached.get(node.getId());
     readWriteLock.readLock().unlock();
     return cached != null && cached;
+  }
+
+  /**
+   * the the adjusting flag - like in the JTable. To inform listeners that there are ongoing actions
+   * 
+   * @return true/false
+   */
+  public boolean isAdjusting() {
+    return isAdjusting;
+  }
+
+  /**
+   * the the adjusting flag - like in the JTable. To inform listeners that there are ongoing actions
+   * 
+   * @param adjusting
+   *          true if there is an ongoing work started, false otherwise
+   */
+  public void setAdjusting(boolean adjusting) {
+    isAdjusting = adjusting;
   }
 }
