@@ -778,6 +778,11 @@
                                             <type>tar.gz</type>
                                             <classifier>linux</classifier>
                                         </artifact>
+                                        <artifact>
+                                            <file>dist/tmm_${project.version}_arm.tar.gz</file>
+                                            <type>tar.gz</type>
+                                            <classifier>arm</classifier>
+                                        </artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
