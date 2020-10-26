@@ -183,20 +183,30 @@ public class ImdbTvShowParser extends ImdbParser {
     Document doc;
     try {
       doc = futureReference.get();
-      parseReferencePage(doc, options, md);
+      if (doc != null) {
+        parseReferencePage(doc, options, md);
+      }
 
       doc = futurePlotsummary.get();
-      parsePlotsummaryPage(doc, options, md);
+      if (doc != null) {
+        parsePlotsummaryPage(doc, options, md);
+      }
 
       // did we get a release date?
       if (md.getReleaseDate() == null || ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("localReleaseDate")) {
         // get the date from the releaseinfo page
-        parseReleaseinfoPage(compSvcImdb.submit(worker).get(), options, md);
+        Document releaseinfoDoc = compSvcImdb.submit(worker).get();
+        // parse original title here!!
+        if (releaseinfoDoc != null) {
+          parseReleaseinfoPage(releaseinfoDoc, options, md);
+        }
       }
 
       if (futureKeywords != null) {
         doc = futureKeywords.get();
-        parseKeywordsPage(doc, options, md);
+        if (doc != null) {
+          parseKeywordsPage(doc, options, md);
+        }
       }
 
       // if everything worked so far, we can set the given id
@@ -347,90 +357,95 @@ public class ImdbTvShowParser extends ImdbParser {
         try {
           Document doc = futureReference.get();
 
-          // director
-          Element directorsElement = doc.getElementById("directors");
-          while (directorsElement != null && !"header".equals(directorsElement.tag().getName())) {
-            directorsElement = directorsElement.parent();
-          }
-          if (directorsElement != null) {
-            directorsElement = directorsElement.nextElementSibling();
-          }
-          if (directorsElement != null) {
-            for (Element directorElement : directorsElement.getElementsByClass("name")) {
-              String director = directorElement.text().trim();
+          if (doc != null) {
+            // director
+            Element directorsElement = doc.getElementById("directors");
+            while (directorsElement != null && !"header".equals(directorsElement.tag().getName())) {
+              directorsElement = directorsElement.parent();
+            }
+            if (directorsElement != null) {
+              directorsElement = directorsElement.nextElementSibling();
+            }
+            if (directorsElement != null) {
+              for (Element directorElement : directorsElement.getElementsByClass("name")) {
+                String director = directorElement.text().trim();
 
-              Person cm = new Person(Person.Type.DIRECTOR, director);
-              // profile path
-              Element anchor = directorElement.getElementsByAttributeValueStarting("href", "/name/").first();
-              if (anchor != null) {
-                Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
-                if (matcher.find()) {
-                  if (matcher.group(0) != null) {
-                    cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
-                  }
-                  if (matcher.group(1) != null) {
-                    cm.setId(providerInfo.getId(), matcher.group(1));
+                Person cm = new Person(Person.Type.DIRECTOR, director);
+                // profile path
+                Element anchor = directorElement.getElementsByAttributeValueStarting("href", "/name/").first();
+                if (anchor != null) {
+                  Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
+                  if (matcher.find()) {
+                    if (matcher.group(0) != null) {
+                      cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
+                    }
+                    if (matcher.group(1) != null) {
+                      cm.setId(providerInfo.getId(), matcher.group(1));
+                    }
                   }
                 }
+                md.addCastMember(cm);
               }
-              md.addCastMember(cm);
             }
-          }
 
-          // actors
-          boolean scrapeUncreditedActors = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeUncreditedActors");
+            // actors
+            boolean scrapeUncreditedActors = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeUncreditedActors");
 
-          Element castTableElement = doc.getElementsByClass("cast_list").first();
-          if (castTableElement != null) {
-            Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
-            Elements tr = castTableElement.getElementsByTag("tr");
-            for (Element row : tr) {
-              // check if we're at the uncredited cast members
-              if (!scrapeUncreditedActors && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
-                break;
+            Element castTableElement = doc.getElementsByClass("cast_list").first();
+            if (castTableElement != null) {
+              Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
+              Elements tr = castTableElement.getElementsByTag("tr");
+              for (Element row : tr) {
+                // check if we're at the uncredited cast members
+                if (!scrapeUncreditedActors && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
+                  break;
+                }
+
+                Person cm = parseCastMember(row);
+                if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
+                  cm.setType(ACTOR);
+                  md.addCastMember(cm);
+                }
               }
+            }
 
-              Person cm = parseCastMember(row);
-              if (cm != null && StringUtils.isNotEmpty(cm.getName()) && StringUtils.isNotEmpty(cm.getRole())) {
-                cm.setType(ACTOR);
+            // writers
+            Element writersElement = doc.getElementById("writers");
+            while (writersElement != null && !"header".equals(writersElement.tag().getName())) {
+              writersElement = writersElement.parent();
+            }
+            if (writersElement != null) {
+              writersElement = writersElement.nextElementSibling();
+            }
+            if (writersElement != null) {
+              Elements writersElements = writersElement.getElementsByAttributeValueStarting("href", "/name/");
+
+              for (Element writerElement : writersElements) {
+                String writer = cleanString(writerElement.ownText());
+                Person cm = new Person(WRITER, writer);
+                // profile path
+                Element anchor = writerElement.getElementsByAttributeValueStarting("href", "/name/").first();
+                if (anchor != null) {
+                  Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
+                  if (matcher.find()) {
+                    if (matcher.group(0) != null) {
+                      cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
+                    }
+                    if (matcher.group(1) != null) {
+                      cm.setId(providerInfo.getId(), matcher.group(1));
+                    }
+                  }
+                }
                 md.addCastMember(cm);
               }
             }
           }
 
-          // writers
-          Element writersElement = doc.getElementById("writers");
-          while (writersElement != null && !"header".equals(writersElement.tag().getName())) {
-            writersElement = writersElement.parent();
-          }
-          if (writersElement != null) {
-            writersElement = writersElement.nextElementSibling();
-          }
-          if (writersElement != null) {
-            Elements writersElements = writersElement.getElementsByAttributeValueStarting("href", "/name/");
-
-            for (Element writerElement : writersElements) {
-              String writer = cleanString(writerElement.ownText());
-              Person cm = new Person(WRITER, writer);
-              // profile path
-              Element anchor = writerElement.getElementsByAttributeValueStarting("href", "/name/").first();
-              if (anchor != null) {
-                Matcher matcher = PERSON_ID_PATTERN.matcher(anchor.attr("href"));
-                if (matcher.find()) {
-                  if (matcher.group(0) != null) {
-                    cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
-                  }
-                  if (matcher.group(1) != null) {
-                    cm.setId(providerInfo.getId(), matcher.group(1));
-                  }
-                }
-              }
-              md.addCastMember(cm);
-            }
-          }
-
           if (futureKeywords != null) {
-            parseKeywordsPage(futureKeywords.get(), options, md);
+            Document docKeywords = futureKeywords.get();
+            if (docKeywords != null) {
+              parseKeywordsPage(docKeywords, options, md);
+            }
           }
 
         }
@@ -531,15 +546,17 @@ public class ImdbTvShowParser extends ImdbParser {
 
     try (InputStream is = url.getInputStream()) {
       doc = Jsoup.parse(is, "UTF-8", "");
-      parseEpisodeList(1, episodes, doc);
+      if (doc != null) {
+        parseEpisodeList(1, episodes, doc);
 
-      // get the other seasons out of the select option
-      Element select = doc.getElementById("bySeason");
-      if (select != null) {
-        for (Element option : select.getElementsByTag("option")) {
-          String value = option.attr("value");
-          if (StringUtils.isNotBlank(value) && !"1".equals(value)) {
-            availableSeasons.add(value);
+        // get the other seasons out of the select option
+        Element select = doc.getElementById("bySeason");
+        if (select != null) {
+          for (Element option : select.getElementsByTag("option")) {
+            String value = option.attr("value");
+            if (StringUtils.isNotBlank(value) && !"1".equals(value)) {
+              availableSeasons.add(value);
+            }
           }
         }
       }
