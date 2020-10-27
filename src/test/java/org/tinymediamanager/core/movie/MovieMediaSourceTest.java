@@ -36,7 +36,6 @@ public class MovieMediaSourceTest extends BasicTest {
     assertEqual(MediaSource.VHS, MediaSource.parseMediaSource("Last.Man.Standing.1987.VHS.x264"));
     assertEqual(MediaSource.VHS, MediaSource.parseMediaSource("/media/jets/movies/Twin.Dragon.Encounter.1986.VHSRip.XViD"));
 
-
     // TS
     assertEqual(MediaSource.TS, MediaSource.parseMediaSource("Planet.der.Affen.Revolution.2014.German.AC3D.HDTS.720p.NEW.SOURCE.x264"));
     assertEqual(MediaSource.TS, MediaSource.parseMediaSource("/media/jets/movies/Planes.ts.avi"));
@@ -56,11 +55,14 @@ public class MovieMediaSourceTest extends BasicTest {
     assertEqual(MediaSource.TV, MediaSource.parseMediaSource("Bez.Tajemnic.2013.S03E29.PL.DVBRip.XviD-TROD4T"));
     assertEqual(MediaSource.TV, MediaSource.parseMediaSource("Preacher.S01E01.720p.HDTV.x265.HEVC-MRN.mkv"));
 
-
     // web-dl
     assertEqual(MediaSource.WEB_DL, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.web-dl"));
     assertEqual(MediaSource.WEB_DL, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.webdl"));
     assertEqual(MediaSource.WEB_DL, MediaSource.parseMediaSource("/media/movies/Tsunami.webdl.avi"));
+    assertEqual(MediaSource.WEB_DL, MediaSource.parseMediaSource("FILENAME.2020.German.DL.1080p.WEB.x264-Wv"));
+
+    // webrip
+    assertEqual(MediaSource.WEBRIP, MediaSource.parseMediaSource("/media/movies/Tsunami.webrip.avi"));
 
     // internet stream
     assertEqual(MediaSource.STREAM, MediaSource.parseMediaSource("Night.on.Earth.1991.German.Subbed.strm"));
