@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.movie.entities.Movie;
 
 public class MediaFileTest extends BasicTest {
 
@@ -25,5 +26,17 @@ public class MediaFileTest extends BasicTest {
     Path filename = Paths.get("South Park - S00E00 - The New Terrance and Phillip Movie Trailer.avi");
     MediaFileType mft = MediaFileHelper.parseMediaFileType(filename);
     assertEqual(MediaFileType.VIDEO, mft);
+  }
+
+  @Test
+  public void decade() {
+    Movie m = new Movie();
+    m.setYear(1985);
+    assertThat(m.getDecadeLong().equals("1980-1989"));
+    assertThat(m.getDecadeShort().equals("1980s"));
+
+    m.setYear(201);
+    assertThat(m.getDecadeLong().equals("200-209"));
+    assertThat(m.getDecadeShort().equals("200s"));
   }
 }

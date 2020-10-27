@@ -392,6 +392,36 @@ public abstract class MediaEntity extends AbstractModelObject {
     return year;
   }
 
+  /**
+   * 1980s, 1990s, 2000s, 2010s, ...
+   * 
+   * @return
+   */
+  public String getDecadeShort() {
+    String decade = "";
+    if (year > 0) {
+      int len = String.valueOf(year).length();
+      String pre = String.valueOf(year).substring(0, len - 1);
+      decade = pre + "0s";
+    }
+    return decade;
+  }
+
+  /**
+   * 1980-1989, 1990-1999, 2000-2009, ...
+   * 
+   * @return
+   */
+  public String getDecadeLong() {
+    String decade = "";
+    if (year > 0) {
+      int len = String.valueOf(year).length();
+      String pre = String.valueOf(year).substring(0, len - 1);
+      decade = pre + "0-" + pre + "9";
+    }
+    return decade;
+  }
+
   public void setIds(Map<String, Object> ids) {
     for (Entry<String, Object> entry : ids.entrySet()) {
       if (StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null) {
