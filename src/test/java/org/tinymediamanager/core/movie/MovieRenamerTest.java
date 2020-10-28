@@ -57,5 +57,7 @@ public class MovieRenamerTest extends BasicTest {
     assertEqual("_The Dish (2000)", MovieRenamer.createDestinationForFoldername("${_,title,} (${year})", m));
     assertEqual("The Dish (2000)", MovieRenamer.createDestinationForFoldername(".${title} (${year})", m));
     assertEqual("The Dish (2000)", MovieRenamer.createDestinationForFoldername("-${title} (${year})-", m));
+    assertEqual("2000-2009", MovieRenamer.createDestinationForFoldername("${decadeLong}", m));
+    assertEqual("2000s", MovieRenamer.createDestinationForFoldername("${decadeShort}", m));
   }
 }

@@ -148,6 +148,8 @@ public class MovieRenamer {
     tokenMap.put("edition", "movie.edition");
     tokenMap.put("parent", "movie.parent");
     tokenMap.put("note", "movie.note");
+    tokenMap.put("decadeLong", "movie.decadeLong");
+    tokenMap.put("decadeShort", "movie.decadeShort");
 
     return tokenMap;
   }

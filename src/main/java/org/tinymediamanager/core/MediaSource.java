@@ -56,7 +56,7 @@ public class MediaSource extends DynaEnum<MediaSource> {
   public static final MediaSource              DVDSCR      = new MediaSource("DVDSCR", 9, "DVD Screener", "(dvdscr)");
   public static final MediaSource              R5          = new MediaSource("R5", 10, "R5", "(r5)");
   public static final MediaSource              WEBRIP      = new MediaSource("WEBRIP", 11, "Webrip", "(webrip)");
-  public static final MediaSource              WEB_DL      = new MediaSource("WEB_DL", 12, "Web-DL", "(web-dl|webdl)");
+  public static final MediaSource              WEB_DL      = new MediaSource("WEB_DL", 12, "Web-DL", "(web-dl|webdl|web)");
   public static final MediaSource              STREAM      = new MediaSource("STREAM", 13, "Stream");
 
   // and our fallback
@@ -175,7 +175,7 @@ public class MediaSource extends DynaEnum<MediaSource> {
    * @param listener
    *          the new listener to be added
    */
-  public static void addListener(DynaEnumEventListener listener) {
+  public static void addListener(DynaEnumEventListener<MediaSource> listener) {
     addListener(MediaSource.class, listener);
   }
 
@@ -185,7 +185,7 @@ public class MediaSource extends DynaEnum<MediaSource> {
    * @param listener
    *          the listener to be removed
    */
-  public static void removeListener(DynaEnumEventListener listener) {
+  public static void removeListener(DynaEnumEventListener<MediaSource> listener) {
     removeListener(MediaSource.class, listener);
   }
 

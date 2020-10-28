@@ -172,10 +172,14 @@ public class ImdbMovieParser extends ImdbParser {
     Document doc;
     try {
       doc = futureReference.get();
-      parseReferencePage(doc, options, md);
+      if (doc != null) {
+        parseReferencePage(doc, options, md);
+      }
 
       doc = futurePlotsummary.get();
-      parsePlotsummaryPage(doc, options, md);
+      if (doc != null) {
+        parsePlotsummaryPage(doc, options, md);
+      }
 
       // title also from chosen site if we are not scraping akas.imdb.com
       Element title = doc.getElementById("tn15title");
@@ -192,18 +196,22 @@ public class ImdbMovieParser extends ImdbParser {
 
       if (futureKeywords != null) {
         doc = futureKeywords.get();
-        parseKeywordsPage(doc, options, md);
+        if (doc != null) {
+          parseKeywordsPage(doc, options, md);
+        }
       }
 
       // get the release info page
       Document releaseinfoDoc = futureReleaseinfo.get();
       // parse original title here!!
-      parseReleaseinfoPageAKAs(releaseinfoDoc, options, md);
+      if (releaseinfoDoc != null) {
+        parseReleaseinfoPageAKAs(releaseinfoDoc, options, md);
 
-      // did we get a release date?
-      if (md.getReleaseDate() == null || ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("localReleaseDate")) {
-        // get the date from the releaseinfo page
-        parseReleaseinfoPage(releaseinfoDoc, options, md);
+        // did we get a release date?
+        if (md.getReleaseDate() == null || ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("localReleaseDate")) {
+          // get the date from the releaseinfo page
+          parseReleaseinfoPage(releaseinfoDoc, options, md);
+        }
       }
 
       // if everything worked so far, we can set the given id

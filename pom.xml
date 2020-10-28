@@ -245,7 +245,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2-mvstore</artifactId>
-            <version>1.4.197</version>
+            <version>1.4.200</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jtidy</groupId>
@@ -775,6 +775,11 @@
                                             <file>dist/tmm_${project.version}_linux.tar.gz</file>
                                             <type>tar.gz</type>
                                             <classifier>linux</classifier>
+                                        </artifact>
+                                        <artifact>
+                                            <file>dist/tmm_${project.version}_arm.tar.gz</file>
+                                            <type>tar.gz</type>
+                                            <classifier>arm</classifier>
                                         </artifact>
                                     </artifacts>
                                 </configuration>

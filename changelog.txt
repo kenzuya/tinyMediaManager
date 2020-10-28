@@ -1,3 +1,9 @@
+Version 4.0.6
+=======================
+x added the media source .WEB. to WEB-DL
+x added "decade" tokens to movie renamer
+
+
 Version 4.0.5
 =======================
 + added support for trailer download to /trailers #787
@@ -20,6 +26,7 @@ x fixed reading of mediainfo via UNC paths #1071
 x fixed some updater issues
 x fixed macOS dock pin issue
 x MPAA tag in the NFO now also respects the certification style setting
+
 
 Version 4.0.4
 =======================
