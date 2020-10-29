@@ -3,6 +3,7 @@ Version 4.0.6
 x added the media source .WEB. to WEB-DL
 x added "decade" tokens to movie renamer
 x better movie title search (#1089)
+x add support for syncing MP2, FLAC and DTS-ES metadata to Trakt.tv
 
 
 Version 4.0.5
