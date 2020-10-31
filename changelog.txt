@@ -6,6 +6,7 @@ x better movie title search (#1089)
 x add support for syncing MP2, FLAC and DTS-ES metadata to Trakt.tv
 x enhanced visualization of the image chooser #1090
 x enhanced detection of container formats #1038
+x added more icons for media sources #1069
 
 
 Version 4.0.5
