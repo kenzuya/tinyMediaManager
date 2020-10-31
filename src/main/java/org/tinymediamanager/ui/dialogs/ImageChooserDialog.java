@@ -471,10 +471,13 @@ public class ImageChooserDialog extends TmmDialog {
     JPanel imagePanel = new JPanel();
     imagePanel.setLayout(gbl);
 
+    int row = 0;
+
     GridBagConstraints gbc = new GridBagConstraints();
     gbc.fill = GridBagConstraints.BOTH;
     gbc.gridx = 0;
-    gbc.gridy = 0;
+    gbc.gridy = row;
+    gbc.gridwidth = 3;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.insets = new Insets(5, 5, 5, 5);
 
@@ -498,7 +501,8 @@ public class ImageChooserDialog extends TmmDialog {
 
     gbc = new GridBagConstraints();
     gbc.gridx = 0;
-    gbc.gridy = 1;
+    gbc.gridy = ++row;
+    gbc.gridwidth = 3;
     gbc.anchor = GridBagConstraints.LAST_LINE_START;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.insets = new Insets(0, 5, 0, 5);
@@ -513,54 +517,14 @@ public class ImageChooserDialog extends TmmDialog {
     button.putClientProperty("MediaArtworkSize", cb);
     imagePanel.add(cb, gbc);
 
-    int row = 0;
-
-    // should we provide an option for extrathumbs
-    if (type == ImageType.FANART && extraThumbs != null) {
-      row++;
-
-      gbc = new GridBagConstraints();
-      gbc.gridx = 1;
-      gbc.gridy = row;
-      gbc.anchor = GridBagConstraints.LINE_END;
-      JLabel label = new JLabel("Extrathumb");
-      imagePanel.add(label, gbc);
-
-      gbc = new GridBagConstraints();
-      gbc.gridx = 2;
-      gbc.gridy = row;
-      gbc.anchor = GridBagConstraints.LINE_END;
-      JCheckBox chkbx = new JCheckBox();
-      button.putClientProperty("MediaArtworkExtrathumb", chkbx);
-      imagePanel.add(chkbx, gbc);
-    }
-
-    // should we provide an option for extrafanart
-    if (type == ImageType.FANART && extraFanarts != null) {
-      row++;
-
-      gbc = new GridBagConstraints();
-      gbc.gridx = 1;
-      gbc.gridy = row;
-      gbc.anchor = GridBagConstraints.LINE_END;
-      JLabel label = new JLabel("Extrafanart");
-      imagePanel.add(label, gbc);
-
-      gbc = new GridBagConstraints();
-      gbc.gridx = 2;
-      gbc.gridy = row;
-      gbc.anchor = GridBagConstraints.LINE_END;
-      JCheckBox chkbx = new JCheckBox();
-      button.putClientProperty("MediaArtworkExtrafanart", chkbx);
-      imagePanel.add(chkbx, gbc);
-    }
-
     /* show image button */
+    gbc = new GridBagConstraints();
     gbc.gridx = 0;
-    gbc.gridy++;
-    gbc.anchor = GridBagConstraints.LAST_LINE_START;
+    gbc.gridy = ++row;
+    gbc.anchor = GridBagConstraints.LINE_START;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.gridwidth = 3;
-    gbc.insets = new Insets(0, 0, 0, 0);
+    gbc.insets = new Insets(0, 5, 0, 5);
 
     LinkLabel lblShowImage = new LinkLabel(BUNDLE.getString("image.showoriginal"));
     lblShowImage.addActionListener(e -> {
@@ -568,6 +532,46 @@ public class ImageChooserDialog extends TmmDialog {
       dialog.setVisible(true);
     });
     imagePanel.add(lblShowImage, gbc);
+
+    // should we provide an option for extrathumbs
+    if (type == ImageType.FANART && extraThumbs != null) {
+      gbc = new GridBagConstraints();
+      gbc.gridx = 1;
+      gbc.gridy = row;
+      gbc.anchor = GridBagConstraints.LINE_END;
+      gbc.insets = new Insets(0, 5, 0, 5);
+      JLabel label = new JLabel("Extrathumb");
+      imagePanel.add(label, gbc);
+
+      gbc = new GridBagConstraints();
+      gbc.gridx = 2;
+      gbc.gridy = row;
+      gbc.anchor = GridBagConstraints.LINE_START;
+      gbc.insets = new Insets(0, 5, 0, 5);
+      JCheckBox chkbx = new JCheckBox();
+      button.putClientProperty("MediaArtworkExtrathumb", chkbx);
+      imagePanel.add(chkbx, gbc);
+    }
+
+    // should we provide an option for extrafanart
+    if (type == ImageType.FANART && extraFanarts != null) {
+      gbc = new GridBagConstraints();
+      gbc.gridx = 1;
+      gbc.gridy = ++row;
+      gbc.anchor = GridBagConstraints.LINE_END;
+      gbc.insets = new Insets(0, 5, 0, 5);
+      JLabel label = new JLabel("Extrafanart");
+      imagePanel.add(label, gbc);
+
+      gbc = new GridBagConstraints();
+      gbc.gridx = 2;
+      gbc.gridy = row;
+      gbc.anchor = GridBagConstraints.LINE_START;
+      gbc.insets = new Insets(0, 5, 0, 5);
+      JCheckBox chkbx = new JCheckBox();
+      button.putClientProperty("MediaArtworkExtrafanart", chkbx);
+      imagePanel.add(chkbx, gbc);
+    }
 
     panelImages.add(imagePanel);
 

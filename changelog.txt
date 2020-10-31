@@ -4,6 +4,7 @@ x added the media source .WEB. to WEB-DL
 x added "decade" tokens to movie renamer
 x better movie title search (#1089)
 x add support for syncing MP2, FLAC and DTS-ES metadata to Trakt.tv
+x enhanced visualization of the image chooser #1090
 x enhanced detection of container formats #1038
 
 
