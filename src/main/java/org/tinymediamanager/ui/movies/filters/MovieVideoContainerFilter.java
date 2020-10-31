@@ -50,7 +50,16 @@ public class MovieVideoContainerFilter extends AbstractCheckComboBoxMovieUIFilte
   @Override
   public boolean accept(Movie movie) {
     List<String> selectedValues = checkComboBox.getSelectedItems();
-    return selectedValues.contains(movie.getMediaInfoContainerFormat());
+
+    String container = movie.getMediaInfoContainerFormat();
+
+    for (String value : selectedValues) {
+      if (value.equalsIgnoreCase(container)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override

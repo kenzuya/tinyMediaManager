@@ -873,7 +873,7 @@ public class MovieList extends AbstractModelObject {
   private void updateMediaInformationLists(Collection<Movie> movies) {
     Set<String> videoCodecs = new HashSet<>();
     Set<Double> frameRates = new HashSet<>();
-    Set<String> videoContainers = new HashSet<>();
+    Map<String, String> videoContainers = new HashMap<>();
     Set<String> audioCodecs = new HashSet<>();
     Set<Integer> audioStreamCount = new HashSet<>();
     Set<Integer> subtitleCount = new HashSet<>();
@@ -892,7 +892,7 @@ public class MovieList extends AbstractModelObject {
 
         // video container
         if (StringUtils.isNotBlank(mf.getContainerFormat())) {
-          videoContainers.add(mf.getContainerFormat().toLowerCase(Locale.ROOT));
+          videoContainers.putIfAbsent(mf.getContainerFormat().toLowerCase(Locale.ROOT), mf.getContainerFormat());
         }
 
         // audio codec
@@ -924,7 +924,7 @@ public class MovieList extends AbstractModelObject {
     }
 
     // video container
-    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoContainersInMovies, videoContainers)) {
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoContainersInMovies, videoContainers.values())) {
       firePropertyChange(Constants.VIDEO_CONTAINER, null, videoContainersInMovies);
     }
 

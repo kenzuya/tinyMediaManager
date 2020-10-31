@@ -23,8 +23,6 @@ import java.util.List;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -56,9 +54,10 @@ public class TvShowVideoContainerFilter extends AbstractCheckComboBoxTvShowUIFil
 
     // search container in the episodes
     for (TvShowEpisode episode : episodes) {
-      List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
-      for (MediaFile mf : mfs) {
-        if (invert ^ selectedValues.contains(mf.getContainerFormat())) {
+      String container = episode.getMediaInfoContainerFormat();
+
+      for (String value : selectedValues) {
+        if (invert ^ value.equalsIgnoreCase(container)) {
           return true;
         }
       }

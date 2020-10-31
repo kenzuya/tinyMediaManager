@@ -728,7 +728,7 @@ public class MediaFileHelper {
     }
 
     // do not work further on 0 byte files
-    if (mediaFile.getFilesize() == 0) {
+    if (mediaFile.getFilesize() == 0 && StringUtils.isBlank(mediaFile.getContainerFormat())) {
       LOGGER.debug("0 Byte file detected: {}", mediaFile.getFilename());
       // set container format to do not trigger it again
       mediaFile.setContainerFormat(extension);
@@ -1997,12 +1997,23 @@ public class MediaFileHelper {
       mediaFile.setExactVideoFormat(height + "" + Character.toLowerCase(scanType.charAt(0)));
     }
 
-    String extensions = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Codec/Extensions", "Format");
-    // get first extension
-    mediaFile.setContainerFormat(getFirstEntryViaScanner(extensions).toLowerCase(Locale.ROOT));
-
-    // if container format is still empty -> insert the extension
-    if (StringUtils.isBlank(mediaFile.getContainerFormat())) {
+    String containerFormat = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Menu_Format_List", "Format");
+    if (StringUtils.isBlank(containerFormat)) {
+      containerFormat = getFirstEntryViaScanner(getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Format/Extensions"));
+    }
+    if (StringUtils.isNotBlank(containerFormat)) {
+      if ("BDAV".equalsIgnoreCase(containerFormat)) {
+        // special handling for Blu-ray Video
+        containerFormat = "Blu-Ray Video";
+      }
+      else if ("DVD-Video".equalsIgnoreCase(containerFormat)) {
+        // string the dash from DVD-Video
+        containerFormat = "DVD Video";
+      }
+      mediaFile.setContainerFormat(containerFormat);
+    }
+    else {
+      // if container format is still empty -> insert the extension
       mediaFile.setContainerFormat(mediaFile.getExtension());
     }
 
@@ -2366,9 +2377,6 @@ public class MediaFileHelper {
 
     // vob resets wrong duration - take from ifo
     mediaFile.setDuration(ifo.getDuration());
-
-    // additional data
-    mediaFile.setContainerFormat("VIDEO_TS");
 
     // there is no exact overall bitrate for the whole DVD, so we just take the one from the biggest VOB
     String br = getMediaInfo(vob.getSnapshot(), MediaInfo.StreamKind.General, 0, "OverallBitRate");
