@@ -435,11 +435,12 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     public CheckBoxEditorItem(E userObject) {
       super();
       putClientProperty("class", "roundedPanel");
+      putClientProperty("borderRadius", 6);
       setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
       setBorder(null);
 
       JLabel label = new JLabel(userObject.toString());
-      label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
+      label.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 2));
       add(label);
 
       JButton button = new FlatButton(IconManager.DELETE);
