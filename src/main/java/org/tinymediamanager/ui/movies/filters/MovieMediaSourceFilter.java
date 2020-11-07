@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.movies.filters;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -33,6 +34,7 @@ public class MovieMediaSourceFilter extends AbstractCheckComboBoxMovieUIFilter<M
 
   public MovieMediaSourceFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     // initial filling
     setValues(MediaSource.values());
     // listen to changes

@@ -18,8 +18,6 @@ package org.tinymediamanager.ui.components.combobox;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -51,48 +49,13 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
 
   @Override
   protected void setRenderer() {
-    setRenderer(new ScraperMetadataConfigRenderer(checkBoxes));
+    setRenderer(new ScraperMetadataConfigRenderer(checkComboBoxItems));
   }
 
   @Override
   protected void init() {
     super.init();
     setEditor(new ScraperMetadataConfigEditor());
-  }
-
-  @Override
-  protected void initCheckBoxes() {
-    checkBoxes = new Vector<>();
-
-    boolean selectedAll = true;
-    boolean selectedNone = true;
-
-    TmmCheckComboBoxItem<E> cb;
-    for (Map.Entry<E, Boolean> entry : selectedItems.entrySet()) {
-      E obj = entry.getKey();
-      Boolean selected = entry.getValue();
-
-      if (selected) {
-        selectedNone = false;
-      }
-      else {
-        selectedAll = false;
-      }
-
-      cb = new TmmCheckComboBoxItem<>(obj);
-      cb.setText(obj.getDescription());
-      cb.setToolTipText(obj.getToolTip());
-      cb.setSelected(selected);
-      checkBoxes.add(cb);
-    }
-
-    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
-    cb.setSelected(selectedAll);
-    checkBoxes.add(cb);
-
-    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
-    cb.setSelected(selectedNone);
-    checkBoxes.add(cb);
   }
 
   private class ScraperMetadataConfigRenderer extends CheckBoxRenderer {
@@ -106,7 +69,7 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
       if (index > 0 && index <= checkBoxes.size()) {
         TmmCheckComboBoxItem<E> cb = checkBoxes.get(index - 1);
 
-        if (cb.getUserObject() == nullObject) {
+        if (cb == nullItem) {
           list.setToolTipText(null);
           return separator;
         }
@@ -152,8 +115,10 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
       JButton button = new FlatButton(IconManager.DELETE);
       button.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       button.addActionListener(e -> {
-        selectedItems.put(userObject, false);
-        reset();
+        TmmCheckComboBoxItem<E> item = comboBoxItemMap.get(userObject);
+        if (item != null) {
+          item.setSelected(false);
+        }
       });
       add(button);
     }

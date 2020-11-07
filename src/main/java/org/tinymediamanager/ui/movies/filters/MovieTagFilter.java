@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.filters;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.swing.JLabel;
@@ -42,6 +43,7 @@ public class MovieTagFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
 
   public MovieTagFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     comparator = new TmmTableFormat.StringComparator();
     movieList = MovieList.getInstance();
     oldTags = new HashSet<>();

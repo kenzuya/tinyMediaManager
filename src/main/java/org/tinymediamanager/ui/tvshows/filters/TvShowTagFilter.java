@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.filters;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.swing.JLabel;
@@ -43,6 +44,7 @@ public class TvShowTagFilter extends AbstractCheckComboBoxTvShowUIFilter<String>
 
   public TvShowTagFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     comparator = new TmmTableFormat.StringComparator();
     buildAndInstallTagsArray();
     PropertyChangeListener propertyChangeListener = evt -> buildAndInstallTagsArray();
@@ -115,7 +117,7 @@ public class TvShowTagFilter extends AbstractCheckComboBoxTvShowUIFilter<String>
       oldTags.clear();
       oldTags.addAll(tags);
 
-      setValues(ListUtils.asSortedList(tags));
+      setValues(ListUtils.asSortedList(tags, comparator));
     }
   }
 

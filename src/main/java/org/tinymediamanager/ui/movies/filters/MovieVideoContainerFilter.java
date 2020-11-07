@@ -19,6 +19,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 
@@ -37,6 +38,7 @@ public class MovieVideoContainerFilter extends AbstractCheckComboBoxMovieUIFilte
 
   public MovieVideoContainerFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildAndInstallContainerArray();
     PropertyChangeListener propertyChangeListener = evt -> buildAndInstallContainerArray();
     movieList.addPropertyChangeListener(Constants.VIDEO_CONTAINER, propertyChangeListener);

@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.movies.filters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -36,6 +37,7 @@ public class MovieEditionFilter extends AbstractCheckComboBoxMovieUIFilter<Movie
 
   public MovieEditionFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     comparator = new MovieEdition.MovieEditionComparator();
     buildAndInstallEditionArray();
     MovieEdition.addListener(evt -> SwingUtilities.invokeLater(this::buildAndInstallEditionArray));

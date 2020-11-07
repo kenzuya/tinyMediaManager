@@ -56,7 +56,7 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
 
   @Override
   protected void setRenderer() {
-    setRenderer(new MediaScraperCheckBoxRenderer(checkBoxes));
+    setRenderer(new MediaScraperCheckBoxRenderer(checkComboBoxItems));
   }
 
   @Override

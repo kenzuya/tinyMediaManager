@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.components.combobox;
 
+import static javax.swing.SwingConstants.HORIZONTAL;
+
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -22,23 +24,23 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.Vector;
+import java.util.function.BiPredicate;
 
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -55,41 +57,25 @@ import org.tinymediamanager.ui.components.FlatButton;
  * @param <E>
  */
 public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
-  private static final long                         serialVersionUID = -7796247854176782396L;
-  protected static final ResourceBundle             BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long                                     serialVersionUID = -7796247854176782396L;
+  protected static final ResourceBundle                         BUNDLE           = ResourceBundle.getBundle("messages");
 
-  protected List<TmmCheckComboBoxItem<E>>           checkBoxes;
-  protected Map<E, Boolean>                         selectedItems;
-  protected List<TmmCheckComboBoxSelectionListener> changedListeners = new Vector<>();
+  protected final DefaultComboBoxModel<TmmCheckComboBoxItem<E>> model;
+  protected final List<TmmCheckComboBoxItem<E>>                 checkComboBoxItems;
+  // for faster lookup usage
+  protected final Map<E, TmmCheckComboBoxItem<E>>               comboBoxItemMap;
 
-  protected Object                                  nullObject       = new Object();
-  protected JComponent                              editor           = null;
+  protected final List<TmmCheckComboBoxSelectionListener>       changedListeners = new ArrayList<>();
+
+  protected final TmmCheckComboBoxItem<E>                       nullItem         = new TmmCheckComboBoxItem<>(null);
+  protected JComponent                                          editor           = null;
+  protected TmmCheckComboBoxFilterDecorator<E>                  decorator;
 
   /**
    * create the CheckComboBox without any items
    */
   public TmmCheckComboBox() {
-    this(new HashSet<>(), false);
-  }
-
-  /**
-   * create the CheckComboBox with the given items
-   * 
-   * @param items
-   *          a list of initial items
-   */
-  public TmmCheckComboBox(final List<E> items) {
-    this(new LinkedHashSet<>(items), false);
-  }
-
-  /**
-   * create the CheckComboBox with the given items
-   * 
-   * @param items
-   *          a set os initial items
-   */
-  public TmmCheckComboBox(final Set<E> items) {
-    this(items, false);
+    this(Collections.emptyList());
   }
 
   /**
@@ -99,30 +85,70 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
    *          an array of initial items
    */
   public TmmCheckComboBox(final E[] items) {
-    this(new LinkedHashSet<>(Arrays.asList(items)), false);
+    this(Arrays.asList(items));
   }
 
   /**
-   * set new items to the CheckComboBox
-   * 
+   * create the CheckComboBox with the given items
+   *
    * @param items
-   *          the items to be set
+   *          a {@link Collection} of initial items
    */
-  public void setItems(List<E> items) {
-    resetObjs(new LinkedHashSet<>(items), false);
-  }
+  public TmmCheckComboBox(final Collection<E> items) {
+    this.model = new DefaultComboBoxModel<>();
+    setModel(model);
 
-  protected TmmCheckComboBox(final Set<E> objs, boolean selected) {
-    resetObjs(objs, selected);
+    this.checkComboBoxItems = new ArrayList<>();
+    this.comboBoxItemMap = new HashMap<>();
+
     init();
+    setItems(items);
   }
 
   /**
    * initializations
    */
   protected void init() {
-    setEditor(new CheckBoxEditor());
     setEditable(true);
+    setEditor(new CheckBoxEditor());
+    setRenderer();
+    addActionListener(this);
+  }
+
+  public void enableFilter(BiPredicate<E, String> userFilter) {
+    decorator = TmmCheckComboBoxFilterDecorator.decorate(this, userFilter);
+  }
+
+  /**
+   * set new items to the CheckComboBox
+   *
+   * @param items
+   *          the items to be set
+   */
+  public void setItems(Collection<E> items) {
+    model.removeAllElements();
+    checkComboBoxItems.clear();
+    comboBoxItemMap.clear();
+
+    TmmCheckComboBoxItem<E> checkComboBoxItem;
+
+    for (E item : items) {
+      checkComboBoxItem = new TmmCheckComboBoxItem<>(item);
+      this.checkComboBoxItems.add(checkComboBoxItem);
+      this.comboBoxItemMap.put(item, checkComboBoxItem);
+    }
+
+    checkComboBoxItems.add(nullItem);
+
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
+    checkComboBoxItem.setSelected(false);
+    checkComboBoxItems.add(checkComboBoxItem);
+
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
+    checkComboBoxItem.setSelected(true);
+    checkComboBoxItems.add(checkComboBoxItem);
+
+    model.addAll(checkComboBoxItems);
   }
 
   @Override
@@ -156,31 +182,21 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     changedListeners.remove(listener);
   }
 
-  protected void resetObjs(final Set<E> items, boolean selected) {
-    selectedItems = new LinkedHashMap<>();
-    for (E item : items) {
-      selectedItems.put(item, selected);
-    }
-    reset();
-  }
-
   /**
    * get an array of all checked items
    * 
    * @return an array of all checked items
    */
   public List<E> getSelectedItems() {
-    Set<E> ret = new LinkedHashSet<>();
-    for (Map.Entry<E, Boolean> entry : selectedItems.entrySet()) {
-      E obj = entry.getKey();
-      Boolean selected = entry.getValue();
+    List<E> selected = new ArrayList<>();
 
-      if (selected) {
-        ret.add(obj);
+    for (TmmCheckComboBoxItem<E> item : checkComboBoxItems) {
+      if (item.isSelected() && item.getUserObject() != null) {
+        selected.add(item.getUserObject());
       }
     }
 
-    return new ArrayList<>(ret);
+    return selected;
   }
 
   /**
@@ -194,9 +210,19 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       return;
     }
 
-    selectedItems.replaceAll((k, v) -> items.contains(k));
+    boolean dirty = false;
 
-    reset();
+    for (E item : items) {
+      TmmCheckComboBoxItem<E> checkComboBoxItem = comboBoxItemMap.get(item);
+      if (checkComboBoxItem != null) {
+        checkComboBoxItem.setSelected(true);
+        dirty = true;
+      }
+    }
+
+    if (dirty) {
+      update();
+    }
   }
 
   /**
@@ -209,19 +235,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     setSelectedItems(Arrays.asList(items));
   }
 
-  protected void reset() {
-    removeAllItems();
-
-    initCheckBoxes();
-
-    this.addItem(new TmmCheckComboBoxItem<>(""));
-    for (TmmCheckComboBoxItem<E> checkBox : checkBoxes) {
-      this.addItem(checkBox);
-    }
-
-    setRenderer();
-    addActionListener(this);
-
+  protected void update() {
     // force the JComboBox to re-calculate the size
     if (editor != null) {
       SwingUtilities.invokeLater(() -> {
@@ -237,110 +251,69 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
    * set the right renderer for this check combo box
    */
   protected void setRenderer() {
-    setRenderer(new CheckBoxRenderer(checkBoxes));
-  }
-
-  protected void initCheckBoxes() {
-    checkBoxes = new Vector<>();
-
-    boolean selectedAll = true;
-    boolean selectedNone = true;
-
-    TmmCheckComboBoxItem<E> cb;
-    for (Map.Entry<E, Boolean> entry : selectedItems.entrySet()) {
-      E obj = entry.getKey();
-      Boolean selected = entry.getValue();
-
-      if (selected) {
-        selectedNone = false;
-      }
-      else {
-        selectedAll = false;
-      }
-
-      cb = new TmmCheckComboBoxItem<>(obj);
-      cb.setSelected(selected);
-      checkBoxes.add(cb);
-    }
-
-    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
-    cb.setSelected(selectedAll);
-    checkBoxes.add(cb);
-
-    cb = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
-    cb.setSelected(selectedNone);
-    checkBoxes.add(cb);
+    setRenderer(new CheckBoxRenderer(checkComboBoxItems));
   }
 
   protected void checkBoxSelectionChanged(int index) {
-    int n = checkBoxes.size();
-    if (index < 0 || index >= n)
+    int n = model.getSize();
+    if (index < 0 || index >= n) {
       return;
+    }
 
     // Set selectedObj = getSelected();
     if (index < n - 2) {
-      TmmCheckComboBoxItem<E> cb = checkBoxes.get(index);
-      if (cb.getUserObject() == nullObject) {
+      TmmCheckComboBoxItem<E> cb = model.getElementAt(index);
+      if (cb == nullItem) {
         return;
       }
 
       if (cb.isSelected()) {
         cb.setSelected(false);
-        selectedItems.put(cb.getUserObject(), false);
 
         // Select all
-        checkBoxes.get(n - 2).setSelected(false);
+        model.getElementAt(n - 2).setSelected(false);
         // select none
-        checkBoxes.get(n - 1).setSelected(getSelectedItems() == null);
+        model.getElementAt(n - 1).setSelected(getSelectedItems() == null);
       }
       else {
         cb.setSelected(true);
-        selectedItems.put(cb.getUserObject(), true);
 
         List<E> sobjs = getSelectedItems();
         // Select all
-        checkBoxes.get(n - 2).setSelected(sobjs != null && sobjs.size() == n - 2);
+        model.getElementAt(n - 2).setSelected(sobjs != null && sobjs.size() == n - 3);
         // select none
-        checkBoxes.get(n - 1).setSelected(false);
+        model.getElementAt(n - 1).setSelected(false);
       }
     }
     else if (index == n - 2) {
-      for (E obj : selectedItems.keySet()) {
-        if (obj != nullObject) {
-          selectedItems.put(obj, true);
+      for (int i = 0; i < n - 1; i++) {
+        if (model.getElementAt(i) != nullItem) {
+          model.getElementAt(i).setSelected(true);
         }
       }
-
-      for (int i = 0; i < n - 1; i++) {
-        if (checkBoxes.get(i) != nullObject)
-          checkBoxes.get(i).setSelected(true);
-      }
-      checkBoxes.get(n - 1).setSelected(false);
+      model.getElementAt(n - 1).setSelected(false);
     }
-    else { // if (index==n-1)
-      for (E obj : selectedItems.keySet()) {
-        selectedItems.put(obj, false);
-      }
-
+    else if (index == n - 1) {
       for (int i = 0; i < n - 1; i++) {
-        checkBoxes.get(i).setSelected(false);
+        if (model.getElementAt(i) != nullItem) {
+          model.getElementAt(i).setSelected(false);
+        }
       }
-      checkBoxes.get(n - 1).setSelected(true);
+      model.getElementAt(n - 1).setSelected(true);
     }
-
   }
 
   @Override
   public void actionPerformed(ActionEvent e) {
     int sel = getSelectedIndex();
 
-    if (sel == 0) {
+    if (sel < 0) {
       getUI().setPopupVisible(this, false);
     }
-    else if (sel > 0) {
-      checkBoxSelectionChanged(sel - 1);
+    else {
+      checkBoxSelectionChanged(sel);
       for (TmmCheckComboBoxSelectionListener listener : changedListeners) {
-        listener.selectionChanged(sel - 1);
+        listener.selectionChanged(sel);
       }
     }
 
@@ -360,24 +333,23 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
    */
   protected class CheckBoxRenderer implements ListCellRenderer<TmmCheckComboBoxItem<E>> {
     protected final ListCellRenderer              defaultRenderer;
-    protected javax.swing.JSeparator              separator;
+    protected final JSeparator                    separator;
     protected final List<TmmCheckComboBoxItem<E>> checkBoxes;
 
     public CheckBoxRenderer(final List<TmmCheckComboBoxItem<E>> items) {
       this.checkBoxes = items;
-      separator = new javax.swing.JSeparator(javax.swing.JSeparator.HORIZONTAL);
+      separator = new JSeparator(HORIZONTAL);
 
       // get the default renderer from a JComboBox
-      JComboBox box = new JComboBox();
-      defaultRenderer = box.getRenderer();
+      defaultRenderer = new JComboBox<E>().getRenderer();
     }
 
     @Override
     public Component getListCellRendererComponent(JList<? extends TmmCheckComboBoxItem<E>> list, TmmCheckComboBoxItem<E> value, int index,
         boolean isSelected, boolean cellHasFocus) {
-      if (index > 0 && index <= checkBoxes.size()) {
-        TmmCheckComboBoxItem<E> cb = checkBoxes.get(index - 1);
-        if (cb.getUserObject() == nullObject) {
+      if (index >= 0 && index <= model.getSize()) {
+        TmmCheckComboBoxItem<E> cb = model.getElementAt(index);
+        if (cb == nullItem) {
           list.setToolTipText(null);
           return separator;
         }
@@ -385,7 +357,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
         if (isSelected) {
           cb.setBackground(UIManager.getColor("ComboBox.selectionBackground"));
           cb.setForeground(UIManager.getColor("ComboBox.selectionForeground"));
-          list.setToolTipText(checkBoxes.get(index - 1).getText());
+          list.setToolTipText(cb.getText());
         }
         else {
           cb.setBackground(UIManager.getColor("ComboBox.background"));
@@ -473,8 +445,10 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       JButton button = new FlatButton(IconManager.DELETE);
       button.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
       button.addActionListener(e -> {
-        selectedItems.put(userObject, false);
-        reset();
+        TmmCheckComboBoxItem<E> item = comboBoxItemMap.get(userObject);
+        if (item != null) {
+          item.setSelected(false);
+        }
       });
       add(button);
     }

@@ -19,6 +19,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 
@@ -37,6 +38,7 @@ public class MovieFrameRateFilter extends AbstractCheckComboBoxMovieUIFilter<Dou
 
   public MovieFrameRateFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildAndInstallCodecArray();
     PropertyChangeListener propertyChangeListener = evt -> buildAndInstallCodecArray();
     movieList.addPropertyChangeListener(Constants.FRAME_RATE, propertyChangeListener);

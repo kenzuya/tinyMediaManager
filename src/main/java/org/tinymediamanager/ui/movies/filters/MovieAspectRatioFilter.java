@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.movies.filters;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 
@@ -45,6 +46,7 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
 
   public MovieAspectRatioFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     others = BUNDLE.getString("filter.others");
 
     setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90, RATIO_2_20, RATIO_2_35, RATIO_2_40,

@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.tvshows.filters;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -34,6 +35,7 @@ public class TvShowMediaSourceFilter extends AbstractCheckComboBoxTvShowUIFilter
 
   public TvShowMediaSourceFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildAndInstallMediaSources();
     MediaSource.addListener(evt -> SwingUtilities.invokeLater(this::buildAndInstallMediaSources));
   }

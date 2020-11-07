@@ -22,6 +22,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 
@@ -41,6 +42,7 @@ public class MovieAudioCodecFilter extends AbstractCheckComboBoxMovieUIFilter<St
 
   public MovieAudioCodecFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     buildAndInstallCodecArray();
     PropertyChangeListener propertyChangeListener = evt -> buildAndInstallCodecArray();
     movieList.addPropertyChangeListener(Constants.AUDIO_CODEC, propertyChangeListener);
