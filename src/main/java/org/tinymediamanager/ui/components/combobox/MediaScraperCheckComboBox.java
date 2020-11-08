@@ -52,11 +52,14 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
 
   public MediaScraperCheckComboBox(final List<MediaScraper> scrapers) {
     super(scrapers);
+    if (getRenderer() instanceof MediaScraperCheckBoxRenderer) {
+      ((MediaScraperCheckBoxRenderer) getRenderer()).init(checkComboBoxItems);
+    }
   }
 
   @Override
   protected void setRenderer() {
-    setRenderer(new MediaScraperCheckBoxRenderer(checkComboBoxItems));
+    setRenderer(new MediaScraperCheckBoxRenderer());
   }
 
   @Override
@@ -68,14 +71,14 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
   }
 
   private class MediaScraperCheckBoxRenderer extends CheckBoxRenderer {
-    private JPanel    panel        = new JPanel();
-    private JCheckBox checkBox     = new JCheckBox();
-    private JLabel    label        = new JLabel();
+    private final JPanel    panel        = new JPanel();
+    private final JCheckBox checkBox     = new JCheckBox();
+    private final JLabel    label        = new JLabel();
 
-    private int       maxIconWidth = 0;
+    private int             maxIconWidth = 0;
 
-    private MediaScraperCheckBoxRenderer(final List<TmmCheckComboBoxItem<MediaScraper>> items) {
-      super(items);
+    private MediaScraperCheckBoxRenderer() {
+      super();
       panel.setLayout(new FlowLayout(FlowLayout.LEFT));
       panel.add(checkBox);
       panel.add(label);
@@ -83,7 +86,9 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
       label.setOpaque(false);
       checkBox.setOpaque(false);
       imageCache = new HashMap<>();
+    }
 
+    private void init(final List<TmmCheckComboBoxItem<MediaScraper>> items) {
       // calculate the max width of the logo
       for (TmmCheckComboBoxItem<MediaScraper> item : items) {
         if (item.getUserObject() != null) {
@@ -98,8 +103,12 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
     @Override
     public Component getListCellRendererComponent(JList<? extends TmmCheckComboBoxItem<MediaScraper>> list, TmmCheckComboBoxItem<MediaScraper> value,
         int index, boolean isSelected, boolean cellHasFocus) {
-      if (index > 0 && index <= checkBoxes.size()) {
-        TmmCheckComboBoxItem<MediaScraper> cb = checkBoxes.get(index - 1);
+      if (index >= 0 && index <= model.getSize()) {
+        TmmCheckComboBoxItem<MediaScraper> cb = model.getElementAt(index);
+        if (cb == nullItem) {
+          list.setToolTipText(null);
+          return separator;
+        }
 
         if (isSelected) {
           panel.setBackground(UIManager.getColor("ComboBox.selectionBackground"));

@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.movies.dialogs;
 
+import static java.util.Locale.ROOT;
+
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,6 +128,8 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0");
 
         cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.values());
+        cbScraperConfig.enableFilter(
+            (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbScraperConfig, "cell 0 1 ,wmin 0,grow");
       }
     }

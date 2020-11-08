@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static java.util.Locale.ROOT;
+
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,9 +126,13 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
 
       if (artworkOnly) {
         cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
+        cbTvShowScraperConfig.enableFilter(
+            (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
       }
       else {
         cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.values());
+        cbTvShowScraperConfig.enableFilter(
+            (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
       }
       panelScraperConfig.add(cbTvShowScraperConfig, "cell 1 1,grow, wmin 0");
     }
@@ -137,9 +143,13 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     if (artworkOnly) {
       cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(
           TvShowEpisodeScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
+      cbEpisodeScraperConfig.enableFilter(
+          (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
     }
     else {
       cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowEpisodeScraperMetadataConfig.values());
+      cbEpisodeScraperConfig.enableFilter(
+          (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
     }
     panelScraperConfig.add(cbEpisodeScraperConfig, "cell 1 2,grow, wmin 0");
 

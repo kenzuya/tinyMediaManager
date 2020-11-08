@@ -245,13 +245,17 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     }
     revalidate();
     repaint();
+
+    if (isEditable()) {
+      getEditor().setItem(null);
+    }
   }
 
   /**
    * set the right renderer for this check combo box
    */
   protected void setRenderer() {
-    setRenderer(new CheckBoxRenderer(checkComboBoxItems));
+    setRenderer(new CheckBoxRenderer());
   }
 
   protected void checkBoxSelectionChanged(int index) {
@@ -332,12 +336,10 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
    * checkbox renderer for combobox
    */
   protected class CheckBoxRenderer implements ListCellRenderer<TmmCheckComboBoxItem<E>> {
-    protected final ListCellRenderer              defaultRenderer;
-    protected final JSeparator                    separator;
-    protected final List<TmmCheckComboBoxItem<E>> checkBoxes;
+    protected final ListCellRenderer defaultRenderer;
+    protected final JSeparator       separator;
 
-    public CheckBoxRenderer(final List<TmmCheckComboBoxItem<E>> items) {
-      this.checkBoxes = items;
+    public CheckBoxRenderer() {
       separator = new JSeparator(HORIZONTAL);
 
       // get the default renderer from a JComboBox

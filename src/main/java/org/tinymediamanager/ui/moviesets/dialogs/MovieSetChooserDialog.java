@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.moviesets.dialogs;
 
+import static java.util.Locale.ROOT;
+
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -228,6 +230,8 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
         panelContent.add(lblScrapeFollowingItems, "cell 0 2");
 
         cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieSetScraperMetadataConfig.values());
+        cbScraperConfig.enableFilter(
+            (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelContent.add(cbScraperConfig, "cell 0 3,growx, wmin 0");
       }
     }

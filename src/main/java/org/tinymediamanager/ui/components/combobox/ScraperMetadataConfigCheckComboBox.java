@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.components.combobox;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -49,7 +50,7 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
 
   @Override
   protected void setRenderer() {
-    setRenderer(new ScraperMetadataConfigRenderer(checkComboBoxItems));
+    setRenderer(new ScraperMetadataConfigRenderer());
   }
 
   @Override
@@ -58,17 +59,51 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
     setEditor(new ScraperMetadataConfigEditor());
   }
 
+  /**
+   * set new items to the CheckComboBox
+   *
+   * @param items
+   *          the items to be set
+   */
+  @Override
+  public void setItems(Collection<E> items) {
+    model.removeAllElements();
+    checkComboBoxItems.clear();
+    comboBoxItemMap.clear();
+
+    TmmCheckComboBoxItem<E> checkComboBoxItem;
+
+    for (E item : items) {
+      checkComboBoxItem = new TmmCheckComboBoxItem<>(item);
+      checkComboBoxItem.setText(item.getDescription());
+      checkComboBoxItem.setToolTipText(item.getToolTip());
+      this.checkComboBoxItems.add(checkComboBoxItem);
+      this.comboBoxItemMap.put(item, checkComboBoxItem);
+    }
+
+    checkComboBoxItems.add(nullItem);
+
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
+    checkComboBoxItem.setSelected(false);
+    checkComboBoxItems.add(checkComboBoxItem);
+
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
+    checkComboBoxItem.setSelected(true);
+    checkComboBoxItems.add(checkComboBoxItem);
+
+    model.addAll(checkComboBoxItems);
+  }
+
   private class ScraperMetadataConfigRenderer extends CheckBoxRenderer {
-    private ScraperMetadataConfigRenderer(final List<TmmCheckComboBoxItem<E>> items) {
-      super(items);
+    private ScraperMetadataConfigRenderer() {
+      super();
     }
 
     @Override
     public Component getListCellRendererComponent(JList<? extends TmmCheckComboBoxItem<E>> list, TmmCheckComboBoxItem<E> value, int index,
         boolean isSelected, boolean cellHasFocus) {
-      if (index > 0 && index <= checkBoxes.size()) {
-        TmmCheckComboBoxItem<E> cb = checkBoxes.get(index - 1);
-
+      if (index >= 0 && index <= model.getSize()) {
+        TmmCheckComboBoxItem<E> cb = model.getElementAt(index);
         if (cb == nullItem) {
           list.setToolTipText(null);
           return separator;
@@ -77,7 +112,7 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
         if (isSelected) {
           cb.setBackground(UIManager.getColor("ComboBox.selectionBackground"));
           cb.setForeground(UIManager.getColor("ComboBox.selectionForeground"));
-          list.setToolTipText(checkBoxes.get(index - 1).getText());
+          list.setToolTipText(cb.getText());
         }
         else {
           cb.setBackground(UIManager.getColor("ComboBox.background"));
@@ -104,12 +139,13 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
     public ScraperMetadataConfigEditorItem(E userObject) {
       super();
       putClientProperty("class", "roundedPanel");
+      putClientProperty("borderRadius", 6);
       setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
       setBorder(null);
 
       JLabel label = new JLabel(userObject.getDescription());
       label.setToolTipText(userObject.getToolTip());
-      label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
+      label.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 2));
       add(label);
 
       JButton button = new FlatButton(IconManager.DELETE);
