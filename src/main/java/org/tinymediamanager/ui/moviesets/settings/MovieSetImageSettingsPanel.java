@@ -341,11 +341,11 @@ class MovieSetImageSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[]"));
+    setLayout(new MigLayout("", "[900lp,grow]", "[]"));
     {
 
-      JPanel panelMovieSet = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][][16lp!,grow][][20lp!][][20lp!][][20lp!][]",
-          "[][10lp!][][10lp!][][20lp!][][][10lp!][][10lp!][][10lp!][][10lp!][][10lp!][][][10lp!][][10lp!][][10lp!][][][20lp!][grow]"));
+      JPanel panelMovieSet = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][][16lp!][][20lp!][][20lp!][][20lp!][]",
+          "[][10lp!][][10lp!][][20lp!][][][10lp!][][10lp!][][10lp!][][10lp!][][10lp!][][][10lp!][][10lp!][][10lp!][][][20lp!][]"));
 
       JLabel lblTitle = new TmmLabel(BUNDLE.getString("Settings.movieset"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMovieSet, lblTitle, true);

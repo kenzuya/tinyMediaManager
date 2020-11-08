@@ -84,7 +84,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][]15lp![][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[700lp,grow]", "[][]15lp![][15lp!][][15lp!][]"));
     {
       JPanel panelOptions = new JPanel();
       panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
@@ -120,7 +120,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
       JLabel lblDefaultsT = new TmmLabel(BUNDLE.getString("scraper.metadata.defaults"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDefaults, lblDefaultsT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#metadata-scrape-defaults"));
-      add(collapsiblePanel, "cell 0 2,growx, wmin 0");
+      add(collapsiblePanel, "cell 0 2,growx");
       {
         MovieScraperMetadataPanel movieScraperMetadataPanel = new MovieScraperMetadataPanel();
         panelDefaults.add(movieScraperMetadataPanel, "cell 1 0 2 1");
