@@ -65,6 +65,10 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
     start();
 
     for (MovieSet movieSet : moviesToScrape) {
+      // first do the cleanup of all artwork types
+      MovieSetArtworkHelper.cleanupArtwork(movieSet);
+
+      // if there is still missing artwork, download it
       if (MovieSetArtworkHelper.hasMissingArtwork(movieSet)) {
         submitTask(new Worker(movieSet));
       }

@@ -17,7 +17,9 @@
 package org.tinymediamanager.core;
 
 /**
- * the interface IFileNaming is used for generating file names
+ * the interface {@link IFileNaming} is used for generating file names
+ *
+ * @author Manuel Laggner
  */
 public interface IFileNaming {
   /**

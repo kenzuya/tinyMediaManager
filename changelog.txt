@@ -1,6 +1,7 @@
 Version 4.0.6
 =======================
 + provide a filter for multi select combo boxes
++ added file name options for movie set artwork
 x added the media source .WEB. to WEB-DL
 x added "decade" tokens to movie renamer
 x better movie title search (#1089)
