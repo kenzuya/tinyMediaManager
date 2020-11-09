@@ -50,6 +50,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDeleteMediainfoXmlAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadActorImagesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadThemeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowFetchImdbRating;
@@ -282,6 +283,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(TvShowDownloadActorImagesAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleSearchAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleDownloadAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowDownloadThemeAction.class));
 
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");

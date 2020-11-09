@@ -19,10 +19,11 @@ package org.tinymediamanager.core;
 import java.util.List;
 
 public interface ScraperMetadataConfig {
-  public enum Type {
+  enum Type {
     METADATA,
     CAST,
-    ARTWORK
+    ARTWORK,
+    THEME
   }
 
   Type getType();

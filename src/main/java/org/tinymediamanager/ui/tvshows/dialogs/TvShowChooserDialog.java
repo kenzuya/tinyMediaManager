@@ -518,6 +518,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             model.startTrailerScrapeTask(tvShowToScrape);
           }
 
+          // get theme?
+          if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
+            model.startThemeDownloadTask(tvShowToScrape);
+          }
+
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
           if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
