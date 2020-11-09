@@ -23,6 +23,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -38,6 +40,7 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
   private final JTextComponent textComponent;
   private String               normalizedFilterText;
   private Pattern              filterPattern;
+  private MovieSettings        settings = MovieSettings.getInstance();
 
   public MovieTextMatcherEditor(JTextComponent textComponent) {
     this.textComponent = textComponent;
@@ -80,32 +83,37 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
         return true;
       }
 
-      if (StringUtils.isNotEmpty(movie.getTitle())) {
+      if (StringUtils.isNotEmpty(movie.getTitle()) && settings.getTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitle()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotEmpty(movie.getTitleSortable())) {
+      if (StringUtils.isNotEmpty(movie.getTitleSortable()) && settings.getSortableTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitleSortable()));
         if (matcher.find()) {
           return true;
         }
       }
 
-      if (StringUtils.isNotEmpty(movie.getOriginalTitle())) {
+      if (StringUtils.isNotEmpty(movie.getOriginalTitle()) && settings.getOriginalTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalTitle()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotEmpty(movie.getOriginalTitleSortable())) {
+      if (StringUtils.isNotEmpty(movie.getOriginalTitleSortable()) && settings.getSortableOriginalTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalTitleSortable()));
         if (matcher.find()) {
           return true;
         }
       }
-
+      if (StringUtils.isNotEmpty(movie.getSortTitle()) && settings.getSortTitle()) {
+        java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getSortTitle()));
+        if (matcher.find()) {
+          return true;
+        }
+      }
       return false;
     }
   }

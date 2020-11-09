@@ -32,6 +32,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.tinymediamanager.MovieTextMatcherList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.threading.TmmTask;
@@ -83,6 +84,12 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxCheckLogo;
   private JCheckBox                    chckbxCheckClearlogo;
   private JCheckBox                    chckbxCheckDiscart;
+
+  private JCheckBox                    chckbxTitle;
+  private JCheckBox                    chckbxSortableTitle;
+  private JCheckBox                    chckbxOriginalTitle;
+  private JCheckBox                    chckbxSortableOriginalTitle;
+  private JCheckBox                    chckbxSortTitle;
 
   private ItemListener                 checkBoxListener;
 
@@ -232,6 +239,26 @@ public class MovieSettingsPanel extends JPanel {
       {
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
         panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 2 2 1");
+      }
+      {
+        JLabel lblMovieFilter = new JLabel(BUNDLE.getString("Settings.movietitlefilter"));
+        panelUiSettings.add(lblMovieFilter, "cell 1 3 2 1");
+        chckbxTitle = new JCheckBox(MovieTextMatcherList.TITLE.toString());
+        panelUiSettings.add(chckbxTitle, "cell 2 4");
+        chckbxSortableTitle = new JCheckBox(MovieTextMatcherList.TITLE_SORTABLE.toString());
+        panelUiSettings.add(chckbxSortableTitle, "cell 2 4");
+        JLabel lblSortableTitleHint = new JLabel(IconManager.HINT);
+        lblSortableTitleHint.setToolTipText(BUNDLE.getString("Settings.movie.renamer.${titleSortable}"));
+        panelUiSettings.add(lblSortableTitleHint, "cell 2 4");
+        chckbxOriginalTitle = new JCheckBox(MovieTextMatcherList.ORIGINAL_TITLE.toString());
+        panelUiSettings.add(chckbxOriginalTitle, "cell 2 4");
+        chckbxSortableOriginalTitle = new JCheckBox(MovieTextMatcherList.ORIGINAL_TITLE_SORTABLE.toString());
+        panelUiSettings.add(chckbxSortableOriginalTitle, "cell 2 4");
+        JLabel lblSortableOriginalTitleHint = new JLabel(IconManager.HINT);
+        lblSortableOriginalTitleHint.setToolTipText(BUNDLE.getString("Settings.movie.renamer.${titleSortable}"));
+        panelUiSettings.add(lblSortableOriginalTitleHint, "cell 2 4");
+        chckbxSortTitle = new JCheckBox(MovieTextMatcherList.SORTED_TITLE.toString());
+        panelUiSettings.add(chckbxSortTitle, "cell 2 4");
       }
     }
     {
@@ -405,5 +432,30 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_12,
         chckbxAutoUpdateOnStart, jCheckBoxBeanProperty);
     autoBinding_12.bind();
+    //
+    Property movieSettingsBeanProperty_13 = BeanProperty.create("title");
+    AutoBinding autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_13,
+        chckbxTitle, jCheckBoxBeanProperty);
+    autoBinding_13.bind();
+    //
+    Property movieSettingsBeanProperty_14 = BeanProperty.create("sortableTitle");
+    AutoBinding autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_14,
+        chckbxSortableTitle, jCheckBoxBeanProperty);
+    autoBinding_14.bind();
+    //
+    Property movieSettingsBeanProperty_15 = BeanProperty.create("originalTitle");
+    AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_15,
+        chckbxOriginalTitle, jCheckBoxBeanProperty);
+    autoBinding_15.bind();
+    //
+    Property movieSettingsBeanProperty_16 = BeanProperty.create("sortableOriginalTitle");
+    AutoBinding autoBinding_16 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_16,
+        chckbxSortableOriginalTitle, jCheckBoxBeanProperty);
+    autoBinding_16.bind();
+    //
+    Property movieSettingsBeanProperty_17 = BeanProperty.create("sortTitle");
+    AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_17,
+            chckbxSortTitle, jCheckBoxBeanProperty);
+    autoBinding_17.bind();
   }
 }

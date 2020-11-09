@@ -215,6 +215,12 @@ public class MovieSettings extends AbstractSettings {
   private String                              preferredRating                        = "imdb";
   private boolean                             extractArtworkFromVsmeta               = false;
 
+  private boolean                             title                                  = true;
+  private boolean                             sortableTitle                          = false;
+  private boolean                             originalTitle                          = false;
+  private boolean                             sortableOriginalTitle                  = false;
+  private boolean                             sortTitle                              = false;
+
   // ui
   private boolean                             showLogosPanel                         = true;
 
@@ -985,6 +991,53 @@ public class MovieSettings extends AbstractSettings {
     this.extractArtworkFromVsmeta = newValue;
     firePropertyChange("extractArtworkFromVsmeta", oldValue, newValue);
   }
+
+  public void setTitle(boolean newValue) {
+    boolean oldValue = this.title;
+    this.title = newValue;
+    firePropertyChange("title", oldValue, newValue);
+  }
+
+  public void setSortableTitle(boolean newValue) {
+    boolean oldValue = this.sortableTitle;
+    this.sortableTitle = newValue;
+    firePropertyChange("sortableTitle", oldValue, newValue);
+  }
+
+  public void setOriginalTitle(boolean newValue) {
+    boolean oldValue = this.originalTitle;
+    this.originalTitle = newValue;
+    firePropertyChange("originalTitle", oldValue, newValue);
+  }
+
+  public void setSortableOriginalTitle(boolean newValue) {
+    boolean oldValue = this.sortableOriginalTitle;
+    this.sortableOriginalTitle = newValue;
+    firePropertyChange("sortableOriginalTitle", oldValue, newValue);
+  }
+
+  public void setSortTitle(boolean newValue) {
+    boolean oldValue = this.sortTitle;
+    this.sortTitle = newValue;
+    firePropertyChange("sortTitle", oldValue, newValue);
+  }
+
+  public boolean getTitle() {
+    return this.title;
+  }
+
+  public boolean getSortableTitle() {
+    return this.sortableTitle;
+  }
+
+  public boolean getOriginalTitle() {
+    return this.originalTitle;
+  }
+
+  public boolean getSortableOriginalTitle() { return this.sortableOriginalTitle; }
+
+  public boolean getSortTitle() { return this.sortTitle; }
+
 
   public boolean isIncludeExternalAudioStreams() {
     return includeExternalAudioStreams;
