@@ -277,6 +277,16 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
+     * video bitrate (hidden per default)
+     */
+    col = new Column(BUNDLE.getString("metatag.videobitrate"), "videoBitrate", Movie::getMediaInfoVideoBitrate, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.VIDEO_BITRATE);
+    col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * audio codec and channels(hidden per default)
      */
     col = new Column(BUNDLE.getString("metatag.audio"), "audio", movie -> {

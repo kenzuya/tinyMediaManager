@@ -1617,7 +1617,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   public int getMediaInfoVideoBitrate() {
-    return getMainVideoFile().getOverallBitRate();
+    return getMainVideoFile().getVideoBitRate();
   }
 
   @Override

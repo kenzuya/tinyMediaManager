@@ -165,6 +165,7 @@ public class IconManager {
   public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
   public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");
   public static final ImageIcon              VIDEO_FORMAT                 = createTableHeaderIcon("expand-wide.svg");
+  public static final ImageIcon              VIDEO_BITRATE                = createTableHeaderIcon("tachometer-fast.svg");
   public static final ImageIcon              VIDEO_CODEC                  = createTableHeaderIcon("file-video-o.svg");
   public static final ImageIcon              VOTES                        = createTableHeaderIcon("thumbs-up.svg");
   public static final ImageIcon              WATCHED                      = createTableHeaderIcon("play.svg");
