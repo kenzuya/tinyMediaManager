@@ -210,17 +210,40 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       return;
     }
 
+    int n = model.getSize();
     boolean dirty = false;
 
-    for (E item : items) {
-      TmmCheckComboBoxItem<E> checkComboBoxItem = comboBoxItemMap.get(item);
-      if (checkComboBoxItem != null) {
-        checkComboBoxItem.setSelected(true);
-        dirty = true;
+    for (int i = 0; i < n; i++) {
+      TmmCheckComboBoxItem<E> cb = model.getElementAt(i);
+      if (cb == nullItem) {
+        continue;
+      }
+
+      boolean oldState = cb.isSelected();
+
+      if (items.contains(cb.getUserObject())) {
+        cb.setSelected(true);
+        if (!oldState) {
+          dirty = true;
+        }
+
+      }
+      else {
+        cb.setSelected(false);
+
+        if (oldState) {
+          dirty = true;
+        }
       }
     }
 
     if (dirty) {
+      // update state of the "select all" and "select none" items
+      // Select all
+      model.getElementAt(n - 2).setSelected(items.size() == n - 3);
+      // select none
+      model.getElementAt(n - 1).setSelected(items.isEmpty());
+
       update();
     }
   }

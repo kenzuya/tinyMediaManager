@@ -98,7 +98,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   public String getDescription() {
     if (StringUtils.isBlank(description)) {
       try {
-        if (type == Type.ARTWORK) {
+        if (type == Type.ARTWORK || type == Type.THEME) {
           return BUNDLE.getString("mediafiletype." + name().toLowerCase(Locale.ROOT));
         }
         else {
