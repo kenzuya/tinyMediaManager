@@ -18,30 +18,12 @@ package org.tinymediamanager.ui.movies.dialogs;
 
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings.UIFilters;
@@ -58,39 +40,7 @@ import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
-import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
-import org.tinymediamanager.ui.movies.filters.MovieAspectRatioFilter;
-import org.tinymediamanager.ui.movies.filters.MovieAudioChannelFilter;
-import org.tinymediamanager.ui.movies.filters.MovieAudioCodecFilter;
-import org.tinymediamanager.ui.movies.filters.MovieCastFilter;
-import org.tinymediamanager.ui.movies.filters.MovieCertificationFilter;
-import org.tinymediamanager.ui.movies.filters.MovieCountAudioStreamFilter;
-import org.tinymediamanager.ui.movies.filters.MovieCountSubtitleFilter;
-import org.tinymediamanager.ui.movies.filters.MovieCountryFilter;
-import org.tinymediamanager.ui.movies.filters.MovieDatasourceFilter;
-import org.tinymediamanager.ui.movies.filters.MovieDifferentRuntimeFilter;
-import org.tinymediamanager.ui.movies.filters.MovieDuplicateFilter;
-import org.tinymediamanager.ui.movies.filters.MovieEditionFilter;
-import org.tinymediamanager.ui.movies.filters.MovieFilenameFilter;
-import org.tinymediamanager.ui.movies.filters.MovieFrameRateFilter;
-import org.tinymediamanager.ui.movies.filters.MovieGenreFilter;
-import org.tinymediamanager.ui.movies.filters.MovieInMovieSetFilter;
-import org.tinymediamanager.ui.movies.filters.MovieLanguageFilter;
-import org.tinymediamanager.ui.movies.filters.MovieMediaFilesFilter;
-import org.tinymediamanager.ui.movies.filters.MovieMediaSourceFilter;
-import org.tinymediamanager.ui.movies.filters.MovieMissingArtworkFilter;
-import org.tinymediamanager.ui.movies.filters.MovieMissingMetadataFilter;
-import org.tinymediamanager.ui.movies.filters.MovieMissingSubtitlesFilter;
-import org.tinymediamanager.ui.movies.filters.MovieNewMoviesFilter;
-import org.tinymediamanager.ui.movies.filters.MovieProductionCompanyFilter;
-import org.tinymediamanager.ui.movies.filters.MovieTagFilter;
-import org.tinymediamanager.ui.movies.filters.MovieVideo3DFilter;
-import org.tinymediamanager.ui.movies.filters.MovieVideoCodecFilter;
-import org.tinymediamanager.ui.movies.filters.MovieVideoContainerFilter;
-import org.tinymediamanager.ui.movies.filters.MovieVideoExtrasFilter;
-import org.tinymediamanager.ui.movies.filters.MovieVideoFormatFilter;
-import org.tinymediamanager.ui.movies.filters.MovieWatchedFilter;
-import org.tinymediamanager.ui.movies.filters.MovieYearFilter;
+import org.tinymediamanager.ui.movies.filters.*;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -184,6 +134,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieMissingMetadataFilter(), panelMediaData);
         addFilter(new MovieMissingArtworkFilter(), panelMediaData);
         addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
+        addFilter(new MovieAudioLanguageFilter(),panelMediaData);
       }
 
       {
