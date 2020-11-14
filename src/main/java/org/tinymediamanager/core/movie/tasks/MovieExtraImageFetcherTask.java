@@ -32,8 +32,10 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 
 /**
@@ -42,37 +44,36 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
  * @author Manuel Laggner
  */
 public class MovieExtraImageFetcherTask implements Runnable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieExtraImageFetcherTask.class);
+  private static final Logger                LOGGER = LoggerFactory.getLogger(MovieExtraImageFetcherTask.class);
 
-  private Movie               movie;
-  private MediaFileType       type;
+  private final Movie                        movie;
+  private final MediaFileType                type;
+
+  private final List<MovieExtraFanartNaming> extraFanartNamings;
 
   public MovieExtraImageFetcherTask(Movie movie, MediaFileType type) {
     this.movie = movie;
     this.type = type;
+    this.extraFanartNamings = MovieArtworkHelper.getExtraFanartNamesForMovie(movie);
   }
 
   @Override
   public void run() {
     // try/catch block in the root of the thread to log crashes
     try {
+      boolean ok;
       // just for single movies
-      if (!movie.isMultiMovieDir()) {
-        switch (type) {
-          case EXTRATHUMB:
-            downloadExtraThumbs();
-            break;
+      switch (type) {
+        case EXTRATHUMB:
+          ok = downloadExtraThumbs();
+          break;
 
-          case EXTRAFANART:
-            downloadExtraFanart();
-            break;
+        case EXTRAFANART:
+          ok = downloadExtraFanart();
+          break;
 
-          default:
-            return;
-        }
-      }
-      else {
-        LOGGER.info("Movie '{}' is within a multi-movie-directory - skip downloading of {} images.", movie.getTitle(), type.name());
+        default:
+          return;
       }
 
       // check if tmm has been shut down
@@ -80,42 +81,70 @@ public class MovieExtraImageFetcherTask implements Runnable {
         return;
       }
 
-      movie.callbackForWrittenArtwork(MediaArtworkType.ALL);
-      movie.saveToDb();
+      if (ok) {
+        movie.callbackForWrittenArtwork(MediaArtworkType.ALL);
+        movie.saveToDb();
+      }
     }
-    catch (Exception e) {
+    catch (
+
+    Exception e) {
       LOGGER.error("Thread crashed: ", e);
       MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, movie, "message.extraimage.threadcrashed"));
     }
   }
 
-  private void downloadExtraFanart() {
+  private boolean downloadExtraFanart() {
     List<String> fanarts = movie.getExtraFanarts();
 
-    // do not create extrafanarts folder, if no extrafanarts are selected
+    // do not create extrafanarts folder, if no extrafanarts are available
     if (fanarts.isEmpty()) {
-      return;
+      return false;
     }
 
-    // create an empty extrafanarts folder
-    Path folder = movie.getPathNIO().resolve("extrafanart");
-    try {
-      if (Files.isDirectory(folder)) {
-        Utils.deleteDirectorySafely(folder, movie.getDataSource());
-        movie.removeAllMediaFiles(MediaFileType.EXTRAFANART);
-      }
-      Files.createDirectory(folder);
+    // if we do not have any valid extrafanart filename, stop there
+    if (extraFanartNamings.isEmpty()) {
+      return false;
     }
-    catch (IOException e) {
-      LOGGER.error("could not create extrafanarts folder: {}", e.getMessage());
-      return;
+
+    // 1. clean all old extrafanarts
+    for (MediaFile mediaFile : movie.getMediaFiles(MediaFileType.EXTRAFANART)) {
+      Utils.deleteFileSafely(mediaFile.getFile());
+      movie.removeFromMediaFiles(mediaFile);
+    }
+
+    // at the moment, we just support 1 naming scheme here! if we decide to enhance that, we will need to enhance the renamer too
+    MovieExtraFanartNaming fileNaming = extraFanartNamings.get(0);
+
+    // create an empty extrafanarts folder if the right naming has been chosen
+    Path folder;
+    if (fileNaming == MovieExtraFanartNaming.FOLDER_EXTRAFANART) {
+      folder = movie.getPathNIO().resolve("extrafanart");
+      try {
+        if (!folder.toFile().exists()) {
+          Files.createDirectory(folder);
+        }
+      }
+      catch (IOException e) {
+        LOGGER.error("could not create extrafanarts folder: {}", e.getMessage());
+        return false;
+      }
+    }
+    else {
+      folder = movie.getPathNIO();
     }
 
     // fetch and store images
     int i = 1;
     for (String urlAsString : fanarts) {
       try {
-        String filename = "fanart" + i + "." + FilenameUtils.getExtension(urlAsString);
+        String extension = FilenameUtils.getExtension(urlAsString);
+        String filename = MovieArtworkHelper.getArtworkFilename(movie, fileNaming, extension);
+
+        // split the filename again and attach the counter
+        String basename = FilenameUtils.getBaseName(filename);
+        filename = basename + i + "." + extension;
+
         Path destFile = ImageUtils.downloadImage(urlAsString, folder, filename);
 
         MediaFile mf = new MediaFile(destFile, MediaFileType.EXTRAFANART);
@@ -123,6 +152,7 @@ public class MovieExtraImageFetcherTask implements Runnable {
         movie.addToMediaFiles(mf);
 
         // build up image cache
+        ImageCache.invalidateCachedImage(destFile);
         ImageCache.cacheImageSilently(destFile);
 
         i++;
@@ -135,14 +165,21 @@ public class MovieExtraImageFetcherTask implements Runnable {
         LOGGER.warn("problem downloading extrafanart {} - {} ", urlAsString, e.getMessage());
       }
     }
+
+    return true;
   }
 
-  private void downloadExtraThumbs() {
+  private boolean downloadExtraThumbs() {
+    if (movie.isMultiMovieDir()) {
+      LOGGER.info("Movie '{}' is within a multi-movie-directory - skip downloading of {} images.", movie.getTitle(), type);
+      return false;
+    }
+
     List<String> thumbs = movie.getExtraThumbs();
 
     // do not create extrathumbs folder, if no extrathumbs are selected
     if (thumbs.isEmpty()) {
-      return;
+      return false;
     }
 
     Path folder = movie.getPathNIO().resolve("extrathumbs");
@@ -155,7 +192,7 @@ public class MovieExtraImageFetcherTask implements Runnable {
     }
     catch (IOException e) {
       LOGGER.error("could not create extrathumbs folder: {}", e.getMessage());
-      return;
+      return false;
     }
 
     // fetch and store images
@@ -182,7 +219,7 @@ public class MovieExtraImageFetcherTask implements Runnable {
 
         // has tmm been shut down?
         if (Thread.interrupted()) {
-          return;
+          return false;
         }
 
         i++;
@@ -191,5 +228,7 @@ public class MovieExtraImageFetcherTask implements Runnable {
         LOGGER.warn("problem downloading extrathumb {} - {}", urlAsString, e.getMessage());
       }
     }
+
+    return true;
   }
 }

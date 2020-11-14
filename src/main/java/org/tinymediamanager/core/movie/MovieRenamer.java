@@ -63,6 +63,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearlogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
@@ -1041,10 +1042,50 @@ public class MovieRenamer {
         }
         break;
 
+      case EXTRAFANART:
+        // get the index (is always the last digit before the extension)
+        int index = MovieArtworkHelper.getIndexOfArtwork(mf.getFilename());
+        if (index > 0) {
+          // at the moment, we just support 1 naming scheme here! if we decide to enhance that, we will need to enhance the MovieExtraImageFetcherTask
+          // too
+          List<MovieExtraFanartNaming> extraFanartNamings = MovieArtworkHelper.getExtraFanartNamesForMovie(movie);
+          if (!extraFanartNamings.isEmpty()) {
+            MovieExtraFanartNaming fileNaming = extraFanartNamings.get(0);
+
+            String newExtraFanartFilename = MovieArtworkHelper.getArtworkFilename(movie, fileNaming, getArtworkExtension(mf));
+            if (StringUtils.isNotBlank(newExtraFanartFilename)) {
+              // split the filename again and attach the counter
+              String basename = FilenameUtils.getBaseName(newExtraFanartFilename);
+              newExtraFanartFilename = basename + index + "." + getArtworkExtension(mf);
+
+              // create an empty extrafanarts folder if the right naming has been chosen
+              Path folder;
+              if (fileNaming == MovieExtraFanartNaming.FOLDER_EXTRAFANART) {
+                folder = newMovieDir.resolve("extrafanart");
+                try {
+                  if (!folder.toFile().exists()) {
+                    Files.createDirectory(folder);
+                  }
+                }
+                catch (IOException e) {
+                  LOGGER.error("could not create extrafanarts folder: {}", e.getMessage());
+                }
+              }
+              else {
+                folder = newMovieDir;
+              }
+
+              MediaFile extrafanart = new MediaFile(mf);
+              extrafanart.setFile(folder.resolve(newExtraFanartFilename));
+              newFiles.add(extrafanart);
+            }
+          }
+        }
+        break;
+
       // *************
       // OK, from here we check only the settings
       // *************
-      case EXTRAFANART:
       case EXTRATHUMB:
         // pass the file regardless of the settings (they're here so we just rename them)
         if (!newDestIsMultiMovieDir) {

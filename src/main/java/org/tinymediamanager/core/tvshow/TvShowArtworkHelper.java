@@ -37,6 +37,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +73,8 @@ import org.tinymediamanager.thirdparty.VSMeta;
  * @author Manuel Laggner
  */
 public class TvShowArtworkHelper {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowArtworkHelper.class);
+  private static final Logger  LOGGER        = LoggerFactory.getLogger(TvShowArtworkHelper.class);
+  private static final Pattern INDEX_PATTERN = Pattern.compile(".*(\\d+)$");
 
   private TvShowArtworkHelper() {
     // use private constructor for utility classes
@@ -878,5 +881,27 @@ public class TvShowArtworkHelper {
     }
 
     return true;
+  }
+
+  /**
+   * parse out the last number of the filename which is the index of extra artwork
+   *
+   * @param filename
+   *          the filename containing the index
+   * @return the detected index or -1
+   */
+  public static int getIndexOfArtwork(String filename) {
+    String basename = FilenameUtils.getBaseName(filename);
+    Matcher matcher = INDEX_PATTERN.matcher(basename);
+    if (matcher.find() && matcher.groupCount() == 1) {
+      try {
+        return Integer.parseInt(matcher.group(1));
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not parse index of '{}'- {}", filename, e.getMessage());
+      }
+    }
+
+    return -1;
   }
 }

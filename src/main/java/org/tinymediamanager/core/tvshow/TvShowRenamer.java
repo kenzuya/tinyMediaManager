@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.IFileNaming;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.LanguageStyle;
 import org.tinymediamanager.core.MediaFileType;
@@ -66,6 +67,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonBannerNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonPosterNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowSeasonThumbNaming;
@@ -203,12 +205,29 @@ public class TvShowRenamer {
   }
 
   /**
-   * renames the TvSHow root folder and updates all mediaFiles
-   * 
+   * renames the TvShow root folder and updates all TvShow related mediaFiles
+   *
+   * @param tvShow
+   *          the show
+   */
+  public static void renameTvShow(TvShow tvShow) {
+    // rename the TV show folder
+    renameTvShowRoot(tvShow);
+
+    // rename TV show artwork
+    renameTvShowArtwork(tvShow);
+
+    // rename the season artwork
+    renameSeasonArtwork(tvShow);
+  }
+
+  /**
+   * renames the TvShow root folder and updates all mediaFiles
+   *
    * @param show
    *          the show
    */
-  public static void renameTvShowRoot(TvShow show) {
+  private static void renameTvShowRoot(TvShow show) {
     // skip renamer, if all templates are empty!
     if (SETTINGS.getRenamerFilename().isEmpty() && SETTINGS.getRenamerSeasonFoldername().isEmpty()
         && SETTINGS.getRenamerTvShowFoldername().isEmpty()) {
@@ -266,9 +285,242 @@ public class TvShowRenamer {
         }
       }
     }
+  }
 
-    // also rename the season artwork
-    renameSeasonArtwork(show);
+  /**
+   * rename all artwork for this TV show
+   * 
+   * @param tvShow
+   *          the TV show to rename the artwork for
+   */
+  private static void renameTvShowArtwork(TvShow tvShow) {
+    // all the good & needed mediafiles
+    ArrayList<MediaFile> needed = new ArrayList<>();
+    ArrayList<MediaFile> cleanup = new ArrayList<>(tvShow.getMediaFiles());
+    cleanup.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
+
+    // ######################################################################
+    // ## rename NFO (copy 1:N) - only TMM NFOs
+    // ######################################################################
+    // we need to find the newest, valid TMM NFO
+    MediaFile nfo = new MediaFile();
+    for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.NFO)) {
+      if (mf.getFiledate() >= nfo.getFiledate()) {
+        nfo = new MediaFile(mf);
+      }
+    }
+
+    if (nfo.getFiledate() > 0) { // one valid found? copy our NFO to all variants
+      needed.addAll(copyTvShowMediaFile(tvShow, nfo, TvShowModuleManager.SETTINGS.getNfoFilenames()));
+    }
+    else {
+      LOGGER.trace("No valid NFO found for this TV show");
+    }
+
+    // ######################################################################
+    // ## rename well known types
+    // ######################################################################
+    for (MediaFile mf : tvShow.getMediaFiles()) {
+      if (mf == null) {
+        continue;
+      }
+
+      LOGGER.trace("Rename 1:N {} {}", mf.getType(), mf.getFileAsPath());
+
+      switch (mf.getType()) {
+        case POSTER:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getPosterFilenames()));
+          break;
+
+        case FANART:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getFanartFilenames()));
+          break;
+
+        case EXTRAFANART:
+          needed.addAll(copyExtraFanart(tvShow, mf, TvShowModuleManager.SETTINGS.getExtraFanartFilenames()));
+          break;
+
+        case BANNER:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getBannerFilenames()));
+          break;
+
+        case LOGO:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getLogoFilenames()));
+          break;
+
+        case CLEARLOGO:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getClearlogoFilenames()));
+          break;
+
+        case CLEARART:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getClearartFilenames()));
+          break;
+
+        case THUMB:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getThumbFilenames()));
+          break;
+
+        case DISC:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getDiscartFilenames()));
+          break;
+
+        case CHARACTERART:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getCharacterartFilenames()));
+          break;
+
+        case KEYART:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getKeyartFilenames()));
+          break;
+
+        default:
+          needed.add(mf);
+      }
+    }
+
+    // ######################################################################
+    // ## invalidate image cache
+    // ######################################################################
+    for (MediaFile gfx : tvShow.getMediaFiles()) {
+      ImageCache.invalidateCachedImage(gfx);
+    }
+
+    // remove duplicate MediaFiles
+    Set<MediaFile> newMFs = new LinkedHashSet<>(needed);
+    needed.clear();
+    needed.addAll(newMFs);
+
+    // ######################################################################
+    // ## CLEANUP - delete all files marked for cleanup, which are not "needed"
+    // ######################################################################
+    LOGGER.info("Cleanup...");
+    for (int i = cleanup.size() - 1; i >= 0; i--) {
+      // cleanup files which are not needed
+      if (!needed.contains(cleanup.get(i))) {
+        MediaFile cl = cleanup.get(i);
+        if (Files.exists(cl.getFileAsPath())) { // unneeded, but for not displaying wrong deletes in logger...
+          LOGGER.debug("Deleting {}", cl.getFileAsPath());
+          Utils.deleteFileWithBackup(cl.getFileAsPath(), tvShow.getDataSource());
+        }
+
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(cl.getFileAsPath().getParent())) {
+          if (!directoryStream.iterator().hasNext()) {
+            // no iterator = empty
+            LOGGER.debug("Deleting empty Directory {}", cl.getFileAsPath().getParent());
+            Files.delete(cl.getFileAsPath().getParent()); // do not use recursive her
+          }
+        }
+        catch (IOException e) {
+          LOGGER.error("cleanup of {} - {}", cl.getFileAsPath(), e.getMessage());
+        }
+      }
+    }
+
+    // delete empty subfolders
+    try {
+      Utils.deleteEmptyDirectoryRecursive(tvShow.getPathNIO());
+    }
+    catch (Exception e) {
+      LOGGER.warn("could not delete empty subfolders: {}", e.getMessage());
+    }
+
+    // ######################################################################
+    // ## build up image cache
+    // ######################################################################
+    if (Settings.getInstance().isImageCache()) {
+      for (MediaFile gfx : tvShow.getMediaFiles()) {
+        ImageCache.cacheImageSilently(gfx);
+      }
+    }
+
+    tvShow.addToMediaFiles(new ArrayList<>(needed));
+    tvShow.saveToDb();
+  }
+
+  /**
+   * copy the given {@link TvShow} {@link MediaFile} for the given {@link IFileNaming}
+   * 
+   * @param tvShow
+   *          the {@link TvShow} to copy the {@link MediaFile} for
+   * @param original
+   *          the original {@link MediaFile} to copy
+   * @param fileNamings
+   *          a {@link List} of all {@link IFileNaming}s to create the destination
+   * @return a {@link List} of all {@link MediaFile}s created while copying (or the original if no copy needed)
+   */
+  private static List<MediaFile> copyTvShowMediaFile(TvShow tvShow, MediaFile original, List<? extends IFileNaming> fileNamings) {
+    List<MediaFile> neededMediaFiles = new ArrayList<>();
+
+    for (IFileNaming name : fileNamings) {
+      String newFilename = name.getFilename("", getArtworkExtension(original));
+
+      if (StringUtils.isNotBlank(newFilename)) {
+        MediaFile newMediaFile = new MediaFile(original);
+        newMediaFile.setFile(tvShow.getPathNIO().resolve(newFilename));
+        boolean ok = copyFile(original.getFileAsPath(), newMediaFile.getFileAsPath());
+        if (ok) {
+          neededMediaFiles.add(newMediaFile);
+        }
+      }
+    }
+
+    return neededMediaFiles;
+  }
+
+  /**
+   * copy the given extrafanarts
+   *
+   * @param tvShow
+   *          the {@link TvShow} to copy the {@link MediaFile} for
+   * @param original
+   *          the original {@link MediaFile} to copy
+   * @param fileNamings
+   *          a {@link List} of all {@link IFileNaming}s to create the destination
+   * @return a {@link List} of all {@link MediaFile}s created while copying (or the original if no copy needed)
+   */
+  private static List<MediaFile> copyExtraFanart(TvShow tvShow, MediaFile original, List<TvShowExtraFanartNaming> fileNamings) {
+    if (fileNamings.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    int index = TvShowArtworkHelper.getIndexOfArtwork(original.getFilename());
+    if (index > 0) {
+      // at the moment, we just support 1 naming scheme here! if we decide to enhance that, we will need to enhance the TvShowExtraImageFetcherTask
+      // too
+      TvShowExtraFanartNaming name = fileNamings.get(0);
+
+      String newFilename = name.getFilename("", getArtworkExtension(original));
+      if (StringUtils.isNotBlank(newFilename)) {
+
+        String basename = FilenameUtils.getBaseName(newFilename);
+        newFilename = basename + index + "." + getArtworkExtension(original);
+
+        // create an empty extrafanarts folder if the right naming has been chosen
+        Path folder;
+        if (name == TvShowExtraFanartNaming.FOLDER_EXTRAFANART) {
+          folder = tvShow.getPathNIO().resolve("extrafanart");
+          try {
+            if (!folder.toFile().exists()) {
+              Files.createDirectory(folder);
+            }
+          }
+          catch (IOException e) {
+            LOGGER.error("could not create extrafanarts folder: {}", e.getMessage());
+          }
+        }
+        else {
+          folder = tvShow.getPathNIO();
+        }
+
+        MediaFile newMediaFile = new MediaFile(original);
+        newMediaFile.setFile(folder.resolve(newFilename));
+        boolean ok = copyFile(original.getFileAsPath(), newMediaFile.getFileAsPath());
+        if (ok) {
+          return Collections.singletonList(newMediaFile);
+        }
+      }
+    }
+
+    return Collections.emptyList();
   }
 
   /**
@@ -1001,7 +1253,6 @@ public class TvShowRenamer {
       case CLEARART:
       case CLEARLOGO:
       case DISC:
-      case EXTRAFANART:
       case EXTRATHUMB:
       case GRAPHIC:
       case LOGO:

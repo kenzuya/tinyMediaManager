@@ -991,7 +991,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // rename the TV show if that has been chosen in the settings
     if (TvShowModuleManager.SETTINGS.isRenameAfterScrape()) {
-      TvShowRenamer.renameTvShowRoot(this); // rename root and season artwork and update ShowMFs
+      TvShowRenamer.renameTvShow(this); // rename root and season artwork and update ShowMFs
     }
   }
 

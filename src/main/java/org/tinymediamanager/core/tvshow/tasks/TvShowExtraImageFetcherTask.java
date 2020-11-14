@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
@@ -32,7 +33,9 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 
 /**
@@ -41,37 +44,35 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
  * @author Manuel Laggner
  */
 public class TvShowExtraImageFetcherTask implements Runnable {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowExtraImageFetcherTask.class);
+  private static final Logger                 LOGGER = LoggerFactory.getLogger(TvShowExtraImageFetcherTask.class);
 
-  private TvShow              tvShow;
-  private MediaFileType       type;
+  private final TvShow                        tvShow;
+  private final MediaFileType                 type;
+
+  private final List<TvShowExtraFanartNaming> extraFanartNamings;
 
   public TvShowExtraImageFetcherTask(TvShow tvShow, MediaFileType type) {
     this.tvShow = tvShow;
     this.type = type;
+
+    this.extraFanartNamings = new ArrayList<>(TvShowModuleManager.SETTINGS.getExtraFanartFilenames());
   }
 
   @Override
   public void run() {
-
     // try/catch block in the root of the thread to log crashes
     try {
-      switch (type) {
-        case EXTRAFANART:
-          downloadExtraFanart();
-          break;
-
-        default:
-          return;
-      }
+      boolean ok = downloadExtraFanart();
 
       // check if tmm has been shut down
       if (Thread.interrupted()) {
         return;
       }
 
-      tvShow.callbackForWrittenArtwork(MediaArtworkType.ALL);
-      tvShow.saveToDb();
+      if (ok) {
+        tvShow.callbackForWrittenArtwork(MediaArtworkType.ALL);
+        tvShow.saveToDb();
+      }
     }
     catch (Exception e) {
       LOGGER.error("Thread crashed: ", e);
@@ -79,33 +80,56 @@ public class TvShowExtraImageFetcherTask implements Runnable {
     }
   }
 
-  private void downloadExtraFanart() {
+  private boolean downloadExtraFanart() {
     List<String> fanartUrls = tvShow.getExtraFanartUrls();
 
-    // do not create extrafanarts folder, if no extrafanarts are selected
+    // do not create extrafanarts folder, if no extrafanarts are available
     if (fanartUrls.isEmpty()) {
-      return;
+      return false;
     }
 
-    // create an empty extrafanarts folder
-    Path folder = tvShow.getPathNIO().resolve("extrafanart");
-    try {
-      if (Files.isDirectory(folder)) {
-        Utils.deleteDirectorySafely(folder, tvShow.getDataSource());
-        tvShow.removeAllMediaFiles(MediaFileType.EXTRAFANART);
-      }
-      Files.createDirectory(folder);
+    // if we do not have any valid extrafanart filename, stop there
+    if (extraFanartNamings.isEmpty()) {
+      return false;
     }
-    catch (IOException e) {
-      LOGGER.error("could not create extrafanarts folder: {}", e.getMessage());
-      return;
+
+    // 1. clean all old extrafanarts
+    for (MediaFile mediaFile : tvShow.getMediaFiles(MediaFileType.EXTRAFANART)) {
+      Utils.deleteFileSafely(mediaFile.getFile());
+      tvShow.removeFromMediaFiles(mediaFile);
+    }
+
+    // at the moment, we just support 1 naming scheme here! if we decide to enhance that, we will need to enhance the renamer too
+    TvShowExtraFanartNaming fileNaming = extraFanartNamings.get(0);
+
+    // create an empty extrafanarts folder if the right naming has been chosen
+    Path folder;
+    if (fileNaming == TvShowExtraFanartNaming.FOLDER_EXTRAFANART) {
+      folder = tvShow.getPathNIO().resolve("extrafanart");
+      try {
+        if (!folder.toFile().exists()) {
+          Files.createDirectory(folder);
+        }
+      }
+      catch (IOException e) {
+        LOGGER.error("could not create extrafanarts folder: {}", e.getMessage());
+        return false;
+      }
+    }
+    else {
+      folder = tvShow.getPathNIO();
     }
 
     // fetch and store images
     int i = 1;
     for (String urlAsString : fanartUrls) {
       try {
-        String filename = "fanart" + i + "." + FilenameUtils.getExtension(urlAsString);
+        String extension = FilenameUtils.getExtension(urlAsString);
+        String filename = fileNaming.getFilename("", extension);
+
+        // split the filename again and attach the counter
+        String basename = FilenameUtils.getBaseName(filename);
+        filename = basename + i + "." + extension;
 
         Path destFile = ImageUtils.downloadImage(urlAsString, folder, filename);
 
@@ -114,8 +138,8 @@ public class TvShowExtraImageFetcherTask implements Runnable {
         tvShow.addToMediaFiles(mf);
 
         // build up image cache
-        ImageCache.invalidateCachedImage(mf);
-        ImageCache.cacheImageSilently(mf);
+        ImageCache.invalidateCachedImage(destFile);
+        ImageCache.cacheImageSilently(destFile);
 
         i++;
       }
@@ -127,5 +151,7 @@ public class TvShowExtraImageFetcherTask implements Runnable {
         LOGGER.warn("problem downloading extrafanart {} - {} ", urlAsString, e.getMessage());
       }
     }
+
+    return true;
   }
 }

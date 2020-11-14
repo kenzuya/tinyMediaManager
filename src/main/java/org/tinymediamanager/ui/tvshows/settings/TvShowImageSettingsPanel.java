@@ -21,10 +21,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -49,10 +51,9 @@ import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
-import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
@@ -76,8 +77,9 @@ class TvShowImageSettingsPanel extends JPanel {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
-  private List<ScraperInTable>        artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
+  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable>  artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
+  private final ItemListener          checkBoxListener;
 
   private TmmTable                    tableScraper;
   private JTextPane                   tpScraperDescription;
@@ -89,11 +91,17 @@ class TvShowImageSettingsPanel extends JPanel {
   private JComboBox                   cbImagePosterSize;
   private JComboBox                   cbImageFanartSize;
   private JCheckBox                   chckbxSpecialSeason;
+  private JPanel                      panel;
+  private JCheckBox                   chckbxExtraFanart1;
+  private JCheckBox                   chckbxExtraFanart2;
 
   /**
-   * Instantiates a new movie scraper settings panel.
+   * Instantiates a new Tv show image scraper settings panel.
    */
-  TvShowImageSettingsPanel() { // UI init
+  TvShowImageSettingsPanel() {
+    checkBoxListener = e -> checkChanges();
+
+    // UI init
     initComponents();
     initDataBindings();
 
@@ -159,6 +167,62 @@ class TvShowImageSettingsPanel extends JPanel {
     if (counter > 0) {
       tableScraper.getSelectionModel().setSelectionInterval(selectedIndex, selectedIndex);
     }
+
+    // further init
+    ButtonGroup buttonGroup = new ButtonGroup();
+    buttonGroup.add(chckbxExtraFanart1);
+    buttonGroup.add(chckbxExtraFanart2);
+
+    settings.addPropertyChangeListener(evt -> {
+      if ("preset".equals(evt.getPropertyName())) {
+        buildCheckBoxes();
+      }
+    });
+
+    buildCheckBoxes();
+  }
+
+  private void buildCheckBoxes() {
+    // initialize
+    clearSelection(chckbxExtraFanart1, chckbxExtraFanart2);
+
+    // extrafanart filenames
+    for (TvShowExtraFanartNaming fanart : settings.getExtraFanartFilenames()) {
+      switch (fanart) {
+        case EXTRAFANART:
+          chckbxExtraFanart1.setSelected(true);
+          break;
+
+        case FOLDER_EXTRAFANART:
+          chckbxExtraFanart2.setSelected(true);
+      }
+    }
+
+    // listen to changes of the checkboxes
+    chckbxExtraFanart1.addItemListener(checkBoxListener);
+    chckbxExtraFanart2.addItemListener(checkBoxListener);
+  }
+
+  private void clearSelection(JCheckBox... checkBoxes) {
+    for (JCheckBox checkBox : checkBoxes) {
+      checkBox.removeItemListener(checkBoxListener);
+      checkBox.setSelected(false);
+    }
+  }
+
+  /**
+   * Check changes.
+   */
+  private void checkChanges() {
+    // set poster filenames
+    settings.clearExtraFanartFilenames();
+
+    if (chckbxExtraFanart1.isSelected()) {
+      settings.addExtraFanartFilename(TvShowExtraFanartNaming.EXTRAFANART);
+    }
+    if (chckbxExtraFanart2.isSelected()) {
+      settings.addExtraFanartFilename(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
+    }
   }
 
   private void initComponents() {
@@ -194,7 +258,7 @@ class TvShowImageSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][][grow][]")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
@@ -205,19 +269,19 @@ class TvShowImageSettingsPanel extends JPanel {
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
-        panelOptions.add(cbScraperLanguage, "cell 1 0");
+        panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
         JLabel lblImageTmdbPosterSize = new JLabel(BUNDLE.getString("image.poster.size"));
         panelOptions.add(lblImageTmdbPosterSize, "cell 1 1 2 1");
 
         cbImagePosterSize = new JComboBox(MediaArtwork.PosterSizes.values());
-        panelOptions.add(cbImagePosterSize, "cell 1 1");
+        panelOptions.add(cbImagePosterSize, "cell 1 1 2 1");
 
         JLabel lblImageTmdbFanartSize = new JLabel(BUNDLE.getString("image.fanart.size"));
         panelOptions.add(lblImageTmdbFanartSize, "cell 1 2 2 1");
 
         cbImageFanartSize = new JComboBox(MediaArtwork.FanartSizes.values());
-        panelOptions.add(cbImageFanartSize, "cell 1 2");
+        panelOptions.add(cbImageFanartSize, "cell 1 2 2 1");
 
         cbActorImages = new JCheckBox(BUNDLE.getString("Settings.actor.download"));
         panelOptions.add(cbActorImages, "cell 1 3 2 1");
@@ -228,12 +292,22 @@ class TvShowImageSettingsPanel extends JPanel {
         chckbxEnableExtrafanart = new JCheckBox(BUNDLE.getString("Settings.enable.extrafanart"));
         panelOptions.add(chckbxEnableExtrafanart, "cell 1 5 2 1");
 
+        panel = new JPanel();
+        panelOptions.add(panel, "cell 2 6,growx");
+        panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
+
+        chckbxExtraFanart1 = new JCheckBox("fanartX.ext");
+        panel.add(chckbxExtraFanart1, "cell 0 0");
+
+        chckbxExtraFanart2 = new JCheckBox("extrafanart/fanartX.ext");
+        panel.add(chckbxExtraFanart2, "cell 2 0");
+
         JLabel lblDownloadCount = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));
-        panelOptions.add(lblDownloadCount, "cell 2 6");
+        panelOptions.add(lblDownloadCount, "cell 2 7");
 
         spDownloadCountExtrafanart = new JSpinner();
         spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
-        panelOptions.add(spDownloadCountExtrafanart, "cell 2 6");
+        panelOptions.add(spDownloadCountExtrafanart, "cell 2 7");
       }
     }
   }
@@ -288,19 +362,29 @@ class TvShowImageSettingsPanel extends JPanel {
         tvShowSettingsBeanProperty_3, cbScraperLanguage, jComboBoxBeanProperty);
     autoBinding_5.bind();
     //
-    BeanProperty<TvShowSettings, PosterSizes> tvShowSettingsBeanProperty_4 = BeanProperty.create("imagePosterSize");
-    AutoBinding<TvShowSettings, PosterSizes, JComboBox, Object> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_4, cbImagePosterSize, jComboBoxBeanProperty);
+    BeanProperty<TvShowSettings, MediaArtwork.PosterSizes> tvShowSettingsBeanProperty_4 = BeanProperty.create("imagePosterSize");
+    AutoBinding<TvShowSettings, MediaArtwork.PosterSizes, JComboBox, Object> autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+        settings, tvShowSettingsBeanProperty_4, cbImagePosterSize, jComboBoxBeanProperty);
     autoBinding_6.bind();
     //
-    BeanProperty<TvShowSettings, FanartSizes> tvShowSettingsBeanProperty_5 = BeanProperty.create("imageFanartSize");
-    AutoBinding<TvShowSettings, FanartSizes, JComboBox, Object> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_5, cbImageFanartSize, jComboBoxBeanProperty);
+    BeanProperty<TvShowSettings, MediaArtwork.FanartSizes> tvShowSettingsBeanProperty_5 = BeanProperty.create("imageFanartSize");
+    AutoBinding<TvShowSettings, MediaArtwork.FanartSizes, JComboBox, Object> autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+        settings, tvShowSettingsBeanProperty_5, cbImageFanartSize, jComboBoxBeanProperty);
     autoBinding_7.bind();
     //
     BeanProperty<TvShowSettings, Boolean> tvShowSettingsBeanProperty_6 = BeanProperty.create("specialSeason");
     AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         tvShowSettingsBeanProperty_6, chckbxSpecialSeason, jCheckBoxBeanProperty);
     autoBinding_8.bind();
+    //
+    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_2 = BeanProperty.create("enabled");
+
+    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
+        jCheckBoxBeanProperty, chckbxExtraFanart1, jCheckBoxBeanProperty_2);
+    autoBinding_9.bind();
+    //
+    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
+        jCheckBoxBeanProperty, chckbxExtraFanart2, jCheckBoxBeanProperty_2);
+    autoBinding_10.bind();
   }
 }
