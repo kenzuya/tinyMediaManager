@@ -15,6 +15,7 @@ x enhanced visualization of the image chooser #1090
 x enhanced detection of container formats #1038
 x added more icons for media sources #1069
 x fetching 0.0 rated movies
+x detect 4 digit episode numbers
 
 
 Version 4.0.5
