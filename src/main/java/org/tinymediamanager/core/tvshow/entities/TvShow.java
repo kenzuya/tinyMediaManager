@@ -469,7 +469,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // last but not least a non null value
     if (mediaRating == null) {
-      mediaRating = new MediaRating();
+      mediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     return mediaRating;

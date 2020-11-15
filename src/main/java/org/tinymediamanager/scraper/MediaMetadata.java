@@ -56,6 +56,9 @@ public class MediaMetadata {
   public static final String             EPISODE_NR_DVD       = "dvdEpisodeNr";
   public static final String             SEASON_NR_DVD        = "dvdSeasonNr";
 
+  // the "empty" rating
+  public static final MediaRating        EMPTY_RATING         = new MediaRating("", 0);
+
   private final String                   providerId;
 
   // this map contains all set ids
@@ -887,7 +890,7 @@ public class MediaMetadata {
    *          the rating to be set
    */
   public void addRating(MediaRating rating) {
-    if (rating != null && StringUtils.isNotBlank(rating.getId()) && rating.getRating() > 0 && rating.getMaxValue() > 0) {
+    if (rating != null && StringUtils.isNotBlank(rating.getId()) && rating.getRating() >= 0 && rating.getMaxValue() > 0) {
       if (!ratings.contains(rating)) {
         ratings.add(rating);
       }

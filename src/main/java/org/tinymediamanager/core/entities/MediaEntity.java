@@ -71,6 +71,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
@@ -356,7 +357,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public MediaRating getRating(String id) {
-    return ratings.getOrDefault(id, new MediaRating());
+    return ratings.getOrDefault(id, MediaMetadata.EMPTY_RATING);
   }
 
   /**
@@ -382,7 +383,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
     // last but not least a non null value
     if (mediaRating == null) {
-      mediaRating = new MediaRating();
+      mediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     return mediaRating;
@@ -479,7 +480,9 @@ public abstract class MediaEntity extends AbstractModelObject {
 
     ratings.clear();
     for (Entry<String, MediaRating> entry : newRatings.entrySet()) {
-      setRating(entry.getValue());
+      if (entry.getValue() != MediaMetadata.EMPTY_RATING && entry.getValue().getRating() >= 0) {
+        setRating(entry.getValue());
+      }
     }
 
     if (userMediaRating != null && !newRatings.containsKey(MediaRating.USER)) {

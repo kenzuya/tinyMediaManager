@@ -548,7 +548,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     // last but not least a non null value
     if (mediaRating == null) {
-      mediaRating = new MediaRating();
+      mediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     return mediaRating;
