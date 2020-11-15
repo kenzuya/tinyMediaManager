@@ -1128,6 +1128,10 @@ public class TraktTv {
     if ("DTS".equalsIgnoreCase(audioCodec)) {
       return Audio.DTS;
     }
+    if ("DTS-ES".equalsIgnoreCase(audioCodec)) {
+      //DTS-ES is not (yet) supported. Use DTS for now
+      return Audio.DTS;
+    }
     if ("TrueHD".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_TRUEHD;
     }
@@ -1136,6 +1140,9 @@ public class TraktTv {
     }
     if ("AC3".equalsIgnoreCase(audioCodec)) {
       return Audio.DOLBY_DIGITAL;
+    }
+    if ("MP2".equalsIgnoreCase(audioCodec)) {
+      return Audio.MP2;
     }
     if ("MP3".equalsIgnoreCase(audioCodec)) {
       return Audio.MP3;
@@ -1149,7 +1156,9 @@ public class TraktTv {
     if ("AAC".equalsIgnoreCase(audioCodec)) {
       return Audio.AAC;
     }
-
+    if ("FLAC".equalsIgnoreCase(audioCodec)) {
+      return Audio.FLAC;
+    }
     return null;
   }
 

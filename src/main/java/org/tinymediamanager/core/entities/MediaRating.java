@@ -33,7 +33,7 @@ public class MediaRating {
   @JsonProperty
   private String             id       = "";
   @JsonProperty
-  private float              rating   = 0;
+  private float              rating   = -1;
   @JsonProperty
   private int                votes    = 0;
   @JsonProperty

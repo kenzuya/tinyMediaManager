@@ -18,6 +18,8 @@ package org.tinymediamanager.core.movie;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +35,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearlogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieDiscartNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieKeyartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieLogoNaming;
@@ -51,7 +54,8 @@ import org.tinymediamanager.thirdparty.VSMeta;
  * @author Manuel Laggner
  */
 public class MovieArtworkHelper {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieArtworkHelper.class);
+  private static final Logger  LOGGER        = LoggerFactory.getLogger(MovieArtworkHelper.class);
+  private static final Pattern INDEX_PATTERN = Pattern.compile(".*(\\d+)$");
 
   private MovieArtworkHelper() {
     // hide public constructor for utility classes
@@ -744,6 +748,40 @@ public class MovieArtworkHelper {
     return thumbnames;
   }
 
+  /**
+   * Idea is, to check whether the preferred format is set in settings<br>
+   * and if not, take some default (since we want extrafanarts)
+   *
+   * @param movie
+   *          the movie to get the fanart names for
+   * @return List of MovieFanartNaming (can be empty!)
+   */
+  public static List<MovieExtraFanartNaming> getExtraFanartNamesForMovie(Movie movie) {
+    List<MovieExtraFanartNaming> fanartnames = new ArrayList<>();
+    if (MovieModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty()) {
+      return fanartnames;
+    }
+    if (movie.isMultiMovieDir()) {
+      if (MovieModuleManager.SETTINGS.getExtraFanartFilenames().contains(MovieExtraFanartNaming.FILENAME_EXTRAFANART)) {
+        fanartnames.add(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
+      }
+      if (MovieModuleManager.SETTINGS.getExtraFanartFilenames().contains(MovieExtraFanartNaming.FILENAME_EXTRAFANART2)) {
+        fanartnames.add(MovieExtraFanartNaming.FILENAME_EXTRAFANART2);
+      }
+      if (fanartnames.isEmpty() && !MovieModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty()) {
+        fanartnames.add(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
+      }
+    }
+    else if (movie.isDisc()) {
+      fanartnames.add(MovieExtraFanartNaming.EXTRAFANART);
+    }
+    else {
+      fanartnames = MovieModuleManager.SETTINGS.getExtraFanartFilenames();
+    }
+
+    return fanartnames;
+  }
+
   private static void downloadExtraArtwork(Movie movie, MediaFileType type) {
     // get images in thread
     MovieExtraImageFetcherTask task = new MovieExtraImageFetcherTask(movie, type);
@@ -1201,5 +1239,27 @@ public class MovieArtworkHelper {
     }
 
     return true;
+  }
+
+  /**
+   * parse out the last number of the filename which is the index of extra artwork
+   * 
+   * @param filename
+   *          the filename containing the index
+   * @return the detected index or -1
+   */
+  public static int getIndexOfArtwork(String filename) {
+    String basename = FilenameUtils.getBaseName(filename);
+    Matcher matcher = INDEX_PATTERN.matcher(basename);
+    if (matcher.find() && matcher.groupCount() == 1) {
+      try {
+        return Integer.parseInt(matcher.group(1));
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not parse index of '{}'- {}", filename, e.getMessage());
+      }
+    }
+
+    return -1;
   }
 }

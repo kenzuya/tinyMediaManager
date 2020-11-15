@@ -54,7 +54,8 @@ class MovieImageTypeSettingsPanel extends JPanel {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private MovieSettings               settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+
   private JCheckBox                   chckbxMoviePosterFilename2;
   private JCheckBox                   chckbxMoviePosterFilename4;
   private JCheckBox                   chckbxMoviePosterFilename6;
@@ -77,11 +78,12 @@ class MovieImageTypeSettingsPanel extends JPanel {
   private JCheckBox                   chckbxClearlogo2;
   private JCheckBox                   chckbxDiscart1;
   private JCheckBox                   chckbxDiscart2;
-  private ItemListener                checkBoxListener;
   private JCheckBox                   chckbxDiscart4;
   private JCheckBox                   chckbxDiscart3;
   private JCheckBox                   chckbxKeyart1;
   private JCheckBox                   chckbxKeyart2;
+
+  private ItemListener                checkBoxListener;
 
   /**
    * Instantiates a new movie image settings panel.

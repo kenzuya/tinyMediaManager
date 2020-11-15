@@ -87,6 +87,7 @@ public class IconManager {
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
   public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
   public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
+  public static final ImageIcon              MUSIC                        = createMenuIcon("music.svg");
   public static final ImageIcon              PLAY                         = createMenuIcon("play.svg");
   public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
   public static final ImageIcon              REMOVE                       = createMenuIcon("minus.svg");
@@ -164,6 +165,7 @@ public class IconManager {
   public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
   public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");
   public static final ImageIcon              VIDEO_FORMAT                 = createTableHeaderIcon("expand-wide.svg");
+  public static final ImageIcon              VIDEO_BITRATE                = createTableHeaderIcon("tachometer-fast.svg");
   public static final ImageIcon              VIDEO_CODEC                  = createTableHeaderIcon("file-video-o.svg");
   public static final ImageIcon              VOTES                        = createTableHeaderIcon("thumbs-up.svg");
   public static final ImageIcon              WATCHED                      = createTableHeaderIcon("play.svg");

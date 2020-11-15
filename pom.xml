@@ -210,7 +210,7 @@
         <dependency>
             <groupId>com.uwetrottmann.trakt5</groupId>
             <artifactId>trakt-java</artifactId>
-            <version>6.7.0</version>
+            <version>6.8.0</version>
         </dependency>
         <dependency>
             <groupId>it.tidalwave.betterbeansbinding</groupId>

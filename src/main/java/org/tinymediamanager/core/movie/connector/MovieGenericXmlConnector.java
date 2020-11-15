@@ -277,7 +277,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
 
     // just create one to not pass null
     if (mainMediaRating == null) {
-      mainMediaRating = new MediaRating();
+      mainMediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     if (mainMediaRating.getMaxValue() > 0) {

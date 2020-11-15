@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.filters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -39,6 +40,7 @@ public class MovieGenreFilter extends AbstractCheckComboBoxMovieUIFilter<MediaGe
 
   public MovieGenreFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     movieList = MovieList.getInstance();
     comparator = new MediaGenres.MediaGenresComparator();
 

@@ -104,7 +104,7 @@ public class TvShowRenameTask extends TmmThreadPool {
           if (cancel) {
             break;
           }
-          TvShowRenamer.renameTvShowRoot(aTvShowsToRename); // rename root and artwork and update ShowMFs
+          TvShowRenamer.renameTvShow(aTvShowsToRename); // rename root and artwork and update ShowMFs
         }
       }
 

@@ -469,7 +469,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // last but not least a non null value
     if (mediaRating == null) {
-      mediaRating = new MediaRating();
+      mediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     return mediaRating;
@@ -991,7 +991,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // rename the TV show if that has been chosen in the settings
     if (TvShowModuleManager.SETTINGS.isRenameAfterScrape()) {
-      TvShowRenamer.renameTvShowRoot(this); // rename root and season artwork and update ShowMFs
+      TvShowRenamer.renameTvShow(this); // rename root and season artwork and update ShowMFs
     }
   }
 

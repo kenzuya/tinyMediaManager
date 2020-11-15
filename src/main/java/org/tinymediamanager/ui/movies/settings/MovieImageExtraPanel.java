@@ -18,8 +18,10 @@ package org.tinymediamanager.ui.movies.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Dimension;
+import java.awt.event.ItemListener;
 import java.util.ResourceBundle;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -31,6 +33,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
+import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -47,7 +50,9 @@ class MovieImageExtraPanel extends JPanel {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private MovieSettings               settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+  private final ItemListener          checkBoxListener;
+
   private JCheckBox                   cbActorImages;
   private JCheckBox                   chckbxEnableExtrathumbs;
   private JCheckBox                   chckbxEnableExtrafanart;
@@ -55,20 +60,100 @@ class MovieImageExtraPanel extends JPanel {
   private JSpinner                    spExtrathumbWidth;
   private JSpinner                    spDownloadCountExtrathumbs;
   private JSpinner                    spDownloadCountExtrafanart;
+  private JCheckBox                   chckbxExtrafanart1;
+  private JCheckBox                   chckbxExtrafanart2;
+  private JCheckBox                   chckbxExtrafanart3;
+  private JCheckBox                   chckbxExtrafanart4;
 
   /**
    * Instantiates a new movie image settings panel.
    */
   MovieImageExtraPanel() {
+    checkBoxListener = e -> checkChanges();
+
     // UI init
     initComponents();
     initDataBindings();
+
+    // further init
+    ButtonGroup buttonGroup = new ButtonGroup();
+    buttonGroup.add(chckbxExtrafanart1);
+    buttonGroup.add(chckbxExtrafanart2);
+    buttonGroup.add(chckbxExtrafanart3);
+    buttonGroup.add(chckbxExtrafanart4);
+
+    settings.addPropertyChangeListener(evt -> {
+      if ("preset".equals(evt.getPropertyName())) {
+        buildCheckBoxes();
+      }
+    });
+
+    buildCheckBoxes();
+  }
+
+  private void buildCheckBoxes() {
+    // initialize
+    clearSelection(chckbxExtrafanart1, chckbxExtrafanart2, chckbxExtrafanart3, chckbxExtrafanart4);
+
+    // extrafanart filenames
+    for (MovieExtraFanartNaming fanart : settings.getExtraFanartFilenames()) {
+      switch (fanart) {
+        case FILENAME_EXTRAFANART:
+          chckbxExtrafanart1.setSelected(true);
+          break;
+
+        case FILENAME_EXTRAFANART2:
+          chckbxExtrafanart2.setSelected(true);
+          break;
+
+        case EXTRAFANART:
+          chckbxExtrafanart3.setSelected(true);
+          break;
+
+        case FOLDER_EXTRAFANART:
+          chckbxExtrafanart4.setSelected(true);
+      }
+    }
+
+    // listen to changes of the checkboxes
+    chckbxExtrafanart1.addItemListener(checkBoxListener);
+    chckbxExtrafanart2.addItemListener(checkBoxListener);
+    chckbxExtrafanart3.addItemListener(checkBoxListener);
+    chckbxExtrafanart4.addItemListener(checkBoxListener);
+  }
+
+  private void clearSelection(JCheckBox... checkBoxes) {
+    for (JCheckBox checkBox : checkBoxes) {
+      checkBox.removeItemListener(checkBoxListener);
+      checkBox.setSelected(false);
+    }
+  }
+
+  /**
+   * Check changes.
+   */
+  private void checkChanges() {
+    // set poster filenames
+    settings.clearExtraFanartFilenames();
+
+    if (chckbxExtrafanart1.isSelected()) {
+      settings.addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
+    }
+    if (chckbxExtrafanart2.isSelected()) {
+      settings.addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART2);
+    }
+    if (chckbxExtrafanart3.isSelected()) {
+      settings.addExtraFanartFilename(MovieExtraFanartNaming.EXTRAFANART);
+    }
+    if (chckbxExtrafanart4.isSelected()) {
+      settings.addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
+    }
   }
 
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[][]"));
     {
-      JPanel panelExtra = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", ""));
+      JPanel panelExtra = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][grow][][]"));
 
       JLabel lblExtra = new TmmLabel(BUNDLE.getString("Settings.extraartwork"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExtra, lblExtra, true);
@@ -95,15 +180,31 @@ class MovieImageExtraPanel extends JPanel {
         chckbxEnableExtrafanart = new JCheckBox(BUNDLE.getString("Settings.enable.extrafanart"));
         panelExtra.add(chckbxEnableExtrafanart, "cell 1 3 2 1");
 
+        JPanel panel = new JPanel();
+        panelExtra.add(panel, "cell 2 4,grow");
+        panel.setLayout(new MigLayout("insets 0", "[][20lp!][][20lp!][]", "[][]"));
+
+        chckbxExtrafanart1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-fanartX.ext");
+        panel.add(chckbxExtrafanart1, "cell 0 0");
+
+        chckbxExtrafanart2 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + ".fanartX.ext");
+        panel.add(chckbxExtrafanart2, "cell 2 0");
+
+        chckbxExtrafanart3 = new JCheckBox("fanartX.ext");
+        panel.add(chckbxExtrafanart3, "cell 4 0");
+
+        chckbxExtrafanart4 = new JCheckBox("extrafanart/fanartX.ext");
+        panel.add(chckbxExtrafanart4, "cell 0 1");
+
         JLabel lblDownloadCount = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));
-        panelExtra.add(lblDownloadCount, "cell 2 4");
+        panelExtra.add(lblDownloadCount, "cell 2 5");
 
         spDownloadCountExtrafanart = new JSpinner();
         spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
-        panelExtra.add(spDownloadCountExtrafanart, "cell 2 4");
+        panelExtra.add(spDownloadCountExtrafanart, "cell 2 5");
 
         cbActorImages = new JCheckBox(BUNDLE.getString("Settings.actor.download"));
-        panelExtra.add(cbActorImages, "cell 1 5 2 1");
+        panelExtra.add(cbActorImages, "cell 1 6 2 1");
       }
     }
   }
@@ -163,5 +264,23 @@ class MovieImageExtraPanel extends JPanel {
     AutoBinding<JCheckBox, Boolean, JSpinner, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, chckbxEnableExtrathumbs,
         jCheckBoxBeanProperty, spExtrathumbWidth, jSpinnerBeanProperty);
     autoBinding_9.bind();
+    //
+    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_2 = BeanProperty.create("enabled");
+
+    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
+        jCheckBoxBeanProperty, chckbxExtrafanart1, jCheckBoxBeanProperty_2);
+    autoBinding.bind();
+    //
+    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
+        jCheckBoxBeanProperty, chckbxExtrafanart2, jCheckBoxBeanProperty_2);
+    autoBinding_1.bind();
+    //
+    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
+        jCheckBoxBeanProperty, chckbxExtrafanart3, jCheckBoxBeanProperty_2);
+    autoBinding_4.bind();
+    //
+    AutoBinding<JCheckBox, Boolean, JCheckBox, Boolean> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxEnableExtrafanart,
+        jCheckBoxBeanProperty, chckbxExtrafanart4, jCheckBoxBeanProperty_2);
+    autoBinding_5.bind();
   }
 }

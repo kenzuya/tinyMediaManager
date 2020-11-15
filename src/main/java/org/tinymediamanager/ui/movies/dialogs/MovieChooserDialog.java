@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.movies.dialogs;
 
+import static java.util.Locale.ROOT;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -31,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -310,6 +311,8 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(lblScrapeFollowingItems, "cell 0 4,growx");
 
       cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.values());
+      cbScraperConfig.enableFilter(
+          (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
       contentPanel.add(cbScraperConfig, "cell 0 5,grow, wmin 0");
     }
 
@@ -846,11 +849,11 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     @Override
     public int compare(MovieChooserModel o1, MovieChooserModel o2) {
       if (stringCollator != null) {
-        String titleMovie1 = StrgUtils.normalizeString(o1.getTitle().toLowerCase(Locale.ROOT));
-        String titleMovie2 = StrgUtils.normalizeString(o2.getTitle().toLowerCase(Locale.ROOT));
+        String titleMovie1 = StrgUtils.normalizeString(o1.getTitle().toLowerCase(ROOT));
+        String titleMovie2 = StrgUtils.normalizeString(o2.getTitle().toLowerCase(ROOT));
         return stringCollator.compare(titleMovie1, titleMovie2);
       }
-      return o1.getTitle().toLowerCase(Locale.ROOT).compareTo(o2.getTitle().toLowerCase(Locale.ROOT));
+      return o1.getTitle().toLowerCase(ROOT).compareTo(o2.getTitle().toLowerCase(ROOT));
     }
   }
 

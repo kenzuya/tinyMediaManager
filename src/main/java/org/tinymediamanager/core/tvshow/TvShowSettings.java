@@ -47,6 +47,7 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowClearlogoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowDiscartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeThumbNaming;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowFanartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowKeyartNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowLogoNaming;
@@ -99,6 +100,7 @@ public class TvShowSettings extends AbstractSettings {
   private static final String                            NFO_FILENAME                           = "nfoFilename";
   private static final String                            POSTER_FILENAME                        = "posterFilename";
   private static final String                            FANART_FILENAME                        = "fanartFilename";
+  private static final String                            EXTRAFANART_FILENAME                   = "extraFanartFilename";
   private static final String                            BANNER_FILENAME                        = "bannerFilename";
   private static final String                            DISCART_FILENAME                       = "discartFilename";
   private static final String                            CLEARART_FILENAME                      = "clearartFilename";
@@ -131,6 +133,7 @@ public class TvShowSettings extends AbstractSettings {
   private final List<TvShowNfoNaming>                    nfoFilenames                           = new ArrayList<>();
   private final List<TvShowPosterNaming>                 posterFilenames                        = new ArrayList<>();
   private final List<TvShowFanartNaming>                 fanartFilenames                        = new ArrayList<>();
+  private final List<TvShowExtraFanartNaming>            extraFanartFilenames                   = new ArrayList<>();
   private final List<TvShowBannerNaming>                 bannerFilenames                        = new ArrayList<>();
   private final List<TvShowDiscartNaming>                discartFilenames                       = new ArrayList<>();
   private final List<TvShowClearartNaming>               clearartFilenames                      = new ArrayList<>();
@@ -235,6 +238,9 @@ public class TvShowSettings extends AbstractSettings {
 
     fanartFilenames.clear();
     addFanartFilename(TvShowFanartNaming.FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(TvShowExtraFanartNaming.EXTRAFANART);
 
     bannerFilenames.clear();
     addBannerFilename(TvShowBannerNaming.BANNER);
@@ -963,6 +969,22 @@ public class TvShowSettings extends AbstractSettings {
     return new ArrayList<>(this.fanartFilenames);
   }
 
+  public void addExtraFanartFilename(TvShowExtraFanartNaming filename) {
+    if (!extraFanartFilenames.contains(filename)) {
+      extraFanartFilenames.add(filename);
+      firePropertyChange(EXTRAFANART_FILENAME, null, extraFanartFilenames);
+    }
+  }
+
+  public void clearExtraFanartFilenames() {
+    extraFanartFilenames.clear();
+    firePropertyChange(EXTRAFANART_FILENAME, null, extraFanartFilenames);
+  }
+
+  public List<TvShowExtraFanartNaming> getExtraFanartFilenames() {
+    return new ArrayList<>(this.extraFanartFilenames);
+  }
+
   public void addBannerFilename(TvShowBannerNaming filename) {
     if (!bannerFilenames.contains(filename)) {
       bannerFilenames.add(filename);
@@ -1359,6 +1381,9 @@ public class TvShowSettings extends AbstractSettings {
     fanartFilenames.clear();
     fanartFilenames.add(TvShowFanartNaming.FANART);
 
+    extraFanartFilenames.clear();
+    extraFanartFilenames.add(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
+
     bannerFilenames.clear();
     bannerFilenames.add(TvShowBannerNaming.BANNER);
 
@@ -1420,6 +1445,9 @@ public class TvShowSettings extends AbstractSettings {
 
     fanartFilenames.clear();
     fanartFilenames.add(TvShowFanartNaming.FANART);
+
+    extraFanartFilenames.clear();
+    extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
 
     bannerFilenames.clear();
     bannerFilenames.add(TvShowBannerNaming.BANNER);
@@ -1483,6 +1511,9 @@ public class TvShowSettings extends AbstractSettings {
     fanartFilenames.clear();
     fanartFilenames.add(TvShowFanartNaming.FANART);
 
+    extraFanartFilenames.clear();
+    extraFanartFilenames.add(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
+
     bannerFilenames.clear();
     bannerFilenames.add(TvShowBannerNaming.BANNER);
 
@@ -1544,6 +1575,9 @@ public class TvShowSettings extends AbstractSettings {
 
     fanartFilenames.clear();
     fanartFilenames.add(TvShowFanartNaming.FANART);
+
+    extraFanartFilenames.clear();
+    extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
 
     bannerFilenames.clear();
     bannerFilenames.add(TvShowBannerNaming.BANNER);

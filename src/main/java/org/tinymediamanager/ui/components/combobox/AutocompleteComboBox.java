@@ -24,7 +24,6 @@ import javax.swing.JComboBox;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 /**
  * The Class AutocompleteComboBox.
@@ -41,7 +40,6 @@ public class AutocompleteComboBox<E> extends JComboBox<E> {
     super();
     this.items = new BasicEventList<>();
     this.items.addAll(items);
-    this.items.sort((o1, o2) -> o1.toString().compareToIgnoreCase(o2.toString()));
     init();
   }
 
@@ -53,6 +51,7 @@ public class AutocompleteComboBox<E> extends JComboBox<E> {
 
   private void init() {
     setEditable(true);
+    this.items.sort((o1, o2) -> o1.toString().compareToIgnoreCase(o2.toString()));
     this.autoCompleteSupport = AutoCompleteSupport.install(this, items);
 
     // fix: add a focus listener for the editor component to request the focus

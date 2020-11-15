@@ -37,6 +37,8 @@ public class MovieMediaFilesFilter extends AbstractCheckComboBoxMovieUIFilter<Mo
   public MovieMediaFilesFilter() {
     super();
 
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
+
     List<MediaFileTypeContainer> mediaFileTypeList = new ArrayList<>();
 
     for (MediaFileType type : MediaFileType.values()) {

@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -71,10 +70,10 @@ import com.github.stephenc.javaisotools.loopfs.udf.UDFFileSystem;
 public class MediaFileHelper {
   private static final Logger      LOGGER             = LoggerFactory.getLogger(MediaFileHelper.class);
 
-  public static final List<String> TRAILER_FOLDERS    = Arrays.asList("trailer", "trailers");
-  public static final List<String> EXTRA_FOLDERS      = Arrays.asList("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
-      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");                                                                 // lower
-                                                                                                                                                  // case
+  public static final List<String> TRAILER_FOLDERS    = List.of("trailer", "trailers");
+  public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
+      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");                                                                                                                       // lower
+                                                                                                                                                                                                        // case
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -85,6 +84,7 @@ public class MediaFileHelper {
   public static final Pattern      MOVIESET_ARTWORK_PATTERN;
   public static final Pattern      POSTER_PATTERN;
   public static final Pattern      FANART_PATTERN;
+  public static final Pattern      EXTRAFANART_PATTERN;
   public static final Pattern      BANNER_PATTERN;
   public static final Pattern      THUMB_PATTERN;
   public static final Pattern      SEASON_POSTER_PATTERN;
@@ -112,7 +112,7 @@ public class MediaFileHelper {
   public static final String       VIDEO_FORMAT_2160P = "2160p";
   public static final String       VIDEO_FORMAT_4320P = "4320p";
 
-  public static final List<String> VIDEO_FORMATS      = Arrays.asList(VIDEO_FORMAT_480P, VIDEO_FORMAT_540P, VIDEO_FORMAT_576P, VIDEO_FORMAT_720P,
+  public static final List<String> VIDEO_FORMATS      = List.of(VIDEO_FORMAT_480P, VIDEO_FORMAT_540P, VIDEO_FORMAT_576P, VIDEO_FORMAT_720P,
       VIDEO_FORMAT_1080P, VIDEO_FORMAT_2160P, VIDEO_FORMAT_4320P);
 
   // meta formats
@@ -154,7 +154,8 @@ public class MediaFileHelper {
     MOVIESET_ARTWORK_PATTERN = Pattern
         .compile("(?i)movieset-(poster|fanart|banner|disc|discart|logo|clearlogo|clearart|thumb)\\.(" + extensions + ")$");
     POSTER_PATTERN = Pattern.compile("(?i)(.*-poster|poster|folder|movie|.*-cover|cover)\\.(" + extensions + ")$");
-    FANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*\\.fanart|fanart)[0-9]{0,2}\\.(" + extensions + ")$");
+    FANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*\\.fanart|fanart)\\.(" + extensions + ")$");
+    EXTRAFANART_PATTERN = Pattern.compile("(?i)(.*-fanart|.*\\.fanart|fanart)[0-9]+\\.(" + extensions + ")$");
     BANNER_PATTERN = Pattern.compile("(?i)(.*-banner|banner)\\.(" + extensions + ")$");
     THUMB_PATTERN = Pattern.compile("(?i)(.*-thumb|thumb|.*-landscape|landscape)[0-9]{0,2}\\.(" + extensions + ")$");
     SEASON_POSTER_PATTERN = Pattern.compile("(?i)season([0-9]{1,4}|-specials|-all)(-poster)?\\.(" + extensions + ")$");
@@ -331,6 +332,7 @@ public class MediaFileHelper {
    */
   public static MediaFileType parseImageType(Path pathToFile) {
     String filename = pathToFile.getFileName().toString();
+    String basename = FilenameUtils.getBaseName(filename);
     String foldername = pathToFile.getParent() == null ? "" : pathToFile.getParent().toString().toLowerCase(Locale.ROOT); // just path w/o filename
 
     // movieset artwork
@@ -364,7 +366,13 @@ public class MediaFileHelper {
       return MediaFileType.POSTER;
     }
 
-    // *-fanart.* or fanart.* or *-fanartXX.* or fanartXX.*
+    // *-fanartXX.* or fanartXX.*
+    matcher = MediaFileHelper.EXTRAFANART_PATTERN.matcher(filename);
+    if (matcher.matches()) {
+      return MediaFileType.EXTRAFANART;
+    }
+
+    // *-fanart.* or fanart.*
     matcher = MediaFileHelper.FANART_PATTERN.matcher(filename);
     if (matcher.matches()) {
       // decide between fanart and extrafanart
@@ -728,7 +736,7 @@ public class MediaFileHelper {
     }
 
     // do not work further on 0 byte files
-    if (mediaFile.getFilesize() == 0) {
+    if (mediaFile.getFilesize() == 0 && StringUtils.isBlank(mediaFile.getContainerFormat())) {
       LOGGER.debug("0 Byte file detected: {}", mediaFile.getFilename());
       // set container format to do not trigger it again
       mediaFile.setContainerFormat(extension);
@@ -1997,12 +2005,23 @@ public class MediaFileHelper {
       mediaFile.setExactVideoFormat(height + "" + Character.toLowerCase(scanType.charAt(0)));
     }
 
-    String extensions = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Codec/Extensions", "Format");
-    // get first extension
-    mediaFile.setContainerFormat(getFirstEntryViaScanner(extensions).toLowerCase(Locale.ROOT));
-
-    // if container format is still empty -> insert the extension
-    if (StringUtils.isBlank(mediaFile.getContainerFormat())) {
+    String containerFormat = getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Menu_Format_List", "Format");
+    if (StringUtils.isBlank(containerFormat)) {
+      containerFormat = getFirstEntryViaScanner(getMediaInfo(miSnapshot, MediaInfo.StreamKind.General, 0, "Format/Extensions"));
+    }
+    if (StringUtils.isNotBlank(containerFormat)) {
+      if ("BDAV".equalsIgnoreCase(containerFormat)) {
+        // special handling for Blu-ray Video
+        containerFormat = "Blu-Ray Video";
+      }
+      else if ("DVD-Video".equalsIgnoreCase(containerFormat)) {
+        // string the dash from DVD-Video
+        containerFormat = "DVD Video";
+      }
+      mediaFile.setContainerFormat(containerFormat);
+    }
+    else {
+      // if container format is still empty -> insert the extension
       mediaFile.setContainerFormat(mediaFile.getExtension());
     }
 
@@ -2366,9 +2385,6 @@ public class MediaFileHelper {
 
     // vob resets wrong duration - take from ifo
     mediaFile.setDuration(ifo.getDuration());
-
-    // additional data
-    mediaFile.setContainerFormat("VIDEO_TS");
 
     // there is no exact overall bitrate for the whole DVD, so we just take the one from the biggest VOB
     String br = getMediaInfo(vob.getSnapshot(), MediaInfo.StreamKind.General, 0, "OverallBitRate");

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.IFileNaming;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
@@ -45,6 +47,15 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.movie.filenaming.IMovieSetFileNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetBannerNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetClearartNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetClearlogoNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetDiscartNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetFanartNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetLogoNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -98,6 +109,12 @@ public class MovieSetArtworkHelper {
     // we can have 0..n different media files for every type (1 in every artwork folder type and 1 in every movie folder)
     // we will give any available image in our specified artwork folder priority over the ones from the movie files
     for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
+      // get the desired artwork filenames
+      List<IMovieSetFileNaming> fileNamings = getFileNamingsForMediaFileType(type);
+      if (fileNamings.isEmpty()) {
+        continue;
+      }
+
       List<MediaFile> mediaFiles = movieSet.getMediaFiles(type);
       cleanup.addAll(mediaFiles);
 
@@ -116,36 +133,42 @@ public class MovieSetArtworkHelper {
         continue;
       }
 
-      // search in the preferred artwork folder
-      MediaFile artworkFile = findArtworkInPreferredArtworkFolder(movieSet, mediaFiles);
+      // search all available folders (with our preference)
+      MediaFile artworkFile = getArtworkFromMediaFiles(movieSet, mediaFiles, fileNamings);
       if (artworkFile == null) {
-        // search in the alternate artwork folder
-        artworkFile = findArtworkInAlternateArtworkFolder(movieSet, mediaFiles);
-      }
-      if (artworkFile == null) {
-        // search in movie folders
-        artworkFile = findArtworkInMovieFolder(mediaFiles);
+        // okay, lets search with all possible namings
+        artworkFile = getArtworkFromMediaFiles(movieSet, mediaFiles, type);
       }
 
       // now we _should_ have at least one artwork file; now distribute that to all other places (if needed)
       if (artworkFile != null) {
-        // copy to the movie set folder
-        if (artworkFolder != null) {
-          // clone mf
-          MediaFile newFile = new MediaFile(artworkFile);
-          newFile.setFile(createArtworkPathInArtworkFolder(movieSet, type, artworkFile.getExtension()));
-          boolean ok = MovieRenamer.copyFile(artworkFile.getFileAsPath(), newFile.getFileAsPath());
-          if (ok) {
-            needed.add(newFile);
+        // copy to the movie set artwork folder
+        for (Path path : createArtworkPathsInArtworkFolder(movieSet, fileNamings, artworkFile.getExtension())) {
+          try {
+            // clone mf
+            MediaFile newFile = new MediaFile(artworkFile);
+            newFile.setFile(path);
+            boolean ok = MovieRenamer.copyFile(artworkFile.getFileAsPath(), newFile.getFileAsPath());
+            if (ok) {
+              needed.add(newFile);
+            }
+            else {
+              // not copied/exception... keep it for now...
+              needed.add(artworkFile);
+            }
           }
-          else {
-            // not copied/exception... keep it for now...
-            needed.add(artworkFile);
+          catch (Exception e) {
+            LOGGER.warn("could not write files", e);
           }
         }
+
         // copy to each movie folder
-        if (MovieModuleManager.SETTINGS.isEnableMovieSetArtworkMovieFolder()) {
-          String filename = "movieset-" + type.toString().toLowerCase(Locale.ROOT) + "." + artworkFile.getExtension();
+        for (IMovieSetFileNaming filenaming : fileNamings) {
+          if (filenaming.getFolderLocation() != IMovieSetFileNaming.Location.MOVIE_FOLDER) {
+            continue;
+          }
+
+          String filename = filenaming.getFilename("", artworkFile.getExtension());
           for (Movie movie : movieSet.getMovies()) {
             try {
               if (!movie.isMultiMovieDir()) {
@@ -213,7 +236,7 @@ public class MovieSetArtworkHelper {
    */
   private static Path getArtworkFolder() {
     String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
-    if (!MovieModuleManager.SETTINGS.isEnableMovieSetArtworkFolder() || StringUtils.isBlank(artworkFolder)) {
+    if (StringUtils.isBlank(artworkFolder)) {
       return null;
     }
     return Paths.get(artworkFolder);
@@ -224,115 +247,120 @@ public class MovieSetArtworkHelper {
    * 
    * @param movieSet
    *          the movie set to create the file path for
-   * @param type
-   *          the artwork type
    * @param extension
    *          the extension of the artwork file
+   * @param filenamings
+   *          the file namings to create the paths for
    * @return a {@link Path} to the artwork file
    */
-  private static Path createArtworkPathInArtworkFolder(MovieSet movieSet, MediaFileType type, String extension) {
+  private static List<Path> createArtworkPathsInArtworkFolder(MovieSet movieSet, List<IMovieSetFileNaming> filenamings, String extension) {
     Path artworkFolder = getArtworkFolder();
     if (artworkFolder == null) {
-      return null;
+      return Collections.emptyList();
     }
 
+    List<Path> paths = new ArrayList<>();
     String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
     // also remove illegal separators
     movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
 
-    if (MovieModuleManager.SETTINGS.isMovieSetArtworkFolderStyleKodi()) {
-      // <artwork folder>/<movie set name>/<type>.ext style
-      return Paths.get(artworkFolder.toString(), movieSetName, type.toString().toLowerCase(Locale.ROOT) + "." + extension);
+    for (IMovieSetFileNaming fileNaming : filenamings) {
+      if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
+        // Kodi style: <movie set artwork folder>/<movie set name>/<artwork type>.ext
+        paths.add(Paths.get(artworkFolder.toString(), movieSetName, fileNaming.getFilename(movieSetName, extension)));
+      }
+      else if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.AUTOMATOR_STYLE_FOLDER) {
+        // Artwork Automator style: <movie set artwork folder>/<movie set name>-<artwork type>.ext
+        paths.add(Paths.get(artworkFolder.toString(), fileNaming.getFilename(movieSetName, extension)));
+      }
     }
-    else {
-      // <artwork folder>/<movie set name>-<type>.ext style
-      return Paths.get(artworkFolder.toString(),
-          MovieRenamer.replaceInvalidCharacters(movieSet.getTitle()) + "-" + type.name().toLowerCase(Locale.ROOT) + "." + extension);
-    }
+
+    return paths;
   }
 
   /**
-   * find the artwork from the preferred artwork folder
+   * find the artwork from the artwork folder
    * 
    * @param movieSet
    *          the {@link MovieSet} to find the artwork for
    * @param mediaFiles
-   *          a list of all available {@link MediaFile}s for this artwork type
+   *          the {@link MediaFile}s to search the artwork for
+   * @param type
+   *          the {@link MediaFileType} to search the artwork for
    * @return the {@link MediaFile} in the preferred artwork folder or null
    */
-  private static MediaFile findArtworkInPreferredArtworkFolder(MovieSet movieSet, List<MediaFile> mediaFiles) {
+  private static MediaFile getArtworkFromMediaFiles(MovieSet movieSet, List<MediaFile> mediaFiles, MediaFileType type) {
+    switch (type) {
+      case POSTER:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetPosterNaming.values()));
+
+      case FANART:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetFanartNaming.values()));
+
+      case BANNER:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetBannerNaming.values()));
+
+      case CLEARART:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetClearartNaming.values()));
+
+      case LOGO:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetLogoNaming.values()));
+
+      case CLEARLOGO:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetClearlogoNaming.values()));
+
+      case THUMB:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetThumbNaming.values()));
+
+      case DISC:
+        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetDiscartNaming.values()));
+
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * find the artwork from the artwork folder
+   *
+   * @param movieSet
+   *          the {@link MovieSet} to find the artwork for
+   * @param mediaFiles
+   *          the {@link MediaFile}s to search the artwork for
+   * @param fileNamings
+   *          a list of all available {@link IMovieSetFileNaming}s for this artwork type
+   * @return the {@link MediaFile} in the preferred artwork folder or null
+   */
+  private static MediaFile getArtworkFromMediaFiles(MovieSet movieSet, List<MediaFile> mediaFiles, List<IMovieSetFileNaming> fileNamings) {
     Path artworkFolder = getArtworkFolder();
     if (artworkFolder == null) {
       return null;
     }
 
-    for (MediaFile mediaFile : mediaFiles) {
-      // a) is the artwork in the preferred artwork folder?
-      if (MovieModuleManager.SETTINGS.isMovieSetArtworkFolderStyleKodi()) {
+    for (IMovieSetFileNaming fileNaming : fileNamings) {
+      for (MediaFile mediaFile : mediaFiles) {
         String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
-        // also remove illegal separators
-        movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
-
-        if (mediaFile.getFileAsPath().startsWith(artworkFolder.resolve(movieSetName))) {
-          return mediaFile;
+        if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
+          // Kodi style: <movie set artwork folder>/<movie set name>/<artwork type>.ext
+          Path path = Paths.get(artworkFolder.toString(), movieSetName, fileNaming.getFilename(movieSetName, ""));
+          if (mediaFile.getFileAsPath().startsWith(artworkFolder.resolve(movieSetName))) {
+            return mediaFile;
+          }
         }
-      }
-      else {
-        if (mediaFile.getFileAsPath().startsWith(artworkFolder)) {
-          return mediaFile;
+        else if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.AUTOMATOR_STYLE_FOLDER) {
+          // Artwork Automator style: <movie set artwork folder>/<movie set name>-<artwork type>.ext
+          Path path = Paths.get(artworkFolder.toString(), fileNaming.getFilename(movieSetName, ""));
+          if (mediaFile.getFileAsPath().startsWith(artworkFolder.resolve(movieSetName))) {
+            return mediaFile;
+          }
         }
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * find the artwork from the alternate artwork folder
-   *
-   * @param movieSet
-   *          the {@link MovieSet} to find the artwork for
-   * @param mediaFiles
-   *          a list of all available {@link MediaFile}s for this artwork type
-   * @return the {@link MediaFile} in the alternate artwork folder or null
-   */
-  private static MediaFile findArtworkInAlternateArtworkFolder(MovieSet movieSet, List<MediaFile> mediaFiles) {
-    if (!MovieModuleManager.SETTINGS.isEnableMovieSetArtworkFolder() || StringUtils.isBlank(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder())) {
-      return null;
-    }
-
-    Path artworkFolder = Paths.get(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder());
-
-    for (MediaFile mediaFile : mediaFiles) {
-      // a) is the artwork in the preferred artwork folder?
-      if (MovieModuleManager.SETTINGS.isMovieSetArtworkFolderStyleKodi()) {
-        if (mediaFile.getFileAsPath().startsWith(artworkFolder)) {
-          return mediaFile;
+        else {
+          if (mediaFile.getFilename().contains(fileNaming.getFilename("", ""))) {
+            return mediaFile;
+          }
         }
-      }
-      else {
-        String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
-
-        // also remove illegal separators
-        movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
-
-        if (mediaFile.getFileAsPath().startsWith(artworkFolder.resolve(movieSetName))) {
-          return mediaFile;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private static MediaFile findArtworkInMovieFolder(List<MediaFile> mediaFiles) {
-    Path artworkFolder = getArtworkFolder();
-
-    for (MediaFile mediaFile : mediaFiles) {
-      if (artworkFolder == null || !mediaFile.getFileAsPath().startsWith(artworkFolder)) {
-        return mediaFile;
       }
     }
 
@@ -347,7 +375,7 @@ public class MovieSetArtworkHelper {
    */
   private static void findArtworkInArtworkFolder(MovieSet movieSet) {
     String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
-    if (!MovieModuleManager.SETTINGS.isEnableMovieSetArtworkFolder() || StringUtils.isBlank(artworkFolder)) {
+    if (StringUtils.isBlank(artworkFolder)) {
       return;
     }
 
@@ -642,19 +670,22 @@ public class MovieSetArtworkHelper {
    *          the movies to write the artwork to
    */
   public static void writeImagesToMovieFolder(MovieSet movieSet, List<Movie> movies) {
-    if (!MovieModuleManager.SETTINGS.isEnableMovieSetArtworkMovieFolder()) {
-      return;
-    }
-
     for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
-      String url = movieSet.getArtworkUrl(type);
-      if (StringUtils.isBlank(url)) {
-        continue;
-      }
+      List<IMovieSetFileNaming> fileNamings = getFileNamingsForMediaFileType(type);
+      for (IMovieSetFileNaming fileNaming : fileNamings) {
+        if (fileNaming.getFolderLocation() != IMovieSetFileNaming.Location.MOVIE_FOLDER) {
+          continue;
+        }
 
-      // get image in thread
-      MovieSetImageFetcherTask task = new MovieSetImageFetcherTask(movieSet, url, type, movies);
-      TmmTaskManager.getInstance().addImageDownloadTask(task);
+        String url = movieSet.getArtworkUrl(type);
+        if (StringUtils.isBlank(url)) {
+          continue;
+        }
+
+        // get image in thread
+        MovieSetImageFetcherTask task = new MovieSetImageFetcherTask(movieSet, url, type, Collections.singletonList(fileNaming), movies);
+        TmmTaskManager.getInstance().addImageDownloadTask(task);
+      }
     }
   }
 
@@ -693,7 +724,7 @@ public class MovieSetArtworkHelper {
     }
 
     // and also remove any empty subfolders from the artwork folder
-    if (!MovieModuleManager.SETTINGS.isEnableMovieSetArtworkFolder() || StringUtils.isBlank(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder())) {
+    if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder())) {
       return;
     }
 
@@ -784,15 +815,13 @@ public class MovieSetArtworkHelper {
   }
 
   private static class MovieSetImageFetcherTask implements Runnable {
-    private MovieSet        movieSet;
-    private String          urlToArtwork;
-    private MediaFileType   type;
-    private boolean         writeToArtworkFolder;
-    private String          artworkFolder;
-    private boolean         artworkStyleKodi;
-    private boolean         writeToMovieFolder;
-    private List<MediaFile> writtenArtworkFiles;
-    private List<Movie>     movies;
+    private final MovieSet                  movieSet;
+    private final String                    urlToArtwork;
+    private final MediaFileType             type;
+
+    private final List<IMovieSetFileNaming> fileNamings         = new ArrayList<>();
+    private final List<Movie>               movies              = new ArrayList<>();
+    private final List<MediaFile>           writtenArtworkFiles = new ArrayList<>();
 
     /**
      * This constructor is needed to write a kind of artwork to the configured locations (or cache dir if nothing specified)
@@ -802,26 +831,10 @@ public class MovieSetArtworkHelper {
      * @param url
      *          the url to the artwork
      * @param type
-     *          the artwork type
+     *          the media file type to store the artwork for
      */
     private MovieSetImageFetcherTask(MovieSet movieSet, String url, MediaFileType type) {
-      this.movieSet = movieSet;
-      this.urlToArtwork = url;
-      this.type = type;
-      this.writtenArtworkFiles = new ArrayList<>();
-      this.movies = new ArrayList<>(movieSet.getMovies());
-
-      this.writeToMovieFolder = MovieModuleManager.SETTINGS.isEnableMovieSetArtworkMovieFolder();
-      this.artworkFolder = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
-      this.writeToArtworkFolder = MovieModuleManager.SETTINGS.isEnableMovieSetArtworkFolder() && StringUtils.isNotBlank(artworkFolder);
-      if (MovieModuleManager.SETTINGS.isMovieSetArtworkFolderStyleKodi()) {
-        // Kodi/Artwork Beef style
-        this.artworkStyleKodi = true;
-      }
-      else {
-        // Movie Set Srtwork Automator style
-        this.artworkStyleKodi = false;
-      }
+      this(movieSet, url, type, movieSet.getMovies());
     }
 
     /**
@@ -832,20 +845,34 @@ public class MovieSetArtworkHelper {
      * @param url
      *          the url to the artwork
      * @param type
-     *          the artwork type
+     *          the media file type to store the artwork for
      * @param movies
      *          the list of movies to write the artwork to
      */
     private MovieSetImageFetcherTask(MovieSet movieSet, String url, MediaFileType type, List<Movie> movies) {
+      this(movieSet, url, type, getFileNamingsForMediaFileType(type), movies);
+    }
+
+    /**
+     * This constructor is needed to (re)write a kind of artwork to the given list of movies
+     *
+     * @param movieSet
+     *          the movie set
+     * @param url
+     *          the url to the artwork
+     * @param type
+     *          the media file type to store the artwork for
+     * @param fileNamings
+     *          all file namings to write the artwork for
+     * @param movies
+     *          the list of movies to write the artwork to
+     */
+    private MovieSetImageFetcherTask(MovieSet movieSet, String url, MediaFileType type, List<IMovieSetFileNaming> fileNamings, List<Movie> movies) {
       this.movieSet = movieSet;
       this.urlToArtwork = url;
       this.type = type;
-      this.writtenArtworkFiles = new ArrayList<>();
-      this.movies = new ArrayList<>(movies);
-
-      this.writeToMovieFolder = MovieModuleManager.SETTINGS.isEnableMovieSetArtworkMovieFolder();
-      this.artworkFolder = "";
-      this.writeToArtworkFolder = false;
+      this.fileNamings.addAll(fileNamings);
+      this.movies.addAll(movies);
     }
 
     @Override
@@ -864,14 +891,12 @@ public class MovieSetArtworkHelper {
 
           // and then write it to the desired files
           movieSet.removeAllMediaFiles(type);
-          if (writeToArtworkFolder) {
+
+          if (!fileNamings.isEmpty()) {
             writeImageToArtworkFolder(bytes, extension);
-          }
-          if (writeToMovieFolder) {
             writeImageToMovieFolders(bytes, extension);
           }
-          if (!writeToArtworkFolder && !writeToMovieFolder) {
-            // at least cache it
+          else {
             writeImageToCacheFolder(bytes);
           }
 
@@ -890,52 +915,33 @@ public class MovieSetArtworkHelper {
     }
 
     private void writeImageToArtworkFolder(byte[] bytes, String extension) {
-      String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
+      List<Path> paths = createArtworkPathsInArtworkFolder(movieSet, fileNamings, extension);
 
-      // also remove path separators
-      movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+      for (Path path : paths) {
+        // check if folder exists
+        if (!Files.exists(path.getParent())) {
+          try {
+            Files.createDirectories(path.getParent());
+          }
+          catch (IOException e) {
+            LOGGER.warn("could not create directory '{}' - {} ", path.getParent(), e.getMessage());
+          }
+        }
 
-      Path artworkFolderPath;
-      if (artworkStyleKodi) {
-        // <artwork folder>/<movie set name>/<type>.ext style
-        artworkFolderPath = Paths.get(artworkFolder, movieSetName);
-      }
-      else {
-        // <artwork folder>/<movie set name>-<type>.ext style
-        artworkFolderPath = Paths.get(artworkFolder);
-      }
-
-      // check if folder exists
-      if (!Files.exists(artworkFolderPath)) {
+        // write files
         try {
-          Files.createDirectories(artworkFolderPath);
+          writeImage(bytes, path);
+
+          MediaFile artwork = new MediaFile(path, type);
+          artwork.gatherMediaInformation();
+          writtenArtworkFiles.add(artwork);
+
+          ImageCache.invalidateCachedImage(artwork);
+          ImageCache.cacheImageSilently(artwork);
         }
-        catch (IOException e) {
-          LOGGER.warn("could not create directory '{}' - {} ", artworkFolderPath, e.getMessage());
+        catch (Exception e) {
+          LOGGER.warn("could not write file", e);
         }
-      }
-
-      // write files
-      try {
-        String filename = "";
-        if (!artworkStyleKodi) {
-          // <movie set name>-<type>.ext style
-          filename = movieSetName + "-";
-        }
-        filename += type.name().toLowerCase(Locale.ROOT) + "." + extension;
-
-        Path imageFile = artworkFolderPath.resolve(filename);
-        writeImage(bytes, imageFile);
-
-        MediaFile artwork = new MediaFile(imageFile, type);
-        artwork.gatherMediaInformation();
-        writtenArtworkFiles.add(artwork);
-
-        ImageCache.invalidateCachedImage(artwork);
-        ImageCache.cacheImageSilently(artwork);
-      }
-      catch (Exception e) {
-        LOGGER.warn("could not write file", e);
       }
     }
 
@@ -945,25 +951,30 @@ public class MovieSetArtworkHelper {
         return;
       }
 
-      String filename = "movieset-" + type.name().toLowerCase(Locale.ROOT) + "." + extension;
+      List<IMovieSetFileNaming> movieFileNamings = fileNamings.stream()
+          .filter(fileNaming -> fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.MOVIE_FOLDER).collect(Collectors.toList());
 
-      // write image for all movies
-      for (Movie movie : movies) {
-        try {
-          if (!movie.isMultiMovieDir()) {
-            Path imageFile = movie.getPathNIO().resolve(filename);
-            writeImage(bytes, imageFile);
+      for (IMovieSetFileNaming fileNaming : movieFileNamings) {
+        String filename = fileNaming.getFilename("", extension);
 
-            MediaFile artwork = new MediaFile(imageFile, type);
-            artwork.gatherMediaInformation();
-            writtenArtworkFiles.add(artwork);
+        // write image for all movies
+        for (Movie movie : movies) {
+          try {
+            if (!movie.isMultiMovieDir()) {
+              Path imageFile = movie.getPathNIO().resolve(filename);
+              writeImage(bytes, imageFile);
 
-            ImageCache.invalidateCachedImage(artwork);
-            ImageCache.cacheImageSilently(artwork);
+              MediaFile artwork = new MediaFile(imageFile, type);
+              artwork.gatherMediaInformation();
+              writtenArtworkFiles.add(artwork);
+
+              ImageCache.invalidateCachedImage(artwork);
+              ImageCache.cacheImageSilently(artwork);
+            }
           }
-        }
-        catch (Exception e) {
-          LOGGER.warn("could not write files", e);
+          catch (Exception e) {
+            LOGGER.warn("could not write files", e);
+          }
         }
       }
     }
@@ -993,5 +1004,55 @@ public class MovieSetArtworkHelper {
       outputStream.close();
       is.close();
     }
+  }
+
+  /**
+   * get all configured {@link IFileNaming}s for the given {@link MediaFileType}
+   *
+   * @param type
+   *          the file type
+   * @return a list of all configured file namings
+   */
+  private static List<IMovieSetFileNaming> getFileNamingsForMediaFileType(MediaFileType type) {
+    List<IMovieSetFileNaming> fileNamings = new ArrayList<>(0);
+
+    switch (type) {
+      case FANART:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetFanartFilenames());
+        break;
+
+      case POSTER:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetPosterFilenames());
+        break;
+
+      case LOGO:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetLogoFilenames());
+        break;
+
+      case CLEARLOGO:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetClearlogoFilenames());
+        break;
+
+      case BANNER:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetBannerFilenames());
+        break;
+
+      case CLEARART:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetClearartFilenames());
+        break;
+
+      case THUMB:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetThumbFilenames());
+        break;
+
+      case DISC:
+        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetDiscartFilenames());
+        break;
+
+      default:
+        break;
+    }
+
+    return fileNamings;
   }
 }

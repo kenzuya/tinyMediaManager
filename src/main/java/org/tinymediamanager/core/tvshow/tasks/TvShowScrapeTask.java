@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
@@ -62,7 +63,7 @@ import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
  * @author Manuel Laggner
  */
 public class TvShowScrapeTask extends TmmThreadPool {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
+  private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
   private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<TvShow>                             tvShowsToScrape;
@@ -243,7 +244,12 @@ public class TvShowScrapeTask extends TmmThreadPool {
               TvShowHelpers.startAutomaticTrailerDownload(tvShow);
             }
 
-          } catch (ScrapeException e) {
+            // download theme
+            if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
+              TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow)));
+            }
+          }
+          catch (ScrapeException e) {
             LOGGER.error("getTvShowMetadata", e);
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.metadatatvshowfailed",
                 new String[] { ":", e.getLocalizedMessage() }));
@@ -293,8 +299,9 @@ public class TvShowScrapeTask extends TmmThreadPool {
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
-                  new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.tvshowartworkfailed", new String[]{":", e.getLocalizedMessage()}));
-        } catch (MissingIdException ignored) {
+              new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
+        }
+        catch (MissingIdException ignored) {
           LOGGER.debug("no id avaiable for scraper {}", artworkScraper.getId());
         }
       }
@@ -318,11 +325,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
         try {
           ITvShowTrailerProvider trailerProvider = (ITvShowTrailerProvider) trailerScraper.getMediaProvider();
           trailers.addAll(trailerProvider.getTrailers(options));
-        } catch (ScrapeException e) {
+        }
+        catch (ScrapeException e) {
           LOGGER.error("getTrailers", e);
-          MessageManager.instance.pushMessage(
-                  new Message(MessageLevel.ERROR, tvShow, "message.scrape.trailerfailed", new String[]{":", e.getLocalizedMessage()}));
-        } catch (MissingIdException e) {
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, tvShow, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
+        }
+        catch (MissingIdException e) {
           LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
         }
       }

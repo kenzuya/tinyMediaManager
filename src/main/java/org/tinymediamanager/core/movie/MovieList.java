@@ -103,6 +103,7 @@ public class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<Double>             frameRatesInMovies;
   private final CopyOnWriteArrayList<Integer>            audioStreamsInMovies;
   private final CopyOnWriteArrayList<Integer>            subtitlesInMovies;
+  private final CopyOnWriteArrayList<String>             audioLanguagesInMovies;
 
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
@@ -126,6 +127,7 @@ public class MovieList extends AbstractModelObject {
     frameRatesInMovies = new CopyOnWriteArrayList<>();
     audioStreamsInMovies = new CopyOnWriteArrayList<>();
     subtitlesInMovies = new CopyOnWriteArrayList<>();
+    audioLanguagesInMovies = new CopyOnWriteArrayList<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -873,10 +875,11 @@ public class MovieList extends AbstractModelObject {
   private void updateMediaInformationLists(Collection<Movie> movies) {
     Set<String> videoCodecs = new HashSet<>();
     Set<Double> frameRates = new HashSet<>();
-    Set<String> videoContainers = new HashSet<>();
+    Map<String, String> videoContainers = new HashMap<>();
     Set<String> audioCodecs = new HashSet<>();
     Set<Integer> audioStreamCount = new HashSet<>();
     Set<Integer> subtitleCount = new HashSet<>();
+    Set<String> audioLanguages = new HashSet<>();
 
     for (Movie movie : movies) {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
@@ -892,7 +895,7 @@ public class MovieList extends AbstractModelObject {
 
         // video container
         if (StringUtils.isNotBlank(mf.getContainerFormat())) {
-          videoContainers.add(mf.getContainerFormat().toLowerCase(Locale.ROOT));
+          videoContainers.putIfAbsent(mf.getContainerFormat().toLowerCase(Locale.ROOT), mf.getContainerFormat());
         }
 
         // audio codec
@@ -910,6 +913,13 @@ public class MovieList extends AbstractModelObject {
         if (!mf.getSubtitles().isEmpty()) {
           subtitleCount.add(mf.getSubtitles().size());
         }
+
+        // audio language
+        if (!mf.getAudioLanguagesList().isEmpty()) {
+          for (String lang : mf.getAudioLanguagesList()) {
+            audioLanguages.add(lang);
+          }
+        }
       }
     }
 
@@ -924,7 +934,7 @@ public class MovieList extends AbstractModelObject {
     }
 
     // video container
-    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoContainersInMovies, videoContainers)) {
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(videoContainersInMovies, videoContainers.values())) {
       firePropertyChange(Constants.VIDEO_CONTAINER, null, videoContainersInMovies);
     }
 
@@ -941,6 +951,11 @@ public class MovieList extends AbstractModelObject {
     // subtitles
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitlesInMovies, subtitleCount)) {
       firePropertyChange(Constants.SUBTITLES_COUNT, null, subtitlesInMovies);
+    }
+
+    // audio languages
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioLanguagesInMovies, audioLanguages)) {
+      firePropertyChange(Constants.AUDIO_LANGUAGES,null,audioLanguagesInMovies);
     }
   }
 
@@ -1003,6 +1018,10 @@ public class MovieList extends AbstractModelObject {
 
   public Collection<Integer> getSubtitlesInMovies() {
     return subtitlesInMovies;
+  }
+
+  public Collection<String> getAudioLanguagesInMovies() {
+    return audioLanguagesInMovies;
   }
 
   /**

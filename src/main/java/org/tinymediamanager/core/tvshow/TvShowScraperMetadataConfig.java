@@ -64,13 +64,16 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
 
   SEASON_POSTER(Type.ARTWORK),
   SEASON_BANNER(Type.ARTWORK),
-  SEASON_THUMB(Type.ARTWORK);
+  SEASON_THUMB(Type.ARTWORK),
+
+  // theme
+  THEME(Type.THEME);
 
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
-  private Type                        type;
-  private String                      description;
-  private String                      tooltip;
+  private final Type                  type;
+  private final String                description;
+  private final String                tooltip;
 
   TvShowScraperMetadataConfig(Type type) {
     this(type, null, null);
@@ -95,7 +98,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   public String getDescription() {
     if (StringUtils.isBlank(description)) {
       try {
-        if (type == Type.ARTWORK) {
+        if (type == Type.ARTWORK || type == Type.THEME) {
           return BUNDLE.getString("mediafiletype." + name().toLowerCase(Locale.ROOT));
         }
         else {

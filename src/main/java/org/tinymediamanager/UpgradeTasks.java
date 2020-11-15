@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager;
 
+import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,10 +29,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
 import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.sun.jna.Platform;
@@ -138,6 +149,72 @@ public class UpgradeTasks {
     // NEEDED FOR NIGHTLY SNAPSHOTS ET ALL
     // GIT BUILD IS ALSO CONSIDERED AS LOWER !!!
     // ****************************************************
+    if (StrgUtils.compareVersion(v, "4.0.6") < 0) {
+      // upgrade extrafanart settings
+      if (MovieModuleManager.SETTINGS.isImageExtraFanart() && MovieModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty()) {
+        MovieModuleManager.SETTINGS.addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
+        MovieModuleManager.SETTINGS.saveSettings();
+      }
+      if (TvShowModuleManager.SETTINGS.isImageExtraFanart() && TvShowModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty()) {
+        TvShowModuleManager.SETTINGS.addExtraFanartFilename(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
+        TvShowModuleManager.SETTINGS.saveSettings();
+      }
+
+      // update container formats
+      for (Movie movie : movieList.getMovies()) {
+        boolean dirty = false;
+
+        for (MediaFile mediaFile : movie.getMediaFiles(MediaFileType.VIDEO)) {
+          dirty = dirty || upgradeContainerFormat(mediaFile);
+        }
+
+        if (dirty) {
+          movie.saveToDb();
+          movie.firePropertyChange(MEDIA_INFORMATION, false, true);
+        }
+      }
+
+      // update container formats
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          boolean dirty = false;
+
+          for (MediaFile mediaFile : episode.getMediaFiles(MediaFileType.VIDEO)) {
+            dirty = dirty || upgradeContainerFormat(mediaFile);
+          }
+
+          if (dirty) {
+            episode.saveToDb();
+            episode.firePropertyChange(MEDIA_INFORMATION, false, true);
+          }
+        }
+      }
+    }
+  }
+
+  private static boolean upgradeContainerFormat(MediaFile mediaFile) {
+    switch (mediaFile.getContainerFormat().toLowerCase()) {
+      case "video_ts":
+      case "mpeg-ps":
+      case "dvd-video":
+        mediaFile.setContainerFormat("DVD Video");
+        return true;
+
+      case "bdav":
+        mediaFile.setContainerFormat("Blu-ray Video");
+        return true;
+
+      case "matroska":
+        mediaFile.setContainerFormat("Matroska");
+        return true;
+
+      case "mpeg-4":
+        mediaFile.setContainerFormat("MPEG-4");
+        return true;
+
+      default:
+        return false;
+    }
   }
 
   /**

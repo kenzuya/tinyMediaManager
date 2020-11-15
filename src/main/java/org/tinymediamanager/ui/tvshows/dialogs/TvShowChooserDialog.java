@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static java.util.Locale.ROOT;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -284,6 +286,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         panelScraperConfig.add(lblTvShowsT, "cell 0 1,alignx trailing");
 
         cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.values());
+        cbTvShowScraperConfig.enableFilter(
+            (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbTvShowScraperConfig, "cell 1 1,grow, wmin 0");
       }
       {
@@ -291,6 +295,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         panelScraperConfig.add(lblEpisodesT, "cell 0 2,alignx trailing");
 
         cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowEpisodeScraperMetadataConfig.values());
+        cbEpisodeScraperConfig.enableFilter(
+            (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbEpisodeScraperConfig, "cell 1 2,grow, wmin 0");
       }
     }
@@ -510,6 +516,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           // get trailers?
           if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.TRAILER)) {
             model.startTrailerScrapeTask(tvShowToScrape);
+          }
+
+          // get theme?
+          if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
+            model.startThemeDownloadTask(tvShowToScrape);
           }
 
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

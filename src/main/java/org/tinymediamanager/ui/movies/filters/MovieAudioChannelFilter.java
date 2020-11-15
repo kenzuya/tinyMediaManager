@@ -20,6 +20,7 @@ import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 
@@ -41,6 +42,7 @@ public class MovieAudioChannelFilter extends AbstractCheckComboBoxMovieUIFilter<
 
   public MovieAudioChannelFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     setValues(CHANNEL_1, CHANNEL_2, CHANNEL_3, CHANNEL_6, CHANNEL_8);
   }
 

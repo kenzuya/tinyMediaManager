@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.tvshows.filters;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 
@@ -35,6 +36,7 @@ public class TvShowVideoFormatFilter extends AbstractCheckComboBoxTvShowUIFilter
 
   public TvShowVideoFormatFilter() {
     super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     setValues(MediaFileHelper.getVideoFormats());
   }
 
