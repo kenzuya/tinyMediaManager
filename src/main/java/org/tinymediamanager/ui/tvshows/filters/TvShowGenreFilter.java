@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -50,17 +51,17 @@ public class TvShowGenreFilter extends AbstractCheckComboBoxTvShowUIFilter<Media
     List<MediaGenres> selectedItems = checkComboBox.getSelectedItems();
 
     // check for explicit empty search
-    if (invert ^ (selectedItems.isEmpty() && tvShow.getGenres().isEmpty())) {
+    if (!invert && (selectedItems.isEmpty() && tvShow.getGenres().isEmpty())) {
+      return true;
+    }
+    else if (invert && (selectedItems.isEmpty() && !tvShow.getGenres().isEmpty())) {
       return true;
     }
 
-    // check for all values
-    for (MediaGenres genre : selectedItems) {
-      if (invert ^ tvShow.getGenres().contains(genre)) {
-        return true;
-      }
-    }
-    return false;
+    // n:m match is kinda hard
+    // if we want a "direct" search, the TV show entries must contain any of the given list
+    // if we want a negative search, the TV show entries must not contain all of the given list
+    return invert == Collections.disjoint(selectedItems, tvShow.getGenres());
   }
 
   @Override

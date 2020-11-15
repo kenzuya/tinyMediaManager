@@ -16,6 +16,7 @@ x enhanced detection of container formats #1038
 x added more icons for media sources #1069
 x fetching 0.0 rated movies
 x detect 4 digit episode numbers
+x fixed TV show genre filter #1104
 
 
 Version 4.0.5
