@@ -32,9 +32,12 @@ import javax.swing.JOptionPane;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.core.tvshow.tasks.TvShowReloadMediaInformationTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -42,20 +45,20 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
- * the class {@link TvShowDeleteMediainfoXmlAction} is used to delete mediainfo.xml for selected TV shows/episodes
+ * the class {@link TvShowRebuildMediainfoXmlAction} is used to delete mediainfo.xml for selected TV shows/episodes and rebuild it afterwards
  *
  * @author Manuel Laggner
  */
-public class TvShowDeleteMediainfoXmlAction extends TmmAction {
+public class TvShowRebuildMediainfoXmlAction extends TmmAction {
 
   private static final long           serialVersionUID = -2029243504238273761L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  public TvShowDeleteMediainfoXmlAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.deletemediainfoxml"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.deletemediainfoxml"));
-    putValue(SMALL_ICON, IconManager.DELETE);
-    putValue(LARGE_ICON_KEY, IconManager.DELETE);
+  public TvShowRebuildMediainfoXmlAction() {
+    putValue(NAME, BUNDLE.getString("tvshow.rebuildmediainfoxml"));
+    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.rebuildmediainfoxml"));
+    putValue(SMALL_ICON, IconManager.REFRESH);
+    putValue(LARGE_ICON_KEY, IconManager.REFRESH);
   }
 
   @Override
@@ -120,5 +123,9 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
         episode.removeFromMediaFiles(mediaFile);
       });
     }
+
+    // get data of all files within all selected TV shows/episodes
+    TmmThreadPool task = new TvShowReloadMediaInformationTask(selectedTvShows, new ArrayList<>(selectedEpisodes));
+    TmmTaskManager.getInstance().addMainTask(task);
   }
 }

@@ -17,6 +17,7 @@ x added more icons for media sources #1069
 x fetching 0.0 rated movies
 x detect 4 digit episode numbers
 x fixed TV show genre filter #1104
+x separated reload media information from rewriting the mediainfo.xml file #1105
 
 
 Version 4.0.5

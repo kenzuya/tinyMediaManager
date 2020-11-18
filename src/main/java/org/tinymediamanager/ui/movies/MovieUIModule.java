@@ -51,6 +51,7 @@ import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
 import org.tinymediamanager.ui.movies.actions.MovieMediaInformationAction;
 import org.tinymediamanager.ui.movies.actions.MovieReadNfoAction;
 import org.tinymediamanager.ui.movies.actions.MovieRebuildImageCacheAction;
+import org.tinymediamanager.ui.movies.actions.MovieRebuildMediainfoXmlAction;
 import org.tinymediamanager.ui.movies.actions.MovieRemoveAction;
 import org.tinymediamanager.ui.movies.actions.MovieRenameAction;
 import org.tinymediamanager.ui.movies.actions.MovieRenamePreviewAction;
@@ -177,8 +178,13 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieUpdateAction.class));
     popupMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
     popupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
-    popupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
-    popupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
+
+    JMenu mediainfoMenu = new JMenu(BUNDLE.getString("metatag.mediainformation"));
+    mediainfoMenu.setIcon(IconManager.MENU);
+    mediainfoMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
+    mediainfoMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
+    mediainfoMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
+    popupMenu.add(mediainfoMenu);
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieEditAction.class));

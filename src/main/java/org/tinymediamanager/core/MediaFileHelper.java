@@ -761,35 +761,35 @@ public class MediaFileHelper {
     }
 
     // get media info
-    boolean readXml = !force; // we try to read the XML unless we force re-reading of MI
     LOGGER.debug("start MediaInfo for {}", mediaFile.getFileAsPath());
+
+    LOGGER.trace("try to read XML");
+    List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
     try {
-      List<MediaInfoFile> mediaInfoFiles;
-      if (BINARY_FILETYPES.contains(extension)) {
-        // just parse via XML
-        Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
-        mediaInfoFiles = detectRelevantFiles(parseMediaInfoXml(xmlFile));
+      // just parse via XML
+      Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
+      mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
+
+      if (!mediaInfoFiles.isEmpty()) {
+        parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
       }
-      else if (mediaFile.isISO()) {
-        mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, readXml);
-      }
-      else {
-        mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile, readXml);
-      }
-      parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
     }
     catch (Exception e) {
-      if (readXml) {
-        // reading mediainfo failed; re-read without XML
-        LOGGER.debug("could not read mediainfo data - maybe a broken XML? {}", e.getMessage());
+      mediaInfoFiles.clear();
+      // reading mediainfo failed; re-read without XML
+      LOGGER.debug("could not read mediainfo data - maybe a broken XML? {}", e.getMessage());
+    }
 
-        List<MediaInfoFile> mediaInfoFiles;
-        if (mediaFile.isISO()) {
-          mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile, false);
-        }
-        else {
-          mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile, false);
-        }
+    // read mediainfo directly
+    if (mediaInfoFiles.isEmpty()) {
+      if (mediaFile.isISO()) {
+        mediaInfoFiles = getMediaInfoSnapshotFromISO(mediaFile);
+      }
+      else {
+        mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile);
+      }
+
+      if (!mediaInfoFiles.isEmpty()) {
         parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
       }
     }
@@ -977,24 +977,9 @@ public class MediaFileHelper {
    *
    * @param mediaFile
    *          the media file
-   * @param readXml
-   *          the the mediainfo.xml file
    * @return a {@link List} of all associated files along with libmediainfo data
    */
-  private static synchronized List<MediaInfoFile> getMediaInfoFromSingleFile(MediaFile mediaFile, boolean readXml) {
-    List<MediaInfoFile> miFiles;
-
-    // check if we have a snapshot xml, and load all DVD files from XML
-    if (readXml) {
-      // check if we have a snapshot xml
-      Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
-      miFiles = parseMediaInfoXml(xmlFile);
-
-      if (!miFiles.isEmpty()) {
-        return detectRelevantFiles(miFiles);
-      }
-    }
-
+  private static synchronized List<MediaInfoFile> getMediaInfoFromSingleFile(MediaFile mediaFile) {
     if (!MediaInfoUtils.USE_LIBMEDIAINFO) {
       return Collections.emptyList();
     }
@@ -1071,22 +1056,10 @@ public class MediaFileHelper {
    *
    * @param mediaFile
    *          the media file
-   * @param readXml
-   *          read the mediainfo.xml file
    * @return a {@link List} of all associated files along with libmediainfo data
    */
-  private static synchronized List<MediaInfoFile> getMediaInfoSnapshotFromISO(MediaFile mediaFile, boolean readXml) {
+  private static synchronized List<MediaInfoFile> getMediaInfoSnapshotFromISO(MediaFile mediaFile) {
     List<MediaInfoFile> miFiles;
-
-    // check if we have a snapshot xml, and load all DVD files from XML
-    if (readXml) {
-      Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
-      miFiles = parseMediaInfoXml(xmlFile);
-
-      if (!miFiles.isEmpty()) {
-        return miFiles;
-      }
-    }
 
     if (!MediaInfoUtils.USE_LIBMEDIAINFO) {
       return Collections.emptyList();
@@ -1411,8 +1384,6 @@ public class MediaFileHelper {
     List<MediaInfoFile> relevantFiles = new ArrayList<>();
     relevantFiles.add(evo);
 
-    // Todo check if there is more data in the IFO is we have a good test example
-
     return relevantFiles;
   }
 
@@ -1566,8 +1537,8 @@ public class MediaFileHelper {
    * @return the requested value or an empty string
    */
   public static String getMediaInfoDirect(MediaFile mediaFile, MediaInfo.StreamKind streamKind, int streamNumber, String... keys) {
-    List<MediaInfoFile> mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile, false);
-    if (mediaInfoFiles.size() >= 1) {
+    List<MediaInfoFile> mediaInfoFiles = getMediaInfoFromSingleFile(mediaFile);
+    if (!mediaInfoFiles.isEmpty()) {
       return getMediaInfo(mediaInfoFiles.get(0).getSnapshot(), streamKind, streamNumber, keys);
     }
     return "";
