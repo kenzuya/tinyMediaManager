@@ -1332,17 +1332,23 @@ public class MediaFileHelper {
    */
   private static List<MediaInfoFile> detectRelevantBlurayFiles(List<MediaInfoFile> mediaInfoFiles) {
     // a) find the "main" title (biggest m2ts file)
-    MediaInfoFile m2ts = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
+    MediaInfoFile mainVideo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
         .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
 
-    if (m2ts == null) {
+    if (mainVideo == null) {
+      // no m2ts? maybe a mpls
+      mainVideo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("mpls"))
+          .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+    }
+
+    if (mainVideo == null) {
       return Collections.emptyList();
     }
 
     List<MediaInfoFile> relevantFiles = new ArrayList<>();
-    relevantFiles.add(m2ts);
+    relevantFiles.add(mainVideo);
 
-    String basename = FilenameUtils.getBaseName(m2ts.getFilename());
+    String basename = FilenameUtils.getBaseName(mainVideo.getFilename());
 
     // b) check if there is a SSIF file with the same basename as the m2ts (this may contain the 3D information)
     MediaInfoFile ssif = mediaInfoFiles.stream()
