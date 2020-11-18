@@ -80,31 +80,32 @@ import com.sun.jna.Platform;
  */
 
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER            = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE            = ResourceBundle.getBundle("messages");
+  private static final Logger         LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
+  private static final ResourceBundle BUNDLE        = ResourceBundle.getBundle("messages");
 
   // constants
-  private static final String         VIDEO_TS          = "VIDEO_TS";
-  private static final String         BDMV              = "BDMV";
-  private static final String         HVDVD_TS          = "HVDVD_TS";
+  private static final String         VIDEO_TS      = "VIDEO_TS";
+  private static final String         BDMV          = "BDMV";
+  private static final String         HVDVD_TS      = "HVDVD_TS";
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String>   skipFolders       = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
-      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB");
+  private static final List<String>   SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER", "SYSTEM VOLUME INFORMATION",
+      "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB");
 
   // skip folders starting with a SINGLE "." or "._"
-  private static final String         SKIP_REGEX        = "^[.][\\w@]+.*";
+  private static final String         SKIP_REGEX    = "^[.][\\w@]+.*";
 
-  private static final Pattern        seasonNumber      = Pattern.compile("(?i)season([0-9]{1,4}).*");
+  private static final Pattern        seasonNumber  = Pattern.compile("(?i)season([0-9]{1,4}).*");
 
-  private static long                 preDir            = 0;
-  private static long                 postDir           = 0;
-  private static long                 visFile           = 0;
+  private static long                 preDir        = 0;
+  private static long                 postDir       = 0;
+  private static long                 visFile       = 0;
 
-  private List<String>                dataSources;
-  private List<Path>                  tvShowFolders     = new ArrayList<>();
-  private TvShowList                  tvShowList;
-  private Set<Path>                   filesFound        = ConcurrentHashMap.newKeySet();
+  private final List<String>          dataSources;
+  private final List<String>          skipFolders;
+  private final List<Path>            tvShowFolders = new ArrayList<>();
+  private final TvShowList            tvShowList;
+  private final Set<Path>             filesFound    = ConcurrentHashMap.newKeySet();
 
   /**
    * Instantiates a new scrape task - to update all datasources
@@ -114,6 +115,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     super(BUNDLE.getString("update.datasource"));
     tvShowList = TvShowList.getInstance();
     dataSources = new ArrayList<>(TvShowModuleManager.SETTINGS.getTvShowDataSource());
+    skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
   }
 
   /**
@@ -127,6 +129,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     tvShowList = TvShowList.getInstance();
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
+    skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
   }
 
   /**
@@ -139,6 +142,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     super(BUNDLE.getString("update.datasource"));
     tvShowList = TvShowList.getInstance();
     dataSources = new ArrayList<>(0);
+    skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
     this.tvShowFolders.addAll(tvShowFolders);
   }
 
@@ -171,6 +175,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       if (tvShowFolders.isEmpty()) {
         // update selected data sources
         for (String ds : dataSources) {
+          // check the special case, that the data source is also an ignore folder
+          if (skipFolders.contains(ds)) {
+            LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
+            continue;
+          }
+
           LOGGER.info("Start UDS on datasource: {}", ds);
           initThreadPool(3, "update");
           setTaskName(BUNDLE.getString("update.datasource") + " '" + ds + "'");
@@ -1081,7 +1091,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
      */
     private Set<Path> getAllFilesRecursive(Path path, int deep) {
       Path folder = path.toAbsolutePath();
-      AllFilesRecursive visitor = new AllFilesRecursive();
+      AllFilesRecursive visitor = new AllFilesRecursive(skipFolders);
       try {
         Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), deep, visitor);
       }
@@ -1107,13 +1117,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    *          the folder to list the items for
    * @return list of files&folders
    */
-  private static List<Path> listFilesAndDirs(Path directory) {
+  private List<Path> listFilesAndDirs(Path directory) {
     List<Path> fileNames = new ArrayList<>();
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
       for (Path path : directoryStream) {
         String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
-        if (!skipFolders.contains(fn) && !fn.matches(SKIP_REGEX)
-            && !TvShowModuleManager.SETTINGS.getSkipFolder().contains(path.toFile().getAbsolutePath())) {
+        if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
           fileNames.add(path.toAbsolutePath());
         }
         else {
@@ -1130,7 +1139,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private static class AllFilesRecursive extends AbstractFileVisitor {
-    private HashSet<Path> fFound = new HashSet<>();
+    private final HashSet<Path> fFound = new HashSet<>();
+    private final List<String>  skipFolders;
+
+    public AllFilesRecursive(List<String> skipFolders) {
+      this.skipFolders = new ArrayList<>(skipFolders);
+    }
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
@@ -1147,8 +1161,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // getFilename returns null on DS root!
       if (dir.getFileName() != null
           && (Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"))
-              || skipFolders.contains(dir.getFileName().toString().toUpperCase(Locale.ROOT)) || dir.getFileName().toString().matches(SKIP_REGEX))
-          || TvShowModuleManager.SETTINGS.getSkipFolder().contains(dir.toFile().getAbsolutePath())) {
+              || SKIP_FOLDERS.contains(dir.getFileName().toString().toUpperCase(Locale.ROOT)) || dir.getFileName().toString().matches(SKIP_REGEX))
+          || skipFolders.contains(dir.toFile().getAbsolutePath())) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
