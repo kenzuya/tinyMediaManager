@@ -22,6 +22,7 @@ import java.nio.file.Path;
 
 import org.mp4parser.Container;
 import org.mp4parser.muxer.Movie;
+import org.mp4parser.muxer.Track;
 import org.mp4parser.muxer.builder.FragmentedMp4Builder;
 import org.mp4parser.muxer.container.mp4.MovieCreator;
 
@@ -31,8 +32,8 @@ import org.mp4parser.muxer.container.mp4.MovieCreator;
  * @author Wolfgang Janes
  */
 public class TmmMuxer {
-  private Path audioFile;
-  private Path videoFile;
+  private final Path audioFile;
+  private final Path videoFile;
 
   public TmmMuxer(Path audio, Path video) {
     audioFile = audio;
@@ -48,17 +49,42 @@ public class TmmMuxer {
    *           any {@link IOException } thrown while processing
    */
   public void mergeAudioVideo(Path destination) throws IOException {
+    Movie video = null;
+    Movie audio = null;
+    Movie movie = null;
 
-    Movie video = MovieCreator.build(videoFile.toAbsolutePath().toString());
-    Movie audio = MovieCreator.build(audioFile.toAbsolutePath().toString());
+    try {
+      video = MovieCreator.build(videoFile.toAbsolutePath().toString());
+      audio = MovieCreator.build(audioFile.toAbsolutePath().toString());
 
-    Movie movie = new Movie();
-    movie.addTrack(video.getTracks().get(0));
-    movie.addTrack(audio.getTracks().get(0));
+      movie = new Movie();
+      movie.addTrack(video.getTracks().get(0));
+      movie.addTrack(audio.getTracks().get(0));
 
-    Container mp4file = new FragmentedMp4Builder().build(movie);
-    try (FileChannel fc = new FileOutputStream(destination.toFile()).getChannel()) {
-      mp4file.writeContainer(fc);
+      Container mp4file = new FragmentedMp4Builder().build(movie);
+      try (FileChannel fc = new FileOutputStream(destination.toFile()).getChannel()) {
+        mp4file.writeContainer(fc);
+      }
+    }
+    finally {
+      // and close all tracks
+      closeTracks(video);
+      closeTracks(audio);
+      closeTracks(movie);
+    }
+  }
+
+  private void closeTracks(Movie movie) {
+    if (movie == null) {
+      return;
+    }
+    for (Track track : movie.getTracks()) {
+      try {
+        track.close();
+      }
+      catch (Exception e) {
+        // ignore
+      }
     }
   }
 }
