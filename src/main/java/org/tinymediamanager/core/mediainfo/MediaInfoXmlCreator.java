@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.w3c.dom.Document;
@@ -72,6 +73,13 @@ public class MediaInfoXmlCreator {
     mediaInfo.setAttribute("version", "2.0");
     document.appendChild(mediaInfo);
 
+    // creating library
+    Element creatingLibrary = document.createElement("creatingLibrary");
+    creatingLibrary.setAttribute("version", ReleaseInfo.getVersion());
+    creatingLibrary.setAttribute("url", "https://www.tinymediamanager.org");
+    creatingLibrary.setTextContent("tinyMediaManager");
+    mediaInfo.appendChild(creatingLibrary);
+
     for (MediaInfoFile mediaInfoFile : mediaInfoFiles) {
       Element media = document.createElement("media");
       File file = new File(mediaInfoFile.getPath(), mediaInfoFile.getFilename());
@@ -102,7 +110,7 @@ public class MediaInfoXmlCreator {
   private void addItems(Element track, String tag, String textContent) {
     try {
       Element item = document.createElement(cleanTag(tag));
-      item.setTextContent(textContent);
+      item.setTextContent(cleanTextContent(tag, textContent));
       track.appendChild(item);
     }
     catch (Exception e) {
@@ -126,6 +134,31 @@ public class MediaInfoXmlCreator {
     }
 
     return normalizedTag;
+  }
+
+  /**
+   * clean the text content if there is a need to
+   * 
+   * @param tag
+   *          the tag for this text content
+   * @param textContent
+   *          the text content to tbe cleaned
+   * @return the cleaned text content (or the original if there i no cleaning needed)
+   */
+  private String cleanTextContent(String tag, String textContent) {
+    // divide the duration by 1000 and re-format it
+    if ("duration".equalsIgnoreCase(tag)) {
+      try {
+        double value = Double.parseDouble(textContent);
+        value = value / 1000;
+        return String.format("%.3f", value);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not re-format duration - {}", e.getMessage());
+      }
+    }
+
+    return textContent;
   }
 
   /**
