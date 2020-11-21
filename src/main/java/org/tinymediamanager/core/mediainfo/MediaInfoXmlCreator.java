@@ -21,6 +21,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -151,7 +152,7 @@ public class MediaInfoXmlCreator {
       try {
         double value = Double.parseDouble(textContent);
         value = value / 1000;
-        return String.format("%.3f", value);
+        return String.format(Locale.US, "%.3f", value);
       }
       catch (Exception e) {
         LOGGER.trace("could not re-format duration - {}", e.getMessage());
