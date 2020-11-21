@@ -164,11 +164,11 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
    * @return true, if all episodes are watched
    */
   public boolean isWatched() {
-    boolean watched = true;
+    boolean watched = false;
 
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isDummy() && !episode.isWatched()) {
-        watched = false;
+      if (!episode.isDummy() && episode.isWatched()) {
+        watched = true;
         break;
       }
     }
