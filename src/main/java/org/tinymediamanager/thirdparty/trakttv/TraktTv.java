@@ -208,7 +208,7 @@ public class TraktTv {
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         refreshAccessToken();
-        response = TRAKT.sync().collectionMovies(null).execute();
+        response = TRAKT.sync().collectionMovies(Extended.METADATA).execute();
       }
       if (!response.isSuccessful()) {
         LOGGER.error("failed syncing trakt: {}", response.message());
@@ -598,7 +598,7 @@ public class TraktTv {
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
         refreshAccessToken();
-        response = TRAKT.sync().collectionShows(null).execute();
+        response = TRAKT.sync().collectionShows(Extended.METADATA).execute();
       }
       if (!response.isSuccessful()) {
         LOGGER.error("failed syncing trakt: {}", response.message());
@@ -1025,7 +1025,8 @@ public class TraktTv {
     }
 
     // we have to decide what we send; trakt behaves differently when sending data to sync collection and sync history.
-    movie = new SyncMovie().id(ids);
+    movie = new SyncMovie();
+    movie.id(ids);
     if (watched) {
       // sync history
       if (tmmMovie.isWatched() && tmmMovie.getLastWatched() == null) {
