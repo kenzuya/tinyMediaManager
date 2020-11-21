@@ -296,13 +296,13 @@ class MovieTrailerSettingsPanel extends JPanel {
         JLabel lblTrailerFileNaming = new JLabel(BUNDLE.getString("Settings.trailerFileNaming"));
         panelTrailerFilenames.add(lblTrailerFileNaming, "cell 0 0");
 
-        cbTrailerFilename1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-trailer.ext");
+        cbTrailerFilename1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-trailer." + BUNDLE.getString("Settings.artwork.extension"));
         panelTrailerFilenames.add(cbTrailerFilename1, "cell 1 0");
 
-        cbTrailerFilename2 = new JCheckBox("movie-trailer.ext");
+        cbTrailerFilename2 = new JCheckBox("movie-trailer." + BUNDLE.getString("Settings.artwork.extension"));
         panelTrailerFilenames.add(cbTrailerFilename2, "cell 1 1");
 
-        cbTrailerFilename3 = new JCheckBox("trailers/movie-trailer.ext");
+        cbTrailerFilename3 = new JCheckBox("trailers/movie-trailer." + BUNDLE.getString("Settings.artwork.extension"));
         panelTrailerFilenames.add(cbTrailerFilename3, "cell 1 2");
       }
     }

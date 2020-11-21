@@ -267,7 +267,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
         JLabel lblTrailerFileNaming = new JLabel(BUNDLE.getString("Settings.trailerFileNaming"));
         panelTrailerFilenames.add(lblTrailerFileNaming, "cell 0 0");
 
-        cbTrailerFilename1 = new JCheckBox("tvshow-trailer.ext");
+        cbTrailerFilename1 = new JCheckBox("tvshow-trailer." + BUNDLE.getString("Settings.artwork.extension"));
         panelTrailerFilenames.add(cbTrailerFilename1, "cell 1 0");
       }
     }

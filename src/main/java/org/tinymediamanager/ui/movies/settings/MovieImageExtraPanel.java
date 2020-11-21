@@ -184,16 +184,16 @@ class MovieImageExtraPanel extends JPanel {
         panelExtra.add(panel, "cell 2 4,grow");
         panel.setLayout(new MigLayout("insets 0", "[][20lp!][][20lp!][]", "[][]"));
 
-        chckbxExtrafanart1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-fanartX.ext");
+        chckbxExtrafanart1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-fanartX." + BUNDLE.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart1, "cell 0 0");
 
-        chckbxExtrafanart2 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + ".fanartX.ext");
+        chckbxExtrafanart2 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + ".fanartX." + BUNDLE.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart2, "cell 2 0");
 
-        chckbxExtrafanart3 = new JCheckBox("fanartX.ext");
+        chckbxExtrafanart3 = new JCheckBox("fanartX." + BUNDLE.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart3, "cell 4 0");
 
-        chckbxExtrafanart4 = new JCheckBox("extrafanart/fanartX.ext");
+        chckbxExtrafanart4 = new JCheckBox("extrafanart/fanartX." + BUNDLE.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart4, "cell 0 1");
 
         JLabel lblDownloadCount = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));
