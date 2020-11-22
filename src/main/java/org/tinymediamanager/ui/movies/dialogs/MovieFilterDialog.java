@@ -135,6 +135,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieMissingArtworkFilter(), panelMediaData);
         addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
         addFilter(new MovieAudioLanguageFilter(),panelMediaData);
+        addFilter(new MovieSubtitleLanguageFilter(),panelMediaData);
       }
 
       {

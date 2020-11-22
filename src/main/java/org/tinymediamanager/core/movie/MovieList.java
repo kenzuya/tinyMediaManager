@@ -104,6 +104,7 @@ public class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<Integer>            audioStreamsInMovies;
   private final CopyOnWriteArrayList<Integer>            subtitlesInMovies;
   private final CopyOnWriteArrayList<String>             audioLanguagesInMovies;
+  private final CopyOnWriteArrayList<String>             subtitleLanguagesInMovies;
 
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
@@ -128,6 +129,7 @@ public class MovieList extends AbstractModelObject {
     audioStreamsInMovies = new CopyOnWriteArrayList<>();
     subtitlesInMovies = new CopyOnWriteArrayList<>();
     audioLanguagesInMovies = new CopyOnWriteArrayList<>();
+    subtitleLanguagesInMovies = new CopyOnWriteArrayList<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -880,6 +882,19 @@ public class MovieList extends AbstractModelObject {
     Set<Integer> audioStreamCount = new HashSet<>();
     Set<Integer> subtitleCount = new HashSet<>();
     Set<String> audioLanguages = new HashSet<>();
+    Set<String> subtitleLanguages = new HashSet<>();
+
+    //get Subtitle language from video files and subtitle files
+    for (Movie movie : movies) {
+      for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
+        // subtitle language
+        if(!mf.getSubtitleLanguagesList().isEmpty()) {
+          for( String lang : mf.getSubtitleLanguagesList()) {
+            subtitleLanguages.add(lang);
+          }
+        }
+      }
+    }
 
     for (Movie movie : movies) {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
@@ -957,6 +972,11 @@ public class MovieList extends AbstractModelObject {
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioLanguagesInMovies, audioLanguages)) {
       firePropertyChange(Constants.AUDIO_LANGUAGES,null,audioLanguagesInMovies);
     }
+
+    // subtitle languages
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleLanguagesInMovies, subtitleLanguages)) {
+      firePropertyChange(Constants.SUBTITLE_LANGUAGES,null,subtitleLanguagesInMovies);
+    }
   }
 
   /**
@@ -1022,6 +1042,10 @@ public class MovieList extends AbstractModelObject {
 
   public Collection<String> getAudioLanguagesInMovies() {
     return audioLanguagesInMovies;
+  }
+
+  public Collection<String> getSubtitleLanguagesInMovies() {
+    return subtitleLanguagesInMovies;
   }
 
   /**

@@ -106,6 +106,7 @@ public final class Constants {
   public static final String STUDIO                 = "studio";
   public static final String SUBTITLES              = "subtitles";
   public static final String SUBTITLES_COUNT        = "countSubtitles";
+  public static final String SUBTITLE_LANGUAGES     = "subtitleLanguages";
   public static final String TAG                    = "tag";
   public static final String TAGS_AS_STRING         = "tagsAsString";
   public static final String THUMB                  = "thumb";
