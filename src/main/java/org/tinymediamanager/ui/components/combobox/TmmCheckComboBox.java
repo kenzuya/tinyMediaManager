@@ -473,7 +473,16 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       button.addActionListener(e -> {
         TmmCheckComboBoxItem<E> item = comboBoxItemMap.get(userObject);
         if (item != null) {
-          item.setSelected(false);
+          // get index in the model
+          int index = model.getIndexOf(item);
+          if (index > -1) {
+            // change the checked state
+            checkBoxSelectionChanged(index);
+            for (TmmCheckComboBoxSelectionListener listener : changedListeners) {
+              listener.selectionChanged(index);
+            }
+            TmmCheckComboBox.this.update();
+          }
         }
       });
       add(button);
