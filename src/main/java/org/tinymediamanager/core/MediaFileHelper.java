@@ -2238,7 +2238,7 @@ public class MediaFileHelper {
     if (StringUtils.isNoneBlank(dur)) {
       try {
         double ddur = Double.parseDouble(dur);
-        if (ddur > 10000) {
+        if (ddur > 25000) {
           return (int) (ddur / 1000f);
         }
         else {
