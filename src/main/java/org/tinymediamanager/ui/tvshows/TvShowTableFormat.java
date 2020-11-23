@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.tvshows;
 
 import java.awt.FontMetrics;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.ResourceBundle;
 
@@ -48,12 +49,57 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   public TvShowTableFormat() {
     FontMetrics fontMetrics = getFontMetrics();
 
+    Comparator<String> stringComparator = new StringComparator();
+    Comparator<String> integerComparator = (o1, o2) -> {
+      int value1 = 0;
+      int value2 = 0;
+
+      try {
+        value1 = Integer.parseInt(o1);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+      try {
+        value2 = Integer.parseInt(o2);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+
+      return Integer.compare(value1, value2);
+    };
+    Comparator<String> floatComparator = (o1, o2) -> {
+      float value1 = 0;
+      float value2 = 0;
+
+      try {
+        value1 = Float.parseFloat(o1);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+      try {
+        value2 = Float.parseFloat(o2);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+
+      return Float.compare(value1, value2);
+    };
+    Comparator<Date> dateComparator = new DateComparator();
+    Comparator<ImageIcon> imageComparator = new ImageComparator();
+    Comparator<String> videoFormatComparator = new VideoFormatComparator();
+    Comparator<String> fileSizeComparator = new FileSizeComparator();
+
     /*
      * year
      */
-    Column col = new Column(BUNDLE.getString("metatag.year"), "year", this::getYear, Integer.class);
+    Column col = new Column(BUNDLE.getString("metatag.year"), "year", this::getYear, String.class);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
+    col.setColumnComparator(integerComparator);
     addColumn(col);
 
     /*
@@ -64,6 +110,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f));
+    col.setColumnComparator(integerComparator);
     addColumn(col);
 
     /*
@@ -74,6 +121,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("999") * 1.2f));
+    col.setColumnComparator(integerComparator);
     addColumn(col);
 
     /*
@@ -84,6 +132,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
+    col.setColumnComparator(floatComparator);
     addColumn(col);
 
     /*
@@ -99,6 +148,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     catch (Exception ignored) {
     }
+    col.setColumnComparator(dateComparator);
     addColumn(col);
 
     /*
@@ -115,6 +165,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     catch (Exception ignored) {
     }
+    col.setColumnComparator(dateComparator);
     addColumn(col);
 
     /*
@@ -131,6 +182,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     catch (Exception ignored) {
     }
+    col.setColumnComparator(dateComparator);
     addColumn(col);
 
     /*
@@ -141,6 +193,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
     col.setDefaultHidden(true);
+    col.setColumnComparator(videoFormatComparator);
     addColumn(col);
 
     /*
@@ -150,6 +203,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.VIDEO_CODEC);
     col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
     col.setDefaultHidden(true);
+    col.setColumnComparator(stringComparator);
     addColumn(col);
 
     /*
@@ -161,6 +215,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
     col.setDefaultHidden(true);
+    col.setColumnComparator(fileSizeComparator);
     addColumn(col);
 
     /*
@@ -169,6 +224,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(BUNDLE.getString("movieextendedsearch.newepisodes"), "new", this::getNewIcon, ImageIcon.class);
     col.setHeaderIcon(IconManager.NEW);
     col.setColumnResizeable(false);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -178,6 +234,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
     col.setColumnTooltip(this::hasNfoTooltip);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -187,6 +244,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
     col.setColumnTooltip(this::hasImageTooltip);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -195,6 +253,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(BUNDLE.getString("tmm.subtitles"), "subtitles", this::hasSubtitles, ImageIcon.class);
     col.setHeaderIcon(IconManager.SUBTITLES);
     col.setColumnResizeable(false);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -203,6 +262,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(BUNDLE.getString("metatag.watched"), "watched", this::isWatched, ImageIcon.class);
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
   }
 
@@ -216,10 +276,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
   }
 
-  private Integer getYear(TmmTreeNode node) {
+  private String getYear(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow) {
-      return ((TvShow) userObject).getYear();
+      int year = ((TvShow) userObject).getYear();
+      if (year > 0) {
+        return String.valueOf(year);
+      }
+      return "";
     }
     return null;
   }

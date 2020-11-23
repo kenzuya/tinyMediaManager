@@ -1,6 +1,7 @@
 Version 4.0.6
 =======================
 + added support of Kodi v19 style extrafanart (fanartX.ext)
++ added support of sorting in movie set/TV show tree #540
 + provide a filter for multi select combo boxes
 + added file name options for movie set artwork
 + added support for downloading TV show themes #825

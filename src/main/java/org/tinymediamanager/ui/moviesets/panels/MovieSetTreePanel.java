@@ -59,6 +59,8 @@ import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableComparatorChooser;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.moviesets.MovieSetSelectionModel;
 import org.tinymediamanager.ui.moviesets.MovieSetTableFormat;
 import org.tinymediamanager.ui.moviesets.MovieSetTreeDataProvider;
@@ -121,11 +123,13 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     btnFilter.addActionListener(e -> MovieSetUIModule.getInstance().setFilterDialogVisible(true));
     add(btnFilter, "cell 1 0");
 
-    tree = new TmmTreeTable(new MovieSetTreeDataProvider(), new MovieSetTableFormat());
+    TmmTreeTableFormat<TmmTreeNode> tableFormat = new MovieSetTableFormat();
+    tree = new TmmTreeTable(new MovieSetTreeDataProvider(tableFormat), tableFormat);
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
 
     tree.setName("movieSets.movieSetTree");
     TmmUILayoutStore.getInstance().install(tree);
+    TmmTreeTableComparatorChooser.install(tree);
 
     tree.addFilter(searchField);
     JScrollPane scrollPane = new JScrollPane();

@@ -16,11 +16,9 @@
 package org.tinymediamanager.ui.tvshows;
 
 import java.beans.PropertyChangeListener;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +28,11 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.tree.TmmTreeDataProvider;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
+import org.tinymediamanager.ui.components.treetable.ITmmTreeTableSortingStrategy;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 
 /**
  * The class TvShowTreeDataProvider is used for providing and managing the data for the TV show tree
@@ -39,18 +40,21 @@ import org.tinymediamanager.ui.components.tree.TmmTreeNode;
  * @author Manuel Laggner
  */
 public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
-  protected static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
-  private TmmTreeNode                   root           = new TmmTreeNode(new Object(), this);
-  private RuleBasedCollator             stringCollator = (RuleBasedCollator) RuleBasedCollator.getInstance();
+  protected static final ResourceBundle         BUNDLE     = ResourceBundle.getBundle("messages");
 
-  private final PropertyChangeListener  tvShowListPropertyChangeListener;
-  private final PropertyChangeListener  tvShowPropertyChangeListener;
-  private final PropertyChangeListener  episodePropertyChangeListener;
+  private final TmmTreeTableFormat<TmmTreeNode> tableFormat;
+  private final TmmTreeNode                     root       = new TmmTreeNode(new Object(), this);
 
-  private final TvShowList              tvShowList     = TvShowList.getInstance();
+  private final PropertyChangeListener          tvShowPropertyChangeListener;
+  private final PropertyChangeListener          episodePropertyChangeListener;
 
-  public TvShowTreeDataProvider() {
-    tvShowListPropertyChangeListener = evt -> {
+  private final TvShowList                      tvShowList = TvShowList.getInstance();
+
+  public TvShowTreeDataProvider(TmmTreeTableFormat<TmmTreeNode> tableFormat) {
+    this.tableFormat = tableFormat;
+
+    // do not react on other events of the tvShowList
+    PropertyChangeListener tvShowListPropertyChangeListener = evt -> {
       TvShow tvShow;
 
       switch (evt.getPropertyName()) {
@@ -135,7 +139,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
     };
 
-    setTreeComparator(new TvShowComparator());
+    setTreeComparator(new TvShowTreeNodeComparator());
 
     TvShowModuleManager.SETTINGS.addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
@@ -428,19 +432,39 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   /*
    * helper classes
    */
-  class TvShowComparator implements Comparator<TmmTreeNode> {
+  class TvShowTreeNodeComparator implements Comparator<TmmTreeNode>, ITmmTreeTableSortingStrategy {
+    private final Comparator stringComparator;
+
+    private SortDirection    sortDirection;
+    private int              sortColumn;
+
+    private Comparator       sortComparator;
+
+    private TvShowTreeNodeComparator() {
+      stringComparator = new TmmTableFormat.StringComparator();
+
+      // initialize the comparator with comparing the title ascending
+      sortColumn = 0;
+      sortDirection = SortDirection.ASCENDING;
+      sortComparator = getSortComparator();
+    }
+
     @Override
     public int compare(TmmTreeNode o1, TmmTreeNode o2) {
       Object userObject1 = o1.getUserObject();
       Object userObject2 = o2.getUserObject();
 
       if (userObject1 instanceof TvShow && userObject2 instanceof TvShow) {
-        TvShow tvShow1 = (TvShow) userObject1;
-        TvShow tvShow2 = (TvShow) userObject2;
-        if (stringCollator != null) {
-          return stringCollator.compare(tvShow1.getTitleSortable().toLowerCase(Locale.ROOT), tvShow2.getTitleSortable().toLowerCase(Locale.ROOT));
+        int compairingResult = sortComparator.compare(getColumnValue(o1, sortColumn), getColumnValue(o2, sortColumn));
+        if (compairingResult == 0 && sortColumn != 0) {
+          compairingResult = stringComparator.compare(getColumnValue(o1, 0), getColumnValue(o2, 0));
         }
-        return tvShow1.getTitleSortable().compareToIgnoreCase(tvShow2.getTitleSortable());
+        else {
+          if (sortDirection == SortDirection.DESCENDING) {
+            compairingResult = compairingResult * -1;
+          }
+        }
+        return compairingResult;
       }
 
       if (userObject1 instanceof TvShowSeason && userObject2 instanceof TvShowSeason) {
@@ -457,11 +481,54 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
       return o1.toString().compareToIgnoreCase(o2.toString());
     }
+
+    @Override
+    public void columnClicked(int column, boolean shift, boolean control) {
+      if (sortColumn == column) {
+        if (sortDirection == SortDirection.ASCENDING) {
+          sortDirection = SortDirection.DESCENDING;
+        }
+        else {
+          sortDirection = SortDirection.ASCENDING;
+        }
+      }
+      else {
+        sortDirection = SortDirection.ASCENDING;
+      }
+      sortColumn = column;
+
+      sortComparator = getSortComparator();
+    }
+
+    private Comparator getSortComparator() {
+      if (sortColumn == 0) {
+        // sort on the node/title
+        return stringComparator;
+      }
+      else {
+        return tableFormat.getColumnComparator(sortColumn - 1);
+      }
+    }
+
+    private Object getColumnValue(TmmTreeNode treeNode, int i) {
+      if (i == 0) {
+        return ((TvShow) treeNode.getUserObject()).getTitleSortable();
+      }
+      return tableFormat.getColumnValue(treeNode, i - 1);
+    }
+
+    public SortDirection getSortDirection(int sortColumn) {
+      if (sortColumn == this.sortColumn) {
+        return sortDirection;
+      }
+
+      return null;
+    }
   }
 
   abstract static class AbstractTvShowTreeNode extends TmmTreeNode {
 
-    AbstractTvShowTreeNode(Object userObject, TmmTreeDataProvider dataProvider) {
+    AbstractTvShowTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -479,7 +546,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    TvShowTreeNode(Object userObject, TmmTreeDataProvider dataProvider) {
+    TvShowTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -530,7 +597,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    public TvShowSeasonTreeNode(Object userObject, TmmTreeDataProvider dataProvider) {
+    public TvShowSeasonTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -582,7 +649,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    public TvShowEpisodeTreeNode(Object userObject, TmmTreeDataProvider dataProvider) {
+    public TvShowEpisodeTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
       super(userObject, dataProvider);
     }
 

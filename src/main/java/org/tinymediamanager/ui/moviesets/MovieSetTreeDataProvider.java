@@ -16,18 +16,19 @@
 package org.tinymediamanager.ui.moviesets;
 
 import java.beans.PropertyChangeListener;
-import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.tree.TmmTreeDataProvider;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
+import org.tinymediamanager.ui.components.treetable.ITmmTreeTableSortingStrategy;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 
 /**
  * The class MovieSetTreeDataProvider is used for providing and managing the data for the movie set tree
@@ -35,17 +36,18 @@ import org.tinymediamanager.ui.components.tree.TmmTreeNode;
  * @author Manuel Laggner
  */
 public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
-  private TmmTreeNode                  root           = new TmmTreeNode(new Object(), this);
-  private RuleBasedCollator            stringCollator = (RuleBasedCollator) RuleBasedCollator.getInstance();
+  private final TmmTreeNode                     root      = new TmmTreeNode(new Object(), this);
+  private final TmmTreeTableFormat<TmmTreeNode> tableFormat;
 
-  private final PropertyChangeListener movielistPropertyChangeListener;
-  private final PropertyChangeListener movieSetPropertyChangeListener;
-  private final PropertyChangeListener moviePropertyChangeListener;
+  private final PropertyChangeListener          movieSetPropertyChangeListener;
+  private final PropertyChangeListener          moviePropertyChangeListener;
 
-  private final MovieList              movieList      = MovieList.getInstance();
+  private final MovieList                       movieList = MovieList.getInstance();
 
-  public MovieSetTreeDataProvider() {
-    movielistPropertyChangeListener = evt -> {
+  public MovieSetTreeDataProvider(TmmTreeTableFormat<TmmTreeNode> tableFormat) {
+    this.tableFormat = tableFormat;
+
+    PropertyChangeListener movielistPropertyChangeListener = evt -> {
       MovieSet movieSet;
 
       switch (evt.getPropertyName()) {
@@ -94,7 +96,7 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
     };
 
-    setTreeComparator(new MovieSetComparator());
+    setTreeComparator(new MovieSetTreeNodeComparator());
   }
 
   /**
@@ -238,19 +240,39 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   /*
    * helper classes
    */
-  class MovieSetComparator implements Comparator<TmmTreeNode> {
+  class MovieSetTreeNodeComparator implements Comparator<TmmTreeNode>, ITmmTreeTableSortingStrategy {
+    private final Comparator stringComparator;
+
+    private SortDirection    sortDirection;
+    private int              sortColumn;
+
+    private Comparator       sortComparator;
+
+    private MovieSetTreeNodeComparator() {
+      stringComparator = new TmmTableFormat.StringComparator();
+
+      // initialize the comparator with comparing the title ascending
+      sortColumn = 0;
+      sortDirection = SortDirection.ASCENDING;
+      sortComparator = getSortComparator();
+    }
+
     @Override
     public int compare(TmmTreeNode o1, TmmTreeNode o2) {
       Object userObject1 = o1.getUserObject();
       Object userObject2 = o2.getUserObject();
 
       if (userObject1 instanceof MovieSet && userObject2 instanceof MovieSet) {
-        MovieSet movieSet1 = (MovieSet) userObject1;
-        MovieSet movieSet2 = (MovieSet) userObject2;
-        if (stringCollator != null) {
-          return stringCollator.compare(movieSet1.getTitleSortable().toLowerCase(Locale.ROOT), movieSet2.getTitleSortable().toLowerCase(Locale.ROOT));
+        int compairingResult = sortComparator.compare(getColumnValue(o1, sortColumn), getColumnValue(o2, sortColumn));
+        if (compairingResult == 0 && sortColumn != 0) {
+          compairingResult = stringComparator.compare(getColumnValue(o1, 0), getColumnValue(o2, 0));
         }
-        return movieSet1.getTitleSortable().compareToIgnoreCase(movieSet2.getTitleSortable());
+        else {
+          if (sortDirection == SortDirection.DESCENDING) {
+            compairingResult = compairingResult * -1;
+          }
+        }
+        return compairingResult;
       }
 
       if (userObject1 instanceof Movie && userObject2 instanceof Movie) {
@@ -263,6 +285,49 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       }
 
       return o1.toString().compareToIgnoreCase(o2.toString());
+    }
+
+    @Override
+    public void columnClicked(int column, boolean shift, boolean control) {
+      if (sortColumn == column) {
+        if (sortDirection == SortDirection.ASCENDING) {
+          sortDirection = SortDirection.DESCENDING;
+        }
+        else {
+          sortDirection = SortDirection.ASCENDING;
+        }
+      }
+      else {
+        sortDirection = SortDirection.ASCENDING;
+      }
+      sortColumn = column;
+
+      sortComparator = getSortComparator();
+    }
+
+    private Comparator getSortComparator() {
+      if (sortColumn == 0) {
+        // sort on the node/title
+        return stringComparator;
+      }
+      else {
+        return tableFormat.getColumnComparator(sortColumn - 1);
+      }
+    }
+
+    private Object getColumnValue(TmmTreeNode treeNode, int i) {
+      if (i == 0) {
+        return ((MovieSet) treeNode.getUserObject()).getTitleSortable();
+      }
+      return tableFormat.getColumnValue(treeNode, i - 1);
+    }
+
+    public SortDirection getSortDirection(int sortColumn) {
+      if (sortColumn == this.sortColumn) {
+        return sortDirection;
+      }
+
+      return null;
     }
   }
 
