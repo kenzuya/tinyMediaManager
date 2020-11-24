@@ -83,7 +83,7 @@ public class TmmTreeTable extends TmmTable {
   @Override
   public void addColumn(TableColumn aColumn) {
     if (aColumn.getIdentifier() == null && getModel() instanceof TmmTreeTableModel) {
-      aColumn.setHeaderRenderer(new IconHeaderRenderer());
+      aColumn.setHeaderRenderer(new SortableIconHeaderRenderer());
 
       TmmTreeTableModel tableModel = ((TmmTreeTableModel) getModel());
       tableModel.setUpColumn(aColumn);

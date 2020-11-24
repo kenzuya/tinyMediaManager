@@ -110,6 +110,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Pattern        VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private final List<String>          dataSources;
+  private final List<String>          skipFolders;
   private final List<Movie>           movieFolders     = new ArrayList<>();
   private final MovieList             movieList        = MovieList.getInstance();
   private final Set<Path>             filesFound       = ConcurrentHashMap.newKeySet();
@@ -118,18 +119,21 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   public MovieUpdateDatasourceTask() {
     super(BUNDLE.getString("update.datasource"));
     dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
+    skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
   }
 
   public MovieUpdateDatasourceTask(String datasource) {
     super(BUNDLE.getString("update.datasource") + " (" + datasource + ")");
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
+    skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
   }
 
   public MovieUpdateDatasourceTask(List<Movie> movies) {
     super(BUNDLE.getString("update.datasource"));
     dataSources = new ArrayList<>(0);
     movieFolders.addAll(movies);
+    skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
   }
 
   @Override
@@ -161,6 +165,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       if (movieFolders.isEmpty()) {
         for (String ds : dataSources) {
+          // check the special case, that the data source is also an ignore folder
+          if (skipFolders.contains(ds)) {
+            LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
+            continue;
+          }
+
           LOGGER.info("Start UDS on datasource: {}", ds);
           miTasks.clear();
           initThreadPool(3, "update");
@@ -1283,14 +1293,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          the folder to list the files for
    * @return list of files&folders
    */
-  public static List<Path> listFilesOnly(Path directory) {
+  private List<Path> listFilesOnly(Path directory) {
     List<Path> fileNames = new ArrayList<>();
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
       for (Path path : directoryStream) {
         if (Utils.isRegularFile(path) || path.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
           String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
-          if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX)
-              && !MovieModuleManager.SETTINGS.getSkipFolder().contains(path.toFile().getAbsolutePath())) {
+          if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
             fileNames.add(path.toAbsolutePath());
           }
           else {
@@ -1313,13 +1322,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    *          the folder to list the items for
    * @return list of files&folders
    */
-  public static List<Path> listFilesAndDirs(Path directory) {
+  private List<Path> listFilesAndDirs(Path directory) {
     List<Path> fileNames = new ArrayList<>();
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
       for (Path path : directoryStream) {
         String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
-        if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX)
-            && !MovieModuleManager.SETTINGS.getSkipFolder().contains(path.toFile().getAbsolutePath())) {
+        if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
           fileNames.add(path.toAbsolutePath());
         }
         else {
@@ -1336,9 +1344,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   // **************************************
   // gets all files recursive,
   // **************************************
-  public static Set<Path> getAllFilesRecursive(Path folder, int deep) {
+  private Set<Path> getAllFilesRecursive(Path folder, int deep) {
     folder = folder.toAbsolutePath();
-    AllFilesRecursive visitor = new AllFilesRecursive();
+    AllFilesRecursive visitor = new AllFilesRecursive(skipFolders);
     try {
       Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), deep, visitor);
     }
@@ -1349,7 +1357,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private static class AllFilesRecursive extends AbstractFileVisitor {
-    private final Set<Path> fFound = new HashSet<>();
+    private final Set<Path>    fFound = new HashSet<>();
+    private final List<String> skipFolders;
+
+    public AllFilesRecursive(List<String> skipFolders) {
+      this.skipFolders = new ArrayList<>(skipFolders);
+    }
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
@@ -1367,7 +1380,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (dir.getFileName() != null
           && (Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"))
               || SKIP_FOLDERS.contains(dir.getFileName().toString().toUpperCase(Locale.ROOT)) || dir.getFileName().toString().matches(SKIP_REGEX))
-          || MovieModuleManager.SETTINGS.getSkipFolder().contains(dir.toFile().getAbsolutePath())) {
+          || skipFolders.contains(dir.toFile().getAbsolutePath())) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
@@ -1440,8 +1453,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       if (SKIP_FOLDERS.contains(fn) || fn.matches(SKIP_REGEX) || Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore"))
-          || Files.exists(dir.resolve(".nomedia")) || MovieModuleManager.SETTINGS.getSkipFolder().contains(dir.toFile().getAbsolutePath())
-          || parent.matches(DISC_FOLDER_REGEX)) {
+          || Files.exists(dir.resolve(".nomedia")) || skipFolders.contains(dir.toFile().getAbsolutePath()) || parent.matches(DISC_FOLDER_REGEX)) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }

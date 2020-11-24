@@ -62,6 +62,8 @@ import org.tinymediamanager.ui.components.tree.TmmTreeModel;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableComparatorChooser;
+import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowTableFormat;
 import org.tinymediamanager.ui.tvshows.TvShowTreeDataProvider;
@@ -133,10 +135,12 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     btnFilter.addActionListener(e -> TvShowUIModule.getInstance().setFilterDialogVisible(true));
     add(btnFilter, "cell 1 0");
 
-    tree = new TmmTreeTable(new TvShowTreeDataProvider(), new TvShowTableFormat());
+    TmmTreeTableFormat<TmmTreeNode> tableFormat = new TvShowTableFormat();
+    tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat);
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
     tree.setName("tvshows.tvshowTree");
     TmmUILayoutStore.getInstance().install(tree);
+    TmmTreeTableComparatorChooser.install(tree);
 
     tree.addFilter(searchField);
     JScrollPane scrollPane = new JScrollPane();

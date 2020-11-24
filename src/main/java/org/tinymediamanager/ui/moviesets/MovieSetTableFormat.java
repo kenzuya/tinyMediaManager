@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.moviesets;
 
 import java.awt.FontMetrics;
+import java.util.Comparator;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
@@ -40,8 +41,49 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieSetTableFormat() {
-
     FontMetrics fontMetrics = getFontMetrics();
+
+    Comparator<String> integerComparator = (o1, o2) -> {
+      int value1 = 0;
+      int value2 = 0;
+
+      try {
+        value1 = Integer.parseInt(o1);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+      try {
+        value2 = Integer.parseInt(o2);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+
+      return Integer.compare(value1, value2);
+    };
+    Comparator<String> floatComparator = (o1, o2) -> {
+      float value1 = 0;
+      float value2 = 0;
+
+      try {
+        value1 = Float.parseFloat(o1);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+      try {
+        value2 = Float.parseFloat(o2);
+      }
+      catch (Exception ignored) {
+        // do nothing
+      }
+
+      return Float.compare(value1, value2);
+    };
+    Comparator<String> videoFormatComparator = new VideoFormatComparator();
+    Comparator<String> fileSizeComparator = new FileSizeComparator();
+    Comparator<ImageIcon> imageComparator = new ImageComparator();
 
     /*
      * movie count
@@ -50,6 +92,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.COUNT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f));
+    col.setColumnComparator(integerComparator);
     addColumn(col);
 
     /*
@@ -61,6 +104,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
     col.setDefaultHidden(true);
+    col.setColumnComparator(floatComparator);
     addColumn(col);
 
     /*
@@ -70,6 +114,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
+    col.setColumnComparator(videoFormatComparator);
     addColumn(col);
 
     /*
@@ -80,6 +125,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("50000M") * 1.2f));
+    col.setColumnComparator(fileSizeComparator);
     addColumn(col);
 
     /*
@@ -88,6 +134,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(BUNDLE.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -96,6 +143,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(BUNDLE.getString("tmm.images"), "images", this::hasImages, ImageIcon.class);
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
 
     /*
@@ -104,6 +152,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col = new Column(BUNDLE.getString("metatag.watched"), "watched", this::isWatched, ImageIcon.class);
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
+    col.setColumnComparator(imageComparator);
     addColumn(col);
   }
 

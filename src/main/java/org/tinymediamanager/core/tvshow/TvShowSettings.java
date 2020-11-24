@@ -239,9 +239,6 @@ public class TvShowSettings extends AbstractSettings {
     fanartFilenames.clear();
     addFanartFilename(TvShowFanartNaming.FANART);
 
-    extraFanartFilenames.clear();
-    addExtraFanartFilename(TvShowExtraFanartNaming.EXTRAFANART);
-
     bannerFilenames.clear();
     addBannerFilename(TvShowBannerNaming.BANNER);
 

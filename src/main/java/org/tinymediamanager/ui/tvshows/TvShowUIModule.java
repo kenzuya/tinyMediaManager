@@ -59,6 +59,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowMissingEpisodeListAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowReadEpisodeNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowReadNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRebuildImageCacheAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowRebuildMediainfoXmlAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRemoveAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRenameAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRewriteEpisodeNfoAction;
@@ -255,8 +256,13 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(TvShowUpdateAction.class));
     popupMenu.add(createAndRegisterAction(TvShowReadNfoAction.class));
     popupMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
-    popupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
-    popupMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
+
+    JMenu mediainfoMenu = new JMenu(BUNDLE.getString("metatag.mediainformation"));
+    mediainfoMenu.setIcon(IconManager.MENU);
+    mediainfoMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
+    mediainfoMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));
+    mediainfoMenu.add(createAndRegisterAction(TvShowDeleteMediainfoXmlAction.class));
+    popupMenu.add(mediainfoMenu);
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowEditAction.class));

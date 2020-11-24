@@ -274,13 +274,22 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   public static class ImageComparator implements Comparator<ImageIcon> {
     @Override
     public int compare(ImageIcon arg0, ImageIcon arg1) {
-      if (arg0 == arg1) {
-        return 0;
+      return Integer.compare(getImageValue(arg0), getImageValue(arg1)) * -1; // reverse
+    }
+
+    private int getImageValue(ImageIcon imageIcon) {
+      if (imageIcon == IconManager.TABLE_OK) {
+        return 4;
       }
-      if (arg0 == IconManager.TABLE_OK) {
+      else if (imageIcon == IconManager.TABLE_PROBLEM) {
+        return 2;
+      }
+      else if (imageIcon == IconManager.TABLE_NOT_OK) {
         return 1;
       }
-      return -1;
+      else {
+        return -1;
+      }
     }
   }
 
@@ -300,7 +309,21 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   public static class VideoFormatComparator implements Comparator<String> {
     @Override
     public int compare(String arg0, String arg1) {
-      return Integer.compare(MediaFileHelper.VIDEO_FORMATS.indexOf(arg0), MediaFileHelper.VIDEO_FORMATS.indexOf(arg1));
+      int value1;
+      int value2;
+      if (StringUtils.isBlank(arg0)) {
+        value1 = -1;
+      }
+      else {
+        value1 = MediaFileHelper.VIDEO_FORMATS.indexOf(arg0);
+      }
+      if (StringUtils.isBlank(arg1)) {
+        value2 = -1;
+      }
+      else {
+        value2 = MediaFileHelper.VIDEO_FORMATS.indexOf(arg1);
+      }
+      return Integer.compare(value1, value2);
     }
   }
 
@@ -317,6 +340,10 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
 
     private long parseSize(String sizeAsString) {
       long size = 0;
+
+      if (StringUtils.isBlank(sizeAsString)) {
+        return size;
+      }
 
       Matcher matcher = pattern.matcher(sizeAsString);
       if (matcher.find()) {

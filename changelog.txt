@@ -1,6 +1,7 @@
 Version 4.0.6
 =======================
 + added support of Kodi v19 style extrafanart (fanartX.ext)
++ added support of sorting in movie set/TV show tree #540
 + provide a filter for multi select combo boxes
 + added file name options for movie set artwork
 + added support for downloading TV show themes #825
@@ -17,6 +18,10 @@ x added more icons for media sources #1069
 x fetching 0.0 rated movies
 x detect 4 digit episode numbers
 x fixed TV show genre filter #1104
+x separated reload media information from rewriting the mediainfo.xml file #1105
+x skip data sources in "update data source" which are excluded in the settings
+x prevent a possible memory leak in the trailer downloader #1099
+x do not show missing seasons as shown #1102
 
 
 Version 4.0.5

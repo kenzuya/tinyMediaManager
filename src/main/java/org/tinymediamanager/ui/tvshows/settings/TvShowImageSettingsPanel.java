@@ -296,10 +296,10 @@ class TvShowImageSettingsPanel extends JPanel {
         panelOptions.add(panel, "cell 2 6,growx");
         panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
 
-        chckbxExtraFanart1 = new JCheckBox("fanartX.ext");
+        chckbxExtraFanart1 = new JCheckBox("fanartX." + BUNDLE.getString("Settings.artwork.extension"));
         panel.add(chckbxExtraFanart1, "cell 0 0");
 
-        chckbxExtraFanart2 = new JCheckBox("extrafanart/fanartX.ext");
+        chckbxExtraFanart2 = new JCheckBox("extrafanart/fanartX." + BUNDLE.getString("Settings.artwork.extension"));
         panel.add(chckbxExtraFanart2, "cell 2 0");
 
         JLabel lblDownloadCount = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));

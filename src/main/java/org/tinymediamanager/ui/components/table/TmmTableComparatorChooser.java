@@ -295,7 +295,7 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
    * @return a TableCellRenderer that attempts to decorate the given <code>delegateRenderer</code> with a sort icon
    */
   public TableCellRenderer createSortArrowHeaderRenderer(TableCellRenderer delegateRenderer) {
-    return new TmmTableComparatorChooser.SortArrowHeaderRenderer(delegateRenderer);
+    return new SortArrowHeaderRenderer(delegateRenderer);
   }
 
   /**

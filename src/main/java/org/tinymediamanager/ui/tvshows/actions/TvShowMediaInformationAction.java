@@ -71,7 +71,7 @@ public class TvShowMediaInformationAction extends TmmAction {
       return;
     }
 
-    // get data of all files within all selected movies
+    // get data of all files within all selected TV shows/episodes
     TmmThreadPool task = new TvShowReloadMediaInformationTask(selectedTvShows, selectedEpisodes);
     TmmTaskManager.getInstance().addMainTask(task);
   }

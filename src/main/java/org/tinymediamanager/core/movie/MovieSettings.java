@@ -244,9 +244,6 @@ public class MovieSettings extends AbstractSettings {
     fanartFilenames.clear();
     addFanartFilename(MovieFanartNaming.FANART);
 
-    extraFanartFilenames.clear();
-    addExtraFanartFilename(MovieExtraFanartNaming.EXTRAFANART);
-
     bannerFilenames.clear();
     addBannerFilename(MovieBannerNaming.BANNER);
 

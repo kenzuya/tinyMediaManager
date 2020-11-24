@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
+import javax.swing.UIManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
@@ -40,6 +41,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 
@@ -206,17 +208,35 @@ class UiSettingsPanel extends JPanel {
     }
     if (!theme.equals(settings.getTheme())) {
       settings.setTheme(theme);
+      try {
+        TmmUIHelper.setTheme();
+        TmmUIHelper.updateUI();
+      }
+      catch (Exception e) {
+        // ignored
+      }
     }
 
     // fonts
+    boolean fontChanged = false;
     Integer fontSize = (Integer) cbFontSize.getSelectedItem();
     if (fontSize != null && fontSize != settings.getFontSize()) {
       settings.setFontSize(fontSize);
+      fontChanged = true;
     }
 
     String fontFamily = (String) cbFontFamily.getSelectedItem();
     if (fontFamily != null && !fontFamily.equals(settings.getFontFamily())) {
       settings.setFontFamily(fontFamily);
+      fontChanged = true;
+    }
+
+    if (fontChanged) {
+      Font font = UIManager.getFont("defaultFont");
+      Font newFont = new Font(fontFamily, font.getStyle(), fontSize);
+      UIManager.put("defaultFont", newFont);
+
+      TmmUIHelper.updateUI();
     }
   }
 
