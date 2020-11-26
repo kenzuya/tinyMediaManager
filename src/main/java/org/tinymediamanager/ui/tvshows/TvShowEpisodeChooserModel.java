@@ -15,9 +15,11 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 
@@ -32,10 +34,11 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
 
   private MediaScraper                          mediaScraper;
   private MediaMetadata                         mediaMetadata;
-  private String                                title       = "";
-  private String                                overview    = "";
-  private int                                   season      = -1;
-  private int                                   episode     = -1;
+  private String                                title;
+  private String                                overview;
+  private Date                                  firstAired;
+  private int                                   season;
+  private int                                   episode;
 
   public TvShowEpisodeChooserModel(MediaScraper mediaScraper, MediaMetadata episode) {
     this.mediaScraper = mediaScraper;
@@ -45,6 +48,7 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
     setOverview(mediaMetadata.getPlot());
     setSeason(mediaMetadata.getSeasonNumber());
     setEpisode(mediaMetadata.getEpisodeNumber());
+    setFirstAired(mediaMetadata.getReleaseDate());
   }
 
   private TvShowEpisodeChooserModel() {
@@ -75,6 +79,12 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
     firePropertyChange("episode", oldValue, episode);
   }
 
+  public void setFirstAired(Date firstAired) {
+    Date oldValue = this.firstAired;
+    this.firstAired = firstAired;
+    firePropertyChange("firstAired", oldValue, firstAired);
+  }
+
   public String getTitle() {
     return title;
   }
@@ -89,6 +99,22 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
 
   public int getEpisode() {
     return episode;
+  }
+
+  public Date getFirstAired() {
+    return firstAired;
+  }
+
+  public String getFirstAiredFormatted() {
+    if (firstAired == null) {
+      return "";
+    }
+    try {
+      return TmmDateFormat.MEDIUM_DATE_FORMAT.format(firstAired);
+    }
+    catch (Exception e) {
+      return "";
+    }
   }
 
   public MediaMetadata getMediaMetadata() {

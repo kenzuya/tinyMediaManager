@@ -9,6 +9,7 @@ Version 4.0.6
 + added audio language filter
 + added subtitle language filter
 + major rework of the TV show renamer (cleanup of TV show related files)
++ added first aired date to the episode chooser
 x added the media source .WEB. to WEB-DL
 x added "decade" tokens to movie renamer
 x better movie title search (#1089)
