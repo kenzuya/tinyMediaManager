@@ -93,6 +93,7 @@ public class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<Double>             frameRatesInEpisodes;
   private final CopyOnWriteArrayList<MediaCertification> certificationsInTvShows;
   private final CopyOnWriteArrayList<Integer>            audioStreamsInEpisodes;
+  private final CopyOnWriteArrayList<String>             audioLanguagesInEpisodes;
   private final CopyOnWriteArrayList<Integer>            subtitlesInEpisodes;
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInEpisodes;
 
@@ -112,6 +113,7 @@ public class TvShowList extends AbstractModelObject {
     frameRatesInEpisodes = new CopyOnWriteArrayList<>();
     certificationsInTvShows = new CopyOnWriteArrayList<>();
     audioStreamsInEpisodes = new CopyOnWriteArrayList<>();
+    audioLanguagesInEpisodes = new CopyOnWriteArrayList<>();
     subtitlesInEpisodes = new CopyOnWriteArrayList<>();
     subtitleLanguagesInEpisodes = new CopyOnWriteArrayList<>();
 
@@ -735,21 +737,16 @@ public class TvShowList extends AbstractModelObject {
     Map<String, String> videoContainers = new HashMap<>();
     Set<String> audioCodecs = new HashSet<>();
     Set<Integer> audioStreamCount = new HashSet<>();
-    Set<Integer> subtitleCount = new HashSet<>();
+    Set<String> audioLanguages = new HashSet<>();
+    Set<Integer> subtitleStreamCount = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
 
-    //get subtitle language from video files and subtitle files
     for (TvShowEpisode episode : episodes) {
-      for (MediaFile mf : episode.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
-        if (!mf.getSubtitleLanguagesList().isEmpty()) {
-          for (String lang : mf.getSubtitleLanguagesList()) {
-            subtitleLanguages.add(lang);
-          }
-        }
-      }
-    }
+      int audioCount = 0;
+      int subtitleCount = 0;
 
-    for (TvShowEpisode episode : episodes) {
+      boolean first = true;
+
       for (MediaFile mf : episode.getMediaFiles(MediaFileType.VIDEO)) {
         // video codec
         if (StringUtils.isNotBlank(mf.getVideoCodec())) {
@@ -772,16 +769,38 @@ public class TvShowList extends AbstractModelObject {
             audioCodecs.add(audio.getCodec());
           }
         }
-        // audio streams
-        if (!mf.getAudioStreams().isEmpty()) {
-          audioStreamCount.add(mf.getAudioStreams().size());
+
+        if (first) {
+          // audio stream count
+          audioCount = mf.getAudioStreams().size();
+
+          // audio languages
+          audioLanguages.addAll(mf.getAudioLanguagesList());
+
+          // subtitles stream count
+          subtitleCount = mf.getSubtitles().size();
+
+          // subtitle languages
+          subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
         }
 
-        // subtitles
-        if (!mf.getSubtitles().isEmpty()) {
-          subtitleCount.add(mf.getSubtitles().size());
-        }
+        first = false;
       }
+
+      // get subtitle data also from subtitle files
+      for (MediaFile mf : episode.getMediaFiles(MediaFileType.SUBTITLE)) {
+        subtitleCount++;
+        subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
+      }
+
+      // get audio data also from audio files
+      for (MediaFile mf : episode.getMediaFiles(MediaFileType.AUDIO)) {
+        audioCount++;
+        audioLanguages.addAll(mf.getAudioLanguagesList());
+      }
+
+      audioStreamCount.add(audioCount);
+      subtitleStreamCount.add(subtitleCount);
     }
 
     // video codecs
@@ -810,8 +829,13 @@ public class TvShowList extends AbstractModelObject {
       firePropertyChange(Constants.AUDIOSTREAMS_COUNT, null, audioStreamsInEpisodes);
     }
 
+    // audio languages
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioLanguagesInEpisodes, audioLanguages)) {
+      firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, audioLanguagesInEpisodes);
+    }
+
     // subtitles
-    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitlesInEpisodes, subtitleCount)) {
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitlesInEpisodes, subtitleStreamCount)) {
       firePropertyChange(Constants.SUBTITLES_COUNT, null, subtitlesInEpisodes);
     }
 
@@ -847,6 +871,10 @@ public class TvShowList extends AbstractModelObject {
 
   public Collection<Integer> getSubtitlesInEpisodes() {
     return subtitlesInEpisodes;
+  }
+
+  public Collection<String> getAudioLanguagesInEpisodes() {
+    return audioLanguagesInEpisodes;
   }
 
   public Collection<String> getSubtitleLanguagesInEpisodes() {
