@@ -257,14 +257,32 @@ public class ImageChooserDialog extends TmmDialog {
         break;
 
       case SEASON_POSTER:
-      case SEASON_BANNER:
-      case SEASON_THUMB:
         Object season = ids.get("tvShowSeason");
         if (season != null) {
           setTitle(BUNDLE.getString("image.choose.season") + " - " + BUNDLE.getString("metatag.season") + " " + season);
         }
         else {
           setTitle(BUNDLE.getString("image.choose.season"));
+        }
+        break;
+
+      case SEASON_BANNER:
+        season = ids.get("tvShowSeason");
+        if (season != null) {
+          setTitle(BUNDLE.getString("image.choose.season.banner") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+        }
+        else {
+          setTitle(BUNDLE.getString("image.choose.season.banner"));
+        }
+        break;
+
+      case SEASON_THUMB:
+        season = ids.get("tvShowSeason");
+        if (season != null) {
+          setTitle(BUNDLE.getString("image.choose.season.thumb") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+        }
+        else {
+          setTitle(BUNDLE.getString("image.choose.season.thumb"));
         }
         break;
 

@@ -163,7 +163,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       table = new TmmTable(episodeTableModel);
       table.setSelectionModel(selectionModel);
-      scrollPane.setViewportView(table);
+      table.configureScrollPane(scrollPane);
 
       JPanel panelRight = new JPanel();
       panelRight.setLayout(new MigLayout("", "[400lp,grow]", "[400lp,grow]"));
@@ -248,6 +248,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
         for (MediaMetadata md : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
           episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
         }
+        table.adjustColumnPreferredWidths(5);
       }
       catch (ScrapeException e) {
         LOGGER.error("searchMovieFallback", e);
@@ -334,7 +335,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     }
   }
 
-  private class TvShowEpisodeChooserModelFilterator implements TextFilterator<TvShowEpisodeChooserModel> {
+  private static class TvShowEpisodeChooserModelFilterator implements TextFilterator<TvShowEpisodeChooserModel> {
     @Override
     public void getFilterStrings(List<String> baseList, TvShowEpisodeChooserModel model) {
       baseList.add(model.getTitle());
@@ -342,33 +343,23 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     }
   }
 
-  private class EpisodeComparator implements Comparator<TvShowEpisodeChooserModel> {
+  private static class EpisodeComparator implements Comparator<TvShowEpisodeChooserModel> {
     @Override
     public int compare(TvShowEpisodeChooserModel o1, TvShowEpisodeChooserModel o2) {
-      if (o1.getSeason() < o2.getSeason()) {
-        return -1;
+      int result = Integer.compare(o1.getSeason(), o2.getSeason());
+
+      if (result == 0) {
+        result = Integer.compare(o1.getEpisode(), o2.getEpisode());
       }
 
-      if (o1.getSeason() > o2.getSeason()) {
-        return 1;
-      }
-
-      if (o1.getEpisode() < o2.getEpisode()) {
-        return -1;
-      }
-
-      if (o1.getEpisode() > o2.getEpisode()) {
-        return 1;
-      }
-
-      return 0;
+      return result;
     }
   }
 
-  private class EpisodeTableFormat implements TableFormat<TvShowEpisodeChooserModel> {
+  private static class EpisodeTableFormat implements TableFormat<TvShowEpisodeChooserModel> {
     @Override
     public int getColumnCount() {
-      return 3;
+      return 4;
     }
 
     @Override
@@ -381,6 +372,9 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
           return BUNDLE.getString("metatag.episode");
 
         case 2:
+          return BUNDLE.getString("metatag.aired");
+
+        case 3:
           return BUNDLE.getString("metatag.title");
       }
       return null;
@@ -396,6 +390,9 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
           return baseObject.getEpisode();
 
         case 2:
+          return baseObject.getFirstAiredFormatted();
+
+        case 3:
           return baseObject.getTitle();
       }
       return null;

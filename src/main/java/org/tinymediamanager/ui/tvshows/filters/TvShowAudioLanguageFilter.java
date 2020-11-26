@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import static org.tinymediamanager.core.MediaFileType.AUDIO;
 import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
 import java.util.ArrayList;
@@ -33,63 +34,69 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
- * the class {@link TvShowSubtitleCountFilter}
- *
+ * the class {@link TvShowAudioLanguageFilter} is a filter for audio languages for TV shows
+ * 
  * @author Wolfgang Janes
  */
-public class TvShowSubtitleCountFilter extends AbstractCheckComboBoxTvShowUIFilter<Integer> {
+public class TvShowAudioLanguageFilter extends AbstractCheckComboBoxTvShowUIFilter<String> {
   private final TvShowList tvShowList = TvShowList.getInstance();
 
-  public TvShowSubtitleCountFilter() {
+  public TvShowAudioLanguageFilter() {
     super();
     checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
-    buildSubtitleCountArray();
-    tvShowList.addPropertyChangeListener(Constants.SUBTITLES_COUNT, evt -> SwingUtilities.invokeLater(this::buildSubtitleCountArray));
+    buildAudioLanguageArray();
+    tvShowList.addPropertyChangeListener(Constants.AUDIO_LANGUAGES, evt -> SwingUtilities.invokeLater(this::buildAudioLanguageArray));
+
   }
 
   @Override
-  protected String parseTypeToString(Integer type) throws Exception {
-    return type.toString();
+  protected String parseTypeToString(String type) throws Exception {
+    return type;
   }
 
   @Override
-  protected Integer parseStringToType(String string) throws Exception {
-    return Integer.parseInt(string);
+  protected String parseStringToType(String string) throws Exception {
+    return string;
   }
 
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
 
-    List<Integer> selectedItems = checkComboBox.getSelectedItems();
+    List<String> selectedItems = checkComboBox.getSelectedItems();
 
     for (TvShowEpisode episode : episodes) {
-      List<MediaFile> mfs = episode.getMediaFiles(VIDEO);
+      List<MediaFile> mfs = episode.getMediaFiles(VIDEO, AUDIO);
       for (MediaFile mf : mfs) {
-        if (invert ^ (selectedItems.isEmpty() && mf.getSubtitles().isEmpty())) {
+        // check for explicit empty search
+        if (!invert && (selectedItems.isEmpty() && mf.getAudioLanguagesList().isEmpty())) {
+          return true;
+        }
+        else if (invert && (selectedItems.isEmpty() && !mf.getAudioLanguagesList().isEmpty())) {
           return true;
         }
 
-        if (invert ^ selectedItems.contains(mf.getSubtitles().size())) {
+        if (invert == Collections.disjoint(selectedItems, mf.getAudioLanguagesList())) {
           return true;
         }
       }
     }
+
     return false;
   }
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.subtitles"));
+    return new TmmLabel(BUNDLE.getString("metatag.language"));
   }
 
   @Override
   public String getId() {
-    return "tvShowSubtitleCount";
+    return "tvShowAudioLanguage";
   }
 
-  private void buildSubtitleCountArray() {
-    List<Integer> subtitles = new ArrayList<>(tvShowList.getSubtitlesInEpisodes());
-    Collections.sort(subtitles);
-    setValues(subtitles);
+  private void buildAudioLanguageArray() {
+    List<String> audios = new ArrayList<>(tvShowList.getAudioLanguagesInEpisodes());
+    Collections.sort(audios);
+    setValues(audios);
   }
 }

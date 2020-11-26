@@ -57,6 +57,7 @@ import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.TextFieldPopupMenu;
 import org.tinymediamanager.ui.components.toolbar.ToolbarPanel;
+import org.tinymediamanager.ui.dialogs.SettingsDialog;
 import org.tinymediamanager.ui.images.LogoCircle;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
@@ -229,6 +230,9 @@ public class MainWindow extends JFrame {
         }
       }
     }
+
+    // init the settings window
+    SwingUtilities.invokeLater(SettingsDialog::getInstance);
   }
 
   private void addModule(ITmmUIModule module) {

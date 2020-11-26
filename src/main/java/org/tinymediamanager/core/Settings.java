@@ -876,7 +876,7 @@ public class Settings extends AbstractSettings {
   }
 
   public void setTheme(String newValue) {
-    String oldValue = this.fontFamily;
+    String oldValue = this.theme;
     this.theme = newValue;
     firePropertyChange("theme", oldValue, newValue);
   }
