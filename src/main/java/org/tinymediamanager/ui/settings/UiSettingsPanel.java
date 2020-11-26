@@ -143,6 +143,28 @@ class UiSettingsPanel extends JPanel {
     cbFontFamily.addActionListener(actionListener);
     cbFontSize.addActionListener(actionListener);
     cbTheme.addActionListener(actionListener);
+
+    Globals.settings.addPropertyChangeListener(evt -> {
+      switch (evt.getPropertyName()) {
+        case "theme":
+          if (!Globals.settings.getTheme().equals(cbTheme.getSelectedItem())) {
+            cbTheme.setSelectedItem(Globals.settings.getTheme());
+          }
+          break;
+
+        case "fontSize":
+          if (cbFontSize.getSelectedItem() != null && Globals.settings.getFontSize() != (Integer) cbFontSize.getSelectedItem()) {
+            cbFontSize.setSelectedItem(Globals.settings.getFontSize());
+          }
+          break;
+
+        case "fontFamily":
+          if (!Globals.settings.getFontFamily().equals(cbFontFamily.getSelectedItem())) {
+            cbFontFamily.setSelectedItem(Globals.settings.getFontFamily());
+          }
+          break;
+      }
+    });
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -174,6 +196,7 @@ class UiSettingsPanel extends JPanel {
         panelLanguage.add(lblLanguageChangeHint, "cell 0 3 3 1");
       }
     }
+
     {
       JPanel panelTheme = new JPanel();
       panelTheme.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
@@ -192,6 +215,7 @@ class UiSettingsPanel extends JPanel {
         panelTheme.add(lblThemeHint, "cell 0 1 3 1");
       }
     }
+
     {
       JPanel panelFont = new JPanel();
       panelFont.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
@@ -222,6 +246,7 @@ class UiSettingsPanel extends JPanel {
         panelFont.add(tpFontHint, "cell 1 2 2 1,growx");
       }
     }
+
     {
       JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
@@ -267,7 +292,7 @@ class UiSettingsPanel extends JPanel {
 
     // theme
     String theme = (String) cbTheme.getSelectedItem();
-    if (!theme.equals(Globals.settings.getTheme())) {
+    if (!Globals.settings.getTheme().equals(theme)) {
       Globals.settings.setTheme(theme);
       try {
         TmmUIHelper.setTheme();
