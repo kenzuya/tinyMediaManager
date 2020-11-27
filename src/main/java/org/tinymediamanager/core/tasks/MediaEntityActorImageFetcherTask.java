@@ -122,7 +122,7 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
     }
   }
 
-  private void downloadPersonImage(Person person) throws InterruptedException, IOException {
+  private void downloadPersonImage(Person person) throws Exception {
     String actorImageFilename = person.getNameForStorage();
     if (StringUtils.isBlank(actorImageFilename)) {
       return;

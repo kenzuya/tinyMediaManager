@@ -1,3 +1,8 @@
+upcoming version
+=======================
+x better error messages for SSL errors #1122
+
+
 Version 4.0.6
 =======================
 + added support of Kodi v19 style extrafanart (fanartX.ext)
