@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +46,8 @@ public class MediaInfoXMLParser {
   private static final Pattern DURATION_HOUR_PATTERN   = Pattern.compile("(\\d*?) h");
   private static final Pattern DURATION_MINUTE_PATTERN = Pattern.compile("(\\d*?) min");
   private static final Pattern DURATION_SECOND_PATTERN = Pattern.compile("(\\d*?) s");
+  private static final String  DUMMY_FILENAME          = "/tmp/dummy.bdmv";
+
   private Path                 file                    = null;
 
   public MediaInfoXMLParser(Path file) {
@@ -54,7 +57,11 @@ public class MediaInfoXMLParser {
   public List<MediaInfoFile> parseXML() throws Exception {
     List<MediaInfoFile> files = new ArrayList<>();
 
-    Document document = Jsoup.parse(new FileInputStream(file.toFile()), "UTF-8", "", Parser.xmlParser());
+    Document document;
+    try (FileInputStream fis = new FileInputStream(file.toFile())) {
+      document = Jsoup.parse(fis, "UTF-8", "", Parser.xmlParser());
+    }
+
     // first check if there is a valid root object (old and new format)
     Elements rootElements = document.select("MediaInfo");
     if (rootElements.isEmpty()) {
@@ -71,14 +78,13 @@ public class MediaInfoXMLParser {
 
     // process every file in the ISO
     for (Element fileInXML : fileElements) {
-      LOGGER.trace("XML: ------------------");
-
-      MediaInfoFile miFile = new MediaInfoFile("/tmp/dummy.bdmv");
+      MediaInfoFile miFile = new MediaInfoFile(Paths.get(DUMMY_FILENAME));
+      miFile.setSnapshot(new EnumMap<>(StreamKind.class));
       if (StringUtils.isNotBlank(fileInXML.attr("ref")) && fileInXML.attr("ref").length() > 5) {
         miFile.setFilename(fileInXML.attr("ref"));
       }
 
-      List<MiTrack> tracks = new ArrayList<MiTrack>();
+      List<MiTrack> tracks = new ArrayList<>();
       // and add all tracks
       for (Element track : fileInXML.select("track")) {
         MiTrack miTrack = new MiTrack();
@@ -155,7 +161,7 @@ public class MediaInfoXMLParser {
 
           // Width and Height sometimes comes with the string "pixels"
           if (key.equals("Width") || key.equals("Height")) {
-            value = value.replace("pixels", "").trim();
+            value = value.replace("pixels", "").replace(" ", "").trim();
           }
 
           // accumulate filesizes & duration /for multiple tracks)
@@ -191,9 +197,9 @@ public class MediaInfoXMLParser {
               // comes in different favors
               // a) <Duration>5184.000</Duration> // 5184 secs
               // b) <Duration>888000</Duration> // 888 secs
-              Double d = Double.parseDouble(value.replace(".", ""));
+              double d = Double.parseDouble(value.replace(".", ""));
               // accumulate duration for same type of tracks
-              kindDuration += d.intValue() / 1000;
+              kindDuration += (int) d / 1000;
               // and overwrite current value with accumulated (since we can only have one value/kind)
               value = String.valueOf(kindDuration);
             }
@@ -229,6 +235,9 @@ public class MediaInfoXMLParser {
             }
           }
 
+          if ("Source".equals(key) && "dummy.bdmv".equals(miFile.getFilename())) {
+            miFile.setFilename(value);
+          }
           // push it twice; originating key AND possible new mapped key; to maintain the StringX ordering!
           streamInfo.put(key, value);
           if (!key.equals(getMappedKey(key))) {

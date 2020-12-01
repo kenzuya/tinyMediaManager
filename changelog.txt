@@ -1,3 +1,8 @@
+upcoming Version 3.1.12
+=======================
+x backport MediaInfo changes from V4 (aspect ratio and others)
+
+
 Version 3.1.11
 =======================
 x reading of hybrid DVD ISO files

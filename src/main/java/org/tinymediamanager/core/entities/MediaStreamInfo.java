@@ -49,6 +49,9 @@ public class MediaStreamInfo extends AbstractModelObject {
   @JsonProperty
   protected Set<Flags> streamFlags = EnumSet.noneOf(Flags.class);
 
+  // the stream id for locally mixin in DVD information
+  public String        id          = "";
+
   public String getCodec() {
     return codec;
   }

@@ -16,10 +16,13 @@
 
 package org.tinymediamanager.thirdparty;
 
-import java.util.HashMap;
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -40,23 +43,37 @@ public class MediaInfoFile {
   private Map<StreamKind, List<Map<String, String>>> snapshot;
   private int                                        duration = 0;
   private long                                       filesize = 0;
+  private String                                     path     = "";
   private String                                     filename = "";
 
-  public MediaInfoFile(String filename) {
-    this.filename = filename;
+  public MediaInfoFile(Path file) {
+    this.path = file.toAbsolutePath().getParent().toString();
+    this.filename = file.getFileName().toString();
   }
 
-  public MediaInfoFile(String filename, long filesize) {
-    this.filename = filename;
+  public MediaInfoFile(Path file, long filesize) {
+    this(file);
     this.filesize = filesize;
   }
 
   public void setFilename(String filename) {
-    this.filename = filename;
+    this.filename = FilenameUtils.getName(filename);
   }
 
   public String getFilename() {
     return filename;
+  }
+
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
+  }
+
+  public String getFileExtension() {
+    return FilenameUtils.getExtension(filename).toLowerCase(Locale.ROOT);
   }
 
   public void setFilesize(long filesize) {
@@ -77,7 +94,7 @@ public class MediaInfoFile {
 
   public Map<StreamKind, List<Map<String, String>>> getSnapshot() {
     if (snapshot == null) {
-      snapshot = new HashMap<StreamKind, List<Map<String, String>>>();
+      snapshot = Collections.emptyMap();
     }
     return snapshot;
   }
@@ -90,7 +107,7 @@ public class MediaInfoFile {
         this.duration = ((int) (Double.parseDouble(dur) / 1000));
       }
       catch (NumberFormatException e) {
-        LOGGER.warn("Could not parse duration: {}", dur);
+        LOGGER.debug("Could not parse duration: {}", dur);
       }
     }
 
@@ -101,7 +118,7 @@ public class MediaInfoFile {
           this.filesize = Long.parseLong(siz);
         }
         catch (NumberFormatException e) {
-          LOGGER.warn("Could not parse filezize: {}", siz);
+          LOGGER.debug("Could not parse filezize: {}", siz);
         }
       }
     }
@@ -120,7 +137,37 @@ public class MediaInfoFile {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public void mergeOtherSnapshot(Map<StreamKind, List<Map<String, String>>> other) {
-
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((filename == null) ? 0 : filename.hashCode());
+    result = prime * result + ((path == null) ? 0 : path.hashCode());
+    return result;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    MediaInfoFile other = (MediaInfoFile) obj;
+    if (filename == null) {
+      if (other.filename != null)
+        return false;
+    }
+    else if (!filename.equals(other.filename))
+      return false;
+    if (path == null) {
+      if (other.path != null)
+        return false;
+    }
+    else if (!path.equals(other.path))
+      return false;
+    return true;
+  }
+
 }
