@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -99,94 +101,28 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImageChooserDialog extends TmmDialog {
-  private static final long   serialVersionUID = 8193355920006275933L;
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
-  private static final String DIALOG_ID        = "imageChooser";
+  private static final long         serialVersionUID = 8193355920006275933L;
+  private static final Logger       LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
+  private static final String       DIALOG_ID        = "imageChooser";
 
-  public enum ImageType {
-    POSTER,
-    FANART,
-    BANNER,
-    SEASON_POSTER,
-    SEASON_BANNER,
-    SEASON_THUMB,
-    LOGO,
-    CLEARLOGO,
-    CLEARART,
-    CHARACTERART,
-    DISC,
-    THUMB,
-    KEYART
-  }
+  private final Map<String, Object> ids;
+  private final MediaArtworkType    type;
+  private final MediaType           mediaType;
+  private final ImageLabel          imageLabel;
+  private final List<MediaScraper>  artworkScrapers;
 
-  private Map<String, Object> ids;
-  private ImageType           type;
-  private MediaType           mediaType;
-  private ImageLabel          imageLabel;
-  private List<String>        extraThumbs;
-  private List<String>        extraFanarts;
-  private List<MediaScraper>  artworkScrapers;
+  private ButtonGroup               buttonGroup      = new ButtonGroup();
+  private JProgressBar              progressBar;
+  private JLabel                    lblProgressAction;
+  private JPanel                    panelImages;
+  private LockableViewPort          viewport;
+  private List<JToggleButton>       buttons          = new ArrayList<>();
+  private JTextField                tfImageUrl;
 
-  private JProgressBar        progressBar;
-  private JLabel              lblProgressAction;
-  private JPanel              panelImages;
-  private JScrollPane         scrollPane;
-  private LockableViewPort    viewport;
-  private ButtonGroup         buttonGroup = new ButtonGroup();
-  private List<JToggleButton> buttons     = new ArrayList<>();
-  private JTextField          tfImageUrl;
-
-  private DownloadTask        task;
-
-  /**
-   * Instantiates a new image chooser dialog.
-   *
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param imageLabel
-   *          the image label
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public ImageChooserDialog(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      MediaType mediaType) {
-    this(ids, type, artworkScrapers, imageLabel, new ArrayList<>(), new ArrayList<>(), mediaType);
-  }
-
-  /**
-   * Instantiates a new image chooser dialog with extrathumbs and extrafanart usage.
-   * 
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param imageLabel
-   *          the image label
-   * @param extraThumbs
-   *          the extra thumbs
-   * @param extraFanarts
-   *          the extra fanarts
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public ImageChooserDialog(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType) {
-    super("", DIALOG_ID);
-    this.imageLabel = imageLabel;
-    this.type = type;
-    this.mediaType = mediaType;
-    this.extraThumbs = extraThumbs;
-    this.extraFanarts = extraFanarts;
-    this.ids = ids;
-    this.artworkScrapers = artworkScrapers;
-    init();
-  }
+  private String                    openFolderPath   = null;
+  private List<String>              extraThumbs      = null;
+  private List<String>              extraFanarts     = null;
+  private DownloadTask              task;
 
   /**
    * Instantiates a new image chooser dialog.
@@ -204,39 +140,13 @@ public class ImageChooserDialog extends TmmDialog {
    * @param mediaType
    *          the media for for which artwork has to be chosen
    */
-  public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      MediaType mediaType) {
-    this(parent, ids, type, artworkScrapers, imageLabel, new ArrayList<>(), new ArrayList<>(), mediaType);
-  }
+  public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
+      ImageLabel imageLabel, MediaType mediaType) {
 
-  /**
-   * Instantiates a new image chooser dialog with extrathumbs and extrafanart usage.
-   *
-   * @param parent
-   *          the parent of this dialog
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param imageLabel
-   *          the image label
-   * @param extraThumbs
-   *          the extra thumbs
-   * @param extraFanarts
-   *          the extra fanarts
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType) {
     super(parent, "", DIALOG_ID);
     this.imageLabel = imageLabel;
     this.type = type;
     this.mediaType = mediaType;
-    this.extraThumbs = extraThumbs;
-    this.extraFanarts = extraFanarts;
     this.ids = ids;
     this.artworkScrapers = artworkScrapers;
     init();
@@ -244,7 +154,7 @@ public class ImageChooserDialog extends TmmDialog {
 
   private void init() {
     switch (type) {
-      case FANART:
+      case BACKGROUND:
         setTitle(BUNDLE.getString("image.choose.fanart"));
         break;
 
@@ -320,7 +230,7 @@ public class ImageChooserDialog extends TmmDialog {
     getContentPane().add(contentPanel, BorderLayout.CENTER);
     contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[500lp,grow][shrink 0][][][]"));
     {
-      scrollPane = new NoBorderScrollPane();
+      JScrollPane scrollPane = new NoBorderScrollPane();
       viewport = new LockableViewPort();
       scrollPane.setViewport(viewport);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -351,7 +261,7 @@ public class ImageChooserDialog extends TmmDialog {
     }
 
     // add buttons to select/deselect all extrafanarts/extrathumbs
-    if (type == ImageType.FANART && extraThumbs != null) {
+    if (type == BACKGROUND && extraThumbs != null) {
       JLabel labelThumbs = new JLabel("Extrathumbs:");
       contentPanel.add(labelThumbs, "flowx,cell 0 2");
 
@@ -379,7 +289,7 @@ public class ImageChooserDialog extends TmmDialog {
         }
       });
     }
-    if (type == ImageType.FANART && extraFanarts != null) {
+    if (type == BACKGROUND && extraFanarts != null) {
       JLabel labelFanart = new JLabel("Extrafanart:");
       contentPanel.add(labelFanart, "flowx,cell 0 3");
 
@@ -443,6 +353,18 @@ public class ImageChooserDialog extends TmmDialog {
     task.execute();
   }
 
+  public void bindExtraThumbs(List<String> extraThumbs) {
+    this.extraThumbs = extraThumbs;
+  }
+
+  public void bindExtraFanarts(List<String> extraFanarts) {
+    this.extraFanarts = extraFanarts;
+  }
+
+  public void setOpenFolderPath(String openFolderPath) {
+    this.openFolderPath = openFolderPath;
+  }
+
   private void startProgressBar(String description) {
     lblProgressAction.setText(description);
     progressBar.setVisible(true);
@@ -462,7 +384,7 @@ public class ImageChooserDialog extends TmmDialog {
     GridBagLayout gbl = new GridBagLayout();
 
     switch (type) {
-      case FANART:
+      case BACKGROUND:
       case CLEARART:
       case THUMB:
       case DISC:
@@ -552,7 +474,7 @@ public class ImageChooserDialog extends TmmDialog {
     imagePanel.add(lblShowImage, gbc);
 
     // should we provide an option for extrathumbs
-    if (type == ImageType.FANART && extraThumbs != null) {
+    if (type == BACKGROUND && extraThumbs != null) {
       gbc = new GridBagConstraints();
       gbc.gridx = 1;
       gbc.gridy = row;
@@ -572,7 +494,7 @@ public class ImageChooserDialog extends TmmDialog {
     }
 
     // should we provide an option for extrafanart
-    if (type == ImageType.FANART && extraFanarts != null) {
+    if (type == BACKGROUND && extraFanarts != null) {
       gbc = new GridBagConstraints();
       gbc.gridx = 1;
       gbc.gridy = ++row;
@@ -612,8 +534,8 @@ public class ImageChooserDialog extends TmmDialog {
           case DISC:
             art = new MediaArtwork("", MediaArtworkType.DISC);
             break;
-          case FANART:
-            art = new MediaArtwork("", MediaArtworkType.BACKGROUND);
+          case BACKGROUND:
+            art = new MediaArtwork("", BACKGROUND);
             break;
           case LOGO:
             art = new MediaArtwork("", MediaArtworkType.LOGO);
@@ -679,27 +601,12 @@ public class ImageChooserDialog extends TmmDialog {
    *          the artwork providers
    * @param mediaType
    *          the media for for which artwork has to be chosen
+   * @param defaultPath
+   *          the default path to open
    */
-  public static String chooseImage(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers,
-      MediaType mediaType) {
-    return chooseImage(parent, ids, type, artworkScrapers, null, null, mediaType);
-  }
-
-  /**
-   * call a new image chooser dialog without extrathumbs and extrafanart usage.<br />
-   * this method also checks if there are valid IDs for scraping
-   *
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public static String chooseImage(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, MediaType mediaType) {
-    return chooseImage(ids, type, artworkScrapers, null, null, mediaType);
+  public static String chooseImage(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
+      MediaType mediaType, String defaultPath) {
+    return chooseImage(parent, ids, type, artworkScrapers, null, null, mediaType, defaultPath);
   }
 
   /**
@@ -720,45 +627,22 @@ public class ImageChooserDialog extends TmmDialog {
    *          the extra fanarts
    * @param mediaType
    *          the media for for which artwork has to be chosen
+   * @param defaultPath
+   *          the default path to open
    */
-  public static String chooseImage(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers,
-      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType) {
+  public static String chooseImage(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
+      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType, String defaultPath) {
     if (ids.isEmpty()) {
       return "";
     }
 
     ImageLabel lblImage = new ImageLabel();
-    ImageChooserDialog dialog = new ImageChooserDialog(parent, ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
-    dialog.setLocationRelativeTo(MainWindow.getInstance());
-    dialog.setVisible(true);
-    return lblImage.getImageUrl();
-  }
+    ImageChooserDialog dialog = new ImageChooserDialog(parent, ids, type, artworkScrapers, lblImage, mediaType);
 
-  /**
-   * call a new image chooser dialog with extrathumbs and extrafanart usage.<br />
-   * this method also checks if there are valid IDs for scraping
-   *
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param extraThumbs
-   *          the extra thumbs
-   * @param extraFanarts
-   *          the extra fanarts
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public static String chooseImage(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, List<String> extraThumbs,
-      List<String> extraFanarts, MediaType mediaType) {
-    if (ids.isEmpty()) {
-      return "";
-    }
+    dialog.bindExtraThumbs(extraThumbs);
+    dialog.bindExtraFanarts(extraFanarts);
+    dialog.setOpenFolderPath(defaultPath);
 
-    ImageLabel lblImage = new ImageLabel();
-    ImageChooserDialog dialog = new ImageChooserDialog(ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
     dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
     return lblImage.getImageUrl();
@@ -816,12 +700,12 @@ public class ImageChooserDialog extends TmmDialog {
       }
 
       // extrathumbs
-      if (type == ImageType.FANART && extraThumbs != null) {
+      if (type == BACKGROUND && extraThumbs != null) {
         processExtraThumbs();
       }
 
       // extrafanart
-      if (type == ImageType.FANART && extraFanarts != null) {
+      if (type == BACKGROUND && extraFanarts != null) {
         processExtraFanart();
       }
 
@@ -963,8 +847,8 @@ public class ImageChooserDialog extends TmmDialog {
               options.setArtworkType(MediaArtworkType.POSTER);
               break;
 
-            case FANART:
-              options.setArtworkType(MediaArtworkType.BACKGROUND);
+            case BACKGROUND:
+              options.setArtworkType(BACKGROUND);
               break;
 
             case BANNER:
@@ -1129,7 +1013,14 @@ public class ImageChooserDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      String path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
+      String path;
+      if (StringUtils.isNotBlank(openFolderPath)) {
+        path = openFolderPath;
+      }
+      else {
+        path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
+      }
+
       Path file = TmmUIHelper.selectFile(BUNDLE.getString("image.choose"), path,
           new FileNameExtensionFilter("Image files", ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tbn"));
       if (file != null && Utils.isRegularFile(file)) {

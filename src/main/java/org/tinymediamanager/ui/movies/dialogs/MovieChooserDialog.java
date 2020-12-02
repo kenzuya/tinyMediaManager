@@ -16,6 +16,15 @@
 package org.tinymediamanager.ui.movies.dialogs;
 
 import static java.util.Locale.ROOT;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -70,6 +79,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -89,7 +99,6 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieChooserModel;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
@@ -548,7 +557,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private void chooseArtwork(MediaFileType mediaFileType) {
-    ImageType imageType;
+    MediaArtwork.MediaArtworkType imageType;
     List<String> extrathumbs = null;
     List<String> extrafanarts = null;
 
@@ -557,14 +566,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         if (MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.POSTER;
+        imageType = POSTER;
         break;
 
       case FANART:
         if (MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.FANART;
+        imageType = BACKGROUND;
         if (MovieModuleManager.SETTINGS.isImageExtraThumbs()) {
           extrathumbs = new ArrayList<>();
         }
@@ -577,49 +586,49 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         if (MovieModuleManager.SETTINGS.getBannerFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.BANNER;
+        imageType = BANNER;
         break;
 
       case LOGO:
         if (MovieModuleManager.SETTINGS.getLogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.LOGO;
+        imageType = LOGO;
         break;
 
       case CLEARLOGO:
         if (MovieModuleManager.SETTINGS.getClearlogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARLOGO;
+        imageType = CLEARLOGO;
         break;
 
       case CLEARART:
         if (MovieModuleManager.SETTINGS.getClearartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARART;
+        imageType = CLEARART;
         break;
 
       case DISC:
         if (MovieModuleManager.SETTINGS.getDiscartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.DISC;
+        imageType = DISC;
         break;
 
       case THUMB:
         if (MovieModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.THUMB;
+        imageType = THUMB;
         break;
 
       case KEYART:
         if (MovieModuleManager.SETTINGS.getKeyartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.KEYART;
+        imageType = KEYART;
         break;
 
       default:
@@ -627,7 +636,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     }
 
     String imageUrl = ImageChooserDialog.chooseImage(this, movieToScrape.getIds(), imageType, artworkScrapers, extrathumbs, extrafanarts,
-        MediaType.MOVIE);
+        MediaType.MOVIE, movieToScrape.getPathNIO().toAbsolutePath().toString());
 
     movieToScrape.setArtworkUrl(imageUrl, mediaFileType);
     if (StringUtils.isNotBlank(imageUrl)) {

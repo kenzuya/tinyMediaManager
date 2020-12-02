@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.thirdparty;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -32,7 +33,14 @@ public class TinyFileDialogs {
       throw new Exception("Could not access tinyfiledialogs");
     }
 
-    String initialPath = defaultPath != null ? defaultPath.toAbsolutePath().toString() : null;
+    String initialPath = null;
+
+    if (defaultPath != null) {
+      initialPath = defaultPath.toAbsolutePath().toString();
+      if (defaultPath.toFile().isDirectory()) {
+        initialPath += File.separator;
+      }
+    }
 
     String path = TinyFileDialogsLibrary.INSTANCE.tinyfd_selectFolderDialog(title, initialPath);
     if (StringUtils.isBlank(path)) {
@@ -47,7 +55,15 @@ public class TinyFileDialogs {
       throw new Exception("Could not access tinyfiledialogs");
     }
 
-    String initialFile = defaultFile != null ? defaultFile.toAbsolutePath().toString() : null;
+    String initialFile = null;
+
+    if (defaultFile != null) {
+      initialFile = defaultFile.toAbsolutePath().toString();
+      if (defaultFile.toFile().isDirectory()) {
+        initialFile += File.separator;
+      }
+    }
+
     int filterPatternCount = 0;
     if (filterPatterns != null) {
       filterPatternCount = filterPatterns.length;

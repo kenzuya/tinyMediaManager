@@ -16,6 +16,15 @@
 package org.tinymediamanager.ui.tvshows.dialogs;
 
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CHARACTERART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
@@ -65,6 +74,7 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
@@ -107,7 +117,6 @@ import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.IdEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -367,8 +376,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblPoster.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.POSTER,
-                tvShowList.getAvailableArtworkScrapers(), lblPoster, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), POSTER,
+                tvShowList.getAvailableArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblPoster, tfPoster);
@@ -492,8 +506,15 @@ public class TvShowEditorDialog extends TmmDialog {
         lblFanart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.FANART,
-                tvShowList.getAvailableArtworkScrapers(), lblFanart, null, extrafanarts, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BACKGROUND,
+                tvShowList.getAvailableArtworkScrapers(), lblFanart, MediaType.TV_SHOW);
+
+            dialog.bindExtraFanarts(extrafanarts);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblFanart, tfFanart);
@@ -674,8 +695,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblClearlogo.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.CLEARLOGO,
-                tvShowList.getAvailableArtworkScrapers(), lblClearlogo, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARLOGO,
+                tvShowList.getAvailableArtworkScrapers(), lblClearlogo, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblClearlogo, tfClearLogo);
@@ -705,8 +731,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblBanner.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.BANNER,
-                tvShowList.getAvailableArtworkScrapers(), lblBanner, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BANNER,
+                tvShowList.getAvailableArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblBanner, tfBanner);
@@ -736,8 +767,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblClearart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.CLEARART,
-                tvShowList.getAvailableArtworkScrapers(), lblClearart, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARART,
+                tvShowList.getAvailableArtworkScrapers(), lblClearart, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblClearart, tfClearArt);
@@ -767,8 +803,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblLogo.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.LOGO,
-                tvShowList.getAvailableArtworkScrapers(), lblLogo, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), LOGO,
+                tvShowList.getAvailableArtworkScrapers(), lblLogo, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblLogo, tfLogo);
@@ -797,8 +838,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblKeyart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.KEYART,
-                tvShowList.getAvailableArtworkScrapers(), lblKeyart, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), KEYART,
+                tvShowList.getAvailableArtworkScrapers(), lblKeyart, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblKeyart, tfKeyart);
@@ -827,8 +873,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblThumb.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.THUMB,
-                tvShowList.getAvailableArtworkScrapers(), lblThumb, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), THUMB,
+                tvShowList.getAvailableArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblThumb, tfThumb);
@@ -857,8 +908,13 @@ public class TvShowEditorDialog extends TmmDialog {
         lblCharacterart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), ImageType.CHARACTERART,
-                tvShowList.getAvailableArtworkScrapers(), lblCharacterart, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CHARACTERART,
+                tvShowList.getAvailableArtworkScrapers(), lblCharacterart, MediaType.TV_SHOW);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
+            }
+
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblCharacterart, tfCharacterart);

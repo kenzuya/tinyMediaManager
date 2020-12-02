@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -72,8 +73,8 @@ class UiSettingsPanel extends JPanel {
   private static final Logger         LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
   private static final Integer[]      DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 
-  private Settings                    settings           = Settings.getInstance();
-  private List<LocaleComboBox>        locales            = new ArrayList<>();
+  private final Settings              settings           = Settings.getInstance();
+  private final List<LocaleComboBox>  locales            = new ArrayList<>();
 
   private JComboBox                   cbLanguage;
   private LinkLabel                   lblLinkTranslate;
@@ -85,6 +86,8 @@ class UiSettingsPanel extends JPanel {
   private JLabel                      lblThemeHint;
   private JCheckBox                   chckbxShowMemory;
   private JComboBox                   cbDatefield;
+  private JCheckBox                   chckbxImageChooserLastFolder;
+  private JCheckBox                   chckbxImageChooserEntityFolder;
 
   UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
@@ -165,6 +168,17 @@ class UiSettingsPanel extends JPanel {
           break;
       }
     });
+
+    ButtonGroup buttonGroup = new ButtonGroup();
+    buttonGroup.add(chckbxImageChooserLastFolder);
+    buttonGroup.add(chckbxImageChooserEntityFolder);
+
+    if (settings.isImageChooserUseEntityFolder()) {
+      chckbxImageChooserEntityFolder.setSelected(true);
+    }
+
+    chckbxImageChooserLastFolder.addActionListener(actionListener);
+    chckbxImageChooserEntityFolder.addActionListener(actionListener);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -249,7 +263,7 @@ class UiSettingsPanel extends JPanel {
 
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][10lp!][][][][10lp!][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -257,21 +271,31 @@ class UiSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblDatefield = new JLabel(BUNDLE.getString("Settings.datefield"));
-        panelMisc.add(lblDatefield, "cell 1 0");
+        panelMisc.add(lblDatefield, "cell 1 0 2 1");
 
         cbDatefield = new JComboBox(DateField.values());
-        panelMisc.add(cbDatefield, "cell 2 0");
+        panelMisc.add(cbDatefield, "cell 1 0");
 
         JLabel lblDatefieldHint = new JLabel(BUNDLE.getString("Settings.datefield.desc"));
         panelMisc.add(lblDatefieldHint, "cell 2 1");
       }
       {
+        JLabel lblImageChooserDefaultFolderT = new JLabel(BUNDLE.getString("Settings.imagechooser.folder"));
+        panelMisc.add(lblImageChooserDefaultFolderT, "cell 1 3 2 1");
+
+        chckbxImageChooserLastFolder = new JCheckBox(BUNDLE.getString("Settings.imagechooser.last"));
+        panelMisc.add(chckbxImageChooserLastFolder, "cell 2 4");
+
+        chckbxImageChooserEntityFolder = new JCheckBox(BUNDLE.getString("Settings.imagechooser.entity"));
+        panelMisc.add(chckbxImageChooserEntityFolder, "cell 2 5");
+      }
+      {
         chckbxStoreWindowPreferences = new JCheckBox(BUNDLE.getString("Settings.storewindowpreferences"));
-        panelMisc.add(chckbxStoreWindowPreferences, "cell 1 2 2 1");
+        panelMisc.add(chckbxStoreWindowPreferences, "cell 1 7 2 1");
       }
       {
         chckbxShowMemory = new JCheckBox(BUNDLE.getString("Settings.showmemory"));
-        panelMisc.add(chckbxShowMemory, "cell 1 3 2 1");
+        panelMisc.add(chckbxShowMemory, "cell 1 8 2 1");
       }
     }
   }
@@ -317,6 +341,9 @@ class UiSettingsPanel extends JPanel {
 
       TmmUIHelper.updateUI();
     }
+
+    // image chooser folder
+    settings.setImageChooserUseEntityFolder(chckbxImageChooserEntityFolder.isSelected());
   }
 
   /**

@@ -16,6 +16,15 @@
 package org.tinymediamanager.ui.tvshows.dialogs;
 
 import static java.util.Locale.ROOT;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CHARACTERART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -73,6 +82,7 @@ import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -91,7 +101,6 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
 import org.tinymediamanager.ui.tvshows.TvShowChooserModel;
@@ -554,7 +563,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private void chooseArtwork(MediaFileType mediaFileType) {
-    ImageType imageType;
+    MediaArtwork.MediaArtworkType imageType;
     List<String> extrafanarts = null;
 
     switch (mediaFileType) {
@@ -562,14 +571,14 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         if (TvShowModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.POSTER;
+        imageType = POSTER;
         break;
 
       case FANART:
         if (TvShowModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.FANART;
+        imageType = BACKGROUND;
         extrafanarts = new ArrayList<>();
         break;
 
@@ -577,49 +586,49 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         if (TvShowModuleManager.SETTINGS.getBannerFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.BANNER;
+        imageType = BANNER;
         break;
 
       case LOGO:
         if (TvShowModuleManager.SETTINGS.getLogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.LOGO;
+        imageType = LOGO;
         break;
 
       case CLEARLOGO:
         if (TvShowModuleManager.SETTINGS.getClearlogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARLOGO;
+        imageType = CLEARLOGO;
         break;
 
       case CLEARART:
         if (TvShowModuleManager.SETTINGS.getClearartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARART;
+        imageType = CLEARART;
         break;
 
       case CHARACTERART:
         if (TvShowModuleManager.SETTINGS.getCharacterartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CHARACTERART;
+        imageType = CHARACTERART;
         break;
 
       case THUMB:
         if (TvShowModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.THUMB;
+        imageType = THUMB;
         break;
 
       case KEYART:
         if (TvShowModuleManager.SETTINGS.getKeyartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.KEYART;
+        imageType = KEYART;
         break;
 
       default:
@@ -627,7 +636,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     }
 
     String imageUrl = ImageChooserDialog.chooseImage(this, tvShowToScrape.getIds(), imageType, artworkScrapers, null, extrafanarts,
-        MediaType.TV_SHOW);
+        MediaType.TV_SHOW, tvShowToScrape.getPathNIO().toAbsolutePath().toString());
 
     tvShowToScrape.setArtworkUrl(imageUrl, mediaFileType);
     if (StringUtils.isNotBlank(imageUrl)) {
