@@ -14,3 +14,4 @@ x exchanged native file dialogs with tiny file dialogs
 x better error messages for SSL errors #1122
 x added zxx (No linguistic content) to the language code detection #1125
 x allow selecting of E00 in episode chooser for some special episodes #967
+x added an HiDPI splash screen
