@@ -80,7 +80,7 @@ public class TmmTextFieldUI extends FlatTextFieldUI {
   private class UndoListener implements UndoableEditListener {
     @Override
     public void undoableEditHappened(UndoableEditEvent e) {
-      if (getComponent().isEditable()) {
+      if (getComponent() != null && getComponent().isEditable()) {
         undoManager.addEdit(e.getEdit());
       }
     }
