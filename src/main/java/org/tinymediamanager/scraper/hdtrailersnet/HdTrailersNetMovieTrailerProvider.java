@@ -42,14 +42,20 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  *
  * @author Myron Boyle
  */
-public class HDTrailersNetTrailerProvider implements IMovieTrailerProvider {
-  private static final Logger      LOGGER       = LoggerFactory.getLogger(HDTrailersNetTrailerProvider.class);
-  private static MediaProviderInfo providerInfo = createMediaProviderInfo();
+public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider {
+  private static final String     ID     = "hd-trailers";
+  private static final Logger     LOGGER = LoggerFactory.getLogger(HdTrailersNetMovieTrailerProvider.class);
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    return new MediaProviderInfo("hd-trailers", "hd-trailers.net",
+  private final MediaProviderInfo providerInfo;
+
+  public HdTrailersNetMovieTrailerProvider() {
+    providerInfo = createMediaProviderInfo();
+  }
+
+  private MediaProviderInfo createMediaProviderInfo() {
+    return new MediaProviderInfo(ID, "movie_trailer", "hd-trailers.net",
         "<html><h3>hd-trailers.net</h3>Scraper for hd-trailers.net which is able to scrape trailers</html>",
-        HDTrailersNetTrailerProvider.class.getResource("/org/tinymediamanager/scraper/hd-trailers_net.png"));
+        HdTrailersNetMovieTrailerProvider.class.getResource("/org/tinymediamanager/scraper/hd-trailers_net.png"));
   }
 
   @Override
@@ -58,8 +64,8 @@ public class HDTrailersNetTrailerProvider implements IMovieTrailerProvider {
   }
 
   @Override
-  public String getId() {
-    return providerInfo.getId();
+  public boolean isActive() {
+    return true;
   }
 
   @Override

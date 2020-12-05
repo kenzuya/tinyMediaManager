@@ -61,7 +61,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSubtitleProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -311,7 +311,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
       startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + searchTerm);
       for (MediaScraper scraper : scrapers) {
         try {
-          ISubtitleProvider subtitleProvider = (ISubtitleProvider) scraper.getMediaProvider();
+          IMovieSubtitleProvider subtitleProvider = (IMovieSubtitleProvider) scraper.getMediaProvider();
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
           options.setFile(file);
           options.setSearchQuery(searchTerm);

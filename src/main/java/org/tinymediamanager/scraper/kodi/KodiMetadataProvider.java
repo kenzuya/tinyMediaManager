@@ -31,12 +31,14 @@ import org.tinymediamanager.scraper.util.CacheMap;
  * @author Manuel Laggner
  */
 public class KodiMetadataProvider implements IKodiMetadataProvider {
-  public static final String                      ID           = "kodi";
-  private static MediaProviderInfo                providerInfo = new MediaProviderInfo(ID, "kodi.tv", "Generic Kodi type scraper");
+  public static final String                      ID        = "kodi";
   // cache one hour
-  protected static final CacheMap<String, String> XML_CACHE    = new CacheMap<>(60, 10);
+  protected static final CacheMap<String, String> XML_CACHE = new CacheMap<>(60, 10);
+
+  private final MediaProviderInfo                 providerInfo;
 
   public KodiMetadataProvider() {
+    providerInfo = new MediaProviderInfo(ID, ID, "kodi.tv", "Generic Kodi type scraper");
     // preload scrapers
     new KodiUtil();
   }
@@ -47,8 +49,8 @@ public class KodiMetadataProvider implements IKodiMetadataProvider {
   }
 
   @Override
-  public String getId() {
-    return ID;
+  public boolean isActive() {
+    return true;
   }
 
   /**

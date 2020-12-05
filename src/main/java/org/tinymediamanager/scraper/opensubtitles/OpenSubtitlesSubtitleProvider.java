@@ -34,13 +34,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles.model.Info;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.Similarity;
@@ -50,50 +48,62 @@ import org.tinymediamanager.scraper.util.Similarity;
  *
  * @author Myron Boyle, Manuel Laggner
  */
-public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
+abstract class OpenSubtitlesSubtitleProvider {
   public static final String       ID              = "opensubtitles";
 
-  private static final Logger      LOGGER          = LoggerFactory.getLogger(OpensubtitlesMetadataProvider.class);
   private static final String      SERVICE         = "http://api.opensubtitles.org/xml-rpc";
   private static final int         HASH_CHUNK_SIZE = 64 * 1024;
 
-  private static MediaProviderInfo providerInfo    = createMediaProviderInfo();
-  private static TmmXmlRpcClient   client          = null;
-  private static String            sessionToken    = "";
-  private static String            username        = "";
-  private static String            password        = "";
+  protected static TmmXmlRpcClient client          = null;
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "OpenSubtitles.org",
-        "<html><h3>OpenSubtitles.org</h3><br />A subtitle scraper for OpenSubtitles.org</html>",
-        OpensubtitlesMetadataProvider.class.getResource("/org/tinymediamanager/scraper/opensubtitles_org.png"));
+  private final MediaProviderInfo  providerInfo;
 
-    // configure/load settings
-    providerInfo.getConfig().addText("username", "");
-    providerInfo.getConfig().addText("password", "", true);
+  private String                   sessionToken    = "";
+  private String                   username        = "";
+  private String                   password        = "";
 
-    providerInfo.getConfig().load();
-
-    return providerInfo;
+  public OpenSubtitlesSubtitleProvider() {
+    providerInfo = createMediaProviderInfo();
   }
 
-  @Override
+  /**
+   * get the sub id of this scraper (for dedicated storage)
+   *
+   * @return the sub id
+   */
+  protected abstract String getSubId();
+
+  protected abstract Logger getLogger();
+
+  private MediaProviderInfo createMediaProviderInfo() {
+    MediaProviderInfo info = new MediaProviderInfo(ID, getSubId(), "OpenSubtitles.org",
+        "<html><h3>OpenSubtitles.org</h3><br />A subtitle scraper for OpenSubtitles.org</html>",
+        OpenSubtitlesSubtitleProvider.class.getResource("/org/tinymediamanager/scraper/opensubtitles_org.png"));
+
+    // configure/load settings
+    info.getConfig().addText("username", "");
+    info.getConfig().addText("password", "", true);
+
+    info.getConfig().load();
+
+    return info;
+  }
+
   public MediaProviderInfo getProviderInfo() {
     return providerInfo;
   }
 
-  @Override
-  public String getId() {
-    return ID;
+  public boolean isActive() {
+    return client != null && StringUtils.isNotBlank(client.getUserAgent());
   }
 
-  private static synchronized void initAPI() throws ScrapeException {
+  private synchronized void initAPI() throws ScrapeException {
     if (client == null) {
       try {
         client = new TmmXmlRpcClient(new URL(SERVICE));
       }
       catch (MalformedURLException e) {
-        LOGGER.error("cannot create XmlRpcClient", e);
+        getLogger().error("cannot create XmlRpcClient", e);
         throw new ScrapeException(e);
       }
     }
@@ -107,7 +117,6 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
     }
   }
 
-  @Override
   public List<SubtitleSearchResult> search(SubtitleSearchAndScrapeOptions options) throws ScrapeException {
     // lazy initialization of the api
     initAPI();
@@ -121,8 +130,8 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
         long fileSize = file.length();
         String hash = computeOpenSubtitlesHash(file);
 
-        LOGGER.debug("searching subtitle for {}", file);
-        LOGGER.debug("moviebytesize: {}; moviehash: {}", fileSize, hash);
+        getLogger().debug("searching subtitle for {}", file);
+        getLogger().debug("moviebytesize: {}; moviehash: {}", fileSize, hash);
 
         Map<String, Object> mapQuery = new HashMap<>();
         mapQuery.put("moviebytesize", fileSize);
@@ -145,7 +154,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
             results.add(result);
           }
 
-          LOGGER.debug("found {} results", info.getMovieInfo().size());
+          getLogger().debug("found {} results", info.getMovieInfo().size());
         }
         catch (TmmXmlRpcException e) {
           switch (e.statusCode) {
@@ -165,11 +174,11 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
           }
         }
         catch (Exception e) {
-          LOGGER.error("Could not search subtitle - {}", e.getMessage());
+          getLogger().error("Could not search subtitle - {}", e.getMessage());
         }
       }
       else {
-        LOGGER.warn("file does not exist or is zero byte: {}", file);
+        getLogger().warn("file does not exist or is zero byte: {}", file);
       }
     }
 
@@ -177,7 +186,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
     if (results.isEmpty() && StringUtils.isNotBlank(options.getImdbId())) {
       Map<String, Object> mapQuery = new HashMap<>();
 
-      LOGGER.debug("searching subtitle for imdb id: {}", options.getImdbId());
+      getLogger().debug("searching subtitle for imdb id: {}", options.getImdbId());
       // use IMDB Id without leading tt
       mapQuery.put("imdbid", options.getImdbId().replace("tt", ""));
       mapQuery.put("sublanguageid", getLanguageCode(options.getLanguage().toLocale()));
@@ -206,7 +215,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
           results.add(result);
         }
 
-        LOGGER.debug("found {} results", info.getMovieInfo().size());
+        getLogger().debug("found {} results", info.getMovieInfo().size());
       }
       catch (TmmXmlRpcException e) {
         switch (e.statusCode) {
@@ -226,7 +235,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
         }
       }
       catch (Exception e) {
-        LOGGER.error("Could not search subtitle.", e);
+        getLogger().error("Could not search subtitle.", e);
       }
     }
 
@@ -234,7 +243,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
     if (results.isEmpty() && StringUtils.isNotBlank(options.getSearchQuery())) {
       Map<String, Object> mapQuery = new HashMap<>();
 
-      LOGGER.debug("serching subtitle for query: {}", options.getSearchQuery());
+      getLogger().debug("serching subtitle for query: {}", options.getSearchQuery());
 
       mapQuery.put("query", options.getSearchQuery());
       mapQuery.put("sublanguageid", getLanguageCode(options.getLanguage().toLocale()));
@@ -255,7 +264,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
           results.add(result);
         }
 
-        LOGGER.debug("found {} results", info.getMovieInfo().size());
+        getLogger().debug("found {} results", info.getMovieInfo().size());
       }
       catch (TmmXmlRpcException e) {
         switch (e.statusCode) {
@@ -275,7 +284,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
         }
       }
       catch (Exception e) {
-        LOGGER.error("Could not search subtitle.", e);
+        getLogger().error("Could not search subtitle.", e);
       }
     }
 
@@ -308,7 +317,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
       }
     }
     else {
-      LOGGER.warn("Have no session - seems the startSession() did not work successfully");
+      getLogger().warn("Have no session - seems the startSession() did not work successfully");
     }
     return response;
   }
@@ -338,7 +347,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
    * (either registered user or anonymous). If user has no account, blank username and password should be used.
    */
   @SuppressWarnings("unchecked")
-  private static synchronized void startSession() throws ScrapeException {
+  private synchronized void startSession() throws ScrapeException {
     if ((providerInfo.getConfig().getValue("username") != null && !username.equals(providerInfo.getConfig().getValue("username")))
         || (providerInfo.getConfig().getValue("password") != null && !password.equals(providerInfo.getConfig().getValue("password")))) {
       username = providerInfo.getConfig().getValue("username");
@@ -353,7 +362,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
         Map<String, Object> response = (Map<String, Object>) client.call("LogIn", username, password, "",
             License.getInstance().getApiKey(providerInfo.getId()));
         sessionToken = (String) response.get("token");
-        LOGGER.debug("Login OK");
+        getLogger().debug("Login OK");
       }
       catch (InterruptedException e) {
         Thread.currentThread().interrupt();
@@ -371,7 +380,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
    *          the file to compute the hash
    * @return hash
    */
-  public static String computeOpenSubtitlesHash(File file) {
+  private String computeOpenSubtitlesHash(File file) {
     long size = file.length();
     long chunkSizeForFile = Math.min(HASH_CHUNK_SIZE, size);
 
@@ -387,7 +396,7 @@ public class OpensubtitlesMetadataProvider implements ISubtitleProvider {
       return String.format("%016x", size + head + tail);
     }
     catch (Exception e) {
-      LOGGER.error("Error computing OpenSubtitles hash", e);
+      getLogger().error("Error computing OpenSubtitles hash", e);
     }
     return "";
   }

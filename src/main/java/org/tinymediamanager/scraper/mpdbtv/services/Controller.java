@@ -87,7 +87,7 @@ public class Controller {
     return getService().movieSearch(apikey, username, subscriptionkey, searchstring, language, saga, format).execute().body();
   }
 
-  public MovieEntity getScrapeInformation(String apikey, String username, String subscriptionkey, int id, Locale language, String typeId,
+  public MovieEntity getScrapeInformation(String apikey, String username, String subscriptionkey, String id, Locale language, String typeId,
       String format) throws IOException {
 
     return getService().movieScrapebyID(apikey, username, subscriptionkey, id, language, typeId, format).execute().body();

@@ -44,7 +44,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowSubtitleProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
@@ -68,7 +68,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
     // get scrapers
     this.subtitleScrapers = new ArrayList<>();
     for (String scraperId : TvShowModuleManager.SETTINGS.getSubtitleScrapers()) {
-      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.SUBTITLE);
+      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.MOVIE_SUBTITLE);
       if (scraper != null) {
         subtitleScrapers.add(scraper);
       }
@@ -119,7 +119,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
           try {
             MediaFile mf = episode.getMediaFiles(MediaFileType.VIDEO).get(0);
 
-            ISubtitleProvider subtitleProvider = (ISubtitleProvider) scraper.getMediaProvider();
+            ITvShowSubtitleProvider subtitleProvider = (ITvShowSubtitleProvider) scraper.getMediaProvider();
             SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.TV_EPISODE);
             options.setFile(mf.getFileAsPath().toFile());
             options.setLanguage(language);

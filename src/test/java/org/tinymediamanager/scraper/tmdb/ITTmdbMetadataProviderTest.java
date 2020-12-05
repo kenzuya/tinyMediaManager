@@ -49,7 +49,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
     // Harry Potter
     results = null;
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter");
       options.setLanguage(MediaLanguages.en);
@@ -69,7 +69,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
     // Lucky # Slevin
     results = null;
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.en);
@@ -96,7 +96,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
     // Lucky # Slevin
     results = null;
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.de);
@@ -123,7 +123,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
     // Stripes
     results = null;
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       // FIXME: pt_BR != pt_PT, and since we only submit locale w/o country....
       options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Recrutas da Pesada"); // O Pelotão Chanfrado
@@ -157,7 +157,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
 
     // twelve monkeys
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setId(mp.getProviderInfo().getId(), "63");
       options.setLanguage(MediaLanguages.en);
@@ -181,7 +181,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
 
     // Harry Potter #1
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setId(mp.getProviderInfo().getId(), "671");
       options.setLanguage(MediaLanguages.en);
@@ -211,7 +211,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
 
     // Merida
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
@@ -238,7 +238,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
 
     // Stripes
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.pt_BR);
       options.setCertificationCountry(CountryCode.US);
@@ -268,7 +268,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
     // Harry Potter
     results = null;
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSetSearchAndScrapeOptions();
       options.setSearchQuery("Harry Potter");
       options.setLanguage(MediaLanguages.de);
@@ -292,7 +292,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
     // 101 Dalmatiner
     results = null;
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSetSearchAndScrapeOptions();
       options.setSearchQuery("101 Dalmatiner");
       options.setLanguage(MediaLanguages.de);
@@ -325,7 +325,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
 
     // Harry Potter collection
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbMovieMetadataProvider();
       options = new MovieSetSearchAndScrapeOptions();
       options.setId(mp.getProviderInfo().getId(), "1241");
       options.setLanguage(MediaLanguages.en);
@@ -356,7 +356,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
      * TV show tests in EN
      ********************************************************/
     try {
-      metadataProvider = new TmdbMetadataProvider();
+      metadataProvider = new TmdbTvShowMetadataProvider();
       options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery("Psych");
       options.setLanguage(MediaLanguages.en);
@@ -378,7 +378,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
      ********************************************************/
     results = null;
     try {
-      metadataProvider = new TmdbMetadataProvider();
+      metadataProvider = new TmdbTvShowMetadataProvider();
       options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery("Die Simpsons");
       options.setLanguage(MediaLanguages.de);
@@ -406,7 +406,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
      * Psych (1447)
      */
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbTvShowMetadataProvider();
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
@@ -418,7 +418,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       assertNotNull("Episodes", episodes);
 
       // result count
-      assertEquals("Episodes count", 144, episodes.size());
+      assertEquals("Episodes count", 146, episodes.size());
 
     }
     catch (Exception e) {
@@ -437,7 +437,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
      * Psych (1447)
      */
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbTvShowMetadataProvider();
       options = new TvShowSearchAndScrapeOptions();
       options.setTmdbId(1447);
       options.setLanguage(MediaLanguages.en);
@@ -454,7 +454,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
           md.getPlot());
       assertEquals(2006, md.getYear());
 
-      assertThat(md.getRatings().size()).isEqualTo(1);
+      assertThat(md.getRatings().size()).isGreaterThanOrEqualTo(1);
       MediaRating mediaRating = md.getRatings().get(0);
       assertThat(mediaRating.getId()).isNotEmpty();
       assertThat(mediaRating.getRating()).isGreaterThan(0);
@@ -483,7 +483,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
      * Psych (1447)
      */
     try {
-      mp = new TmdbMetadataProvider();
+      mp = new TmdbTvShowMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setTvShowIds(Collections.singletonMap(mp.getProviderInfo().getId(), "1447"));
       options.setLanguage(MediaLanguages.en);

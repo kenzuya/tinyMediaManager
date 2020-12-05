@@ -44,7 +44,7 @@ import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSubtitleProvider;
 
 /**
  * The class MovieSubtitleSearchAndDownloadTask is used to search and download subtitles by hash
@@ -67,7 +67,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
     // get scrapers
     this.subtitleScrapers = new ArrayList<>();
     for (String scraperId : MovieModuleManager.SETTINGS.getSubtitleScrapers()) {
-      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.SUBTITLE);
+      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.MOVIE_SUBTITLE);
       if (scraper != null) {
         subtitleScrapers.add(scraper);
       }
@@ -118,7 +118,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
           try {
             MediaFile mf = movie.getMediaFiles(MediaFileType.VIDEO).get(0);
 
-            ISubtitleProvider subtitleProvider = (ISubtitleProvider) scraper.getMediaProvider();
+            IMovieSubtitleProvider subtitleProvider = (IMovieSubtitleProvider) scraper.getMediaProvider();
             SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MOVIE);
             options.setFile(mf.getFileAsPath().toFile());
             options.setSearchQuery(movie.getOriginalTitle());

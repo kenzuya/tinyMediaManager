@@ -51,7 +51,6 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
-import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
@@ -169,7 +168,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
             options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
 
             try {
-              MediaScraper movieScraper = MediaScraper.getMediaScraperById(TmdbMetadataProvider.ID, ScraperType.MOVIE);
+              MediaScraper movieScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE);
               MediaMetadata md = ((IMovieMetadataProvider) movieScraper.getMediaProvider()).getMetadata(options);
               mis.imdbId = String.valueOf(md.getId(MediaMetadata.IMDB));
             }

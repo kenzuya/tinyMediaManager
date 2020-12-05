@@ -564,7 +564,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the artwork scrapers
    */
   public List<MediaScraper> getAvailableArtworkScrapers() {
-    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.TV_SHOW_ARTWORK);
+    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK);
     // we can use the TvShowMediaScraperComparator here too, since TheTvDb should also be first
     availableScrapers.sort(new TvShowMediaScraperComparator());
     return availableScrapers;
@@ -582,7 +582,7 @@ public class TvShowList extends AbstractModelObject {
       if (StringUtils.isBlank(providerId)) {
         continue;
       }
-      MediaScraper artworkScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.TV_SHOW_ARTWORK);
+      MediaScraper artworkScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.TVSHOW_ARTWORK);
       if (artworkScraper != null) {
         artworkScrapers.add(artworkScraper);
       }
@@ -1026,7 +1026,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the subtitle scrapers
    */
   public List<MediaScraper> getAvailableSubtitleScrapers() {
-    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.SUBTITLE);
+    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE);
     availableScrapers.sort(new TvShowMediaScraperComparator());
     return availableScrapers;
   }
@@ -1063,7 +1063,7 @@ public class TvShowList extends AbstractModelObject {
       if (StringUtils.isBlank(providerId)) {
         continue;
       }
-      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.SUBTITLE);
+      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.TVSHOW_SUBTITLE);
       if (subtitleScraper != null) {
         subtitleScrapers.add(subtitleScraper);
       }

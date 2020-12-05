@@ -22,7 +22,7 @@ import com.google.gson.annotations.SerializedName;
 public class MovieEntity {
 
   @SerializedName("id")
-  public Integer           id;
+  public String            id;
 
   @SerializedName("original_title")
   public String            originalTitle;

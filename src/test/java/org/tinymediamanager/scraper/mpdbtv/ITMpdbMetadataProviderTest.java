@@ -45,7 +45,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
   @Test
   public void testProviderInfo() {
     try {
-      MpdbMetadataProvider mp = new MpdbMetadataProvider();
+      MpdbMovieMetadataProvider mp = new MpdbMovieMetadataProvider();
       MediaProviderInfo providerInfo = mp.getProviderInfo();
 
       assertThat(providerInfo.getDescription()).isNotNull();
@@ -60,7 +60,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testSearch() throws ScrapeException {
-    MpdbMetadataProvider mp = new MpdbMetadataProvider();
+    MpdbMovieMetadataProvider mp = new MpdbMovieMetadataProvider();
     mp.getProviderInfo().getConfig().setValue("aboKey", System.getProperty("mpdb_aboKey"));
     mp.getProviderInfo().getConfig().setValue("username", System.getProperty("mpdb_username"));
 
@@ -78,7 +78,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testScrape() throws ScrapeException {
-    MpdbMetadataProvider mp = new MpdbMetadataProvider();
+    MpdbMovieMetadataProvider mp = new MpdbMovieMetadataProvider();
     mp.getProviderInfo().getConfig().setValue("aboKey", System.getProperty("mpdb_aboKey"));
     mp.getProviderInfo().getConfig().setValue("username", System.getProperty("mpdb_username"));
 

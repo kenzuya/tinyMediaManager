@@ -1831,7 +1831,7 @@ public class MovieSettings extends AbstractSettings {
     }
 
     subtitleScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_SUBTITLE)) {
       addMovieSubtitleScraper(ms.getId());
     }
   }

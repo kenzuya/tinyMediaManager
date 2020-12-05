@@ -56,6 +56,11 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
   }
 
   @Override
+  public boolean isActive() {
+    return true;
+  }
+
+  @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     SortedSet<MediaSearchResult> results = _search(options);
     if (results.isEmpty() && options.getSearchYear() > 0) {

@@ -44,7 +44,7 @@ public class ITFanartTvMetadataProviderTest extends BasicTest {
      * Test movie artwork
      */
     try {
-      artworkProvider = new FanartTvMetadataProvider();
+      artworkProvider = new FanartTvMovieArtworkProvider();
 
       ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
       options.setTmdbId(19995);

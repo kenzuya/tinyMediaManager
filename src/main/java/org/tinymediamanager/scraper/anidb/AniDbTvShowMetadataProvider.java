@@ -60,7 +60,7 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.OnDiskCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
-import org.tinymediamanager.scraper.interfaces.IMediaArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.RingBuffer;
 import org.tinymediamanager.scraper.util.Similarity;
@@ -72,28 +72,32 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  *
  * @author Manuel Laggner
  */
-public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArtworkProvider {
-  public static final String                ID                = "anidb";
-  private static final Logger               LOGGER            = LoggerFactory.getLogger(AniDBMetadataProvider.class);
-  private static final String               IMAGE_SERVER      = "http://img7.anidb.net/pics/anime/";
+public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITvShowArtworkProvider {
+  public static final String                      ID                = "anidb";
+  private static final Logger                     LOGGER            = LoggerFactory.getLogger(AniDbTvShowMetadataProvider.class);
+  private static final String                     IMAGE_SERVER      = "http://img7.anidb.net/pics/anime/";
   // flood: pager every 2 seconds
   // protection: https://wiki.anidb.net/w/HTTP_API_Definition
-  private static final RingBuffer<Long>     connectionCounter = new RingBuffer<>(1);
-  private static MediaProviderInfo          providerInfo      = createMediaProviderInfo();
+  private static final RingBuffer<Long>           connectionCounter = new RingBuffer<>(1);
 
-  private HashMap<Integer, List<AniDBShow>> showsForLookup    = new HashMap<>();
+  private final MediaProviderInfo                 providerInfo;
+  private final HashMap<Integer, List<AniDBShow>> showsForLookup    = new HashMap<>();
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "aniDB",
+  public AniDbTvShowMetadataProvider() {
+    providerInfo = createMediaProviderInfo();
+  }
+
+  private MediaProviderInfo createMediaProviderInfo() {
+    MediaProviderInfo info = new MediaProviderInfo(ID, "tvshow", "aniDB",
         "<html><h3>aniDB</h3><br />AniDB stands for Anime DataBase. AniDB is a non-profit anime database that is open freely to the public.</html>",
-        AniDBMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png"));
+        AniDbTvShowMetadataProvider.class.getResource("/org/tinymediamanager/scraper/anidb_net.png"));
 
     // configure/load settings
-    providerInfo.getConfig().addInteger("numberOfTags", 10);
-    providerInfo.getConfig().addInteger("minimumTagsWeight", 200);
-    providerInfo.getConfig().load();
+    info.getConfig().addInteger("numberOfTags", 10);
+    info.getConfig().addInteger("minimumTagsWeight", 200);
+    info.getConfig().load();
 
-    return providerInfo;
+    return info;
   }
 
   @Override
@@ -102,8 +106,14 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   }
 
   @Override
-  public String getId() {
-    return ID;
+  public boolean isActive() {
+    try {
+      String apiKey = License.getInstance().getApiKey(getId());
+      return StringUtils.isNotBlank(apiKey);
+    }
+    catch (Exception e) {
+      return false;
+    }
   }
 
   @Override
@@ -445,7 +455,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) {
     LOGGER.debug("search(): {}", options);
 
-    synchronized (AniDBMetadataProvider.class) {
+    synchronized (AniDbTvShowMetadataProvider.class) {
       // first run: build up the anime name list
       if (showsForLookup.isEmpty()) {
         buildTitleHashMap();
@@ -623,7 +633,7 @@ public class AniDBMetadataProvider implements ITvShowMetadataProvider, IMediaArt
       if (oldestConnection > (currentTime - 2000)) {
         LOGGER.debug("connection limit reached, throttling...");
         do {
-          AniDBMetadataProvider.class.wait(2000 - (currentTime - oldestConnection));
+          AniDbTvShowMetadataProvider.class.wait(2000 - (currentTime - oldestConnection));
           currentTime = System.currentTimeMillis();
         } while (oldestConnection > (currentTime - 2000));
       }

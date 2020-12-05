@@ -25,10 +25,11 @@ public enum ScraperType {
   TV_SHOW,
   MOVIE_SET,
   MOVIE_ARTWORK,
-  TV_SHOW_ARTWORK,
+  TVSHOW_ARTWORK,
   MOVIE_TRAILER,
   TVSHOW_TRAILER,
-  SUBTITLE, // TMM Types (representing an interfaces)
+  MOVIE_SUBTITLE,
+  TVSHOW_SUBTITLE, // TMM Types (representing an interfaces)
   ALBUM,
   ARTIST,
   MUSICVIDEO,

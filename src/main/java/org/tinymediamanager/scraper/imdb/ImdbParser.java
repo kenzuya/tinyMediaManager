@@ -18,12 +18,6 @@ package org.tinymediamanager.scraper.imdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.USE_TMDB_FOR_MOVIES;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.cleanString;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.getTmmGenre;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.processMediaArt;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInfo;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -37,6 +31,7 @@ import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,12 +44,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.license.License;
+import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -73,13 +71,26 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Manuel Laggner
  */
 public abstract class ImdbParser {
-  protected static final Pattern IMDB_ID_PATTERN   = Pattern.compile("/title/(tt[0-9]{6,})/");
-  protected static final Pattern PERSON_ID_PATTERN = Pattern.compile("/name/(nm[0-9]{6,})/");
+  static final Pattern                IMDB_ID_PATTERN            = Pattern.compile("/title/(tt[0-9]{6,})/");
+  static final Pattern                PERSON_ID_PATTERN          = Pattern.compile("/name/(nm[0-9]{6,})/");
+  static final String                 FILTER_UNWANTED_CATEGORIES = "filterUnwantedCategories";
+  static final String                 USE_TMDB_FOR_MOVIES        = "useTmdbForMovies";
+  static final String                 USE_TMDB_FOR_TV_SHOWS      = "useTmdbForTvShows";
+  static final String                 SCRAPE_COLLETION_INFO      = "scrapeCollectionInfo";
+  static final String                 SCRAPE_KEYWORDS_PAGE       = "scrapeKeywordsPage";
+  static final String                 SCRAPE_UNCREDITED_ACTORS   = "scrapeUncreditedActors";
+  static final String                 SCRAPE_LANGUAGE_NAMES      = "scrapeLanguageNames";
+  static final String                 LOCAL_RELEASE_DATE         = "localReleaseDate";
+  static final String                 MAX_KEYWORD_COUNT          = "maxKeywordCount";
 
-  protected final MediaType      type;
+  protected final MediaType           type;
+  protected final MediaProviderConfig config;
+  protected final ExecutorService     executor;
 
-  protected ImdbParser(MediaType type) {
+  protected ImdbParser(MediaType type, MediaProviderConfig config, ExecutorService executor) {
     this.type = type;
+    this.config = config;
+    this.executor = executor;
   }
 
   protected abstract Pattern getUnwantedSearchResultPattern();
@@ -91,12 +102,21 @@ public abstract class ImdbParser {
   protected abstract String getSearchCategory();
 
   /**
+   * should we filter unwanted categories
+   * 
+   * @return true/false
+   */
+  protected boolean isFilterUnwantedCategories() {
+    return config.getValueAsBool(FILTER_UNWANTED_CATEGORIES, false);
+  }
+
+  /**
    * scrape tmdb for movies too?
    *
    * @return true/false
    */
   protected boolean isUseTmdbForMovies() {
-    return ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool(USE_TMDB_FOR_MOVIES);
+    return config.getValueAsBool(USE_TMDB_FOR_MOVIES, false);
   }
 
   /**
@@ -105,7 +125,25 @@ public abstract class ImdbParser {
    * @return true/false
    */
   protected boolean isUseTmdbForTvShows() {
-    return ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool(USE_TMDB_FOR_TV_SHOWS);
+    return config.getValueAsBool(USE_TMDB_FOR_TV_SHOWS, false);
+  }
+
+  /**
+   * should we scrape uncredited actors
+   * 
+   * @return true/false
+   */
+  protected boolean isScrapeUncreditedActors() {
+    return config.getValueAsBool(SCRAPE_UNCREDITED_ACTORS, false);
+  }
+
+  /**
+   * should we scrape language names rather than the iso codes
+   * 
+   * @return true/false
+   */
+  protected boolean isScrapeLanguageNames() {
+    return config.getValueAsBool(SCRAPE_LANGUAGE_NAMES, false);
   }
 
   /**
@@ -114,7 +152,7 @@ public abstract class ImdbParser {
    * @return true/false
    */
   protected boolean isScrapeCollectionInfo() {
-    return ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeCollectionInfo");
+    return config.getValueAsBool(SCRAPE_COLLETION_INFO, false);
   }
 
   /**
@@ -123,7 +161,20 @@ public abstract class ImdbParser {
    * @return true/false
    */
   protected boolean isScrapeKeywordsPage() {
-    return ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeKeywordsPage");
+    return config.getValueAsBool(SCRAPE_KEYWORDS_PAGE, false);
+  }
+
+  /**
+   * get the maximum amount of keywords we should get from the keywords page
+   * 
+   * @return the configured numer or {@link Integer}.MAX_VALUE
+   */
+  protected int getMaxKeywordCount() {
+    Integer value = config.getValueAsInteger(MAX_KEYWORD_COUNT);
+    if (value == null) {
+      return Integer.MAX_VALUE;
+    }
+    return value;
   }
 
   protected SortedSet<MediaSearchResult> search(MediaSearchAndScrapeOptions options) throws ScrapeException {
@@ -134,7 +185,7 @@ public abstract class ImdbParser {
     String apiKey;
 
     try {
-      apiKey = License.getInstance().getApiKey(providerInfo.getId());
+      apiKey = License.getInstance().getApiKey(ImdbMetadataProvider.ID);
     }
     catch (Exception e) {
       throw new ScrapeException(e);
@@ -236,7 +287,7 @@ public abstract class ImdbParser {
 
       // if a movie name/id was found - return it
       if (StringUtils.isNotEmpty(movieName) && StringUtils.isNotEmpty(movieId)) {
-        MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.providerInfo.getId(), options.getMediaType());
+        MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
         sr.setTitle(movieName);
         sr.setIMDBId(movieId);
         sr.setYear(md.getYear());
@@ -370,7 +421,7 @@ public abstract class ImdbParser {
         continue;
       }
 
-      MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.providerInfo.getId(), options.getMediaType());
+      MediaSearchResult sr = new MediaSearchResult(ImdbMetadataProvider.ID, options.getMediaType());
       sr.setTitle(movieName);
       sr.setIMDBId(movieId);
       sr.setYear(year);
@@ -646,7 +697,6 @@ public abstract class ImdbParser {
       }
 
       if (elementText.equals("Country")) {
-        boolean scrapeLanguageNames = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeLanguageNames");
         Element nextElement = element.nextElementSibling();
         if (nextElement != null) {
           Elements countryElements = nextElement.getElementsByAttributeValueStarting("href", "/country/");
@@ -655,7 +705,7 @@ public abstract class ImdbParser {
           for (Element countryElement : countryElements) {
             Matcher matcher = pattern.matcher(countryElement.attr("href"));
             if (matcher.matches()) {
-              if (scrapeLanguageNames) {
+              if (isScrapeLanguageNames()) {
                 md.addCountry(
                     LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().getLanguage(), countryElement.text(), matcher.group(1)));
               }
@@ -668,7 +718,6 @@ public abstract class ImdbParser {
       }
 
       if (elementText.equals("Language")) {
-        boolean scrapeLanguageNames = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeLanguageNames");
         Element nextElement = element.nextElementSibling();
         if (nextElement != null) {
           Elements languageElements = nextElement.getElementsByAttributeValueStarting("href", "/language/");
@@ -677,7 +726,7 @@ public abstract class ImdbParser {
           for (Element languageElement : languageElements) {
             Matcher matcher = pattern.matcher(languageElement.attr("href"));
             if (matcher.matches()) {
-              if (scrapeLanguageNames) {
+              if (isScrapeLanguageNames()) {
                 md.addSpokenLanguage(LanguageUtils.getLocalizedLanguageNameFromLocalizedString(options.getLanguage().toLocale(),
                     languageElement.text(), matcher.group(1)));
               }
@@ -753,7 +802,7 @@ public abstract class ImdbParser {
               cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
             }
             if (matcher.group(1) != null) {
-              cm.setId(providerInfo.getId(), matcher.group(1));
+              cm.setId(ImdbMetadataProvider.ID, matcher.group(1));
             }
           }
         }
@@ -762,15 +811,13 @@ public abstract class ImdbParser {
     }
 
     // actors
-    boolean scrapeUncreditedActors = ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeUncreditedActors");
-
     Element castTableElement = doc.getElementsByClass("cast_list").first();
     if (castTableElement != null) {
       Elements castListLabel = castTableElement.getElementsByClass("castlist_label");
       Elements tr = castTableElement.getElementsByTag("tr");
       for (Element row : tr) {
         // check if we're at the uncredited cast members
-        if (!scrapeUncreditedActors && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
+        if (!isScrapeUncreditedActors() && castListLabel.size() > 1 && row.children().contains(castListLabel.get(1))) {
           break;
         }
 
@@ -805,7 +852,7 @@ public abstract class ImdbParser {
               cm.setProfileUrl("http://www.imdb.com" + matcher.group(0));
             }
             if (matcher.group(1) != null) {
-              cm.setId(providerInfo.getId(), matcher.group(1));
+              cm.setId(ImdbMetadataProvider.ID, matcher.group(1));
             }
           }
         }
@@ -886,10 +933,18 @@ public abstract class ImdbParser {
       return;
     }
 
+    int maxKeywordCount = getMaxKeywordCount();
+    int counter = 0;
+
     Elements keywords = div.getElementsByClass("sodatext");
     for (Element keyword : keywords) {
       if (StringUtils.isNotBlank(keyword.text())) {
         md.addTag(keyword.text());
+        counter++;
+
+        if (counter >= maxKeywordCount) {
+          break;
+        }
       }
     }
   }
@@ -1053,7 +1108,7 @@ public abstract class ImdbParser {
     }
 
     Person cm = new Person();
-    cm.setId(providerInfo.getId(), id);
+    cm.setId(ImdbMetadataProvider.ID, id);
     cm.setName(name);
     cm.setRole(characterName);
     cm.setThumbUrl(image);
@@ -1125,5 +1180,151 @@ public abstract class ImdbParser {
 
       return doc;
     }
+  }
+
+  protected void processMediaArt(MediaMetadata md, MediaArtwork.MediaArtworkType type, String image) {
+    MediaArtwork ma = new MediaArtwork(ImdbMetadataProvider.ID, type);
+
+    ma.setDefaultUrl(image);
+    ma.setOriginalUrl(image);
+
+    // create preview url (width = 342 as in TMDB)
+    String extension = FilenameUtils.getExtension(image);
+    String previewUrl = image.replace("." + extension, "_SX342." + extension);
+    ma.setPreviewUrl(previewUrl);
+
+    md.addMediaArt(ma);
+  }
+
+  protected void adoptArtworkToOptions(MediaArtwork artwork, ArtworkSearchAndScrapeOptions options) {
+    int width = 0;
+    int height = 0;
+
+    switch (options.getPosterSize()) {
+      case SMALL:
+        width = 185;
+        height = 277;
+        break;
+
+      case MEDIUM:
+        width = 342;
+        height = 513;
+        break;
+
+      case BIG:
+        width = 500;
+        height = 750;
+        break;
+
+      case LARGE:
+        width = 1000;
+        height = 1500;
+        break;
+
+      case XLARGE:
+        width = 2000;
+        height = 3000;
+        break;
+    }
+
+    if (width > 0 && height > 0) {
+      String image = artwork.getDefaultUrl();
+      String extension = FilenameUtils.getExtension(image);
+      String defaultUrl = image.replace("." + extension, "_SX" + width + "." + extension);
+
+      artwork.setDefaultUrl(defaultUrl);
+
+      artwork.setSizeOrder(options.getPosterSize().getOrder());
+      artwork.addImageSize(width, height, defaultUrl);
+    }
+  }
+
+  protected String cleanString(String oldString) {
+    if (StringUtils.isEmpty(oldString)) {
+      return "";
+    }
+    // remove non breaking spaces
+    String newString = StringUtils.trim(oldString.replace(String.valueOf((char) 160), " "));
+
+    // if there is a leading AND trailing quotation marks (e.g. at TV shows) - remove them
+    if (newString.startsWith("\"") && newString.endsWith("\"")) {
+      newString = StringUtils.stripEnd(StringUtils.stripStart(newString, "\""), "\"");
+    }
+
+    // and trim
+    return newString;
+  }
+
+  /*
+   * Maps scraper Genres to internal TMM genres
+   */
+  protected MediaGenres getTmmGenre(String genre) {
+    MediaGenres g = null;
+    if (StringUtils.isBlank(genre)) {
+      return null;
+    }
+    // @formatter:off
+    else if (genre.equals("Action")) {
+      g = MediaGenres.ACTION;
+    } else if (genre.equals("Adult")) {
+      g = MediaGenres.EROTIC;
+    } else if (genre.equals("Adventure")) {
+      g = MediaGenres.ADVENTURE;
+    } else if (genre.equals("Animation")) {
+      g = MediaGenres.ANIMATION;
+    } else if (genre.equals("Biography")) {
+      g = MediaGenres.BIOGRAPHY;
+    } else if (genre.equals("Comedy")) {
+      g = MediaGenres.COMEDY;
+    } else if (genre.equals("Crime")) {
+      g = MediaGenres.CRIME;
+    } else if (genre.equals("Documentary")) {
+      g = MediaGenres.DOCUMENTARY;
+    } else if (genre.equals("Drama")) {
+      g = MediaGenres.DRAMA;
+    } else if (genre.equals("Family")) {
+      g = MediaGenres.FAMILY;
+    } else if (genre.equals("Fantasy")) {
+      g = MediaGenres.FANTASY;
+    } else if (genre.equals("Film-Noir")) {
+      g = MediaGenres.FILM_NOIR;
+    } else if (genre.equals("Game-Show")) {
+      g = MediaGenres.GAME_SHOW;
+    } else if (genre.equals("History")) {
+      g = MediaGenres.HISTORY;
+    } else if (genre.equals("Horror")) {
+      g = MediaGenres.HORROR;
+    } else if (genre.equals("Music")) {
+      g = MediaGenres.MUSIC;
+    } else if (genre.equals("Musical")) {
+      g = MediaGenres.MUSICAL;
+    } else if (genre.equals("Mystery")) {
+      g = MediaGenres.MYSTERY;
+    } else if (genre.equals("News")) {
+      g = MediaGenres.NEWS;
+    } else if (genre.equals("Reality-TV")) {
+      g = MediaGenres.REALITY_TV;
+    } else if (genre.equals("Romance")) {
+      g = MediaGenres.ROMANCE;
+    } else if (genre.equals("Sci-Fi")) {
+      g = MediaGenres.SCIENCE_FICTION;
+    } else if (genre.equals("Short")) {
+      g = MediaGenres.SHORT;
+    } else if (genre.equals("Sport")) {
+      g = MediaGenres.SPORT;
+    } else if (genre.equals("Talk-Show")) {
+      g = MediaGenres.TALK_SHOW;
+    } else if (genre.equals("Thriller")) {
+      g = MediaGenres.THRILLER;
+    } else if (genre.equals("War")) {
+      g = MediaGenres.WAR;
+    } else if (genre.equals("Western")) {
+      g = MediaGenres.WESTERN;
+    }
+    // @formatter:on
+    if (g == null) {
+      g = MediaGenres.getGenre(genre);
+    }
+    return g;
   }
 }

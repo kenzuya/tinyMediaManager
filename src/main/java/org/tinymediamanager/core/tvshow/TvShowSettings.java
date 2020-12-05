@@ -341,10 +341,10 @@ public class TvShowSettings extends AbstractSettings {
   @Override
   protected void writeDefaultSettings() {
     // activate default scrapers
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
       addTvShowSubtitleScraper(ms.getId());
     }
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TV_SHOW_ARTWORK)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK)) {
       addTvShowArtworkScraper(ms.getId());
     }
 
@@ -1631,7 +1631,7 @@ public class TvShowSettings extends AbstractSettings {
   public void setDefaultScrapers() {
     // activate default scrapers
     artworkScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TV_SHOW_ARTWORK)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK)) {
       addTvShowArtworkScraper(ms.getId());
     }
 
@@ -1641,7 +1641,7 @@ public class TvShowSettings extends AbstractSettings {
     }
 
     subtitleScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
       addTvShowSubtitleScraper(ms.getId());
     }
   }

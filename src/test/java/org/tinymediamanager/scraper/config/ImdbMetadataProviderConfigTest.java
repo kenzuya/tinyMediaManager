@@ -18,25 +18,23 @@ package org.tinymediamanager.scraper.config;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.tinymediamanager.scraper.imdb.ImdbMetadataProvider;
+import org.tinymediamanager.scraper.imdb.ImdbMovieMetadataProvider;
 
 public class ImdbMetadataProviderConfigTest {
 
   @Test
   public void testConfig() {
-    ImdbMetadataProvider mp = new ImdbMetadataProvider();
+    ImdbMovieMetadataProvider mp = new ImdbMovieMetadataProvider();
 
-    mp.getProviderInfo().getConfig().setValue(ImdbMetadataProvider.USE_TMDB_FOR_MOVIES, true);
-    mp.getProviderInfo().getConfig().setValue(ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS, false);
+    mp.getProviderInfo().getConfig().setValue("useTmdbForMovies", true);
     mp.getProviderInfo().getConfig().setValue("scrapeCollectionInfo", true);
     mp.getProviderInfo().getConfig().setValue("filterUnwantedCategories", false);
     mp.getProviderInfo().getConfig().saveToDir("target");
 
-    mp = new ImdbMetadataProvider();
+    mp = new ImdbMovieMetadataProvider();
     // force loading from target
     mp.getProviderInfo().getConfig().loadFromDir("target");
-    Assert.assertTrue(mp.getProviderInfo().getConfig().getValueAsBool(ImdbMetadataProvider.USE_TMDB_FOR_MOVIES));
-    Assert.assertFalse(mp.getProviderInfo().getConfig().getValueAsBool(ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS));
+    Assert.assertTrue(mp.getProviderInfo().getConfig().getValueAsBool("useTmdbForMovies"));
     Assert.assertTrue(mp.getProviderInfo().getConfig().getValueAsBool("scrapeCollectionInfo"));
     Assert.assertFalse(mp.getProviderInfo().getConfig().getValueAsBool("filterUnwantedCategories"));
   }

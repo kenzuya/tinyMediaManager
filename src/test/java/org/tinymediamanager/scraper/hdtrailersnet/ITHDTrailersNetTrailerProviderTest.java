@@ -26,7 +26,7 @@ public class ITHDTrailersNetTrailerProviderTest extends BasicTest {
   public void testScrapeTrailer() {
     IMovieTrailerProvider mp;
     try {
-      mp = new HDTrailersNetTrailerProvider();
+      mp = new HdTrailersNetMovieTrailerProvider();
 
       TrailerSearchAndScrapeOptions options = new TrailerSearchAndScrapeOptions(MediaType.MOVIE);
 

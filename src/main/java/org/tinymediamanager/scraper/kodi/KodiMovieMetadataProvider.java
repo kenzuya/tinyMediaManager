@@ -49,6 +49,11 @@ public class KodiMovieMetadataProvider extends AbstractKodiMetadataProvider impl
   }
 
   @Override
+  public boolean isActive() {
+    return true;
+  }
+
+  @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     return _search(options);
   }

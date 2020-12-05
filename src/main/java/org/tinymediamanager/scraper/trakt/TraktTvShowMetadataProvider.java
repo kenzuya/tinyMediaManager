@@ -44,12 +44,13 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.scraper.util.TvUtils;
 
-import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.CastMember;
 import com.uwetrottmann.trakt5.entities.Credits;
 import com.uwetrottmann.trakt5.entities.CrewMember;
@@ -66,17 +67,26 @@ import retrofit2.Response;
  * The class TraktTvShowMetadataProvider is used to provide metadata for movies from trakt.tv
  */
 
-class TraktTVShowMetadataProvider {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TraktTVShowMetadataProvider.class);
+public class TraktTvShowMetadataProvider extends TraktMetadataProvider implements ITvShowMetadataProvider, ITvShowImdbMetadataProvider {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TraktTvShowMetadataProvider.class);
 
-  private final TraktV2       api;
-
-  TraktTVShowMetadataProvider(TraktV2 api) {
-    this.api = api;
+  @Override
+  protected String getSubId() {
+    return "tvshow";
   }
 
-  // Search
-  SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+  @Override
+  protected Logger getLogger() {
+    return LOGGER;
+  }
+
+  @Override
+  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+    LOGGER.debug("search() - {}", options);
+
+    // lazy initialization of the api
+    initAPI();
+
     String searchString = "";
     if (StringUtils.isNotEmpty(options.getSearchQuery())) {
       searchString = options.getSearchQuery();
@@ -117,18 +127,23 @@ class TraktTVShowMetadataProvider {
     return results;
   }
 
-  // Episode List
-  List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  @Override
+  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+    LOGGER.debug("getEpisodeList(): {}", options);
+
+    // lazy initialization of the api
+    initAPI();
+
     List<MediaMetadata> episodes = new ArrayList<>();
 
-    String id = options.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
+    String id = options.getIdAsString(getId());
     if (StringUtils.isBlank(id)) {
       // alternatively we can take the imdbid
       id = options.getIdAsString(IMDB);
     }
     if (StringUtils.isBlank(id)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
+      throw new MissingIdException(IMDB, getId());
     }
 
     // the API does not provide a complete access to all episodes, so we have to
@@ -151,14 +166,14 @@ class TraktTVShowMetadataProvider {
 
     for (Season season : ListUtils.nullSafe(seasons)) {
       for (Episode episode : ListUtils.nullSafe(season.episodes)) {
-        MediaMetadata ep = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
+        MediaMetadata ep = new MediaMetadata(getId());
         ep.setEpisodeNumber(TvUtils.getEpisodeNumber(episode.number));
         ep.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
         ep.setTitle(episode.title);
 
         if (episode.rating != null) {
           try {
-            MediaRating rating = new MediaRating(TraktMetadataProvider.PROVIDER_INFO.getId());
+            MediaRating rating = new MediaRating(getId());
             rating.setRating(Math.round(episode.rating * 10.0) / 10.0); // hack to round to 1 decimal
             rating.setVotes(episode.votes);
             rating.setMaxValue(10);
@@ -174,7 +189,7 @@ class TraktTVShowMetadataProvider {
         }
 
         if (episode.ids != null) {
-          ep.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), episode.ids.trakt);
+          ep.setId(getId(), episode.ids.trakt);
           if (episode.ids.tvdb != null && episode.ids.tvdb > 0) {
             ep.setId(TVDB, episode.ids.tvdb);
           }
@@ -196,10 +211,16 @@ class TraktTVShowMetadataProvider {
     return episodes;
   }
 
-  MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
+  @Override
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+    LOGGER.debug("getMetadata(): {}", options);
 
-    String id = options.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
+    // lazy initialization of the api
+    initAPI();
+
+    MediaMetadata md = new MediaMetadata(getId());
+
+    String id = options.getIdAsString(getId());
 
     // alternatively we can take the imdbid
     if (StringUtils.isBlank(id)) {
@@ -208,7 +229,7 @@ class TraktTVShowMetadataProvider {
 
     if (StringUtils.isBlank(id)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
+      throw new MissingIdException(IMDB, getId());
     }
 
     String lang = options.getLanguage().getLanguage();
@@ -242,7 +263,7 @@ class TraktTVShowMetadataProvider {
 
     // show meta data
     if (show.ids != null) {
-      md.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), show.ids.trakt);
+      md.setId(getId(), show.ids.trakt);
       if (show.ids.tvdb != null && show.ids.tvdb > 0) {
         md.setId(TVDB, show.ids.tvdb);
       }
@@ -323,8 +344,14 @@ class TraktTVShowMetadataProvider {
     return md;
   }
 
-  MediaMetadata getEpisodeMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
+  @Override
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+    LOGGER.debug("getMetadata(): {}", options);
+
+    // lazy initialization of the api
+    initAPI();
+
+    MediaMetadata md = new MediaMetadata(getId());
 
     // ok, we have 2 flavors here:
     // a) we get the season and episode number -> everything is fine
@@ -332,7 +359,7 @@ class TraktTVShowMetadataProvider {
 
     // get the tv show ids
     TvShowSearchAndScrapeOptions tvShowSearchAndScrapeOptions = options.createTvShowSearchAndScrapeOptions();
-    String showId = tvShowSearchAndScrapeOptions.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
+    String showId = tvShowSearchAndScrapeOptions.getIdAsString(getId());
 
     if (StringUtils.isBlank(showId)) {
       // alternatively we can take the imdbid
@@ -340,7 +367,7 @@ class TraktTVShowMetadataProvider {
     }
     if (StringUtils.isBlank(showId)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
+      throw new MissingIdException(IMDB, getId());
     }
 
     String episodeImdbId = options.getIdAsString(IMDB);
@@ -349,7 +376,7 @@ class TraktTVShowMetadataProvider {
     }
     int episodeTmdbId = options.getIdAsIntOrDefault(TMDB, 0);
     int episodeTvdbId = options.getIdAsIntOrDefault(TVDB, 0);
-    int episodeTraktId = options.getIdAsIntOrDefault(TraktMetadataProvider.ID, 0);
+    int episodeTraktId = options.getIdAsIntOrDefault(getId(), 0);
 
     // get episode number and season number
     int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
@@ -439,7 +466,7 @@ class TraktTVShowMetadataProvider {
     md.setSeasonNumber(TvUtils.getSeasonNumber(episode.season));
 
     if (episode.ids != null) {
-      md.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), episode.ids.trakt);
+      md.setId(getId(), episode.ids.trakt);
       if (episode.ids.tvdb != null && episode.ids.tvdb > 0) {
         md.setId(TVDB, episode.ids.tvdb);
       }

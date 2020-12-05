@@ -603,7 +603,7 @@ public class MovieList extends AbstractModelObject {
       if (sr.isEmpty() && movieSettings.isScraperFallback()) {
         for (MediaScraper ms : getAvailableMediaScrapers()) {
           if (provider.getProviderInfo().equals(ms.getMediaProvider().getProviderInfo())
-              || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi")) {
+              || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi") || !ms.getMediaProvider().isActive()) {
             continue;
           }
           LOGGER.info("no result yet - trying alternate scraper: {}", ms.getName());
@@ -747,7 +747,7 @@ public class MovieList extends AbstractModelObject {
    * @return the subtitle scrapers
    */
   public List<MediaScraper> getAvailableSubtitleScrapers() {
-    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.SUBTITLE);
+    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.MOVIE_SUBTITLE);
     availableScrapers.sort(new MovieMediaScraperComparator());
     return availableScrapers;
   }
@@ -775,7 +775,7 @@ public class MovieList extends AbstractModelObject {
       if (StringUtils.isBlank(providerId)) {
         continue;
       }
-      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.SUBTITLE);
+      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.MOVIE_SUBTITLE);
       if (subtitleScraper != null) {
         subtitleScrapers.add(subtitleScraper);
       }
@@ -970,7 +970,7 @@ public class MovieList extends AbstractModelObject {
 
     // audio languages
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioLanguagesInMovies, audioLanguages)) {
-      firePropertyChange(Constants.AUDIO_LANGUAGES,null,audioLanguagesInMovies);
+      firePropertyChange(Constants.AUDIO_LANGUAGES, null, audioLanguagesInMovies);
     }
 
     // subtitle languages

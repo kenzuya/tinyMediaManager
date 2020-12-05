@@ -28,7 +28,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
  * @author Myron Boyle, Manuel Laggner
  * @since 3.0
  */
-public interface ISubtitleProvider extends IMediaProvider {
+interface ISubtitleProvider extends IMediaProvider {
 
   /**
    * searches for subtitles for MediaFile

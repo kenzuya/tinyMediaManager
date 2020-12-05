@@ -63,6 +63,10 @@ class TmmXmlRpcClient {
     this.userAgent = userAgent;
   }
 
+  public String getUserAgent() {
+    return userAgent;
+  }
+
   /**
    * Call a remote procedure on the server. The method must be described by a method name. If the method requires parameters, this must be set. The
    * type of the return object depends on the server. You should consult the server documentation and then cast the return value according to that.

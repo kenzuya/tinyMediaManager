@@ -34,7 +34,7 @@ class OpenSubtitlesConnectionCounter {
     // hide constructor for utility classes
   }
 
-  public static synchronized void trackConnections() throws InterruptedException {
+  static synchronized void trackConnections() throws InterruptedException {
     long currentTime = System.currentTimeMillis();
     if (COUNTER.count() == COUNTER.maxSize()) {
       long oldestConnection = COUNTER.getTailItem();

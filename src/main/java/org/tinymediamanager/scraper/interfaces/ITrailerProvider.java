@@ -29,7 +29,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
  * @author Manuel Laggner
  * @since 3.0
  */
-public interface ITrailerProvider extends IMediaProvider {
+interface ITrailerProvider extends IMediaProvider {
 
   /**
    * Gets the trailers.

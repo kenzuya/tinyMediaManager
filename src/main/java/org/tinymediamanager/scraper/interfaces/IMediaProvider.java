@@ -37,5 +37,14 @@ public interface IMediaProvider {
    * 
    * @return the scraper id
    */
-  String getId();
+  default String getId() {
+    return getProviderInfo().getId();
+  }
+
+  /**
+   * indicates whether this scraper is active or not (private and valid API key OR public to be active)
+   * 
+   * @return true/false
+   */
+  boolean isActive();
 }

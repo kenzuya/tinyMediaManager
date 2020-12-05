@@ -1,7 +1,6 @@
 package org.tinymediamanager.scraper.tmdb;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.PROVIDER_INFO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowScrapeDataIntegrityInGerman() throws Exception {
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setTmdbId(160);
@@ -47,10 +46,9 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowScrapeDataIntegrityInGreekWithFallBackLanguageReturnCorrectData() throws Exception {
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", "el-GR");
-
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", "el-GR");
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setTmdbId(160);
@@ -61,13 +59,12 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
     assertThat(md).isNotNull();
     assertThat(md.getTitle()).isEqualTo("Χελωνονιντζάκια");
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test
   public void testTvShowSearchDataIntegrityInEnglish() throws Exception {
     // 1399
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("Game Of Thrones");
@@ -83,7 +80,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowSearchDataIntegrityInGreek() throws Exception {
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("2057");
@@ -99,10 +96,9 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowSearchDataWithFallBackLanguageShouldFallbackAndReturnCorrectData() throws Exception {
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", "da-DK");
-
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", "da-DK");
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("Band of Brothers");
@@ -116,13 +112,11 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
     assertThat(searchResults.get(0).getId()).isEqualTo("4613");
     assertThat(searchResults.get(0).getTitle()).isEqualTo("Kammerater i krig");
-
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test
   public void testTvEpisodeListDataIntegrityWithoutFallBackLanguageAndReturnIncorrectData() throws Exception {
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
@@ -146,10 +140,9 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvEpisodeListDataIntegrityWithFallBackLanguageShouldFallbackAndReturnCorrectData() throws Exception {
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.name());
-
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.name());
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
@@ -169,20 +162,17 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
             .isEqualTo("Η φτηνή τηλεόραση των Σίμσονς χαλάει κι ο Χόμερ με την Μαρτζ διηγούνται στα παιδιά τους πώς γνωρίστηκαν.");
       }
     }
-
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test
   public void testScrapeTvEpisodeWithFallBackLanguageShouldFallbackAndReturnCorrectData() throws Exception {
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
-
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
-    options.setTmdbId(456);
+    options.getTvShowIds().put(MediaMetadata.TMDB, 456);
     options.setId(MediaMetadata.SEASON_NR, "2");
     options.setId(MediaMetadata.EPISODE_NR, "12");
 
@@ -194,17 +184,15 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     assertThat(mediaMetadata.getTitle()).isEqualTo("Επεισόδιο 12");
     assertThat(mediaMetadata.getPlot())
         .isEqualTo("Η φτηνή τηλεόραση των Σίμσονς χαλάει κι ο Χόμερ με την Μαρτζ διηγούνται στα παιδιά τους πώς γνωρίστηκαν.");
-
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test
   public void testScrapeTvEpisodeWithoutFallBackLanguageAndReturnIncorrectData() throws Exception {
-    ITvShowMetadataProvider mp = new TmdbMetadataProvider();
+    ITvShowMetadataProvider mp = new TmdbTvShowMetadataProvider();
 
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
-    options.setTmdbId(456);
+    options.getTvShowIds().put(MediaMetadata.TMDB, 456);
     options.setId(MediaMetadata.SEASON_NR, "2");
     options.setId(MediaMetadata.EPISODE_NR, "12");
 

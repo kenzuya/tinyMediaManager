@@ -30,6 +30,7 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.tmdb2.Tmdb;
 import com.uwetrottmann.tmdb2.entities.Videos;
@@ -68,7 +69,12 @@ class TmdbTrailerProvider {
 
     if (tmdbId == 0 && StringUtils.isNotEmpty(imdbId)) {
       // try to get tmdbId via imdbId
-      tmdbId = new TmdbMetadataProvider().getTmdbIdFromImdbId(imdbId, options.getMediaType());
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, options.getMediaType(), imdbId);
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get tmdb from imdb - '{}'", e.getMessage());
+      }
     }
 
     if (tmdbId == 0) {
@@ -91,7 +97,8 @@ class TmdbTrailerProvider {
           videos.addAll(tmdbVideos.results);
           videos.addAll(tmdbVideosWoLang.results);
 
-        } else if (options.getMediaType() == MediaType.TV_SHOW) {
+        }
+        else if (options.getMediaType() == MediaType.TV_SHOW) {
           Videos tmdbVideos = api.tvService().videos(tmdbId, language).execute().body();
           Videos tmdbVideosWoLang = api.tvService().videos(tmdbId, "").execute().body();
 
@@ -111,7 +118,7 @@ class TmdbTrailerProvider {
       }
       MediaTrailer trailer = new MediaTrailer();
       trailer.setName(video.name);
-      trailer.setQuality(String.valueOf(video.size) + "p");
+      trailer.setQuality(video.size + "p");
       trailer.setProvider(video.site);
       trailer.setUrl(video.key);
 
@@ -121,7 +128,7 @@ class TmdbTrailerProvider {
         StringBuilder sb = new StringBuilder();
         sb.append("http://www.youtube.com/watch?v=");
         sb.append(video.key);
-        if (video.size >= 720) {
+        if (MetadataUtil.unboxInteger(video.size) >= 720) {
           sb.append("&hd=1");
         }
         trailer.setUrl(sb.toString());

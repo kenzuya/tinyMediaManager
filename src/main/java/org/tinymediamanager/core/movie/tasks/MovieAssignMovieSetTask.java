@@ -41,7 +41,6 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
-import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 
 /**
  * The class MovieAssignMovieSetTask. A task to assign the movie set to the given movies
@@ -85,8 +84,8 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
         return;
       }
       try {
-        MediaScraper movieScraper = MediaScraper.getMediaScraperById(TmdbMetadataProvider.ID, ScraperType.MOVIE);
-        MediaScraper movieSetScraper = MediaScraper.getMediaScraperById(TmdbMetadataProvider.ID, ScraperType.MOVIE_SET);
+        MediaScraper movieScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE);
+        MediaScraper movieSetScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE_SET);
 
         MovieSearchAndScrapeOptions movieOptions = new MovieSearchAndScrapeOptions();
         movieOptions.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());

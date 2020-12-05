@@ -24,7 +24,6 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
-import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
@@ -72,20 +71,20 @@ public class MediaIdUtil {
   }
 
   /**
-   * gets the imdb id via tmdb id
+   * gets the movie imdb id via tmdb id
    *
    * @param tmdbId
    *          the tmdb id
    * @return the imdb id or an empty String
    */
-  public static String getImdbIdViaTmdbId(int tmdbId) {
+  public static String getMovieImdbIdViaTmdbId(int tmdbId) {
     if (tmdbId == 0) {
       return "";
     }
 
     try {
       // call the tmdb metadata provider
-      IMediaProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB);
+      IMovieMetadataProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB, IMovieMetadataProvider.class);
       if (tmdb == null) {
         return "";
       }
@@ -93,10 +92,42 @@ public class MediaIdUtil {
       // we just need to "scrape" this movie
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setId(MediaMetadata.TMDB, Integer.toString(tmdbId));
-      MediaMetadata md = ((IMovieMetadataProvider) tmdb).getMetadata(options);
+      MediaMetadata md = tmdb.getMetadata(options);
       return md.getId(MediaMetadata.IMDB).toString();
     }
-    catch (Exception ingored) {
+    catch (Exception ignored) {
+      // nothing to be done here
+    }
+
+    return "";
+  }
+
+  /**
+   * gets the TV show imdb id via tmdb id
+   *
+   * @param tmdbId
+   *          the tmdb id
+   * @return the imdb id or an empty String
+   */
+  public static String getTvShowImdbIdViaTmdbId(int tmdbId) {
+    if (tmdbId == 0) {
+      return "";
+    }
+
+    try {
+      // call the tmdb metadata provider
+      ITvShowMetadataProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB, ITvShowMetadataProvider.class);
+      if (tmdb == null) {
+        return "";
+      }
+
+      // we just need to "scrape" this movie
+      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+      options.setId(MediaMetadata.TMDB, Integer.toString(tmdbId));
+      MediaMetadata md = tmdb.getMetadata(options);
+      return md.getId(MediaMetadata.IMDB).toString();
+    }
+    catch (Exception ignored) {
       // nothing to be done here
     }
 

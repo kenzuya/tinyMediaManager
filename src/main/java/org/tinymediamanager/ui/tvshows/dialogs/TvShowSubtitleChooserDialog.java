@@ -59,7 +59,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowSubtitleProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -313,7 +313,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + episodeToScrape.getTitle());
       for (MediaScraper scraper : scrapers) {
         try {
-          ISubtitleProvider subtitleProvider = (ISubtitleProvider) scraper.getMediaProvider();
+          ITvShowSubtitleProvider subtitleProvider = (ITvShowSubtitleProvider) scraper.getMediaProvider();
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.TV_SHOW);
           options.setFile(file);
           options.setImdbId(imdbId);

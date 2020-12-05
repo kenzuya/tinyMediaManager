@@ -49,6 +49,7 @@ public class MediaMetadata {
   public static final String             TMDB                 = "tmdb";
   public static final String             TVDB                 = "tvdb";
   public static final String             TMDB_SET             = "tmdbSet";
+  public static final String             TRAKT_TV             = "trakt";
 
   // some meta ids for TV show scraping
   public static final String             EPISODE_NR           = "episodeNr";
@@ -100,10 +101,10 @@ public class MediaMetadata {
   private int                            displaySeasonNumber  = -1;
   private int                            absoluteNumber       = -1;
   private MediaAiredStatus               status               = MediaAiredStatus.UNKNOWN;
-  private Map<Integer, String>           seasonNames          = new HashMap<>();
+  private final Map<Integer, String>     seasonNames          = new HashMap<>();
 
   // extra data
-  private Map<String, Object>            extraData            = new HashMap<>();
+  private final Map<String, Object>      extraData            = new HashMap<>();
 
   /**
    * Instantiates a new media metadata for the given provider.

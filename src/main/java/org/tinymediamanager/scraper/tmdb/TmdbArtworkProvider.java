@@ -47,9 +47,11 @@ class TmdbArtworkProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TmdbArtworkProvider.class);
 
   private final Tmdb          api;
+  private final String        baseUrl;
 
-  public TmdbArtworkProvider(Tmdb api) {
+  public TmdbArtworkProvider(Tmdb api, String baseUrl) {
     this.api = api;
+    this.baseUrl = baseUrl;
   }
 
   /**
@@ -75,7 +77,12 @@ class TmdbArtworkProvider {
 
     if (tmdbId == 0 && StringUtils.isNotEmpty(imdbId)) {
       // try to get tmdbId via imdbId
-      tmdbId = new TmdbMetadataProvider().getTmdbIdFromImdbId(imdbId, options.getMediaType());
+      try {
+        tmdbId = TmdbUtils.getTmdbIdFromImdbId(api, options.getMediaType(), imdbId);
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not get tmdb from imdb - '{}'", e.getMessage());
+      }
     }
 
     if (tmdbId == 0) {
@@ -143,7 +150,6 @@ class TmdbArtworkProvider {
   private List<MediaArtwork> prepareArtwork(Images tmdbArtwork, MediaArtwork.MediaArtworkType artworkType, int tmdbId,
       ArtworkSearchAndScrapeOptions options) {
     List<MediaArtwork> artwork = new ArrayList<>();
-    String baseUrl = TmdbMetadataProvider.configuration.images.base_url;
 
     if (tmdbArtwork == null) {
       return artwork;
@@ -160,7 +166,7 @@ class TmdbArtworkProvider {
     // prepare posters
     if (artworkType == MediaArtwork.MediaArtworkType.POSTER || artworkType == MediaArtwork.MediaArtworkType.ALL) {
       for (Image image : ListUtils.nullSafe(tmdbArtwork.posters)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtworkType.POSTER);
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.POSTER);
         ma.setPreviewUrl(baseUrl + "w185" + image.file_path);
         ma.setOriginalUrl(baseUrl + "original" + image.file_path);
         ma.setLanguage(image.iso_639_1);
@@ -191,7 +197,7 @@ class TmdbArtworkProvider {
 
     if (artworkType == MediaArtwork.MediaArtworkType.BACKGROUND || artworkType == MediaArtwork.MediaArtworkType.ALL) {
       for (Image image : ListUtils.nullSafe(tmdbArtwork.backdrops)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.PROVIDER_INFO.getId(), MediaArtworkType.BACKGROUND);
+        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.BACKGROUND);
         ma.setPreviewUrl(baseUrl + "w300" + image.file_path);
         ma.setOriginalUrl(baseUrl + "original" + image.file_path);
         ma.setLanguage(image.iso_639_1);
