@@ -80,20 +80,21 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                serialVersionUID = 3317576458848699068L;
-  private static final Logger                              LOGGER           = LoggerFactory.getLogger(TvShowEpisodeChooserDialog.class);
+  private static final long                                      serialVersionUID = 3317576458848699068L;
+  private static final Logger                                    LOGGER           = LoggerFactory.getLogger(TvShowEpisodeChooserDialog.class);
 
-  private TvShowEpisode                                    episode;
-  private MediaScraper                                     mediaScraper;
-  private MediaMetadata                                    metadata;
-  private ObservableElementList<TvShowEpisodeChooserModel> episodeEventList;
-  private final List<TvShowEpisodeChooserModel>            selectedEpisodes;
-  private final SortedList<TvShowEpisodeChooserModel>      sortedEpisodes;
+  private final TvShowEpisode                                    episode;
+  private final MediaScraper                                     mediaScraper;
+  private final ObservableElementList<TvShowEpisodeChooserModel> episodeEventList;
 
-  private JLabel                                           lblPath;
-  private TmmTable                                         table;
-  private JTextArea                                        taPlot;
-  private JTextField                                       textField;
+  private MediaMetadata                                          metadata;
+  private final List<TvShowEpisodeChooserModel>                  selectedEpisodes;
+  private final SortedList<TvShowEpisodeChooserModel>            sortedEpisodes;
+
+  private JLabel                                                 lblPath;
+  private TmmTable                                               table;
+  private JTextArea                                              taPlot;
+  private JTextField                                             textField;
 
   public TvShowEpisodeChooserDialog(TvShowEpisode ep, MediaScraper mediaScraper) {
     super(BUNDLE.getString("tvshowepisode.choose"), "episodeChooser");

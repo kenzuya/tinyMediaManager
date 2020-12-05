@@ -676,7 +676,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       dialog.setLocationRelativeTo(TvShowEpisodeEditorDialog.this);
       dialog.setVisible(true);
       MediaMetadata metadata = dialog.getMetadata();
-      if (metadata != null && metadata.getSeasonNumber() > -1 && metadata.getEpisodeNumber() > 0) {
+      if (metadata != null && metadata.getSeasonNumber() > -1 && metadata.getEpisodeNumber() > -1) {
         tfTitle.setText(metadata.getTitle());
         tfOriginalTitle.setText(metadata.getOriginalTitle());
         taPlot.setText(metadata.getPlot());
