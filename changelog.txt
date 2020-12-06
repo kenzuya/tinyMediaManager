@@ -9,6 +9,7 @@ Version 4.1
   The only drawback here is, that you may have to enter some options (like an individual API key) in every sub-scraper
   ATTENTION: since almost everything changed in the scraper setup, you may need to re-set the scraper options after the update
 
++ feature for still/thumb creation via FFmpeg #1017
 x exchanged native file dialogs with tiny file dialogs
   Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows
 x better error messages for SSL errors #1122

@@ -52,6 +52,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadActorImagesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadThemeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowEpisodeCreateThumbAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowFetchImdbRating;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMediaInformationAction;
@@ -278,6 +279,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowEpisodeCreateThumbAction.class));
     popupMenu.add(enhancedEditMenu);
 
     popupMenu.addSeparator();

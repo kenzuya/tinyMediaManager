@@ -97,6 +97,8 @@ public class Settings extends AbstractSettings {
   // language 2 char - saved to config
   private String                language;
   private String                mediaPlayer                 = "";
+  private String                mediaFramework              = "";
+  private Integer               ffmpegPercentage            = 50;
 
   private String                theme                       = "Light";
   private int                   fontSize                    = 12;
@@ -866,6 +868,26 @@ public class Settings extends AbstractSettings {
     String oldValue = mediaPlayer;
     mediaPlayer = newValue;
     firePropertyChange("mediaPlayer", oldValue, newValue);
+  }
+
+  public void setMediaFramework(String newValue) {
+    String oldValue = mediaFramework;
+    mediaFramework = newValue;
+    firePropertyChange("mediaFramework", oldValue, newValue);
+  }
+
+  public String getMediaFramework() {
+    return mediaFramework;
+  }
+
+  public void setFfmpegPercentage(Integer newValue) {
+    Integer oldValue = ffmpegPercentage;
+    ffmpegPercentage = newValue;
+    firePropertyChange("ffmpegPercentage", oldValue, newValue);
+  }
+
+  public Integer getFfmpegPercentage() {
+    return ffmpegPercentage;
   }
 
   public String getMediaPlayer() {

@@ -95,6 +95,7 @@ public class IconManager {
   public static final ImageIcon              RATING_BLUE                  = createMenuIcon("star.svg");
   public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
   public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
+  public static final ImageIcon              THUMB                        = createMenuIcon("photo-video.svg");
 
   // font awesome icons for the table/tree
   public static final ImageIcon              TABLE_OK                     = createSVGIcon("check.svg", new Color(31, 187, 0));
