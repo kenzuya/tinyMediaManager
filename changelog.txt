@@ -10,6 +10,7 @@ Version 4.1
   ATTENTION: since almost everything changed in the scraper setup, you may need to re-set the scraper options after the update
 
 + feature for still/thumb creation via FFmpeg #1017
++ added an option to suppress tooltips in the main tables #1128
 x exchanged native file dialogs with tiny file dialogs
   Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows
 x better error messages for SSL errors #1122

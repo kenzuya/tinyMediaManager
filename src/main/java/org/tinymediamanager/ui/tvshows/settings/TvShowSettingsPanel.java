@@ -56,7 +56,9 @@ class TvShowSettingsPanel extends JPanel {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TvShowSettings               settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings         settings         = TvShowModuleManager.SETTINGS;
+  private final ItemListener           checkBoxListener;
+
   private JCheckBox                    chckbxImageCache;
   private JCheckBox                    chckbxExtractArtworkFromVsmeta;
   private JCheckBox                    chckbxTraktTv;
@@ -73,6 +75,7 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxRenameAfterScrape;
   private JCheckBox                    chckbxAutoUpdateOnStart;
   private JCheckBox                    chckbxShowMissingSpecials;
+  private JCheckBox                    chckbxTvShowTableTooltips;
 
   private JCheckBox                    chckbxTvShowCheckPoster;
   private JCheckBox                    chckbxTvShowCheckFanart;
@@ -85,10 +88,7 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxTvShowSeasonCheckPoster;
   private JCheckBox                    chckbxTvShowSeasonCheckBanner;
   private JCheckBox                    chckbxTvShowSeasonCheckThumb;
-
   private JCheckBox                    chckbxTvShowEpisodeCheckThumb;
-
-  private ItemListener                 checkBoxListener;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -273,7 +273,7 @@ class TvShowSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][]")); // 16lp ~ width of the
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -294,10 +294,14 @@ class TvShowSettingsPanel extends JPanel {
         panelUiSettings.add(lblRating, "flowx,cell 1 3 2 1");
 
         cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes"));
-        panelUiSettings.add(cbRating, "cell 1 3");
+        panelUiSettings.add(cbRating, "cell 1 3 2 1");
 
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
         panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 4");
+      }
+      {
+        chckbxTvShowTableTooltips = new JCheckBox(BUNDLE.getString("Settings.tvshow.showtabletooltips"));
+        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 5 2 1");
       }
     }
     {
@@ -486,11 +490,15 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_8,
         chckbxExtractArtworkFromVsmeta, jCheckBoxBeanProperty);
     autoBinding_10.bind();
-
     //
     Property tvShowSettingsBeanProperty_11 = BeanProperty.create("updateOnStart");
     AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_11,
         chckbxAutoUpdateOnStart, jCheckBoxBeanProperty);
     autoBinding_11.bind();
+    //
+    Property tvShowSettingsBeanProperty_1 = BeanProperty.create("showTvShowTableTooltips");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1,
+        chckbxTvShowTableTooltips, jCheckBoxBeanProperty);
+    autoBinding_2.bind();
   }
 }

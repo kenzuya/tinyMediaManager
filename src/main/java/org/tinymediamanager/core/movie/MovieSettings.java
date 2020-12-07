@@ -223,7 +223,7 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                sortTitle                              = false;
 
   // ui
-  private boolean                                showLogosPanel                         = true;
+  private boolean                                showMovieTableTooltips                 = true;
 
   public MovieSettings() {
     super();
@@ -1303,16 +1303,6 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
   }
 
-  public boolean isShowLogosPanel() {
-    return showLogosPanel;
-  }
-
-  public void setShowLogosPanel(boolean newValue) {
-    boolean oldValue = showLogosPanel;
-    this.showLogosPanel = newValue;
-    firePropertyChange("showLogosPanel", oldValue, newValue);
-  }
-
   public void addMovieSetPosterFilename(MovieSetPosterNaming filename) {
     if (!movieSetPosterFilenames.contains(filename)) {
       movieSetPosterFilenames.add(filename);
@@ -1439,6 +1429,16 @@ public class MovieSettings extends AbstractSettings {
 
   public List<MovieSetDiscartNaming> getMovieSetDiscartFilenames() {
     return new ArrayList<>(this.movieSetDiscartFilenames);
+  }
+
+  public boolean isShowMovieTableTooltips() {
+    return showMovieTableTooltips;
+  }
+
+  public void setShowMovieTableTooltips(boolean newValue) {
+    boolean oldValue = showMovieTableTooltips;
+    showMovieTableTooltips = newValue;
+    firePropertyChange("showMovieTableTooltips", oldValue, newValue);
   }
 
   /*****************************************************************

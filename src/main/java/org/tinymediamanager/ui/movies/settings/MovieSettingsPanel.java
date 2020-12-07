@@ -75,6 +75,7 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxPersonalRatingFirst;
   private AutocompleteComboBox<String> cbRating;
   private JCheckBox                    chckbxIncludeExternalAudioStreams;
+  private JCheckBox                    chckbxMovieTableTooltips;
 
   private JCheckBox                    chckbxCheckPoster;
   private JCheckBox                    chckbxCheckFanart;
@@ -91,7 +92,7 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxSortableOriginalTitle;
   private JCheckBox                    chckbxSortTitle;
 
-  private ItemListener                 checkBoxListener;
+  private final ItemListener           checkBoxListener;
 
   public MovieSettingsPanel() {
 
@@ -219,7 +220,7 @@ public class MovieSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][]")); // 16lp ~ width of the
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -234,7 +235,7 @@ public class MovieSettingsPanel extends JPanel {
         panelUiSettings.add(lblRating, "cell 1 1 2 1");
 
         cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metascore", "rottenTomatoes"));
-        panelUiSettings.add(cbRating, "cell 1 1");
+        panelUiSettings.add(cbRating, "cell 1 1 2 1");
       }
       {
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
@@ -259,6 +260,10 @@ public class MovieSettingsPanel extends JPanel {
         panelUiSettings.add(lblSortableOriginalTitleHint, "cell 2 4");
         chckbxSortTitle = new JCheckBox(MovieTextMatcherList.SORTED_TITLE.toString());
         panelUiSettings.add(chckbxSortTitle, "cell 2 4");
+      }
+      {
+        chckbxMovieTableTooltips = new JCheckBox(BUNDLE.getString("Settings.movie.showtabletooltips"));
+        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 5 2 1");
       }
     }
     {
@@ -434,18 +439,18 @@ public class MovieSettingsPanel extends JPanel {
     autoBinding_12.bind();
     //
     Property movieSettingsBeanProperty_13 = BeanProperty.create("title");
-    AutoBinding autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_13,
-        chckbxTitle, jCheckBoxBeanProperty);
+    AutoBinding autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_13, chckbxTitle,
+        jCheckBoxBeanProperty);
     autoBinding_13.bind();
     //
     Property movieSettingsBeanProperty_14 = BeanProperty.create("sortableTitle");
-    AutoBinding autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_14,
-        chckbxSortableTitle, jCheckBoxBeanProperty);
+    AutoBinding autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_14, chckbxSortableTitle,
+        jCheckBoxBeanProperty);
     autoBinding_14.bind();
     //
     Property movieSettingsBeanProperty_15 = BeanProperty.create("originalTitle");
-    AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_15,
-        chckbxOriginalTitle, jCheckBoxBeanProperty);
+    AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_15, chckbxOriginalTitle,
+        jCheckBoxBeanProperty);
     autoBinding_15.bind();
     //
     Property movieSettingsBeanProperty_16 = BeanProperty.create("sortableOriginalTitle");
@@ -454,8 +459,13 @@ public class MovieSettingsPanel extends JPanel {
     autoBinding_16.bind();
     //
     Property movieSettingsBeanProperty_17 = BeanProperty.create("sortTitle");
-    AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_17,
-            chckbxSortTitle, jCheckBoxBeanProperty);
+    AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_17, chckbxSortTitle,
+        jCheckBoxBeanProperty);
     autoBinding_17.bind();
+    //
+    Property movieSettingsBeanProperty = BeanProperty.create("showMovieTableTooltips");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, chckbxMovieTableTooltips,
+        jCheckBoxBeanProperty);
+    autoBinding.bind();
   }
 }

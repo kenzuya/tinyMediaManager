@@ -22,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
@@ -62,5 +63,14 @@ public class TvShowTreeCellRenderer extends TmmTreeTableCellRenderer {
     }
 
     return renderer;
+  }
+
+  @Override
+  public String getToolTipText() {
+    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+      return null;
+    }
+
+    return super.getToolTipText();
   }
 }

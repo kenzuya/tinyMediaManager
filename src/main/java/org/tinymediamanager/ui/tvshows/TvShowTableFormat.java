@@ -475,6 +475,10 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasNfoTooltip(TmmTreeNode node) {
+    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+      return null;
+    }
+
     if (node.getUserObject() instanceof TvShow) {
       ImageIcon nfoIcon = hasNfo(node);
       if (nfoIcon == IconManager.TABLE_PROBLEM) {
@@ -485,6 +489,10 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasImageTooltip(TmmTreeNode node) {
+    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+      return null;
+    }
+
     if (node.getUserObject() instanceof TvShow) {
       ImageIcon nfoIcon = hasImages(node);
       if (nfoIcon == IconManager.TABLE_PROBLEM) {

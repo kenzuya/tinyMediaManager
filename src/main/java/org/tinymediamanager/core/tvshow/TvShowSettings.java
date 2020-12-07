@@ -96,7 +96,6 @@ public class TvShowSettings extends AbstractSettings {
   private static final String                            BAD_WORD                               = "badWord";
   private static final String                            SKIP_FOLDER                            = "skipFolder";
   private static final String                            SUBTITLE_SCRAPERS                      = "subtitleScrapers";
-  private static final String                            UI_FILTERS                             = "uiFilters";
   private static final String                            NFO_FILENAME                           = "nfoFilename";
   private static final String                            POSTER_FILENAME                        = "posterFilename";
   private static final String                            FANART_FILENAME                        = "fanartFilename";
@@ -214,11 +213,10 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        extractArtworkFromVsmeta               = false;
 
   // ui
-  private boolean                                        storeUiFilters                         = false;
   private boolean                                        displayMissingEpisodes                 = false;
   private boolean                                        displayMissingSpecials                 = false;
   private boolean                                        capitalWordsinTitles                   = false;
-  private boolean                                        showLogosPanel                         = true;
+  private boolean                                        showTvShowTableTooltips                = true;
 
   public TvShowSettings() {
     super();
@@ -1351,14 +1349,14 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
   }
 
-  public boolean isShowLogosPanel() {
-    return showLogosPanel;
+  public boolean isShowTvShowTableTooltips() {
+    return showTvShowTableTooltips;
   }
 
-  public void setShowLogosPanel(boolean newValue) {
-    boolean oldValue = showLogosPanel;
-    this.showLogosPanel = newValue;
-    firePropertyChange("showLogosPanel", oldValue, newValue);
+  public void setShowTvShowTableTooltips(boolean newValue) {
+    boolean oldValue = showTvShowTableTooltips;
+    showTvShowTableTooltips = newValue;
+    firePropertyChange("showTvShowTableTooltips", oldValue, newValue);
   }
 
   /*****************************************************************
