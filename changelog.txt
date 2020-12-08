@@ -2,6 +2,7 @@ upcoming version
 =======================
 x better error messages for SSL errors #1122
 + added decades filter for movies
++ added new column (audio title) in MediaInformationPanels (Movie / TvShows)
 
 Version 4.0.6
 =======================
