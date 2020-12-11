@@ -224,6 +224,8 @@ public class MovieSettings extends AbstractSettings {
 
   // ui
   private boolean                                showMovieTableTooltips                 = true;
+  private boolean                                showMovieSetTableTooltips              = true;
+  private boolean                                displayMovieSetMissingMovies           = false;
 
   public MovieSettings() {
     super();
@@ -1439,6 +1441,26 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = showMovieTableTooltips;
     showMovieTableTooltips = newValue;
     firePropertyChange("showMovieTableTooltips", oldValue, newValue);
+  }
+
+  public boolean isShowMovieSetTableTooltips() {
+    return showMovieSetTableTooltips;
+  }
+
+  public void setShowMovieSetTableTooltips(boolean newValue) {
+    boolean oldValue = showMovieSetTableTooltips;
+    showMovieSetTableTooltips = newValue;
+    firePropertyChange("showMovieSetTableTooltips", oldValue, newValue);
+  }
+
+  public boolean isDisplayMovieSetMissingMovies() {
+    return displayMovieSetMissingMovies;
+  }
+
+  public void setDisplayMovieSetMissingMovies(boolean newValue) {
+    boolean oldValue = this.displayMovieSetMissingMovies;
+    this.displayMovieSetMissingMovies = newValue;
+    firePropertyChange("displayMovieSetMissingMovies", oldValue, newValue);
   }
 
   /*****************************************************************

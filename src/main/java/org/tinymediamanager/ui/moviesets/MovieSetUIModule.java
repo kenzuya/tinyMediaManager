@@ -45,10 +45,12 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRemoveAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRenameAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetScrapeMissingMoviesAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSearchAction;
 import org.tinymediamanager.ui.moviesets.dialogs.MovieSetFilterDialog;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetArtworkPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetInformationPanel;
+import org.tinymediamanager.ui.moviesets.panels.MovieSetMissingMovieInformationPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetTreePanel;
 import org.tinymediamanager.ui.moviesets.settings.MovieSetSettingsNode;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
@@ -120,6 +122,20 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     movieSetFilterDialog = new MovieSetFilterDialog(treePanel.getTreeTable());
 
+    // panel for missing movies
+    JTabbedPane missingMovieDetailPanel = new MainTabbedPane() {
+      private static final long serialVersionUID = 3233548834189767661L;
+
+      @Override
+      public void updateUI() {
+        putClientProperty("leftBorder", "half");
+        putClientProperty("bottomBorder", Boolean.FALSE);
+        super.updateUI();
+      }
+    };
+    missingMovieDetailPanel.addTab(BUNDLE.getString("metatag.details"), new MovieSetMissingMovieInformationPanel(movieSelectionModel));
+    dataPanel.add(missingMovieDetailPanel, "missingMovie");
+
     // create actions and menus
     createActions();
     createPopupMenu();
@@ -163,6 +179,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieSetSearchAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetCleanupArtworkAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetMissingArtworkAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetScrapeMissingMoviesAction.class));
 
     // movie actions
     popupMenu.addSeparator();
@@ -236,6 +253,11 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
   public void setSelectedMovie(Movie movie) {
     movieSelectionModel.setSelectedMovie(movie);
     CardLayout cl = (CardLayout) (dataPanel.getLayout());
-    cl.show(dataPanel, "movie");
+    if (movie instanceof MovieSet.MovieSetMovie) {
+      cl.show(dataPanel, "missingMovie");
+    }
+    else {
+      cl.show(dataPanel, "movie");
+    }
   }
 }

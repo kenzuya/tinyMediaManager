@@ -32,12 +32,13 @@ import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
  * @author Manuel Laggner
  */
 public class MovieSetSelectionModel extends AbstractModelObject {
-  public static final String     SELECTED_MOVIE_SET = "selectedMovieSet";
+  public static final String           SELECTED_MOVIE_SET = "selectedMovieSet";
 
-  private MovieSet               selectedMovieSet;
-  private MovieSet               initalMovieSet     = new MovieSet("");
-  private PropertyChangeListener propertyChangeListener;
-  private TmmTreeTable           treeTable;
+  private final MovieSet               initalMovieSet     = new MovieSet("");
+  private final PropertyChangeListener propertyChangeListener;
+
+  private MovieSet                     selectedMovieSet;
+  private TmmTreeTable                 treeTable;
 
   /**
    * Instantiates a new movie selection model. Usage in MovieSetPanel
@@ -134,7 +135,7 @@ public class MovieSetSelectionModel extends AbstractModelObject {
   public List<Object> getSelectedObjects() {
     List<Object> selectedObjects = new ArrayList<>();
 
-    int rows[] = treeTable.getSelectedRows();
+    int[] rows = treeTable.getSelectedRows();
     for (int row : rows) {
       DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeTable.getValueAt(row, 0);
       if (node != null) {

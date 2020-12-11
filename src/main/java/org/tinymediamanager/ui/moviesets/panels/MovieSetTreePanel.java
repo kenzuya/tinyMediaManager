@@ -56,6 +56,7 @@ import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
+import org.tinymediamanager.ui.components.tree.TmmTreeModel;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTable;
@@ -63,6 +64,7 @@ import org.tinymediamanager.ui.components.treetable.TmmTreeTableComparatorChoose
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.moviesets.MovieSetSelectionModel;
 import org.tinymediamanager.ui.moviesets.MovieSetTableFormat;
+import org.tinymediamanager.ui.moviesets.MovieSetTreeCellRenderer;
 import org.tinymediamanager.ui.moviesets.MovieSetTreeDataProvider;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
@@ -125,6 +127,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
     TmmTreeTableFormat<TmmTreeNode> tableFormat = new MovieSetTableFormat();
     tree = new TmmTreeTable(new MovieSetTreeDataProvider(tableFormat), tableFormat);
+    tree.getColumnModel().getColumn(0).setCellRenderer(new MovieSetTreeCellRenderer());
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
 
     tree.setName("movieSets.movieSetTree");
@@ -141,6 +144,12 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
     tree.getModel().addTableModelListener(arg0 -> {
       updateFilteredCount();
+
+      if (tree.getTreeTableModel().getTreeModel() instanceof TmmTreeModel) {
+        if (((TmmTreeModel<?>) tree.getTreeTableModel().getTreeModel()).isAdjusting()) {
+          return;
+        }
+      }
 
       // select first movie set if nothing is selected
       ListSelectionModel selectionModel1 = tree.getSelectionModel();

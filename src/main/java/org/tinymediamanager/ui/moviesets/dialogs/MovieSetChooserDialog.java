@@ -381,6 +381,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
           // set scraped metadata
           List<MovieSetScraperMetadataConfig> scraperConfig = cbScraperConfig.getSelectedItems();
           movieSetToScrape.setMetadata(md, scraperConfig);
+          movieSetToScrape.setDummyMovies(model.getMovieSetMovies());
 
           // assign movies
           if (cbAssignMovies.isSelected()) {

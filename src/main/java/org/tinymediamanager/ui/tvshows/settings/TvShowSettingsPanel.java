@@ -298,8 +298,7 @@ class TvShowSettingsPanel extends JPanel {
 
         chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
         panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 4");
-      }
-      {
+
         chckbxTvShowTableTooltips = new JCheckBox(BUNDLE.getString("Settings.tvshow.showtabletooltips"));
         panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 5 2 1");
       }

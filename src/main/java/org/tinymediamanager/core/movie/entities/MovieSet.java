@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -62,9 +64,12 @@ public class MovieSet extends MediaEntity {
   private static final Comparator<MediaFile> MEDIA_FILE_COMPARATOR = new MovieMediaFileComparator();
 
   @JsonProperty
-  private List<UUID>                         movieIds              = new ArrayList<>(0);
+  private final List<UUID>                   movieIds              = new ArrayList<>(0);
 
-  private List<Movie>                        movies                = new CopyOnWriteArrayList<>();
+  @JsonProperty
+  private final List<MovieSetMovie>          dummyMovies           = new CopyOnWriteArrayList<>();
+
+  private final List<Movie>                  movies                = new CopyOnWriteArrayList<>();
   private String                             titleSortable         = "";
 
   /**
@@ -98,6 +103,11 @@ public class MovieSet extends MediaEntity {
       if (movie != null && movie.getMovieSet() == this) {
         movies.add(movie);
       }
+    }
+
+    // set the movie set reference in the dummy movies
+    for (MovieSetMovie movieSetMovie : dummyMovies) {
+      movieSetMovie.setMovieSet(this);
     }
   }
 
@@ -207,6 +217,10 @@ public class MovieSet extends MediaEntity {
    *          the movie
    */
   public void addMovie(Movie movie) {
+    if (movie instanceof MovieSetMovie) {
+      return;
+    }
+
     synchronized (movies) {
       if (movies.contains(movie)) {
         return;
@@ -235,6 +249,10 @@ public class MovieSet extends MediaEntity {
    *          the movie to insert into the movie set
    */
   public void insertMovie(Movie movie) {
+    if (movie instanceof MovieSetMovie) {
+      return;
+    }
+
     synchronized (movies) {
       if (movies.contains(movie)) {
         return;
@@ -302,6 +320,43 @@ public class MovieSet extends MediaEntity {
 
   public List<Movie> getMovies() {
     return movies;
+  }
+
+  /**
+   * build a list of <br>
+   * a) available movies along with<br>
+   * b) missing movies <br>
+   * for display in the movie set tree
+   *
+   * @return a list of _all_ movies
+   */
+  public List<Movie> getMoviesForDisplay() {
+    List<Movie> moviesForDisplay = new ArrayList<>(getMovies());
+
+    // now mix in all missing movies
+    if (MovieModuleManager.SETTINGS.isDisplayMovieSetMissingMovies()) {
+      for (MovieSetMovie movieSetMovie : dummyMovies) {
+        boolean found = false;
+
+        for (Movie movie : movies) {
+          if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
+            found = true;
+            break;
+          }
+          if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          moviesForDisplay.add(movieSetMovie);
+        }
+      }
+      moviesForDisplay.sort(MOVIE_SET_COMPARATOR);
+    }
+
+    return moviesForDisplay;
   }
 
   /**
@@ -515,6 +570,17 @@ public class MovieSet extends MediaEntity {
     saveToDb();
   }
 
+  public void setDummyMovies(List<MovieSetMovie> dummyMovies) {
+    this.dummyMovies.clear();
+    this.dummyMovies.addAll(dummyMovies);
+
+    firePropertyChange("dummyMovies", null, dummyMovies);
+  }
+
+  public List<MovieSetMovie> getDummyMovies() {
+    return dummyMovies;
+  }
+
   /*******************************************************************************
    * helper classses
    *******************************************************************************/
@@ -543,6 +609,54 @@ public class MovieSet extends MediaEntity {
 
       // fallback: sort via title
       return o2.getTitleForUi().compareTo(o1.getTitleForUi());
+    }
+  }
+
+  /**
+   * the class {@link MovieSetMovie} is used to indicate that this is a missing movie in this movie set
+   */
+  public static class MovieSetMovie extends Movie {
+    @Override
+    public void writeNFO() {
+      // do nothing here
+    }
+
+    @Override
+    public void saveToDb() {
+      // do nothing here
+    }
+
+    @Override
+    public MediaFile getMainVideoFile() {
+      // per se no video file here
+      return new MediaFile();
+    }
+
+    @Override
+    public void writeActorImages() {
+      // do nothing here
+    }
+
+    @Override
+    public void rename() {
+      // do nothing here
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      return title.equals(((MovieSetMovie) o).getTitle());
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder().append(title).build();
     }
   }
 }

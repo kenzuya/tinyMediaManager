@@ -15,8 +15,11 @@
  */
 package org.tinymediamanager.ui.moviesets;
 
+import static org.tinymediamanager.scraper.util.MediaIdUtil.getMovieImdbIdViaTmdbId;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -26,11 +29,12 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -46,10 +50,8 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
-import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
@@ -57,18 +59,20 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * The Class MovieSetChooserModel.
  */
 public class MovieSetChooserModel extends AbstractModelObject {
-  private static final ResourceBundle      BUNDLE      = ResourceBundle.getBundle("messages");
-  private static final Logger              LOGGER      = LoggerFactory.getLogger(MovieSetChooserModel.class);
-  public static final MovieSetChooserModel emptyResult = new MovieSetChooserModel();
-  private String                           name        = "";
-  private String                           posterUrl   = "";
-  private String                           fanartUrl   = "";
-  private String                           overview    = "";
-  private int                              tmdbId      = 0;
-  private MediaSearchResult                result      = null;
-  private MediaMetadata                    metadata    = null;
-  private List<MovieInSet>                 movies      = ObservableCollections.observableList(new ArrayList<>());
+  private static final ResourceBundle      BUNDLE         = ResourceBundle.getBundle("messages");
+  private static final Logger              LOGGER         = LoggerFactory.getLogger(MovieSetChooserModel.class);
+  public static final MovieSetChooserModel emptyResult    = new MovieSetChooserModel();
+  private String                           name           = "";
+  private String                           posterUrl      = "";
+  private String                           fanartUrl      = "";
+  private String                           overview       = "";
+  private int                              tmdbId         = 0;
+  private MediaSearchResult                result         = null;
+  private MediaMetadata                    metadata       = null;
+  private List<MovieInSet>                 movies         = ObservableCollections.observableList(new ArrayList<>());
   private MediaScraper                     scraper;
+
+  private List<MovieSet.MovieSetMovie>     movieSetMovies = new ArrayList<>();
 
   private boolean                          scraped;
 
@@ -158,32 +162,16 @@ public class MovieSetChooserModel extends AbstractModelObject {
       }
 
       // try to match via imdbid if nothing has been found
-      if (mis.movie == null) {
-        if (!MetadataUtil.isValidImdbId(mis.imdbId)) {
+      if (mis.getMovie() == null) {
+        if (!MetadataUtil.isValidImdbId(mis.imdbId) && mis.tmdbId > 0) {
           // get imdbid for this tmdbid
-          if (scraper.getMediaProvider() != null) {
-            MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
-            options.setTmdbId(mis.tmdbId);
-            options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
-            options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-
-            try {
-              MediaScraper movieScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE);
-              MediaMetadata md = ((IMovieMetadataProvider) movieScraper.getMediaProvider()).getMetadata(options);
-              mis.imdbId = String.valueOf(md.getId(MediaMetadata.IMDB));
-            }
-            catch (ScrapeException e) {
-              LOGGER.error("getMovieSet", e);
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, mis.name, "message.scrape.metadatamoviesetfailed",
-                  new String[] { ":", e.getLocalizedMessage() }));
-            }
-            catch (MissingIdException | NothingFoundException e) {
-              LOGGER.debug("could not scrape: {}", e.getMessage());
-            }
+          String imdbId = getMovieImdbIdViaTmdbId(mis.tmdbId);
+          if (MetadataUtil.isValidImdbId(imdbId)) {
+            mis.imdbId = imdbId;
           }
         }
 
-        if (StringUtils.isNotEmpty(mis.imdbId)) {
+        if (MetadataUtil.isValidImdbId(mis.imdbId)) {
           for (Movie movie : moviesFromMovieList) {
             if (mis.imdbId.equals(movie.getImdbId())) {
               mis.setMovie(movie);
@@ -243,6 +231,22 @@ public class MovieSetChooserModel extends AbstractModelObject {
               movie.setReleaseDate(new SimpleDateFormat("yyyy-MM-dd").format(item.getReleaseDate()));
             }
             movies.add(movie);
+
+            // mix in the dummy movie
+            MovieSet.MovieSetMovie movieSetMovie = new MovieSet.MovieSetMovie();
+            movieSetMovie.setMetadata(item, Arrays.asList(MovieScraperMetadataConfig.values()));
+
+            // POSTER
+            if (!item.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {
+              movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtworkType.POSTER).get(0).getDefaultUrl(), MediaFileType.POSTER);
+            }
+
+            // FANART
+            if (!item.getMediaArt(MediaArtworkType.BACKGROUND).isEmpty()) {
+              movieSetMovie.setArtworkUrl(item.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getDefaultUrl(), MediaFileType.FANART);
+            }
+
+            movieSetMovies.add(movieSetMovie);
           }
 
           Collections.sort(movies);
@@ -272,13 +276,17 @@ public class MovieSetChooserModel extends AbstractModelObject {
     return movies;
   }
 
+  public List<MovieSet.MovieSetMovie> getMovieSetMovies() {
+    return movieSetMovies;
+  }
+
   public void startArtworkScrapeTask(MovieSet movieSet, List<MovieSetScraperMetadataConfig> config) {
     TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(movieSet, config));
   }
 
   private class ArtworkScrapeTask extends TmmTask {
-    private MovieSet                   movieSetToScrape;
-    private List<MovieSetScraperMetadataConfig> config;
+    private final MovieSet                            movieSetToScrape;
+    private final List<MovieSetScraperMetadataConfig> config;
 
     public ArtworkScrapeTask(MovieSet movieSet, List<MovieSetScraperMetadataConfig> config) {
       super(BUNDLE.getString("message.scrape.artwork") + " " + movieSet.getTitle(), 0, TaskType.BACKGROUND_TASK);

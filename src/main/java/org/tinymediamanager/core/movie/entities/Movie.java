@@ -969,12 +969,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     saveToDb();
 
     // rename the movie if that has been chosen in the settings
-    if (MovieModuleManager.SETTINGS.isRenameAfterScrape()) {
-      MovieRenamer.renameMovie(this);
-
-      // re-build the image cache afterwards in an own thread
-      cacheImages();
-    }
+    rename();
 
     // write actor images after possible rename (to have a good folder structure)
     if (ScraperMetadataConfig.containsAnyCast(config)) {
@@ -1330,6 +1325,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
       connector.write(nfonames);
       firePropertyChange(HAS_NFO_FILE, false, true);
+    }
+  }
+
+  public void rename() {
+    // rename the movie if that has been chosen in the settings
+    if (MovieModuleManager.SETTINGS.isRenameAfterScrape()) {
+      MovieRenamer.renameMovie(this);
+
+      // re-build the image cache afterwards in an own thread
+      cacheImages();
     }
   }
 

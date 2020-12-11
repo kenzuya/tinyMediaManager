@@ -53,7 +53,6 @@ import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeDataProvider;
 import org.tinymediamanager.ui.components.tree.TmmTreeModel;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
-import org.tinymediamanager.ui.tvshows.TvShowTreeCellRenderer;
 
 /**
  * The class TmmTreeTable provides a combination of a tree and a table
@@ -92,7 +91,6 @@ public class TmmTreeTable extends TmmTable {
   }
 
   protected void initTreeTable() {
-    getColumnModel().getColumn(0).setCellRenderer(new TvShowTreeCellRenderer());
     getSelectionModel().addListSelectionListener(e -> {
       if (getSelectedRowCount() == 1) {
         selectedRow = getSelectedRow();

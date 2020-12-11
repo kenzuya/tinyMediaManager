@@ -66,6 +66,7 @@ import org.tinymediamanager.ui.components.treetable.TmmTreeTableComparatorChoose
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 import org.tinymediamanager.ui.tvshows.TvShowTableFormat;
+import org.tinymediamanager.ui.tvshows.TvShowTreeCellRenderer;
 import org.tinymediamanager.ui.tvshows.TvShowTreeDataProvider;
 import org.tinymediamanager.ui.tvshows.TvShowTreeTextFilter;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
@@ -137,6 +138,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
     TmmTreeTableFormat<TmmTreeNode> tableFormat = new TvShowTableFormat();
     tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat);
+    tree.getColumnModel().getColumn(0).setCellRenderer(new TvShowTreeCellRenderer());
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
     tree.setName("tvshows.tvshowTree");
     TmmUILayoutStore.getInstance().install(tree);

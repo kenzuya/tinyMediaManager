@@ -190,7 +190,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getFormat(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof Movie) {
+    if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       return ((Movie) userObject).getMediaInfoVideoFormat();
     }
     return null;
@@ -198,7 +201,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof Movie) {
+    if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       long size = 0;
       for (MediaFile mf : ((Movie) userObject).getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
@@ -211,7 +217,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon hasNfo(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof Movie) {
+    if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       return getCheckIcon(((Movie) userObject).getHasNfoFile());
     }
     return null;
@@ -222,7 +231,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     if (userObject instanceof MovieSet) {
       return getCheckIcon(((MovieSet) userObject).getHasImages());
     }
-    if (userObject instanceof Movie) {
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       return getCheckIcon(((Movie) userObject).getHasImages());
     }
     return null;
@@ -233,7 +245,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     if (userObject instanceof MovieSet) {
       return getCheckIcon(((MovieSet) userObject).isWatched());
     }
-    if (userObject instanceof Movie) {
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       return getCheckIcon(((Movie) userObject).isWatched());
     }
     return null;

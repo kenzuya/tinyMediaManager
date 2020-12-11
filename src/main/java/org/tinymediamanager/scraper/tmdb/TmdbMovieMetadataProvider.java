@@ -18,10 +18,12 @@ package org.tinymediamanager.scraper.tmdb;
 import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.MediaMetadata.TMDB_SET;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -377,11 +379,18 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     MediaMetadata md = new MediaMetadata(getId());
 
     // tmdbId from option
-    int tmdbId = options.getTmdbId();
+    int tmdbId;
+
+    if (options.getIdAsInt(TMDB_SET) > 0) {
+      tmdbId = options.getIdAsInt(TMDB_SET);
+    }
+    else {
+      tmdbId = options.getTmdbId();
+    }
 
     if (tmdbId == 0) {
       LOGGER.warn("not possible to scrape from TMDB - no tmdbId found");
-      throw new MissingIdException(MediaMetadata.TMDB_SET);
+      throw new MissingIdException(TMDB_SET);
     }
 
     String language = getRequestLanguage(options.getLanguage());
@@ -450,7 +459,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
       throw new NothingFoundException();
     }
 
-    md.setId(MediaMetadata.TMDB_SET, collection.id);
+    md.setId(TMDB_SET, collection.id);
     md.setTitle(collection.name);
     md.setPlot(collection.overview);
 
@@ -478,34 +487,94 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
 
     // add all movies belonging to this movie set
     for (BaseMovie part : ListUtils.nullSafe(collection.parts)) {
-      MediaMetadata mdSubItem = new MediaMetadata(getId());
-      mdSubItem.setId(getId(), part.id);
-      mdSubItem.setTitle(part.title);
-
-      // Poster
-      if (StringUtils.isNotBlank(part.poster_path)) {
-        MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
-        ma.setPreviewUrl(artworkBaseUrl + "w185" + part.poster_path);
-        ma.setDefaultUrl(artworkBaseUrl + "original" + part.poster_path);
-        ma.setOriginalUrl(artworkBaseUrl + "original" + part.poster_path);
-        ma.setLanguage(options.getLanguage().getLanguage());
-        ma.setTmdbId(part.id);
-        mdSubItem.addMediaArt(ma);
+      if (part.release_date == null) {
+        // has not been released yet?
+        continue;
       }
 
-      // Fanart
-      if (StringUtils.isNotBlank(part.backdrop_path)) {
-        MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
-        ma.setPreviewUrl(artworkBaseUrl + "w300" + part.backdrop_path);
-        ma.setDefaultUrl(artworkBaseUrl + "original" + part.backdrop_path);
-        ma.setOriginalUrl(artworkBaseUrl + "original" + part.backdrop_path);
-        ma.setLanguage(options.getLanguage().getLanguage());
-        ma.setTmdbId(part.id);
-        mdSubItem.addMediaArt(ma);
-      }
+      // get the full meta data
+      try {
+        MovieSearchAndScrapeOptions movieSearchAndScrapeOptions = new MovieSearchAndScrapeOptions();
+        movieSearchAndScrapeOptions.setTmdbId(MetadataUtil.unboxInteger(part.id));
+        movieSearchAndScrapeOptions.setLanguage(options.getLanguage());
+        movieSearchAndScrapeOptions.setCertificationCountry(options.getCertificationCountry());
+        MediaMetadata mdSubItem = getMetadata(movieSearchAndScrapeOptions);
 
-      mdSubItem.setReleaseDate(part.release_date);
-      md.addSubItem(mdSubItem);
+        // Poster
+        if (StringUtils.isNotBlank(part.poster_path)) {
+          MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
+          ma.setPreviewUrl(artworkBaseUrl + "w185" + part.poster_path);
+          ma.setDefaultUrl(artworkBaseUrl + "original" + part.poster_path);
+          ma.setOriginalUrl(artworkBaseUrl + "original" + part.poster_path);
+          ma.setLanguage(options.getLanguage().getLanguage());
+          ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          mdSubItem.addMediaArt(ma);
+        }
+
+        // Fanart
+        if (StringUtils.isNotBlank(part.backdrop_path)) {
+          MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
+          ma.setPreviewUrl(artworkBaseUrl + "w300" + part.backdrop_path);
+          ma.setDefaultUrl(artworkBaseUrl + "original" + part.backdrop_path);
+          ma.setOriginalUrl(artworkBaseUrl + "original" + part.backdrop_path);
+          ma.setLanguage(options.getLanguage().getLanguage());
+          ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          mdSubItem.addMediaArt(ma);
+        }
+
+        md.addSubItem(mdSubItem);
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not get metadata for movie set movie - '{}'", e.getMessage());
+        // fall back to the provided data
+
+        MediaMetadata mdSubItem = new MediaMetadata(getId());
+        mdSubItem.setId(getId(), part.id);
+        mdSubItem.setTitle(part.title);
+        mdSubItem.setOriginalTitle(part.original_title);
+        mdSubItem.setPlot(part.overview);
+        mdSubItem.setReleaseDate(part.release_date);
+
+        // parse release date to year
+        if (part.release_date != null) {
+          Calendar calendar = Calendar.getInstance();
+          calendar.setTime(part.release_date);
+          mdSubItem.setYear(calendar.get(Calendar.YEAR));
+        }
+
+        if (part.vote_average != null) {
+          mdSubItem.setRatings(
+              Collections.singletonList(new MediaRating(getId(), part.vote_average.floatValue(), MetadataUtil.unboxInteger(part.vote_count))));
+        }
+
+        for (Genre genre : ListUtils.nullSafe(part.genres)) {
+          mdSubItem.addGenre(getTmmGenre(genre));
+        }
+
+        // Poster
+        if (StringUtils.isNotBlank(part.poster_path)) {
+          MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
+          ma.setPreviewUrl(artworkBaseUrl + "w185" + part.poster_path);
+          ma.setDefaultUrl(artworkBaseUrl + "original" + part.poster_path);
+          ma.setOriginalUrl(artworkBaseUrl + "original" + part.poster_path);
+          ma.setLanguage(options.getLanguage().getLanguage());
+          ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          mdSubItem.addMediaArt(ma);
+        }
+
+        // Fanart
+        if (StringUtils.isNotBlank(part.backdrop_path)) {
+          MediaArtwork ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
+          ma.setPreviewUrl(artworkBaseUrl + "w300" + part.backdrop_path);
+          ma.setDefaultUrl(artworkBaseUrl + "original" + part.backdrop_path);
+          ma.setOriginalUrl(artworkBaseUrl + "original" + part.backdrop_path);
+          ma.setLanguage(options.getLanguage().getLanguage());
+          ma.setTmdbId(MetadataUtil.unboxInteger(part.id));
+          mdSubItem.addMediaArt(ma);
+        }
+
+        md.addSubItem(mdSubItem);
+      }
     }
 
     return md;
@@ -693,7 +762,8 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
               continue;
             }
 
-            if (countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate())) {
+            if (md.getReleaseDate() == null
+                || (countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
               md.setReleaseDate(countryReleaseDate.release_date);
             }
 
@@ -775,7 +845,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     }
 
     if (movie.belongs_to_collection != null) {
-      md.setId(MediaMetadata.TMDB_SET, movie.belongs_to_collection.id);
+      md.setId(TMDB_SET, movie.belongs_to_collection.id);
       md.setCollectionName(movie.belongs_to_collection.name);
     }
 

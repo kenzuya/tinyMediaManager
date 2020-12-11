@@ -414,7 +414,6 @@ public class TinyMediaManager {
         catch (IllegalStateException e) {
           LOGGER.error("IllegalStateException", e);
           if (!GraphicsEnvironment.isHeadless() && e.getMessage().contains("file is locked")) {
-            // MessageDialog.showExceptionWindow(e);
             ResourceBundle bundle = ResourceBundle.getBundle("messages");
             MessageDialog dialog = new MessageDialog(null, bundle.getString("tmm.problemdetected"));
             dialog.setImage(IconManager.ERROR);

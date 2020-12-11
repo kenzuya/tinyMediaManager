@@ -35,7 +35,7 @@ public class MovieSetSearchAndScrapeOptions extends MediaSearchAndScrapeOptions 
    * @param original
    *          the original to copy
    */
-  public MovieSetSearchAndScrapeOptions(MovieSearchAndScrapeOptions original) {
+  public MovieSetSearchAndScrapeOptions(MovieSetSearchAndScrapeOptions original) {
     super(original);
   }
 

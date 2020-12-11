@@ -73,18 +73,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetInformationPanel extends JPanel {
-  private static final long            serialVersionUID    = -8166784589262658147L;
-  private static final Logger          LOGGER              = LoggerFactory.getLogger(MovieSetInformationPanel.class);
+  private static final long            serialVersionUID = -8166784589262658147L;
+  private static final Logger          LOGGER           = LoggerFactory.getLogger(MovieSetInformationPanel.class);
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE              = ResourceBundle.getBundle("messages");
-  private static final String          ORIGINAL_IMAGE_SIZE = "originalImageSize";
+  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
+
   private JLabel                       lblMovieSetName;
   private ImageLabel                   lblFanart;
   private JLabel                       lblFanartSize;
   private ImageLabel                   lblPoster;
   private JLabel                       lblPosterSize;
   private JTextArea                    taOverview;
-  private TmmTable                     tableAssignedMovies;
 
   private final MovieSetSelectionModel selectionModel;
   private final EventList<Movie>       movieEventList;
@@ -111,18 +110,19 @@ public class MovieSetInformationPanel extends JPanel {
       }
 
       MovieSetSelectionModel model = (MovieSetSelectionModel) source;
+      MovieSet movieSet = selectionModel.getSelectedMovieSet();
 
       if (SELECTED_MOVIE_SET.equals(property) || MEDIA_FILES.equals(property) || "movies".equals(property)) {
         movieEventList.clear();
-        movieEventList.addAll(selectionModel.getSelectedMovieSet().getMovies());
+        movieEventList.addAll(movieSet.getMovies());
       }
 
       if (SELECTED_MOVIE_SET.equals(property) || POSTER.equals(property)) {
-        setPoster(model.getSelectedMovieSet());
+        setPoster(movieSet);
       }
 
       if (SELECTED_MOVIE_SET.equals(property) || FANART.equals(property)) {
-        setFanart(model.getSelectedMovieSet());
+        setFanart(movieSet);
       }
 
     };
@@ -183,7 +183,7 @@ public class MovieSetInformationPanel extends JPanel {
         panelRight.add(new JSeparator(), "cell 0 5,growx");
       }
       {
-        tableAssignedMovies = new TmmTable(new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat()));
+        TmmTable tableAssignedMovies = new TmmTable(new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat()));
         tableAssignedMovies.setName("movieSets.movieTable");
         TmmUILayoutStore.getInstance().install(tableAssignedMovies);
         tableAssignedMovies.adjustColumnPreferredWidths(3);
