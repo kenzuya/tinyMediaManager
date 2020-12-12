@@ -71,9 +71,9 @@ public class MediaFileHelper {
   private static final Logger      LOGGER             = LoggerFactory.getLogger(MediaFileHelper.class);
 
   public static final List<String> TRAILER_FOLDERS    = List.of("trailer", "trailers");
+  // lower case
   public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
-      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");                                                                                                                       // lower
-                                                                                                                                                                                                        // case
+      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -1332,13 +1332,17 @@ public class MediaFileHelper {
    */
   private static List<MediaInfoFile> detectRelevantBlurayFiles(List<MediaInfoFile> mediaInfoFiles) {
     // a) find the "main" title (biggest m2ts file)
-    MediaInfoFile mainVideo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
-        .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+    MediaInfoFile mainVideo = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("m2ts"))
+        .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+        .orElse(null);
 
     if (mainVideo == null) {
       // no m2ts? maybe a mpls
-      mainVideo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("mpls"))
-          .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+      mainVideo = mediaInfoFiles.stream()
+          .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("mpls"))
+          .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+          .orElse(null);
     }
 
     if (mainVideo == null) {
@@ -1353,7 +1357,8 @@ public class MediaFileHelper {
     // b) check if there is a SSIF file with the same basename as the m2ts (this may contain the 3D information)
     MediaInfoFile ssif = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("ssif") && mediaInfoFile.getFilename().startsWith(basename))
-        .findFirst().orElse(null);
+        .findFirst()
+        .orElse(null);
 
     if (ssif != null) {
       relevantFiles.add(ssif);
@@ -1362,7 +1367,8 @@ public class MediaFileHelper {
     // c) check if there is a CLPI (clipinf) file with the same basename as the m2ts (this may contain subtitle infos)
     MediaInfoFile clpi = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("clpi") && mediaInfoFile.getFilename().startsWith(basename))
-        .findFirst().orElse(null);
+        .findFirst()
+        .orElse(null);
 
     if (clpi != null) {
       relevantFiles.add(clpi);
@@ -1380,8 +1386,10 @@ public class MediaFileHelper {
    */
   private static List<MediaInfoFile> detectRelevantHdDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
     // a) find the "main" title (biggest evo file)
-    MediaInfoFile evo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("evo"))
-        .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+    MediaInfoFile evo = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("evo"))
+        .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+        .orElse(null);
 
     if (evo == null) {
       return Collections.emptyList();
@@ -2018,9 +2026,20 @@ public class MediaFileHelper {
 
     mediaFile.setVideo3DFormat(parse3DFormat(mediaFile, miSnapshot));
 
-    // prefer commercial "hdr10+" naming over technical
-    mediaFile
-        .setHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Commercial", "HDR_Format_Compatibility", "HDR_Format"));
+    // prefer official HDR namings (see https://de.wikipedia.org/wiki/High_Dynamic_Range_Video) over technical
+    String hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format/String", "HDR_Format"));
+
+    if (StringUtils.isBlank(hdrFormat)) {
+      // no HDR format found? try another mediainfo field
+      hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "HDR_Format_Compatibility"));
+    }
+
+    if (StringUtils.isBlank(hdrFormat)) {
+      // no HDR format found? try another mediainfo field
+      hdrFormat = detectHdrFormat(getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "transfer_characteristics"));
+    }
+
+    mediaFile.setHdrFormat(hdrFormat);
 
     // TODO: season/episode parsing
     // int season = parseToInt(getMediaInfo(StreamKind.General, 0, "Season"));
@@ -2033,6 +2052,24 @@ public class MediaFileHelper {
     // $BOXTYPE_TVSN = "tvsn"; # season
     // $BOXTYPE_STIK = "stik"; # "magic" to make it realize it's a TV show
 
+  }
+
+  private static String detectHdrFormat(String source) {
+    source = source.toLowerCase(Locale.ROOT);
+
+    if (source.contains("dolby vision")) {
+      return "Dolby Vision";
+    }
+    else if (source.contains("hlg")) {
+      return "HLG";
+    }
+    else if (source.contains("2094")) { // according to wiki this is SMPTE 2094
+      return "HDR10+";
+    }
+    else if (source.contains("hdr10")) {
+      return "HDR10";
+    }
+    return "";
   }
 
   /**
@@ -2293,8 +2330,10 @@ public class MediaFileHelper {
 
   private static void gatherMediaInformationFromDvdFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
     // find the IFO with longest duration
-    MediaInfoFile ifo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ifo"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+    MediaInfoFile ifo = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ifo"))
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
 
     if (ifo == null) {
       LOGGER.debug("Could not find a valid IFO file");
@@ -2313,7 +2352,8 @@ public class MediaFileHelper {
     // get the biggest VOB
     MediaInfoFile vob = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFilename().startsWith(prefix) && mediaInfoFile.getFileExtension().equals("vob"))
-        .max(Comparator.comparingLong(MediaInfoFile::getFilesize)).orElse(null);
+        .max(Comparator.comparingLong(MediaInfoFile::getFilesize))
+        .orElse(null);
 
     if (vob == null) {
       LOGGER.debug("Could not find a valid VOB file");
@@ -2382,7 +2422,8 @@ public class MediaFileHelper {
     // find the M2TS/MPLS with longest duration
     MediaInfoFile m2ts = mediaInfoFiles.stream()
         .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("m2ts") || mediaInfoFile.getFileExtension().equals("mpls"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
 
     if (m2ts == null) {
       LOGGER.debug("Could not find a valid M2TS file");
@@ -2395,8 +2436,10 @@ public class MediaFileHelper {
     gatherMediaInformationFromFile(mediaFile, Collections.singletonList(m2ts));
 
     // get additional information of the clpi file
-    MediaInfoFile clpi = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("clpi"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+    MediaInfoFile clpi = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("clpi"))
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
     if (clpi != null) {
       if (mediaFile.getDuration() == 0) {
         mediaFile.setDuration(parseDuration(clpi.getSnapshot()));
@@ -2466,8 +2509,10 @@ public class MediaFileHelper {
     }
 
     // get additional information of the ssif file
-    MediaInfoFile ssif = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ssif"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+    MediaInfoFile ssif = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("ssif"))
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
     if (ssif != null) {
       if (mediaFile.getDuration() == 0) {
         mediaFile.setDuration(parseDuration(ssif.getSnapshot()));
@@ -2479,8 +2524,10 @@ public class MediaFileHelper {
 
   private static void gatherMediaInformationFromHdDvdFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
     // find the EVO with longest duration
-    MediaInfoFile evo = mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("evo"))
-        .max(Comparator.comparingInt(MediaInfoFile::getDuration)).orElse(null);
+    MediaInfoFile evo = mediaInfoFiles.stream()
+        .filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equals("evo"))
+        .max(Comparator.comparingInt(MediaInfoFile::getDuration))
+        .orElse(null);
 
     if (evo == null) {
       LOGGER.debug("Could not find a valid EVO file");

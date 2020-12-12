@@ -567,4 +567,47 @@ public class MediaInfoTest extends BasicTest {
   // // TODO: handle exception
   // }
   // }
+
+  @Test
+  public void testHdrDetection() throws Exception {
+    // Dolby Vision
+    MediaFile mf = new MediaFile(Paths.get("target/test-classes/mediainfo/dolby_vision.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/dolby_vision2.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+
+    // HDR10
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
+
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10-2.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
+
+    // HDR10+
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10plus.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
+
+    // HLG
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hlg.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HLG");
+  }
 }
