@@ -16,60 +16,52 @@
 package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 
 /**
- * @author Manuel Laggner
+ * The {@link MovieSetToggleWatchedFlagAction} - to set the watched flag for all selected movies
  * 
+ * @author Manuel Laggner
  */
-public class MovieSetRenameAction extends TmmAction {
+public class MovieSetToggleWatchedFlagAction extends TmmAction {
+  private static final long           serialVersionUID = 2866581962767395824L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
-  private static final long           serialVersionUID = 1677285197819210130L;
 
-  public MovieSetRenameAction() {
-    putValue(NAME, BUNDLE.getString("movie.rename"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.rename"));
+  public MovieSetToggleWatchedFlagAction() {
+    putValue(NAME, BUNDLE.getString("movie.togglewatchedflag"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Object> selectedObjects = MovieSetUIModule.getInstance().getSelectionModel().getSelectedObjects();
-    Set<Movie> selectedMovies = new HashSet<>();
+    List<Movie> selectedMovies = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
-    for (Object obj : selectedObjects) {
-      if (obj instanceof MovieSet.MovieSetMovie) {
-        // do nothing
-      }
-      else if (obj instanceof Movie) {
-        selectedMovies.add((Movie) obj);
-      }
-      else if (obj instanceof MovieSet) {
-        selectedMovies.addAll(((MovieSet) obj).getMovies());
-      }
-    }
+    // filter out dummy movies
+    selectedMovies = selectedMovies.stream().filter(movie -> !(movie instanceof MovieSet.MovieSetMovie)).collect(Collectors.toList());
 
     if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
-    // rename
-    TmmThreadPool renameTask = new MovieRenameTask(new ArrayList<>(selectedMovies));
-    TmmTaskManager.getInstance().addMainTask(renameTask);
+    for (Movie movie : selectedMovies) {
+      movie.setWatched(!movie.isWatched());
+      movie.writeNFO();
+      movie.saveToDb();
+    }
   }
 }

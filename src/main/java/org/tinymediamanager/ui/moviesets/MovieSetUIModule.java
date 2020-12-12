@@ -30,23 +30,23 @@ import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
-import org.tinymediamanager.ui.movies.actions.MovieBatchEditAction;
-import org.tinymediamanager.ui.movies.actions.MovieToggleWatchedFlagAction;
 import org.tinymediamanager.ui.movies.panels.MovieArtworkPanel;
 import org.tinymediamanager.ui.movies.panels.MovieCastPanel;
 import org.tinymediamanager.ui.movies.panels.MovieInformationPanel;
 import org.tinymediamanager.ui.movies.panels.MovieMediaInformationPanel;
 import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.moviesets.actions.DebugDumpMovieSetAction;
-import org.tinymediamanager.ui.moviesets.actions.MovieEditAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetAddAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetBatchEditMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetCleanupArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetEditMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRemoveAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRenameAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetScrapeMissingMoviesAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSearchAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetToggleWatchedFlagAction;
 import org.tinymediamanager.ui.moviesets.dialogs.MovieSetFilterDialog;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetArtworkPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetInformationPanel;
@@ -183,9 +183,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // movie actions
     popupMenu.addSeparator();
-    popupMenu.add(createAndRegisterAction(MovieEditAction.class));
-    popupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
-    popupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetEditMovieAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetBatchEditMovieAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetToggleWatchedFlagAction.class));
 
     // actions for both of them
     popupMenu.addSeparator();

@@ -16,62 +16,57 @@
 package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
-import org.tinymediamanager.ui.movies.dialogs.MovieEditorDialog;
+import org.tinymediamanager.ui.movies.dialogs.MovieBulkEditorDialog;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 
 /**
- * MovieEditAction - edit movies from within moviesets
+ * The MovieSetBatchEditMovieAction - to start a bulk edit of movies
  * 
  * @author Manuel Laggner
  */
-public class MovieEditAction extends TmmAction {
-  private static final long           serialVersionUID = 1848573591741154631L;
+public class MovieSetBatchEditMovieAction extends TmmAction {
+  private static final long           serialVersionUID = -3974602352019088416L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  public MovieEditAction() {
-    putValue(NAME, BUNDLE.getString("movie.edit"));
-    putValue(LARGE_ICON_KEY, IconManager.EDIT);
+  public MovieSetBatchEditMovieAction() {
+    putValue(NAME, BUNDLE.getString("movie.bulkedit"));
+    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.bulkedit.desc"));
     putValue(SMALL_ICON, IconManager.EDIT);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.edit"));
+    putValue(LARGE_ICON_KEY, IconManager.EDIT);
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> selectedMovies = MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies();
+    List<Movie> selectedMovies = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
-    int selectedCount = selectedMovies.size();
-    int index = 0;
+    // filter out dummy movies
+    selectedMovies = selectedMovies.stream().filter(movie -> !(movie instanceof MovieSet.MovieSetMovie)).collect(Collectors.toList());
 
-    if (selectedCount == 0) {
+    if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
       return;
     }
 
-    do {
-      Movie movie = selectedMovies.get(index);
-      MovieEditorDialog dialogMovieEditor = new MovieEditorDialog(movie, index, selectedCount);
-      dialogMovieEditor.setVisible(true);
-
-      if (!dialogMovieEditor.isContinueQueue()) {
-        break;
-      }
-
-      if (dialogMovieEditor.isNavigateBack()) {
-        index -= 1;
-      }
-      else {
-        index += 1;
-      }
-
-    } while (index < selectedCount);
+    // get data of all files within all selected movies
+    MovieBulkEditorDialog editor = new MovieBulkEditorDialog(selectedMovies);
+    editor.setLocationRelativeTo(MainWindow.getInstance());
+    editor.pack();
+    editor.setVisible(true);
   }
 }
