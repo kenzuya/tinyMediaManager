@@ -2518,6 +2518,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
+
+    // re-write NFO since we might have new mediainfo data
+    if (mediaFile.getType() == MediaFileType.VIDEO) {
+      writeNFO();
+    }
   }
 
   @Override

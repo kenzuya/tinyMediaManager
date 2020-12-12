@@ -1189,6 +1189,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   @Override
+  public void callbackForGatheredMediainformation(MediaFile mediaFile) {
+    super.callbackForGatheredMediainformation(mediaFile);
+
+    // re-write NFO since we might have new mediainfo data
+    if (mediaFile.getType() == MediaFileType.VIDEO) {
+      writeNFO();
+    }
+  }
+
+  @Override
   public void saveToDb() {
     // update/insert this episode to the database
     TvShowList.getInstance().persistEpisode(this);
