@@ -130,6 +130,7 @@ public final class Constants {
   public static final String YEAR                   = "year";
   public static final String AUDIO_LANGUAGES        = "audioLanugages";
   public static final String DECADE                 = "decade";
+  public static final String HDR_FORMAT             = "hdrFormat";
 
   // some hardcoded, well known meta data provider IDs
   // may add new ones in MediaEntity.setId()

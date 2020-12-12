@@ -76,6 +76,7 @@ import org.tinymediamanager.ui.movies.filters.MovieEditionFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFilenameFilter;
 import org.tinymediamanager.ui.movies.filters.MovieFrameRateFilter;
 import org.tinymediamanager.ui.movies.filters.MovieGenreFilter;
+import org.tinymediamanager.ui.movies.filters.MovieHDRFormatFilter;
 import org.tinymediamanager.ui.movies.filters.MovieInMovieSetFilter;
 import org.tinymediamanager.ui.movies.filters.MovieLanguageFilter;
 import org.tinymediamanager.ui.movies.filters.MovieMediaFilesFilter;
@@ -190,6 +191,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieMissingMetadataFilter(), panelMediaData);
         addFilter(new MovieMissingArtworkFilter(), panelMediaData);
         addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
+        addFilter(new MovieHDRFormatFilter(),panelMediaData);
       }
 
       {
