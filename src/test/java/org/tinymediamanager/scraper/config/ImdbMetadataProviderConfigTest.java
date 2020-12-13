@@ -28,7 +28,6 @@ public class ImdbMetadataProviderConfigTest {
 
     mp.getProviderInfo().getConfig().setValue("useTmdbForMovies", true);
     mp.getProviderInfo().getConfig().setValue("scrapeCollectionInfo", true);
-    mp.getProviderInfo().getConfig().setValue("filterUnwantedCategories", false);
     mp.getProviderInfo().getConfig().saveToDir("target");
 
     mp = new ImdbMovieMetadataProvider();
@@ -36,6 +35,5 @@ public class ImdbMetadataProviderConfigTest {
     mp.getProviderInfo().getConfig().loadFromDir("target");
     Assert.assertTrue(mp.getProviderInfo().getConfig().getValueAsBool("useTmdbForMovies"));
     Assert.assertTrue(mp.getProviderInfo().getConfig().getValueAsBool("scrapeCollectionInfo"));
-    Assert.assertFalse(mp.getProviderInfo().getConfig().getValueAsBool("filterUnwantedCategories"));
   }
 }
