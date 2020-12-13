@@ -47,7 +47,6 @@ public class TaskListComponent extends JPanel {
   private JLabel                      dynaLabel;
   private JProgressBar                bar;
   private JButton                     closeButton;
-  private JSeparator                  separator;
 
   public TaskListComponent() {
     initComponents();
@@ -71,7 +70,7 @@ public class TaskListComponent extends JPanel {
     add(closeButton, "cell 1 1");
     add(dynaLabel, "cell 0 2,wmin 0");
 
-    separator = new JSeparator();
+    JSeparator separator = new JSeparator();
     add(separator, "cell 0 3 2 1,growx");
   }
 
@@ -120,6 +119,10 @@ public class TaskListComponent extends JPanel {
 
       case FINISHED:
         dynaLabel.setText(BUNDLE.getString("task.finished"));
+        break;
+
+      case FAILED:
+        dynaLabel.setText(BUNDLE.getString("task.failed"));
         break;
     }
 

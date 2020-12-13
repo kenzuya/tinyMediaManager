@@ -151,8 +151,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     bottomPanel.setVisible(true);
 
     if (isShowing()) {
-      revalidate();
-      pack();
+      invalidate();
       repaint();
     }
   }
