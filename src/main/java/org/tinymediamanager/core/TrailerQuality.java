@@ -15,10 +15,11 @@
  */
 package org.tinymediamanager.core;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * The enum TrailerQuality
@@ -33,8 +34,8 @@ public enum TrailerQuality {
   HD_1080("1080p", Arrays.asList("HD", "1080p", "1080"));
   // @formatter:on
 
-  private String displayText;
-  private List<String> possibleQualities;
+  private final String       displayText;
+  private final List<String> possibleQualities;
 
   TrailerQuality(String text, List<String> qualities) {
     this.displayText = text;
@@ -51,6 +52,10 @@ public enum TrailerQuality {
       }
     }
     return false;
+  }
+
+  public List<String> getPossibleQualities() {
+    return Collections.unmodifiableList(possibleQualities);
   }
 
   /**

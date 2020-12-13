@@ -34,7 +34,7 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
-import org.tinymediamanager.core.tasks.YoutubeDownloadTask;
+import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
 
 /**
@@ -111,7 +111,7 @@ public class MovieTrailerDownloadTask extends TmmTask {
 
         Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(url);
         if (matcher.matches()) {
-          task = new YoutubeDownloadTask(trailer, desiredQuality) {
+          task = new YTDownloadTask(trailer, desiredQuality) {
             @Override
             protected Path getDestinationWoExtension() {
               return getDestination();
