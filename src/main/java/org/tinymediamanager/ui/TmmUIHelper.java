@@ -210,6 +210,18 @@ public class TmmUIHelper {
     return openJFileChooser(JFileChooser.FILES_ONLY, title, initialPath, true, null, filter);
   }
 
+  public static Path selectApplication(String title, String initialPath) {
+    if (SystemUtils.IS_OS_MAC) {
+      return selectDirectory(title, initialPath);
+    }
+    else if (SystemUtils.IS_OS_WINDOWS) {
+      return selectFile(title, initialPath, new FileNameExtensionFilter(BUNDLE.getString("tmm.executables"), ".exe"));
+    }
+    else {
+      return selectFile(title, initialPath, null);
+    }
+  }
+
   private static Path openFileDialog(String title, String initialPath, int mode, String filename) throws Exception, Error {
     FileDialog chooser = new FileDialog(MainWindow.getFrame(), title, mode);
     if (StringUtils.isNotBlank(initialPath)) {

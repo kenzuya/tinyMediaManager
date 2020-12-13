@@ -104,7 +104,7 @@ class SystemSettingsPanel extends JPanel {
     // data init
     btnSearchMediaPlayer.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseplayer.path");
-      Path file = TmmUIHelper.selectFile(BUNDLE.getString("Button.chooseplayer"), path, null);
+      Path file = TmmUIHelper.selectApplication(BUNDLE.getString("Button.chooseplayer"), path);
       if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
         tfMediaPlayer.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseplayer.path", file.getParent().toString());
@@ -114,7 +114,7 @@ class SystemSettingsPanel extends JPanel {
     btnSearchFFMpegBinary.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseffmpeg.path");
       Path file = TmmUIHelper.selectFile(BUNDLE.getString("Button.chooseffmpeglocation"), path, null);
-      if (file != null && Utils.isRegularFile(file) || Platform.isMac()) {
+      if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
         tfMediaFramework.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseffmpeg.path", file.getParent().toString());
       }
