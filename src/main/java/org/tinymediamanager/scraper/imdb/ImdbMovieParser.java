@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TITLE;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +23,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -58,18 +55,9 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  */
 public class ImdbMovieParser extends ImdbParser {
   private static final Logger  LOGGER                  = LoggerFactory.getLogger(ImdbMovieParser.class);
-  private static final Pattern UNWANTED_SEARCH_RESULTS = Pattern.compile(".*\\((TV Series|TV Episode|Short|Video Game)\\).*");
 
   ImdbMovieParser(MediaProviderConfig config, ExecutorService executor) {
     super(MediaType.MOVIE, config, executor);
-  }
-
-  @Override
-  protected Pattern getUnwantedSearchResultPattern() {
-    if (isFilterUnwantedCategories()) {
-      return UNWANTED_SEARCH_RESULTS;
-    }
-    return null;
   }
 
   @Override
@@ -78,13 +66,13 @@ public class ImdbMovieParser extends ImdbParser {
   }
 
   @Override
-  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    return getMovieMetadata((MovieSearchAndScrapeOptions) options);
+  protected boolean isIncludeMovieResults() {
+    return true;
   }
 
   @Override
-  protected String getSearchCategory() {
-    return CAT_TITLE;
+  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+    return getMovieMetadata((MovieSearchAndScrapeOptions) options);
   }
 
   MediaMetadata getMovieMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {

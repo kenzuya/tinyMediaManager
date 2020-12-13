@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.imdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TITLE;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -71,17 +72,28 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Manuel Laggner
  */
 public abstract class ImdbParser {
-  static final Pattern                IMDB_ID_PATTERN            = Pattern.compile("/title/(tt[0-9]{6,})/");
-  static final Pattern                PERSON_ID_PATTERN          = Pattern.compile("/name/(nm[0-9]{6,})/");
-  static final String                 FILTER_UNWANTED_CATEGORIES = "filterUnwantedCategories";
-  static final String                 USE_TMDB_FOR_MOVIES        = "useTmdbForMovies";
-  static final String                 USE_TMDB_FOR_TV_SHOWS      = "useTmdbForTvShows";
-  static final String                 SCRAPE_COLLETION_INFO      = "scrapeCollectionInfo";
-  static final String                 SCRAPE_KEYWORDS_PAGE       = "scrapeKeywordsPage";
-  static final String                 SCRAPE_UNCREDITED_ACTORS   = "scrapeUncreditedActors";
-  static final String                 SCRAPE_LANGUAGE_NAMES      = "scrapeLanguageNames";
-  static final String                 LOCAL_RELEASE_DATE         = "localReleaseDate";
-  static final String                 MAX_KEYWORD_COUNT          = "maxKeywordCount";
+  static final Pattern                IMDB_ID_PATTERN          = Pattern.compile("/title/(tt[0-9]{6,})/");
+  static final Pattern                PERSON_ID_PATTERN        = Pattern.compile("/name/(nm[0-9]{6,})/");
+  static final Pattern                MOVIE_PATTERN            = Pattern.compile("^.*?\\(\\d{4}\\)$");
+  static final Pattern                TV_MOVIE_PATTERN         = Pattern.compile("^.*?\\(\\d{4}\\s+TV Movie\\)$");
+  static final Pattern                TV_SERIES_PATTERN        = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\(TV Series\\)$");
+  static final Pattern                SHORT_PATTERN            = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\((Short|Video)\\)$");
+  static final Pattern                VIDEOGAME_PATTERN        = Pattern.compile("^.*?\\(\\d{4}\\)\\s+\\(Video Game\\)$");
+
+  static final String                 INCLUDE_MOVIE            = "includeMovieResults";
+  static final String                 INCLUDE_TV_MOVIE         = "includeTvMovieResults";
+  static final String                 INCLUDE_TV_SERIES        = "includeTvSeriesResults";
+  static final String                 INCLUDE_SHORT            = "includeShortResults";
+  static final String                 INCLUDE_VIDEOGAME        = "includeVideogameResults";
+
+  static final String                 USE_TMDB_FOR_MOVIES      = "useTmdbForMovies";
+  static final String                 USE_TMDB_FOR_TV_SHOWS    = "useTmdbForTvShows";
+  static final String                 SCRAPE_COLLETION_INFO    = "scrapeCollectionInfo";
+  static final String                 SCRAPE_KEYWORDS_PAGE     = "scrapeKeywordsPage";
+  static final String                 SCRAPE_UNCREDITED_ACTORS = "scrapeUncreditedActors";
+  static final String                 SCRAPE_LANGUAGE_NAMES    = "scrapeLanguageNames";
+  static final String                 LOCAL_RELEASE_DATE       = "localReleaseDate";
+  static final String                 MAX_KEYWORD_COUNT        = "maxKeywordCount";
 
   protected final MediaType           type;
   protected final MediaProviderConfig config;
@@ -93,21 +105,53 @@ public abstract class ImdbParser {
     this.executor = executor;
   }
 
-  protected abstract Pattern getUnwantedSearchResultPattern();
-
   protected abstract Logger getLogger();
 
   protected abstract MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
 
-  protected abstract String getSearchCategory();
-
   /**
-   * should we filter unwanted categories
+   * should we include movie results
    * 
    * @return true/false
    */
-  protected boolean isFilterUnwantedCategories() {
-    return config.getValueAsBool(FILTER_UNWANTED_CATEGORIES, false);
+  protected boolean isIncludeMovieResults() {
+    return config.getValueAsBool(INCLUDE_MOVIE, false);
+  }
+
+  /**
+   * should we include TV movie results
+   *
+   * @return true/false
+   */
+  protected boolean isIncludeTvMovieResults() {
+    return config.getValueAsBool(INCLUDE_TV_MOVIE, false);
+  }
+
+  /**
+   * should we include TV series results
+   *
+   * @return true/false
+   */
+  protected boolean isIncludeTvSeriesResults() {
+    return config.getValueAsBool(INCLUDE_TV_SERIES, false);
+  }
+
+  /**
+   * should we include shorts
+   *
+   * @return true/false
+   */
+  protected boolean isIncludeShortResults() {
+    return config.getValueAsBool(INCLUDE_SHORT, false);
+  }
+
+  /**
+   * should we include video game results
+   *
+   * @return true/false
+   */
+  protected boolean isIncludeVideogameResults() {
+    return config.getValueAsBool(INCLUDE_VIDEOGAME, false);
   }
 
   /**
@@ -177,6 +221,67 @@ public abstract class ImdbParser {
     return value;
   }
 
+  protected boolean includeSearchResult(String text) {
+    // strip out episodes
+    if (text.contains("(TV Episode)")) {
+      return false;
+    }
+
+    ResultCategory category = getResultCategory(text.trim());
+    if (category == null) {
+      return false;
+    }
+
+    switch (category) {
+      case MOVIE:
+        return isIncludeMovieResults();
+
+      case TV_MOVIE:
+        return isIncludeTvMovieResults();
+
+      case TV_SERIES:
+        return isIncludeTvSeriesResults();
+
+      case SHORT:
+        return isIncludeShortResults();
+
+      case VIDEOGAME:
+        return isIncludeVideogameResults();
+
+      default:
+        return false;
+    }
+  }
+
+  protected ResultCategory getResultCategory(String text) {
+    Matcher matcher = MOVIE_PATTERN.matcher(text);
+    if (matcher.matches()) {
+      return ResultCategory.MOVIE;
+    }
+
+    matcher = TV_MOVIE_PATTERN.matcher(text);
+    if (matcher.matches()) {
+      return ResultCategory.TV_MOVIE;
+    }
+
+    matcher = TV_SERIES_PATTERN.matcher(text);
+    if (matcher.matches()) {
+      return ResultCategory.TV_SERIES;
+    }
+
+    matcher = SHORT_PATTERN.matcher(text);
+    if (matcher.matches()) {
+      return ResultCategory.SHORT;
+    }
+
+    matcher = VIDEOGAME_PATTERN.matcher(text);
+    if (matcher.matches()) {
+      return ResultCategory.VIDEOGAME;
+    }
+
+    return null;
+  }
+
   protected SortedSet<MediaSearchResult> search(MediaSearchAndScrapeOptions options) throws ScrapeException {
     getLogger().debug("search(): {}", options);
     SortedSet<MediaSearchResult> result = new TreeSet<>();
@@ -229,7 +334,7 @@ public abstract class ImdbParser {
     sb.append(URLEncoder.encode(searchTerm, StandardCharsets.UTF_8));
 
     // we need to search for all - otherwise we do not find TV movies
-    sb.append(getSearchCategory());
+    sb.append(CAT_TITLE);
 
     getLogger().debug("========= BEGIN IMDB Scraper Search for: {}", sb);
     Document doc = null;
@@ -326,8 +431,6 @@ public abstract class ImdbParser {
       }
     }
 
-    Pattern unwantedSearchResultPattern = getUnwantedSearchResultPattern();
-
     // parse results
     elements = doc.getElementsByClass("findResult");
     for (Element tr : elements) {
@@ -348,11 +451,8 @@ public abstract class ImdbParser {
         }
 
         // filter out unwanted results
-        if (unwantedSearchResultPattern != null) {
-          Matcher matcher = unwantedSearchResultPattern.matcher(element.text());
-          if (matcher.find()) {
-            continue;
-          }
+        if (!includeSearchResult(element.text())) {
+          continue;
         }
 
         // is there a localized name? (aka)

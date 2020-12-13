@@ -15,7 +15,10 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
-import static org.tinymediamanager.scraper.imdb.ImdbParser.FILTER_UNWANTED_CATEGORIES;
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_SHORT;
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_TV_MOVIE;
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_TV_SERIES;
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_VIDEOGAME;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.LOCAL_RELEASE_DATE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.MAX_KEYWORD_COUNT;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.SCRAPE_COLLETION_INFO;
@@ -53,7 +56,10 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
     MediaProviderInfo providerInfo = super.createMediaProviderInfo();
 
     // configure/load settings
-    providerInfo.getConfig().addBoolean(FILTER_UNWANTED_CATEGORIES, true);
+    providerInfo.getConfig().addBoolean(INCLUDE_TV_MOVIE, true);
+    providerInfo.getConfig().addBoolean(INCLUDE_SHORT, false);
+    providerInfo.getConfig().addBoolean(INCLUDE_TV_SERIES, false);
+    providerInfo.getConfig().addBoolean(INCLUDE_VIDEOGAME, false);
     providerInfo.getConfig().addBoolean(USE_TMDB_FOR_MOVIES, false);
     providerInfo.getConfig().addBoolean(SCRAPE_COLLETION_INFO, false);
     providerInfo.getConfig().addBoolean(LOCAL_RELEASE_DATE, true);

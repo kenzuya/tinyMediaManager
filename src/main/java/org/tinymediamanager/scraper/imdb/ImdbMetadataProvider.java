@@ -31,7 +31,6 @@ abstract class ImdbMetadataProvider {
   static final String             ID        = "imdb";
 
   static final String             CAT_TITLE = "&s=tt";
-  static final String             CAT_TV    = "&s=tt&ttype=tv&ref_=fn_tv";
 
   private final MediaProviderInfo providerInfo;
 

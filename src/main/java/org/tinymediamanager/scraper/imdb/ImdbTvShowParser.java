@@ -18,7 +18,6 @@ package org.tinymediamanager.scraper.imdb;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TV;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -72,8 +71,6 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  */
 public class ImdbTvShowParser extends ImdbParser {
   private static final Logger                                LOGGER                  = LoggerFactory.getLogger(ImdbTvShowParser.class);
-  private static final Pattern                               UNWANTED_SEARCH_RESULTS = Pattern
-      .compile(".*\\((TV Movies|TV Episode|Short|Video Game)\\).*");                                                                   // stripped out
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP  = new CacheMap<>(60, 10);
 
   ImdbTvShowParser(MediaProviderConfig config, ExecutorService executor) {
@@ -81,16 +78,13 @@ public class ImdbTvShowParser extends ImdbParser {
   }
 
   @Override
-  protected Pattern getUnwantedSearchResultPattern() {
-    if (isFilterUnwantedCategories()) {
-      return UNWANTED_SEARCH_RESULTS;
-    }
-    return null;
+  protected Logger getLogger() {
+    return LOGGER;
   }
 
   @Override
-  protected Logger getLogger() {
-    return LOGGER;
+  protected boolean isIncludeTvSeriesResults() {
+    return true;
   }
 
   @Override
@@ -105,11 +99,6 @@ public class ImdbTvShowParser extends ImdbParser {
       default:
         return new MediaMetadata(ImdbMetadataProvider.ID);
     }
-  }
-
-  @Override
-  protected String getSearchCategory() {
-    return CAT_TV;
   }
 
   MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
