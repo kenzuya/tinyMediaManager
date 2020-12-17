@@ -3,9 +3,11 @@ upcoming version
 + added decades filter for movies
 + added new column (audio title) in MediaInformationPanels (Movie / TvShows)
 + added HDR Format filter for movies and episodes
++ added movie set artwork completeness check options (like for movies) #1145
 x better error messages for SSL errors #1122
 x fixed downloading trailers #1136
 x detecting video resolution for certain 3D SBS files #1133
+x writing of movie set artwork with a path separator in the name #1145
 
 
 Version 4.0.6

@@ -91,7 +91,7 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxSortableOriginalTitle;
   private JCheckBox                    chckbxSortTitle;
 
-  private ItemListener                 checkBoxListener;
+  private final ItemListener           checkBoxListener;
 
   public MovieSettingsPanel() {
 
