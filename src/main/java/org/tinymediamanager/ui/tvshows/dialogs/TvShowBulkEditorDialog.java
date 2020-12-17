@@ -36,14 +36,13 @@ import javax.swing.SpinnerNumberModel;
 
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.SquareIconButton;
@@ -405,7 +404,10 @@ public class TvShowBulkEditorDialog extends TmmDialog {
               tvShows1.add(episode.getTvShow());
             }
             tvShows1.addAll(tvShowsToEdit);
-            TmmTask task = new SyncTraktTvTask(null, new ArrayList<>(tvShows1));
+            TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows1));
+            task.setSyncCollection(true);
+            task.setSyncWatched(true);
+
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
 

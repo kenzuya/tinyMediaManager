@@ -150,6 +150,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @JsonProperty
   private boolean                               watched                    = false;
   @JsonProperty
+  private int                                   playcount                  = 0;
+  @JsonProperty
   private boolean                               isDisc                     = false;
   @JsonProperty
   private String                                spokenLanguages            = "";
@@ -247,6 +249,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     setSpokenLanguages(StringUtils.isEmpty(spokenLanguages) || force ? other.spokenLanguages : spokenLanguages);
     setCountry(StringUtils.isEmpty(country) || force ? other.country : country);
     setWatched(!watched || force ? other.watched : watched);
+    setPlaycount(playcount == 0 || force ? other.playcount : playcount);
     setRuntime(runtime == 0 || force ? other.runtime : runtime);
     setTop250(top250 == 0 || force ? other.top250 : top250);
     setReleaseDate(releaseDate == null || force ? other.releaseDate : releaseDate);
@@ -1503,6 +1506,27 @@ public class Movie extends MediaEntity implements IMediaInformation {
     boolean oldValue = this.watched;
     this.watched = newValue;
     firePropertyChange(WATCHED, oldValue, newValue);
+  }
+
+  /**
+   * get the play count (mainly passed from/to trakt.tv/NFO)
+   * 
+   * @return the play count of this movie
+   */
+  public int getPlaycount() {
+    return playcount;
+  }
+
+  /**
+   * sets the play count
+   * 
+   * @param newValue
+   *          the play count of this movie
+   */
+  public void setPlaycount(int newValue) {
+    int oldValue = this.playcount;
+    this.playcount = newValue;
+    firePropertyChange("playcount", oldValue, newValue);
   }
 
   /**

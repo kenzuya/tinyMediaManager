@@ -513,9 +513,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    * @author Manuel Laggner
    */
   private class FindTvShowTask implements Callable<Object> {
-    private Path showDir;
-    private Path datasource;
-    private long uniqueId;
+    private final Path showDir;
+    private final Path datasource;
+    private final long uniqueId;
 
     /**
      * Instantiates a new find tv show task.
@@ -682,7 +682,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
         else {
           // normal episode file - get all same named files
-          String basename = FilenameUtils.getBaseName(mf.getFilenameWithoutStacking());
+          String basename = Utils.cleanStackingMarkers(FilenameUtils.getBaseName(mf.getFilename()));
           LOGGER.trace("UDS: basename - {}", basename);
           for (MediaFile em : mfs) {
             String emBasename = FilenameUtils.getBaseName(em.getFilename());
@@ -785,16 +785,28 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
 
           // second check: is the detected episode (>-1; season >-1) already in
-          // tmm and any valid stacking markers
-          // found?
-          // FIXME: uhm.. for what is that?!?
+          // tmm and any valid stacking markers found?
           if (result.episodes.size() == 1 && result.season > -1 && result.stackingMarkerFound) {
             // get any assigned episode
-            TvShowEpisode ep = tvShow.getEpisode(result.season, result.episodes.get(0));
-            if (ep != null) {
-              ep.setNewlyAdded(true);
-              ep.addToMediaFiles(mf);
-              continue;
+            List<TvShowEpisode> eps = tvShow.getEpisode(result.season, result.episodes.get(0));
+            if (!eps.isEmpty()) {
+              // okay, at least one existing episode found.. just check if there is the same base name without stacking markers
+              boolean found = false;
+              for (TvShowEpisode ep : eps) {
+                // need to call Utils.cleanStackingMarkers() because the MF stacking markers aren't detected yet
+                String episodeBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(ep.getMainVideoFile().getFilename()));
+                String mfBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename()));
+
+                if (episodeBasenameWoStackingMarker.equals(mfBasenameWoStackingMarker)) {
+                  ep.setNewlyAdded(true);
+                  ep.addToMediaFiles(mf);
+                  found = true;
+                  break;
+                }
+              }
+              if (found) {
+                continue;
+              }
             }
           }
           if (!result.episodes.isEmpty()) {
@@ -919,9 +931,22 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         EpisodeMatchingResult result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(relativePath, tvShow.getTitle());
         if (result.season > 0 && !result.episodes.isEmpty()) {
           for (int epnr : result.episodes) {
-            TvShowEpisode ep = tvShow.getEpisode(result.season, epnr);
-            if (ep != null) {
-              ep.addToMediaFiles(mf);
+            // get any assigned episode
+            List<TvShowEpisode> eps = tvShow.getEpisode(result.season, epnr);
+            if (!eps.isEmpty()) {
+              for (TvShowEpisode ep : eps) {
+                String episodeBasenameWoStackingMarker = FilenameUtils.getBaseName(Utils.cleanStackingMarkers(ep.getMainVideoFile().getFilename()));
+                // okay, at least one existing episode found.. just check if there is the same base name without stacking markers
+                if (FilenameUtils.getBaseName(Utils.cleanStackingMarkers(mf.getFilename())).startsWith(episodeBasenameWoStackingMarker)) {
+                  ep.addToMediaFiles(mf);
+                  break;
+                }
+                // or if the mf is in a subfolder with the base name of the video file
+                if (episodeBasenameWoStackingMarker.equals(mf.getFileAsPath().getParent().getFileName().toString())) {
+                  ep.addToMediaFiles(mf);
+                  break;
+                }
+              }
             }
           }
         }

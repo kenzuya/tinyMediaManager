@@ -37,7 +37,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.thirdparty.trakttv.ClearTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
@@ -106,7 +106,7 @@ class TvShowSettingsPanel extends JPanel {
       int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("Settings.trakt.cleartvshows.hint"),
           BUNDLE.getString("Settings.trakt.cleartvshows"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
       if (confirm == JOptionPane.YES_OPTION) {
-        TmmTask task = new ClearTraktTvTask(false, true);
+        TmmTask task = new TvShowClearTraktTvTask();
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
     });

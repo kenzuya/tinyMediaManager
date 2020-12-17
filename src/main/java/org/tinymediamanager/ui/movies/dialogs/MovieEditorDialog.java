@@ -91,11 +91,10 @@ import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
@@ -1440,7 +1439,10 @@ public class MovieEditorDialog extends TmmDialog {
 
       // if configured - sync with trakt.tv
       if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
-        TmmTask task = new SyncTraktTvTask(Collections.singletonList(movieToEdit), null);
+        MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(Collections.singletonList(movieToEdit));
+        task.setSyncCollection(true);
+        task.setSyncWatched(true);
+
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
 

@@ -199,7 +199,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
           else if (path[0].equals(Upnp.ID_TVSHOWS) && path.length == 4) {
             org.tinymediamanager.core.tvshow.entities.TvShow t = TvShowList.getInstance().lookupTvShow(UUID.fromString(path[1]));
             if (t != null) {
-              TvShowEpisode ep = t.getEpisode(getInt(path[2]), getInt(path[3]));
+              TvShowEpisode ep = t.getEpisode(getInt(path[2]), getInt(path[3])).stream().findFirst().orElse(null);
               if (ep != null) {
                 item = Metadata.getUpnpTvShowEpisode(t, ep, true);
               }

@@ -1,12 +1,13 @@
-package org.tinymediamanager.thirdparty.traktv;
+package org.tinymediamanager.thirdparty.trakttv;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.thirdparty.trakttv.TraktTv;
 
 public class ITTraktTvTest {
 
@@ -33,22 +34,22 @@ public class ITTraktTvTest {
 
   @Test
   public void syncTraktMovieCollection() {
-    t.syncTraktMovieCollection();
+    t.syncTraktMovieCollection(MovieList.getInstance().getMovies());
   }
 
   @Test
   public void syncTraktMovieWatched() {
-    t.syncTraktMovieWatched();
+    t.syncTraktMovieWatched(MovieList.getInstance().getMovies());
   }
 
   @Test
   public void syncTraktTvShowCollection() {
-    t.syncTraktTvShowCollection();
+    t.syncTraktTvShowCollection(TvShowList.getInstance().getTvShows());
   }
 
   @Test
   public void syncTraktTvShowWatched() {
-    t.syncTraktTvShowWatched();
+    t.syncTraktTvShowWatched(TvShowList.getInstance().getTvShows());
   }
 
   // @Test

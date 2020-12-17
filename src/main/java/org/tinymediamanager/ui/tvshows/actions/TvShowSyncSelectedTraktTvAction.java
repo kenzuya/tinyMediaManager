@@ -21,17 +21,16 @@ import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
- * The class TvShowSyncSelectedTraktTvAction. To synchronize selected TV shows with trakt.tv (collection + watched)
+ * The class {@link TvShowSyncSelectedTraktTvAction}. To synchronize selected TV shows with trakt.tv (collection + watched)
  * 
  * @author Manuel Laggner
  */
@@ -55,7 +54,10 @@ public class TvShowSyncSelectedTraktTvAction extends TmmAction {
       return;
     }
 
-    TmmTask task = new SyncTraktTvTask(null, selectedTvShows);
+    TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(selectedTvShows);
+    task.setSyncCollection(true);
+    task.setSyncWatched(true);
+
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }

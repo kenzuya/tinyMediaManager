@@ -38,7 +38,7 @@ import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.thirdparty.trakttv.ClearTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.MovieClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
@@ -108,7 +108,7 @@ public class MovieSettingsPanel extends JPanel {
       int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("Settings.trakt.clearmovies.hint"),
           BUNDLE.getString("Settings.trakt.clearmovies"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
       if (confirm == JOptionPane.YES_OPTION) {
-        TmmTask task = new ClearTraktTvTask(true, false);
+        TmmTask task = new MovieClearTraktTvTask();
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
     });

@@ -29,7 +29,6 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -55,7 +54,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
  * The class TvShowScrapeTask. This starts scraping of TV shows
@@ -105,7 +104,10 @@ public class TvShowScrapeTask extends TmmThreadPool {
     waitForCompletionOrCancel();
 
     if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
-      TmmTask task = new SyncTraktTvTask(null, tvShowsToScrape);
+      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(tvShowsToScrape);
+      task.setSyncCollection(true);
+      task.setSyncWatched(true);
+
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
 

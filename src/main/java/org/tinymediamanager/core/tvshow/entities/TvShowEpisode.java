@@ -135,6 +135,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonProperty
   private boolean                            watched               = false;
   @JsonProperty
+  private int                                playcount             = 0;
+  @JsonProperty
   private boolean                            isDvdOrder            = false;
   @JsonProperty
   private UUID                               tvShowId              = null;
@@ -202,6 +204,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     setDisplaySeason(displaySeason < 0 || force ? other.displaySeason : displaySeason);
     setFirstAired(firstAired == null || force ? other.firstAired : firstAired);
     setWatched(!watched || force ? other.watched : watched);
+    setPlaycount(playcount == 0 || force ? other.playcount : playcount);
     setMediaSource(mediaSource == MediaSource.UNKNOWN || force ? other.mediaSource : mediaSource);
 
     if (force) {
@@ -288,6 +291,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     disc = source.disc;
     watched = source.watched;
+    playcount = source.playcount;
 
     for (Person actor : source.getActors()) {
       actors.add(new Person(actor));
@@ -1042,6 +1046,27 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     boolean oldValue = this.watched;
     this.watched = newValue;
     firePropertyChange(WATCHED, oldValue, newValue);
+  }
+
+  /**
+   * get the play count (mainly passed from/to trakt.tv/NFO)
+   * 
+   * @return the play count of this movie
+   */
+  public int getPlaycount() {
+    return playcount;
+  }
+
+  /**
+   * sets the play count
+   * 
+   * @param newValue
+   *          the play count of this movie
+   */
+  public void setPlaycount(int newValue) {
+    int oldValue = this.playcount;
+    this.playcount = newValue;
+    firePropertyChange("playcount", oldValue, newValue);
   }
 
   public Date getLastWatched() {

@@ -514,11 +514,9 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addPlaycount(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element playcount = document.createElement("playcount");
-    if (episode.isWatched() && parser != null && parser.playcount > 0) {
-      playcount.setTextContent(Integer.toString(parser.playcount));
-    }
-    else if (episode.isWatched()) {
-      playcount.setTextContent("1");
+    if (episode.isWatched()) {
+      int playCountFromNFO = parser != null ? parser.playcount : 0;
+      playcount.setTextContent(Integer.toString(Math.max(Math.max(episode.getPlaycount(), playCountFromNFO), 1)));
     }
     root.appendChild(playcount);
   }

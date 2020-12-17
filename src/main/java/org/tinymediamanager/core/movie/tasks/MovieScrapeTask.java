@@ -35,7 +35,6 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -51,7 +50,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
 
 /**
@@ -60,7 +59,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
  * @author Manuel Laggner
  */
 public class MovieScrapeTask extends TmmThreadPool {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieScrapeTask.class);
+  private static final Logger              LOGGER = LoggerFactory.getLogger(MovieScrapeTask.class);
   private static final ResourceBundle      BUNDLE = ResourceBundle.getBundle("messages");
 
   private List<Movie>                      moviesToScrape;
@@ -122,7 +121,10 @@ public class MovieScrapeTask extends TmmThreadPool {
     }
 
     if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
-      TmmTask task = new SyncTraktTvTask(moviesToScrape, null);
+      MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(moviesToScrape);
+      task.setSyncCollection(true);
+      task.setSyncWatched(true);
+
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
 
@@ -139,8 +141,8 @@ public class MovieScrapeTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private class Worker implements Runnable {
-    private MovieList movieList;
-    private Movie     movie;
+    private MovieList   movieList;
+    private final Movie movie;
 
     public Worker(Movie movie) {
       this.movie = movie;
@@ -314,8 +316,8 @@ public class MovieScrapeTask extends TmmThreadPool {
         }
         catch (ScrapeException e) {
           LOGGER.error("getTrailers", e);
-          MessageManager.instance.pushMessage(
-                  new Message(MessageLevel.ERROR, movie, "message.scrape.trailerfailed", new String[]{":", e.getLocalizedMessage()}));
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, movie, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
         }
         catch (MissingIdException e) {
           LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());

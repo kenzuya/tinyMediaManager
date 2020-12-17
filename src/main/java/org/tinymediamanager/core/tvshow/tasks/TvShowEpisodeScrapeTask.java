@@ -39,7 +39,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
  * The Class TvShowEpisodeScrapeTask.
@@ -126,7 +126,10 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       for (TvShowEpisode episode : episodes) {
         tvShows.add(episode.getTvShow());
       }
-      TmmTask task = new SyncTraktTvTask(null, new ArrayList<>(tvShows));
+      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows));
+      task.setSyncCollection(true);
+      task.setSyncWatched(true);
+
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
   }

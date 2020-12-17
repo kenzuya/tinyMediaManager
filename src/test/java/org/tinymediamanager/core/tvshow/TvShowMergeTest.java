@@ -76,7 +76,7 @@ public class TvShowMergeTest {
     show1.merge(show2);
     System.out.println(show1);
 
-    Assert.assertEquals(2, show1.getEpisode(1, 2).getDvdEpisode());
+    Assert.assertEquals(2, show1.getEpisode(1, 2).get(0).getDvdEpisode());
     Assert.assertEquals(3, show1.getEpisodeCount());
   }
 

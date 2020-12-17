@@ -25,25 +25,25 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.actions.TmmAction;
 
 /**
- * The class MovieSyncWatchedTraktTvAction. To synchronize the watched state of your movie library with trakt.tv
+ * The class {@link MovieSyncCollectionTraktTvAction}. To synchronize your movie library with trakt.tv
  * 
  * @author Manuel Laggner
  */
-public class MovieSyncWatchedTraktTvAction extends TmmAction {
+public class MovieSyncCollectionTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  public MovieSyncWatchedTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("movie.synctraktwatched"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.synctraktwatched.desc"));
-    putValue(SMALL_ICON, IconManager.WATCHED_MENU);
-    putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
+  public MovieSyncCollectionTraktTvAction() {
+    putValue(NAME, BUNDLE.getString("movie.synctrakt"));
+    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.synctrakt.desc"));
+    putValue(SMALL_ICON, IconManager.MOVIE);
+    putValue(LARGE_ICON_KEY, IconManager.MOVIE);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
     MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieList.getInstance().getMovies());
-    task.setSyncWatched(true);
+    task.setSyncCollection(true);
 
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }

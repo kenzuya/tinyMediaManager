@@ -62,7 +62,10 @@ import org.tinymediamanager.ui.movies.actions.MovieSelectedScrapeMetadataAction;
 import org.tinymediamanager.ui.movies.actions.MovieSingleScrapeAction;
 import org.tinymediamanager.ui.movies.actions.MovieSubtitleDownloadAction;
 import org.tinymediamanager.ui.movies.actions.MovieSubtitleSearchAction;
+import org.tinymediamanager.ui.movies.actions.MovieSyncCollectionTraktTvAction;
+import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedCollectionTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedTraktTvAction;
+import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieSyncTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieSyncWatchedTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieToggleWatchedFlagAction;
@@ -215,8 +218,12 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
-    traktMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncCollectionTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
+    traktMenu.addSeparator();
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
     popupMenu.add(traktMenu);
     JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickMovies();
@@ -317,8 +324,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieDeleteMediainfoXmlAction.class));
 
     editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncCollectionTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
 
     editPopupMenu.addSeparator();

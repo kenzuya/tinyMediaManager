@@ -374,13 +374,13 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // get ours, and merge other values
     for (TvShowEpisode ep : episodes) {
-      TvShowEpisode otherEP = other.getEpisode(ep.getSeason(), ep.getEpisode());
+      TvShowEpisode otherEP = other.getEpisode(ep.getSeason(), ep.getEpisode()).stream().findFirst().orElse(null);
       ep.merge(otherEP, force);
     }
 
     // get others, and simply add
     for (TvShowEpisode otherEp : other.getEpisodes()) {
-      TvShowEpisode ourEP = getEpisode(otherEp.getSeason(), otherEp.getEpisode()); // do not do a contains check!
+      TvShowEpisode ourEP = getEpisode(otherEp.getSeason(), otherEp.getEpisode()).stream().findFirst().orElse(null); // do not do a contains check!
       if (ourEP == null) {
         TvShowEpisode clone = new TvShowEpisode(otherEp);
         clone.setTvShow(this); // yes!
@@ -2040,16 +2040,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     TvShowList.getInstance().removeTvShow(this);
   }
 
-  public TvShowEpisode getEpisode(int season, int episode) {
-    TvShowEpisode ep = null;
-
-    for (TvShowEpisode e : new ArrayList<>(this.episodes)) {
-      if (e.getSeason() == season && e.getEpisode() == episode) {
-        ep = e;
-        break;
-      }
+  public List<TvShowEpisode> getEpisode(final int season, final int episode) {
+    if (season == -1 || episode == -1) {
+      return Collections.emptyList();
     }
-    return ep;
+
+    return this.episodes.stream().filter(e -> e.getSeason() == season && e.getEpisode() == episode).collect(Collectors.toList());
   }
 
   /**

@@ -16,34 +16,47 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
-import org.tinymediamanager.core.movie.MovieList;
+import javax.swing.JOptionPane;
+
+import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.movies.MovieUIModule;
 
 /**
- * The class MovieSyncWatchedTraktTvAction. To synchronize the watched state of your movie library with trakt.tv
+ * The class {@link MovieSyncSelectedCollectionTraktTvAction}. To synchronize all selected movies with trakt.tv (collection)
  * 
  * @author Manuel Laggner
  */
-public class MovieSyncWatchedTraktTvAction extends TmmAction {
+public class MovieSyncSelectedCollectionTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  public MovieSyncWatchedTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("movie.synctraktwatched"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.synctraktwatched.desc"));
-    putValue(SMALL_ICON, IconManager.WATCHED_MENU);
-    putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
+  public MovieSyncSelectedCollectionTraktTvAction() {
+    putValue(NAME, BUNDLE.getString("movie.synctrakt.selected.collection"));
+    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.synctrakt.selected.collection.desc"));
+    putValue(SMALL_ICON, IconManager.MOVIE);
+    putValue(LARGE_ICON_KEY, IconManager.MOVIE);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieList.getInstance().getMovies());
-    task.setSyncWatched(true);
+    List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+
+    if (selectedMovies.isEmpty()) {
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      return;
+    }
+
+    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(selectedMovies);
+    task.setSyncCollection(true);
 
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }

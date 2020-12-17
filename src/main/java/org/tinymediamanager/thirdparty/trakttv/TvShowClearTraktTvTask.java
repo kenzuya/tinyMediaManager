@@ -20,34 +20,22 @@ import java.util.ResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 
 /**
- * Clear your data from trakt.tv
+ * Clear your TV show data from trakt.tv
  * 
  * @author Manuel Laggner
  */
-public class ClearTraktTvTask extends TmmTask {
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
+public class TvShowClearTraktTvTask extends TmmTask {
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
-  private boolean                     clearMovies  = false;
-  private boolean                     clearTvShows = false;
-
-  public ClearTraktTvTask(boolean clearMovies, boolean clearTvShows) {
+  public TvShowClearTraktTvTask() {
     super(BUNDLE.getString("trakt.clear"), 0, TaskType.BACKGROUND_TASK);
-    this.clearMovies = clearMovies;
-    this.clearTvShows = clearTvShows;
   }
 
   @Override
   protected void doInBackground() {
     TraktTv traktTV = TraktTv.getInstance();
 
-    if (clearMovies) {
-      publishState(BUNDLE.getString("trakt.clear.movies"), 0);
-      traktTV.clearTraktMovies();
-    }
-
-    if (clearTvShows) {
-      publishState(BUNDLE.getString("trakt.clear.tvshows"), 0);
-      traktTV.clearTraktTvShows();
-    }
+    publishState(BUNDLE.getString("trakt.clear.tvshows"), 0);
+    traktTV.clearTraktTvShows();
   }
 }
