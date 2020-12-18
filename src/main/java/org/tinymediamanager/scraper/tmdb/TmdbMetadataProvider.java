@@ -27,6 +27,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.tmdb2.Tmdb;
 import com.uwetrottmann.tmdb2.TmdbInterceptor;
@@ -216,9 +217,14 @@ abstract class TmdbMetadataProvider {
    * Maps scraper Genres to internal TMM genres
    */
   static MediaGenres getTmmGenre(Genre genre) {
+    if (genre == null || MetadataUtil.unboxInteger(genre.id) == 0) {
+      return null;
+    }
+
     MediaGenres g = null;
     switch (genre.id) {
       case 28:
+      case 10759:
         g = MediaGenres.ACTION;
         break;
       case 12:
@@ -287,6 +293,12 @@ abstract class TmdbMetadataProvider {
       case 10754:
         g = MediaGenres.NEO_NOIR;
         break;
+      case 10763:
+        g = MediaGenres.NEWS;
+        break;
+      case 10764:
+        g = MediaGenres.REALITY_TV;
+        break;
       case 1115:
         g = MediaGenres.ROAD_MOVIE;
         break;
@@ -294,10 +306,14 @@ abstract class TmdbMetadataProvider {
         g = MediaGenres.ROMANCE;
         break;
       case 878:
+      case 10765:
         g = MediaGenres.SCIENCE_FICTION;
         break;
       case 10755:
         g = MediaGenres.SHORT;
+        break;
+      case 10766:
+        g = MediaGenres.SOAP;
         break;
       case 9805:
         g = MediaGenres.SPORT;
@@ -311,6 +327,9 @@ abstract class TmdbMetadataProvider {
       case 10748:
         g = MediaGenres.SUSPENSE;
         break;
+      case 10767:
+        g = MediaGenres.TALK_SHOW;
+        break;
       case 10770:
         g = MediaGenres.TV_MOVIE;
         break;
@@ -318,6 +337,7 @@ abstract class TmdbMetadataProvider {
         g = MediaGenres.THRILLER;
         break;
       case 10752:
+      case 10768:
         g = MediaGenres.WAR;
         break;
       case 37:
