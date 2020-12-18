@@ -515,6 +515,16 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       episode.setEpisodeNumber(TvUtils.getEpisodeNumber(ep.airedEpisodeNumber));
       episode.setDvdSeasonNumber(TvUtils.getSeasonNumber(ep.dvdSeason));
       episode.setDvdEpisodeNumber(TvUtils.getEpisodeNumber(ep.dvdEpisodeNumber));
+      if (MetadataUtil.unboxInteger(ep.airsBeforeSeason, -1) > -1) {
+        episode.setDisplaySeasonNumber(MetadataUtil.unboxInteger(ep.airsBeforeSeason));
+      }
+      if (MetadataUtil.unboxInteger(ep.airsBeforeEpisode, -1) > -1) {
+        episode.setDisplayEpisodeNumber(MetadataUtil.unboxInteger(ep.airsBeforeEpisode));
+      }
+      if (MetadataUtil.unboxInteger(ep.airsAfterSeason, -1) > -1) {
+        episode.setDisplaySeasonNumber(MetadataUtil.unboxInteger(ep.airsAfterSeason));
+        episode.setDisplayEpisodeNumber(4096); // like emm
+      }
       episode.setTitle(ep.episodeName);
       episode.setPlot(ep.overview);
 

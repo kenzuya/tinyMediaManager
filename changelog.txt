@@ -21,3 +21,4 @@ x allow selecting of E00 in episode chooser for some special episodes #967
 x added an HiDPI splash screen
 x re-write NFO on gathering mediainfo data #1135
 x improved HDR detection #1134
+x set displayepisode and displayseason #1146
