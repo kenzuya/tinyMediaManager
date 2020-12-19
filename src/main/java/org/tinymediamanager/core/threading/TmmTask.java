@@ -99,7 +99,7 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle {
     listeners.add(listener);
   }
 
-  void setState(TaskState newState) {
+  protected void setState(TaskState newState) {
     this.state = newState;
     informListeners();
   }

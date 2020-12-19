@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -29,9 +30,11 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
-import org.tinymediamanager.core.tasks.YoutubeDownloadTask;
+import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -76,7 +79,8 @@ public class TvShowHelpers {
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
           }
-        } else {
+        }
+        else {
           cert = MediaCertification.getCertification(TvShowModuleManager.SETTINGS.getCertificationCountry(), c);
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
@@ -93,14 +97,16 @@ public class TvShowHelpers {
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
           }
-        } else {
+        }
+        else {
           cert = MediaCertification.findCertification(c);
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
           }
         }
       }
-    } else {
+    }
+    else {
       // no slash, so only one country
       if (name.contains(":")) {
         String[] cs = name.split(":");
@@ -108,7 +114,8 @@ public class TvShowHelpers {
         if (cert == MediaCertification.UNKNOWN) {
           cert = MediaCertification.findCertification(cs[1].trim());
         }
-      } else {
+      }
+      else {
         // no country? try to find only by name
         cert = MediaCertification.getCertification(TvShowModuleManager.SETTINGS.getCertificationCountry(), name.trim());
       }
@@ -148,7 +155,8 @@ public class TvShowHelpers {
           subPaths.add(relativePath.subpath(0, i).toString());
         }
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       LOGGER.debug("could not extract season folder: {}", e.getMessage());
     }
 
@@ -178,12 +186,13 @@ public class TvShowHelpers {
   /**
    * start the automatic trailer download for the given movie
    *
-   * @param tvShow the TV show to start the trailer download for
+   * @param tvShow
+   *          the TV show to start the trailer download for
    */
   public static void startAutomaticTrailerDownload(TvShow tvShow) {
     // start movie trailer download?
     if (TvShowModuleManager.SETTINGS.isUseTrailerPreference() && TvShowModuleManager.SETTINGS.isAutomaticTrailerDownload()
-            && tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty() && !tvShow.getTrailer().isEmpty()) {
+        && tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty() && !tvShow.getTrailer().isEmpty()) {
       downloadBestTrailer(tvShow);
     }
   }
@@ -191,7 +200,8 @@ public class TvShowHelpers {
   /**
    * download the best trailer for the given TV show
    *
-   * @param tvShow the TV show to download the trailer for
+   * @param tvShow
+   *          the TV show to download the trailer for
    */
   public static void downloadBestTrailer(TvShow tvShow) {
     MediaTrailer trailer = tvShow.getTrailer().get(0);
@@ -201,8 +211,10 @@ public class TvShowHelpers {
   /**
    * download the given trailer for the given TV show
    *
-   * @param tvshow  the TV show to download the trailer for
-   * @param trailer the trailer to download
+   * @param tvshow
+   *          the TV show to download the trailer for
+   * @param trailer
+   *          the trailer to download
    */
   public static void downloadTrailer(TvShow tvshow, MediaTrailer trailer) {
     // get the right file name
@@ -213,22 +225,46 @@ public class TvShowHelpers {
     String filename;
     if (!trailernames.isEmpty()) {
       filename = tvshow.getTrailerFilename(trailernames.get(0));
-    } else {
+    }
+    else {
       filename = tvshow.getTrailerFilename(TvShowTrailerNaming.TVSHOW_TRAILER);
     }
 
     try {
-      if (tvshow.getTrailer().get(0).getProvider().equalsIgnoreCase("youtube")) {
-        YoutubeDownloadTask task = new YoutubeDownloadTask(trailer, tvshow, filename);
-        TmmTaskManager.getInstance().addDownloadTask(task);
-      } else {
-        TrailerDownloadTask task = new TrailerDownloadTask(trailer, tvshow, filename);
+      Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
+      if (matcher.matches()) {
+        YTDownloadTask task = new YTDownloadTask(trailer, TvShowModuleManager.SETTINGS.getTrailerQuality()) {
+          @Override
+          protected Path getDestinationWoExtension() {
+            return tvshow.getPathNIO().resolve(filename);
+          }
+
+          @Override
+          protected MediaEntity getMediaEntityToAdd() {
+            return tvshow;
+          }
+        };
         TmmTaskManager.getInstance().addDownloadTask(task);
       }
-    } catch (Exception e) {
+      else {
+        TrailerDownloadTask task = new TrailerDownloadTask(trailer) {
+          @Override
+          protected Path getDestinationWoExtension() {
+            return tvshow.getPathNIO().resolve(filename);
+          }
+
+          @Override
+          protected MediaEntity getMediaEntityToAdd() {
+            return tvshow;
+          }
+        };
+        TmmTaskManager.getInstance().addDownloadTask(task);
+      }
+    }
+    catch (Exception e) {
       LOGGER.error("could not start trailer download: {}", e.getMessage());
       MessageManager.instance.pushMessage(
-              new Message(Message.MessageLevel.ERROR, tvshow, "message.scrape.trailerfailed", new String[]{":", e.getLocalizedMessage()}));
+          new Message(Message.MessageLevel.ERROR, tvshow, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
     }
   }
 }

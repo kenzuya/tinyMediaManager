@@ -15,8 +15,11 @@
  */
 package org.tinymediamanager.core.tasks;
 
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.entities.MediaEntity;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ResourceBundle;
+
 import org.tinymediamanager.core.entities.MediaTrailer;
 
 /**
@@ -24,13 +27,36 @@ import org.tinymediamanager.core.entities.MediaTrailer;
  *
  * @author Manuel Laggner
  */
-public class TrailerDownloadTask extends DownloadTask {
+public abstract class TrailerDownloadTask extends DownloadTask {
+  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
-  public TrailerDownloadTask(MediaTrailer trailer, MediaEntity mediaEntity, String filename) {
-    super(trailer.getUrl(), mediaEntity.getPathNIO().resolve(filename), mediaEntity, MediaFileType.TRAILER);
+  private final MediaTrailer          mediaTrailer;
 
-    if ("apple".equalsIgnoreCase(trailer.getProvider())) {
-      setSpecialUserAgent("QuickTime");
+  protected TrailerDownloadTask(MediaTrailer trailer) {
+    super(BUNDLE.getString("trailer.download") + " - " + trailer.getName(), trailer.getUrl());
+    this.mediaTrailer = trailer;
+
+    setTaskDescription(trailer.getName());
+  }
+
+  @Override
+  protected String getSpecialUserAgent() {
+    if ("apple".equalsIgnoreCase(mediaTrailer.getProvider())) {
+      return "QuickTime";
+    }
+    return null;
+  }
+
+  @Override
+  protected void checkDownloadedFile() throws IOException {
+    super.checkDownloadedFile();
+
+    BasicFileAttributes view = Files.readAttributes(tempFile, BasicFileAttributes.class);
+
+    // the trailer must not be smaller than 1MB
+    if (view.size() < 1000000) {
+      // just cancel - cleanup is in DownloadTask
+      cancel = true;
     }
   }
 }

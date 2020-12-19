@@ -16,21 +16,23 @@
 
 package org.tinymediamanager.core.movie;
 
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+
 import org.junit.Test;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TrailerQuality;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
-import org.tinymediamanager.core.tasks.YoutubeDownloadTask;
-import org.tinymediamanager.scraper.util.youtube.model.Extension;
-
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.Locale;
-
-import static org.junit.Assert.fail;
+import org.tinymediamanager.core.tasks.YTDownloadTask;
 
 public class ITMediaTrailerDownloadTest {
 
@@ -50,7 +52,18 @@ public class ITMediaTrailerDownloadTest {
 
       String filename = m.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
 
-      TrailerDownloadTask task = new TrailerDownloadTask(t, m, filename);
+      TrailerDownloadTask task = new TrailerDownloadTask(t) {
+        @Override
+        protected Path getDestinationWoExtension() {
+          return m.getPathNIO().resolve(filename);
+        }
+
+        @Override
+        protected MediaEntity getMediaEntityToAdd() {
+          return m;
+        }
+      };
+
       Thread thread = new Thread(task);
       thread.start();
       while (thread.isAlive()) {
@@ -84,8 +97,18 @@ public class ITMediaTrailerDownloadTest {
       t.setUrl("https://www.youtube.com/watch?v=zNCz4mQzfEI");
       m.addTrailer(t);
 
-      YoutubeDownloadTask task = new YoutubeDownloadTask(t, m,
-              m.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER) + "." + Extension.MP4.getText());
+      YTDownloadTask task = new YTDownloadTask(t, TrailerQuality.HD_720) {
+        @Override
+        protected Path getDestinationWoExtension() {
+          return m.getPathNIO().resolve(m.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER));
+        }
+
+        @Override
+        protected MediaEntity getMediaEntityToAdd() {
+          return m;
+        }
+      };
+
       Thread thread = new Thread(task);
       thread.start();
       while (thread.isAlive()) {

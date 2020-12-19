@@ -109,6 +109,10 @@ public class Utils {
   private static final Pattern folderStackingPattern = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
 
+  // pattern for matching youtube links
+  public static final Pattern  YOUTUBE_PATTERN       = Pattern
+      .compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
+
   private static List<Locale>  availableLocales      = new ArrayList<>();
 
   private static String        tempFolder;

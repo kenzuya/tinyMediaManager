@@ -44,6 +44,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +53,8 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.movie.tasks.MovieSubtitleDownloadTask;
 import org.tinymediamanager.core.tasks.DownloadTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
@@ -468,8 +468,17 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
           if (StringUtils.isBlank(lang)) {
             lang = model.getLanguage().name();
           }
-          DownloadTask task = new MovieSubtitleDownloadTask(model.getDownloadUrl(), fileToScrape.getFileAsPath(), lang, movieToScrape);
-          TmmTaskManager.getInstance().addDownloadTask(task);
+          String filename = FilenameUtils.getBaseName(fileToScrape.getFilename()) + "." + lang;
+          DownloadTask task = new SubtitleDownloadTask(model.getDownloadUrl(), movieToScrape.getPathNIO().resolve(filename), movieToScrape);
+          try {
+            task.run();
+            lblProgressAction.setVisible(true);
+            lblProgressAction.setText(BUNDLE.getString("subtitle.downloaded") + " - " + model.getReleaseName());
+          }
+          catch (Exception ex) {
+            lblProgressAction.setVisible(true);
+            lblProgressAction.setText(BUNDLE.getString("message.scrape.subtitlefaileddownload") + " - " + ex.getLocalizedMessage());
+          }
         }
       }
     }

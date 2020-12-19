@@ -5,8 +5,9 @@ x backport MediaInfo changes from V4 (aspect ratio and others)
 
 Version 3.1.11
 =======================
-x reading of hybrid DVD ISO files
 + updated libmediainfo to 20.09
+x reading of hybrid DVD ISO files
+x updated trailer downloader
 
 
 Version 3.1.10

@@ -1,0 +1,526 @@
+/*
+ * Copyright 2012 - 2020 Manuel Laggner
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.tinymediamanager.core.tasks;
+
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmMuxer;
+import org.tinymediamanager.core.TrailerQuality;
+import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaTrailer;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.scraper.http.StreamingUrl;
+
+import com.github.kiulian.downloader.YoutubeDownloader;
+import com.github.kiulian.downloader.model.Extension;
+import com.github.kiulian.downloader.model.YoutubeVideo;
+import com.github.kiulian.downloader.model.formats.AudioFormat;
+import com.github.kiulian.downloader.model.formats.AudioVideoFormat;
+import com.github.kiulian.downloader.model.formats.Format;
+import com.github.kiulian.downloader.model.formats.VideoFormat;
+import com.github.kiulian.downloader.model.quality.AudioQuality;
+import com.github.kiulian.downloader.model.quality.VideoQuality;
+
+/**
+ * A task for downloading trailers from youtube
+ *
+ * @author Wolfgang Janes
+ */
+public abstract class YTDownloadTask extends TmmTask {
+
+  private static final Logger         LOGGER                      = LoggerFactory.getLogger(YTDownloadTask.class);
+  private static final char[]         ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
+      ':' };
+  private static final ResourceBundle BUNDLE                      = ResourceBundle.getBundle("messages", new UTF8Control());
+  private final MediaTrailer          mediaTrailer;
+  private final TrailerQuality        desiredQuality;
+
+  private YoutubeVideo                video;
+
+  /* helpers for calculating the download speed */
+  private long                        timestamp1                  = System.nanoTime();
+  private long                        length;
+  private long                        bytesDone                   = 0;
+  private long                        bytesDonePrevious           = 0;
+  private double                      speed                       = 0;
+
+  public YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
+    super(BUNDLE.getString("task.download") + " " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
+    this.mediaTrailer = mediaTrailer;
+    this.desiredQuality = desiredQuality;
+
+    setTaskDescription(mediaTrailer.getName());
+  }
+
+  /**
+   * get the desired filename without extension. The extension is inherited from the download itself
+   *
+   * @return the desired filename for the downloaded file
+   */
+  protected abstract Path getDestinationWoExtension();
+
+  /**
+   * get the {@link MediaEntity} to add the downloaded file to
+   *
+   * @return the {@link MediaEntity} to add the downloaded file to
+   */
+  protected abstract MediaEntity getMediaEntityToAdd();
+
+  @Override
+  protected void doInBackground() {
+    try {
+      String id = "";
+      // get the youtube id
+      Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(mediaTrailer.getUrl());
+      if (matcher.matches()) {
+        id = matcher.group(5);
+      }
+
+      if (StringUtils.isBlank(id)) {
+        return;
+      }
+
+      YoutubeDownloader downloader = new YoutubeDownloader();
+      video = downloader.getVideo(id);
+
+      // search for a combined audio-video stream
+      AudioVideoFormat audioVideoFormat = findCombinedStream();
+
+      if (audioVideoFormat != null) {
+        downloadCombinedStream(audioVideoFormat);
+        return;
+      }
+
+      // no combined audio/video format found -> search for separate streams and mux it
+      Format[] streams = findSeparateStreams();
+      if (streams.length == 2) {
+        downloadSeparateStreams((VideoFormat) streams[0], (AudioFormat) streams[1]);
+        return;
+      }
+
+      // still nothing found? just try to get the best possible
+      streams = findBestStreams();
+      if (streams.length == 1 && streams[0] instanceof AudioVideoFormat) {
+        downloadCombinedStream((AudioVideoFormat) streams[0]);
+      }
+      else if (streams.length == 2) {
+        downloadSeparateStreams((VideoFormat) streams[0], (AudioFormat) streams[1]);
+      }
+    }
+    catch (Exception e) {
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Youtube trailer downloader", "message.trailer.downloadfailed",
+          new String[] { getMediaEntityToAdd().getTitle() }));
+      setState(TaskState.CANCELLED);
+      LOGGER.error("download of Trailer {} failed", mediaTrailer.getUrl());
+    }
+  }
+
+  private AudioVideoFormat findCombinedStream() {
+    AudioVideoFormat audioVideoFormat = null;
+
+    List<AudioVideoFormat> audioVideoFormats = video.videoWithAudioFormats();
+
+    if (!"unknown".equalsIgnoreCase(mediaTrailer.getQuality())) {
+      // if there is an explicit quality in the URL
+      for (AudioVideoFormat format : audioVideoFormats) {
+        if (format.videoQuality() == getVideoQuality(mediaTrailer.getQuality()) && Extension.MPEG4 == format.extension()) {
+          audioVideoFormat = format;
+          break;
+        }
+      }
+    }
+    else if (desiredQuality != null) {
+      // try to get in the preferred quality
+      VideoQuality quality = null;
+      for (String q : desiredQuality.getPossibleQualities()) {
+        quality = getVideoQuality(q);
+        if (quality != null) {
+          break;
+        }
+      }
+
+      if (quality != null) {
+        for (AudioVideoFormat format : audioVideoFormats) {
+          if (format.videoQuality() == quality && Extension.MPEG4 == format.extension()) {
+            audioVideoFormat = format;
+            break;
+          }
+        }
+      }
+    }
+
+    return audioVideoFormat;
+  }
+
+  private VideoQuality getVideoQuality(String text) {
+    switch (text.toLowerCase(Locale.ROOT)) {
+      case "unknown":
+        return VideoQuality.unknown;
+
+      case "3072p":
+        return VideoQuality.highres;
+
+      case "2880p":
+        return VideoQuality.hd2880p;
+
+      case "2160p":
+        return VideoQuality.hd2160;
+
+      case "1440p":
+        return VideoQuality.hd1440;
+
+      case "1080p":
+        return VideoQuality.hd1080;
+
+      case "720p":
+        return VideoQuality.hd720;
+
+      case "480p":
+        return VideoQuality.large;
+
+      case "360p":
+        return VideoQuality.medium;
+
+      case "240p":
+        return VideoQuality.small;
+
+      case "144p":
+        return VideoQuality.tiny;
+
+      default:
+        return null;
+    }
+  }
+
+  private Format[] findSeparateStreams() {
+    VideoFormat videoFormat = findVideo(video, getVideoQuality(mediaTrailer.getQuality()), Extension.MPEG4);
+    AudioFormat audioFormat = findBestAudio(video, Extension.M4A);
+
+    if (videoFormat != null && audioFormat != null) {
+      return new Format[] { videoFormat, audioFormat };
+    }
+    return new Format[0];
+  }
+
+  private Format[] findBestStreams() {
+    Format videoStreamInBestQuality = null;
+    VideoQuality bestQuality = null;
+
+    for (Format format : video.formats()) {
+      if (format instanceof AudioVideoFormat) {
+        AudioVideoFormat audioVideoFormat = (AudioVideoFormat) format;
+        if (bestQuality == null) {
+          // just take it
+          bestQuality = audioVideoFormat.videoQuality();
+          videoStreamInBestQuality = format;
+        }
+        else if (bestQuality.ordinal() >= audioVideoFormat.videoQuality().ordinal()) {
+          // >= because we prefer combined over separate streams
+          bestQuality = audioVideoFormat.videoQuality();
+          videoStreamInBestQuality = format;
+        }
+      }
+      else if (format instanceof VideoFormat) {
+        VideoFormat audioVideoFormat = (VideoFormat) format;
+        if (bestQuality == null) {
+          // just take it
+          bestQuality = audioVideoFormat.videoQuality();
+          videoStreamInBestQuality = format;
+        }
+        else if (bestQuality.ordinal() > audioVideoFormat.videoQuality().ordinal()) {
+          bestQuality = audioVideoFormat.videoQuality();
+          videoStreamInBestQuality = format;
+        }
+      }
+    }
+
+    // now check if we got anything
+    if (videoStreamInBestQuality != null) {
+      // yeah - we found at least one video stream
+      if (videoStreamInBestQuality instanceof AudioVideoFormat) {
+        // yeah #2 - a combined stream
+        return new Format[] { videoStreamInBestQuality };
+      }
+      else if (videoStreamInBestQuality instanceof VideoFormat) {
+        // okay at least we have a video stream; search for a matching audio stream
+        AudioFormat audioFormat = findBestAudio(video, Extension.M4A);
+        if (audioFormat != null) {
+          return new Format[] { videoStreamInBestQuality, audioFormat };
+        }
+      }
+    }
+
+    return new Format[0];
+  }
+
+  private VideoFormat findVideo(YoutubeVideo video, VideoQuality videoQuality, Extension extension) {
+    for (VideoFormat format : video.videoFormats()) {
+      if (format.videoQuality() == videoQuality && format.extension().equals(extension)) {
+        return format;
+      }
+    }
+
+    LOGGER.debug("could not find video with quality {} and format {}", videoQuality, extension);
+    return null;
+  }
+
+  private AudioFormat findBestAudio(YoutubeVideo video, Extension extension) {
+
+    // search for all audio formats in the given quality order
+    for (AudioQuality quality : getAudioQualityList()) {
+      for (AudioFormat format : video.audioFormats()) {
+        if (format.audioQuality() == quality && format.extension().equals(extension)) {
+          return format;
+        }
+      }
+    }
+
+    // nothing found so far
+    LOGGER.debug("Could not find audio format for extension {}", extension);
+    return null;
+  }
+
+  private List<AudioQuality> getAudioQualityList() {
+    List<AudioQuality> list = new ArrayList<>();
+    list.add(AudioQuality.high);
+    list.add(AudioQuality.medium);
+    list.add(AudioQuality.low);
+
+    return list;
+  }
+
+  private List<VideoQuality> getVideoQualityList() {
+    List<VideoQuality> list = new ArrayList<>();
+    list.add(VideoQuality.highres);
+    list.add(VideoQuality.hd2880p);
+    list.add(VideoQuality.hd2160);
+    list.add(VideoQuality.hd1440);
+    list.add(VideoQuality.hd1080);
+    list.add(VideoQuality.hd720);
+    list.add(VideoQuality.large);
+    list.add(VideoQuality.medium);
+    list.add(VideoQuality.small);
+    list.add(VideoQuality.tiny);
+
+    return list;
+  }
+
+  private void downloadCombinedStream(AudioVideoFormat audioVideoFormat) throws Exception {
+    MediaEntity mediaEntity = getMediaEntityToAdd();
+
+    // we've found a combined audio/video format for the requested quality, so we don't need to mux it ;)
+    Path tempFile = download(audioVideoFormat);
+
+    if (tempFile != null) {
+      Path trailer = getDestinationWoExtension().getParent().resolve(getDestinationWoExtension().getFileName() + ".mp4");
+      // delete any existing trailer files
+      Utils.deleteFileSafely(trailer);
+
+      // create parent if needed
+      if (!Files.exists(trailer.getParent())) {
+        Files.createDirectory(trailer.getParent());
+      }
+
+      // and move the temporary file
+      Utils.moveFileSafe(tempFile, trailer);
+
+      MediaFile mf = new MediaFile(trailer, MediaFileType.TRAILER);
+      mf.gatherMediaInformation();
+      mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
+      mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
+      mediaEntity.saveToDb();
+    }
+  }
+
+  private void downloadSeparateStreams(VideoFormat videoFormat, AudioFormat audioFormat) throws Exception {
+    MediaEntity mediaEntity = getMediaEntityToAdd();
+
+    if (videoFormat == null || audioFormat == null) {
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Youtube trailer downloader", "message.trailer.unsupported",
+          new String[] { mediaEntity.getTitle() }));
+      LOGGER.error("Could not download movieTrailer for {}", mediaEntity.getTitle());
+      setState(TaskState.CANCELLED);
+      return;
+    }
+
+    ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+    // start Futures to download the two streams
+    Future<Path> futureVideo = executorService.submit(() -> {
+      try {
+        LOGGER.debug("Downloading video....");
+        return download(videoFormat);
+      }
+      catch (Exception e) {
+        LOGGER.error("Could not download video stream: {}", e.getMessage());
+        return null;
+      }
+
+    });
+    Future<Path> futureAudio = executorService.submit(() -> {
+      try {
+        LOGGER.debug("Downloading audio....");
+        return download(audioFormat);
+      }
+      catch (Exception e) {
+        LOGGER.error("Could not download audio stream: {}", e.getMessage());
+        return null;
+      }
+    });
+
+    Path videoFile = futureVideo.get();
+    Path audioFile = futureAudio.get();
+
+    if (videoFile != null && audioFile != null) {
+
+      // Mux the audio and video
+      LOGGER.trace("Muxing...");
+      TmmMuxer muxer = new TmmMuxer(audioFile, videoFile);
+      Path trailer = getDestinationWoExtension().getParent().resolve(getDestinationWoExtension().getFileName() + ".mp4");
+      muxer.mergeAudioVideo(trailer);
+      LOGGER.trace("Muxing finished");
+
+      MediaFile mf = new MediaFile(trailer, MediaFileType.TRAILER);
+      mf.gatherMediaInformation();
+      mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
+      mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
+      mediaEntity.saveToDb();
+    }
+    else {
+      setState(TaskState.CANCELLED);
+      return;
+    }
+
+    // Delete the temp audio and video files
+    Utils.deleteFileSafely(videoFile);
+    Utils.deleteFileSafely(audioFile);
+  }
+
+  /**
+   * Download the given format ( either Audio or Video
+   *
+   * @param format
+   *          Video or Audio Format
+   * @return a {@link Path} object of the downloaded file
+   * @throws IOException
+   *           any {@link Exception} occurred while downloading
+   */
+  public Path download(Format format) throws Exception {
+    String fileName;
+    Path tempDir = Paths.get(Utils.getTempFolder());
+
+    if (!Files.exists(tempDir)) {
+      Files.createDirectory(tempDir);
+    }
+    if (format.itag().isVideo()) {
+      fileName = video.details().title() + "(V)." + format.extension().value();
+    }
+    else {
+      fileName = video.details().title() + "(A)." + format.extension().value();
+    }
+    Path outputFile = tempDir.resolve(cleanFilename(fileName));
+
+    StreamingUrl url = new StreamingUrl(format.url());
+    try (InputStream is = url.getInputStream();
+        BufferedInputStream bis = new BufferedInputStream(is);
+        FileOutputStream fileOutputStream = new FileOutputStream(outputFile.toFile())) {
+      addContentLength(url.getContentLength());
+
+      byte[] buffer = new byte[2048];
+      int count;
+
+      while ((count = bis.read(buffer, 0, buffer.length)) != -1) {
+        if (cancel) {
+          Thread.currentThread().interrupt();
+          LOGGER.info("download of {} aborted", url);
+          return null;
+        }
+
+        fileOutputStream.write(buffer, 0, count);
+        addBytesDone(count);
+      }
+
+      Utils.flushFileOutputStreamToDisk(fileOutputStream);
+      return outputFile;
+    }
+  }
+
+  private synchronized void addContentLength(long length) {
+    this.length += length;
+  }
+
+  private synchronized void addBytesDone(long count) {
+    bytesDone += count;
+
+    // we push the progress only once per 250ms (to use less performance and get a better download speed)
+    long timestamp2 = System.nanoTime();
+    if (timestamp2 - timestamp1 > 250000000) {
+      // avg. speed between the actual and the previous
+      speed = (speed + (bytesDone - bytesDonePrevious) / ((double) (timestamp2 - timestamp1) / 1000000000)) / 2;
+
+      timestamp1 = timestamp2;
+      bytesDonePrevious = bytesDone;
+
+      if (length > 0) {
+        publishState(formatBytesForOutput(bytesDone) + "/" + formatBytesForOutput(length) + " @" + formatSpeedForOutput(speed),
+            (int) (bytesDone * 100 / length));
+      }
+      else {
+        setWorkUnits(0);
+        publishState(formatBytesForOutput(bytesDone) + " @" + formatSpeedForOutput(speed), 0);
+      }
+
+    }
+  }
+
+  private String formatBytesForOutput(long bytes) {
+    return String.format("%.2fM", (double) bytes / (1000d * 1000d));
+  }
+
+  private String formatSpeedForOutput(double speed) {
+    return String.format("%.2fkB/s", speed / 1000d);
+  }
+
+  private static String cleanFilename(String filename) {
+    for (char c : ILLEGAL_FILENAME_CHARACTERS) {
+      filename = filename.replace(c, '_');
+    }
+    return filename;
+  }
+}

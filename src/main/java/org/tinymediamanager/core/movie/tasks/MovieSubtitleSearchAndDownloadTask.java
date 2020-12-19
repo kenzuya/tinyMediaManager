@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -126,7 +128,9 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
               lang = language.name();
             }
 
-            TmmTaskManager.getInstance().addDownloadTask(new MovieSubtitleDownloadTask(firstResult.getUrl(), mf.getFileAsPath(), lang, movie));
+            String filename = FilenameUtils.getBaseName(mf.getFilename()) + "." + lang;
+
+            TmmTaskManager.getInstance().addDownloadTask(new SubtitleDownloadTask(firstResult.getUrl(), movie.getPathNIO().resolve(filename), movie));
           }
           catch (ScrapeException e) {
             LOGGER.error("getSubtitles", e);

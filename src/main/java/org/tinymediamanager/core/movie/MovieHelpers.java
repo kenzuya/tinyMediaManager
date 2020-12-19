@@ -16,21 +16,25 @@
 
 package org.tinymediamanager.core.movie;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
-import org.tinymediamanager.core.tasks.YoutubeDownloadTask;
+import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * a collection of various helpers for the movie module
@@ -165,11 +169,33 @@ public class MovieHelpers {
     }
 
     try {
-      if (trailer.getProvider().equalsIgnoreCase("youtube")) {
-        YoutubeDownloadTask task = new YoutubeDownloadTask(trailer, movie, filename);
+      Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
+      if (matcher.matches()) {
+        YTDownloadTask task = new YTDownloadTask(trailer, MovieModuleManager.SETTINGS.getTrailerQuality()) {
+          @Override
+          protected Path getDestinationWoExtension() {
+            return movie.getPathNIO().resolve(filename);
+          }
+
+          @Override
+          protected MediaEntity getMediaEntityToAdd() {
+            return movie;
+          }
+        };
         TmmTaskManager.getInstance().addDownloadTask(task);
-      } else {
-        TrailerDownloadTask task = new TrailerDownloadTask(trailer, movie, filename);
+      }
+      else {
+        TrailerDownloadTask task = new TrailerDownloadTask(trailer) {
+          @Override
+          protected Path getDestinationWoExtension() {
+            return movie.getPathNIO().resolve(filename);
+          }
+
+          @Override
+          protected MediaEntity getMediaEntityToAdd() {
+            return movie;
+          }
+        };
         TmmTaskManager.getInstance().addDownloadTask(task);
       }
     }
