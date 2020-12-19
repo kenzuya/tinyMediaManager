@@ -38,6 +38,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.NullInputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -329,6 +331,10 @@ public class Url {
 
       is = getInputstreamInternal(response);
     }
+    catch (SSLHandshakeException e) {
+      // there is something wrong with the SSL certificate
+      throw new IOException("SSL verification failed for '" + UrlUtil.getDomainUrl(url) + "'");
+    }
     catch (HttpException e) {
       // rethrow that to inform the caller that there was an HTTP-Exception
       throw e;
@@ -361,12 +367,14 @@ public class Url {
    *          the amount of retries (>0)
    * @return the InputStream or null
    */
-  public InputStream getInputStreamWithRetry(int retries) throws InterruptedException {
+  public InputStream getInputStreamWithRetry(int retries) throws Exception {
     if (retries <= 0) {
       return null;
     }
 
     InputStream is = null;
+
+    Exception exception = null;
 
     int counter = 0;
     do {
@@ -380,6 +388,7 @@ public class Url {
       }
       catch (Exception e) {
         LOGGER.warn("problem fetching the url: {}", e.getMessage());
+        exception = e;
       }
       if (is != null || (getStatusCode() > 0 && getStatusCode() < 500)) {
         // we either got a response or a permanent failure
@@ -393,6 +402,10 @@ public class Url {
 
       LOGGER.info("could not fetch: {} - retrying", url);
     } while (counter <= retries);
+
+    if (exception != null) {
+      throw exception;
+    }
 
     return null;
   }
@@ -454,7 +467,7 @@ public class Url {
    * @throws IOException
    *           Signals that an I/O exception has occurred.
    */
-  public byte[] getBytesWithRetry(int retries) throws IOException, InterruptedException {
+  public byte[] getBytesWithRetry(int retries) throws Exception {
     try (InputStream is = getInputStreamWithRetry(retries)) {
       return IOUtils.toByteArray(is);
     }

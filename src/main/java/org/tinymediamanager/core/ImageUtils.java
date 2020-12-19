@@ -268,12 +268,11 @@ public class ImageUtils {
     return ImageLoader.createImage(img);
   }
 
-  public static Path downloadImage(String urlAsString, Path destinationFolder, String filename) throws InterruptedException, IOException {
+  public static Path downloadImage(String urlAsString, Path destinationFolder, String filename) throws Exception {
     return downloadImage(urlAsString, destinationFolder, filename, false, 0);
   }
 
-  public static Path downloadImage(String urlAsString, Path destinationFolder, String filename, boolean rescale, int newWidth)
-      throws InterruptedException, IOException {
+  public static Path downloadImage(String urlAsString, Path destinationFolder, String filename, boolean rescale, int newWidth) throws Exception {
 
     // don't write jpeg -> write jpg
     if (FilenameUtils.getExtension(filename).equalsIgnoreCase("JPEG")) {

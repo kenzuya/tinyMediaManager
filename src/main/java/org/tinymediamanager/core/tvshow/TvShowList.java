@@ -96,6 +96,7 @@ public class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             audioLanguagesInEpisodes;
   private final CopyOnWriteArrayList<Integer>            subtitlesInEpisodes;
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInEpisodes;
+  private final CopyOnWriteArrayList<String>             hdrFormatInEpisodes;
 
   private final PropertyChangeListener                   propertyChangeListener;
 
@@ -116,6 +117,7 @@ public class TvShowList extends AbstractModelObject {
     audioLanguagesInEpisodes = new CopyOnWriteArrayList<>();
     subtitlesInEpisodes = new CopyOnWriteArrayList<>();
     subtitleLanguagesInEpisodes = new CopyOnWriteArrayList<>();
+    hdrFormatInEpisodes = new CopyOnWriteArrayList<>();
 
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
@@ -740,6 +742,7 @@ public class TvShowList extends AbstractModelObject {
     Set<String> audioLanguages = new HashSet<>();
     Set<Integer> subtitleStreamCount = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
+    Set<String> hdrFormat = new HashSet<>();
 
     for (TvShowEpisode episode : episodes) {
       int audioCount = 0;
@@ -782,6 +785,9 @@ public class TvShowList extends AbstractModelObject {
 
           // subtitle languages
           subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
+
+          // HDR Format
+          hdrFormat.add(mf.getHdrFormat());
         }
 
         first = false;
@@ -843,6 +849,11 @@ public class TvShowList extends AbstractModelObject {
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleLanguagesInEpisodes, subtitleLanguages)) {
       firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInEpisodes);
     }
+
+    //HDR Format
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInEpisodes, hdrFormat)) {
+      firePropertyChange(Constants.HDR_FORMAT,null, hdrFormatInEpisodes);
+    }
   }
 
   public Collection<String> getVideoCodecsInEpisodes() {
@@ -880,6 +891,8 @@ public class TvShowList extends AbstractModelObject {
   public Collection<String> getSubtitleLanguagesInEpisodes() {
     return subtitleLanguagesInEpisodes;
   }
+
+  public Collection<String> getHdrFormatInEpisodes() { return hdrFormatInEpisodes; }
 
   /**
    * Gets the TV show by path.

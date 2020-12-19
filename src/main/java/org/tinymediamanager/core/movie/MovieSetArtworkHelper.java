@@ -342,6 +342,9 @@ public class MovieSetArtworkHelper {
       for (MediaFile mediaFile : mediaFiles) {
         String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
+        // also remove illegal separators
+        movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+
         if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
           // Kodi style: <movie set artwork folder>/<movie set name>/<artwork type>.ext
           Path path = Paths.get(artworkFolder.toString(), movieSetName, fileNaming.getFilename(movieSetName, ""));

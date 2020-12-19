@@ -32,7 +32,7 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
-import org.tinymediamanager.core.tasks.YoutubeDownloadTask;
+import org.tinymediamanager.core.tasks.YTDownloadTask;
 
 public class ITMediaTrailerDownloadTest {
 
@@ -81,7 +81,7 @@ public class ITMediaTrailerDownloadTest {
   }
 
   @Test
-  public void downloadYoutubeTrailerTest() {
+  public void downloadYTTrailerTest() {
     // youtube
     try {
       Locale.setDefault(new Locale("en", "US"));
@@ -96,7 +96,7 @@ public class ITMediaTrailerDownloadTest {
       t.setUrl("https://www.youtube.com/watch?v=zNCz4mQzfEI");
       m.addTrailer(t);
 
-      YoutubeDownloadTask task = new YoutubeDownloadTask(t, TrailerQuality.HD_720) {
+      YTDownloadTask task = new YTDownloadTask(t, TrailerQuality.HD_720) {
         @Override
         protected Path getDestinationWoExtension() {
           return m.getPathNIO().resolve(m.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER));

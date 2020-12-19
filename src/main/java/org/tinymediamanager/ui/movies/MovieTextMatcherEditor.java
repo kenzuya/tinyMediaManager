@@ -23,7 +23,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -37,10 +36,11 @@ import ca.odell.glazedlists.matchers.Matcher;
  * @author Manuel Laggner
  */
 public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
+  private final MovieSettings  settings = MovieSettings.getInstance();
   private final JTextComponent textComponent;
+
   private String               normalizedFilterText;
   private Pattern              filterPattern;
-  private MovieSettings        settings = MovieSettings.getInstance();
 
   public MovieTextMatcherEditor(JTextComponent textComponent) {
     this.textComponent = textComponent;

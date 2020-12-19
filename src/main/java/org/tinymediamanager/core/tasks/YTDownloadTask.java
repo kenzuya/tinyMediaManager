@@ -22,16 +22,22 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmMuxer;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
@@ -39,31 +45,33 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.scraper.http.StreamingUrl;
-import org.tinymediamanager.scraper.util.youtube.YoutubeHelper;
-import org.tinymediamanager.scraper.util.youtube.model.Extension;
-import org.tinymediamanager.scraper.util.youtube.model.YoutubeMedia;
-import org.tinymediamanager.scraper.util.youtube.model.formats.AudioFormat;
-import org.tinymediamanager.scraper.util.youtube.model.formats.AudioVideoFormat;
-import org.tinymediamanager.scraper.util.youtube.model.formats.Format;
-import org.tinymediamanager.scraper.util.youtube.model.formats.VideoFormat;
-import org.tinymediamanager.scraper.util.youtube.model.quality.VideoQuality;
-import org.tinymediamanager.scraper.util.youtube.muxer.TmmMuxer;
+
+import com.github.kiulian.downloader.YoutubeDownloader;
+import com.github.kiulian.downloader.model.Extension;
+import com.github.kiulian.downloader.model.YoutubeVideo;
+import com.github.kiulian.downloader.model.formats.AudioFormat;
+import com.github.kiulian.downloader.model.formats.AudioVideoFormat;
+import com.github.kiulian.downloader.model.formats.Format;
+import com.github.kiulian.downloader.model.formats.VideoFormat;
+import com.github.kiulian.downloader.model.quality.AudioQuality;
+import com.github.kiulian.downloader.model.quality.VideoQuality;
 
 /**
- * A task for downloading trailers from youtube
+ * A task for downloading trailers from YT
  *
  * @author Wolfgang Janes
  */
-public abstract class YoutubeDownloadTask extends TmmTask {
+public abstract class YTDownloadTask extends TmmTask {
 
-  private static final Logger         LOGGER                      = LoggerFactory.getLogger(YoutubeDownloadTask.class);
+  private static final Logger         LOGGER                      = LoggerFactory.getLogger(YTDownloadTask.class);
   private static final char[]         ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
       ':' };
 
   private static final ResourceBundle BUNDLE                      = ResourceBundle.getBundle("messages");
   private final MediaTrailer          mediaTrailer;
   private final TrailerQuality        desiredQuality;
-  private YoutubeMedia                mediaDetails;
+
+  private YoutubeVideo                video;
 
   /* helpers for calculating the download speed */
   private long                        timestamp1                  = System.nanoTime();
@@ -72,7 +80,7 @@ public abstract class YoutubeDownloadTask extends TmmTask {
   private long                        bytesDonePrevious           = 0;
   private double                      speed                       = 0;
 
-  public YoutubeDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
+  public YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
     super(BUNDLE.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
     this.mediaTrailer = mediaTrailer;
     this.desiredQuality = desiredQuality;
@@ -97,8 +105,19 @@ public abstract class YoutubeDownloadTask extends TmmTask {
   @Override
   protected void doInBackground() {
     try {
-      mediaDetails = new YoutubeMedia(YoutubeHelper.extractId(mediaTrailer.getUrl()));
-      mediaDetails.parseVideo();
+      String id = "";
+      // get the youtube id
+      Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(mediaTrailer.getUrl());
+      if (matcher.matches()) {
+        id = matcher.group(5);
+      }
+
+      if (StringUtils.isBlank(id)) {
+        return;
+      }
+
+      YoutubeDownloader downloader = new YoutubeDownloader();
+      video = downloader.getVideo(id);
 
       // search for a combined audio-video stream
       AudioVideoFormat audioVideoFormat = findCombinedStream();
@@ -135,30 +154,83 @@ public abstract class YoutubeDownloadTask extends TmmTask {
   private AudioVideoFormat findCombinedStream() {
     AudioVideoFormat audioVideoFormat = null;
 
+    List<AudioVideoFormat> audioVideoFormats = video.videoWithAudioFormats();
+
     if (!"unknown".equalsIgnoreCase(mediaTrailer.getQuality())) {
       // if there is an explicit quality in the URL
-      audioVideoFormat = mediaDetails.findAudioVideo(VideoQuality.getVideoQuality(mediaTrailer.getQuality()), Extension.MP4);
+      for (AudioVideoFormat format : audioVideoFormats) {
+        if (format.videoQuality() == getVideoQuality(mediaTrailer.getQuality()) && Extension.MPEG4 == format.extension()) {
+          audioVideoFormat = format;
+          break;
+        }
+      }
     }
     else if (desiredQuality != null) {
       // try to get in the preferred quality
       VideoQuality quality = null;
-      for (VideoQuality q : VideoQuality.values()) {
-        if (desiredQuality.containsQuality(q.getText())) {
-          quality = q;
+      for (String q : desiredQuality.getPossibleQualities()) {
+        quality = getVideoQuality(q);
+        if (quality != null) {
           break;
         }
       }
+
       if (quality != null) {
-        audioVideoFormat = mediaDetails.findAudioVideo(VideoQuality.getVideoQuality(desiredQuality.toString()), Extension.MP4);
+        for (AudioVideoFormat format : audioVideoFormats) {
+          if (format.videoQuality() == quality && Extension.MPEG4 == format.extension()) {
+            audioVideoFormat = format;
+            break;
+          }
+        }
       }
     }
 
     return audioVideoFormat;
   }
 
+  private VideoQuality getVideoQuality(String text) {
+    switch (text.toLowerCase(Locale.ROOT)) {
+      case "unknown":
+        return VideoQuality.unknown;
+
+      case "3072p":
+        return VideoQuality.highres;
+
+      case "2880p":
+        return VideoQuality.hd2880p;
+
+      case "2160p":
+        return VideoQuality.hd2160;
+
+      case "1440p":
+        return VideoQuality.hd1440;
+
+      case "1080p":
+        return VideoQuality.hd1080;
+
+      case "720p":
+        return VideoQuality.hd720;
+
+      case "480p":
+        return VideoQuality.large;
+
+      case "360p":
+        return VideoQuality.medium;
+
+      case "240p":
+        return VideoQuality.small;
+
+      case "144p":
+        return VideoQuality.tiny;
+
+      default:
+        return null;
+    }
+  }
+
   private Format[] findSeparateStreams() {
-    VideoFormat videoFormat = mediaDetails.findVideo(VideoQuality.getVideoQuality(mediaTrailer.getQuality()), Extension.MP4);
-    AudioFormat audioFormat = mediaDetails.findBestAudio(Extension.M4A);
+    VideoFormat videoFormat = findVideo(video, getVideoQuality(mediaTrailer.getQuality()), Extension.MPEG4);
+    AudioFormat audioFormat = findBestAudio(video, Extension.M4A);
 
     if (videoFormat != null && audioFormat != null) {
       return new Format[] { videoFormat, audioFormat };
@@ -170,7 +242,7 @@ public abstract class YoutubeDownloadTask extends TmmTask {
     Format videoStreamInBestQuality = null;
     VideoQuality bestQuality = null;
 
-    for (Format format : mediaDetails.getFormats()) {
+    for (Format format : video.formats()) {
       if (format instanceof AudioVideoFormat) {
         AudioVideoFormat audioVideoFormat = (AudioVideoFormat) format;
         if (bestQuality == null) {
@@ -207,7 +279,7 @@ public abstract class YoutubeDownloadTask extends TmmTask {
       }
       else if (videoStreamInBestQuality instanceof VideoFormat) {
         // okay at least we have a video stream; search for a matching audio stream
-        AudioFormat audioFormat = mediaDetails.findBestAudio(Extension.M4A);
+        AudioFormat audioFormat = findBestAudio(video, Extension.M4A);
         if (audioFormat != null) {
           return new Format[] { videoStreamInBestQuality, audioFormat };
         }
@@ -215,6 +287,58 @@ public abstract class YoutubeDownloadTask extends TmmTask {
     }
 
     return new Format[0];
+  }
+
+  private VideoFormat findVideo(YoutubeVideo video, VideoQuality videoQuality, Extension extension) {
+    for (VideoFormat format : video.videoFormats()) {
+      if (format.videoQuality() == videoQuality && format.extension().equals(extension)) {
+        return format;
+      }
+    }
+
+    LOGGER.debug("could not find video with quality {} and format {}", videoQuality, extension);
+    return null;
+  }
+
+  private AudioFormat findBestAudio(YoutubeVideo video, Extension extension) {
+
+    // search for all audio formats in the given quality order
+    for (AudioQuality quality : getAudioQualityList()) {
+      for (AudioFormat format : video.audioFormats()) {
+        if (format.audioQuality() == quality && format.extension().equals(extension)) {
+          return format;
+        }
+      }
+    }
+
+    // nothing found so far
+    LOGGER.debug("Could not find audio format for extension {}", extension);
+    return null;
+  }
+
+  private List<AudioQuality> getAudioQualityList() {
+    List<AudioQuality> list = new ArrayList<>();
+    list.add(AudioQuality.high);
+    list.add(AudioQuality.medium);
+    list.add(AudioQuality.low);
+
+    return list;
+  }
+
+  private List<VideoQuality> getVideoQualityList() {
+    List<VideoQuality> list = new ArrayList<>();
+    list.add(VideoQuality.highres);
+    list.add(VideoQuality.hd2880p);
+    list.add(VideoQuality.hd2160);
+    list.add(VideoQuality.hd1440);
+    list.add(VideoQuality.hd1080);
+    list.add(VideoQuality.hd720);
+    list.add(VideoQuality.large);
+    list.add(VideoQuality.medium);
+    list.add(VideoQuality.small);
+    list.add(VideoQuality.tiny);
+
+    return list;
   }
 
   private void downloadCombinedStream(AudioVideoFormat audioVideoFormat) throws Exception {
@@ -325,10 +449,10 @@ public abstract class YoutubeDownloadTask extends TmmTask {
       Files.createDirectory(tempDir);
     }
     if (format.itag().isVideo()) {
-      fileName = mediaDetails.getDetails().getTitle() + "(V)." + format.extension().getText();
+      fileName = video.details().title() + "(V)." + format.extension().value();
     }
     else {
-      fileName = mediaDetails.getDetails().getTitle() + "(A)." + format.extension().getText();
+      fileName = video.details().title() + "(A)." + format.extension().value();
     }
     Path outputFile = tempDir.resolve(cleanFilename(fileName));
 

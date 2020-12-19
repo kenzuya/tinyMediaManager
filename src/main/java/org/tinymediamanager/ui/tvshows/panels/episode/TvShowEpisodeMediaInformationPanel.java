@@ -144,53 +144,67 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
 
   @Override
   protected void buildAudioStreamDetails() {
-    audioStreamEventList.clear();
+    try {
+      audioStreamEventList.getReadWriteLock().writeLock().lock();
+      audioStreamEventList.clear();
 
-    TvShowEpisode tvShowEpisode = selectionModel.getSelectedTvShowEpisode();
-    List<MediaFile> mediaFiles = tvShowEpisode.getMediaFilesContainingAudioStreams();
+      TvShowEpisode tvShowEpisode = selectionModel.getSelectedTvShowEpisode();
+      List<MediaFile> mediaFiles = tvShowEpisode.getMediaFilesContainingAudioStreams();
 
-    for (MediaFile mediaFile : mediaFiles) {
-      for (int i = 0; i < mediaFile.getAudioStreams().size(); i++) {
-        MediaFileAudioStream audioStream = mediaFile.getAudioStreams().get(i);
+      for (MediaFile mediaFile : mediaFiles) {
+        for (int i = 0; i < mediaFile.getAudioStreams().size(); i++) {
+          MediaFileAudioStream audioStream = mediaFile.getAudioStreams().get(i);
 
-        AudioStreamContainer container = new AudioStreamContainer();
-        container.audioStream = audioStream;
+          AudioStreamContainer container = new AudioStreamContainer();
+          container.audioStream = audioStream;
 
-        if (mediaFile.getType() == MediaFileType.VIDEO) {
-          container.source = BUNDLE.getString("metatag.internal");
+          if (mediaFile.getType() == MediaFileType.VIDEO) {
+            container.source = BUNDLE.getString("metatag.internal");
+          } else {
+            container.source = BUNDLE.getString("metatag.external");
+          }
+
+          audioStreamEventList.add(container);
         }
-        else {
-          container.source = BUNDLE.getString("metatag.external");
-        }
-
-        audioStreamEventList.add(container);
       }
+    } catch (Exception ignored) {
+      //ignored
+    } finally {
+      audioStreamEventList.getReadWriteLock().writeLock().unlock();
+      tableAudioStreams.adjustColumnPreferredWidths(6);
     }
   }
 
   @Override
   protected void buildSubtitleStreamDetails() {
-    subtitleEventList.clear();
+    try {
+      subtitleEventList.getReadWriteLock().writeLock().lock();
+      subtitleEventList.clear();
 
-    TvShowEpisode tvShowEpisode = selectionModel.getSelectedTvShowEpisode();
-    List<MediaFile> mediaFiles = tvShowEpisode.getMediaFilesContainingSubtitles();
+      TvShowEpisode tvShowEpisode = selectionModel.getSelectedTvShowEpisode();
+      List<MediaFile> mediaFiles = tvShowEpisode.getMediaFilesContainingSubtitles();
 
-    for (MediaFile mediaFile : mediaFiles) {
-      for (int i = 0; i < mediaFile.getSubtitles().size(); i++) {
-        MediaFileSubtitle subtitle = mediaFile.getSubtitles().get(i);
+      for (MediaFile mediaFile : mediaFiles) {
+        for (int i = 0; i < mediaFile.getSubtitles().size(); i++) {
+          MediaFileSubtitle subtitle = mediaFile.getSubtitles().get(i);
 
-        SubtitleContainer container = new SubtitleContainer();
-        container.subtitle = subtitle;
+          SubtitleContainer container = new SubtitleContainer();
+          container.subtitle = subtitle;
 
-        if (mediaFile.getType() == MediaFileType.VIDEO) {
-          container.source = BUNDLE.getString("metatag.internal");
+          if (mediaFile.getType() == MediaFileType.VIDEO) {
+            container.source = BUNDLE.getString("metatag.internal");
+          } else {
+            container.source = BUNDLE.getString("metatag.external");
+          }
+
+          subtitleEventList.add(container);
         }
-        else {
-          container.source = BUNDLE.getString("metatag.external");
-        }
-
-        subtitleEventList.add(container);
       }
+    } catch (Exception ignored) {
+      // ignored
+    } finally {
+      subtitleEventList.getReadWriteLock().writeLock().unlock();
+      tableSubtitles.adjustColumnPreferredWidths(6);
     }
   }
 
