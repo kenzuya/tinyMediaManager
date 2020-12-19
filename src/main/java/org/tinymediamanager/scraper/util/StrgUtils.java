@@ -480,6 +480,6 @@ public class StrgUtils {
    */
   public static String normalizeString(String original) {
     String nfdNormalizedString = Normalizer.normalize(original, Normalizer.Form.NFD);
-    return NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll("");
+    return removeDuplicateWhitespace(NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll(""));
   }
 }
