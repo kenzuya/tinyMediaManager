@@ -30,7 +30,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -149,7 +148,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
             }
 
             // the right language tag from the renamer settings
-            String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), MovieModuleManager.SETTINGS.getSubtitleLanguageStyle());
+            String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), TvShowModuleManager.SETTINGS.getSubtitleLanguageStyle());
             if (StringUtils.isBlank(lang)) {
               lang = language.name();
             }
