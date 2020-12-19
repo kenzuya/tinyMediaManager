@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -54,6 +55,8 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
@@ -272,6 +275,45 @@ public class TvShowList extends AbstractModelObject {
       if (Paths.get(path).equals(Paths.get(tvShow.getDataSource()))) {
         removeTvShow(tvShow);
       }
+    }
+  }
+
+  /**
+   * exchanges the given datasource in the entities/database with a new one
+   */
+  void exchangeDatasource(String oldDatasource, String newDatasource) {
+    Path oldPath = Paths.get(oldDatasource);
+    List<TvShow> tvShowsToChange = tvShowList.stream().filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource())))
+        .collect(Collectors.toList());
+    List<MediaFile> imagesToCache = new ArrayList<>();
+
+    for (TvShow tvShow : tvShowsToChange) {
+      Path oldTvShowPath = tvShow.getPathNIO();
+      Path newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+
+      tvShow.setDataSource(newDatasource);
+      tvShow.setPath(newTvShowPath.toAbsolutePath().toString());
+      tvShow.updateMediaFilePath(oldTvShowPath, newTvShowPath);
+
+      for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
+        episode.setDataSource(newDatasource);
+        episode.replacePathForRenamedFolder(oldTvShowPath, newTvShowPath);
+        episode.updateMediaFilePath(oldTvShowPath, newTvShowPath);
+        episode.saveToDb();
+
+        // re-build the image cache afterwards in an own thread
+        imagesToCache.addAll(episode.getImagesToCache());
+      }
+
+      tvShow.saveToDb(); // since we moved already, save it
+
+      // re-build the image cache afterwards in an own thread
+      imagesToCache.addAll(tvShow.getImagesToCache());
+    }
+
+    if (!imagesToCache.isEmpty()) {
+      ImageCacheTask task = new ImageCacheTask(imagesToCache);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
     }
   }
 

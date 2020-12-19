@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -61,6 +62,8 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.license.MovieEventList;
@@ -219,23 +222,51 @@ public class MovieList extends AbstractModelObject {
   /**
    * Removes the datasource.
    * 
-   * @param path
+   * @param datasource
    *          the path
    */
-  public void removeDatasource(String path) {
-    if (StringUtils.isEmpty(path)) {
+  void removeDatasource(String datasource) {
+    if (StringUtils.isEmpty(datasource)) {
       return;
     }
 
     List<Movie> moviesToRemove = new ArrayList<>();
+    Path path = Paths.get(datasource);
     for (int i = movieList.size() - 1; i >= 0; i--) {
       Movie movie = movieList.get(i);
-      if (Paths.get(path).equals(Paths.get(movie.getDataSource()))) {
+      if (path.equals(Paths.get(movie.getDataSource()))) {
         moviesToRemove.add(movie);
       }
     }
 
     removeMovies(moviesToRemove);
+  }
+
+  /**
+   * exchanges the given datasource in the entities/database with a new one
+   */
+  void exchangeDatasource(String oldDatasource, String newDatasource) {
+    Path oldPath = Paths.get(oldDatasource);
+    List<Movie> moviesToChange = movieList.stream().filter(movie -> oldPath.equals(Paths.get(movie.getDataSource()))).collect(Collectors.toList());
+    List<MediaFile> imagesToCache = new ArrayList<>();
+
+    for (Movie movie : moviesToChange) {
+      Path oldMoviePath = movie.getPathNIO();
+      Path newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+
+      movie.setDataSource(newDatasource);
+      movie.setPath(newMoviePath.toAbsolutePath().toString());
+      movie.updateMediaFilePath(oldMoviePath, newMoviePath);
+      movie.saveToDb(); // since we moved already, save it
+
+      // re-build the image cache afterwards in an own thread
+      imagesToCache.addAll(movie.getImagesToCache());
+    }
+
+    if (!imagesToCache.isEmpty()) {
+      ImageCacheTask task = new ImageCacheTask(imagesToCache);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
+    }
   }
 
   /**
@@ -884,12 +915,12 @@ public class MovieList extends AbstractModelObject {
     Set<String> audioLanguages = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
 
-    //get Subtitle language from video files and subtitle files
+    // get Subtitle language from video files and subtitle files
     for (Movie movie : movies) {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
         // subtitle language
-        if(!mf.getSubtitleLanguagesList().isEmpty()) {
-          for( String lang : mf.getSubtitleLanguagesList()) {
+        if (!mf.getSubtitleLanguagesList().isEmpty()) {
+          for (String lang : mf.getSubtitleLanguagesList()) {
             subtitleLanguages.add(lang);
           }
         }
@@ -975,7 +1006,7 @@ public class MovieList extends AbstractModelObject {
 
     // subtitle languages
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleLanguagesInMovies, subtitleLanguages)) {
-      firePropertyChange(Constants.SUBTITLE_LANGUAGES,null,subtitleLanguagesInMovies);
+      firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInMovies);
     }
   }
 

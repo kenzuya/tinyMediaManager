@@ -375,6 +375,15 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
   }
 
+  public void exchangeMovieDatasource(String oldDatasource, String newDatasource) {
+    int index = movieDataSources.indexOf(oldDatasource);
+    if (index > -1) {
+      movieDataSources.remove(oldDatasource);
+      movieDataSources.add(index, newDatasource);
+      MovieList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+    }
+  }
+
   public List<String> getMovieDataSource() {
     return movieDataSources;
   }

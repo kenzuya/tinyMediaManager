@@ -395,6 +395,15 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange(Constants.DATA_SOURCE, null, tvShowDataSources);
   }
 
+  public void exchangeTvShowDatasource(String oldDatasource, String newDatasource) {
+    int index = tvShowDataSources.indexOf(oldDatasource);
+    if (index > -1) {
+      tvShowDataSources.remove(oldDatasource);
+      tvShowDataSources.add(index, newDatasource);
+      TvShowList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+    }
+  }
+
   public List<String> getTvShowDataSource() {
     return tvShowDataSources;
   }

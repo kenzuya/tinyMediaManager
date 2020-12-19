@@ -1131,13 +1131,18 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public void cacheImages() {
     // re-build the image cache afterwards in an own thread
-    if (Settings.getInstance().isImageCache()) {
-      List<MediaFile> imageFiles = getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
-      if (!imageFiles.isEmpty()) {
-        ImageCacheTask task = new ImageCacheTask(imageFiles);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
-      }
+    List<MediaFile> imageFiles = getImagesToCache();
+    if (!imageFiles.isEmpty()) {
+      ImageCacheTask task = new ImageCacheTask(imageFiles);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
     }
+  }
+
+  public List<MediaFile> getImagesToCache() {
+    if (!Settings.getInstance().isImageCache()) {
+      return Collections.emptyList();
+    }
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
   }
 
   public void gatherMediaFileInformation(boolean force) {

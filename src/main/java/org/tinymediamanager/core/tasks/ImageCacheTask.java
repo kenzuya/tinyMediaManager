@@ -83,10 +83,10 @@ public class ImageCacheTask extends TmmThreadPool {
         ImageCache.cacheImage(fileToCache);
       }
       catch (EmptyFileException e) {
-        LOGGER.warn("failed to cache file (file is empty): {}", fileToCache);
+        LOGGER.debug("failed to cache file (file is empty): {}", fileToCache);
       }
       catch (FileNotFoundException e) {
-        LOGGER.warn("file '{}' has not been found", fileToCache.getFilename());
+        LOGGER.debug("file '{}' has not been found", fileToCache.getFilename());
       }
       catch (Exception e) {
         LOGGER.warn("failed to cache file: {} - {}", fileToCache.getFile(), e.getMessage());

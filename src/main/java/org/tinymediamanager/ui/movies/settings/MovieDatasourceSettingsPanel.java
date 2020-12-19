@@ -48,6 +48,7 @@ import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.dialogs.ExchangeDatasourceDialog;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -61,7 +62,8 @@ class MovieDatasourceSettingsPanel extends JPanel {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private MovieSettings               settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+
   private JTextField                  tfAddBadword;
   private JList<String>               listBadWords;
   private JList<String>               listDatasources;
@@ -74,6 +76,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
   private JButton                     btnAddBadWord;
   private JButton                     btnMoveUpDatasoure;
   private JButton                     btnMoveDownDatasource;
+  private JButton                     btnExchangeDatasource;
 
   /**
    * Instantiates a new movie settings panel.
@@ -167,12 +170,27 @@ class MovieDatasourceSettingsPanel extends JPanel {
         listDatasources.updateUI();
       }
     });
+
+    btnExchangeDatasource.addActionListener(arg0 -> {
+      int row = listDatasources.getSelectedIndex();
+      if (row != -1) { // nothing selected
+        String path = MovieModuleManager.SETTINGS.getMovieDataSource().get(row);
+        ExchangeDatasourceDialog dialog = new ExchangeDatasourceDialog(path);
+        dialog.setVisible(true);
+
+        if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          MovieModuleManager.SETTINGS.exchangeMovieDatasource(path, dialog.getNewDatasource());
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+      }
+    });
   }
 
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
-      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[150lp,grow]"));
+      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[150lp,grow][]"));
 
       JLabel lblDatasourcesT = new TmmLabel(BUNDLE.getString("Settings.source"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDatasources, lblDatasourcesT, true);
@@ -180,27 +198,31 @@ class MovieDatasourceSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneDataSources = new JScrollPane();
-        panelDatasources.add(scrollPaneDataSources, "cell 1 0,grow");
+        panelDatasources.add(scrollPaneDataSources, "cell 1 0 1 2,grow");
 
         listDatasources = new JList();
         listDatasources.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         scrollPaneDataSources.setViewportView(listDatasources);
 
         btnAddDatasource = new SquareIconButton(IconManager.ADD_INV);
-        panelDatasources.add(btnAddDatasource, "flowy, cell 2 0, aligny top, growx");
+        panelDatasources.add(btnAddDatasource, "flowy,cell 2 0,growx,aligny top");
         btnAddDatasource.setToolTipText(BUNDLE.getString("Button.add"));
 
         btnRemoveDatasource = new SquareIconButton(IconManager.REMOVE_INV);
-        panelDatasources.add(btnRemoveDatasource, "flowy, cell 2 0, aligny top, growx");
+        panelDatasources.add(btnRemoveDatasource, "cell 2 0,growx,aligny top");
         btnRemoveDatasource.setToolTipText(BUNDLE.getString("Button.remove"));
 
         btnMoveUpDatasoure = new SquareIconButton(IconManager.ARROW_UP_INV);
-        panelDatasources.add(btnMoveUpDatasoure, "flowy, cell 2 0, aligny top, growx");
+        panelDatasources.add(btnMoveUpDatasoure, "cell 2 0,growx,aligny top");
         btnMoveUpDatasoure.setToolTipText(BUNDLE.getString("Button.moveup"));
 
         btnMoveDownDatasource = new SquareIconButton(IconManager.ARROW_DOWN_INV);
-        panelDatasources.add(btnMoveDownDatasource, "flowy, cell 2 0, aligny top, growx");
+        panelDatasources.add(btnMoveDownDatasource, "cell 2 0,growx,aligny top");
         btnMoveDownDatasource.setToolTipText(BUNDLE.getString("Button.movedown"));
+
+        btnExchangeDatasource = new SquareIconButton(IconManager.EXCHANGE);
+        btnExchangeDatasource.setToolTipText(BUNDLE.getString("Settings.exchangedatasource.desc"));
+        panelDatasources.add(btnExchangeDatasource, "cell 2 1");
       }
     }
 

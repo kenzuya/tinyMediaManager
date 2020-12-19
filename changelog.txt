@@ -13,6 +13,7 @@ Version 4.1
 + added missing movies in movie set #1111
 + feature for still/thumb creation via FFmpeg #1017
 + added an option to suppress tooltips in the main tables #1128
++ added a function to migrate existing movies/TV shows to a new data source #1044
 x exchanged native file dialogs with tiny file dialogs
   Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows
 x better error messages for SSL errors #1122

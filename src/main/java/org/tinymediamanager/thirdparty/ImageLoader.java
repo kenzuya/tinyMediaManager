@@ -412,7 +412,7 @@ public class ImageLoader {
         }
         catch (OutOfMemoryError e) {
           // memory limit hit; give it another 500ms time to recover
-          LOGGER.warn("hit memory cap: {}", e.getMessage());
+          LOGGER.debug("hit memory cap: {}", e.getMessage());
           size = null;
           dest = null;
           try {

@@ -51,6 +51,7 @@ import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.dialogs.ExchangeDatasourceDialog;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -64,7 +65,8 @@ class TvShowDatasourceSettingsPanel extends JPanel {
   /** @wbp.nls.resourceBundle messages */
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
+
   private JCheckBox                   chckbxDvdOrder;
   private JTextField                  tfAddBadword;
   private JList<String>               listBadWords;
@@ -78,6 +80,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
   private JButton                     btnAddBadWord;
   private JButton                     btnMoveUpDatasoure;
   private JButton                     btnMoveDownDatasource;
+  private JButton                     btnExchangeDatasource;
 
   TvShowDatasourceSettingsPanel() {
     // UI initializations
@@ -162,12 +165,27 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         listDatasources.updateUI();
       }
     });
+
+    btnExchangeDatasource.addActionListener(arg0 -> {
+      int row = listDatasources.getSelectedIndex();
+      if (row != -1) { // nothing selected
+        String path = TvShowModuleManager.SETTINGS.getTvShowDataSource().get(row);
+        ExchangeDatasourceDialog dialog = new ExchangeDatasourceDialog(path);
+        dialog.setVisible(true);
+
+        if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          TvShowModuleManager.SETTINGS.exchangeTvShowDatasource(path, dialog.getNewDatasource());
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+      }
+    });
   }
 
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
-      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow][][]"));
+      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow][][10lp!][]"));
 
       JLabel lblDatasourcesT = new TmmLabel(BUNDLE.getString("Settings.source"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDatasources, lblDatasourcesT, true);
@@ -175,7 +193,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneDataSources = new JScrollPane();
-        panelDatasources.add(scrollPaneDataSources, "cell 1 0,grow");
+        panelDatasources.add(scrollPaneDataSources, "cell 1 0 1 2,grow");
 
         listDatasources = new JList();
         listDatasources.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -197,8 +215,12 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         panelDatasources.add(btnMoveDownDatasource, "flowy, cell 2 0, aligny top, growx");
         btnMoveDownDatasource.setToolTipText(BUNDLE.getString("Button.movedown"));
 
+        btnExchangeDatasource = new SquareIconButton(IconManager.EXCHANGE);
+        btnExchangeDatasource.setToolTipText(BUNDLE.getString("Settings.exchangedatasource.desc"));
+        panelDatasources.add(btnExchangeDatasource, "cell 2 1");
+
         chckbxDvdOrder = new JCheckBox(BUNDLE.getString("Settings.dvdorder"));
-        panelDatasources.add(chckbxDvdOrder, "cell 1 2 2 1");
+        panelDatasources.add(chckbxDvdOrder, "cell 1 3 2 1");
       }
     }
     {
