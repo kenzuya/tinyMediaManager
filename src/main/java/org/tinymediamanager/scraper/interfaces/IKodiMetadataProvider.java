@@ -34,4 +34,13 @@ public interface IKodiMetadataProvider extends IMediaProvider {
    * @return all found plugins
    */
   List<IMediaProvider> getPluginsForType(MediaType type);
+
+  /**
+   * get the kodi scraper by the id
+   * 
+   * @param id
+   *          the id of the kodi scraper
+   * @return the found plugin or null
+   */
+  IMediaProvider getPluginById(String id);
 }

@@ -11,6 +11,7 @@ x detecting video resolution for certain 3D SBS files #1133
 x writing of movie set artwork with a path separator in the name #1145
 x smaller fixes to the movie search #1140
 x fixed renaming of episode extras (e.g. extra text files)
+x fixed loading of Kodi scrapers
 
 
 Version 4.0.6
