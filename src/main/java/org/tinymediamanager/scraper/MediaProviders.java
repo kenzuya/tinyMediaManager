@@ -52,6 +52,7 @@ import org.tinymediamanager.scraper.tmdb.TmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbTvShowTrailerProvider;
 import org.tinymediamanager.scraper.trakt.TraktMovieMetadataProvider;
 import org.tinymediamanager.scraper.trakt.TraktTvShowMetadataProvider;
+import org.tinymediamanager.scraper.tvmaze.TvMazeTvShowMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
 import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -128,7 +129,7 @@ public class MediaProviders {
     loadProvider(ImdbTvShowMetadataProvider.class);
     loadProvider(TraktTvShowMetadataProvider.class);
     loadProvider(AniDbTvShowMetadataProvider.class);
-
+    loadProvider(TvMazeTvShowMetadataProvider.class);
     // register all compatible scrapers in the universal scraper
     MEDIA_PROVIDERS.forEach((key, value) -> {
       if (value instanceof ITvShowMetadataProvider) {
