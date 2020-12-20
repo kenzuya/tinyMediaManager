@@ -12,6 +12,7 @@ x writing of movie set artwork with a path separator in the name #1145
 x smaller fixes to the movie search #1140
 x fixed renaming of episode extras (e.g. extra text files)
 x fixed loading of Kodi scrapers
+x fixed: do not set "episode guide" tag when selecting KODI preset
 
 
 Version 4.0.6

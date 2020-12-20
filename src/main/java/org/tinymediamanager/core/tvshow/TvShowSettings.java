@@ -1491,6 +1491,7 @@ public class TvShowSettings extends AbstractSettings {
     setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
     setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
     setCertificationStyle(CertificationStyle.LARGE);
+    setNfoWriteEpisodeguide(false);
 
     firePropertyChange("preset", false, true);
   }
