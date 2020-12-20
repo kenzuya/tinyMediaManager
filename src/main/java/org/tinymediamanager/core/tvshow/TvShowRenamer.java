@@ -295,8 +295,8 @@ public class TvShowRenamer {
    */
   private static void renameTvShowArtwork(TvShow tvShow) {
     // all the good & needed mediafiles
-    ArrayList<MediaFile> needed = new ArrayList<>();
-    ArrayList<MediaFile> cleanup = new ArrayList<>(tvShow.getMediaFiles());
+    List<MediaFile> needed = new ArrayList<>();
+    List<MediaFile> cleanup = new ArrayList<>(tvShow.getMediaFiles());
     cleanup.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
 
     // ######################################################################
@@ -679,8 +679,8 @@ public class TvShowRenamer {
     }
 
     // all the good & needed mediafiles
-    ArrayList<MediaFile> needed = new ArrayList<>();
-    ArrayList<MediaFile> cleanup = new ArrayList<>(episode.getMediaFiles());
+    List<MediaFile> needed = new ArrayList<>();
+    List<MediaFile> cleanup = new ArrayList<>(episode.getMediaFiles());
     cleanup.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
 
     String seasonFoldername = getSeasonFoldername(episode.getTvShow(), episode);
@@ -700,7 +700,7 @@ public class TvShowRenamer {
     // ######################################################################
     for (MediaFile vid : episode.getMediaFiles(MediaFileType.VIDEO)) {
       LOGGER.trace("Rename 1:1 {} {}", vid.getType(), vid.getFileAsPath());
-      MediaFile newMF = generateEpisodeFilenames(episode.getTvShow(), vid).get(0); // there can be only one
+      MediaFile newMF = generateEpisodeFilenames(episode.getTvShow(), vid, originalVideoMediaFile).get(0); // there can be only one
       boolean ok = moveFile(vid.getFileAsPath(), newMF.getFileAsPath());
       if (ok) {
         vid.setFile(newMF.getFileAsPath()); // update
@@ -714,7 +714,7 @@ public class TvShowRenamer {
     // ## rename POSTER, FANART, BANNER, CLEARART, THUMB, LOGO, CLEARLOGO, DISCART (copy 1:N)
     // ######################################################################
     // we can have multiple ones, just get the newest one and copy(overwrite) them to all needed
-    ArrayList<MediaFile> mfs = new ArrayList<>();
+    List<MediaFile> mfs = new ArrayList<>();
     mfs.add(episode.getNewestMediaFilesOfType(MediaFileType.FANART));
     mfs.add(episode.getNewestMediaFilesOfType(MediaFileType.POSTER));
     mfs.add(episode.getNewestMediaFilesOfType(MediaFileType.BANNER));
@@ -728,7 +728,7 @@ public class TvShowRenamer {
     mfs.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
     for (MediaFile mf : mfs) {
       LOGGER.trace("Rename 1:N {} {}", mf.getType(), mf.getFileAsPath());
-      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), mf); // 1:N
+      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), mf, originalVideoMediaFile); // 1:N
       for (MediaFile newMF : newMFs) {
         boolean ok = copyFile(mf.getFileAsPath(), newMF.getFileAsPath());
         if (ok) {
@@ -749,7 +749,7 @@ public class TvShowRenamer {
     }
 
     if (nfo.getFiledate() > 0) { // one valid found? copy our NFO to all variants
-      List<MediaFile> newNFOs = generateEpisodeFilenames(episode.getTvShow(), nfo); // 1:N
+      List<MediaFile> newNFOs = generateEpisodeFilenames(episode.getTvShow(), nfo, originalVideoMediaFile); // 1:N
       if (!newNFOs.isEmpty()) {
         // ok, at least one has been set up
         for (MediaFile newNFO : newNFOs) {
@@ -773,7 +773,7 @@ public class TvShowRenamer {
     // ######################################################################
     for (MediaFile subtitle : episode.getMediaFiles(MediaFileType.SUBTITLE)) {
       LOGGER.trace("Rename 1:1 {} {}", subtitle.getType(), subtitle.getFileAsPath());
-      MediaFile sub = generateEpisodeFilenames(episode.getTvShow(), subtitle).get(0); // there can be only one
+      MediaFile sub = generateEpisodeFilenames(episode.getTvShow(), subtitle, originalVideoMediaFile).get(0); // there can be only one
       boolean ok = moveFile(subtitle.getFileAsPath(), sub.getFileAsPath());
       if (ok) {
         if (sub.getFilename().endsWith(".sub")) {
@@ -802,7 +802,7 @@ public class TvShowRenamer {
     for (MediaFile other : mfs) {
       LOGGER.trace("Rename 1:1 {} - {}", other.getType(), other.getFileAsPath());
 
-      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), other); // 1:N
+      List<MediaFile> newMFs = generateEpisodeFilenames(episode.getTvShow(), other, originalVideoMediaFile); // 1:N
       newMFs.removeAll(Collections.singleton((MediaFile) null)); // remove all NULL ones!
 
       for (MediaFile newMF : newMFs) {
@@ -1011,10 +1011,12 @@ public class TvShowRenamer {
    *          the tvShow
    * @param mf
    *          the MF for multiepisode
+   * @param originalVideoFile
+   *          the original video file (for extracting diffs)
    * @return the file name for the media file
    */
-  public static List<MediaFile> generateEpisodeFilenames(TvShow tvShow, MediaFile mf) {
-    return generateEpisodeFilenames("", tvShow, mf);
+  public static List<MediaFile> generateEpisodeFilenames(TvShow tvShow, MediaFile mf, MediaFile originalVideoFile) {
+    return generateEpisodeFilenames("", tvShow, mf, originalVideoFile);
   }
 
   /**
@@ -1026,9 +1028,11 @@ public class TvShowRenamer {
    *          the tvShow
    * @param mf
    *          the MF for multiepisode
+   * @param originalVideoFile
+   *          the original video file (for extracting diffs)
    * @return the file name for the media file
    */
-  public static List<MediaFile> generateEpisodeFilenames(String template, TvShow tvShow, MediaFile mf) {
+  public static List<MediaFile> generateEpisodeFilenames(String template, TvShow tvShow, MediaFile mf, MediaFile originalVideoFile) {
     // return list of all generated MFs
     ArrayList<MediaFile> newFiles = new ArrayList<>();
 
@@ -1238,12 +1242,13 @@ public class TvShowRenamer {
       case UNKNOWN:
         // this is something extra for an episode -> try to replace the episode tokens and preserve the extra in the filename
         // try to detect the title of the extra file
-        result = TvShowEpisodeAndSeasonParser.detectEpisodeFromFilenameAlternative(mf.getFilename(), tvShow.getTitle());
-
         MediaFile other = new MediaFile(mf);
         boolean spaceSubstitution = SETTINGS.isRenamerFilenameSpaceSubstitution();
         String spaceReplacement = SETTINGS.getRenamerFilenameSpaceReplacement();
-        String destination = cleanupDestination(newFilename + "-" + result.cleanedName, spaceSubstitution, spaceReplacement);
+        String destination = cleanupDestination(
+            newFilename
+                + StringUtils.difference(FilenameUtils.getBaseName(originalVideoFile.getFilename()), FilenameUtils.getBaseName(mf.getFilename())),
+            spaceSubstitution, spaceReplacement);
         other.setFile(seasonFolder.resolve(destination + "." + mf.getExtension()));
         newFiles.add(other);
         break;

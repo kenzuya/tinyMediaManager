@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
@@ -246,29 +247,31 @@ public class ParserUtils {
    * @return the cleaned one
    */
   public static String removeStopwordsAndBadwordsFromTvEpisodeName(String filename) {
-    String before = filename;
+    String extension = FilenameUtils.getExtension(filename);
+    String before = filename.replaceFirst("(?i)\\." + Pattern.quote(extension) + "$", "");
+    String basename = before;
 
     // replaces any resolution 1234x1234 (must start with a non-word (else too global)
-    filename = filename.replaceFirst("(?i)\\W\\d{3,4}x\\d{3,4}", " ");
+    basename = basename.replaceFirst("(?i)\\W\\d{3,4}x\\d{3,4}", " ");
 
     for (String s : STOPWORDS) {
-      filename = filename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV stop words must start AND END with a non-word (else too global) or line
+      basename = basename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV stop words must start AND END with a non-word (else too global) or line
                                                                       // end
-      if (LOGGER.isTraceEnabled() && filename.length() != before.length()) {
-        LOGGER.trace("Removed some TV stopword (" + s + "): " + before + " -> " + filename);
-        before = filename;
+      if (LOGGER.isTraceEnabled() && basename.length() != before.length()) {
+        LOGGER.trace("Removed some TV stopword (" + s + "): " + before + " -> " + basename);
+        before = basename;
       }
     }
 
     // also remove bad words
     for (String s : TvShowModuleManager.SETTINGS.getBadWord()) {
-      filename = filename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV bad words must start AND END with a non-word (else too global) or line end
-      if (LOGGER.isTraceEnabled() && filename.length() != before.length()) {
-        LOGGER.trace("Removed some TV bad word (" + s + "): " + before + " -> " + filename);
-        before = filename;
+      basename = basename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV bad words must start AND END with a non-word (else too global) or line end
+      if (LOGGER.isTraceEnabled() && basename.length() != before.length()) {
+        LOGGER.trace("Removed some TV bad word (" + s + "): " + before + " -> " + basename);
+        before = basename;
       }
     }
-    return filename;
+    return basename + "." + extension;
   }
 
   /**
