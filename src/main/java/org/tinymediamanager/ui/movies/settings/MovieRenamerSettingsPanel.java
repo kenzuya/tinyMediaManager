@@ -93,36 +93,36 @@ import net.miginfocom.swing.MigLayout;
  * The class MovieRenamerSettingsPanel.
  */
 public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListener {
-  private static final long              serialVersionUID = 5039498266207230875L;
+  private static final long                    serialVersionUID = 5039498266207230875L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
-  private static final Logger            LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
+  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final Logger                  LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 
-  private MovieSettings                  settings         = MovieModuleManager.SETTINGS;
-  private List<String>                   spaceReplacement = new ArrayList<>(Arrays.asList("_", ".", "-"));
-  private List<String>                   colonReplacement = new ArrayList<>(Arrays.asList(" ", "-"));
-  private EventList<MovieRenamerExample> exampleEventList;
+  private final MovieSettings                  settings         = MovieModuleManager.SETTINGS;
+  private final List<String>                   spaceReplacement = new ArrayList<>(Arrays.asList("_", ".", "-"));
+  private final List<String>                   colonReplacement = new ArrayList<>(Arrays.asList(" ", "-", "_"));
+  private final EventList<MovieRenamerExample> exampleEventList;
 
   /**
    * UI components
    */
-  private EnhancedTextField              tfMoviePath;
-  private EnhancedTextField              tfMovieFilename;
-  private JLabel                         lblExample;
-  private JCheckBox                      chckbxAsciiReplacement;
+  private EnhancedTextField                    tfMoviePath;
+  private EnhancedTextField                    tfMovieFilename;
+  private JLabel                               lblExample;
+  private JCheckBox                            chckbxAsciiReplacement;
 
-  private JCheckBox                      chckbxFoldernameSpaceReplacement;
-  private JComboBox                      cbFoldernameSpaceReplacement;
-  private JCheckBox                      chckbxFilenameSpaceReplacement;
-  private JComboBox                      cbFilenameSpaceReplacement;
-  private JComboBox                      cbMovieForPreview;
-  private JCheckBox                      chckbxRemoveOtherNfos;
-  private JCheckBox                      chckbxMoviesetSingleMovie;
+  private JCheckBox                            chckbxFoldernameSpaceReplacement;
+  private JComboBox                            cbFoldernameSpaceReplacement;
+  private JCheckBox                            chckbxFilenameSpaceReplacement;
+  private JComboBox                            cbFilenameSpaceReplacement;
+  private JComboBox                            cbMovieForPreview;
+  private JCheckBox                            chckbxRemoveOtherNfos;
+  private JCheckBox                            chckbxMoviesetSingleMovie;
 
-  private TmmTable                       tableExamples;
-  private ReadOnlyTextArea               taWarning;
-  private JComboBox                      cbColonReplacement;
-  private JTextField                     tfFirstCharacter;
+  private TmmTable                             tableExamples;
+  private ReadOnlyTextArea                     taWarning;
+  private JComboBox                            cbColonReplacement;
+  private JTextField                           tfFirstCharacter;
 
   public MovieRenamerSettingsPanel() {
     exampleEventList = GlazedLists

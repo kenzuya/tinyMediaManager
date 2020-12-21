@@ -26,6 +26,7 @@ import org.tinymediamanager.scraper.anidb.AniDBMetadataProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMetadataProvider;
 import org.tinymediamanager.scraper.hdtrailersnet.HDTrailersNetTrailerProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IKodiMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.kodi.KodiMetadataProvider;
 import org.tinymediamanager.scraper.moviemeter.MovieMeterMetadataProvider;
@@ -156,6 +157,18 @@ public class MediaProviders {
       return null;
     }
 
-    return MEDIA_PROVIDERS.get(id);
+    IMediaProvider mp = MEDIA_PROVIDERS.get(id);
+
+    // no media provider found? maybe a kodi one
+    if (mp == null) {
+      for (IKodiMetadataProvider kodi : MediaProviders.getProvidersForInterface(IKodiMetadataProvider.class)) {
+        mp = kodi.getPluginById(id);
+        if (mp != null) {
+          break;
+        }
+      }
+    }
+
+    return mp;
   }
 }

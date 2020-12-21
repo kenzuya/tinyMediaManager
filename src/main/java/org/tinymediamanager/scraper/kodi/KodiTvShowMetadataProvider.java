@@ -281,6 +281,11 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
   }
 
   @Override
+  public IMediaProvider getPluginById(String id) {
+    return null;
+  }
+
+  @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("******* BEGIN ARTWORK XML FOR {} ***********", options.getArtworkType());
     List<MediaArtwork> mas = new ArrayList<>();

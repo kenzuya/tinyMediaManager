@@ -45,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.LanguageStyle;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tasks.DownloadTask;
 import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -402,7 +401,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
         if (StringUtils.isNotBlank(model.getDownloadUrl())) {
           MediaLanguages language = model.getLanguage();
           // the right language tag from the renamer settings
-          String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), MovieModuleManager.SETTINGS.getSubtitleLanguageStyle());
+          String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), TvShowModuleManager.SETTINGS.getSubtitleLanguageStyle());
           if (StringUtils.isBlank(lang)) {
             lang = language.name();
           }

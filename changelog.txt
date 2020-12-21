@@ -4,11 +4,15 @@ Version 4.0.7
 + added new column (audio title) in MediaInformationPanels (Movie / TvShows)
 + added HDR Format filter for movies and episodes
 + added movie set artwork completeness check options (like for movies) #1145
++ added "_" as a colon separator in the renamer settings #974
 x better error messages for SSL errors #1122
 x fixed downloading trailers #1136
 x detecting video resolution for certain 3D SBS files #1133
 x writing of movie set artwork with a path separator in the name #1145
 x smaller fixes to the movie search #1140
+x fixed renaming of episode extras (e.g. extra text files)
+x fixed loading of Kodi scrapers
+x fixed: do not set "episode guide" tag when selecting KODI preset
 
 
 Version 4.0.6

@@ -100,10 +100,10 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
   private static final ResourceBundle              BUNDLE            = ResourceBundle.getBundle("messages");
   private static final Logger                      LOGGER            = LoggerFactory.getLogger(TvShowRenamerSettingsPanel.class);
 
-  private TvShowSettings                           settings          = TvShowModuleManager.SETTINGS;
-  private List<String>                             spaceReplacements = new ArrayList<>(Arrays.asList("_", ".", "-"));
-  private List<String>                             colonReplacements = new ArrayList<>(Arrays.asList(" ", "-"));
-  private EventList<TvShowRenamerExample>          exampleEventList;
+  private final TvShowSettings                     settings          = TvShowModuleManager.SETTINGS;
+  private final List<String>                       spaceReplacements = new ArrayList<>(Arrays.asList("_", ".", "-"));
+  private final List<String>                       colonReplacements = new ArrayList<>(Arrays.asList(" ", "-", "_"));
+  private final EventList<TvShowRenamerExample>    exampleEventList;
 
   /*
    * UI components
@@ -509,8 +509,8 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
       if (tvShow != null && episode != null) {
         String tvShowDir = TvShowRenamer.getTvShowFoldername(tfTvShowFolder.getText(), tvShow);
-        MediaFile episodeMf = TvShowRenamer
-            .generateEpisodeFilenames(tfEpisodeFilename.getText(), tvShow, episode.getMediaFiles(MediaFileType.VIDEO).get(0)).get(0);
+        MediaFile episodeMf = TvShowRenamer.generateEpisodeFilenames(tfEpisodeFilename.getText(), tvShow,
+            episode.getMediaFiles(MediaFileType.VIDEO).get(0), episode.getMediaFiles(MediaFileType.VIDEO).get(0)).get(0);
 
         String newFilenameAndPath = episodeMf.getFile().toString().replace(episode.getTvShow().getPath(), "");
         lblExample.setText(tvShowDir + newFilenameAndPath);

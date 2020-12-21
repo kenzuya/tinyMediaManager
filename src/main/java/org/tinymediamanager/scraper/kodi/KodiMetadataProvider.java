@@ -70,4 +70,14 @@ public class KodiMetadataProvider implements IKodiMetadataProvider {
     }
     return metadataProviders;
   }
+
+  @Override
+  public IMediaProvider getPluginById(String id) {
+    for (AbstractKodiMetadataProvider metadataProvider : KodiUtil.scrapers) {
+      if (metadataProvider.getId().equals(id)) {
+        return metadataProvider;
+      }
+    }
+    return null;
+  }
 }
