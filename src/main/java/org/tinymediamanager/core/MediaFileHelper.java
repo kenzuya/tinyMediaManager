@@ -1892,6 +1892,18 @@ public class MediaFileHelper {
       LOGGER.trace("could not paese width/height: {}", e.getMessage());
     }
 
+    // calculate the "aspect" ratio. If it is too high, that might be a SBS video
+    String mvc = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Count");
+    if ("2".equals(mvc) && width > 0 && height > 0) {
+      float calculatedAspect = width / (float) height;
+      if (calculatedAspect > 3) {
+        width = width / 2;
+      }
+      else if (calculatedAspect < 1.5) {
+        height = height / 2;
+      }
+    }
+
     mediaFile.setVideoWidth(width);
     mediaFile.setVideoHeight(height);
 
@@ -1967,7 +1979,7 @@ public class MediaFileHelper {
       LOGGER.warn("Could not parse AspectRatio '{}'", parString);
     }
 
-    String mvc = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Count");
+    mvc = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Count");
     String video3DFormat = "";
     if (!StringUtils.isEmpty(mvc) && mvc.equals("2")) {
       video3DFormat = MediaFileHelper.VIDEO_3D;
@@ -2263,7 +2275,7 @@ public class MediaFileHelper {
     }
     else {
       // not detected as 3D by MI - BUT: if we've got some known resolutions, we can at least find the "full" ones ;)
-      if (width == 3840 && height == 1080) {
+      if (width == 3840 && height <= 1080) {
         video3DFormat = MediaFileHelper.VIDEO_3D_SBS;
       }
       else if (width == 1920 && height == 2160) {
