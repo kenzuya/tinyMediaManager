@@ -98,7 +98,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
   private MovieSettings                  settings         = MovieModuleManager.SETTINGS;
   private List<String>                   spaceReplacement = new ArrayList<>(Arrays.asList("_", ".", "-"));
-  private List<String>                   colonReplacement = new ArrayList<>(Arrays.asList(" ", "-"));
+  private List<String>                   colonReplacement = new ArrayList<>(Arrays.asList(" ", "-", "_"));
   private EventList<MovieRenamerExample> exampleEventList;
 
   /**

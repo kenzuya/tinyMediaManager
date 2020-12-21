@@ -1,5 +1,6 @@
-upcoming Version 3.1.12
+Version 3.1.12
 =======================
++ added "_" as a colon separator in the renamer settings #974
 x backport MediaInfo changes from v4 (aspect ratio and others)
 x backport fixes for trailer downloading from v4
 x detecting video resolution for certain 3D SBS files #1133
