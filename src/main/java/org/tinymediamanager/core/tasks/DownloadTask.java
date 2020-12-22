@@ -153,7 +153,7 @@ public abstract class DownloadTask extends TmmTask {
 
         if (u.isFault()) {
           MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, u.getUrl(), u.getStatusLine()));
-          is.close();
+          setState(TaskState.FAILED);
           return;
         }
 

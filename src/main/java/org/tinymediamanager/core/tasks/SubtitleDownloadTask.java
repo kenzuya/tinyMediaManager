@@ -131,7 +131,6 @@ public class SubtitleDownloadTask extends DownloadTask {
       }
       catch (Exception e) {
         LOGGER.debug("could not extract subtitle: {}", e.getMessage());
-        setState(TaskState.FAILED);
       }
       finally {
         Utils.deleteFileSafely(destinationFile);
