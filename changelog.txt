@@ -1,3 +1,8 @@
+Upcoming version
+=======================
+x only use configured artwork scrapers for TV shows
+
+
 Version 4.0.7
 =======================
 + added decades filter for movies
