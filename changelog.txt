@@ -1,3 +1,8 @@
+Version 3.1.12.1
+=======================
+x added some missing texts from the trailer backport
+
+
 Version 3.1.12
 =======================
 + added "_" as a colon separator in the renamer settings #974
