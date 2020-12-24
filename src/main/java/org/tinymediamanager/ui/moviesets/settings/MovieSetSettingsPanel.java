@@ -66,7 +66,7 @@ public class MovieSetSettingsPanel extends JPanel {
   }
 
   private void checkChanges() {
-    settings.clearCheckImagesMovie();
+    settings.clearCheckImagesMovieSet();
     if (chckbxCheckPoster.isSelected()) {
       settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.POSTER);
     }

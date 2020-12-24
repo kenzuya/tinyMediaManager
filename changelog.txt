@@ -1,6 +1,7 @@
 Upcoming version
 =======================
 x only use configured artwork scrapers for TV shows
+x fixed movie set artwork completeness check
 
 
 Version 4.0.7
