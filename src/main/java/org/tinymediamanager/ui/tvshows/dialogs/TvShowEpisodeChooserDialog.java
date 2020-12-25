@@ -15,32 +15,25 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JViewport;
-import javax.swing.SwingWorker;
-
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.FilterList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
+import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.TextFilterator;
+import ca.odell.glazedlists.gui.TableFormat;
+import ca.odell.glazedlists.matchers.MatcherEditor;
+import ca.odell.glazedlists.swing.AdvancedTableModel;
+import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
+import ca.odell.glazedlists.swing.GlazedListsSwing;
+import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
+import net.miginfocom.swing.MigLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -60,19 +53,25 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeChooserModel;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.FilterList;
-import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.SortedList;
-import ca.odell.glazedlists.TextFilterator;
-import ca.odell.glazedlists.gui.TableFormat;
-import ca.odell.glazedlists.matchers.MatcherEditor;
-import ca.odell.glazedlists.swing.AdvancedTableModel;
-import ca.odell.glazedlists.swing.DefaultEventSelectionModel;
-import ca.odell.glazedlists.swing.GlazedListsSwing;
-import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
-import net.miginfocom.swing.MigLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JViewport;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * The TvShowEpisodeChooserDialog is used for searching a special episode
@@ -97,7 +96,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   private JTextField                                             textField;
 
   public TvShowEpisodeChooserDialog(TvShowEpisode ep, MediaScraper mediaScraper) {
-    super(BUNDLE.getString("tvshowepisode.choose"), "episodeChooser");
+    super(TmmResourceBundle.getString("tvshowepisode.choose"), "episodeChooser");
 
     this.episode = ep;
     this.mediaScraper = mediaScraper;
@@ -179,15 +178,15 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     }
     {
 
-      JButton cancelButton = new JButton(BUNDLE.getString("Button.cancel"));
-      cancelButton.setToolTipText(BUNDLE.getString("edit.discard"));
+      JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
+      cancelButton.setToolTipText(TmmResourceBundle.getString("edit.discard"));
       cancelButton.setIcon(IconManager.CANCEL_INV);
       cancelButton.setActionCommand("Cancel");
       cancelButton.addActionListener(this);
       addButton(cancelButton);
 
-      final JButton okButton = new JButton(BUNDLE.getString("Button.ok"));
-      okButton.setToolTipText(BUNDLE.getString("tvshow.change"));
+      final JButton okButton = new JButton(TmmResourceBundle.getString("Button.ok"));
+      okButton.setToolTipText(TmmResourceBundle.getString("tvshow.change"));
       okButton.setIcon(IconManager.APPLY_INV);
       okButton.setActionCommand("OK");
       okButton.addActionListener(this);
@@ -367,16 +366,16 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     public String getColumnName(int column) {
       switch (column) {
         case 0:
-          return BUNDLE.getString("metatag.season");
+          return TmmResourceBundle.getString("metatag.season");
 
         case 1:
-          return BUNDLE.getString("metatag.episode");
+          return TmmResourceBundle.getString("metatag.episode");
 
         case 2:
-          return BUNDLE.getString("metatag.aired");
+          return TmmResourceBundle.getString("metatag.aired");
 
         case 3:
-          return BUNDLE.getString("metatag.title");
+          return TmmResourceBundle.getString("metatag.title");
       }
       return null;
     }

@@ -19,6 +19,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -29,8 +30,8 @@ import org.tinymediamanager.ui.components.TmmLabel;
  */
 public class MovieWatchedFilter extends AbstractMovieUIFilter {
   private enum WatchedFlag {
-    WATCHED(BUNDLE.getString("metatag.watched")),
-    NOT_WATCHED(BUNDLE.getString("metatag.notwatched"));
+    WATCHED(TmmResourceBundle.getString("metatag.watched")),
+    NOT_WATCHED(TmmResourceBundle.getString("metatag.notwatched"));
 
     private String title;
 
@@ -84,7 +85,7 @@ public class MovieWatchedFilter extends AbstractMovieUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.watched"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.watched"));
   }
 
   @Override

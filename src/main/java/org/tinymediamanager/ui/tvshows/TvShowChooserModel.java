@@ -15,12 +15,6 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.ResourceBundle;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +22,7 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -55,11 +50,16 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+
 /**
  * @author Manuel Laggner
  */
 public class TvShowChooserModel extends AbstractModelObject {
-  private static final ResourceBundle    BUNDLE          = ResourceBundle.getBundle("messages");
+
   private static final Logger            LOGGER          = LoggerFactory.getLogger(TvShowChooserModel.class);
   public static final TvShowChooserModel emptyResult     = new TvShowChooserModel();
 
@@ -106,7 +106,7 @@ public class TvShowChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private TvShowChooserModel() {
-    setTitle(BUNDLE.getString("chooser.nothingfound"));
+    setTitle(TmmResourceBundle.getString("chooser.nothingfound"));
     combinedName = title;
   }
 
@@ -306,7 +306,7 @@ public class TvShowChooserModel extends AbstractModelObject {
     private List<TvShowScraperMetadataConfig> config;
 
     public ArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config) {
-      super(BUNDLE.getString("message.scrape.artwork") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.artwork") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowToScrape = tvShow;
       this.config = config;
     }
@@ -364,7 +364,7 @@ public class TvShowChooserModel extends AbstractModelObject {
     private TvShow tvShowtoScrape;
 
     public TrailerScrapeTask(TvShow tvShow) {
-      super(BUNDLE.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowtoScrape = tvShow;
     }
 

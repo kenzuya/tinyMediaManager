@@ -18,11 +18,11 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
@@ -37,11 +37,11 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieTrailerDownloadAction extends TmmAction {
   private static final long serialVersionUID = -8668265401054434251L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieTrailerDownloadAction() {
-    putValue(NAME, BUNDLE.getString("movie.downloadtrailer"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.downloadtrailer"));
+    putValue(NAME, TmmResourceBundle.getString("movie.downloadtrailer"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.downloadtrailer"));
     putValue(SMALL_ICON, IconManager.DOWNLOAD);
     putValue(LARGE_ICON_KEY, IconManager.DOWNLOAD);
   }
@@ -51,7 +51,7 @@ public class MovieTrailerDownloadAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
@@ -67,9 +67,9 @@ public class MovieTrailerDownloadAction extends TmmAction {
     // if there is any existing trailer found, show a message dialog
     boolean overwriteTrailer = false;
     if (existingTrailer) {
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getFrame(), BUNDLE.getString("movie.overwritetrailer"),
-          BUNDLE.getString("movie.downloadtrailer"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      int answer = JOptionPane.showOptionDialog(MainWindow.getFrame(), TmmResourceBundle.getString("movie.overwritetrailer"),
+          TmmResourceBundle.getString("movie.downloadtrailer"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
       if (answer == JOptionPane.YES_OPTION) {
         overwriteTrailer = true;
       }

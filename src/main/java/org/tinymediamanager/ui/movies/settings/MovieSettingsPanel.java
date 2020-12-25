@@ -19,7 +19,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.event.ItemListener;
 import java.util.Arrays;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -32,9 +31,10 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
-import org.tinymediamanager.MovieTextMatcherList;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
+import org.tinymediamanager.core.movie.MovieTextMatcherList;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -55,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -4173835431245178069L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   private final MovieSettings          settings         = MovieModuleManager.SETTINGS;
 
@@ -104,9 +104,9 @@ public class MovieSettingsPanel extends JPanel {
 
     // logic initializations
     btnClearTraktData.addActionListener(e -> {
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("Settings.trakt.clearmovies.hint"),
-          BUNDLE.getString("Settings.trakt.clearmovies"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("Settings.trakt.clearmovies.hint"),
+          TmmResourceBundle.getString("Settings.trakt.clearmovies"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
       if (confirm == JOptionPane.YES_OPTION) {
         TmmTask task = new MovieClearTraktTvTask();
         TmmTaskManager.getInstance().addUnnamedTask(task);
@@ -222,47 +222,47 @@ public class MovieSettingsPanel extends JPanel {
       JPanel panelUiSettings = new JPanel();
       panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][]")); // 16lp ~ width of the
 
-      JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
+      JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
-        chckbxShowLogos = new JCheckBox(BUNDLE.getString("Settings.showlogos"));
+        chckbxShowLogos = new JCheckBox(TmmResourceBundle.getString("Settings.showlogos"));
         panelUiSettings.add(chckbxShowLogos, "cell 1 0 2 1");
       }
       {
-        JLabel lblRating = new JLabel(BUNDLE.getString("Settings.preferredrating"));
+        JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
         panelUiSettings.add(lblRating, "cell 1 1 2 1");
 
         cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metascore", "rottenTomatoes"));
         panelUiSettings.add(cbRating, "cell 1 1 2 1");
       }
       {
-        chckbxPersonalRatingFirst = new JCheckBox(BUNDLE.getString("Settings.personalratingfirst"));
+        chckbxPersonalRatingFirst = new JCheckBox(TmmResourceBundle.getString("Settings.personalratingfirst"));
         panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 2 2 1");
       }
       {
-        JLabel lblMovieFilter = new JLabel(BUNDLE.getString("Settings.movietitlefilter"));
+        JLabel lblMovieFilter = new JLabel(TmmResourceBundle.getString("Settings.movietitlefilter"));
         panelUiSettings.add(lblMovieFilter, "cell 1 3 2 1");
         chckbxTitle = new JCheckBox(MovieTextMatcherList.TITLE.toString());
         panelUiSettings.add(chckbxTitle, "cell 2 4");
         chckbxSortableTitle = new JCheckBox(MovieTextMatcherList.TITLE_SORTABLE.toString());
         panelUiSettings.add(chckbxSortableTitle, "cell 2 4");
         JLabel lblSortableTitleHint = new JLabel(IconManager.HINT);
-        lblSortableTitleHint.setToolTipText(BUNDLE.getString("Settings.movie.renamer.${titleSortable}"));
+        lblSortableTitleHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.renamer.${titleSortable}"));
         panelUiSettings.add(lblSortableTitleHint, "cell 2 4");
         chckbxOriginalTitle = new JCheckBox(MovieTextMatcherList.ORIGINAL_TITLE.toString());
         panelUiSettings.add(chckbxOriginalTitle, "cell 2 4");
         chckbxSortableOriginalTitle = new JCheckBox(MovieTextMatcherList.ORIGINAL_TITLE_SORTABLE.toString());
         panelUiSettings.add(chckbxSortableOriginalTitle, "cell 2 4");
         JLabel lblSortableOriginalTitleHint = new JLabel(IconManager.HINT);
-        lblSortableOriginalTitleHint.setToolTipText(BUNDLE.getString("Settings.movie.renamer.${titleSortable}"));
+        lblSortableOriginalTitleHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.renamer.${titleSortable}"));
         panelUiSettings.add(lblSortableOriginalTitleHint, "cell 2 4");
         chckbxSortTitle = new JCheckBox(MovieTextMatcherList.SORTED_TITLE.toString());
         panelUiSettings.add(chckbxSortTitle, "cell 2 4");
       }
       {
-        chckbxMovieTableTooltips = new JCheckBox(BUNDLE.getString("Settings.movie.showtabletooltips"));
+        chckbxMovieTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movie.showtabletooltips"));
         panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 5 2 1");
       }
     }
@@ -270,29 +270,29 @@ public class MovieSettingsPanel extends JPanel {
       JPanel panelAutomaticTasks = new JPanel();
       panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblAutomaticTasksT = new TmmLabel(BUNDLE.getString("Settings.automatictasks"), H3);
+      JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#automatic-tasks"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
-        chckbxRenameAfterScrape = new JCheckBox(BUNDLE.getString("Settings.movie.automaticrename"));
+        chckbxRenameAfterScrape = new JCheckBox(TmmResourceBundle.getString("Settings.movie.automaticrename"));
         panelAutomaticTasks.add(chckbxRenameAfterScrape, "cell 1 0 2 1");
 
         JLabel lblAutomaticRenameHint = new JLabel(IconManager.HINT);
-        lblAutomaticRenameHint.setToolTipText(BUNDLE.getString("Settings.movie.automaticrename.desc"));
+        lblAutomaticRenameHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticrename.desc"));
         panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0 2 1");
 
-        chckbxTraktSync = new JCheckBox(BUNDLE.getString("Settings.trakt"));
+        chckbxTraktSync = new JCheckBox(TmmResourceBundle.getString("Settings.trakt"));
         panelAutomaticTasks.add(chckbxTraktSync, "cell 1 1 2 1");
 
-        btnClearTraktData = new JButton(BUNDLE.getString("Settings.trakt.clearmovies"));
+        btnClearTraktData = new JButton(TmmResourceBundle.getString("Settings.trakt.clearmovies"));
         panelAutomaticTasks.add(btnClearTraktData, "cell 1 1 2 1");
 
-        chckbxAutoUpdateOnStart = new JCheckBox(BUNDLE.getString("Settings.movie.automaticupdate"));
+        chckbxAutoUpdateOnStart = new JCheckBox(TmmResourceBundle.getString("Settings.movie.automaticupdate"));
         panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 2 2 1");
 
         JLabel lblAutomaticUpdateHint = new JLabel(IconManager.HINT);
-        lblAutomaticUpdateHint.setToolTipText(BUNDLE.getString("Settings.movie.automaticupdate.desc"));
+        lblAutomaticUpdateHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticupdate.desc"));
         panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 2 2 1");
 
       }
@@ -301,69 +301,69 @@ public class MovieSettingsPanel extends JPanel {
       JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
+      JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
-        chckbxExtractArtworkFromVsmeta = new JCheckBox(BUNDLE.getString("Settings.extractartworkfromvsmeta"));
+        chckbxExtractArtworkFromVsmeta = new JCheckBox(TmmResourceBundle.getString("Settings.extractartworkfromvsmeta"));
         panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 0 2 1");
 
-        chckbxBuildImageCache = new JCheckBox(BUNDLE.getString("Settings.imagecacheimport"));
+        chckbxBuildImageCache = new JCheckBox(TmmResourceBundle.getString("Settings.imagecacheimport"));
         panelMisc.add(chckbxBuildImageCache, "cell 1 1 2 1");
 
         JLabel lblBuildImageCacheHint = new JLabel(IconManager.HINT);
-        lblBuildImageCacheHint.setToolTipText(BUNDLE.getString("Settings.imagecacheimporthint"));
+        lblBuildImageCacheHint.setToolTipText(TmmResourceBundle.getString("Settings.imagecacheimporthint"));
         panelMisc.add(lblBuildImageCacheHint, "cell 1 1 2 1");
 
-        chckbxRuntimeFromMi = new JCheckBox(BUNDLE.getString("Settings.runtimefrommediafile"));
+        chckbxRuntimeFromMi = new JCheckBox(TmmResourceBundle.getString("Settings.runtimefrommediafile"));
         panelMisc.add(chckbxRuntimeFromMi, "cell 1 2 2 1");
 
-        chckbxIncludeExternalAudioStreams = new JCheckBox(BUNDLE.getString("Settings.includeexternalstreamsinnfo"));
+        chckbxIncludeExternalAudioStreams = new JCheckBox(TmmResourceBundle.getString("Settings.includeexternalstreamsinnfo"));
         panelMisc.add(chckbxIncludeExternalAudioStreams, "cell 1 3 2 1");
       }
       {
-        JLabel lblCheckImages = new JLabel(BUNDLE.getString("Settings.checkimages"));
+        JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
         panelMisc.add(lblCheckImages, "cell 1 4 2 1");
 
         JPanel panelCheckImages = new JPanel();
         panelCheckImages.setLayout(new MigLayout("hidemode 1, insets 0", "", ""));
         panelMisc.add(panelCheckImages, "cell 2 5");
 
-        chckbxCheckPoster = new JCheckBox(BUNDLE.getString("mediafiletype.poster"));
+        chckbxCheckPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
         panelCheckImages.add(chckbxCheckPoster, "cell 0 0");
 
-        chckbxCheckFanart = new JCheckBox(BUNDLE.getString("mediafiletype.fanart"));
+        chckbxCheckFanart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.fanart"));
         panelCheckImages.add(chckbxCheckFanart, "cell 1 0");
 
-        chckbxCheckBanner = new JCheckBox(BUNDLE.getString("mediafiletype.banner"));
+        chckbxCheckBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
         panelCheckImages.add(chckbxCheckBanner, "cell 2 0");
 
-        chckbxCheckClearart = new JCheckBox(BUNDLE.getString("mediafiletype.clearart"));
+        chckbxCheckClearart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearart"));
         panelCheckImages.add(chckbxCheckClearart, "cell 3 0");
 
-        chckbxCheckThumb = new JCheckBox(BUNDLE.getString("mediafiletype.thumb"));
+        chckbxCheckThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
         panelCheckImages.add(chckbxCheckThumb, "cell 4 0");
 
-        chckbxCheckLogo = new JCheckBox(BUNDLE.getString("mediafiletype.logo"));
+        chckbxCheckLogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.logo"));
         panelCheckImages.add(chckbxCheckLogo, "cell 5 0");
 
-        chckbxCheckClearlogo = new JCheckBox(BUNDLE.getString("mediafiletype.clearlogo"));
+        chckbxCheckClearlogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearlogo"));
         panelCheckImages.add(chckbxCheckClearlogo, "cell 6 0");
 
-        chckbxCheckDiscart = new JCheckBox(BUNDLE.getString("mediafiletype.disc"));
+        chckbxCheckDiscart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.disc"));
         panelCheckImages.add(chckbxCheckDiscart, "cell 7 0");
       }
     }
     {
       JPanel panelPresets = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][][][grow]", "[]"));
 
-      JLabel lblPresets = new TmmLabel(BUNDLE.getString("Settings.preset"), H3);
+      JLabel lblPresets = new TmmLabel(TmmResourceBundle.getString("Settings.preset"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPresets, lblPresets, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#media-center-presets"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
-        JLabel lblPresetHintT = new JLabel(BUNDLE.getString("Settings.preset.desc"));
+        JLabel lblPresetHintT = new JLabel(TmmResourceBundle.getString("Settings.preset.desc"));
         panelPresets.add(lblPresetHintT, "cell 1 0 3 1");
       }
       {

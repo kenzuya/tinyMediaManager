@@ -20,10 +20,10 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -44,10 +44,10 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  */
 public class TvShowScrapeNewItemsAction extends TmmAction {
   private static final long           serialVersionUID = -3365542777082781952L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public TvShowScrapeNewItemsAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.scrape.newitems"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.newitems"));
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);
     putValue(SMALL_ICON, IconManager.SEARCH);
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
@@ -98,7 +98,7 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
 
     // scrape new episodes
     if (!newEpisodes.isEmpty()) {
-      TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createEpisodeScrapeDialog(BUNDLE.getString("tvshowepisode.scrape"));
+      TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createEpisodeScrapeDialog(TmmResourceBundle.getString("tvshowepisode.scrape"));
       dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
 

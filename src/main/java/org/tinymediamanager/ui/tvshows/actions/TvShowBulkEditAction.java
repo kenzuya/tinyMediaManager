@@ -21,12 +21,12 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -43,11 +43,11 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowBulkEditorDialog;
  */
 public class TvShowBulkEditAction extends TmmAction {
   private static final long           serialVersionUID = -1193886444149690516L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowBulkEditAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.bulkedit"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.bulkedit.desc"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.bulkedit"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.bulkedit.desc"));
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
     putValue(SMALL_ICON, IconManager.EDIT);
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
@@ -78,7 +78,7 @@ public class TvShowBulkEditAction extends TmmAction {
     }
 
     if (selectedTvShows.isEmpty() && selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.nio.file.Path;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -37,6 +36,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -47,10 +47,10 @@ import org.tinymediamanager.ui.TmmUIHelper;
 public class ExportLogAction extends TmmAction {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ExportLogAction.class);
   private static final long           serialVersionUID = -1578568721825387890L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public ExportLogAction() {
-    putValue(NAME, BUNDLE.getString("tmm.exportlogs"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.exportlogs"));
   }
 
   @Override
@@ -59,7 +59,7 @@ public class ExportLogAction extends TmmAction {
     Path file = null;
     try {
       String path = TmmProperties.getInstance().getProperty("exportlogs.path");
-      file = TmmUIHelper.saveFile(BUNDLE.getString("BugReport.savelogs"), path, "tmm_logs.zip",
+      file = TmmUIHelper.saveFile(TmmResourceBundle.getString("BugReport.savelogs"), path, "tmm_logs.zip",
           new FileNameExtensionFilter("Zip files", ".zip"));
       if (file != null) {
         writeLogsFile(file.toFile());

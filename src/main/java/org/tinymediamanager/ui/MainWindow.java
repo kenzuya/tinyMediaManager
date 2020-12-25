@@ -15,8 +15,40 @@
  */
 package org.tinymediamanager.ui;
 
-import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
+import com.sun.jna.Platform;
+import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.ReleaseInfo;
+import org.tinymediamanager.core.ITmmModule;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.thirdparty.MediaInfo;
+import org.tinymediamanager.ui.components.MainTabbedPane;
+import org.tinymediamanager.ui.components.TextFieldPopupMenu;
+import org.tinymediamanager.ui.components.toolbar.ToolbarPanel;
+import org.tinymediamanager.ui.dialogs.SettingsDialog;
+import org.tinymediamanager.ui.images.LogoCircle;
+import org.tinymediamanager.ui.movies.MovieUIModule;
+import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
+import org.tinymediamanager.ui.panels.StatusBarPanel;
+import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLayer;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.JTextComponent;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -30,43 +62,8 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLayer;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.event.ChangeListener;
-import javax.swing.text.JTextComponent;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.ReleaseInfo;
-import org.tinymediamanager.core.ITmmModule;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.thirdparty.MediaInfo;
-import org.tinymediamanager.ui.components.MainTabbedPane;
-import org.tinymediamanager.ui.components.TextFieldPopupMenu;
-import org.tinymediamanager.ui.components.toolbar.ToolbarPanel;
-import org.tinymediamanager.ui.dialogs.SettingsDialog;
-import org.tinymediamanager.ui.images.LogoCircle;
-import org.tinymediamanager.ui.movies.MovieUIModule;
-import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
-import org.tinymediamanager.ui.panels.StatusBarPanel;
-import org.tinymediamanager.ui.tvshows.TvShowUIModule;
-
-import com.sun.jna.Platform;
-
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
 
 /**
  * The Class MainWindow.
@@ -75,7 +72,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainWindow extends JFrame {
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MainWindow.class);
   private static final long           serialVersionUID = 1L;
 
@@ -219,7 +216,7 @@ public class MainWindow extends JFrame {
 
     // inform user that MI could not be loaded
     if (Platform.isLinux() && StringUtils.isBlank(MediaInfo.version())) {
-      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux")));
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, TmmResourceBundle.getString("mediainfo.failed.linux")));
     }
 
     // inform user that something happened while loading the modules
@@ -248,8 +245,8 @@ public class MainWindow extends JFrame {
     int confirm = JOptionPane.YES_OPTION;
     // if there are some threads running, display exit confirmation
     if (TmmTaskManager.getInstance().poolRunning()) {
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.exit.runningtasks"), BUNDLE.getString("tmm.exit.confirmation"),
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.exit.runningtasks"), TmmResourceBundle.getString("tmm.exit.confirmation"),
           JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null); // $NON-NLS-1$
     }
     if (confirm == JOptionPane.YES_OPTION) {

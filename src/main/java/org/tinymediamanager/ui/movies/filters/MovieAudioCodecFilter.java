@@ -27,6 +27,7 @@ import java.util.Locale;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -71,7 +72,7 @@ public class MovieAudioCodecFilter extends AbstractCheckComboBoxMovieUIFilter<St
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.audiocodec"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.audiocodec"));
   }
 
   private void buildAndInstallCodecArray() {

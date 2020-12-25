@@ -45,6 +45,7 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -80,7 +81,7 @@ public class MovieSetFilterDialog extends TmmDialog {
   private JComboBox<String>                            cbPreset;
 
   public MovieSetFilterDialog(TmmTreeTable treeTable) {
-    super(BUNDLE.getString("movieextendedsearch.options"), "movieSetFilter");
+    super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieSetFilter");
     setModalityType(ModalityType.MODELESS);
 
     this.treeTable = treeTable;
@@ -108,9 +109,9 @@ public class MovieSetFilterDialog extends TmmDialog {
         JPanel panelMain = new JPanel(new MigLayout("", "[][][100lp:n,grow]", "[]"));
         JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(BUNDLE.getString("metatag.details"), scrollPaneMain);
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
 
-        panelMain.add(new TmmLabel(BUNDLE.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
 
         addFilter(new MovieSetNewMoviesFilter(), panelMain);
         addFilter(new MovieSetWithMoreThanOneMovieFilter(), panelMain);
@@ -126,7 +127,7 @@ public class MovieSetFilterDialog extends TmmDialog {
       JSeparator separator = new JSeparator();
       panelFilterPreset.add(separator, "cell 0 1 4 1,growx,aligny top");
 
-      JLabel lblEnableAllT = new TmmLabel(BUNDLE.getString("filter.enableall"));
+      JLabel lblEnableAllT = new TmmLabel(TmmResourceBundle.getString("filter.enableall"));
       panelFilterPreset.add(lblEnableAllT, "cell 1 2, alignx trailing");
 
       JCheckBox chkbxEnableAll = new JCheckBox();
@@ -134,7 +135,7 @@ public class MovieSetFilterDialog extends TmmDialog {
       chkbxEnableAll.addActionListener(e -> treeTable.setFiltersActive(chkbxEnableAll.isSelected()));
       panelFilterPreset.add(chkbxEnableAll, "cell 2 2");
 
-      JLabel lblFilterPresetT = new TmmLabel(BUNDLE.getString("filter.presets"));
+      JLabel lblFilterPresetT = new TmmLabel(TmmResourceBundle.getString("filter.presets"));
       panelFilterPreset.add(lblFilterPresetT, "cell 1 3, alignx trailing");
 
       cbPreset = new JComboBox<>();
@@ -150,7 +151,7 @@ public class MovieSetFilterDialog extends TmmDialog {
       panelFilterPreset.add(cbPreset, "cell 2 3");
 
       JButton btnSavePreset = new FlatButton(IconManager.SAVE);
-      btnSavePreset.setToolTipText(BUNDLE.getString("filter.savepreset"));
+      btnSavePreset.setToolTipText(TmmResourceBundle.getString("filter.savepreset"));
       btnSavePreset.addActionListener(e -> {
         Set<AbstractSettings.UIFilters> activeUiFilters = getActiveUiFilters();
         if (!activeUiFilters.isEmpty()) {
@@ -171,7 +172,7 @@ public class MovieSetFilterDialog extends TmmDialog {
       panelFilterPreset.add(btnSavePreset, "cell 2 3");
 
       JButton btnDeletePreset = new FlatButton(IconManager.DELETE_GRAY);
-      btnDeletePreset.setToolTipText(BUNDLE.getString("filter.remove"));
+      btnDeletePreset.setToolTipText(TmmResourceBundle.getString("filter.remove"));
       btnDeletePreset.addActionListener(e -> {
         String filterName = (String) cbPreset.getSelectedItem();
         if (StringUtils.isBlank(filterName)) {
@@ -180,13 +181,13 @@ public class MovieSetFilterDialog extends TmmDialog {
 
         // display warning and ask the user again
         if (!TmmProperties.getInstance().getPropertyAsBoolean("movieset.hidefilterhint")) {
-          JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+          JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
           TmmFontHelper.changeFont(checkBox, L1);
           checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-          Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-          Object[] params = { BUNDLE.getString("filter.remove"), checkBox };
-          int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("filter.remove"),
+          Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+          Object[] params = { TmmResourceBundle.getString("filter.remove"), checkBox };
+          int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("filter.remove"),
               JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
           // the user don't want to show this dialog again

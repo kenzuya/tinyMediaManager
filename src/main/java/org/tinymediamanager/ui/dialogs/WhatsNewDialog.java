@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.LinkLabel;
@@ -54,7 +55,7 @@ public class WhatsNewDialog extends TmmDialog {
   private static final Logger LOGGER           = LoggerFactory.getLogger(WhatsNewDialog.class);
 
   public WhatsNewDialog(String changelog) {
-    super(BUNDLE.getString("whatsnew.title"), "whatsnew");
+    super(TmmResourceBundle.getString("whatsnew.title"), "whatsnew");
     {
       JPanel panelContent = new JPanel();
       getContentPane().add(panelContent, BorderLayout.CENTER);
@@ -82,7 +83,7 @@ public class WhatsNewDialog extends TmmDialog {
         }
       });
 
-      JLabel lblHint = new JLabel(BUNDLE.getString("whatsnew.hint"));
+      JLabel lblHint = new JLabel(TmmResourceBundle.getString("whatsnew.hint"));
       panelContent.add(lblHint, "flowx,cell 0 1");
 
       LinkLabel lblLink = new LinkLabel("https://www.tinymediamanager.org");
@@ -96,7 +97,7 @@ public class WhatsNewDialog extends TmmDialog {
       panelContent.add(lblLink, "cell 0 1, growx");
     }
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }

@@ -33,7 +33,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,6 +52,7 @@ import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
@@ -81,7 +81,7 @@ import com.sun.jna.Platform;
 
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger         LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE        = ResourceBundle.getBundle("messages");
+
 
   // constants
   private static final String         VIDEO_TS      = "VIDEO_TS";
@@ -112,7 +112,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    * 
    */
   public TvShowUpdateDatasourceTask() {
-    super(BUNDLE.getString("update.datasource"));
+    super(TmmResourceBundle.getString("update.datasource"));
     tvShowList = TvShowList.getInstance();
     dataSources = new ArrayList<>(TvShowModuleManager.SETTINGS.getTvShowDataSource());
     skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
@@ -125,7 +125,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    *          the data source to start the task for
    */
   public TvShowUpdateDatasourceTask(String datasource) {
-    super(BUNDLE.getString("update.datasource") + " (" + datasource + ")");
+    super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
     tvShowList = TvShowList.getInstance();
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
@@ -139,7 +139,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    *          a list of TV show folders to start the task for
    */
   public TvShowUpdateDatasourceTask(List<Path> tvShowFolders) {
-    super(BUNDLE.getString("update.datasource"));
+    super(TmmResourceBundle.getString("update.datasource"));
     tvShowList = TvShowList.getInstance();
     dataSources = new ArrayList<>(0);
     skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
@@ -183,7 +183,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
           LOGGER.info("Start UDS on datasource: {}", ds);
           initThreadPool(3, "update");
-          setTaskName(BUNDLE.getString("update.datasource") + " '" + ds + "'");
+          setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
           publishState();
 
           Path dsAsPath = Paths.get(ds);
@@ -317,7 +317,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       LOGGER.info("getting Mediainfo...");
 
       initThreadPool(1, "mediainfo");
-      setTaskName(BUNDLE.getString("update.mediainfo"));
+      setTaskName(TmmResourceBundle.getString("update.mediainfo"));
       setTaskDescription(null);
       setProgressDone(0);
       // gather MediaInformation for ALL shows - TBD
@@ -363,7 +363,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private void cleanupShows() {
-    setTaskName(BUNDLE.getString("update.cleanup"));
+    setTaskName(TmmResourceBundle.getString("update.cleanup"));
     setTaskDescription(null);
     setProgressDone(0);
     setWorkUnits(0);
@@ -391,7 +391,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private void cleanupDatasource(String datasource) {
-    setTaskName(BUNDLE.getString("update.cleanup"));
+    setTaskName(TmmResourceBundle.getString("update.cleanup"));
     setTaskDescription(null);
     setProgressDone(0);
     setWorkUnits(0);

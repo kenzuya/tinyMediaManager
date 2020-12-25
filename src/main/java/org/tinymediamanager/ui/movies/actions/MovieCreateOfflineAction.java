@@ -16,8 +16,8 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.dialogs.MovieCreateOfflineDialog;
@@ -29,13 +29,13 @@ import org.tinymediamanager.ui.movies.dialogs.MovieCreateOfflineDialog;
  */
 public class MovieCreateOfflineAction extends TmmAction {
   private static final long           serialVersionUID = -8473181347332963094L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieCreateOfflineAction() {
-    putValue(NAME, BUNDLE.getString("movie.createoffline"));
+    putValue(NAME, TmmResourceBundle.getString("movie.createoffline"));
     putValue(LARGE_ICON_KEY, IconManager.ADD);
     putValue(SMALL_ICON, IconManager.ADD);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.createoffline"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.createoffline"));
   }
 
   @Override

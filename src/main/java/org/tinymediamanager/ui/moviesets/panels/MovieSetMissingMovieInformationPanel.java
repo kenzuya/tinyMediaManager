@@ -20,7 +20,6 @@ import static org.tinymediamanager.core.Constants.POSTER;
 
 import java.awt.Cursor;
 import java.beans.PropertyChangeListener;
-import java.util.ResourceBundle;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -41,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
@@ -69,7 +69,7 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
   private static final Logger                LOGGER                = LoggerFactory.getLogger(MovieSetMissingMovieInformationPanel.class);
   private static final long                  serialVersionUID      = -8527285262749511617L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle        BUNDLE                = ResourceBundle.getBundle("messages");
+
 
   private final MovieSelectionModel          movieSelectionModel;
   private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
@@ -226,14 +226,14 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
         panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][grow][]", "[]2lp[]2lp[grow]2lp[]2lp[]2lp[]2lp[]2lp[]"));
 
         {
-          JLabel lblYearT = new TmmLabel(BUNDLE.getString("metatag.year"));
+          JLabel lblYearT = new TmmLabel(TmmResourceBundle.getString("metatag.year"));
           panelTopDetails.add(lblYearT, "cell 0 0");
 
           lblYear = new JLabel("");
           panelTopDetails.add(lblYear, "cell 1 0,growx");
         }
         {
-          JLabel lblImdbIdT = new TmmLabel(BUNDLE.getString("metatag.imdb"));
+          JLabel lblImdbIdT = new TmmLabel(TmmResourceBundle.getString("metatag.imdb"));
           panelTopDetails.add(lblImdbIdT, "cell 3 0");
 
           lblImdbid = new LinkLabel("");
@@ -244,56 +244,56 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
           panelTopDetails.add(lblCertificationLogo, "cell 5 0 1 3, top");
         }
         {
-          JLabel lblReleaseDateT = new TmmLabel(BUNDLE.getString("metatag.releasedate"));
+          JLabel lblReleaseDateT = new TmmLabel(TmmResourceBundle.getString("metatag.releasedate"));
           panelTopDetails.add(lblReleaseDateT, "cell 0 1");
 
           lblReleaseDate = new JLabel("");
           panelTopDetails.add(lblReleaseDate, "cell 1 1");
         }
         {
-          JLabel lblTmdbIdT = new TmmLabel(BUNDLE.getString("metatag.tmdb"));
+          JLabel lblTmdbIdT = new TmmLabel(TmmResourceBundle.getString("metatag.tmdb"));
           panelTopDetails.add(lblTmdbIdT, "cell 3 1");
 
           lblTmdbid = new LinkLabel("");
           panelTopDetails.add(lblTmdbid, "cell 4 1");
         }
         {
-          JLabel lblCertificationT = new TmmLabel(BUNDLE.getString("metatag.certification"));
+          JLabel lblCertificationT = new TmmLabel(TmmResourceBundle.getString("metatag.certification"));
           panelTopDetails.add(lblCertificationT, "cell 0 2");
 
           lblCertification = new JLabel("");
           panelTopDetails.add(lblCertification, "cell 1 2,growx");
         }
         {
-          JLabel lblRunningTimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+          JLabel lblRunningTimeT = new TmmLabel(TmmResourceBundle.getString("metatag.runtime"));
           panelTopDetails.add(lblRunningTimeT, "cell 0 3,aligny top");
 
           lblRunningTime = new JLabel("");
           panelTopDetails.add(lblRunningTime, "cell 1 3,aligny top");
         }
         {
-          JLabel lblGenresT = new TmmLabel(BUNDLE.getString("metatag.genre"));
+          JLabel lblGenresT = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
           panelTopDetails.add(lblGenresT, "cell 0 4");
 
           taGenres = new ReadOnlyTextArea();
           panelTopDetails.add(taGenres, "cell 1 4 5 1,growx,wmin 0");
         }
         {
-          JLabel lblProductionT = new TmmLabel(BUNDLE.getString("metatag.production"));
+          JLabel lblProductionT = new TmmLabel(TmmResourceBundle.getString("metatag.production"));
           panelTopDetails.add(lblProductionT, "cell 0 5");
 
           taProduction = new ReadOnlyTextArea();
           panelTopDetails.add(taProduction, "cell 1 5 5 1,growx,wmin 0");
         }
         {
-          JLabel lblCountryT = new TmmLabel(BUNDLE.getString("metatag.country"));
+          JLabel lblCountryT = new TmmLabel(TmmResourceBundle.getString("metatag.country"));
           panelTopDetails.add(lblCountryT, "cell 0 6");
 
           lblCountry = new JLabel("");
           panelTopDetails.add(lblCountry, "cell 1 6 5 1,wmin 0");
         }
         {
-          JLabel lblSpokenLanguagesT = new TmmLabel(BUNDLE.getString("metatag.spokenlanguages"));
+          JLabel lblSpokenLanguagesT = new TmmLabel(TmmResourceBundle.getString("metatag.spokenlanguages"));
           panelTopDetails.add(lblSpokenLanguagesT, "cell 0 7,wmin 0");
 
           lblSpokenLanguages = new JLabel("");
@@ -319,7 +319,7 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
       }
 
       {
-        JLabel lblPlotT = new TmmLabel(BUNDLE.getString("metatag.plot"));
+        JLabel lblPlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlotT, "cell 0 4,alignx left,aligny top");
 
         taPlot = new ReadOnlyTextArea();
@@ -333,7 +333,7 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
         panelRight.add(panelBottomDetails, "cell 0 7,grow");
         panelBottomDetails.setLayout(new MigLayout("insets 0", "[][200lp,grow]", "[]"));
         {
-          JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
+          JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
           panelBottomDetails.add(lblTagsT, "cell 0 0");
 
           taTags = new ReadOnlyTextArea();

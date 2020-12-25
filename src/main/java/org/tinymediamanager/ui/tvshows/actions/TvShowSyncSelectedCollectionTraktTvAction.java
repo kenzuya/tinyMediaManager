@@ -15,12 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
-import java.awt.event.ActionEvent;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import javax.swing.JOptionPane;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
@@ -29,6 +24,10 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
+import javax.swing.JOptionPane;
+import java.awt.event.ActionEvent;
+import java.util.List;
+
 /**
  * The class {@link TvShowSyncSelectedCollectionTraktTvAction}. To synchronize selected TV shows with trakt.tv (collection)
  * 
@@ -36,11 +35,11 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowSyncSelectedCollectionTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public TvShowSyncSelectedCollectionTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.synctrakt.selected.collection"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.synctrakt.selected.collection.desc"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.synctrakt.selected.collection"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.synctrakt.selected.collection.desc"));
     putValue(SMALL_ICON, IconManager.MOVIE);
     putValue(LARGE_ICON_KEY, IconManager.MOVIE);
   }
@@ -50,7 +49,7 @@ public class TvShowSyncSelectedCollectionTraktTvAction extends TmmAction {
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

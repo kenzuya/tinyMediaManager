@@ -15,15 +15,15 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
-import java.util.List;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.ui.components.TmmLabel;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-
-import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.components.TmmLabel;
+import java.util.List;
 
 /**
  * This class implements a watchted filter for the TV show tree
@@ -32,8 +32,8 @@ import org.tinymediamanager.ui.components.TmmLabel;
  */
 public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
   private enum WatchedFlag {
-    WATCHED(BUNDLE.getString("metatag.watched")),
-    NOT_WATCHED(BUNDLE.getString("metatag.notwatched"));
+    WATCHED(TmmResourceBundle.getString("metatag.watched")),
+    NOT_WATCHED(TmmResourceBundle.getString("metatag.notwatched"));
 
     private String title;
 
@@ -82,7 +82,7 @@ public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.watched"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.watched"));
   }
 
   @Override

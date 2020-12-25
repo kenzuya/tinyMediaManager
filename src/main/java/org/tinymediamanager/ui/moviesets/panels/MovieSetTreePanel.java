@@ -26,7 +26,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Enumeration;
-import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
@@ -44,6 +43,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
@@ -74,7 +74,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = 5889203009864512935L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   private final MovieList             movieList        = MovieList.getInstance();
 
@@ -120,8 +120,8 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
     getActionMap().put("search", new RequestFocusAction(searchField));
 
-    btnFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));
-    btnFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options"));
+    btnFilter = new JButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
+    btnFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
     btnFilter.addActionListener(e -> MovieSetUIModule.getInstance().setFilterDialogVisible(true));
     add(btnFilter, "cell 1 0");
 
@@ -223,26 +223,26 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     JSeparator separator = new JSeparator();
     add(separator, "cell 0 2 2 1,growx");
     {
-      JLabel lblMovieSetCount = new JLabel(BUNDLE.getString("tmm.moviesets") + ":");
+      JLabel lblMovieSetCount = new JLabel(TmmResourceBundle.getString("tmm.moviesets") + ":");
       add(lblMovieSetCount, "flowx,cell 0 3 2 1");
 
       lblMovieSetCountFiltered = new JLabel("");
       add(lblMovieSetCountFiltered, "cell 0 3 2 1");
 
-      JLabel lblMovieSetCountOf = new JLabel(BUNDLE.getString("tmm.of"));
+      JLabel lblMovieSetCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
       add(lblMovieSetCountOf, "cell 0 3 2 1");
 
       lblMovieSetCountTotal = new JLabel("");
       add(lblMovieSetCountTotal, "cell 0 3 2 1");
     }
     {
-      JLabel lblMovieCount = new JLabel(BUNDLE.getString("tmm.movies") + ":");
+      JLabel lblMovieCount = new JLabel(TmmResourceBundle.getString("tmm.movies") + ":");
       add(lblMovieCount, "flowx,cell 0 4 2 1");
 
       lblMovieCountFiltered = new JLabel("");
       add(lblMovieCountFiltered, "cell 0 4 2 1");
 
-      JLabel lblMovieCountOf = new JLabel(BUNDLE.getString("tmm.of"));
+      JLabel lblMovieCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
       add(lblMovieCountOf, "cell 0 4 2 1");
 
       lblMovieCountTotal = new JLabel("");
@@ -342,7 +342,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     private static final long serialVersionUID = -1444530142931061317L;
 
     public CollapseAllAction() {
-      putValue(NAME, BUNDLE.getString("tree.collapseall"));
+      putValue(NAME, TmmResourceBundle.getString("tree.collapseall"));
     }
 
     @Override
@@ -357,7 +357,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     private static final long serialVersionUID = 6191727607109012198L;
 
     public ExpandAllAction() {
-      putValue(NAME, BUNDLE.getString("tree.expandall"));
+      putValue(NAME, TmmResourceBundle.getString("tree.expandall"));
     }
 
     @Override

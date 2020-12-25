@@ -15,16 +15,16 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
-import java.util.List;
-import java.util.regex.Matcher;
-
-import javax.swing.JLabel;
-
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import javax.swing.JLabel;
+import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * This class implements a production company/studio filter for the TV show tree
@@ -88,6 +88,6 @@ public class TvShowStudioFilter extends AbstractTextTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("tvshowextendedsearch.studio"));
+    return new TmmLabel(TmmResourceBundle.getString("tvshowextendedsearch.studio"));
   }
 }

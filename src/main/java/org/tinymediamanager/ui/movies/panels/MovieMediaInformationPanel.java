@@ -21,7 +21,6 @@ import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -31,6 +30,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
@@ -47,7 +47,7 @@ import org.tinymediamanager.ui.panels.MediaInformationPanel;
 public class MovieMediaInformationPanel extends MediaInformationPanel {
   private static final long           serialVersionUID = 2513029074142934502L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private MovieSelectionModel         movieSelectionModel;
 
@@ -158,10 +158,10 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
         container.audioStream = audioStream;
 
         if (mediaFile.getType() == MediaFileType.VIDEO) {
-          container.source = BUNDLE.getString("metatag.internal");
+          container.source = TmmResourceBundle.getString("metatag.internal");
         }
         else {
-          container.source = BUNDLE.getString("metatag.external");
+          container.source = TmmResourceBundle.getString("metatag.external");
         }
 
         audioStreamEventList.add(container);
@@ -184,10 +184,10 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
         container.subtitle = subtitle;
 
         if (mediaFile.getType() == MediaFileType.VIDEO) {
-          container.source = BUNDLE.getString("metatag.internal");
+          container.source = TmmResourceBundle.getString("metatag.internal");
         }
         else {
-          container.source = BUNDLE.getString("metatag.external");
+          container.source = TmmResourceBundle.getString("metatag.external");
         }
 
         subtitleEventList.add(container);

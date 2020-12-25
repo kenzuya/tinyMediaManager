@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
@@ -48,7 +49,7 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
   private JPanel                      messagesPanel;
 
   private MessageHistoryDialog() {
-    super(MainWindow.getInstance(), BUNDLE.getString("summarywindow.title"), "messageSummary");
+    super(MainWindow.getInstance(), TmmResourceBundle.getString("summarywindow.title"), "messageSummary");
 
     setModal(false);
     setModalityType(ModalityType.MODELESS);
@@ -69,7 +70,7 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
     panelContent.setLayout(new MigLayout("", "[300lp:600lp,grow]", "[200lp:400lp,grow]"));
     panelContent.add(scrollPane, "cell 0 0,grow, wmin 0");
 
-    JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+    JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
     btnClose.addActionListener(arg0 -> setVisible(false));
     addDefaultButton(btnClose);
 

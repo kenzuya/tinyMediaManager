@@ -28,7 +28,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -53,6 +52,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.FlatButton;
 
@@ -67,7 +67,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TmmTable extends JTable {
   private static final long            serialVersionUID = 6150939811851709115L;
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private TmmTableComparatorChooser<?> tableComparatorChooser;
 
@@ -259,7 +259,7 @@ public class TmmTable extends JTable {
           }
         };
         b.setContentAreaFilled(false);
-        b.setToolTipText(BUNDLE.getString("Button.selectvisiblecolumns"));
+        b.setToolTipText(TmmResourceBundle.getString("Button.selectvisiblecolumns"));
         b.updateUI();
 
         b.addActionListener(evt -> TmmTableColumnSelectionPopup.showColumnSelectionPopup(b, TmmTable.this));

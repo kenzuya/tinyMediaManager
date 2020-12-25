@@ -18,11 +18,11 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.connector.MovieNfoParser;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -40,11 +40,11 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieReadNfoAction extends TmmAction {
   private static final long           serialVersionUID = 2866581962767395824L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieReadNfoAction() {
-    putValue(NAME, BUNDLE.getString("movie.readnfo"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.readnfo.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.readnfo"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.readnfo.desc"));
   }
 
   @Override
@@ -52,12 +52,12 @@ public class MovieReadNfoAction extends TmmAction {
     final List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // rewrite selected NFOs
-    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(BUNDLE.getString("movie.readnfo"), selectedMovies.size(), TaskType.BACKGROUND_TASK) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(TmmResourceBundle.getString("movie.readnfo"), selectedMovies.size(), TaskType.BACKGROUND_TASK) {
       @Override
       protected void doInBackground() {
         int i = 0;

@@ -21,7 +21,6 @@ import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -62,7 +62,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @author Manuel Laggner
  */
 public class MovieChooserModel extends AbstractModelObject {
-  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
+
   private static final Logger LOGGER = LoggerFactory.getLogger(MovieChooserModel.class);
   public static final MovieChooserModel emptyResult = new MovieChooserModel();
 
@@ -108,7 +108,7 @@ public class MovieChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private MovieChooserModel() {
-    setTitle(BUNDLE.getString("chooser.nothingfound"));
+    setTitle(TmmResourceBundle.getString("chooser.nothingfound"));
     movieToScrape = null;
     combinedName = title;
   }
@@ -325,7 +325,7 @@ public class MovieChooserModel extends AbstractModelObject {
     private List<MovieScraperMetadataConfig> config;
 
     public ArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config) {
-      super(BUNDLE.getString("message.scrape.artwork") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.artwork") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieToScrape = movie;
       this.config = config;
     }
@@ -379,7 +379,7 @@ public class MovieChooserModel extends AbstractModelObject {
     private Movie movieToScrape;
 
     public TrailerScrapeTask(Movie movie) {
-      super(BUNDLE.getString("message.scrape.trailer") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.trailer") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieToScrape = movie;
     }
 

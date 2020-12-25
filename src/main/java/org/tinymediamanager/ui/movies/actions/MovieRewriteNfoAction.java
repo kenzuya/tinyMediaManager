@@ -18,10 +18,10 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
@@ -37,10 +37,10 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRewriteNfoAction extends TmmAction {
   private static final long           serialVersionUID = 2866581962767395824L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieRewriteNfoAction() {
-    putValue(NAME, BUNDLE.getString("movie.rewritenfo"));
+    putValue(NAME, TmmResourceBundle.getString("movie.rewritenfo"));
   }
 
   @Override
@@ -48,12 +48,12 @@ public class MovieRewriteNfoAction extends TmmAction {
     final List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // rewrite selected NFOs
-    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(BUNDLE.getString("movie.rewritenfo"), selectedMovies.size(), TaskType.BACKGROUND_TASK) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(TmmResourceBundle.getString("movie.rewritenfo"), selectedMovies.size(), TaskType.BACKGROUND_TASK) {
 
       @Override
       protected void doInBackground() {

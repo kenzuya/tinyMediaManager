@@ -22,7 +22,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeListener;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
@@ -38,6 +37,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
@@ -68,7 +68,7 @@ public class TrailerPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
 
   private MovieSelectionModel         movieSelectionModel;
@@ -200,21 +200,21 @@ public class TrailerPanel extends JPanel {
       /*
        * nfo
        */
-      col = new Column(BUNDLE.getString("metatag.nfo"), "nfo", MediaTrailer::getInNfo, Boolean.class);
+      col = new Column(TmmResourceBundle.getString("metatag.nfo"), "nfo", MediaTrailer::getInNfo, Boolean.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * name
        */
-      col = new Column(BUNDLE.getString("metatag.name"), "name", MediaTrailer::getName, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.name"), "name", MediaTrailer::getName, String.class);
       col.setColumnTooltip(MediaTrailer::getName);
       addColumn(col);
 
       /*
        * source
        */
-      col = new Column(BUNDLE.getString("metatag.source"), "source", MediaTrailer::getProvider, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.source"), "source", MediaTrailer::getProvider, String.class);
       col.setColumnTooltip(MediaTrailer::getProvider);
       col.setColumnResizeable(false);
       addColumn(col);
@@ -222,14 +222,14 @@ public class TrailerPanel extends JPanel {
       /*
        * quality
        */
-      col = new Column(BUNDLE.getString("metatag.quality"), "quality", MediaTrailer::getQuality, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.quality"), "quality", MediaTrailer::getQuality, String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * format
        */
-      col = new Column(BUNDLE.getString("metatag.format"), "format", trailer -> {
+      col = new Column(TmmResourceBundle.getString("metatag.format"), "format", trailer -> {
         String ext = UrlUtil.getExtension(trailer.getUrl()).toLowerCase(Locale.ROOT);
         if (!Globals.settings.getVideoFileType().contains("." + ext)) {
           // .php redirection scripts et all

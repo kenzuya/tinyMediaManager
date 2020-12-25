@@ -23,7 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -46,12 +46,12 @@ import org.tinymediamanager.scraper.http.Url;
  */
 public class TvShowThemeDownloadTask extends TmmThreadPool {
   private static final Logger         LOGGER  = LoggerFactory.getLogger(TvShowThemeDownloadTask.class);
-  private static final ResourceBundle BUNDLE  = ResourceBundle.getBundle("messages");
+
 
   private final List<TvShow>          tvShows = new ArrayList<>();
 
   public TvShowThemeDownloadTask(List<TvShow> tvShows) {
-    super(BUNDLE.getString("theme.download"));
+    super(TmmResourceBundle.getString("theme.download"));
     this.tvShows.addAll(tvShows);
   }
 

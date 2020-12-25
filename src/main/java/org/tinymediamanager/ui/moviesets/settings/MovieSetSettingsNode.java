@@ -16,8 +16,7 @@
 
 package org.tinymediamanager.ui.moviesets.settings;
 
-import java.util.ResourceBundle;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 
 /**
@@ -26,11 +25,11 @@ import org.tinymediamanager.ui.settings.TmmSettingsNode;
  * @author Manuel Laggner
  */
 public class MovieSetSettingsNode extends TmmSettingsNode {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   public MovieSetSettingsNode() {
-    super(BUNDLE.getString("Settings.moviesets"), new MovieSetSettingsPanel());
+    super(TmmResourceBundle.getString("Settings.moviesets"), new MovieSetSettingsPanel());
 
-    addChild(new TmmSettingsNode(BUNDLE.getString("Settings.images"), new MovieSetImageSettingsPanel()));
+    addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.images"), new MovieSetImageSettingsPanel()));
   }
 }

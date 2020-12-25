@@ -15,6 +15,34 @@
  */
 package org.tinymediamanager.ui;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
+import org.tinymediamanager.TmmOsUtils;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.thirdparty.TinyFileDialogs;
+import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
+import org.tinymediamanager.ui.dialogs.UpdateDialog;
+import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
+import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
+import org.tinymediamanager.updater.UpdateCheck;
+import org.tinymediamanager.updater.UpdaterTask;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Window;
@@ -30,34 +58,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
-import org.tinymediamanager.TmmOsUtils;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.thirdparty.TinyFileDialogs;
-import org.tinymediamanager.ui.components.ImageLabel;
-import org.tinymediamanager.ui.components.LinkLabel;
-import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
-import org.tinymediamanager.ui.dialogs.UpdateDialog;
-import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
-import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
-import org.tinymediamanager.updater.UpdateCheck;
-import org.tinymediamanager.updater.UpdaterTask;
 
 /**
  * The Class TmmUIHelper.
@@ -215,7 +215,7 @@ public class TmmUIHelper {
       return selectDirectory(title, initialPath);
     }
     else if (SystemUtils.IS_OS_WINDOWS) {
-      return selectFile(title, initialPath, new FileNameExtensionFilter(BUNDLE.getString("tmm.executables"), ".exe"));
+      return selectFile(title, initialPath, new FileNameExtensionFilter(TmmResourceBundle.getString("tmm.executables"), ".exe"));
     }
     else {
       return selectFile(title, initialPath, null);
@@ -558,8 +558,8 @@ public class TmmUIHelper {
             }
             else {
               // do the update without changelog popup
-              Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-              int answer = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.update.message"), BUNDLE.getString("tmm.update.title"),
+              Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+              int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"), TmmResourceBundle.getString("tmm.update.title"),
                   JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
               if (answer == JOptionPane.YES_OPTION) {
                 LOGGER.info("Updating...");
@@ -584,8 +584,8 @@ public class TmmUIHelper {
   }
 
   public static void restartWarningAfterV4Upgrade() {
-    Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.upgrade.finished.desc"), BUNDLE.getString("tmm.upgrade.finished"),
+    Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+    int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.upgrade.finished.desc"), TmmResourceBundle.getString("tmm.upgrade.finished"),
         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (confirm == JOptionPane.YES_OPTION) {
       MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
@@ -32,6 +31,7 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -59,7 +59,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * The Class MovieSetChooserModel.
  */
 public class MovieSetChooserModel extends AbstractModelObject {
-  private static final ResourceBundle      BUNDLE         = ResourceBundle.getBundle("messages");
+  
   private static final Logger              LOGGER         = LoggerFactory.getLogger(MovieSetChooserModel.class);
   public static final MovieSetChooserModel emptyResult    = new MovieSetChooserModel();
   private String                           name           = "";
@@ -98,7 +98,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private MovieSetChooserModel() {
-    setName(BUNDLE.getString("chooser.nothingfound"));
+    setName(TmmResourceBundle.getString("chooser.nothingfound"));
   }
 
   public String getName() {
@@ -289,7 +289,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
     private final List<MovieSetScraperMetadataConfig> config;
 
     public ArtworkScrapeTask(MovieSet movieSet, List<MovieSetScraperMetadataConfig> config) {
-      super(BUNDLE.getString("message.scrape.artwork") + " " + movieSet.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.artwork") + " " + movieSet.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieSetToScrape = movieSet;
       this.config = config;
     }

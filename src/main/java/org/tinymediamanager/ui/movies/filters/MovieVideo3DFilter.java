@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.filters;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -49,7 +50,7 @@ public class MovieVideo3DFilter extends AbstractMovieUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.3d"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.3d"));
   }
 
   @Override

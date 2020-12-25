@@ -15,14 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
-import java.awt.event.ActionEvent;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import javax.swing.JOptionPane;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -32,6 +25,12 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
+import javax.swing.JOptionPane;
+import java.awt.event.ActionEvent;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The class TvShowUpdateAction. Update a single TV show rather than the whole data source
  * 
@@ -39,10 +38,10 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowUpdateAction extends TmmAction {
   private static final long           serialVersionUID = 7216738427209633666L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowUpdateAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.update"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.update"));
     putValue(LARGE_ICON_KEY, IconManager.REFRESH);
     putValue(SMALL_ICON, IconManager.REFRESH);
   }
@@ -53,7 +52,7 @@ public class TvShowUpdateAction extends TmmAction {
     List<Path> tvShowFolders = new ArrayList<>();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

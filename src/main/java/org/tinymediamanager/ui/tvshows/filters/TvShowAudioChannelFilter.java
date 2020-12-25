@@ -15,19 +15,19 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
-import static org.tinymediamanager.core.MediaFileType.AUDIO;
-import static org.tinymediamanager.core.MediaFileType.VIDEO;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import javax.swing.JLabel;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import javax.swing.JLabel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import static org.tinymediamanager.core.MediaFileType.AUDIO;
+import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
 /**
  * This class implements a audio channel filter for the TV show tree
@@ -108,7 +108,7 @@ public class TvShowAudioChannelFilter extends AbstractCheckComboBoxTvShowUIFilte
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.channels"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.channels"));
   }
 
   @Override

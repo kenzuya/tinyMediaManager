@@ -19,11 +19,11 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.MainWindow;
@@ -37,10 +37,10 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowClearImageCacheAction extends TmmAction {
   private static final long           serialVersionUID = 3452373237085274937L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public TvShowClearImageCacheAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.clearimagecache"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.clearimagecache"));
   }
 
   @Override
@@ -59,7 +59,7 @@ public class TvShowClearImageCacheAction extends TmmAction {
     }
 
     if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

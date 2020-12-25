@@ -16,22 +16,22 @@
 
 package org.tinymediamanager.ui;
 
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.ImageUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.ui.images.TmmSvgIcon;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
 import java.awt.Canvas;
 import java.awt.FontMetrics;
 import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-
-import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.ImageUtils;
-import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.interfaces.IMediaProvider;
-import org.tinymediamanager.ui.images.TmmSvgIcon;
 
 /**
  * The class {@link ScraperInTable} is used to display scrapers in a table
@@ -96,7 +96,7 @@ public class ScraperInTable extends AbstractModelObject {
     // first try to get the localized version
     String description = null;
     try {
-      description = BUNDLE.getString("scraper." + scraper.getId() + ".hint");
+      description = TmmResourceBundle.getString("scraper." + scraper.getId() + ".hint");
     }
     catch (Exception ignored) {
     }

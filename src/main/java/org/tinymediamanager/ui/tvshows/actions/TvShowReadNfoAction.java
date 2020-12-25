@@ -17,11 +17,11 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
@@ -39,11 +39,11 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowReadNfoAction extends TmmAction {
   private static final long           serialVersionUID = -6575156436788397648L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowReadNfoAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.readnfo"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.readnfo.desc"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.readnfo"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.readnfo.desc"));
   }
 
   @Override
@@ -51,12 +51,12 @@ public class TvShowReadNfoAction extends TmmAction {
     final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // rewrite selected NFOs
-    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(BUNDLE.getString("tvshow.rewritenfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.rewritenfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
       @Override
       protected void doInBackground() {
         int i = 0;

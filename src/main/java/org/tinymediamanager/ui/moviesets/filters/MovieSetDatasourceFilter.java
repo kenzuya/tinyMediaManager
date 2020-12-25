@@ -23,6 +23,7 @@ import java.util.List;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -63,7 +64,7 @@ public class MovieSetDatasourceFilter extends AbstractCheckComboBoxMovieSetUIFil
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.datasource"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.datasource"));
   }
 
   private void buildAndInstallDatasourceArray() {

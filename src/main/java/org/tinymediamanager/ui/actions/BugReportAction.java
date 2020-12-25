@@ -16,10 +16,10 @@
 package org.tinymediamanager.ui.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
 import javax.swing.JDialog;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.dialogs.BugReportDialog;
@@ -31,11 +31,11 @@ import org.tinymediamanager.ui.dialogs.BugReportDialog;
  */
 public class BugReportAction extends TmmAction {
   private static final long           serialVersionUID = 2468561945547768259L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public BugReportAction() {
-    putValue(NAME, BUNDLE.getString("BugReport"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("BugReport"));
+    putValue(NAME, TmmResourceBundle.getString("BugReport"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("BugReport"));
     putValue(SMALL_ICON, IconManager.BUG);
     putValue(LARGE_ICON_KEY, IconManager.BUG);
   }

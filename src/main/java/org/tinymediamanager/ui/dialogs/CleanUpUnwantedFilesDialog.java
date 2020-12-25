@@ -39,6 +39,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.ui.IconManager;
@@ -69,7 +70,7 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
   private final JLabel                   lblProgressAction;
 
   public CleanUpUnwantedFilesDialog(List<MediaEntity> selectedEntities) {
-    super(BUNDLE.getString("cleanupfiles"), "cleanupEntities");
+    super(TmmResourceBundle.getString("cleanupfiles"), "cleanupEntities");
 
     results = GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>()));
 
@@ -94,12 +95,12 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
         setBottomInformationPanel(infoPanel);
       }
       {
-        btnClean = new JButton(BUNDLE.getString("Button.deleteselected"));
+        btnClean = new JButton(TmmResourceBundle.getString("Button.deleteselected"));
         btnClean.setIcon(IconManager.DELETE_INV);
         btnClean.addActionListener(arg0 -> cleanFiles(table));
         addButton(btnClean);
 
-        JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+        JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
         btnClose.setIcon(IconManager.APPLY_INV);
         btnClose.addActionListener(arg0 -> setVisible(false));
         addButton(btnClose);
@@ -117,20 +118,20 @@ public class CleanUpUnwantedFilesDialog extends TmmDialog {
       /*
        * filename
        */
-      Column col = new Column(BUNDLE.getString("metatag.filename"), "filename", fileContainer -> fileContainer.file.toString(), String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", fileContainer -> fileContainer.file.toString(), String.class);
       col.setColumnTooltip(fileContainer -> fileContainer.file.toString());
       addColumn(col);
 
       /*
        * size
        */
-      col = new Column(BUNDLE.getString("metatag.size"), "size", FileContainer::getFilesizeInKilobytes, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.size"), "size", FileContainer::getFilesizeInKilobytes, String.class);
       addColumn(col);
 
       /*
        * extension
        */
-      col = new Column(BUNDLE.getString("metatag.filetype"), "type", FileContainer::getExtension, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.filetype"), "type", FileContainer::getExtension, String.class);
       addColumn(col);
 
     }

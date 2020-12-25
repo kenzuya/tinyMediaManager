@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -43,12 +42,13 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.DateField;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -69,7 +69,7 @@ class UiSettingsPanel extends JPanel {
   private static final long           serialVersionUID   = 6409982195347794360L;
 
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
   private static final Integer[]      DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 
@@ -188,7 +188,7 @@ class UiSettingsPanel extends JPanel {
       JPanel panelLanguage = new JPanel();
       panelLanguage.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("Settings.language"), H3);
+      JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("Settings.language"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelLanguage, lblLanguageT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#ui-language"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
@@ -197,7 +197,7 @@ class UiSettingsPanel extends JPanel {
         panelLanguage.add(cbLanguage, "cell 1 0 2 1");
       }
       {
-        final JLabel lblLanguageHint = new JLabel(BUNDLE.getString("tmm.helptranslate"));
+        final JLabel lblLanguageHint = new JLabel(TmmResourceBundle.getString("tmm.helptranslate"));
         panelLanguage.add(lblLanguageHint, "cell 1 1 2 1");
       }
       {
@@ -215,7 +215,7 @@ class UiSettingsPanel extends JPanel {
       JPanel panelTheme = new JPanel();
       panelTheme.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblThemeT = new TmmLabel(BUNDLE.getString("Settings.uitheme"), H3);
+      JLabel lblThemeT = new TmmLabel(TmmResourceBundle.getString("Settings.uitheme"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelTheme, lblThemeT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#ui-theme"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
@@ -234,12 +234,12 @@ class UiSettingsPanel extends JPanel {
       JPanel panelFont = new JPanel();
       panelFont.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblFontT = new TmmLabel(BUNDLE.getString("Settings.font"), H3);
+      JLabel lblFontT = new TmmLabel(TmmResourceBundle.getString("Settings.font"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFont, lblFontT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#font"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
-        JLabel lblFontFamilyT = new JLabel(BUNDLE.getString("Settings.fontfamily"));
+        JLabel lblFontFamilyT = new JLabel(TmmResourceBundle.getString("Settings.fontfamily"));
         panelFont.add(lblFontFamilyT, "cell 1 0");
       }
       {
@@ -248,7 +248,7 @@ class UiSettingsPanel extends JPanel {
         panelFont.add(cbFontFamily, "cell 2 0");
       }
       {
-        JLabel lblFontSizeT = new JLabel(BUNDLE.getString("Settings.fontsize"));
+        JLabel lblFontSizeT = new JLabel(TmmResourceBundle.getString("Settings.fontsize"));
         panelFont.add(lblFontSizeT, "cell 1 1");
       }
       {
@@ -256,7 +256,7 @@ class UiSettingsPanel extends JPanel {
         panelFont.add(cbFontSize, "cell 2 1");
       }
       {
-        JTextArea tpFontHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.fonts.hint"));
+        JTextArea tpFontHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.fonts.hint"));
         panelFont.add(tpFontHint, "cell 1 2 2 1,growx");
       }
     }
@@ -265,36 +265,36 @@ class UiSettingsPanel extends JPanel {
       JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][10lp!][][][][10lp!][][]")); // 16lp ~ width of the
 
-      JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
+      JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
-        JLabel lblDatefield = new JLabel(BUNDLE.getString("Settings.datefield"));
+        JLabel lblDatefield = new JLabel(TmmResourceBundle.getString("Settings.datefield"));
         panelMisc.add(lblDatefield, "cell 1 0 2 1");
 
         cbDatefield = new JComboBox(DateField.values());
         panelMisc.add(cbDatefield, "cell 1 0");
 
-        JLabel lblDatefieldHint = new JLabel(BUNDLE.getString("Settings.datefield.desc"));
+        JLabel lblDatefieldHint = new JLabel(TmmResourceBundle.getString("Settings.datefield.desc"));
         panelMisc.add(lblDatefieldHint, "cell 2 1");
       }
       {
-        JLabel lblImageChooserDefaultFolderT = new JLabel(BUNDLE.getString("Settings.imagechooser.folder"));
+        JLabel lblImageChooserDefaultFolderT = new JLabel(TmmResourceBundle.getString("Settings.imagechooser.folder"));
         panelMisc.add(lblImageChooserDefaultFolderT, "cell 1 3 2 1");
 
-        chckbxImageChooserLastFolder = new JCheckBox(BUNDLE.getString("Settings.imagechooser.last"));
+        chckbxImageChooserLastFolder = new JCheckBox(TmmResourceBundle.getString("Settings.imagechooser.last"));
         panelMisc.add(chckbxImageChooserLastFolder, "cell 2 4");
 
-        chckbxImageChooserEntityFolder = new JCheckBox(BUNDLE.getString("Settings.imagechooser.entity"));
+        chckbxImageChooserEntityFolder = new JCheckBox(TmmResourceBundle.getString("Settings.imagechooser.entity"));
         panelMisc.add(chckbxImageChooserEntityFolder, "cell 2 5");
       }
       {
-        chckbxStoreWindowPreferences = new JCheckBox(BUNDLE.getString("Settings.storewindowpreferences"));
+        chckbxStoreWindowPreferences = new JCheckBox(TmmResourceBundle.getString("Settings.storewindowpreferences"));
         panelMisc.add(chckbxStoreWindowPreferences, "cell 1 7 2 1");
       }
       {
-        chckbxShowMemory = new JCheckBox(BUNDLE.getString("Settings.showmemory"));
+        chckbxShowMemory = new JCheckBox(TmmResourceBundle.getString("Settings.showmemory"));
         panelMisc.add(chckbxShowMemory, "cell 1 8 2 1");
       }
     }
@@ -310,7 +310,7 @@ class UiSettingsPanel extends JPanel {
       Locale actualLocale = Utils.getLocaleFromLanguage(Globals.settings.getLanguage());
       if (!locale.equals(actualLocale)) {
         Globals.settings.setLanguage(locale.toString());
-        lblLanguageChangeHint.setText(BUNDLE.getString("Settings.languagehint"));
+        lblLanguageChangeHint.setText(TmmResourceBundle.getString("Settings.languagehint"));
       }
     }
 
@@ -323,7 +323,7 @@ class UiSettingsPanel extends JPanel {
         TmmUIHelper.updateUI();
       }
       catch (Exception e) {
-        lblThemeHint.setText(BUNDLE.getString("Settings.uitheme.hint"));
+        lblThemeHint.setText(TmmResourceBundle.getString("Settings.uitheme.hint"));
       }
     }
 

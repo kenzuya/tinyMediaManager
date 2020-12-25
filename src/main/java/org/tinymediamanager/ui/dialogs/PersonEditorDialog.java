@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.IconManager;
 
@@ -63,7 +64,7 @@ public class PersonEditorDialog extends TmmDialog {
       getContentPane().add(panelContent);
       panelContent.setLayout(new MigLayout("", "[][300lp:n,grow][]", "[][][][]"));
       {
-        JLabel lblNameT = new JLabel(BUNDLE.getString("metatag.name"));
+        JLabel lblNameT = new JLabel(TmmResourceBundle.getString("metatag.name"));
         panelContent.add(lblNameT, "cell 0 0,alignx trailing");
 
         tfName = new JTextField();
@@ -71,7 +72,7 @@ public class PersonEditorDialog extends TmmDialog {
         tfName.setColumns(10);
       }
       {
-        JLabel lblRoleT = new JLabel(BUNDLE.getString("metatag.role"));
+        JLabel lblRoleT = new JLabel(TmmResourceBundle.getString("metatag.role"));
         panelContent.add(lblRoleT, "cell 0 1,alignx trailing");
 
         tfRole = new JTextField();
@@ -79,7 +80,7 @@ public class PersonEditorDialog extends TmmDialog {
         tfRole.setColumns(10);
       }
       {
-        JLabel lblImageUrlT = new JLabel(BUNDLE.getString("image.url"));
+        JLabel lblImageUrlT = new JLabel(TmmResourceBundle.getString("image.url"));
         panelContent.add(lblImageUrlT, "cell 0 2,alignx trailing");
 
         tfImageUrl = new JTextField();
@@ -88,7 +89,7 @@ public class PersonEditorDialog extends TmmDialog {
       }
       {
         JButton btnShowImage = new JButton(IconManager.IMAGE_INV);
-        btnShowImage.setToolTipText(BUNDLE.getString("image.show"));
+        btnShowImage.setToolTipText(TmmResourceBundle.getString("image.show"));
         btnShowImage.addActionListener(e -> {
           if (StringUtils.isNotBlank(tfImageUrl.getText())) {
             // check for valid url
@@ -104,7 +105,7 @@ public class PersonEditorDialog extends TmmDialog {
         panelContent.add(btnShowImage, "cell 2 2");
       }
       {
-        JLabel lblProfileUrlT = new JLabel(BUNDLE.getString("profile.url"));
+        JLabel lblProfileUrlT = new JLabel(TmmResourceBundle.getString("profile.url"));
         panelContent.add(lblProfileUrlT, "cell 0 3,alignx trailing");
 
         tfProfileUrl = new JTextField();
@@ -113,11 +114,11 @@ public class PersonEditorDialog extends TmmDialog {
       }
     }
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.addActionListener(e -> setVisible(false));
       addButton(btnCancel);
 
-      JButton btnOk = new JButton(BUNDLE.getString("Button.save"));
+      JButton btnOk = new JButton(TmmResourceBundle.getString("Button.save"));
       btnOk.addActionListener(e -> {
         personToEdit.setName(tfName.getText());
         personToEdit.setRole(tfRole.getText());

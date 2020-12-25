@@ -22,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -54,7 +55,7 @@ public class MovieMediaSourceFilter extends AbstractCheckComboBoxMovieUIFilter<M
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.source"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.source"));
   }
 
   @Override

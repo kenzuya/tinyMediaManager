@@ -18,11 +18,11 @@ package org.tinymediamanager.ui.movies;
 import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 
 /**
@@ -31,7 +31,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
  * @author Manuel Laggner
  */
 public class MovieExtendedComparator implements Comparator<Movie> {
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER         = LoggerFactory.getLogger(MovieExtendedComparator.class);
 
   private SortColumn                  sortColumn;
@@ -39,16 +39,16 @@ public class MovieExtendedComparator implements Comparator<Movie> {
   private RuleBasedCollator           stringCollator = (RuleBasedCollator) RuleBasedCollator.getInstance();
 
   public enum SortColumn {
-    TITLE(BUNDLE.getString("metatag.title")),
-    SORT_TITLE(BUNDLE.getString("metatag.sorttitle")),
-    YEAR(BUNDLE.getString("metatag.year")),
-    DATE_ADDED(BUNDLE.getString("metatag.dateadded")),
-    RELEASE_DATE(BUNDLE.getString("metatag.releasedate")),
-    WATCHED(BUNDLE.getString("metatag.watched")),
-    RATING(BUNDLE.getString("metatag.rating")),
-    RUNTIME(BUNDLE.getString("metatag.runtime")),
-    VIDEO_BITRATE(BUNDLE.getString("metatag.videobitrate")),
-    FRAME_RATE(BUNDLE.getString("metatag.framerate"));
+    TITLE(TmmResourceBundle.getString("metatag.title")),
+    SORT_TITLE(TmmResourceBundle.getString("metatag.sorttitle")),
+    YEAR(TmmResourceBundle.getString("metatag.year")),
+    DATE_ADDED(TmmResourceBundle.getString("metatag.dateadded")),
+    RELEASE_DATE(TmmResourceBundle.getString("metatag.releasedate")),
+    WATCHED(TmmResourceBundle.getString("metatag.watched")),
+    RATING(TmmResourceBundle.getString("metatag.rating")),
+    RUNTIME(TmmResourceBundle.getString("metatag.runtime")),
+    VIDEO_BITRATE(TmmResourceBundle.getString("metatag.videobitrate")),
+    FRAME_RATE(TmmResourceBundle.getString("metatag.framerate"));
 
     private String title;
 
@@ -63,8 +63,8 @@ public class MovieExtendedComparator implements Comparator<Movie> {
   }
 
   public enum WatchedFlag {
-    WATCHED(BUNDLE.getString("metatag.watched")),
-    NOT_WATCHED(BUNDLE.getString("metatag.notwatched"));
+    WATCHED(TmmResourceBundle.getString("metatag.watched")),
+    NOT_WATCHED(TmmResourceBundle.getString("metatag.notwatched"));
 
     private String title;
 
@@ -79,8 +79,8 @@ public class MovieExtendedComparator implements Comparator<Movie> {
   }
 
   public enum SortOrder {
-    ASCENDING(BUNDLE.getString("sort.ascending")),
-    DESCENDING(BUNDLE.getString("sort.descending"));
+    ASCENDING(TmmResourceBundle.getString("sort.ascending")),
+    DESCENDING(TmmResourceBundle.getString("sort.descending"));
 
     private String title;
 
@@ -95,8 +95,8 @@ public class MovieExtendedComparator implements Comparator<Movie> {
   }
 
   public enum MovieInMovieSet {
-    IN_MOVIESET(BUNDLE.getString("movie.inmovieset")),
-    NOT_IN_MOVIESET(BUNDLE.getString("movie.notinmovieset"));
+    IN_MOVIESET(TmmResourceBundle.getString("movie.inmovieset")),
+    NOT_IN_MOVIESET(TmmResourceBundle.getString("movie.notinmovieset"));
 
     private String title;
 
@@ -111,8 +111,8 @@ public class MovieExtendedComparator implements Comparator<Movie> {
   }
 
   public enum OfflineMovie {
-    OFFLINE(BUNDLE.getString("movie.offline")),
-    NOT_OFFLINE(BUNDLE.getString("movie.online"));
+    OFFLINE(TmmResourceBundle.getString("movie.offline")),
+    NOT_OFFLINE(TmmResourceBundle.getString("movie.online"));
 
     private String title;
 

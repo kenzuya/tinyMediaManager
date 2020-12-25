@@ -19,7 +19,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Dimension;
 import java.awt.event.ItemListener;
-import java.util.ResourceBundle;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -31,6 +30,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.filenaming.MovieExtraFanartNaming;
@@ -48,7 +48,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieImageExtraPanel extends JPanel {
   private static final long           serialVersionUID = 7312645402037806284L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
   private final ItemListener          checkBoxListener;
@@ -155,55 +155,55 @@ class MovieImageExtraPanel extends JPanel {
     {
       JPanel panelExtra = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][grow][][]"));
 
-      JLabel lblExtra = new TmmLabel(BUNDLE.getString("Settings.extraartwork"), H3);
+      JLabel lblExtra = new TmmLabel(TmmResourceBundle.getString("Settings.extraartwork"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelExtra, lblExtra, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#enable-extra-artwork"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
-        chckbxEnableExtrathumbs = new JCheckBox(BUNDLE.getString("Settings.enable.extrathumbs"));
+        chckbxEnableExtrathumbs = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrathumbs"));
         panelExtra.add(chckbxEnableExtrathumbs, "cell 1 0 2 1");
 
-        chckbxResizeExtrathumbsTo = new JCheckBox(BUNDLE.getString("Settings.resize.extrathumbs"));
+        chckbxResizeExtrathumbsTo = new JCheckBox(TmmResourceBundle.getString("Settings.resize.extrathumbs"));
         panelExtra.add(chckbxResizeExtrathumbsTo, "cell 2 1");
 
         spExtrathumbWidth = new JSpinner();
         spExtrathumbWidth.setMinimumSize(new Dimension(60, 20));
         panelExtra.add(spExtrathumbWidth, "cell 2 1");
 
-        JLabel lblDownload = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));
+        JLabel lblDownload = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
         panelExtra.add(lblDownload, "cell 2 2");
 
         spDownloadCountExtrathumbs = new JSpinner();
         spDownloadCountExtrathumbs.setMinimumSize(new Dimension(60, 20));
         panelExtra.add(spDownloadCountExtrathumbs, "cell 2 2");
 
-        chckbxEnableExtrafanart = new JCheckBox(BUNDLE.getString("Settings.enable.extrafanart"));
+        chckbxEnableExtrafanart = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrafanart"));
         panelExtra.add(chckbxEnableExtrafanart, "cell 1 3 2 1");
 
         JPanel panel = new JPanel();
         panelExtra.add(panel, "cell 2 4,grow");
         panel.setLayout(new MigLayout("insets 0", "[][20lp!][][20lp!][]", "[][]"));
 
-        chckbxExtrafanart1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + "-fanartX." + BUNDLE.getString("Settings.artwork.extension"));
+        chckbxExtrafanart1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart1, "cell 0 0");
 
-        chckbxExtrafanart2 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + ".fanartX." + BUNDLE.getString("Settings.artwork.extension"));
+        chckbxExtrafanart2 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + ".fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart2, "cell 2 0");
 
-        chckbxExtrafanart3 = new JCheckBox("fanartX." + BUNDLE.getString("Settings.artwork.extension"));
+        chckbxExtrafanart3 = new JCheckBox("fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart3, "cell 4 0");
 
-        chckbxExtrafanart4 = new JCheckBox("extrafanart/fanartX." + BUNDLE.getString("Settings.artwork.extension"));
+        chckbxExtrafanart4 = new JCheckBox("extrafanart/fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtrafanart4, "cell 0 1");
 
-        JLabel lblDownloadCount = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));
+        JLabel lblDownloadCount = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
         panelExtra.add(lblDownloadCount, "cell 2 5");
 
         spDownloadCountExtrafanart = new JSpinner();
         spDownloadCountExtrafanart.setMinimumSize(new Dimension(60, 20));
         panelExtra.add(spDownloadCountExtrafanart, "cell 2 5");
 
-        cbActorImages = new JCheckBox(BUNDLE.getString("Settings.actor.download"));
+        cbActorImages = new JCheckBox(TmmResourceBundle.getString("Settings.actor.download"));
         panelExtra.add(cbActorImages, "cell 1 6 2 1");
       }
     }

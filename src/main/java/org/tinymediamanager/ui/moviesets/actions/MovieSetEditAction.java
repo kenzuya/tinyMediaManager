@@ -17,10 +17,10 @@ package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
@@ -37,13 +37,13 @@ import org.tinymediamanager.ui.moviesets.dialogs.MovieSetEditorDialog;
  */
 public class MovieSetEditAction extends TmmAction {
   private static final long           serialVersionUID = 1848573591741154631L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieSetEditAction() {
-    putValue(NAME, BUNDLE.getString("movieset.edit"));
+    putValue(NAME, TmmResourceBundle.getString("movieset.edit"));
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
     putValue(SMALL_ICON, IconManager.EDIT);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.edit"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.edit"));
   }
 
   @Override
@@ -54,7 +54,7 @@ public class MovieSetEditAction extends TmmAction {
     int index = 0;
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

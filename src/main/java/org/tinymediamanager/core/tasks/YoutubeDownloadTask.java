@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
@@ -60,7 +60,7 @@ public abstract class YoutubeDownloadTask extends TmmTask {
   private static final char[]         ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
       ':' };
 
-  private static final ResourceBundle BUNDLE                      = ResourceBundle.getBundle("messages");
+  
   private final MediaTrailer          mediaTrailer;
   private final TrailerQuality        desiredQuality;
   private YoutubeMedia                mediaDetails;
@@ -73,7 +73,7 @@ public abstract class YoutubeDownloadTask extends TmmTask {
   private double                      speed                       = 0;
 
   public YoutubeDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
-    super(BUNDLE.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
     this.mediaTrailer = mediaTrailer;
     this.desiredQuality = desiredQuality;
 

@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import javax.swing.JLabel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -105,7 +106,7 @@ public class MovieAudioChannelFilter extends AbstractCheckComboBoxMovieUIFilter<
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.channels"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.channels"));
   }
 
   @Override

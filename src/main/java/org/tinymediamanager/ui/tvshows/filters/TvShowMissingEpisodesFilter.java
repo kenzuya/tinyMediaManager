@@ -15,14 +15,14 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
-import java.util.List;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import java.util.List;
 
 /**
  * This class implements a "missing episodes" filter for the TV show tree
@@ -58,7 +58,7 @@ public class TvShowMissingEpisodesFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("tvshowextendedsearch.missingepisodes"));
+    return new TmmLabel(TmmResourceBundle.getString("tvshowextendedsearch.missingepisodes"));
   }
 
   @Override

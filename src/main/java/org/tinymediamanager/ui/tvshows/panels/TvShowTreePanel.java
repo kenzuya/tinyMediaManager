@@ -27,7 +27,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
@@ -44,6 +43,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -82,7 +82,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = 5889203009864512935L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private TvShowList                  tvShowList       = TvShowList.getInstance();
 
@@ -131,8 +131,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
     getActionMap().put("search", new RequestFocusAction(searchField));
 
-    btnFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));
-    btnFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options"));
+    btnFilter = new JButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
+    btnFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
     btnFilter.addActionListener(e -> TvShowUIModule.getInstance().setFilterDialogVisible(true));
     add(btnFilter, "cell 1 0");
 
@@ -279,30 +279,30 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     add(separator, "cell 0 2 2 1,growx");
 
     {
-      JLabel lblTvShowCount = new JLabel(BUNDLE.getString("tmm.tvshows") + ":");
+      JLabel lblTvShowCount = new JLabel(TmmResourceBundle.getString("tmm.tvshows") + ":");
       add(lblTvShowCount, "flowx,cell 0 3 2 1");
 
       lblTvShowCountFiltered = new JLabel("");
       add(lblTvShowCountFiltered, "cell 0 3 2 1");
 
-      JLabel lblTvShowCountOf = new JLabel(BUNDLE.getString("tmm.of"));
+      JLabel lblTvShowCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
       add(lblTvShowCountOf, "cell 0 3 2 1");
 
       lblTvShowCountTotal = new JLabel("");
       add(lblTvShowCountTotal, "cell 0 3 2 1");
 
       lblLicenseHint = new JLabel(IconManager.WARN_INTENSIFIED);
-      lblLicenseHint.setToolTipText(BUNDLE.getString("tmm.license.hint1"));
+      lblLicenseHint.setToolTipText(TmmResourceBundle.getString("tmm.license.hint1"));
       add(lblLicenseHint, "cell 0 3 2 1");
     }
     {
-      JLabel lblEpisodeCount = new JLabel(BUNDLE.getString("metatag.episodes") + ":");
+      JLabel lblEpisodeCount = new JLabel(TmmResourceBundle.getString("metatag.episodes") + ":");
       add(lblEpisodeCount, "flowx,cell 0 4 2 1");
 
       lblEpisodeCountFiltered = new JLabel("");
       add(lblEpisodeCountFiltered, "cell 0 4 2 1");
 
-      JLabel lblEpisodeCountOf = new JLabel(BUNDLE.getString("tmm.of"));
+      JLabel lblEpisodeCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
       add(lblEpisodeCountOf, "cell 0 4 2 1");
 
       lblEpisodeCountTotal = new JLabel("");
@@ -439,7 +439,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     private static final long serialVersionUID = -1444530142931061317L;
 
     public CollapseAllAction() {
-      putValue(NAME, BUNDLE.getString("tree.collapseall"));
+      putValue(NAME, TmmResourceBundle.getString("tree.collapseall"));
     }
 
     @Override
@@ -454,7 +454,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     private static final long serialVersionUID = 6191727607109012198L;
 
     public ExpandAllAction() {
-      putValue(NAME, BUNDLE.getString("tree.expandall"));
+      putValue(NAME, TmmResourceBundle.getString("tree.expandall"));
     }
 
     @Override

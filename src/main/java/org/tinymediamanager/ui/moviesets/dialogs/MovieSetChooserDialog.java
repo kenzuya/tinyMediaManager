@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
@@ -114,7 +115,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
    *          the movie set
    */
   public MovieSetChooserDialog(MovieSet movieSet, boolean inQueue) {
-    super(BUNDLE.getString("movieset.search"), "movieSetChooser");
+    super(TmmResourceBundle.getString("movieset.search"), "movieSetChooser");
 
     movieSetToScrape = movieSet;
 
@@ -216,7 +217,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
           scrollPane.setViewportView(tableMovies);
         }
         {
-          cbAssignMovies = new JCheckBox(BUNDLE.getString("movieset.movie.assign"));
+          cbAssignMovies = new JCheckBox(TmmResourceBundle.getString("movieset.movie.assign"));
           cbAssignMovies.setSelected(true);
           panelSearchDetail.add(cbAssignMovies, "cell 0 3 2 1,growx,aligny top");
         }
@@ -226,7 +227,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
         panelContent.add(separator, "cell 0 1,growx");
       }
       {
-        JLabel lblScrapeFollowingItems = new TmmLabel(BUNDLE.getString("chooser.scrape"));
+        JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("chooser.scrape"));
         panelContent.add(lblScrapeFollowingItems, "cell 0 2");
 
         cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieSetScraperMetadataConfig.values());
@@ -250,24 +251,24 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
     }
     {
       if (inQueue) {
-        JButton btnAbort = new JButton(BUNDLE.getString("Button.abortqueue"));
+        JButton btnAbort = new JButton(TmmResourceBundle.getString("Button.abortqueue"));
         btnAbort.setActionCommand("Abort");
-        btnAbort.setToolTipText(BUNDLE.getString("Button.abortqueue"));
+        btnAbort.setToolTipText(TmmResourceBundle.getString("Button.abortqueue"));
         btnAbort.setIcon(IconManager.STOP_INV);
         btnAbort.addActionListener(this);
         addButton(btnAbort);
       }
 
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setActionCommand("Cancel");
-      btnCancel.setToolTipText(BUNDLE.getString("Button.cancel"));
+      btnCancel.setToolTipText(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(this);
       addButton(btnCancel);
 
-      btnOk = new JButton(BUNDLE.getString("Button.ok"));
+      btnOk = new JButton(TmmResourceBundle.getString("Button.ok"));
       btnOk.setActionCommand("Save");
-      btnOk.setToolTipText(BUNDLE.getString("Button.ok"));
+      btnOk.setToolTipText(TmmResourceBundle.getString("Button.ok"));
       btnOk.setIcon(IconManager.APPLY_INV);
       btnOk.addActionListener(this);
       addDefaultButton(btnOk);
@@ -281,7 +282,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     cbScraperConfig.setSelectedItems(MovieSetScraperMetadataConfig.values());
 
-    tableMovieSets.getColumnModel().getColumn(0).setHeaderValue(BUNDLE.getString("chooser.searchresult"));
+    tableMovieSets.getColumnModel().getColumn(0).setHeaderValue(TmmResourceBundle.getString("chooser.searchresult"));
     tfMovieSetName.setText(movieSet.getTitle());
     searchMovie();
   }
@@ -300,7 +301,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + searchTerm);
+      startProgressBar(TmmResourceBundle.getString("chooser.searchingfor") + " " + searchTerm);
       try {
         List<MediaScraper> sets = MediaScraper.getMediaScrapers(ScraperType.MOVIE_SET);
         if (sets != null && !sets.isEmpty()) {
@@ -345,8 +346,8 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
     private static final long serialVersionUID = -6561883838396668177L;
 
     SearchAction() {
-      putValue(NAME, BUNDLE.getString("Button.search"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.search"));
+      putValue(NAME, TmmResourceBundle.getString("Button.search"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.search"));
       putValue(SMALL_ICON, IconManager.SEARCH_INV);
       putValue(LARGE_ICON_KEY, IconManager.SEARCH_INV);
     }
@@ -436,7 +437,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.scrapeing") + " " + model.getName());
+      startProgressBar(TmmResourceBundle.getString("chooser.scrapeing") + " " + model.getName());
 
       // disable ok button as long as its scraping
       btnOk.setEnabled(false);

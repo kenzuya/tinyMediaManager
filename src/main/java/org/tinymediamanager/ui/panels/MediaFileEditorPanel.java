@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -59,6 +58,7 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -80,7 +80,7 @@ import net.miginfocom.swing.MigLayout;
 public class MediaFileEditorPanel extends JPanel {
   private static final long               serialVersionUID = -2416409052145301941L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle     BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   private static final Map<Float, String> ASPECT_RATIOS    = createAspectRatios();
 
@@ -146,7 +146,7 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(lblFilename, "cell 0 0 9 1,growx");
         }
         {
-          JLabel lblCodec = new TmmLabel(BUNDLE.getString("metatag.codec"));
+          JLabel lblCodec = new TmmLabel(TmmResourceBundle.getString("metatag.codec"));
           panelDetails.add(lblCodec, "cell 0 1,alignx right");
 
           tfCodec = new JTextField();
@@ -154,7 +154,7 @@ public class MediaFileEditorPanel extends JPanel {
           tfCodec.setColumns(10);
         }
         {
-          JLabel lblContainerFormat = new TmmLabel(BUNDLE.getString("metatag.container"));
+          JLabel lblContainerFormat = new TmmLabel(TmmResourceBundle.getString("metatag.container"));
           panelDetails.add(lblContainerFormat, "cell 3 1,alignx right");
 
           tfContainerFormat = new JTextField();
@@ -162,7 +162,7 @@ public class MediaFileEditorPanel extends JPanel {
           tfContainerFormat.setColumns(10);
         }
         {
-          JLabel lblWidth = new TmmLabel(BUNDLE.getString("metatag.width"));
+          JLabel lblWidth = new TmmLabel(TmmResourceBundle.getString("metatag.width"));
           panelDetails.add(lblWidth, "cell 0 2,alignx right");
 
           tfWidth = new JTextField();
@@ -171,7 +171,7 @@ public class MediaFileEditorPanel extends JPanel {
           tfWidth.setColumns(10);
         }
         {
-          JLabel lblHeight = new TmmLabel(BUNDLE.getString("metatag.height"));
+          JLabel lblHeight = new TmmLabel(TmmResourceBundle.getString("metatag.height"));
           panelDetails.add(lblHeight, "cell 3 2,alignx right");
 
           tfHeight = new JTextField();
@@ -180,7 +180,7 @@ public class MediaFileEditorPanel extends JPanel {
           tfHeight.setColumns(10);
         }
         {
-          JLabel lblAspectT = new TmmLabel(BUNDLE.getString("metatag.aspect"));
+          JLabel lblAspectT = new TmmLabel(TmmResourceBundle.getString("metatag.aspect"));
           panelDetails.add(lblAspectT, "cell 6 2,alignx right");
 
           cbAspectRatio = new JComboBox(aspectRatios);
@@ -198,7 +198,7 @@ public class MediaFileEditorPanel extends JPanel {
           panelDetails.add(cbAspectRatio, "cell 7 2");
         }
         {
-          JLabel lblFrameRate = new TmmLabel(BUNDLE.getString("metatag.framerate"));
+          JLabel lblFrameRate = new TmmLabel(TmmResourceBundle.getString("metatag.framerate"));
           panelDetails.add(lblFrameRate, "cell 0 3,alignx trailing");
 
           tfFrameRate = new JTextField();
@@ -207,7 +207,7 @@ public class MediaFileEditorPanel extends JPanel {
           tfFrameRate.setColumns(10);
         }
         {
-          JLabel lblVideoBitrate = new TmmLabel(BUNDLE.getString("metatag.bitrate"));
+          JLabel lblVideoBitrate = new TmmLabel(TmmResourceBundle.getString("metatag.bitrate"));
           panelDetails.add(lblVideoBitrate, "cell 3 3,alignx trailing");
         }
 
@@ -223,7 +223,7 @@ public class MediaFileEditorPanel extends JPanel {
         cb3dFormat = new JComboBox(threeDFormats);
         panelDetails.add(cb3dFormat, "cell 7 3");
         {
-          JLabel lblBitDepthT = new TmmLabel(BUNDLE.getString("metatag.videobitdepth"));
+          JLabel lblBitDepthT = new TmmLabel(TmmResourceBundle.getString("metatag.videobitdepth"));
           panelDetails.add(lblBitDepthT, "cell 0 4,alignx trailing");
 
           tfBitDepth = new JTextField();
@@ -232,7 +232,7 @@ public class MediaFileEditorPanel extends JPanel {
           tfBitDepth.setColumns(10);
         }
         {
-          JLabel lblHdrFormatT = new TmmLabel(BUNDLE.getString("metatag.hdrformat"));
+          JLabel lblHdrFormatT = new TmmLabel(TmmResourceBundle.getString("metatag.hdrformat"));
           panelDetails.add(lblHdrFormatT, "cell 3 4,alignx trailing");
 
           tfHdrFormat = new JTextField();
@@ -240,7 +240,7 @@ public class MediaFileEditorPanel extends JPanel {
           tfHdrFormat.setColumns(10);
         }
         {
-          JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+          JLabel lblRuntimeT = new TmmLabel(TmmResourceBundle.getString("metatag.runtime"));
           panelDetails.add(lblRuntimeT, "cell 6 4,alignx trailing");
 
           tfRuntime = new JTextField();
@@ -344,7 +344,7 @@ public class MediaFileEditorPanel extends JPanel {
     private static final long serialVersionUID = 2903255414523349267L;
 
     public AddAudioStreamAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("audiostream.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("audiostream.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
@@ -363,7 +363,7 @@ public class MediaFileEditorPanel extends JPanel {
     private static final long serialVersionUID = -7079826940827356996L;
 
     public RemoveAudioStreamAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("audiostream.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("audiostream.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
@@ -388,7 +388,7 @@ public class MediaFileEditorPanel extends JPanel {
     private static final long serialVersionUID = 2903255414523349767L;
 
     public AddSubtitleAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("subtitle.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("subtitle.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
@@ -407,7 +407,7 @@ public class MediaFileEditorPanel extends JPanel {
     private static final long serialVersionUID = -7079866940827356996L;
 
     public RemoveSubtitleAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("subtitle.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("subtitle.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 

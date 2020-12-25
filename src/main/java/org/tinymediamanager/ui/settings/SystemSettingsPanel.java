@@ -24,7 +24,6 @@ import java.awt.event.HierarchyListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.LauncherExtraConfig;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -69,7 +69,7 @@ import net.miginfocom.swing.MigLayout;
 class SystemSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 500841588272296493L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(SystemSettingsPanel.class);
   private static final Pattern        MEMORY_PATTERN   = Pattern.compile("-Xmx([0-9]*)(.)");
 
@@ -104,7 +104,7 @@ class SystemSettingsPanel extends JPanel {
     // data init
     btnSearchMediaPlayer.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseplayer.path");
-      Path file = TmmUIHelper.selectApplication(BUNDLE.getString("Button.chooseplayer"), path);
+      Path file = TmmUIHelper.selectApplication(TmmResourceBundle.getString("Button.chooseplayer"), path);
       if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
         tfMediaPlayer.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseplayer.path", file.getParent().toString());
@@ -113,7 +113,7 @@ class SystemSettingsPanel extends JPanel {
 
     btnSearchFFMpegBinary.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("chooseffmpeg.path");
-      Path file = TmmUIHelper.selectFile(BUNDLE.getString("Button.chooseffmpeglocation"), path, null);
+      Path file = TmmUIHelper.selectFile(TmmResourceBundle.getString("Button.chooseffmpeglocation"), path, null);
       if (file != null && (Utils.isRegularFile(file) || Platform.isMac())) {
         tfMediaFramework.setText(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("chooseffmpeg.path", file.getParent().toString());
@@ -127,7 +127,7 @@ class SystemSettingsPanel extends JPanel {
       JPanel panelMediaPlayer = new JPanel();
       panelMediaPlayer.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("Settings.mediaplayer"), H3);
+      JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("Settings.mediaplayer"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaPlayer, lblLanguageT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#media-player"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
@@ -136,10 +136,10 @@ class SystemSettingsPanel extends JPanel {
         panelMediaPlayer.add(tfMediaPlayer, "cell 1 0 2 1");
         tfMediaPlayer.setColumns(35);
 
-        btnSearchMediaPlayer = new JButton(BUNDLE.getString("Button.chooseplayer"));
+        btnSearchMediaPlayer = new JButton(TmmResourceBundle.getString("Button.chooseplayer"));
         panelMediaPlayer.add(btnSearchMediaPlayer, "cell 1 0");
 
-        JTextArea tpMediaPlayer = new ReadOnlyTextArea(BUNDLE.getString("Settings.mediaplayer.hint"));
+        JTextArea tpMediaPlayer = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.mediaplayer.hint"));
         panelMediaPlayer.add(tpMediaPlayer, "cell 1 1 2 1,growx, wmin 0");
         TmmFontHelper.changeFont(tpMediaPlayer, L2);
       }
@@ -147,7 +147,7 @@ class SystemSettingsPanel extends JPanel {
     {
       JPanel panelMediaFramework = new JPanel();
       panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", ""));
-      JLabel lblMediaFrameworkT = new TmmLabel(BUNDLE.getString("Settings.mediaframework"), H3);
+      JLabel lblMediaFrameworkT = new TmmLabel(TmmResourceBundle.getString("Settings.mediaframework"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaFramework, lblMediaFrameworkT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
@@ -155,7 +155,7 @@ class SystemSettingsPanel extends JPanel {
         panelMediaFramework.add(tfMediaFramework, "cell 1 0 2 1");
         tfMediaFramework.setColumns(35);
 
-        btnSearchFFMpegBinary = new JButton(BUNDLE.getString("Button.chooseffmpeglocation"));
+        btnSearchFFMpegBinary = new JButton(TmmResourceBundle.getString("Button.chooseffmpeglocation"));
         panelMediaFramework.add(btnSearchFFMpegBinary, "cell 1 0");
 
         JTextArea tpFFMpegLocation = new ReadOnlyTextArea("Specify the FFMPEG Binary location");
@@ -187,12 +187,12 @@ class SystemSettingsPanel extends JPanel {
     {
       JPanel panelMemory = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][][300lp][grow]", ""));
 
-      JLabel lblMemoryT = new TmmLabel(BUNDLE.getString("Settings.memoryborder"), H3);
+      JLabel lblMemoryT = new TmmLabel(TmmResourceBundle.getString("Settings.memoryborder"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMemory, lblMemoryT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#memory-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
-        lblMemoryT = new JLabel(BUNDLE.getString("Settings.memory"));
+        lblMemoryT = new JLabel(TmmResourceBundle.getString("Settings.memory"));
         panelMemory.add(lblMemoryT, "cell 1 0,aligny top");
 
         sliderMemory = new JSlider();
@@ -217,7 +217,7 @@ class SystemSettingsPanel extends JPanel {
         JLabel lblMb = new JLabel("MB");
         panelMemory.add(lblMb, "cell 3 0,aligny top");
 
-        JTextArea tpMemoryHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.memory.hint"));
+        JTextArea tpMemoryHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.memory.hint"));
         panelMemory.add(tpMemoryHint, "cell 1 1 3 1,growx, wmin 0");
         TmmFontHelper.changeFont(tpMemoryHint, L2);
       }
@@ -226,12 +226,12 @@ class SystemSettingsPanel extends JPanel {
       JPanel panelProxy = new JPanel();
       panelProxy.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblProxyT = new TmmLabel(BUNDLE.getString("Settings.proxy"), H3);
+      JLabel lblProxyT = new TmmLabel(TmmResourceBundle.getString("Settings.proxy"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelProxy, lblProxyT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#proxy-settings"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
-        JLabel lblProxyHostT = new JLabel(BUNDLE.getString("Settings.proxyhost"));
+        JLabel lblProxyHostT = new JLabel(TmmResourceBundle.getString("Settings.proxyhost"));
         panelProxy.add(lblProxyHostT, "cell 1 0,alignx right");
 
         tfProxyHost = new JTextField();
@@ -239,7 +239,7 @@ class SystemSettingsPanel extends JPanel {
         tfProxyHost.setColumns(20);
         lblProxyHostT.setLabelFor(tfProxyHost);
 
-        JLabel lblProxyPortT = new JLabel(BUNDLE.getString("Settings.proxyport"));
+        JLabel lblProxyPortT = new JLabel(TmmResourceBundle.getString("Settings.proxyport"));
         panelProxy.add(lblProxyPortT, "cell 1 1,alignx right");
         lblProxyPortT.setLabelFor(tfProxyPort);
 
@@ -247,7 +247,7 @@ class SystemSettingsPanel extends JPanel {
         panelProxy.add(tfProxyPort, "cell 2 1");
         tfProxyPort.setColumns(20);
 
-        JLabel lblProxyUserT = new JLabel(BUNDLE.getString("Settings.proxyuser"));
+        JLabel lblProxyUserT = new JLabel(TmmResourceBundle.getString("Settings.proxyuser"));
         panelProxy.add(lblProxyUserT, "cell 1 2,alignx right");
         lblProxyUserT.setLabelFor(tfProxyUsername);
 
@@ -255,7 +255,7 @@ class SystemSettingsPanel extends JPanel {
         panelProxy.add(tfProxyUsername, "cell 2 2");
         tfProxyUsername.setColumns(20);
 
-        JLabel lblProxyPasswordT = new JLabel(BUNDLE.getString("Settings.proxypass"));
+        JLabel lblProxyPasswordT = new JLabel(TmmResourceBundle.getString("Settings.proxypass"));
         panelProxy.add(lblProxyPasswordT, "cell 1 3,alignx right");
         lblProxyPasswordT.setLabelFor(tfProxyPassword);
 
@@ -268,23 +268,23 @@ class SystemSettingsPanel extends JPanel {
       JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][grow]")); // 16lp ~ width of the
 
-      JLabel lblMiscT = new TmmLabel(BUNDLE.getString("Settings.misc"), H3);
+      JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-1"));
       add(collapsiblePanel, "cell 0 8,growx,wmin 0");
       {
-        JLabel lblParallelDownloadCountT = new JLabel(BUNDLE.getString("Settings.paralleldownload"));
+        JLabel lblParallelDownloadCountT = new JLabel(TmmResourceBundle.getString("Settings.paralleldownload"));
         panelMisc.add(lblParallelDownloadCountT, "cell 1 0 2 1");
 
         spMaximumDownloadThreads = new JSpinner();
         spMaximumDownloadThreads.setMinimumSize(new Dimension(60, 20));
         panelMisc.add(spMaximumDownloadThreads, "cell 1 0 2 1");
 
-        chckbxIgnoreSSLProblems = new JCheckBox(BUNDLE.getString("Settings.ignoressl"));
+        chckbxIgnoreSSLProblems = new JCheckBox(TmmResourceBundle.getString("Settings.ignoressl"));
         panelMisc.add(chckbxIgnoreSSLProblems, "cell 1 1 2 1");
 
         JTextPane tpSSLHint = new ReadOnlyTextPane();
-        tpSSLHint.setText(BUNDLE.getString("Settings.ignoressl.desc"));
+        tpSSLHint.setText(TmmResourceBundle.getString("Settings.ignoressl.desc"));
         TmmFontHelper.changeFont(tpSSLHint, L2);
         panelMisc.add(tpSSLHint, "cell 2 2,grow");
       }

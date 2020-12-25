@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -59,6 +60,6 @@ public class MovieProductionCompanyFilter extends AbstractTextMovieUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.productioncompany"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.productioncompany"));
   }
 }

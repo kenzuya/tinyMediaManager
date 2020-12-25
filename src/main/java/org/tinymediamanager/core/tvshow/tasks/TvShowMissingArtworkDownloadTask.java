@@ -21,13 +21,13 @@ import static org.tinymediamanager.scraper.entities.MediaType.TV_SHOW;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -52,7 +52,7 @@ import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
  */
 public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowMissingArtworkDownloadTask.class);
-  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private final List<TvShow>                             tvShows;
   private final List<TvShowEpisode>                      episodes;
@@ -62,7 +62,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
 
   public TvShowMissingArtworkDownloadTask(List<TvShow> tvShows, List<TvShowEpisode> episodes, TvShowSearchAndScrapeOptions scrapeOptions,
       List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
-    super(BUNDLE.getString("task.missingartwork"));
+    super(TmmResourceBundle.getString("task.missingartwork"));
     this.tvShows = new ArrayList<>(tvShows);
     this.episodes = new ArrayList<>(episodes);
     this.scrapeOptions = scrapeOptions;

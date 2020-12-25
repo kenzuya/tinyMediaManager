@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
@@ -87,7 +88,7 @@ public class MessageDialog extends TmmDialog {
       }
     }
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }
@@ -116,12 +117,12 @@ public class MessageDialog extends TmmDialog {
   }
 
   public static void showExceptionWindow(Throwable ex) {
-    MessageDialog dialog = new MessageDialog(null, BUNDLE.getString("tmm.problemdetected"));
+    MessageDialog dialog = new MessageDialog(null, TmmResourceBundle.getString("tmm.problemdetected"));
 
     dialog.setImage(IconManager.ERROR);
     String msg = ex.getLocalizedMessage();
     dialog.setText(msg != null ? msg : "");
-    dialog.setDescription(BUNDLE.getString("tmm.uicrash"));
+    dialog.setDescription(TmmResourceBundle.getString("tmm.uicrash"));
     dialog.setDetails(stackStraceAsString(ex));
     dialog.setAlwaysOnTop(true);
     dialog.setVisible(true);

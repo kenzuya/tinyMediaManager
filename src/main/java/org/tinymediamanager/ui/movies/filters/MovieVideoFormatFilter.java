@@ -21,6 +21,7 @@ import java.util.Locale;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -75,7 +76,7 @@ public class MovieVideoFormatFilter extends AbstractCheckComboBoxMovieUIFilter<S
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.resolution"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.resolution"));
   }
 
   @Override

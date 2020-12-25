@@ -15,11 +15,10 @@
  */
 package org.tinymediamanager.ui.tvshows;
 
-import java.util.ResourceBundle;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
@@ -29,7 +28,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
  * @author Manuel Laggner
  */
 public class TvShowSubtitleChooserModel extends AbstractModelObject {
-  private static final ResourceBundle            BUNDLE       = ResourceBundle.getBundle("messages");
+
   private static final Logger                    LOGGER       = LoggerFactory.getLogger(TvShowSubtitleChooserModel.class);
   public static final TvShowSubtitleChooserModel EMPTY_RESULT = new TvShowSubtitleChooserModel();
 
@@ -53,7 +52,7 @@ public class TvShowSubtitleChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private TvShowSubtitleChooserModel() {
-    name = BUNDLE.getString("chooser.nothingfound");
+    name = TmmResourceBundle.getString("chooser.nothingfound");
   }
 
   public String getName() {

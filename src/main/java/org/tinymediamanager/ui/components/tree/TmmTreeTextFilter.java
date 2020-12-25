@@ -19,7 +19,6 @@ import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +26,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 
@@ -39,13 +39,13 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
  */
 public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField implements ITmmTreeFilter<E> {
   private static final long           serialVersionUID = 8492300503787395800L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   protected String                    filterText       = "";
   protected Pattern                   filterPattern;
 
   public TmmTreeTextFilter() {
-    super(BUNDLE.getString("tmm.searchfield"), IconManager.SEARCH_GREY);
+    super(TmmResourceBundle.getString("tmm.searchfield"), IconManager.SEARCH_GREY);
     lblIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     lblIcon.addMouseListener(new MouseAdapter() {
       @Override

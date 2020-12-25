@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -62,7 +63,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowMediaInformationPanel extends JPanel {
   private static final long           serialVersionUID = 1610264727610254912L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
   private TvShowSelectionModel        selectionModel;
@@ -130,7 +131,7 @@ public class TvShowMediaInformationPanel extends JPanel {
 
   private void initComponents() {
     setLayout(new MigLayout("", "[][150lp][grow]", "[][][80lp,grow]"));
-    JLabel lblTvShowPathT = new TmmLabel(BUNDLE.getString("metatag.path"));
+    JLabel lblTvShowPathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
     add(lblTvShowPathT, "cell 0 0");
     {
 
@@ -138,14 +139,14 @@ public class TvShowMediaInformationPanel extends JPanel {
       add(lblTvShowPath, "cell 1 0 2 1,growx,wmin 0");
     }
     {
-      JLabel lblDateAddedT = new TmmLabel(BUNDLE.getString("metatag.dateadded"));
+      JLabel lblDateAddedT = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
       add(lblDateAddedT, "cell 0 1");
 
       lblDateAdded = new JLabel("");
       add(lblDateAdded, "cell 1 1");
     }
     {
-      JLabel lblWatchedT = new TmmLabel(BUNDLE.getString("metatag.watched"));
+      JLabel lblWatchedT = new TmmLabel(TmmResourceBundle.getString("metatag.watched"));
       add(lblWatchedT, "flowx,cell 2 1");
     }
     {

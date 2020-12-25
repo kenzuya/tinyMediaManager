@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -52,7 +53,7 @@ public class MovieSetWithMoreThanOneMovieFilter extends AbstractMovieSetUIFilter
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.moviesetwithmorethanonemovies"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.moviesetwithmorethanonemovies"));
   }
 
   @Override

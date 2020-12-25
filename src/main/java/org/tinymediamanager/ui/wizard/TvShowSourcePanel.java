@@ -15,12 +15,22 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import java.awt.Cursor;
-import java.awt.Font;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.ResourceBundle;
+import net.miginfocom.swing.MigLayout;
+import org.jdesktop.beansbinding.AutoBinding;
+import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
+import org.jdesktop.beansbinding.BeanProperty;
+import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.swingbinding.JListBinding;
+import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSettings;
+import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -30,23 +40,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-
-import org.jdesktop.beansbinding.AutoBinding;
-import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
-import org.jdesktop.beansbinding.BeanProperty;
-import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.swingbinding.JListBinding;
-import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowSettings;
-import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.TmmFontHelper;
-import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.SquareIconButton;
-
-import net.miginfocom.swing.MigLayout;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * The class TvShowSourcePanel is used to maintain the TV show data sources in the wizard
@@ -56,7 +54,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSourcePanel extends JPanel {
   private static final long           serialVersionUID = -7126616245313008341L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
 
@@ -74,7 +72,7 @@ class TvShowSourcePanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][grow]"));
 
-    JLabel lblDataSource = new JLabel(BUNDLE.getString("wizard.tvshow.datasources"));
+    JLabel lblDataSource = new JLabel(TmmResourceBundle.getString("wizard.tvshow.datasources"));
     TmmFontHelper.changeFont(lblDataSource, 1.3333, Font.BOLD);
     add(lblDataSource, "cell 0 0");
 
@@ -82,7 +80,7 @@ class TvShowSourcePanel extends JPanel {
     add(panelTvShowDataSources, "cell 0 1,grow");
     panelTvShowDataSources.setLayout(new MigLayout("", "[grow][]", "[][grow][]"));
 
-    JTextArea tpDatasourceHint = new ReadOnlyTextArea(BUNDLE.getString("wizard.datasource.hint"));
+    JTextArea tpDatasourceHint = new ReadOnlyTextArea(TmmResourceBundle.getString("wizard.datasource.hint"));
     panelTvShowDataSources.add(tpDatasourceHint, "cell 0 0 2 1,growx");
 
     JScrollPane scrollPaneDataSources = new JScrollPane();
@@ -91,15 +89,15 @@ class TvShowSourcePanel extends JPanel {
     listDataSources = new JList<>();
     scrollPaneDataSources.setViewportView(listDataSources);
 
-    cbDvdOrder = new JCheckBox(BUNDLE.getString("Settings.dvdorder"));
+    cbDvdOrder = new JCheckBox(TmmResourceBundle.getString("Settings.dvdorder"));
     panelTvShowDataSources.add(cbDvdOrder, "flowx,cell 0 2");
 
     JButton btnAdd = new SquareIconButton(IconManager.ADD_INV);
     panelTvShowDataSources.add(btnAdd, "flowy,cell 1 1,aligny top");
-    btnAdd.setToolTipText(BUNDLE.getString("Button.add"));
+    btnAdd.setToolTipText(TmmResourceBundle.getString("Button.add"));
     btnAdd.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("tvshow.datasource.path");
-      Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("Settings.tvshowdatasource.folderchooser"), path);
+      Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.tvshowdatasource.folderchooser"), path);
       if (file != null && Files.isDirectory(file)) {
         settings.addTvShowDataSources(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("tvshow.datasource.path", file.toAbsolutePath().toString());
@@ -108,15 +106,15 @@ class TvShowSourcePanel extends JPanel {
 
     JButton btnRemove = new SquareIconButton(IconManager.REMOVE_INV);
     panelTvShowDataSources.add(btnRemove, "cell 1 1");
-    btnRemove.setToolTipText(BUNDLE.getString("Button.remove"));
+    btnRemove.setToolTipText(TmmResourceBundle.getString("Button.remove"));
     btnRemove.addActionListener(arg0 -> {
       int row = listDataSources.getSelectedIndex();
       if (row != -1) { // nothing selected
         String path = settings.getTvShowDataSource().get(row);
-        String[] choices = { BUNDLE.getString("Button.continue"), BUNDLE.getString("Button.abort") };
-        int decision = JOptionPane.showOptionDialog(null, String.format(BUNDLE.getString("Settings.tvshowdatasource.remove.info"), path),
-            BUNDLE.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
-            BUNDLE.getString("Button.abort"));
+        String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
+        int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.tvshowdatasource.remove.info"), path),
+            TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
+            TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           settings.removeTvShowDataSources(path);

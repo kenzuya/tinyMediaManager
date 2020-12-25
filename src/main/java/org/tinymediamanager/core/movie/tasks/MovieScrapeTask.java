@@ -18,7 +18,6 @@ package org.tinymediamanager.core.movie.tasks;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.SwingUtilities;
 
@@ -28,6 +27,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.MovieList;
@@ -60,7 +60,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
  */
 public class MovieScrapeTask extends TmmThreadPool {
   private static final Logger              LOGGER = LoggerFactory.getLogger(MovieScrapeTask.class);
-  private static final ResourceBundle      BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private List<Movie>                      moviesToScrape;
   private boolean                          doSearch;
@@ -70,7 +70,7 @@ public class MovieScrapeTask extends TmmThreadPool {
 
   public MovieScrapeTask(List<Movie> moviesToScrape, boolean doSearch, MovieSearchAndScrapeOptions options,
       List<MovieScraperMetadataConfig> metadataConfig) {
-    super(BUNDLE.getString("movie.scraping"));
+    super(TmmResourceBundle.getString("movie.scraping"));
     this.moviesToScrape = moviesToScrape;
     this.doSearch = doSearch;
     this.searchAndScrapeOptions = options;

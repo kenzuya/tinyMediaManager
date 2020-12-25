@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -31,7 +30,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  */
 public class MovieUpdateSingleDatasourceAction extends TmmAction {
   private static final long           serialVersionUID = 6885253964781733478L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private String                      datasource;
 

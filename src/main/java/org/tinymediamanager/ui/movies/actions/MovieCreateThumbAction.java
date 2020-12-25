@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
@@ -26,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -41,13 +41,13 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Wolfgang Janes
  */
 public class MovieCreateThumbAction extends TmmAction {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieCreateThumbAction.class);
 
   public MovieCreateThumbAction() {
 
-    putValue(NAME, BUNDLE.getString("movie.ffmpeg.createthumb"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.ffmpeg.createthumb.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.ffmpeg.createthumb"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.ffmpeg.createthumb.desc"));
     putValue(SMALL_ICON, IconManager.THUMB);
     putValue(LARGE_ICON_KEY, IconManager.THUMB);
   }
@@ -56,24 +56,24 @@ public class MovieCreateThumbAction extends TmmAction {
   protected void processAction(ActionEvent e) {
     // check customizing; FFmpeg settings AND Thumb settings must be available
     if (StringUtils.isBlank(Globals.settings.getMediaFramework())) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("mediaframework.missingbinary"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("mediaframework.missingbinary"));
       return;
     }
 
     if (Globals.settings.getFfmpegPercentage() == 0) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("mediaframework.framevalue"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("mediaframework.framevalue"));
       return;
     }
 
     if (MovieModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("movie.nothumbs"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("movie.nothumbs"));
       return;
     }
 
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

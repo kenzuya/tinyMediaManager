@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 
@@ -29,7 +30,7 @@ import org.tinymediamanager.scraper.MediaScraper;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeChooserModel extends AbstractModelObject {
-  private static final ResourceBundle           BUNDLE      = ResourceBundle.getBundle("messages");
+
   public static final TvShowEpisodeChooserModel emptyResult = new TvShowEpisodeChooserModel();
 
   private MediaScraper                          mediaScraper;
@@ -52,7 +53,7 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
   }
 
   private TvShowEpisodeChooserModel() {
-    setTitle(BUNDLE.getString("chooser.nothingfound"));
+    setTitle(TmmResourceBundle.getString("chooser.nothingfound"));
   }
 
   public void setTitle(String title) {

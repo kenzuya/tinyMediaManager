@@ -22,7 +22,6 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -31,6 +30,7 @@ import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -49,11 +49,11 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 public class TvShowDeleteMediainfoXmlAction extends TmmAction {
 
   private static final long           serialVersionUID = -2029243504238273761L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowDeleteMediainfoXmlAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.deletemediainfoxml"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.deletemediainfoxml"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.deletemediainfoxml"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.deletemediainfoxml"));
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(LARGE_ICON_KEY, IconManager.DELETE);
   }
@@ -83,19 +83,19 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
     }
 
     if (selectedTvShows.isEmpty() && selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // display warning and ask the user again
     if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hidedeletemediainfoxmlhint")) {
-      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+      JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      Object[] params = { BUNDLE.getString("tvshow.deletemediainfoxml.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("tvshow.deletemediainfoxml"),
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      Object[] params = { TmmResourceBundle.getString("tvshow.deletemediainfoxml.desc"), checkBox };
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("tvshow.deletemediainfoxml"),
           JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

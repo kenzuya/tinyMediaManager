@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -56,7 +57,7 @@ public class MovieEditionFilter extends AbstractCheckComboBoxMovieUIFilter<Movie
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.edition"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.edition"));
   }
 
   private void buildAndInstallEditionArray() {

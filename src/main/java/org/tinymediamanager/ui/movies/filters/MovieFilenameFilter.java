@@ -6,6 +6,7 @@ import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -14,7 +15,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
 public class MovieFilenameFilter extends AbstractTextMovieUIFilter {
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.filename"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.filename"));
   }
 
   @Override

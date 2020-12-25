@@ -24,6 +24,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
@@ -98,8 +99,8 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
       }
     };
 
-    movieSetDetailPanel.addTab(BUNDLE.getString("metatag.details"), new MovieSetInformationPanel(selectionModel));
-    movieSetDetailPanel.addTab(BUNDLE.getString("metatag.artwork"), new MovieSetArtworkPanel(selectionModel));
+    movieSetDetailPanel.addTab(TmmResourceBundle.getString("metatag.details"), new MovieSetInformationPanel(selectionModel));
+    movieSetDetailPanel.addTab(TmmResourceBundle.getString("metatag.artwork"), new MovieSetArtworkPanel(selectionModel));
     dataPanel.add(movieSetDetailPanel, "movieSet");
 
     // panel for movies
@@ -113,11 +114,11 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
         super.updateUI();
       }
     };
-    movieDetailPanel.addTab(BUNDLE.getString("metatag.details"), new MovieInformationPanel(movieSelectionModel));
-    movieDetailPanel.addTab(BUNDLE.getString("metatag.cast"), new MovieCastPanel(movieSelectionModel));
-    movieDetailPanel.addTab(BUNDLE.getString("metatag.mediafiles"), new MovieMediaInformationPanel(movieSelectionModel));
-    movieDetailPanel.addTab(BUNDLE.getString("metatag.artwork"), new MovieArtworkPanel(movieSelectionModel));
-    movieDetailPanel.addTab(BUNDLE.getString("metatag.trailer"), new TrailerPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.details"), new MovieInformationPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.cast"), new MovieCastPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.mediafiles"), new MovieMediaInformationPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.artwork"), new MovieArtworkPanel(movieSelectionModel));
+    movieDetailPanel.addTab(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(movieSelectionModel));
     dataPanel.add(movieDetailPanel, "movie");
 
     movieSetFilterDialog = new MovieSetFilterDialog(treePanel.getTreeTable());
@@ -133,7 +134,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
         super.updateUI();
       }
     };
-    missingMovieDetailPanel.addTab(BUNDLE.getString("metatag.details"), new MovieSetMissingMovieInformationPanel(movieSelectionModel));
+    missingMovieDetailPanel.addTab(TmmResourceBundle.getString("metatag.details"), new MovieSetMissingMovieInformationPanel(movieSelectionModel));
     dataPanel.add(missingMovieDetailPanel, "missingMovie");
 
     // create actions and menus
@@ -201,7 +202,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     treePanel.setPopupMenu(popupMenu);
 
     // dummy popupmenu to infer the text
-    updatePopupMenu = new JPopupMenu(BUNDLE.getString("movieset.add"));
+    updatePopupMenu = new JPopupMenu(TmmResourceBundle.getString("movieset.add"));
     updatePopupMenu.add(createAndRegisterAction(MovieSetAddAction.class));
   }
 
@@ -217,7 +218,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
   @Override
   public String getTabTitle() {
-    return BUNDLE.getString("tmm.moviesets");
+    return TmmResourceBundle.getString("tmm.moviesets");
   }
 
   @Override

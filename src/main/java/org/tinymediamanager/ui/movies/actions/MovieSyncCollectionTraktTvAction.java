@@ -16,8 +16,8 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
@@ -31,11 +31,11 @@ import org.tinymediamanager.ui.actions.TmmAction;
  */
 public class MovieSyncCollectionTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieSyncCollectionTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("movie.synctrakt"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.synctrakt.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.synctrakt"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.desc"));
     putValue(SMALL_ICON, IconManager.MOVIE);
     putValue(LARGE_ICON_KEY, IconManager.MOVIE);
   }

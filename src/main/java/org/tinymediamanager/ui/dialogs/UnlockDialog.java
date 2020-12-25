@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.MainWindow;
@@ -50,17 +51,17 @@ public class UnlockDialog extends TmmDialog {
   private static final Logger LOGGER = LoggerFactory.getLogger(UnlockDialog.class);
 
   public UnlockDialog() {
-    super(MainWindow.getInstance(), BUNDLE.getString("tmm.unlock.desc"), "unlockDialog");
+    super(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.unlock.desc"), "unlockDialog");
 
     JPanel panelContent = new JPanel();
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("", "[grow][400lp]", "[][][][10lp:n][][][100lp:150lp,grow][grow]"));
     {
-      JTextArea taLicenseHint = new ReadOnlyTextArea(BUNDLE.getString("tmm.license.hint1") + "\n\n" + BUNDLE.getString("tmm.license.hint2"));
+      JTextArea taLicenseHint = new ReadOnlyTextArea(TmmResourceBundle.getString("tmm.license.hint1") + "\n\n" + TmmResourceBundle.getString("tmm.license.hint2"));
       taLicenseHint.setLineWrap(true);
       panelContent.add(taLicenseHint, "cell 0 0 2 1,grow");
 
-      JButton btnOpenPaddle = new JButton(BUNDLE.getString("tmm.license.buy"));
+      JButton btnOpenPaddle = new JButton(TmmResourceBundle.getString("tmm.license.buy"));
       btnOpenPaddle.addActionListener(e -> {
         String url = StringEscapeUtils.unescapeHtml4("https://www.tinymediamanager.org/purchase/");
         try {
@@ -79,7 +80,7 @@ public class UnlockDialog extends TmmDialog {
       panelContent.add(separator, "cell 0 3 2 1,growx");
     }
     {
-      JLabel lblEnterLicenseCodeT = new JLabel(BUNDLE.getString("tmm.license.code"));
+      JLabel lblEnterLicenseCodeT = new JLabel(TmmResourceBundle.getString("tmm.license.code"));
       panelContent.add(lblEnterLicenseCodeT, "cell 0 5");
 
       JTextArea taLicenseCode = new JTextArea();
@@ -89,7 +90,7 @@ public class UnlockDialog extends TmmDialog {
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
       panelContent.add(scrollPane, "cell 1 5 1 2,grow");
 
-      JButton btnUnlock = new JButton(BUNDLE.getString("tmm.license.unlock"));
+      JButton btnUnlock = new JButton(TmmResourceBundle.getString("tmm.license.unlock"));
       btnUnlock.addActionListener(arg0 -> {
         try {
           License.getInstance().setLicenseCode(taLicenseCode.getText());
@@ -100,23 +101,23 @@ public class UnlockDialog extends TmmDialog {
             // persist the license code
             Utils.writeStringToFile(Paths.get(Globals.DATA_FOLDER, "tmm.lic"), taLicenseCode.getText());
 
-            JOptionPane.showMessageDialog(UnlockDialog.this, BUNDLE.getString("tmm.license.thanks"));
-            JOptionPane.showMessageDialog(UnlockDialog.this, BUNDLE.getString("tmm.license.restart"));
+            JOptionPane.showMessageDialog(UnlockDialog.this, TmmResourceBundle.getString("tmm.license.thanks"));
+            JOptionPane.showMessageDialog(UnlockDialog.this, TmmResourceBundle.getString("tmm.license.restart"));
             setVisible(false);
           }
           else {
-            JOptionPane.showMessageDialog(UnlockDialog.this, BUNDLE.getString("tmm.license.invalid"));
+            JOptionPane.showMessageDialog(UnlockDialog.this, TmmResourceBundle.getString("tmm.license.invalid"));
           }
         }
         catch (Exception e) {
-          JOptionPane.showMessageDialog(UnlockDialog.this, BUNDLE.getString("tmm.license.invalid"));
+          JOptionPane.showMessageDialog(UnlockDialog.this, TmmResourceBundle.getString("tmm.license.invalid"));
         }
       });
       panelContent.add(btnUnlock, "cell 1 7");
 
     }
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }

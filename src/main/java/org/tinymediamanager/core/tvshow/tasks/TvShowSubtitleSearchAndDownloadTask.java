@@ -18,7 +18,6 @@ package org.tinymediamanager.core.tvshow.tasks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +28,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
@@ -54,14 +54,14 @@ import org.tinymediamanager.scraper.util.MediaIdUtil;
  */
 public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowSubtitleSearchAndDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   private final List<TvShowEpisode>   episodes;
   private final List<MediaScraper>    subtitleScrapers;
   private final MediaLanguages        language;
 
   public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, MediaLanguages language) {
-    super(BUNDLE.getString("tvshow.download.subtitles"));
+    super(TmmResourceBundle.getString("tvshow.download.subtitles"));
     this.episodes = episodes;
     this.language = language;
 
@@ -76,7 +76,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
   }
 
   public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, List<MediaScraper> subtitleScrapers, MediaLanguages language) {
-    super(BUNDLE.getString("tvshow.download.subtitles"));
+    super(TmmResourceBundle.getString("tvshow.download.subtitles"));
     this.episodes = episodes;
     this.subtitleScrapers = subtitleScrapers;
     this.language = language;

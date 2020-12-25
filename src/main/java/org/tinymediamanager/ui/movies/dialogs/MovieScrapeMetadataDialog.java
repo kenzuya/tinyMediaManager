@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -91,27 +92,27 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
       getContentPane().add(panelCenter, BorderLayout.CENTER);
       panelCenter.setLayout(new MigLayout("", "[][600lp:800lp,grow]", "[][][][][shrink 0][150lp:n, grow]"));
 
-      JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("metatag.language"));
+      JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
       panelCenter.add(lblLanguageT, "cell 0 0,alignx trailing");
 
       cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
       cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getScraperLanguage());
       panelCenter.add(cbLanguage, "cell 1 0,growx");
 
-      JLabel lblMetadataScraperT = new TmmLabel(BUNDLE.getString("scraper.metadata"));
+      JLabel lblMetadataScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"));
       panelCenter.add(lblMetadataScraperT, "cell 0 1,alignx right");
 
       cbMetadataScraper = new MediaScraperComboBox(MovieList.getInstance().getAvailableMediaScrapers());
       panelCenter.add(cbMetadataScraper, "cell 1 1,growx");
       cbMetadataScraper.setSelectedItem(defaultScraper);
 
-      JLabel lblArtworkScraper = new TmmLabel(BUNDLE.getString("scraper.artwork"));
+      JLabel lblArtworkScraper = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
       panelCenter.add(lblArtworkScraper, "cell 0 2,alignx right");
 
       cbArtworkScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableArtworkScrapers());
       panelCenter.add(cbArtworkScraper, "cell 1 2,growx");
 
-      JLabel lblTrailerScraper = new TmmLabel(BUNDLE.getString("scraper.trailer"));
+      JLabel lblTrailerScraper = new TmmLabel(TmmResourceBundle.getString("scraper.trailer"));
       panelCenter.add(lblTrailerScraper, "cell 0 3,alignx right");
 
       cbTrailerScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableTrailerScrapers());
@@ -124,7 +125,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
       panelCenter.add(panelScraperConfig, "cell 0 5 2 1,grow");
       panelScraperConfig.setLayout(new MigLayout("", "[300lp:500lp,grow]", "[][]"));
       {
-        JLabel lblScrapeFollowingItems = new TmmLabel(BUNDLE.getString("scraper.metadata.select"));
+        JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.select"));
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0");
 
         cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.values());
@@ -134,7 +135,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
       }
     }
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(e -> {
         startScrape = false;
@@ -142,7 +143,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
       });
       addButton(btnCancel);
 
-      JButton btnStart = new JButton(BUNDLE.getString("scraper.start"));
+      JButton btnStart = new JButton(TmmResourceBundle.getString("scraper.start"));
       btnStart.setIcon(IconManager.APPLY_INV);
       btnStart.addActionListener(e -> {
         startScrape = true;

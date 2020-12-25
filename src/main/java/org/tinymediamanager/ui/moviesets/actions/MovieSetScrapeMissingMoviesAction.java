@@ -19,10 +19,10 @@ package org.tinymediamanager.ui.moviesets.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.MovieSet;
@@ -41,11 +41,11 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  */
 public class MovieSetScrapeMissingMoviesAction extends TmmAction {
   private static final long           serialVersionUID = -389165862194237592L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieSetScrapeMissingMoviesAction() {
-    putValue(NAME, BUNDLE.getString("movieset.scrape.missingmovies"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.scrape.missingmovies.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movieset.scrape.missingmovies"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.scrape.missingmovies.desc"));
 
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);
     putValue(SMALL_ICON, IconManager.SEARCH);
@@ -56,7 +56,7 @@ public class MovieSetScrapeMissingMoviesAction extends TmmAction {
     List<MovieSet> selectedMovieSets = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets());
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

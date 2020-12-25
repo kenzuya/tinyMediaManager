@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -40,6 +39,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -52,7 +52,7 @@ import net.miginfocom.swing.MigLayout;
 class FileTypesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 9136097757447080369L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   private Settings                    settings         = Settings.getInstance();
   private JTextField                  tfVideoFiletype;
@@ -127,7 +127,7 @@ class FileTypesSettingsPanel extends JPanel {
           Pattern.compile(tfCleanupFiletype.getText());
         }
         catch (PatternSyntaxException ex) {
-          JOptionPane.showMessageDialog(null, BUNDLE.getString("message.regex.error"));
+          JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
         Globals.settings.addCleanupFileType(tfCleanupFiletype.getText());
@@ -148,7 +148,7 @@ class FileTypesSettingsPanel extends JPanel {
     {
       JPanel panelVideoFiletypes = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][100lp][][grow]", "[]"));
 
-      JLabel lblVideoFiletypesT = new TmmLabel(BUNDLE.getString("Settings.videofiletypes"), H3);
+      JLabel lblVideoFiletypesT = new TmmLabel(TmmResourceBundle.getString("Settings.videofiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelVideoFiletypes, lblVideoFiletypesT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
@@ -161,20 +161,20 @@ class FileTypesSettingsPanel extends JPanel {
 
         btnRemoveVideoFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelVideoFiletypes.add(btnRemoveVideoFiletype, "cell 2 0,aligny bottom, growx");
-        btnRemoveVideoFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
+        btnRemoveVideoFiletype.setToolTipText(TmmResourceBundle.getString("Button.remove"));
 
         tfVideoFiletype = new JTextField();
         panelVideoFiletypes.add(tfVideoFiletype, "cell 1 1,growx");
 
         btnAddVideoFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelVideoFiletypes.add(btnAddVideoFiletype, "cell 2 1,growx");
-        btnAddVideoFiletype.setToolTipText(BUNDLE.getString("Button.add"));
+        btnAddVideoFiletype.setToolTipText(TmmResourceBundle.getString("Button.add"));
       }
     }
     {
       JPanel panelSubtitleFiletypes = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][100lp][][grow]", "[]"));
 
-      JLabel lblSubtitleFiletypesT = new TmmLabel(BUNDLE.getString("Settings.extrafiletypes"), H3);
+      JLabel lblSubtitleFiletypesT = new TmmLabel(TmmResourceBundle.getString("Settings.extrafiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelSubtitleFiletypes, lblSubtitleFiletypesT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
@@ -187,20 +187,20 @@ class FileTypesSettingsPanel extends JPanel {
 
         btnRemoveSubtitleFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelSubtitleFiletypes.add(btnRemoveSubtitleFiletype, "cell 2 0,aligny bottom, growx");
-        btnRemoveSubtitleFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
+        btnRemoveSubtitleFiletype.setToolTipText(TmmResourceBundle.getString("Button.remove"));
 
         tfSubtitleFiletype = new JTextField();
         panelSubtitleFiletypes.add(tfSubtitleFiletype, "cell 1 1,growx");
 
         btnAddSubtitleFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelSubtitleFiletypes.add(btnAddSubtitleFiletype, "cell 2 1");
-        btnAddSubtitleFiletype.setToolTipText(BUNDLE.getString("Button.add"));
+        btnAddSubtitleFiletype.setToolTipText(TmmResourceBundle.getString("Button.add"));
       }
     }
     {
       JPanel panelAudioFiletypes = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][100lp][][grow]", "[]"));
 
-      JLabel lblAudioFiletypesT = new TmmLabel(BUNDLE.getString("Settings.audiofiletypes"), H3);
+      JLabel lblAudioFiletypesT = new TmmLabel(TmmResourceBundle.getString("Settings.audiofiletypes"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAudioFiletypes, lblAudioFiletypesT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#file-types"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
@@ -213,21 +213,21 @@ class FileTypesSettingsPanel extends JPanel {
 
         btnRemoveAudioFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelAudioFiletypes.add(btnRemoveAudioFiletype, "cell 2 0,aligny bottom, growx");
-        btnRemoveAudioFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
+        btnRemoveAudioFiletype.setToolTipText(TmmResourceBundle.getString("Button.remove"));
 
         tfAudioFiletype = new JTextField();
         panelAudioFiletypes.add(tfAudioFiletype, "cell 1 1,growx");
 
         btnAddAudioFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelAudioFiletypes.add(btnAddAudioFiletype, "cell 2 1, growx");
-        btnAddAudioFiletype.setToolTipText(BUNDLE.getString("Button.add"));
+        btnAddAudioFiletype.setToolTipText(TmmResourceBundle.getString("Button.add"));
       }
     }
     {
       JPanel panelCleanupFiletypes = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][300lp][][grow]", "[]"));
 
-      JLabel lblCleanupFiletypesT = new TmmLabel(BUNDLE.getString("Settings.unwantedfiletypes"), H3);
-      JLabel lblCleanupFiletypesHelpT = new TmmLabel(BUNDLE.getString("Settings.cleanupfiles.help"));
+      JLabel lblCleanupFiletypesT = new TmmLabel(TmmResourceBundle.getString("Settings.unwantedfiletypes"), H3);
+      JLabel lblCleanupFiletypesHelpT = new TmmLabel(TmmResourceBundle.getString("Settings.cleanupfiles.help"));
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelCleanupFiletypes, lblCleanupFiletypesT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#unwanted-file-types"));
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
@@ -240,18 +240,18 @@ class FileTypesSettingsPanel extends JPanel {
 
         btnRemoveCleanupFiletype = new SquareIconButton(IconManager.REMOVE_INV);
         panelCleanupFiletypes.add(btnRemoveCleanupFiletype, "cell 2 0,aligny bottom, growx");
-        btnRemoveCleanupFiletype.setToolTipText(BUNDLE.getString("Button.remove"));
+        btnRemoveCleanupFiletype.setToolTipText(TmmResourceBundle.getString("Button.remove"));
 
         tfCleanupFiletype = new JTextField();
         panelCleanupFiletypes.add(tfCleanupFiletype, "cell 1 1,growx");
 
         btnAddCleanupFiletype = new SquareIconButton(IconManager.ADD_INV);
         panelCleanupFiletypes.add(btnAddCleanupFiletype, "cell 2 1, growx");
-        btnAddCleanupFiletype.setToolTipText(BUNDLE.getString("Button.add"));
+        btnAddCleanupFiletype.setToolTipText(TmmResourceBundle.getString("Button.add"));
 
         panelCleanupFiletypes.add(lblCleanupFiletypesHelpT, "cell 1 2");
 
-        JButton btnHelp = new JButton(BUNDLE.getString("tmm.help"));
+        JButton btnHelp = new JButton(TmmResourceBundle.getString("tmm.help"));
         btnHelp.addActionListener(e -> {
           String url = StringEscapeUtils.unescapeHtml4("https://gitlab.com/tinyMediaManager/tinyMediaManager/wikis/General-Settings#file-types");
           try {

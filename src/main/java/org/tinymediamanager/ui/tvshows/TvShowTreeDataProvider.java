@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -614,14 +615,14 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
         }
         else {
           if (season.getSeason() == -1) {
-            return BUNDLE.getString("tvshow.uncategorized");
+            return TmmResourceBundle.getString("tvshow.uncategorized");
           }
 
           if (season.getSeason() == 0) {
-            return BUNDLE.getString("metatag.specials");
+            return TmmResourceBundle.getString("metatag.specials");
           }
 
-          return BUNDLE.getString("metatag.season") + " " + season.getSeason();
+          return TmmResourceBundle.getString("metatag.season") + " " + season.getSeason();
         }
       }
 

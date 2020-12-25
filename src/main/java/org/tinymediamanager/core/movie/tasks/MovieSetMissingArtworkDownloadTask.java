@@ -18,13 +18,13 @@ package org.tinymediamanager.core.movie.tasks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
@@ -47,13 +47,13 @@ import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
  */
 public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger            LOGGER = LoggerFactory.getLogger(MovieSetMissingArtworkDownloadTask.class);
-  private static final ResourceBundle    BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private List<MovieSet>                 moviesToScrape;
   private MovieSetSearchAndScrapeOptions scrapeOptions;
 
   public MovieSetMissingArtworkDownloadTask(List<MovieSet> moviesToScrape, MovieSetSearchAndScrapeOptions scrapeOptions) {
-    super(BUNDLE.getString("task.missingartwork"));
+    super(TmmResourceBundle.getString("task.missingartwork"));
     this.moviesToScrape = moviesToScrape;
     this.scrapeOptions = scrapeOptions;
   }

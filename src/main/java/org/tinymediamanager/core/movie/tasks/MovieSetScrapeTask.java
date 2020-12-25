@@ -18,7 +18,6 @@ package org.tinymediamanager.core.movie.tasks;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +25,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
@@ -49,7 +49,7 @@ import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
  */
 public class MovieSetScrapeTask extends TmmThreadPool {
   private static final Logger                       LOGGER = LoggerFactory.getLogger(MovieSetScrapeTask.class);
-  private static final ResourceBundle               BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private final List<MovieSet>                      movieSetsToScrape;
   private final MovieSetSearchAndScrapeOptions      scrapeOptions;
@@ -57,7 +57,7 @@ public class MovieSetScrapeTask extends TmmThreadPool {
 
   public MovieSetScrapeTask(List<MovieSet> movieSetsToScrape, MovieSetSearchAndScrapeOptions scrapeOptions,
       List<MovieSetScraperMetadataConfig> movieSetScraperMetadataConfig) {
-    super(BUNDLE.getString("movieset.scraping"));
+    super(TmmResourceBundle.getString("movieset.scraping"));
     this.movieSetsToScrape = movieSetsToScrape;
     this.scrapeOptions = scrapeOptions;
     this.scraperMetadataConfig = movieSetScraperMetadataConfig;

@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.components;
 
 import java.awt.Font;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -25,6 +24,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskState;
 import org.tinymediamanager.ui.IconManager;
@@ -39,7 +39,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TaskListComponent extends JPanel {
   private static final long           serialVersionUID = -6088880093610800005L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private TmmTaskHandle               taskHandle;
 
@@ -105,24 +105,24 @@ public class TaskListComponent extends JPanel {
           dynaLabel.setText(taskHandle.getTaskDescription());
         }
         else {
-          dynaLabel.setText(BUNDLE.getString("task.running"));
+          dynaLabel.setText(TmmResourceBundle.getString("task.running"));
         }
         break;
 
       case QUEUED:
-        dynaLabel.setText(BUNDLE.getString("task.queued"));
+        dynaLabel.setText(TmmResourceBundle.getString("task.queued"));
         break;
 
       case CANCELLED:
-        dynaLabel.setText(BUNDLE.getString("task.cancelled"));
+        dynaLabel.setText(TmmResourceBundle.getString("task.cancelled"));
         break;
 
       case FINISHED:
-        dynaLabel.setText(BUNDLE.getString("task.finished"));
+        dynaLabel.setText(TmmResourceBundle.getString("task.finished"));
         break;
 
       case FAILED:
-        dynaLabel.setText(BUNDLE.getString("task.failed"));
+        dynaLabel.setText(TmmResourceBundle.getString("task.failed"));
         break;
     }
 

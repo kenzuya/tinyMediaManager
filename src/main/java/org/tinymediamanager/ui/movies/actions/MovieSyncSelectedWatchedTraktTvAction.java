@@ -18,10 +18,10 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
@@ -37,11 +37,11 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieSyncSelectedWatchedTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieSyncSelectedWatchedTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("movie.synctrakt.selected.watched"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.synctrakt.selected.watched.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.synctrakt.selected.watched"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.selected.watched.desc"));
     putValue(SMALL_ICON, IconManager.WATCHED_MENU);
     putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
   }
@@ -51,7 +51,7 @@ public class MovieSyncSelectedWatchedTraktTvAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

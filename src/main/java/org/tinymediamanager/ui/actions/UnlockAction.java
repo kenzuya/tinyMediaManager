@@ -17,8 +17,8 @@ package org.tinymediamanager.ui.actions;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.dialogs.UnlockDialog;
 
 /**
@@ -28,10 +28,10 @@ import org.tinymediamanager.ui.dialogs.UnlockDialog;
  */
 public class UnlockAction extends TmmAction {
   private static final long           serialVersionUID = 8930602755330446751L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public UnlockAction() {
-    putValue(NAME, BUNDLE.getString("tmm.license.register"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.license.register"));
   }
 
   @Override

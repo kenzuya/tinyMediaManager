@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -44,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -59,7 +59,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ImagePreviewDialog extends TmmDialog {
   private static final long           serialVersionUID = -7479476493187235867L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ImagePreviewDialog.class);
 
   private String                      imageUrl;
@@ -69,14 +69,14 @@ public class ImagePreviewDialog extends TmmDialog {
   private byte[]                      originalImageBytes;
 
   public ImagePreviewDialog(String urlToImage) {
-    super(BUNDLE.getString("image.show"), "imagePreview");
+    super(TmmResourceBundle.getString("image.show"), "imagePreview");
     init();
 
     this.imageUrl = urlToImage;
   }
 
   public ImagePreviewDialog(Path pathToImage) {
-    super(BUNDLE.getString("image.show"), "imagePreview");
+    super(TmmResourceBundle.getString("image.show"), "imagePreview");
     init();
 
     this.imagePath = pathToImage.toString();
@@ -114,7 +114,7 @@ public class ImagePreviewDialog extends TmmDialog {
       imagePanel.add(image, "cell 0 0, grow, center");
     }
     {
-      JButton closeButton = new JButton(BUNDLE.getString("Button.close"));
+      JButton closeButton = new JButton(TmmResourceBundle.getString("Button.close"));
       closeButton.addActionListener(e -> setVisible(false));
       addDefaultButton(closeButton);
     }
@@ -154,7 +154,7 @@ public class ImagePreviewDialog extends TmmDialog {
             image.setIcon(imageIcon);
 
             if (width > 0 && height > 0) {
-              setTitle(BUNDLE.getString("image.show") + " - " + width + "x" + height);
+              setTitle(TmmResourceBundle.getString("image.show") + " - " + width + "x" + height);
             }
           }
 
@@ -178,7 +178,7 @@ public class ImagePreviewDialog extends TmmDialog {
     private SaveToDiskAction() {
       putValue(LARGE_ICON_KEY, IconManager.EXPORT);
       putValue(SMALL_ICON, IconManager.EXPORT);
-      putValue(NAME, BUNDLE.getString("image.savetodisk"));
+      putValue(NAME, TmmResourceBundle.getString("image.savetodisk"));
     }
 
     @Override
@@ -193,7 +193,7 @@ public class ImagePreviewDialog extends TmmDialog {
         else if (StringUtils.isNotBlank(imageUrl)) {
           filename = FilenameUtils.getBaseName(imageUrl);
         }
-        file = TmmUIHelper.saveFile(BUNDLE.getString("image.savetodisk"), "", filename, new FileNameExtensionFilter("Image files", ".jpg", ".png"));
+        file = TmmUIHelper.saveFile(TmmResourceBundle.getString("image.savetodisk"), "", filename, new FileNameExtensionFilter("Image files", ".jpg", ".png"));
         if (file != null) {
           try (FileOutputStream os = new FileOutputStream(file.toFile())) {
             IOUtils.write(originalImageBytes, os);

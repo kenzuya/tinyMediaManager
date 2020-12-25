@@ -23,7 +23,6 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -32,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -50,11 +50,11 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowRenameAction extends TmmAction {
   private static final long           serialVersionUID = -8988748633666277616L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowRenameAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.rename"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.rename"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.rename"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.rename"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
@@ -78,18 +78,18 @@ public class TvShowRenameAction extends TmmAction {
     }
 
     if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // display warning and ask the user again
     if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hiderenamehint")) {
-      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+      JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-      Object[] params = { BUNDLE.getString("tvshow.rename.desc"), checkBox };
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("tvshow.rename"), JOptionPane.YES_NO_OPTION,
+      Object[] params = { TmmResourceBundle.getString("tvshow.rename.desc"), checkBox };
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("tvshow.rename"), JOptionPane.YES_NO_OPTION,
           JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

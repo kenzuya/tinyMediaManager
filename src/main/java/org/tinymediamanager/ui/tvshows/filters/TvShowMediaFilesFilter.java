@@ -15,18 +15,18 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-
-import javax.swing.JLabel;
-
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import javax.swing.JLabel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  * This class implements a media type filter for the TV show tree
@@ -120,7 +120,7 @@ public class TvShowMediaFilesFilter extends AbstractCheckComboBoxTvShowUIFilter<
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.mediatype"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.mediatype"));
   }
 
   @Override
@@ -153,7 +153,7 @@ public class TvShowMediaFilesFilter extends AbstractCheckComboBoxTvShowUIFilter<
     @Override
     public String toString() {
       try {
-        return BUNDLE.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT));
+        return TmmResourceBundle.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT));
       }
       catch (Exception e) {
         return type.toString();

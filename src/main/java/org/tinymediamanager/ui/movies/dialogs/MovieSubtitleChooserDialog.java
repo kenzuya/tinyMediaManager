@@ -48,6 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -109,7 +110,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
   private JButton                                    btnSearch;
 
   public MovieSubtitleChooserDialog(Movie movie, MediaFile mediaFile, boolean inQueue) {
-    super(BUNDLE.getString("moviesubtitlechooser.search"), "movieSubtitleChooser");
+    super(TmmResourceBundle.getString("moviesubtitlechooser.search"), "movieSubtitleChooser");
 
     this.movieToScrape = movie;
     this.fileToScrape = mediaFile;
@@ -169,25 +170,25 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
       getContentPane().add(panelContent, BorderLayout.CENTER);
       panelContent.setLayout(new MigLayout("", "[][250lp][][150lp,grow][]", "[][][][][shrink 0][200lp,grow]"));
 
-      final JLabel lblMediaFileNameT = new TmmLabel(BUNDLE.getString("metatag.filename"));
+      final JLabel lblMediaFileNameT = new TmmLabel(TmmResourceBundle.getString("metatag.filename"));
       panelContent.add(lblMediaFileNameT, "cell 0 0,alignx right");
 
       final JLabel lblMediaFileName = new JLabel(fileToScrape.getFile().toString());
       panelContent.add(lblMediaFileName, "cell 1 0 4 1,growx, wmin 0");
 
-      final JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+      final JLabel lblRuntimeT = new TmmLabel(TmmResourceBundle.getString("metatag.runtime"));
       panelContent.add(lblRuntimeT, "cell 0 1,alignx right");
 
       final JLabel lblRuntime = new JLabel(fileToScrape.getDurationHHMMSS());
       panelContent.add(lblRuntime, "cell 1 1");
 
-      final JLabel lblImdbIdT = new TmmLabel(BUNDLE.getString("metatag.imdb"));
+      final JLabel lblImdbIdT = new TmmLabel(TmmResourceBundle.getString("metatag.imdb"));
       panelContent.add(lblImdbIdT, "cell 2 1");
 
       final JLabel lblImdbId = new JLabel(movieToScrape.getImdbId());
       panelContent.add(lblImdbId, "cell 3 1");
 
-      final JLabel lblScraperT = new TmmLabel(BUNDLE.getString("scraper"));
+      final JLabel lblScraperT = new TmmLabel(TmmResourceBundle.getString("scraper"));
       panelContent.add(lblScraperT, "cell 0 2,alignx right");
 
       cbScraper = new MediaScraperCheckComboBox(movieList.getAvailableSubtitleScrapers());
@@ -197,10 +198,10 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
       panelContent.add(tfSearchQuery, "cell 2 2 3 1,growx,aligny center");
       tfSearchQuery.setColumns(10);
 
-      btnSearch = new JButton(BUNDLE.getString("Button.search"));
+      btnSearch = new JButton(TmmResourceBundle.getString("Button.search"));
       panelContent.add(btnSearch, "cell 2 2,alignx left,aligny top");
 
-      final JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("metatag.language"));
+      final JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
       panelContent.add(lblLanguageT, "cell 0 3,alignx right");
 
       cbLanguage = new JComboBox<>();
@@ -230,7 +231,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     }
     {
       if (inQueue) {
-        JButton btnAbortQueue = new JButton(BUNDLE.getString("Button.abortqueue"));
+        JButton btnAbortQueue = new JButton(TmmResourceBundle.getString("Button.abortqueue"));
         btnAbortQueue.setIcon(IconManager.STOP_INV);
         btnAbortQueue.addActionListener(e -> {
           continueQueue = false;
@@ -239,7 +240,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
         addButton(btnAbortQueue);
       }
 
-      JButton btnDone = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnDone = new JButton(TmmResourceBundle.getString("Button.close"));
       btnDone.setIcon(IconManager.APPLY_INV);
       btnDone.addActionListener(e -> setVisible(false));
       addDefaultButton(btnDone);
@@ -308,7 +309,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + searchTerm);
+      startProgressBar(TmmResourceBundle.getString("chooser.searchingfor") + " " + searchTerm);
       for (MediaScraper scraper : scrapers) {
         try {
           IMovieSubtitleProvider subtitleProvider = (IMovieSubtitleProvider) scraper.getMediaProvider();
@@ -379,14 +380,14 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
       /*
        * title
        */
-      col = new Column(BUNDLE.getString("metatag.title"), "title", MovieSubtitleChooserModel::getName, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MovieSubtitleChooserModel::getName, String.class);
       col.setColumnTooltip(MovieSubtitleChooserModel::getName);
       addColumn(col);
 
       /*
        * release name
        */
-      col = new Column(BUNDLE.getString("metatag.releasename"), "releasename", MovieSubtitleChooserModel::getReleaseName, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.releasename"), "releasename", MovieSubtitleChooserModel::getReleaseName, String.class);
       col.setColumnTooltip(MovieSubtitleChooserModel::getReleaseName);
       addColumn(col);
     }
@@ -396,7 +397,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
     private final JLabel downloadLabel;
 
     Renderer() {
-      downloadLabel = new JLabel(BUNDLE.getString("Button.download"), IconManager.DOWNLOAD, SwingConstants.CENTER);
+      downloadLabel = new JLabel(TmmResourceBundle.getString("Button.download"), IconManager.DOWNLOAD, SwingConstants.CENTER);
     }
 
     @Override
@@ -431,11 +432,11 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
           try {
             task.run();
             lblProgressAction.setVisible(true);
-            lblProgressAction.setText(BUNDLE.getString("subtitle.downloaded") + " - " + model.getReleaseName());
+            lblProgressAction.setText(TmmResourceBundle.getString("subtitle.downloaded") + " - " + model.getReleaseName());
           }
           catch (Exception ex) {
             lblProgressAction.setVisible(true);
-            lblProgressAction.setText(BUNDLE.getString("message.scrape.subtitlefaileddownload") + " - " + ex.getLocalizedMessage());
+            lblProgressAction.setText(TmmResourceBundle.getString("message.scrape.subtitlefaileddownload") + " - " + ex.getLocalizedMessage());
           }
         }
       }

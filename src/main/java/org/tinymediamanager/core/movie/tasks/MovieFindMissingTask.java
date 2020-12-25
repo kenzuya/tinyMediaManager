@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -40,6 +39,7 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
@@ -55,19 +55,19 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
 
 public class MovieFindMissingTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieFindMissingTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private List<String>                dataSources;
   private MovieList                   movieList;
 
   public MovieFindMissingTask() {
-    super(BUNDLE.getString("movie.findmissing"));
+    super(TmmResourceBundle.getString("movie.findmissing"));
     movieList = MovieList.getInstance();
     dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
   }
 
   public MovieFindMissingTask(String datasource) {
-    super(BUNDLE.getString("movie.findmissing") + " (" + datasource + ")");
+    super(TmmResourceBundle.getString("movie.findmissing") + " (" + datasource + ")");
     movieList = MovieList.getInstance();
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);

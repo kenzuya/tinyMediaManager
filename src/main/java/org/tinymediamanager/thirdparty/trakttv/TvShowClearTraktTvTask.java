@@ -15,8 +15,7 @@
  */
 package org.tinymediamanager.thirdparty.trakttv;
 
-import java.util.ResourceBundle;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 
 /**
@@ -25,17 +24,17 @@ import org.tinymediamanager.core.threading.TmmTask;
  * @author Manuel Laggner
  */
 public class TvShowClearTraktTvTask extends TmmTask {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   public TvShowClearTraktTvTask() {
-    super(BUNDLE.getString("trakt.clear"), 0, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("trakt.clear"), 0, TaskType.BACKGROUND_TASK);
   }
 
   @Override
   protected void doInBackground() {
     TraktTv traktTV = TraktTv.getInstance();
 
-    publishState(BUNDLE.getString("trakt.clear.tvshows"), 0);
+    publishState(TmmResourceBundle.getString("trakt.clear.tvshows"), 0);
     traktTV.clearTraktTvShows();
   }
 }

@@ -18,8 +18,8 @@ package org.tinymediamanager.core.tasks;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 
 /**
@@ -28,12 +28,12 @@ import org.tinymediamanager.core.entities.MediaTrailer;
  * @author Manuel Laggner
  */
 public abstract class TrailerDownloadTask extends DownloadTask {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private final MediaTrailer          mediaTrailer;
 
   protected TrailerDownloadTask(MediaTrailer trailer) {
-    super(BUNDLE.getString("trailer.download") + " - " + trailer.getName(), trailer.getUrl());
+    super(TmmResourceBundle.getString("trailer.download") + " - " + trailer.getName(), trailer.getUrl());
     this.mediaTrailer = trailer;
 
     setTaskDescription(trailer.getName());

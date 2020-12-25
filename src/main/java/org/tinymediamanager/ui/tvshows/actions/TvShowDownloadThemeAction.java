@@ -17,10 +17,10 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.tasks.TvShowThemeDownloadTask;
@@ -36,10 +36,10 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowDownloadThemeAction extends TmmAction {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   public TvShowDownloadThemeAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.downloadtheme"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.downloadtheme"));
     putValue(SMALL_ICON, IconManager.MUSIC);
     putValue(LARGE_ICON_KEY, IconManager.MUSIC);
   }
@@ -49,7 +49,7 @@ public class TvShowDownloadThemeAction extends TmmAction {
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

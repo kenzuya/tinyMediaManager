@@ -17,8 +17,8 @@ package org.tinymediamanager.thirdparty.trakttv;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 
@@ -28,14 +28,14 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  * @author Manuel Laggner
  */
 public class TvShowSyncTraktTvTask extends TmmTask {
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
+  
 
   private boolean                     syncCollection = false;
   private boolean                     syncWatched    = false;
   private final List<TvShow>          tvShows        = new ArrayList<>();
 
   public TvShowSyncTraktTvTask(List<TvShow> tvShows) {
-    super(BUNDLE.getString("trakt.sync"), 0, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("trakt.sync"), 0, TaskType.BACKGROUND_TASK);
     this.tvShows.addAll(tvShows);
   }
 
@@ -52,12 +52,12 @@ public class TvShowSyncTraktTvTask extends TmmTask {
     TraktTv traktTV = TraktTv.getInstance();
 
     if (syncCollection) {
-      publishState(BUNDLE.getString("trakt.sync.tvshow"), 0);
+      publishState(TmmResourceBundle.getString("trakt.sync.tvshow"), 0);
       traktTV.syncTraktTvShowCollection(tvShows);
     }
 
     if (syncWatched) {
-      publishState(BUNDLE.getString("trakt.sync.tvshowwatched"), 0);
+      publishState(TmmResourceBundle.getString("trakt.sync.tvshowwatched"), 0);
       traktTV.syncTraktTvShowWatched(tvShows);
     }
   }

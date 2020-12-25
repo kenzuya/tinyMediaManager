@@ -33,6 +33,7 @@ import javax.swing.event.HyperlinkEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
@@ -51,7 +52,7 @@ public class UpdateDialog extends TmmDialog {
   private static final Logger LOGGER           = LoggerFactory.getLogger(UpdateDialog.class);
 
   public UpdateDialog(String changelog) {
-    super(BUNDLE.getString("tmm.update.title"), "update");
+    super(TmmResourceBundle.getString("tmm.update.title"), "update");
 
     {
       JPanel panelContent = new JPanel();
@@ -59,10 +60,10 @@ public class UpdateDialog extends TmmDialog {
       panelContent.setLayout(new MigLayout("", "[600lp,grow]", "[][10lp:n][][400lp,grow]"));
 
       JTextPane lblUpdateInfo = new ReadOnlyTextPane();
-      lblUpdateInfo.setText(BUNDLE.getString("tmm.update.message"));
+      lblUpdateInfo.setText(TmmResourceBundle.getString("tmm.update.message"));
       panelContent.add(lblUpdateInfo, "cell 0 0,growx");
 
-      JLabel lblChangelog = new JLabel(BUNDLE.getString("whatsnew.title"));
+      JLabel lblChangelog = new JLabel(TmmResourceBundle.getString("whatsnew.title"));
       panelContent.add(lblChangelog, "cell 0 2,growx");
 
       JScrollPane scrollPane = new NoBorderScrollPane();
@@ -87,11 +88,11 @@ public class UpdateDialog extends TmmDialog {
       });
     }
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
 
-      JButton btnUpdate = new JButton(BUNDLE.getString("Button.update"));
+      JButton btnUpdate = new JButton(TmmResourceBundle.getString("Button.update"));
       btnUpdate.addActionListener(arg0 -> {
         setVisible(false);
         LOGGER.info("Updating...");

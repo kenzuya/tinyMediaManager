@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.FlatButton;
 
@@ -83,11 +84,11 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
 
     checkComboBoxItems.add(nullItem);
 
-    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectall"));
     checkComboBoxItem.setSelected(false);
     checkComboBoxItems.add(checkComboBoxItem);
 
-    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectnone"));
     checkComboBoxItem.setSelected(true);
     checkComboBoxItems.add(checkComboBoxItem);
 
@@ -123,7 +124,7 @@ public class ScraperMetadataConfigCheckComboBox<E extends ScraperMetadataConfig>
       }
 
       list.setToolTipText(null);
-      return defaultRenderer.getListCellRendererComponent(list, BUNDLE.getString("ComboBox.select"), index, isSelected, cellHasFocus);
+      return defaultRenderer.getListCellRendererComponent(list, TmmResourceBundle.getString("ComboBox.select"), index, isSelected, cellHasFocus);
     }
   }
 

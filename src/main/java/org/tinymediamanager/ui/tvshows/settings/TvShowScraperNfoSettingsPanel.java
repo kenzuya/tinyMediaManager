@@ -20,7 +20,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import java.awt.event.ItemListener;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -32,9 +31,10 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
-import org.tinymediamanager.DateField;
 import org.tinymediamanager.core.CertificationStyle;
+import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
@@ -55,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private final TvShowSettings                 settings         = TvShowModuleManager.SETTINGS;
   private JComboBox<TvShowConnectors>          cbNfoFormat;
@@ -101,63 +101,63 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
       JPanel panelNfo = new JPanel();
       panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][][][][][]")); // 16lp ~ width of the
 
-      JLabel lblNfoT = new TmmLabel(BUNDLE.getString("Settings.nfo"), H3);
+      JLabel lblNfoT = new TmmLabel(TmmResourceBundle.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#nfo-settings"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
-        JLabel lblNfoFormatT = new JLabel(BUNDLE.getString("Settings.nfoFormat"));
+        JLabel lblNfoFormatT = new JLabel(TmmResourceBundle.getString("Settings.nfoFormat"));
         panelNfo.add(lblNfoFormatT, "cell 1 0 2 1");
 
         cbNfoFormat = new JComboBox(TvShowConnectors.values());
         panelNfo.add(cbNfoFormat, "cell 1 0 2 1");
 
         {
-          JLabel lblNfoFileNaming = new JLabel(BUNDLE.getString("Settings.nofFileNaming"));
+          JLabel lblNfoFileNaming = new JLabel(TmmResourceBundle.getString("Settings.nofFileNaming"));
           panelNfo.add(lblNfoFileNaming, "cell 1 1 2 1");
 
           JPanel panel = new JPanel();
           panelNfo.add(panel, "cell 2 2");
           panel.setLayout(new MigLayout("insets 0", "[][]", ""));
 
-          JLabel lblTvShow = new JLabel(BUNDLE.getString("metatag.tvshow"));
+          JLabel lblTvShow = new JLabel(TmmResourceBundle.getString("metatag.tvshow"));
           panel.add(lblTvShow, "cell 0 0");
 
           chckbxTvShowNfo1 = new JCheckBox("tvshow.nfo");
           panel.add(chckbxTvShowNfo1, "cell 1 0");
 
-          JLabel lblEpisode = new JLabel(BUNDLE.getString("metatag.episode"));
+          JLabel lblEpisode = new JLabel(TmmResourceBundle.getString("metatag.episode"));
           panel.add(lblEpisode, "cell 0 1");
 
-          chckbxEpisodeNfo1 = new JCheckBox(BUNDLE.getString("Settings.tvshow.episodename") + ".nfo");
+          chckbxEpisodeNfo1 = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.episodename") + ".nfo");
           panel.add(chckbxEpisodeNfo1, "cell 1 1");
         }
 
-        JLabel lblNfoDatefield = new JLabel(BUNDLE.getString("Settings.dateadded"));
+        JLabel lblNfoDatefield = new JLabel(TmmResourceBundle.getString("Settings.dateadded"));
         panelNfo.add(lblNfoDatefield, "cell 1 4 2 1");
 
         cbDatefield = new JComboBox(DateField.values());
         panelNfo.add(cbDatefield, "cell 1 4 2 1");
 
-        JLabel lblNfoLanguage = new JLabel(BUNDLE.getString("Settings.nfolanguage"));
+        JLabel lblNfoLanguage = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage"));
         panelNfo.add(lblNfoLanguage, "cell 1 5 2 1");
 
         cbNfoLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelNfo.add(cbNfoLanguage, "cell 1 5 2 1");
 
-        JLabel lblNfoLanguageDesc = new JLabel(BUNDLE.getString("Settings.nfolanguage.desc"));
+        JLabel lblNfoLanguageDesc = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage.desc"));
         panelNfo.add(lblNfoLanguageDesc, "cell 2 6");
 
-        JLabel lblCertificationFormatT = new JLabel(BUNDLE.getString("Settings.certificationformat"));
+        JLabel lblCertificationFormatT = new JLabel(TmmResourceBundle.getString("Settings.certificationformat"));
         panelNfo.add(lblCertificationFormatT, "cell 1 7 2 1");
 
         cbCertificationStyle = new JComboBox();
         panelNfo.add(cbCertificationStyle, "cell 1 7 2 1, wmin 0");
 
-        chckbxWriteEpisodeguide = new JCheckBox(BUNDLE.getString("Settings.writeepisodeguide"));
+        chckbxWriteEpisodeguide = new JCheckBox(TmmResourceBundle.getString("Settings.writeepisodeguide"));
         panelNfo.add(chckbxWriteEpisodeguide, "cell 1 8 2 1");
 
-        chckbxWriteCleanNfo = new JCheckBox(BUNDLE.getString("Settings.writecleannfo"));
+        chckbxWriteCleanNfo = new JCheckBox(TmmResourceBundle.getString("Settings.writecleannfo"));
         panelNfo.add(chckbxWriteCleanNfo, "cell 1 9 2 1");
       }
     }
@@ -235,7 +235,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
 
     @Override
     public String toString() {
-      String bundleTag = BUNDLE.getString("Settings.certification." + style.name().toLowerCase(Locale.ROOT));
+      String bundleTag = TmmResourceBundle.getString("Settings.certification." + style.name().toLowerCase(Locale.ROOT));
       return bundleTag.replace("{}", CertificationStyle.formatCertification(MediaCertification.DE_FSK16, style));
     }
   }

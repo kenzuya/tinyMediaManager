@@ -20,7 +20,6 @@ import java.awt.event.ActionEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
@@ -31,6 +30,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 
@@ -41,19 +41,19 @@ import org.tinymediamanager.ui.TmmUIHelper;
  */
 public class ClearDatabaseAction extends TmmAction {
   private static final long           serialVersionUID = 5840749350843921771L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearDatabaseAction.class);
 
   public ClearDatabaseAction() {
-    putValue(NAME, BUNDLE.getString("tmm.cleardatabase"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.cleardatabase"));
   }
 
   @Override
   protected void processAction(ActionEvent arg0) {
     // display warning popup
-    Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.cleardatabase.hint"),
-        BUNDLE.getString("tmm.cleardatabase"), JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, null);
+    Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.cleardatabase.hint"),
+        TmmResourceBundle.getString("tmm.cleardatabase"), JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION, null, options, null);
     if (answer != JOptionPane.YES_OPTION) {
       return;
     }
@@ -64,10 +64,10 @@ public class ClearDatabaseAction extends TmmAction {
       TmmModuleManager.getInstance().shutDown();
       TmmModuleManager.getInstance().initializeDatabase();
       MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.cleardatabase.info"));
+      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.cleardatabase.info"));
     }
     catch (Exception e) {
-      JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.cleardatabase.error"));
+      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.cleardatabase.error"));
       // open the tmm folder
       Path path = Paths.get("");
       try {

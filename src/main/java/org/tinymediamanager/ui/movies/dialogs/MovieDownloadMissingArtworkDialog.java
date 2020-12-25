@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -52,7 +53,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
   private ScraperMetadataConfigCheckComboBox<MovieScraperMetadataConfig> cbScraperConfig;
 
   public MovieDownloadMissingArtworkDialog() {
-    super(BUNDLE.getString("movie.downloadmissingartwork"), "downloadMissingArtwork");
+    super(TmmResourceBundle.getString("movie.downloadmissingartwork"), "downloadMissingArtwork");
 
     // artwork scraper
     List<MediaScraper> selectedArtworkScrapers = new ArrayList<>();
@@ -67,7 +68,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
       getContentPane().add(panelCenter, BorderLayout.CENTER);
       panelCenter.setLayout(new MigLayout("", "[][300lp:400lp,grow]", "[][][][][shrink 0][150lp:n, grow]"));
 
-      JLabel lblArtworkScraper = new TmmLabel(BUNDLE.getString("scraper.artwork"));
+      JLabel lblArtworkScraper = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
       panelCenter.add(lblArtworkScraper, "cell 0 2,alignx right");
 
       cbArtworkScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableArtworkScrapers());
@@ -80,7 +81,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
       panelCenter.add(panelScraperConfig, "cell 0 5 2 1,grow");
       panelScraperConfig.setLayout(new MigLayout("", "[300lp:400lp,grow]", "[][]"));
       {
-        JLabel lblScrapeFollowingItems = new TmmLabel(BUNDLE.getString("scraper.metadata.select"));
+        JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.select"));
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0");
 
         cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.getArtworkTypes());
@@ -90,7 +91,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
       }
     }
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(e -> {
         startScrape = false;
@@ -98,7 +99,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
       });
       addButton(btnCancel);
 
-      JButton btnStart = new JButton(BUNDLE.getString("scraper.start"));
+      JButton btnStart = new JButton(TmmResourceBundle.getString("scraper.start"));
       btnStart.setIcon(IconManager.APPLY_INV);
       btnStart.addActionListener(e -> {
         startScrape = true;

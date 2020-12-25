@@ -6,6 +6,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -15,7 +16,7 @@ public class MovieDifferentRuntimeFilter extends AbstractMovieUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.runtimedifference"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.runtimedifference"));
   }
 
   @Override

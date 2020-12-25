@@ -15,22 +15,7 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import java.awt.FlowLayout;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.text.html.HTMLEditorKit;
-
+import net.miginfocom.swing.MigLayout;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -38,6 +23,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -51,7 +37,19 @@ import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
 import org.tinymediamanager.ui.panels.ScrollablePanel;
 import org.tinymediamanager.ui.tvshows.TvShowScraper;
 
-import net.miginfocom.swing.MigLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.text.html.HTMLEditorKit;
+import java.awt.FlowLayout;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The class TvShowScraperPanel is used to maintain the TV show scraper in the wizard
@@ -64,7 +62,7 @@ class TvShowScraperPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
   private final List<TvShowScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());
@@ -143,7 +141,7 @@ class TvShowScraperPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][400lp,grow]"));
 
-    JLabel lblTvShowScraper = new JLabel(BUNDLE.getString("wizard.tvshow.scraper"));
+    JLabel lblTvShowScraper = new JLabel(TmmResourceBundle.getString("wizard.tvshow.scraper"));
     add(lblTvShowScraper, "cell 0 0");
     JPanel panelTvShowScrapers = new JPanel();
 
@@ -176,14 +174,14 @@ class TvShowScraperPanel extends JPanel {
       panelScraperDetails.add(panelScraperOptions, "cell 0 1,growx,aligny top");
     }
 
-    JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage"));
+    JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
     panelTvShowScrapers.add(lblScraperLanguage, "cell 0 1");
 
     cbScraperLanguage = new JComboBox<>();
     cbScraperLanguage.setModel(new DefaultComboBoxModel<>(MediaLanguages.valuesSorted()));
     panelTvShowScrapers.add(cbScraperLanguage, "cell 1 1");
 
-    JLabel lblCountry = new JLabel(BUNDLE.getString("Settings.certificationCountry"));
+    JLabel lblCountry = new JLabel(TmmResourceBundle.getString("Settings.certificationCountry"));
     panelTvShowScrapers.add(lblCountry, "cell 0 2");
 
     cbCertificationCountry = new JComboBox<>();
@@ -212,13 +210,13 @@ class TvShowScraperPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<TvShowScraper, Boolean> tvShowScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.default")).setColumnClass(Boolean.class);
     //
     BeanProperty<TvShowScraper, Icon> tvShowScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
     jTableBinding.addColumnBinding(tvShowScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);
     //
     BeanProperty<TvShowScraper, String> tvShowScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false);
     //
     jTableBinding.bind();
     //

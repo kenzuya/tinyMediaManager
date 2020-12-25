@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +57,7 @@ import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
@@ -86,7 +86,7 @@ import com.sun.jna.Platform;
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   // constants
   private static final String         VIDEO_TS         = "VIDEO_TS";
@@ -116,20 +116,20 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private final List<Runnable>        miTasks          = Collections.synchronizedList(new ArrayList<>());
 
   public MovieUpdateDatasourceTask() {
-    super(BUNDLE.getString("update.datasource"));
+    super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
     skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
   }
 
   public MovieUpdateDatasourceTask(String datasource) {
-    super(BUNDLE.getString("update.datasource") + " (" + datasource + ")");
+    super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
     skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
   }
 
   public MovieUpdateDatasourceTask(List<Movie> movies) {
-    super(BUNDLE.getString("update.datasource"));
+    super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(0);
     movieFolders.addAll(movies);
     skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
@@ -173,7 +173,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           LOGGER.info("Start UDS on datasource: {}", ds);
           miTasks.clear();
           initThreadPool(3, "update");
-          setTaskName(BUNDLE.getString("update.datasource") + " '" + ds + "'");
+          setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
           publishState();
 
           Path dsAsPath = Paths.get(ds);
@@ -275,7 +275,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       else {
         LOGGER.info("Start UDS for selected movies");
         initThreadPool(3, "update");
-        setTaskName(BUNDLE.getString("update.datasource"));
+        setTaskName(TmmResourceBundle.getString("update.datasource"));
         publishState();
 
         // update per movie folder
@@ -1022,7 +1022,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * cleanup database - remove orphaned movies/files
    */
   private void cleanup(String datasource) {
-    setTaskName(BUNDLE.getString("update.cleanup"));
+    setTaskName(TmmResourceBundle.getString("update.cleanup"));
     setTaskDescription(null);
     setProgressDone(0);
     setWorkUnits(0);
@@ -1087,7 +1087,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private void cleanup(List<Movie> movies) {
-    setTaskName(BUNDLE.getString("update.cleanup"));
+    setTaskName(TmmResourceBundle.getString("update.cleanup"));
     setTaskDescription(null);
     setProgressDone(0);
     setWorkUnits(0);
@@ -1152,7 +1152,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private void gatherMediainfo(String datasource) {
     // start MI
-    setTaskName(BUNDLE.getString("update.mediainfo"));
+    setTaskName(TmmResourceBundle.getString("update.mediainfo"));
     publishState();
 
     initThreadPool(1, "mediainfo");
@@ -1198,7 +1198,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private void gatherMediainfo(List<Movie> movies) {
     // start MI
-    setTaskName(BUNDLE.getString("update.mediainfo"));
+    setTaskName(TmmResourceBundle.getString("update.mediainfo"));
     publishState();
 
     initThreadPool(1, "mediainfo");

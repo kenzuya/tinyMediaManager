@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tasks.DownloadTask;
@@ -107,7 +108,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
   private JButton                                     btnSearch;
 
   public TvShowSubtitleChooserDialog(TvShowEpisode episode, MediaFile mediaFile, boolean inQueue) {
-    super(BUNDLE.getString("tvshowepisodesubtitlechooser.search"), "episodeSubtitleChooser");
+    super(TmmResourceBundle.getString("tvshowepisodesubtitlechooser.search"), "episodeSubtitleChooser");
 
     this.episodeToScrape = episode;
     this.fileToScrape = mediaFile;
@@ -170,35 +171,35 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       getContentPane().add(panelContent, BorderLayout.CENTER);
       panelContent.setLayout(new MigLayout("", "[][][300lp,grow]", "[][][][][][shrink 0][200lp,grow]"));
 
-      JLabel lblSeasonT = new TmmLabel(BUNDLE.getString("metatag.season"));
+      JLabel lblSeasonT = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
       panelContent.add(lblSeasonT, "cell 0 0,alignx right");
 
       JLabel lblSeason = new JLabel(String.valueOf(episodeToScrape.getSeason()));
       panelContent.add(lblSeason, "cell 1 0");
 
-      JLabel lblEpisodeT = new TmmLabel(BUNDLE.getString("metatag.episode"));
+      JLabel lblEpisodeT = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
       panelContent.add(lblEpisodeT, "cell 0 1,alignx right");
 
       JLabel lblEpisode = new JLabel(String.valueOf(episodeToScrape.getEpisode()));
       panelContent.add(lblEpisode, "cell 1 1");
 
-      final JLabel lblMediaFileNameT = new TmmLabel(BUNDLE.getString("metatag.filename"));
+      final JLabel lblMediaFileNameT = new TmmLabel(TmmResourceBundle.getString("metatag.filename"));
       panelContent.add(lblMediaFileNameT, "cell 0 2,alignx right");
 
       final JLabel lblMediaFileName = new JLabel(fileToScrape.getFilename());
       panelContent.add(lblMediaFileName, "cell 1 2 2 1,growx, wmin 0 ");
 
-      final JLabel lblScraperT = new TmmLabel(BUNDLE.getString("scraper"));
+      final JLabel lblScraperT = new TmmLabel(TmmResourceBundle.getString("scraper"));
       panelContent.add(lblScraperT, "cell 0 3,alignx right");
 
       cbScraper = new MediaScraperCheckComboBox(tvShowList.getAvailableSubtitleScrapers());
       panelContent.add(cbScraper, "cell 1 3,growx");
 
       // $NON-NLS-1$
-      btnSearch = new JButton(BUNDLE.getString("Button.search"));
+      btnSearch = new JButton(TmmResourceBundle.getString("Button.search"));
       panelContent.add(btnSearch, "cell 2 3,alignx left");
 
-      final JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("metatag.language"));
+      final JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
       panelContent.add(lblLanguageT, "cell 0 4,alignx right");
 
       cbLanguage = new JComboBox<>();
@@ -230,7 +231,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
 
       {
         if (inQueue) {
-          JButton btnAbortQueue = new JButton(BUNDLE.getString("Button.abortqueue"));
+          JButton btnAbortQueue = new JButton(TmmResourceBundle.getString("Button.abortqueue"));
           btnAbortQueue.setIcon(IconManager.STOP_INV);
           btnAbortQueue.addActionListener(e -> {
             continueQueue = false;
@@ -239,7 +240,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
           addButton(btnAbortQueue);
         }
 
-        JButton btnDone = new JButton(BUNDLE.getString("Button.done"));
+        JButton btnDone = new JButton(TmmResourceBundle.getString("Button.done"));
         btnDone.setIcon(IconManager.APPLY_INV);
         btnDone.addActionListener(e -> setVisible(false));
         addDefaultButton(btnDone);
@@ -310,7 +311,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + episodeToScrape.getTitle());
+      startProgressBar(TmmResourceBundle.getString("chooser.searchingfor") + " " + episodeToScrape.getTitle());
       for (MediaScraper scraper : scrapers) {
         try {
           ITvShowSubtitleProvider subtitleProvider = (ITvShowSubtitleProvider) scraper.getMediaProvider();
@@ -376,13 +377,13 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
       /*
        * title
        */
-      col = new Column(BUNDLE.getString("metatag.title"), "title", TvShowSubtitleChooserModel::getName, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", TvShowSubtitleChooserModel::getName, String.class);
       addColumn(col);
 
       /*
        * release name
        */
-      col = new Column(BUNDLE.getString("metatag.releasename"), "releasename", TvShowSubtitleChooserModel::getReleaseName, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.releasename"), "releasename", TvShowSubtitleChooserModel::getReleaseName, String.class);
       addColumn(col);
     }
   }

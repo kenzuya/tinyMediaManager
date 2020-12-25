@@ -16,8 +16,6 @@
 
 package org.tinymediamanager.core;
 
-import java.util.ResourceBundle;
-
 /**
  * this enum is used to set different aired states
  *
@@ -28,7 +26,7 @@ public enum MediaAiredStatus {
   CONTINUING("Continuing", new String[] { "Continuing", "returning series" }),
   ENDED("Ended", new String[] { "Ended" });
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
   private String                      name;
   private String[]                    possibleNotations;
 
@@ -77,7 +75,7 @@ public enum MediaAiredStatus {
   @Override
   public String toString() {
     try {
-      return BUNDLE.getString("MediaAiredStatus." + name());
+      return TmmResourceBundle.getString("MediaAiredStatus." + name());
     }
     catch (Exception ignored) {
       // fallback

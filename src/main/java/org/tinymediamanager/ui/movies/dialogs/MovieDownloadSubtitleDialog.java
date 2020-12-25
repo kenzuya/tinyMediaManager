@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -59,25 +60,25 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       getContentPane().add(panelScraper, BorderLayout.CENTER);
       panelScraper.setLayout(new MigLayout("", "[][300lp]", "[][][20lp:n][]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper"));
+      JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
       panelScraper.add(lblScraper, "cell 0 0,alignx right");
 
       cbSubtitleScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableSubtitleScrapers());
       panelScraper.add(cbSubtitleScraper, "cell 1 0,growx");
 
-      JLabel lblLanguage = new TmmLabel(BUNDLE.getString("metatag.language"));
+      JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
       panelScraper.add(lblLanguage, "cell 0 1,alignx right");
 
       cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
       panelScraper.add(cbLanguage, "cell 1 1,growx");
 
-      JTextArea taHint = new ReadOnlyTextArea(BUNDLE.getString("movie.download.subtitles.hint"));
+      JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("movie.download.subtitles.hint"));
       taHint.setOpaque(false);
       panelScraper.add(taHint, "cell 0 3 2 1,grow");
     }
 
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(e -> {
         startDownload = false;
@@ -86,7 +87,7 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
 
       addButton(btnCancel);
 
-      JButton btnStart = new JButton(BUNDLE.getString("scraper.start"));
+      JButton btnStart = new JButton(TmmResourceBundle.getString("scraper.start"));
       btnStart.setIcon(IconManager.APPLY_INV);
       btnStart.addActionListener(e -> {
         startDownload = true;

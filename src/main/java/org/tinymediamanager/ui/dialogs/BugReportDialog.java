@@ -29,6 +29,7 @@ import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.ExportLogAction;
@@ -50,7 +51,7 @@ public class BugReportDialog extends TmmDialog {
    * Instantiates a new feedback dialog.
    */
   public BugReportDialog() {
-    super(BUNDLE.getString("BugReport"), DIALOG_ID);
+    super(TmmResourceBundle.getString("BugReport"), DIALOG_ID);
 
     JPanel panelContent = new JPanel();
     getContentPane().add(panelContent, BorderLayout.CENTER);
@@ -61,25 +62,25 @@ public class BugReportDialog extends TmmDialog {
     taDescription.setWrapStyleWord(true);
     taDescription.setLineWrap(true);
     taDescription.setEditable(false);
-    taDescription.setText(BUNDLE.getString("BugReport.description"));
+    taDescription.setText(TmmResourceBundle.getString("BugReport.description"));
     panelContent.add(taDescription, "cell 0 0 3 1,growx");
 
-    final JLabel lblStep1 = new JLabel(BUNDLE.getString("BugReport.step1"));
+    final JLabel lblStep1 = new JLabel(TmmResourceBundle.getString("BugReport.step1"));
     panelContent.add(lblStep1, "cell 0 2");
 
     final JTextArea taStep1 = new JTextArea();
     taStep1.setWrapStyleWord(true);
     taStep1.setLineWrap(true);
-    taStep1.setText(BUNDLE.getString("BugReport.step1.description"));
+    taStep1.setText(TmmResourceBundle.getString("BugReport.step1.description"));
     taStep1.setOpaque(false);
     taStep1.setEditable(false);
     panelContent.add(taStep1, "cell 2 2,growx");
 
-    final JButton btnSaveLogs = new JButton(BUNDLE.getString("BugReport.createlogs"));
+    final JButton btnSaveLogs = new JButton(TmmResourceBundle.getString("BugReport.createlogs"));
     btnSaveLogs.addActionListener(new ExportLogAction());
     panelContent.add(btnSaveLogs, "cell 2 3");
 
-    final JLabel lblStep2 = new JLabel(BUNDLE.getString("BugReport.step2"));
+    final JLabel lblStep2 = new JLabel(TmmResourceBundle.getString("BugReport.step2"));
     panelContent.add(lblStep2, "cell 0 5,alignx left,aligny top");
 
     final JTextArea taStep2 = new JTextArea();
@@ -87,10 +88,10 @@ public class BugReportDialog extends TmmDialog {
     taStep2.setWrapStyleWord(true);
     taStep2.setOpaque(false);
     taStep2.setEditable(false);
-    taStep2.setText(BUNDLE.getString("BugReport.step2.description"));
+    taStep2.setText(TmmResourceBundle.getString("BugReport.step2.description"));
     panelContent.add(taStep2, "cell 2 5,growx");
 
-    final JButton btnCreateIssue = new JButton(BUNDLE.getString("BugReport.craeteissue"));
+    final JButton btnCreateIssue = new JButton(TmmResourceBundle.getString("BugReport.craeteissue"));
     btnCreateIssue.addActionListener(e -> {
       // create the url for github
       String baseUrl = "https://gitlab.com/tinyMediaManager/tinyMediaManager/issues/new?issue[description]=";
@@ -119,10 +120,10 @@ public class BugReportDialog extends TmmDialog {
     final JLabel lblHintIcon = new JLabel(IconManager.HINT);
     panelContent.add(lblHintIcon, "cell 1 7,alignx left,aligny center");
 
-    final JLabel lblHint = new JLabel(BUNDLE.getString("BugReport.languagehint"));
+    final JLabel lblHint = new JLabel(TmmResourceBundle.getString("BugReport.languagehint"));
     panelContent.add(lblHint, "cell 2 7,growx,aligny top");
 
-    JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+    JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
     btnClose.setIcon(IconManager.CANCEL_INV);
     btnClose.addActionListener(e -> setVisible(false));
     addDefaultButton(btnClose);

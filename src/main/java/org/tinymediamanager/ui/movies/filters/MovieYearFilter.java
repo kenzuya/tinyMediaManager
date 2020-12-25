@@ -24,6 +24,7 @@ import java.util.Locale;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -63,7 +64,7 @@ public class MovieYearFilter extends AbstractCheckComboBoxMovieUIFilter<Integer>
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.year"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.year"));
   }
 
   @Override

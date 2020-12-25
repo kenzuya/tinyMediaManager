@@ -18,12 +18,12 @@ package org.tinymediamanager.ui.components;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
 import javax.swing.table.TableColumn;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.ui.NumberCellEditor;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -42,7 +42,7 @@ import ca.odell.glazedlists.gui.WritableTableFormat;
 public class MediaRatingTable extends TmmTable {
   private static final long              serialVersionUID = 8010732881277204728L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private final Map<String, MediaRating> ratingMap;
   private final EventList<Rating>        ratingList;
@@ -161,25 +161,25 @@ public class MediaRatingTable extends TmmTable {
       /*
        * source
        */
-      Column col = new Column(BUNDLE.getString("metatag.rating.source"), "source", rating -> rating.key, String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.rating.source"), "source", rating -> rating.key, String.class);
       addColumn(col);
 
       /*
        * rating
        */
-      col = new Column(BUNDLE.getString("metatag.rating"), "rating", rating -> rating.value, Float.class);
+      col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", rating -> rating.value, Float.class);
       addColumn(col);
 
       /*
        * maxvalue
        */
-      col = new Column(BUNDLE.getString("metatag.rating.maxvalue"), "maxvalue", rating -> rating.maxValue, Integer.class);
+      col = new Column(TmmResourceBundle.getString("metatag.rating.maxvalue"), "maxvalue", rating -> rating.maxValue, Integer.class);
       addColumn(col);
 
       /*
        * votes
        */
-      col = new Column(BUNDLE.getString("metatag.rating.votes"), "votes", rating -> rating.votes, Integer.class);
+      col = new Column(TmmResourceBundle.getString("metatag.rating.votes"), "votes", rating -> rating.votes, Integer.class);
       addColumn(col);
     }
 

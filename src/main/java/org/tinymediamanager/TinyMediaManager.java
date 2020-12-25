@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -415,10 +416,10 @@ public class TinyMediaManager {
           LOGGER.error("IllegalStateException", e);
           if (!GraphicsEnvironment.isHeadless() && e.getMessage().contains("file is locked")) {
             ResourceBundle bundle = ResourceBundle.getBundle("messages");
-            MessageDialog dialog = new MessageDialog(null, bundle.getString("tmm.problemdetected"));
+            MessageDialog dialog = new MessageDialog(null, TmmResourceBundle.getString("tmm.problemdetected"));
             dialog.setImage(IconManager.ERROR);
-            dialog.setText(bundle.getString("tmm.nostart"));
-            dialog.setDescription(bundle.getString("tmm.nostart.instancerunning"));
+            dialog.setText(TmmResourceBundle.getString("tmm.nostart"));
+            dialog.setDescription(TmmResourceBundle.getString("tmm.nostart.instancerunning"));
             dialog.setResizable(true);
             dialog.pack();
             dialog.setLocationRelativeTo(MainWindow.getInstance());

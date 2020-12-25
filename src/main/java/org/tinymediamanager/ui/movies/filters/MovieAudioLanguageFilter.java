@@ -20,10 +20,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -57,7 +59,7 @@ public class MovieAudioLanguageFilter extends AbstractCheckComboBoxMovieUIFilter
 
     @Override
     protected JLabel createLabel() {
-        return new TmmLabel(BUNDLE.getString("metatag.language"));
+        return new TmmLabel(TmmResourceBundle.getString("metatag.language"));
     }
 
     @Override

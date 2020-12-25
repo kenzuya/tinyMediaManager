@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.core;
 
-import java.util.ResourceBundle;
-
 import org.tinymediamanager.scraper.util.LanguageUtils;
 
 /**
@@ -31,12 +29,12 @@ public enum LanguageStyle {
   LANG_EN,
   LANG_LOCALIZED;
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   @Override
   public String toString() {
     try {
-      return BUNDLE.getString("Settings.renamer.language." + name());
+      return TmmResourceBundle.getString("Settings.renamer.language." + name());
     }
     catch (Exception e) {
       return name();

@@ -13,29 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.tinymediamanager.core.movie;
 
-package org.tinymediamanager;
-
-import java.util.ResourceBundle;
+import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
- * the enum DateAdded is used to control which date should be taken for various parts of tinyMediaManager
+ * this enum is used for the user to choose which fields should be used in the movie matcher
  * 
- * @author Manuel Laggner
+ * @author Wolfgang Janes
  */
-public enum DateField {
-  DATE_ADDED("metatag.dateadded"), // dateAdded from MediaEntity
-  FILE_CREATION_DATE("metatag.filecreationdate"), // fileCreation date
-  FILE_LAST_MODIFIED_DATE("metatag.filelastmodifieddate"); // fileLastModified date
+public enum MovieTextMatcherList {
 
-  private final String                description;
+  TITLE("metatag.title"),
+  TITLE_SORTABLE("metatag.title.sortable"),
+  ORIGINAL_TITLE("metatag.originaltitle"),
+  ORIGINAL_TITLE_SORTABLE("metatag.originaltitle.sortable"),
+  SORTED_TITLE("metatag.sorttitle");
 
-  DateField(String description) {
+  private final String description;
+
+  MovieTextMatcherList(String description) {
     this.description = description;
   }
 
   @Override
   public String toString() {
-    return ResourceBundle.getBundle("messages").getString(description);
+    return TmmResourceBundle.getString(description);
   }
 }

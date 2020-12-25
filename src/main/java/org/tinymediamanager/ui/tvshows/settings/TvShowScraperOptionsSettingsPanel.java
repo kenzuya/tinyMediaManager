@@ -15,19 +15,12 @@
  */
 package org.tinymediamanager.ui.tvshows.settings;
 
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
-
-import java.util.ResourceBundle;
-
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import net.miginfocom.swing.MigLayout;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.entities.CountryCode;
@@ -37,7 +30,12 @@ import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.tvshows.panels.TvShowScraperMetadataPanel;
 
-import net.miginfocom.swing.MigLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 /**
  * The class {@link TvShowScraperSettingsPanel} shows scraper options for the meta data scraper.
@@ -47,7 +45,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperOptionsSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
   private JCheckBox                   chckbxAutomaticallyScrapeImages;
@@ -70,24 +68,24 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
       JPanel panelOptions = new JPanel();
       panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblOptions = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
+      JLabel lblOptions = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptions, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
-        JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage")); // $NON-NLS-1$
+        JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage")); // $NON-NLS-1$
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox<>(MediaLanguages.valuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0");
 
-        JLabel lblCountry = new JLabel(BUNDLE.getString("Settings.certificationCountry")); // $NON-NLS-1$
+        JLabel lblCountry = new JLabel(TmmResourceBundle.getString("Settings.certificationCountry")); // $NON-NLS-1$
         panelOptions.add(lblCountry, "cell 1 1 2 1");
 
         cbCertificationCountry = new JComboBox<>(CountryCode.values());
         panelOptions.add(cbCertificationCountry, "cell 1 1");
 
-        chckbxCapitalizeWords = new JCheckBox(BUNDLE.getString("Settings.scraper.capitalizeWords"));
+        chckbxCapitalizeWords = new JCheckBox(TmmResourceBundle.getString("Settings.scraper.capitalizeWords"));
         panelOptions.add(chckbxCapitalizeWords, "cell 1 2");
       }
     }
@@ -95,7 +93,7 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
       JPanel panelDefaults = new JPanel();
       panelDefaults.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblDefaultsT = new TmmLabel(BUNDLE.getString("scraper.metadata.defaults"), H3);
+      JLabel lblDefaultsT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.defaults"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDefaults, lblDefaultsT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#metadata-scrape-defaults"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
@@ -108,12 +106,12 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
       JPanel panelImages = new JPanel();
       panelImages.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblImagesT = new TmmLabel(BUNDLE.getString("Settings.images"), H3);
+      JLabel lblImagesT = new TmmLabel(TmmResourceBundle.getString("Settings.images"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelImages, lblImagesT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#images"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
-        chckbxAutomaticallyScrapeImages = new JCheckBox(BUNDLE.getString("Settings.default.autoscrape"));
+        chckbxAutomaticallyScrapeImages = new JCheckBox(TmmResourceBundle.getString("Settings.default.autoscrape"));
         panelImages.add(chckbxAutomaticallyScrapeImages, "cell 1 0 2 1");
       }
     }

@@ -28,6 +28,7 @@ import javax.swing.SpinnerNumberModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.components.MediaRatingTable;
 
 import net.miginfocom.swing.MigLayout;
@@ -70,7 +71,7 @@ public class RatingEditorDialog extends TmmDialog {
     getContentPane().add(panelContent);
     panelContent.setLayout(new MigLayout("", "[][50lp][20lp:n][][50lp]", "[][][]"));
     {
-      JLabel lblProviderIdT = new JLabel(BUNDLE.getString("metatag.rating.source"));
+      JLabel lblProviderIdT = new JLabel(TmmResourceBundle.getString("metatag.rating.source"));
       panelContent.add(lblProviderIdT, "cell 0 0,alignx trailing");
 
       tfProviderId = new JTextField();
@@ -78,43 +79,43 @@ public class RatingEditorDialog extends TmmDialog {
       tfProviderId.setColumns(10);
     }
     {
-      JLabel lblRatingT = new JLabel(BUNDLE.getString("metatag.rating"));
+      JLabel lblRatingT = new JLabel(TmmResourceBundle.getString("metatag.rating"));
       panelContent.add(lblRatingT, "cell 0 1,alignx trailing");
 
       spRating = new JSpinner(new SpinnerNumberModel(0, 0.0, 1000.0, 0.1));
       panelContent.add(spRating, "cell 1 1,growx");
     }
     {
-      JLabel lblMaxValue = new JLabel(BUNDLE.getString("metatag.rating.maxvalue"));
+      JLabel lblMaxValue = new JLabel(TmmResourceBundle.getString("metatag.rating.maxvalue"));
       panelContent.add(lblMaxValue, "cell 3 1");
 
       spMaxValue = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
       panelContent.add(spMaxValue, "cell 4 1,growx");
     }
     {
-      JLabel lblVotes = new JLabel(BUNDLE.getString("metatag.rating.votes"));
+      JLabel lblVotes = new JLabel(TmmResourceBundle.getString("metatag.rating.votes"));
       panelContent.add(lblVotes, "cell 0 2");
 
       spVotes = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
       panelContent.add(spVotes, "cell 1 2,growx");
     }
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.addActionListener(e -> setVisible(false));
       addButton(btnCancel);
 
-      JButton btnOk = new JButton(BUNDLE.getString("Button.save"));
+      JButton btnOk = new JButton(TmmResourceBundle.getString("Button.save"));
       btnOk.addActionListener(e -> {
         float rating = ((Double) spRating.getValue()).floatValue();
         int maxValue = (int) spMaxValue.getValue();
 
         if (StringUtils.isBlank(tfProviderId.getText())) {
-          JOptionPane.showMessageDialog(RatingEditorDialog.this, BUNDLE.getString("id.empty"));
+          JOptionPane.showMessageDialog(RatingEditorDialog.this, TmmResourceBundle.getString("id.empty"));
           return;
         }
 
         if (rating > maxValue) {
-          JOptionPane.showMessageDialog(RatingEditorDialog.this, BUNDLE.getString("rating.rating.higher.maxvalue"));
+          JOptionPane.showMessageDialog(RatingEditorDialog.this, TmmResourceBundle.getString("rating.rating.higher.maxvalue"));
           return;
         }
 

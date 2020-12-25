@@ -15,17 +15,17 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This class implements a genres filter for the TV show tree
@@ -66,7 +66,7 @@ public class TvShowGenreFilter extends AbstractCheckComboBoxTvShowUIFilter<Media
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.genre"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
   }
 
   private void buildAndInstallMediaGenres() {

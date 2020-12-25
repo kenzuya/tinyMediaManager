@@ -28,7 +28,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
 import javax.swing.Box;
@@ -47,6 +46,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.ColumnLayout;
@@ -76,7 +76,7 @@ public class MovieSetInformationPanel extends JPanel {
   private static final long            serialVersionUID = -8166784589262658147L;
   private static final Logger          LOGGER           = LoggerFactory.getLogger(MovieSetInformationPanel.class);
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private JLabel                       lblMovieSetName;
   private ImageLabel                   lblFanart;
@@ -142,7 +142,7 @@ public class MovieSetInformationPanel extends JPanel {
       lblPoster.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       panelLeft.add(lblPoster);
       lblPoster.enableLightbox();
-      lblPosterSize = new JLabel(BUNDLE.getString("mediafiletype.poster"));
+      lblPosterSize = new JLabel(TmmResourceBundle.getString("mediafiletype.poster"));
       panelLeft.add(lblPosterSize);
       panelLeft.add(Box.createVerticalStrut(20));
 
@@ -151,7 +151,7 @@ public class MovieSetInformationPanel extends JPanel {
       lblFanart.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       panelLeft.add(lblFanart);
       lblFanart.enableLightbox();
-      lblFanartSize = new JLabel(BUNDLE.getString("mediafiletype.fanart"));
+      lblFanartSize = new JLabel(TmmResourceBundle.getString("mediafiletype.fanart"));
       panelLeft.add(lblFanartSize);
       panelLeft.add(Box.createVerticalStrut(20));
     }
@@ -169,7 +169,7 @@ public class MovieSetInformationPanel extends JPanel {
         panelRight.add(new JSeparator(), "cell 0 1,growx");
       }
       {
-        JLabel lblPlot = new JLabel(BUNDLE.getString("metatag.plot"));
+        JLabel lblPlot = new JLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlot, "cell 0 2");
         TmmFontHelper.changeFont(lblPlot, Font.BOLD);
 
@@ -199,7 +199,7 @@ public class MovieSetInformationPanel extends JPanel {
     lblPoster.setImagePath(movieSet.getArtworkFilename(MediaFileType.POSTER));
     Dimension posterSize = movieSet.getArtworkDimension(MediaFileType.POSTER);
     if (posterSize.width > 0 && posterSize.height > 0) {
-      lblPosterSize.setText(BUNDLE.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
+      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
     }
     else {
       if (StringUtils.isNotBlank(lblPoster.getImagePath())) {
@@ -208,7 +208,7 @@ public class MovieSetInformationPanel extends JPanel {
         loader.execute();
       }
       else {
-        lblPosterSize.setText(BUNDLE.getString("mediafiletype.poster"));
+        lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster"));
       }
     }
   }
@@ -218,7 +218,7 @@ public class MovieSetInformationPanel extends JPanel {
     lblFanart.setImagePath(movieSet.getArtworkFilename(MediaFileType.FANART));
     Dimension fanartSize = movieSet.getArtworkDimension(MediaFileType.FANART);
     if (fanartSize.width > 0 && fanartSize.height > 0) {
-      lblFanartSize.setText(BUNDLE.getString("mediafiletype.fanart") + " - " + fanartSize.width + "x" + fanartSize.height);
+      lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart") + " - " + fanartSize.width + "x" + fanartSize.height);
     }
     else {
       if (StringUtils.isNotBlank(lblFanart.getImagePath())) {
@@ -227,7 +227,7 @@ public class MovieSetInformationPanel extends JPanel {
         loader.execute();
       }
       else {
-        lblFanartSize.setText(BUNDLE.getString("mediafiletype.fanart"));
+        lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart"));
       }
     }
   }
@@ -281,10 +281,10 @@ public class MovieSetInformationPanel extends JPanel {
     protected void done() {
       super.done();
       if (width > 0 && height > 0) {
-        label.setText(BUNDLE.getString("mediafiletype." + type) + " - " + width + "x" + height);
+        label.setText(TmmResourceBundle.getString("mediafiletype." + type) + " - " + width + "x" + height);
       }
       else {
-        label.setText(BUNDLE.getString("mediafiletype." + type)); // $NON-NLS-1$
+        label.setText(TmmResourceBundle.getString("mediafiletype." + type)); // $NON-NLS-1$
       }
     }
   }

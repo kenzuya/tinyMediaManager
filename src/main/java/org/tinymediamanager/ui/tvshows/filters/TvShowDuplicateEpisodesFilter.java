@@ -15,15 +15,15 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
-import java.util.List;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import java.util.List;
 
 /**
  * This class implements a duplicate episodes filter for the TV show tree
@@ -65,7 +65,7 @@ public class TvShowDuplicateEpisodesFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.duplicates"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.duplicates"));
   }
 
   @Override

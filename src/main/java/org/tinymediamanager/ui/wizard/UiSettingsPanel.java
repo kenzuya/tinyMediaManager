@@ -15,14 +15,20 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.awt.event.ActionListener;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import net.miginfocom.swing.MigLayout;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUIHelper;
+import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
@@ -31,21 +37,13 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.ui.TmmFontHelper;
-import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.components.ImageLabel;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-
-import net.miginfocom.swing.MigLayout;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionListener;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * The class {@link UiSettingsPanel} is used to display generic UI settings
@@ -55,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
 class UiSettingsPanel extends JPanel {
   private static final long           serialVersionUID   = -1241134514329815223L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
 
   private static final Integer[]      DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
@@ -123,21 +121,21 @@ class UiSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[20lp!][200lp,grow][200lp,grow]", "[][][10lp!][][10lp!][][grow][][10lp!][][][]"));
     {
-      JLabel lblUiSettings = new JLabel(BUNDLE.getString("wizard.ui"));
+      JLabel lblUiSettings = new JLabel(TmmResourceBundle.getString("wizard.ui"));
       TmmFontHelper.changeFont(lblUiSettings, 1.3333, Font.BOLD);
       add(lblUiSettings, "cell 0 0 3 1,growx");
     }
 
-    JTextArea taSettingsHint = new ReadOnlyTextArea(BUNDLE.getString("wizard.ui.hint"));
+    JTextArea taSettingsHint = new ReadOnlyTextArea(TmmResourceBundle.getString("wizard.ui.hint"));
     add(taSettingsHint, "cell 1 1 2 1,growx");
 
-    JLabel lblLanguageT = new JLabel(BUNDLE.getString("Settings.language"));
+    JLabel lblLanguageT = new JLabel(TmmResourceBundle.getString("Settings.language"));
     add(lblLanguageT, "flowx,cell 1 3 2 1");
 
     cbLanguage = new JComboBox(locales.toArray());
     add(cbLanguage, "cell 1 3 2 1");
 
-    JLabel lblThemeT = new JLabel(BUNDLE.getString("Settings.uitheme"));
+    JLabel lblThemeT = new JLabel(TmmResourceBundle.getString("Settings.uitheme"));
     add(lblThemeT, "cell 1 5");
 
     ImageLabel lblLight = new ImageLabel(false);
@@ -160,28 +158,28 @@ class UiSettingsPanel extends JPanel {
 
     ButtonGroup buttonGroup = new ButtonGroup();
 
-    rdbtnLight = new JRadioButton(BUNDLE.getString("Settings.uitheme.light"));
+    rdbtnLight = new JRadioButton(TmmResourceBundle.getString("Settings.uitheme.light"));
     buttonGroup.add(rdbtnLight);
     add(rdbtnLight, "cell 1 7,alignx center");
 
-    rdbtnDark = new JRadioButton(BUNDLE.getString("Settings.uitheme.dark"));
+    rdbtnDark = new JRadioButton(TmmResourceBundle.getString("Settings.uitheme.dark"));
     buttonGroup.add(rdbtnDark);
     add(rdbtnDark, "cell 2 7,alignx center");
 
-    JLabel lblFontT = new JLabel(BUNDLE.getString("Settings.font"));
+    JLabel lblFontT = new JLabel(TmmResourceBundle.getString("Settings.font"));
     add(lblFontT, "flowx,cell 1 9 2 1");
 
     GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
     cbFontFamily = new JComboBox(env.getAvailableFontFamilyNames());
     add(cbFontFamily, "cell 1 9 2 1");
 
-    JLabel lblSize = new JLabel(BUNDLE.getString("Settings.fontsize"));
+    JLabel lblSize = new JLabel(TmmResourceBundle.getString("Settings.fontsize"));
     add(lblSize, "flowx,cell 1 10");
 
     cbFontSize = new JComboBox(DEFAULT_FONT_SIZES);
     add(cbFontSize, "cell 1 10");
 
-    JTextArea taFontHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.fonts.hint"));
+    JTextArea taFontHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.fonts.hint"));
     add(taFontHint, "cell 1 11 2 1,grow");
   }
 

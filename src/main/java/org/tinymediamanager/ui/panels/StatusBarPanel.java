@@ -28,7 +28,6 @@ import java.awt.Taskbar;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -42,6 +41,7 @@ import javax.swing.UIManager;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
@@ -63,7 +63,7 @@ import net.miginfocom.swing.MigLayout;
 public class StatusBarPanel extends JPanel implements TmmTaskListener {
   private static final long           serialVersionUID = -6375900257553323558L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private Set<TmmTaskHandle>          taskSet;
   private TmmTaskHandle               activeTask;
@@ -190,7 +190,7 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
       };
       btnNotifications.setEnabled(false);
       btnNotifications.setForeground(Color.RED);
-      btnNotifications.setToolTipText(BUNDLE.getString("notifications.new"));
+      btnNotifications.setToolTipText(TmmResourceBundle.getString("notifications.new"));
       add(btnNotifications, "cell 5 0");
     }
   }
@@ -207,8 +207,8 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     long free = maxMem - used;
 
     String phys = "";
-    return BUNDLE.getString("tmm.memoryused") + " " + used / megs + " MiB  /  " + BUNDLE.getString("tmm.memoryfree") + " " + free / megs + " MiB  /  "
-        + BUNDLE.getString("tmm.memorymax") + " " + maxMem / megs + " MiB" + phys;
+    return TmmResourceBundle.getString("tmm.memoryused") + " " + used / megs + " MiB  /  " + TmmResourceBundle.getString("tmm.memoryfree") + " " + free / megs + " MiB  /  "
+        + TmmResourceBundle.getString("tmm.memorymax") + " " + maxMem / megs + " MiB" + phys;
   }
 
   @Override

@@ -19,10 +19,10 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -32,12 +32,12 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 public class TvShowCleanUpFilesAction extends TmmAction {
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   public TvShowCleanUpFilesAction() {
 
-    putValue(NAME, BUNDLE.getString("cleanupfiles"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("cleanupfiles.desc"));
+    putValue(NAME, TmmResourceBundle.getString("cleanupfiles"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cleanupfiles.desc"));
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(LARGE_ICON_KEY, IconManager.DELETE);
 
@@ -49,7 +49,7 @@ public class TvShowCleanUpFilesAction extends TmmAction {
     List<MediaEntity> selectedTvShows = new ArrayList<>(TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows());
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

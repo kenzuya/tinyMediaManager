@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 
@@ -34,12 +34,12 @@ import org.tinymediamanager.ui.TmmUIHelper;
  */
 public class FeedbackAction extends TmmAction {
   private static final long           serialVersionUID = 6615485711570687445L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(FeedbackAction.class);
 
   public FeedbackAction() {
-    putValue(NAME, BUNDLE.getString("Feedback"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("Feedback"));
+    putValue(NAME, TmmResourceBundle.getString("Feedback"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Feedback"));
     putValue(SMALL_ICON, IconManager.FEEDBACK);
     putValue(LARGE_ICON_KEY, IconManager.FEEDBACK);
   }

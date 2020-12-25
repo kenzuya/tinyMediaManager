@@ -18,10 +18,10 @@ package org.tinymediamanager.ui.moviesets.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.MainWindow;
@@ -30,11 +30,11 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 
 public class DebugDumpMovieSetAction extends TmmAction {
   private static final long           serialVersionUID = -8473181347332963044L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public DebugDumpMovieSetAction() {
-    putValue(NAME, BUNDLE.getString("debug.entity.dump"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("debug.entity.dump.desc"));
+    putValue(NAME, TmmResourceBundle.getString("debug.entity.dump"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("debug.entity.dump.desc"));
   }
 
   @Override
@@ -42,7 +42,7 @@ public class DebugDumpMovieSetAction extends TmmAction {
     List<MovieSet> selectedMovieSets = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets());
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

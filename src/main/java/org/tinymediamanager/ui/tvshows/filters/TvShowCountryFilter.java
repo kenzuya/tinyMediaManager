@@ -1,20 +1,20 @@
 package org.tinymediamanager.ui.tvshows.filters;
 
-import java.util.List;
-import java.util.regex.Matcher;
-
-import javax.swing.JLabel;
-
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
 
+import javax.swing.JLabel;
+import java.util.List;
+import java.util.regex.Matcher;
+
 public class TvShowCountryFilter extends AbstractTextTvShowUIFilter {
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.country"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.country"));
   }
 
   @Override

@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.thirdparty.trakttv;
 
-import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.threading.TmmTask;
+package org.tinymediamanager.core;
 
 /**
- * Clear your movie data from trakt.tv
+ * the enum DateAdded is used to control which date should be taken for various parts of tinyMediaManager
  * 
  * @author Manuel Laggner
  */
-public class MovieClearTraktTvTask extends TmmTask {
+public enum DateField {
+  DATE_ADDED("metatag.dateadded"), // dateAdded from MediaEntity
+  FILE_CREATION_DATE("metatag.filecreationdate"), // fileCreation date
+  FILE_LAST_MODIFIED_DATE("metatag.filelastmodifieddate"); // fileLastModified date
 
+  private final String                description;
 
-  public MovieClearTraktTvTask() {
-    super(TmmResourceBundle.getString("trakt.clear"), 0, TaskType.BACKGROUND_TASK);
+  DateField(String description) {
+    this.description = description;
   }
 
   @Override
-  protected void doInBackground() {
-    TraktTv traktTV = TraktTv.getInstance();
-
-    publishState(TmmResourceBundle.getString("trakt.clear.movies"), 0);
-    traktTV.clearTraktMovies();
+  public String toString() {
+    return TmmResourceBundle.getString(description);
   }
 }

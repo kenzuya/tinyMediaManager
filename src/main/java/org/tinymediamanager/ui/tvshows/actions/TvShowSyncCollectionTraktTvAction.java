@@ -15,14 +15,14 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
-import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
-
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.actions.TmmAction;
+
+import java.awt.event.ActionEvent;
 
 /**
  * The class TvShowSyncTraktTvAction. To synchronize your TV show library with trakt.tv
@@ -31,11 +31,11 @@ import org.tinymediamanager.ui.actions.TmmAction;
  */
 public class TvShowSyncCollectionTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public TvShowSyncCollectionTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.synctrakt"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.synctrakt.desc"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.synctrakt"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.synctrakt.desc"));
     putValue(SMALL_ICON, IconManager.MOVIE);
     putValue(LARGE_ICON_KEY, IconManager.MOVIE);
   }

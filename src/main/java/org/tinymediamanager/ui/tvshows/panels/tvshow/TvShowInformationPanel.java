@@ -52,6 +52,7 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.ui.ColumnLayout;
@@ -80,7 +81,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowInformationPanel extends JPanel {
   private static final long           serialVersionUID = 1911808562993073590L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowInformationPanel.class);
 
   private final TvShowSelectionModel  tvShowSelectionModel;
@@ -237,7 +238,7 @@ public class TvShowInformationPanel extends JPanel {
       lblTvShowPoster.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       panelLeft.add(lblTvShowPoster);
       lblTvShowPoster.enableLightbox();
-      lblPosterSize = new JLabel(BUNDLE.getString("mediafiletype.poster"));
+      lblPosterSize = new JLabel(TmmResourceBundle.getString("mediafiletype.poster"));
       panelLeft.add(lblPosterSize);
       panelLeft.add(Box.createVerticalStrut(20));
 
@@ -246,7 +247,7 @@ public class TvShowInformationPanel extends JPanel {
       lblTvShowBackground.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       panelLeft.add(lblTvShowBackground);
       lblTvShowBackground.enableLightbox();
-      lblFanartSize = new JLabel(BUNDLE.getString("mediafiletype.fanart"));
+      lblFanartSize = new JLabel(TmmResourceBundle.getString("mediafiletype.fanart"));
       panelLeft.add(lblFanartSize);
       panelLeft.add(Box.createVerticalStrut(20));
 
@@ -255,7 +256,7 @@ public class TvShowInformationPanel extends JPanel {
       lblTvShowBanner.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
       panelLeft.add(lblTvShowBanner);
       lblTvShowBanner.enableLightbox();
-      lblBannerSize = new JLabel(BUNDLE.getString("mediafiletype.banner"));
+      lblBannerSize = new JLabel(TmmResourceBundle.getString("mediafiletype.banner"));
       panelLeft.add(lblBannerSize);
     }
     {
@@ -287,7 +288,7 @@ public class TvShowInformationPanel extends JPanel {
         panelRight.add(panelTopDetails, "cell 0 0,growx");
         panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][grow][]", "[]2lp[]2lp[grow]2lp[]2lp[]2lp[]2lp[]2lp[]"));
         {
-          JLabel lblYearT = new TmmLabel(BUNDLE.getString("metatag.year"));
+          JLabel lblYearT = new TmmLabel(TmmResourceBundle.getString("metatag.year"));
           panelTopDetails.add(lblYearT, "flowy,cell 0 0");
 
           lblYear = new JLabel("");
@@ -305,7 +306,7 @@ public class TvShowInformationPanel extends JPanel {
           panelTopDetails.add(lblCertificationLogo, "cell 5 0 1 3, top");
         }
         {
-          JLabel lblPremieredT = new TmmLabel(BUNDLE.getString("metatag.premiered"));
+          JLabel lblPremieredT = new TmmLabel(TmmResourceBundle.getString("metatag.premiered"));
           panelTopDetails.add(lblPremieredT, "cell 0 1");
 
           lblPremiered = new JLabel("");
@@ -320,56 +321,56 @@ public class TvShowInformationPanel extends JPanel {
           panelTopDetails.add(lblThetvdbId, "cell 4 1");
         }
         {
-          JLabel lblCertificationT = new TmmLabel(BUNDLE.getString("metatag.certification"));
+          JLabel lblCertificationT = new TmmLabel(TmmResourceBundle.getString("metatag.certification"));
           panelTopDetails.add(lblCertificationT, "cell 0 2");
 
           lblCertification = new JLabel("");
           panelTopDetails.add(lblCertification, "cell 1 2");
         }
         {
-          JLabel lblTmdbIdT = new TmmLabel(BUNDLE.getString("metatag.tmdb"));
+          JLabel lblTmdbIdT = new TmmLabel(TmmResourceBundle.getString("metatag.tmdb"));
           panelTopDetails.add(lblTmdbIdT, "cell 3 2");
 
           lblTmdbId = new LinkLabel();
           panelTopDetails.add(lblTmdbId, "cell 4 2");
         }
         {
-          JLabel lblOtherIdsT = new TmmLabel(BUNDLE.getString("metatag.otherids"));
+          JLabel lblOtherIdsT = new TmmLabel(TmmResourceBundle.getString("metatag.otherids"));
           panelTopDetails.add(lblOtherIdsT, "cell 3 3");
 
           taOtherIds = new ReadOnlyTextArea();
           panelTopDetails.add(taOtherIds, "cell 4 3 2 1,growx,wmin 0");
         }
         {
-          JLabel lblRuntimeT = new TmmLabel(BUNDLE.getString("metatag.runtime"));
+          JLabel lblRuntimeT = new TmmLabel(TmmResourceBundle.getString("metatag.runtime"));
           panelTopDetails.add(lblRuntimeT, "cell 0 3,aligny top");
 
           lblRuntime = new JLabel("");
           panelTopDetails.add(lblRuntime, "cell 1 3,aligny top");
         }
         {
-          JLabel lblGenresT = new TmmLabel(BUNDLE.getString("metatag.genre"));
+          JLabel lblGenresT = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
           panelTopDetails.add(lblGenresT, "cell 0 4");
 
           taGenres = new ReadOnlyTextArea();
           panelTopDetails.add(taGenres, "cell 1 4 5 1,growx,wmin 0");
         }
         {
-          JLabel lblStatusT = new TmmLabel(BUNDLE.getString("metatag.status"));
+          JLabel lblStatusT = new TmmLabel(TmmResourceBundle.getString("metatag.status"));
           panelTopDetails.add(lblStatusT, "cell 0 5");
 
           lblStatus = new JLabel("");
           panelTopDetails.add(lblStatus, "cell 1 5 4 1");
         }
         {
-          JLabel lblStudioT = new TmmLabel(BUNDLE.getString("metatag.studio"));
+          JLabel lblStudioT = new TmmLabel(TmmResourceBundle.getString("metatag.studio"));
           panelTopDetails.add(lblStudioT, "cell 0 6,wmin 0");
 
           taStudio = new ReadOnlyTextArea();
           panelTopDetails.add(taStudio, "cell 1 6 5 1,growx, wmin 0");
         }
         {
-          JLabel lblCountryT = new TmmLabel(BUNDLE.getString("metatag.country"));
+          JLabel lblCountryT = new TmmLabel(TmmResourceBundle.getString("metatag.country"));
           panelTopDetails.add(lblCountryT, "cell 0 7");
 
           lblCountry = new JLabel("");
@@ -399,7 +400,7 @@ public class TvShowInformationPanel extends JPanel {
         panelRight.add(new JSeparator(), "cell 0 5,growx");
       }
       {
-        JLabel lblPlot = new TmmLabel(BUNDLE.getString("metatag.plot"));
+        JLabel lblPlot = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlot, "cell 0 6");
         TmmFontHelper.changeFont(lblPlot, Font.BOLD);
 
@@ -415,21 +416,21 @@ public class TvShowInformationPanel extends JPanel {
         panelRight.add(panelBottomDetails, "cell 0 9,grow");
 
         {
-          JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
+          JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
           panelBottomDetails.add(lblTagsT, "cell 0 0");
 
           taTags = new ReadOnlyTextArea();
           panelBottomDetails.add(taTags, "cell 1 0,growx,wmin 0");
         }
         {
-          JLabel lblPathT = new TmmLabel(BUNDLE.getString("metatag.path"));
+          JLabel lblPathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
           panelBottomDetails.add(lblPathT, "cell 0 1");
 
           lblPath = new LinkLabel("");
           panelBottomDetails.add(lblPath, "cell 1 1,growx,wmin 0");
         }
         {
-          JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
+          JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
           panelBottomDetails.add(lblNoteT, "cell 0 2");
 
           taNote = new ReadOnlyTextArea();
@@ -444,10 +445,10 @@ public class TvShowInformationPanel extends JPanel {
     lblTvShowPoster.setImagePath(tvShow.getArtworkFilename(MediaFileType.POSTER));
     Dimension posterSize = tvShow.getArtworkDimension(MediaFileType.POSTER);
     if (posterSize.width > 0 && posterSize.height > 0) {
-      lblPosterSize.setText(BUNDLE.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
+      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
     }
     else {
-      lblPosterSize.setText(BUNDLE.getString("mediafiletype.poster"));
+      lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster"));
     }
   }
 
@@ -456,10 +457,10 @@ public class TvShowInformationPanel extends JPanel {
     lblTvShowBackground.setImagePath(tvShow.getArtworkFilename(MediaFileType.FANART));
     Dimension fanartSize = tvShow.getArtworkDimension(MediaFileType.FANART);
     if (fanartSize.width > 0 && fanartSize.height > 0) {
-      lblFanartSize.setText(BUNDLE.getString("mediafiletype.fanart") + " - " + fanartSize.width + "x" + fanartSize.height);
+      lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart") + " - " + fanartSize.width + "x" + fanartSize.height);
     }
     else {
-      lblFanartSize.setText(BUNDLE.getString("mediafiletype.fanart"));
+      lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart"));
     }
   }
 
@@ -468,10 +469,10 @@ public class TvShowInformationPanel extends JPanel {
     lblTvShowBanner.setImagePath(tvShow.getArtworkFilename(MediaFileType.BANNER));
     Dimension bannerSize = tvShow.getArtworkDimension(MediaFileType.BANNER);
     if (bannerSize.width > 0 && bannerSize.height > 0) {
-      lblBannerSize.setText(BUNDLE.getString("mediafiletype.banner") + " - " + bannerSize.width + "x" + bannerSize.height);
+      lblBannerSize.setText(TmmResourceBundle.getString("mediafiletype.banner") + " - " + bannerSize.width + "x" + bannerSize.height);
     }
     else {
-      lblBannerSize.setText(BUNDLE.getString("mediafiletype.banner"));
+      lblBannerSize.setText(TmmResourceBundle.getString("mediafiletype.banner"));
     }
   }
 

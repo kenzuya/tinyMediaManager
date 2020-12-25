@@ -22,7 +22,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -35,6 +34,7 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
@@ -61,7 +61,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieBulkEditorDialog extends TmmDialog {
   private static final long           serialVersionUID = -8515248604267310279L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   private MovieList                   movieList        = MovieList.getInstance();
   private List<Movie>                 moviesToEdit;
@@ -76,7 +76,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
    *          the movies
    */
   public MovieBulkEditorDialog(final List<Movie> movies) {
-    super(BUNDLE.getString("movie.edit"), "movieBulkEditor");
+    super(TmmResourceBundle.getString("movie.edit"), "movieBulkEditor");
 
     {
       JPanel panelContent = new JPanel();
@@ -84,7 +84,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
       panelContent.setLayout(new MigLayout("", "[20lp:n][200lp:350lp,grow][][][]", "[][][][][][][][][][][][][][]"));
 
       {
-        JLabel lblGenresT = new TmmLabel(BUNDLE.getString("metatag.genre"));
+        JLabel lblGenresT = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
         panelContent.add(lblGenresT, "cell 0 0,alignx right");
 
         JComboBox cbGenres = new AutocompleteComboBox(MediaGenres.values());
@@ -145,7 +145,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
 
         JButton btnRemoveAllGenres = new SquareIconButton(IconManager.DELETE);
         btnRemoveAllGenres.addActionListener(e -> {
-          if (isDeleteConfirmed(BUNDLE.getString("metatag.genre"))) {
+          if (isDeleteConfirmed(TmmResourceBundle.getString("metatag.genre"))) {
             changed = true;
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             for (Movie movie : moviesToEdit) {
@@ -157,7 +157,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnRemoveAllGenres, "cell 4 0");
       }
       {
-        JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
+        JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
         panelContent.add(lblTagsT, "cell 0 1,alignx right");
 
         JComboBox cbTags = new AutocompleteComboBox(ListUtils.asSortedList(movieList.getTagsInMovies()));
@@ -194,7 +194,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
 
         JButton btnRemoveAllTags = new SquareIconButton(IconManager.DELETE);
         btnRemoveAllTags.addActionListener(e -> {
-          if (isDeleteConfirmed(BUNDLE.getString("metatag.tags"))) {
+          if (isDeleteConfirmed(TmmResourceBundle.getString("metatag.tags"))) {
             changed = true;
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             for (Movie movie : moviesToEdit) {
@@ -206,7 +206,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnRemoveAllTags, "cell 4 1");
       }
       {
-        JLabel lblEditionT = new TmmLabel(BUNDLE.getString("metatag.edition"));
+        JLabel lblEditionT = new TmmLabel(TmmResourceBundle.getString("metatag.edition"));
         panelContent.add(lblEditionT, "cell 0 2,alignx right");
 
         JComboBox cbEdition = new AutocompleteComboBox(MovieEdition.values());
@@ -239,7 +239,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnMovieEdition, "cell 2 2");
       }
       {
-        JLabel lblCertificationT = new TmmLabel(BUNDLE.getString("metatag.certification"));
+        JLabel lblCertificationT = new TmmLabel(TmmResourceBundle.getString("metatag.certification"));
         panelContent.add(lblCertificationT, "cell 0 3,alignx right");
 
         final JComboBox cbCertification = new JComboBox();
@@ -262,7 +262,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnCertification, "cell 2 3");
       }
       {
-        JLabel lblMovieSetT = new TmmLabel(BUNDLE.getString("metatag.movieset"));
+        JLabel lblMovieSetT = new TmmLabel(TmmResourceBundle.getString("metatag.movieset"));
         panelContent.add(lblMovieSetT, "cell 0 4,alignx right");
 
         cbMovieSet = new JComboBox();
@@ -296,7 +296,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnNewMovieset, "cell 3 4 2 1,growx");
       }
       {
-        JLabel lblWatchedT = new TmmLabel(BUNDLE.getString("metatag.watched"));
+        JLabel lblWatchedT = new TmmLabel(TmmResourceBundle.getString("metatag.watched"));
         panelContent.add(lblWatchedT, "cell 0 5,alignx right");
 
         JCheckBox chckbxWatched = new JCheckBox("");
@@ -314,7 +314,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnWatched, "cell 2 5");
       }
       {
-        JLabel lblVideo3DT = new TmmLabel(BUNDLE.getString("metatag.3d"));
+        JLabel lblVideo3DT = new TmmLabel(TmmResourceBundle.getString("metatag.3d"));
         panelContent.add(lblVideo3DT, "cell 0 6,alignx right");
 
         final JCheckBox chckbxVideo3D = new JCheckBox("");
@@ -332,7 +332,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnVideo3D, "cell 2 6");
       }
       {
-        JLabel lblMediasourceT = new TmmLabel(BUNDLE.getString("metatag.source"));
+        JLabel lblMediasourceT = new TmmLabel(TmmResourceBundle.getString("metatag.source"));
         panelContent.add(lblMediasourceT, "cell 0 7,alignx right");
 
         final JComboBox cbMediaSource = new JComboBox(MediaSource.values());
@@ -354,7 +354,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnMediaSource, "cell 2 7");
       }
       {
-        JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("metatag.language"));
+        JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
         panelContent.add(lblLanguageT, "cell 0 8,alignx right");
 
         JTextField tfLanguage = new JTextField();
@@ -372,7 +372,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnLanguage, "cell 2 8");
       }
       {
-        JLabel lblCountryT = new TmmLabel(BUNDLE.getString("metatag.country"));
+        JLabel lblCountryT = new TmmLabel(TmmResourceBundle.getString("metatag.country"));
         panelContent.add(lblCountryT, "cell 0 9,alignx trailing");
 
         JTextField tfCountry = new JTextField();
@@ -390,7 +390,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnCountry, "cell 2 9");
       }
       {
-        JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
+        JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
         panelContent.add(lblNoteT, "cell 0 10,alignx trailing");
 
         JTextField tfNote = new JTextField();
@@ -408,14 +408,14 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnNote, "cell 2 10");
       }
       {
-        JLabel lblSorttitleT = new TmmLabel(BUNDLE.getString("metatag.sorttitle"));
+        JLabel lblSorttitleT = new TmmLabel(TmmResourceBundle.getString("metatag.sorttitle"));
         panelContent.add(lblSorttitleT, "flowx,cell 0 11,alignx right");
 
         JLabel lblSorttitleInfo = new JLabel(IconManager.HINT);
-        lblSorttitleInfo.setToolTipText(BUNDLE.getString("edit.setsorttitle.desc"));
+        lblSorttitleInfo.setToolTipText(TmmResourceBundle.getString("edit.setsorttitle.desc"));
         panelContent.add(lblSorttitleInfo, "cell 0 11");
 
-        JButton btnSetSorttitle = new JButton(BUNDLE.getString("edit.setsorttitle"));
+        JButton btnSetSorttitle = new JButton(TmmResourceBundle.getString("edit.setsorttitle"));
         btnSetSorttitle.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -426,7 +426,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnSetSorttitle, "cell 1 11");
 
-        JButton btnClearSorttitle = new JButton(BUNDLE.getString("edit.clearsorttitle"));
+        JButton btnClearSorttitle = new JButton(TmmResourceBundle.getString("edit.clearsorttitle"));
         btnClearSorttitle.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -438,11 +438,11 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(btnClearSorttitle, "cell 1 13");
       }
       {
-        JLabel lblSpokenLanguages = new TmmLabel(BUNDLE.getString("metatag.spokenlanguages"));
+        JLabel lblSpokenLanguages = new TmmLabel(TmmResourceBundle.getString("metatag.spokenlanguages"));
         panelContent.add(lblSpokenLanguages, "cell 0 12,alignx right");
 
-        JButton btnFirstAudioStream = new JButton(BUNDLE.getString("edit.audio.first"));
-        btnFirstAudioStream.setToolTipText(BUNDLE.getString("edit.audio.first.desc"));
+        JButton btnFirstAudioStream = new JButton(TmmResourceBundle.getString("edit.audio.first"));
+        btnFirstAudioStream.setToolTipText(TmmResourceBundle.getString("edit.audio.first.desc"));
         btnFirstAudioStream.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -453,8 +453,8 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnFirstAudioStream, "flowx,cell 1 12");
 
-        JButton btnBestAudioStream = new JButton(BUNDLE.getString("edit.audio.best"));
-        btnBestAudioStream.setToolTipText(BUNDLE.getString("edit.audio.best.desc"));
+        JButton btnBestAudioStream = new JButton(TmmResourceBundle.getString("edit.audio.best"));
+        btnBestAudioStream.setToolTipText(TmmResourceBundle.getString("edit.audio.best.desc"));
         btnBestAudioStream.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -465,8 +465,8 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnBestAudioStream, "cell 1 12");
 
-        JButton btnAllAudioStreams = new JButton(BUNDLE.getString("edit.audio.all"));
-        btnAllAudioStreams.setToolTipText(BUNDLE.getString("edit.audio.all.desc"));
+        JButton btnAllAudioStreams = new JButton(TmmResourceBundle.getString("edit.audio.all"));
+        btnAllAudioStreams.setToolTipText(TmmResourceBundle.getString("edit.audio.all.desc"));
         btnAllAudioStreams.addActionListener(e -> {
           changed = true;
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -480,7 +480,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
     }
 
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.setIcon(IconManager.APPLY_INV);
       btnClose.addActionListener(arg0 -> {
         // rewrite movies, if anything changed
@@ -554,9 +554,9 @@ public class MovieBulkEditorDialog extends TmmDialog {
   }
 
   private boolean isDeleteConfirmed(String attribute) {
-    Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int dialogResult = JOptionPane.showOptionDialog(null, MessageFormat.format(BUNDLE.getString("message.bulkedit.delete"), attribute),
-        BUNDLE.getString("message.bulkedit.warning"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+    Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+    int dialogResult = JOptionPane.showOptionDialog(null, MessageFormat.format(TmmResourceBundle.getString("message.bulkedit.delete"), attribute),
+        TmmResourceBundle.getString("message.bulkedit.warning"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (dialogResult == JOptionPane.YES_OPTION) {
       return true;
     }

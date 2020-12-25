@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
@@ -26,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
@@ -41,13 +41,13 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Wolfgang Janes
  */
 public class TvShowEpisodeCreateThumbAction extends TmmAction {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowEpisodeCreateThumbAction.class);
 
   public TvShowEpisodeCreateThumbAction() {
 
-    putValue(NAME, BUNDLE.getString("tvshowepisode.ffmpeg.createthumb"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshowepisode.ffmpeg.createthumb.desc"));
+    putValue(NAME, TmmResourceBundle.getString("tvshowepisode.ffmpeg.createthumb"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshowepisode.ffmpeg.createthumb.desc"));
     putValue(SMALL_ICON, IconManager.THUMB);
     putValue(LARGE_ICON_KEY, IconManager.THUMB);
   }
@@ -56,24 +56,24 @@ public class TvShowEpisodeCreateThumbAction extends TmmAction {
   protected void processAction(ActionEvent e) {
     // check customizing; FFmpeg settings AND Thumb settings must be available
     if (StringUtils.isBlank(Globals.settings.getMediaFramework())) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("mediaframework.missingbinary"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("mediaframework.missingbinary"));
       return;
     }
 
     if (Globals.settings.getFfmpegPercentage() == 0) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("mediaframework.framevalue"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("mediaframework.framevalue"));
       return;
     }
 
     if (MovieModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tvshowepisode.nothumbs"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tvshowepisode.nothumbs"));
       return;
     }
 
     List<TvShowEpisode> selectedEpisodes = new ArrayList<>(TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes());
 
     if (selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

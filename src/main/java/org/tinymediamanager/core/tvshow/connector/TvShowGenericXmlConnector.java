@@ -16,9 +16,9 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.DateField.DATE_ADDED;
-import static org.tinymediamanager.DateField.FILE_CREATION_DATE;
-import static org.tinymediamanager.DateField.FILE_LAST_MODIFIED_DATE;
+import static org.tinymediamanager.core.DateField.DATE_ADDED;
+import static org.tinymediamanager.core.DateField.FILE_CREATION_DATE;
+import static org.tinymediamanager.core.DateField.FILE_LAST_MODIFIED_DATE;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;

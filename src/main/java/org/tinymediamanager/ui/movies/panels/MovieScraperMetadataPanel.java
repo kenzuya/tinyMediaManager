@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -46,7 +46,7 @@ public class MovieScraperMetadataPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle                BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private MovieSettings                              settings         = MovieModuleManager.SETTINGS;
   private Map<MovieScraperMetadataConfig, JCheckBox> checkboxes;
@@ -107,12 +107,12 @@ public class MovieScraperMetadataPanel extends JPanel {
     JPanel panel = new JPanel();
     JButton btnSelectAll = new JButton(IconManager.CHECK_ALL);
     panel.add(btnSelectAll);
-    btnSelectAll.setToolTipText(BUNDLE.getString("Button.select.all"));
+    btnSelectAll.setToolTipText(TmmResourceBundle.getString("Button.select.all"));
     btnSelectAll.addActionListener(e -> setCheckBoxState(true));
 
     JButton btnDeSelectAll = new JButton(IconManager.CLEAR_ALL);
     panel.add(btnDeSelectAll);
-    btnDeSelectAll.setToolTipText(BUNDLE.getString("Button.select.none"));
+    btnDeSelectAll.setToolTipText(TmmResourceBundle.getString("Button.select.none"));
     btnDeSelectAll.addActionListener(e -> setCheckBoxState(false));
 
     gbc.gridx = 0;

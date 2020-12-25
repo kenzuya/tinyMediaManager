@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -27,6 +26,7 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.thirdparty.trakttv.TraktTv;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -44,7 +44,7 @@ import net.miginfocom.swing.MigLayout;
 class ExternalServicesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 7266564870819511988L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private JButton                     btnGetTraktPin;
   private JButton                     btnTestTraktConnection;
   private JLabel                      lblTraktStatus;
@@ -55,22 +55,22 @@ class ExternalServicesSettingsPanel extends JPanel {
 
     // data init
     if (StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
-      lblTraktStatus.setText(BUNDLE.getString("Settings.trakt.status.good"));
+      lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.good"));
     }
     else {
-      lblTraktStatus.setText(BUNDLE.getString("Settings.trakt.status.bad"));
+      lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.bad"));
     }
 
     btnGetTraktPin.addActionListener(e -> getTraktPin());
     btnTestTraktConnection.addActionListener(e -> {
       try {
         TraktTv.refreshAccessToken();
-        JOptionPane.showMessageDialog(MainWindow.getFrame(), BUNDLE.getString("Settings.trakt.testconnection.good"),
-            BUNDLE.getString("Settings.trakt.testconnection"), JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.testconnection.good"),
+            TmmResourceBundle.getString("Settings.trakt.testconnection"), JOptionPane.INFORMATION_MESSAGE);
       }
       catch (Exception e1) {
-        JOptionPane.showMessageDialog(MainWindow.getFrame(), BUNDLE.getString("Settings.trakt.testconnection.bad"),
-            BUNDLE.getString("Settings.trakt.testconnection"), JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.testconnection.bad"),
+            TmmResourceBundle.getString("Settings.trakt.testconnection"), JOptionPane.ERROR_MESSAGE);
       }
     });
   }
@@ -82,12 +82,12 @@ class ExternalServicesSettingsPanel extends JPanel {
     }
     catch (Exception e1) {
       // browser could not be opened, show a dialog box
-      JOptionPane.showMessageDialog(MainWindow.getFrame(), BUNDLE.getString("Settings.trakt.getpin.fallback"),
-          BUNDLE.getString("Settings.trakt.getpin"), JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.getpin.fallback"),
+          TmmResourceBundle.getString("Settings.trakt.getpin"), JOptionPane.INFORMATION_MESSAGE);
     }
 
     // let the user insert the pin
-    String pin = JOptionPane.showInputDialog(MainWindow.getFrame(), BUNDLE.getString("Settings.trakt.getpin.entercode"));
+    String pin = JOptionPane.showInputDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.getpin.entercode"));
 
     // try to get the tokens
     String accessToken = "";
@@ -104,12 +104,12 @@ class ExternalServicesSettingsPanel extends JPanel {
     Globals.settings.setTraktRefreshToken(refreshToken);
 
     if (StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
-      lblTraktStatus.setText(BUNDLE.getString("Settings.trakt.status.good"));
+      lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.good"));
     }
     else {
-      JOptionPane.showMessageDialog(MainWindow.getFrame(), BUNDLE.getString("Settings.trakt.getpin.problem"),
-          BUNDLE.getString("Settings.trakt.getpin"), JOptionPane.ERROR_MESSAGE);
-      lblTraktStatus.setText(BUNDLE.getString("Settings.trakt.status.bad"));
+      JOptionPane.showMessageDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.getpin.problem"),
+          TmmResourceBundle.getString("Settings.trakt.getpin"), JOptionPane.ERROR_MESSAGE);
+      lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.bad"));
     }
   }
 
@@ -119,7 +119,7 @@ class ExternalServicesSettingsPanel extends JPanel {
       JPanel panelTrakt = new JPanel();
       panelTrakt.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblTraktT = new TmmLabel(BUNDLE.getString("Settings.trakt"), H3);
+      JLabel lblTraktT = new TmmLabel(TmmResourceBundle.getString("Settings.trakt"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelTrakt, lblTraktT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#trakttv"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
@@ -128,10 +128,10 @@ class ExternalServicesSettingsPanel extends JPanel {
         panelTrakt.add(lblTraktStatus, "cell 1 0 2 1");
       }
       {
-        btnGetTraktPin = new JButton(BUNDLE.getString("Settings.trakt.getpin"));
+        btnGetTraktPin = new JButton(TmmResourceBundle.getString("Settings.trakt.getpin"));
         panelTrakt.add(btnGetTraktPin, "cell 1 1 2 1");
 
-        btnTestTraktConnection = new JButton(BUNDLE.getString("Settings.trakt.testconnection"));
+        btnTestTraktConnection = new JButton(TmmResourceBundle.getString("Settings.trakt.testconnection"));
         panelTrakt.add(btnTestTraktConnection, "cell 1 1");
       }
     }

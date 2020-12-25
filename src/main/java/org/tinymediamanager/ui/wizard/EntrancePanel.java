@@ -15,17 +15,15 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import java.util.ResourceBundle;
+import net.miginfocom.swing.MigLayout;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.images.Logo;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.text.html.HTMLEditorKit;
-
-import org.tinymediamanager.ui.components.ReadOnlyTextPane;
-import org.tinymediamanager.ui.images.Logo;
-
-import net.miginfocom.swing.MigLayout;
 
 /**
  * The class EntrancePanel is the first panel which is displayed in the wizard
@@ -37,7 +35,7 @@ class EntrancePanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public EntrancePanel() {
     initComponents();
@@ -49,7 +47,7 @@ class EntrancePanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[50lp:50lp,grow][][10lp][][50lp:50lp,grow]", "[20lp:20lp,grow][][20lp:20lp][][50lp:50lp,grow]"));
 
-    final JTextPane tpGreetingHeader = new ReadOnlyTextPane(BUNDLE.getString("wizard.greeting.header"));
+    final JTextPane tpGreetingHeader = new ReadOnlyTextPane(TmmResourceBundle.getString("wizard.greeting.header"));
     tpGreetingHeader.setEditorKit(new HTMLEditorKit());
     add(tpGreetingHeader, "cell 0 1 5 1,alignx center");
 
@@ -57,7 +55,7 @@ class EntrancePanel extends JPanel {
     lblLogo.setIcon(new Logo(96));
     add(lblLogo, "cell 1 3,alignx right,aligny top");
 
-    JTextPane tpGreetingText = new ReadOnlyTextPane(BUNDLE.getString("wizard.greeting.text"));
+    JTextPane tpGreetingText = new ReadOnlyTextPane(TmmResourceBundle.getString("wizard.greeting.text"));
     add(tpGreetingText, "cell 3 3,grow");
   }
 }

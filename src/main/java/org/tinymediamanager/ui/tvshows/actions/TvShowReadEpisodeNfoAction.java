@@ -17,11 +17,11 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
@@ -39,11 +39,11 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowReadEpisodeNfoAction extends TmmAction {
   private static final long           serialVersionUID = 5762347331284295996L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public TvShowReadEpisodeNfoAction() {
-    putValue(NAME, BUNDLE.getString("tvshowepisode.readnfo"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshowepisode.readnfo.desc"));
+    putValue(NAME, TmmResourceBundle.getString("tvshowepisode.readnfo"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshowepisode.readnfo.desc"));
   }
 
   @Override
@@ -51,13 +51,13 @@ public class TvShowReadEpisodeNfoAction extends TmmAction {
     final List<TvShowEpisode> selectedEpisodes = TvShowUIModule.getInstance().getSelectionModel().getSelectedEpisodes();
 
     if (selectedEpisodes.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // rewrite selected NFOs
     TmmTaskManager.getInstance()
-        .addUnnamedTask(new TmmTask(BUNDLE.getString("tvshowepisode.readnfo"), selectedEpisodes.size(), TaskType.BACKGROUND_TASK) {
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshowepisode.readnfo"), selectedEpisodes.size(), TaskType.BACKGROUND_TASK) {
           @Override
           protected void doInBackground() {
             int i = 0;

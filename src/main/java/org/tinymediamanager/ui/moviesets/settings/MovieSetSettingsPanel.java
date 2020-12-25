@@ -17,8 +17,6 @@ package org.tinymediamanager.ui.moviesets.settings;
 
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
-import java.util.ResourceBundle;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,6 +26,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -44,7 +43,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSetSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -4173835431245178069L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
 
@@ -61,16 +60,16 @@ public class MovieSetSettingsPanel extends JPanel {
       JPanel panelUiSettings = new JPanel();
       panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][]")); // 16lp ~ width of the
 
-      JLabel lblUiSettings = new TmmLabel(BUNDLE.getString("Settings.ui"), H3);
+      JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
-        chckbxShowMissingMovies = new JCheckBox(BUNDLE.getString("Settings.movieset.showmissingmovies"));
+        chckbxShowMissingMovies = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.showmissingmovies"));
         panelUiSettings.add(chckbxShowMissingMovies, "cell 1 0 2 1");
       }
       {
-        chckbxTvShowTableTooltips = new JCheckBox(BUNDLE.getString("Settings.movieset.showtabletooltips"));
+        chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.showtabletooltips"));
         panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 1 2 1");
       }
     }

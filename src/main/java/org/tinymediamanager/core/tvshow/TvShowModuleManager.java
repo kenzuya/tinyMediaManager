@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -34,6 +33,7 @@ import org.tinymediamanager.core.CustomNullStringSerializerProvider;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.NullKeySerializer;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -53,7 +53,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author Manuel Laggner
  */
 public class TvShowModuleManager implements ITmmModule {
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
+
   public static final TvShowSettings  SETTINGS     = TvShowSettings.getInstance();
 
   private static final String         MODULE_TITLE = "TV show management";
@@ -110,7 +110,7 @@ public class TvShowModuleManager implements ITmmModule {
         mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(4096).open();
 
         // inform user that the DB could not be loaded
-        startupMessages.add(BUNDLE.getString("tvshow.loaddb.failed"));
+        startupMessages.add(TmmResourceBundle.getString("tvshow.loaddb.failed"));
       }
       catch (Exception e1) {
         LOGGER.error("could not move old database file and create a new one: {}", e1.getMessage());

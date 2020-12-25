@@ -17,8 +17,8 @@ package org.tinymediamanager.thirdparty.trakttv;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
 
@@ -28,14 +28,14 @@ import org.tinymediamanager.core.threading.TmmTask;
  * @author Manuel Laggner
  */
 public class MovieSyncTraktTvTask extends TmmTask {
-  private static final ResourceBundle BUNDLE         = ResourceBundle.getBundle("messages");
+  
 
   private boolean                     syncCollection = false;
   private boolean                     syncWatched    = false;
   private final List<Movie>           movies         = new ArrayList<>();
 
   public MovieSyncTraktTvTask(List<Movie> movies) {
-    super(BUNDLE.getString("trakt.sync"), 0, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("trakt.sync"), 0, TaskType.BACKGROUND_TASK);
     this.movies.addAll(movies);
   }
 
@@ -52,12 +52,12 @@ public class MovieSyncTraktTvTask extends TmmTask {
     TraktTv traktTV = TraktTv.getInstance();
 
     if (syncCollection) {
-      publishState(BUNDLE.getString("trakt.sync.movie"), 0);
+      publishState(TmmResourceBundle.getString("trakt.sync.movie"), 0);
       traktTV.syncTraktMovieCollection(movies);
     }
 
     if (syncWatched) {
-      publishState(BUNDLE.getString("trakt.sync.moviewatched"), 0);
+      publishState(TmmResourceBundle.getString("trakt.sync.moviewatched"), 0);
       traktTV.syncTraktMovieWatched(movies);
     }
   }

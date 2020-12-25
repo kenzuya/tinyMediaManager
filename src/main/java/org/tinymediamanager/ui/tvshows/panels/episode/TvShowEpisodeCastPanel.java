@@ -15,19 +15,16 @@
  */
 package org.tinymediamanager.ui.tvshows.panels.episode;
 
-import static org.tinymediamanager.core.Constants.ACTORS;
-
-import java.beans.PropertyChangeListener;
-import java.util.ResourceBundle;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
+import net.miginfocom.swing.MigLayout;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ActorImageLabel;
@@ -36,11 +33,12 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.ObservableElementList;
-import net.miginfocom.swing.MigLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.beans.PropertyChangeListener;
+
+import static org.tinymediamanager.core.Constants.ACTORS;
 
 /**
  * The Class TvShowEpisodeCastPanel.
@@ -50,7 +48,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEpisodeCastPanel extends JPanel {
   private static final long                 serialVersionUID = 4712144916016763491L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle       BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private final TvShowEpisodeSelectionModel selectionModel;
   private EventList<Person>                 actorEventList   = null;
@@ -118,21 +116,21 @@ public class TvShowEpisodeCastPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[][400lp,grow][150lp,grow]", "[][][200lp,grow][grow]"));
     {
-      JLabel lblDirectorT = new TmmLabel(BUNDLE.getString("metatag.director"));
+      JLabel lblDirectorT = new TmmLabel(TmmResourceBundle.getString("metatag.director"));
       add(lblDirectorT, "cell 0 0");
 
       lblDirector = new JLabel("");
       add(lblDirector, "cell 1 0 2 1,growx,wmin 0");
     }
     {
-      JLabel lblWriterT = new TmmLabel(BUNDLE.getString("metatag.writer"));
+      JLabel lblWriterT = new TmmLabel(TmmResourceBundle.getString("metatag.writer"));
       add(lblWriterT, "cell 0 1");
 
       lblWriter = new JLabel("");
       add(lblWriter, "cell 1 1 2 1,growx,wmin 0");
     }
     {
-      JLabel lblActorsT = new TmmLabel(BUNDLE.getString("metatag.actors"));
+      JLabel lblActorsT = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
       add(lblActorsT, "cell 0 2,aligny top");
 
       tableActors = new PersonTable(actorEventList);

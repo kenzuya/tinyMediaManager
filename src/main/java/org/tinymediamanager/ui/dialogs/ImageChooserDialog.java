@@ -69,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -155,73 +156,73 @@ public class ImageChooserDialog extends TmmDialog {
   private void init() {
     switch (type) {
       case BACKGROUND:
-        setTitle(BUNDLE.getString("image.choose.fanart"));
+        setTitle(TmmResourceBundle.getString("image.choose.fanart"));
         break;
 
       case POSTER:
-        setTitle(BUNDLE.getString("image.choose.poster"));
+        setTitle(TmmResourceBundle.getString("image.choose.poster"));
         break;
 
       case BANNER:
-        setTitle(BUNDLE.getString("image.choose.banner"));
+        setTitle(TmmResourceBundle.getString("image.choose.banner"));
         break;
 
       case SEASON_POSTER:
         Object season = ids.get("tvShowSeason");
         if (season != null) {
-          setTitle(BUNDLE.getString("image.choose.season") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+          setTitle(TmmResourceBundle.getString("image.choose.season") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
-          setTitle(BUNDLE.getString("image.choose.season"));
+          setTitle(TmmResourceBundle.getString("image.choose.season"));
         }
         break;
 
       case SEASON_BANNER:
         season = ids.get("tvShowSeason");
         if (season != null) {
-          setTitle(BUNDLE.getString("image.choose.season.banner") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+          setTitle(TmmResourceBundle.getString("image.choose.season.banner") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
-          setTitle(BUNDLE.getString("image.choose.season.banner"));
+          setTitle(TmmResourceBundle.getString("image.choose.season.banner"));
         }
         break;
 
       case SEASON_THUMB:
         season = ids.get("tvShowSeason");
         if (season != null) {
-          setTitle(BUNDLE.getString("image.choose.season.thumb") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+          setTitle(TmmResourceBundle.getString("image.choose.season.thumb") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
-          setTitle(BUNDLE.getString("image.choose.season.thumb"));
+          setTitle(TmmResourceBundle.getString("image.choose.season.thumb"));
         }
         break;
 
       case CLEARART:
-        setTitle(BUNDLE.getString("image.choose.clearart"));
+        setTitle(TmmResourceBundle.getString("image.choose.clearart"));
         break;
 
       case DISC:
-        setTitle(BUNDLE.getString("image.choose.disc"));
+        setTitle(TmmResourceBundle.getString("image.choose.disc"));
         break;
 
       case LOGO:
-        setTitle(BUNDLE.getString("image.choose.logo"));
+        setTitle(TmmResourceBundle.getString("image.choose.logo"));
         break;
 
       case CLEARLOGO:
-        setTitle(BUNDLE.getString("image.choose.clearlogo"));
+        setTitle(TmmResourceBundle.getString("image.choose.clearlogo"));
         break;
 
       case CHARACTERART:
-        setTitle(BUNDLE.getString("image.choose.characterart"));
+        setTitle(TmmResourceBundle.getString("image.choose.characterart"));
         break;
 
       case THUMB:
-        setTitle(BUNDLE.getString("image.choose.thumb"));
+        setTitle(TmmResourceBundle.getString("image.choose.thumb"));
         break;
 
       case KEYART:
-        setTitle(BUNDLE.getString("image.choose.keyart"));
+        setTitle(TmmResourceBundle.getString("image.choose.keyart"));
         break;
     }
 
@@ -247,10 +248,10 @@ public class ImageChooserDialog extends TmmDialog {
       contentPanel.add(separator, "cell 0 1 2 1,growx");
     }
     {
-      tfImageUrl = new EnhancedTextField(BUNDLE.getString("image.inserturl"));
+      tfImageUrl = new EnhancedTextField(TmmResourceBundle.getString("image.inserturl"));
       contentPanel.add(tfImageUrl, "cell 0 2,growx");
       tfImageUrl.setColumns(10);
-      JButton btnAddImage = new JButton(BUNDLE.getString("image.downloadimage"));
+      JButton btnAddImage = new JButton(TmmResourceBundle.getString("image.downloadimage"));
       btnAddImage.addActionListener(e -> {
         if (StringUtils.isNotBlank(tfImageUrl.getText())) {
           downloadAndPreviewImage(tfImageUrl.getText());
@@ -267,7 +268,7 @@ public class ImageChooserDialog extends TmmDialog {
 
       JButton btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
       contentPanel.add(btnMarkExtrathumbs, "cell 0 2");
-      btnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.markall"));
+      btnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.markall"));
       btnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
           if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox) {
@@ -279,7 +280,7 @@ public class ImageChooserDialog extends TmmDialog {
 
       JButton btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
       contentPanel.add(btnUnMarkExtrathumbs, "cell 0 2");
-      btnUnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.unmarkall"));
+      btnUnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.unmarkall"));
       btnUnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
           if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox) {
@@ -295,11 +296,11 @@ public class ImageChooserDialog extends TmmDialog {
 
       JButton btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
       contentPanel.add(btnMarkExtrafanart, "cell 0 3");
-      btnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.markall"));
+      btnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.markall"));
 
       JButton btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
       contentPanel.add(btnUnMarkExtrafanart, "cell 0 3");
-      btnUnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.unmarkall"));
+      btnUnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.unmarkall"));
       btnUnMarkExtrafanart.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
           if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
@@ -331,18 +332,18 @@ public class ImageChooserDialog extends TmmDialog {
       setBottomInformationPanel(infoPanel);
     }
     {
-      JButton cancelButton = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
       Action actionCancel = new CancelAction();
       cancelButton.setAction(actionCancel);
       cancelButton.setActionCommand("Cancel");
       addButton(cancelButton);
 
-      JButton btnAddFile = new JButton(BUNDLE.getString("Button.addfile"));
+      JButton btnAddFile = new JButton(TmmResourceBundle.getString("Button.addfile"));
       Action actionLocalFile = new LocalFileChooseAction();
       btnAddFile.setAction(actionLocalFile);
       addButton(btnAddFile);
 
-      JButton okButton = new JButton(BUNDLE.getString("Button.ok"));
+      JButton okButton = new JButton(TmmResourceBundle.getString("Button.ok"));
       Action actionOK = new OkAction();
       okButton.setAction(actionOK);
       okButton.setActionCommand("OK");
@@ -466,7 +467,7 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.gridwidth = 3;
     gbc.insets = new Insets(0, 5, 0, 5);
 
-    LinkLabel lblShowImage = new LinkLabel(BUNDLE.getString("image.showoriginal"));
+    LinkLabel lblShowImage = new LinkLabel(TmmResourceBundle.getString("image.showoriginal"));
     lblShowImage.addActionListener(e -> {
       ImagePreviewDialog dialog = new ImagePreviewDialog(artwork.getOriginalUrl());
       dialog.setVisible(true);
@@ -652,8 +653,8 @@ public class ImageChooserDialog extends TmmDialog {
     private static final long serialVersionUID = -1255049344169945137L;
 
     public OkAction() {
-      putValue(NAME, BUNDLE.getString("Button.ok"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("image.seteselected"));
+      putValue(NAME, TmmResourceBundle.getString("Button.ok"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.seteselected"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }
@@ -685,7 +686,7 @@ public class ImageChooserDialog extends TmmDialog {
 
       // nothing selected
       if (artwork == null) {
-        JOptionPane.showMessageDialog(null, BUNDLE.getString("image.noneselected"));
+        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("image.noneselected"));
         return;
       }
 
@@ -782,8 +783,8 @@ public class ImageChooserDialog extends TmmDialog {
     private static final long serialVersionUID = 403327079655572423L;
 
     public CancelAction() {
-      putValue(NAME, BUNDLE.getString("Button.cancel"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("Button.cancel"));
+      putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.cancel"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
       putValue(LARGE_ICON_KEY, IconManager.CANCEL_INV);
     }
@@ -808,12 +809,12 @@ public class ImageChooserDialog extends TmmDialog {
     @Override
     public Void doInBackground() {
       if (ids.isEmpty()) {
-        JOptionPane.showMessageDialog(null, BUNDLE.getString("image.download.noid"));
+        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("image.download.noid"));
         return null;
       }
 
       SwingUtilities.invokeLater(() -> {
-        startProgressBar(BUNDLE.getString("image.download.progress"));
+        startProgressBar(TmmResourceBundle.getString("image.download.progress"));
       });
 
       if (artworkScrapers == null || artworkScrapers.isEmpty()) {
@@ -986,7 +987,7 @@ public class ImageChooserDialog extends TmmDialog {
     @Override
     public void done() {
       if (!imagesFound) {
-        JLabel lblNothingFound = new JLabel(BUNDLE.getString("image.download.nothingfound"));
+        JLabel lblNothingFound = new JLabel(TmmResourceBundle.getString("image.download.nothingfound"));
         TmmFontHelper.changeFont(lblNothingFound, 1.33);
         panelImages.add(lblNothingFound);
         panelImages.validate();
@@ -1005,8 +1006,8 @@ public class ImageChooserDialog extends TmmDialog {
     private static final long serialVersionUID = -1178325861474276709L;
 
     public LocalFileChooseAction() {
-      putValue(NAME, BUNDLE.getString("image.choose.file"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("image.choose.file"));
+      putValue(NAME, TmmResourceBundle.getString("image.choose.file"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.choose.file"));
       putValue(SMALL_ICON, IconManager.FILE_OPEN_INV);
       putValue(LARGE_ICON_KEY, IconManager.FILE_OPEN_INV);
     }
@@ -1021,7 +1022,7 @@ public class ImageChooserDialog extends TmmDialog {
         path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
       }
 
-      Path file = TmmUIHelper.selectFile(BUNDLE.getString("image.choose"), path,
+      Path file = TmmUIHelper.selectFile(TmmResourceBundle.getString("image.choose"), path,
           new FileNameExtensionFilter("Image files", ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tbn"));
       if (file != null && Utils.isRegularFile(file)) {
         String fileName = file.toAbsolutePath().toString();

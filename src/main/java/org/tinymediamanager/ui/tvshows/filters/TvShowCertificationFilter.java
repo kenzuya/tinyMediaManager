@@ -1,19 +1,19 @@
 package org.tinymediamanager.ui.tvshows.filters;
 
+import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.ui.components.TmmLabel;
+
+import javax.swing.JLabel;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import javax.swing.JLabel;
-
-import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaCertification;
-import org.tinymediamanager.core.tvshow.TvShowList;
-import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.components.TmmLabel;
 
 public class TvShowCertificationFilter extends AbstractCheckComboBoxTvShowUIFilter<MediaCertification> {
 
@@ -51,7 +51,7 @@ public class TvShowCertificationFilter extends AbstractCheckComboBoxTvShowUIFilt
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.certification"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.certification"));
   }
 
   @Override

@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -38,7 +39,7 @@ public class MovieCountSubtitleFilter extends AbstractCheckComboBoxMovieUIFilter
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.subtitles"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.subtitles"));
   }
 
   @Override

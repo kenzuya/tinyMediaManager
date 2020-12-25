@@ -18,8 +18,8 @@ package org.tinymediamanager.ui.settings;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.components.tree.TmmTreeDataProvider;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.movies.MovieUIModule;
@@ -32,7 +32,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TmmSettingsDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
   private TmmTreeNode                 root;
 
   public TmmSettingsDataProvider() {
@@ -40,13 +40,13 @@ public class TmmSettingsDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     root = new TmmTreeNode(rootSettingsNode, this);
 
     // build up the settings structure
-    TmmSettingsNode generalSettingsNode = new TmmSettingsNode(BUNDLE.getString("Settings.general"), new UiSettingsPanel());
-    generalSettingsNode.addChild(new TmmSettingsNode(BUNDLE.getString("Settings.filetypes"), new FileTypesSettingsPanel()));
-    generalSettingsNode.addChild(new TmmSettingsNode(BUNDLE.getString("Settings.sorting"), new SortTitleSettingsPanel()));
-    generalSettingsNode.addChild(new TmmSettingsNode(BUNDLE.getString("Settings.externaldevices"), new ExternalDevicesSettingsPanel()));
-    generalSettingsNode.addChild(new TmmSettingsNode(BUNDLE.getString("Settings.externalservices"), new ExternalServicesSettingsPanel()));
-    generalSettingsNode.addChild(new TmmSettingsNode(BUNDLE.getString("Settings.system"), new SystemSettingsPanel()));
-    generalSettingsNode.addChild(new TmmSettingsNode(BUNDLE.getString("Settings.misc"), new MiscSettingsPanel()));
+    TmmSettingsNode generalSettingsNode = new TmmSettingsNode(TmmResourceBundle.getString("Settings.general"), new UiSettingsPanel());
+    generalSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.filetypes"), new FileTypesSettingsPanel()));
+    generalSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.sorting"), new SortTitleSettingsPanel()));
+    generalSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.externaldevices"), new ExternalDevicesSettingsPanel()));
+    generalSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.externalservices"), new ExternalServicesSettingsPanel()));
+    generalSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.system"), new SystemSettingsPanel()));
+    generalSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.misc"), new MiscSettingsPanel()));
     rootSettingsNode.addChild(generalSettingsNode);
 
     // movie settings

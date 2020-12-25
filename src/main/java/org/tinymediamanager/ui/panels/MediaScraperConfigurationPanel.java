@@ -20,7 +20,6 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -39,6 +38,7 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.config.MediaProviderConfigObject;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
@@ -55,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 public class MediaScraperConfigurationPanel extends JPanel {
   private static final long           serialVersionUID = -4120483383064864579L;
   /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
 
   private IMediaProvider              mediaProvider;
@@ -71,7 +71,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
     JPanel panelHead = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
     add(panelHead, BorderLayout.NORTH);
 
-    JLabel lblScraperOptions = new TmmLabel(BUNDLE.getString("Settings.scraper.options"), 1.2);
+    JLabel lblScraperOptions = new TmmLabel(TmmResourceBundle.getString("Settings.scraper.options"), 1.2);
     panelHead.add(lblScraperOptions);
 
     configPanel = createConfigPanel();
@@ -226,7 +226,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
    */
   private String getStringFromBundle(String key) {
     try {
-      return BUNDLE.getString(key);
+      return TmmResourceBundle.getString(key);
     }
     catch (Exception ignored) {
       // an exception if thrown here if no string in the resources has been found -> silently ignore

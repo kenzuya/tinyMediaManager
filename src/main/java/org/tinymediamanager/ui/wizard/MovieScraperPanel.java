@@ -19,7 +19,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
@@ -40,6 +39,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -68,7 +68,7 @@ class MovieScraperPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
   private final List<MovieScraper>    scrapers         = ObservableCollections.observableList(new ArrayList<>());
@@ -164,7 +164,7 @@ class MovieScraperPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][400lp,grow]"));
 
-    JLabel lblMovieScraper = new JLabel(BUNDLE.getString("wizard.movie.scraper"));
+    JLabel lblMovieScraper = new JLabel(TmmResourceBundle.getString("wizard.movie.scraper"));
     add(lblMovieScraper, "cell 0 0");
     TmmFontHelper.changeFont(lblMovieScraper, 1.3333, Font.BOLD);
     JPanel panelMovieScrapers = new JPanel();
@@ -198,21 +198,21 @@ class MovieScraperPanel extends JPanel {
       panelScraperDetails.add(panelScraperOptions, "cell 0 1,growx,aligny top");
     }
 
-    JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage"));
+    JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
     panelMovieScrapers.add(lblScraperLanguage, "cell 0 2");
 
     cbScraperLanguage = new JComboBox();
     cbScraperLanguage.setModel(new DefaultComboBoxModel<>(MediaLanguages.valuesSorted()));
     panelMovieScrapers.add(cbScraperLanguage, "cell 1 2");
 
-    JLabel lblCountry = new JLabel(BUNDLE.getString("Settings.certificationCountry"));
+    JLabel lblCountry = new JLabel(TmmResourceBundle.getString("Settings.certificationCountry"));
     panelMovieScrapers.add(lblCountry, "cell 0 3");
 
     cbCertificationCountry = new JComboBox(CountryCode.values());
     cbCertificationCountry.setModel(new DefaultComboBoxModel<>(CountryCode.values()));
     panelMovieScrapers.add(cbCertificationCountry, "cell 1 3");
 
-    chckbxScraperFallback = new JCheckBox(BUNDLE.getString("Settings.scraperfallback"));
+    chckbxScraperFallback = new JCheckBox(TmmResourceBundle.getString("Settings.scraperfallback"));
     panelMovieScrapers.add(chckbxScraperFallback, "cell 0 4 2 1");
     {
       JLabel lblNfoFormat = new JLabel("NFO format");
@@ -223,10 +223,10 @@ class MovieScraperPanel extends JPanel {
       panelMovieScrapers.add(panel, "cell 0 7 2 1,growx");
       panel.setLayout(new MigLayout("insets 0", "[][][][]", "[][]"));
 
-      JLabel lblNfoFileNaming = new JLabel(BUNDLE.getString("Settings.nofFileNaming"));
+      JLabel lblNfoFileNaming = new JLabel(TmmResourceBundle.getString("Settings.nofFileNaming"));
       panel.add(lblNfoFileNaming, "cell 0 0");
 
-      cbMovieNfoFilename1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + ".nfo");
+      cbMovieNfoFilename1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + ".nfo");
       panel.add(cbMovieNfoFilename1, "cell 1 0");
 
       cbMovieNfoFilename2 = new JCheckBox("movie.nfo");
@@ -271,13 +271,13 @@ class MovieScraperPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<MovieScraper, Boolean> movieScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.default")).setColumnClass(Boolean.class);
     //
     BeanProperty<MovieScraper, Icon> movieScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
     jTableBinding.addColumnBinding(movieScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);
     //
     BeanProperty<MovieScraper, String> movieScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false);
     //
     jTableBinding.bind();
     //

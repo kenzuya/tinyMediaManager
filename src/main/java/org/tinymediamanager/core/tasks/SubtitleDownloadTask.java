@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -41,13 +41,13 @@ import org.tinymediamanager.core.entities.MediaFile;
  */
 public class SubtitleDownloadTask extends DownloadTask {
   private static final Logger         LOGGER = LoggerFactory.getLogger(SubtitleDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private final MediaEntity           mediaEntity;
   private final Path                  destinationFile;
 
   public SubtitleDownloadTask(String url, Path destinationFile, MediaEntity mediaEntity) {
-    super(BUNDLE.getString("subtitle.downloading"), url);
+    super(TmmResourceBundle.getString("subtitle.downloading"), url);
     this.mediaEntity = mediaEntity;
     this.destinationFile = destinationFile;
   }

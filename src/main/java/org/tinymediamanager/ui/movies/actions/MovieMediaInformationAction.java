@@ -20,11 +20,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieReloadMediaInformationTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -41,12 +41,12 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieMediaInformationAction extends TmmAction {
   private static final long           serialVersionUID = 4927466975489852998L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieMediaInformationAction() {
-    putValue(NAME, BUNDLE.getString("movie.updatemediainfo"));
+    putValue(NAME, TmmResourceBundle.getString("movie.updatemediainfo"));
     putValue(SMALL_ICON, IconManager.MEDIAINFO);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.updatemediainfo"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.updatemediainfo"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
@@ -55,7 +55,7 @@ public class MovieMediaInformationAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

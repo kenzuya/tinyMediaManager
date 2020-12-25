@@ -19,12 +19,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.Utils;
@@ -44,7 +44,7 @@ import org.tinymediamanager.core.threading.TmmTask;
  */
 public class MovieTrailerDownloadTask extends TmmTask {
   private static final Logger            LOGGER       = LoggerFactory.getLogger(MovieTrailerDownloadTask.class);
-  private static final ResourceBundle    BUNDLE       = ResourceBundle.getBundle("messages");
+
 
   private final Movie                    movie;
   private final List<MovieTrailerNaming> trailernames = new ArrayList<>();
@@ -52,7 +52,7 @@ public class MovieTrailerDownloadTask extends TmmTask {
   private final TrailerSources           desiredSource;
 
   public MovieTrailerDownloadTask(Movie movie) {
-    super(BUNDLE.getString("trailer.download") + " - " + movie.getTitle(), 100, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("trailer.download") + " - " + movie.getTitle(), 100, TaskType.BACKGROUND_TASK);
 
     this.movie = movie;
 
