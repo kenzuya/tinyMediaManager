@@ -479,6 +479,8 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           // set scraped metadata
           List<MovieScraperMetadataConfig> scraperConfig = cbScraperConfig.getSelectedItems();
           movieToScrape.setMetadata(md, scraperConfig);
+          movieToScrape.setLastScrapeLanguage(model.getMetadataProvider().getId());
+          movieToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -719,10 +721,10 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private String                  searchTerm;
-    private Movie                   movie;
-    private boolean                 withIds;
-    private MediaLanguages          language;
+    private final String            searchTerm;
+    private final Movie             movie;
+    private final boolean           withIds;
+    private final MediaLanguages    language;
 
     private List<MediaSearchResult> searchResult;
     boolean                         cancel = false;
@@ -776,7 +778,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class ScrapeTask extends SwingWorker<Void, Void> {
-    private MovieChooserModel model;
+    private final MovieChooserModel model;
 
     private ScrapeTask(MovieChooserModel model) {
       this.model = model;

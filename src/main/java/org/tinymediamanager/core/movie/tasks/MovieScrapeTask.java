@@ -209,6 +209,8 @@ public class MovieScrapeTask extends TmmThreadPool {
 
             if (ScraperMetadataConfig.containsAnyMetadata(scraperMetadataConfig) || ScraperMetadataConfig.containsAnyCast(scraperMetadataConfig)) {
               movie.setMetadata(md, scraperMetadataConfig);
+              movie.setLastScraperId(searchAndScrapeOptions.getMetadataScraper().getId());
+              movie.setLastScrapeLanguage(searchAndScrapeOptions.getLanguage().name());
             }
 
             // scrape artwork if wanted

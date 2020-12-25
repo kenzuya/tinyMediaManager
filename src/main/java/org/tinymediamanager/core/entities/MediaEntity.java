@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -83,49 +84,53 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Manuel Laggner
  */
 public abstract class MediaEntity extends AbstractModelObject {
-  private static final Logger          LOGGER            = LoggerFactory.getLogger(MediaEntity.class);
+  private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
   /** The id for the database. */
-  protected UUID                       dbId              = UUID.randomUUID();
+  protected UUID                       dbId               = UUID.randomUUID();
 
   @JsonProperty
-  protected String                     dataSource        = "";
+  protected String                     dataSource         = "";
 
   /** The ids to store the ID from several metadataproviders. */
   @JsonProperty
-  protected Map<String, Object>        ids               = new ConcurrentHashMap<>(0);
+  protected Map<String, Object>        ids                = new ConcurrentHashMap<>(0);
 
   @JsonProperty
-  protected String                     title             = "";
+  protected String                     title              = "";
   @JsonProperty
-  protected String                     originalTitle     = "";
+  protected String                     originalTitle      = "";
   @JsonProperty
-  protected int                        year              = 0;
+  protected int                        year               = 0;
   @JsonProperty
-  protected String                     plot              = "";
+  protected String                     plot               = "";
   @JsonProperty
-  protected String                     path              = "";
+  protected String                     path               = "";
   @JsonProperty
-  protected Date                       dateAdded         = new Date();
+  protected Date                       dateAdded          = new Date();
   @JsonProperty
-  protected String                     productionCompany = "";
+  protected String                     productionCompany  = "";
   @JsonProperty
-  protected boolean                    scraped           = false;
+  protected boolean                    scraped            = false;
   @JsonProperty
-  protected String                     note              = "";
+  protected String                     note               = "";
 
   @JsonProperty
-  protected Map<String, MediaRating>   ratings           = new ConcurrentHashMap<>(0);
+  protected Map<String, MediaRating>   ratings            = new ConcurrentHashMap<>(0);
   @JsonProperty
-  private List<MediaFile>              mediaFiles        = new ArrayList<>();
+  private final List<MediaFile>        mediaFiles         = new ArrayList<>();
   @JsonProperty
-  protected Map<MediaFileType, String> artworkUrlMap     = new HashMap<>();
-
-  protected boolean                    newlyAdded        = false;
-  protected boolean                    duplicate         = false;
-  protected ReadWriteLock              readWriteLock     = new ReentrantReadWriteLock();
+  protected Map<MediaFileType, String> artworkUrlMap      = new EnumMap<>(MediaFileType.class);
 
   @JsonProperty
-  protected String                     originalFilename  = "";
+  protected String                     originalFilename   = "";
+  @JsonProperty
+  protected String                     lastScraperId      = "";
+  @JsonProperty
+  protected String                     lastScrapeLanguage = "";
+
+  protected boolean                    newlyAdded         = false;
+  protected boolean                    duplicate          = false;
+  protected ReadWriteLock              readWriteLock      = new ReentrantReadWriteLock();
 
   public MediaEntity() {
   }
@@ -171,6 +176,8 @@ public abstract class MediaEntity extends AbstractModelObject {
     setPlot(StringUtils.isEmpty(plot) || force ? other.plot : plot);
     setProductionCompany(StringUtils.isEmpty(productionCompany) || force ? other.productionCompany : productionCompany);
     setOriginalFilename(StringUtils.isEmpty(originalFilename) || force ? other.originalFilename : originalFilename);
+    setLastScraperId(StringUtils.isEmpty(lastScraperId) || force ? other.lastScraperId : lastScraperId);
+    setLastScrapeLanguage(StringUtils.isEmpty(lastScrapeLanguage) || force ? other.lastScrapeLanguage : lastScrapeLanguage);
 
     // when force is set, clear the lists/maps and add all other values
     if (force) {
@@ -679,6 +686,26 @@ public abstract class MediaEntity extends AbstractModelObject {
     return this.note;
   }
 
+  public String getLastScraperId() {
+    return lastScraperId;
+  }
+
+  public void setLastScraperId(String newValue) {
+    String oldValue = lastScraperId;
+    lastScraperId = newValue;
+    firePropertyChange("lastScraperId", oldValue, newValue);
+  }
+
+  public String getLastScrapeLanguage() {
+    return lastScrapeLanguage;
+  }
+
+  public void setLastScrapeLanguage(String newValue) {
+    String oldValue = lastScrapeLanguage;
+    lastScrapeLanguage = newValue;
+    firePropertyChange("lastScrapeLanguage", oldValue, newValue);
+  }
+
   public void setDuplicate() {
     this.duplicate = true;
   }
@@ -1174,11 +1201,11 @@ public abstract class MediaEntity extends AbstractModelObject {
     // empty - to be used in subclasses
   }
 
-  abstract public void saveToDb();
+  public abstract void saveToDb();
 
-  abstract public void deleteFromDb();
+  public abstract void deleteFromDb();
 
-  abstract public void callbackForWrittenArtwork(MediaArtworkType type);
+  public abstract void callbackForWrittenArtwork(MediaArtworkType type);
 
-  abstract protected Comparator<MediaFile> getMediaFileComparator();
+  protected abstract Comparator<MediaFile> getMediaFileComparator();
 }

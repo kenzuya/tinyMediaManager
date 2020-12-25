@@ -83,7 +83,7 @@ public class MovieChooserModel extends AbstractModelObject {
   private String                        combinedName     = "";
   private String                        posterUrl        = "";
   private String                        tagline          = "";
-  private List<Person>                  castMembers      = new ArrayList<>();
+  private final List<Person>            castMembers      = new ArrayList<>();
   private boolean                       scraped          = false;
 
   public MovieChooserModel(Movie movie, MediaScraper metadataProvider, List<MediaScraper> artworkScrapers, List<MediaScraper> trailerScrapers,
@@ -191,6 +191,14 @@ public class MovieChooserModel extends AbstractModelObject {
 
   public String getCombinedName() {
     return combinedName;
+  }
+
+  public MediaScraper getMetadataProvider() {
+    return metadataProvider;
+  }
+
+  public MediaLanguages getLanguage() {
+    return language;
   }
 
   /**

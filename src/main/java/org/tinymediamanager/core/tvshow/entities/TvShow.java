@@ -142,35 +142,35 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   private String                                country                    = "";
 
   @JsonProperty
-  private List<MediaGenres>                     genres                     = new CopyOnWriteArrayList<>();
+  private final List<MediaGenres>               genres                     = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<String>                          tags                       = new CopyOnWriteArrayList<>();
+  private final List<String>                    tags                       = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private Map<Integer, String>                  seasonTitleMap             = new HashMap<>(0);
+  private final Map<Integer, String>            seasonTitleMap             = new HashMap<>(0);
   @JsonProperty
-  private Map<Integer, String>                  seasonPosterUrlMap         = new HashMap<>(0);
+  private final Map<Integer, String>            seasonPosterUrlMap         = new HashMap<>(0);
   @JsonProperty
-  private Map<Integer, String>                  seasonBannerUrlMap         = new HashMap<>(0);
+  private final Map<Integer, String>            seasonBannerUrlMap         = new HashMap<>(0);
   @JsonProperty
-  private Map<Integer, String>                  seasonThumbUrlMap          = new HashMap<>(0);
+  private final Map<Integer, String>            seasonThumbUrlMap          = new HashMap<>(0);
   @JsonProperty
-  private List<Person>                          actors                     = new CopyOnWriteArrayList<>();
+  private final List<Person>                    actors                     = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<TvShowEpisode>                   dummyEpisodes              = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode>             dummyEpisodes              = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<String>                          extraFanartUrls            = new CopyOnWriteArrayList<>();
+  private final List<String>                    extraFanartUrls            = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<MediaTrailer>                    trailer                    = new CopyOnWriteArrayList<>();
+  private final List<MediaTrailer>              trailer                    = new CopyOnWriteArrayList<>();
 
-  private List<TvShowEpisode>                   episodes                   = new CopyOnWriteArrayList<>();
-  private Map<Integer, MediaFile>               seasonPosters              = new HashMap<>(0);
-  private Map<Integer, MediaFile>               seasonBanners              = new HashMap<>(0);
-  private Map<Integer, MediaFile>               seasonThumbs               = new HashMap<>(0);
-  private List<TvShowSeason>                    seasons                    = new CopyOnWriteArrayList<>();
+  private final List<TvShowEpisode>             episodes                   = new CopyOnWriteArrayList<>();
+  private final Map<Integer, MediaFile>         seasonPosters              = new HashMap<>(0);
+  private final Map<Integer, MediaFile>         seasonBanners              = new HashMap<>(0);
+  private final Map<Integer, MediaFile>         seasonThumbs               = new HashMap<>(0);
+  private final List<TvShowSeason>              seasons                    = new CopyOnWriteArrayList<>();
   private String                                titleSortable              = "";
   private Date                                  lastWatched                = null;
 
-  private PropertyChangeListener                propertyChangeListener;
+  private final PropertyChangeListener          propertyChangeListener;
 
   private static final Comparator<MediaTrailer> TRAILER_QUALITY_COMPARATOR = new MediaTrailer.QualityComparator();
 

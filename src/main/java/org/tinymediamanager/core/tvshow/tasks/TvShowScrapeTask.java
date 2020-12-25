@@ -63,7 +63,6 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
  */
 public class TvShowScrapeTask extends TmmThreadPool {
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
-  
 
   private final List<TvShow>                             tvShowsToScrape;
   private final boolean                                  doSearch;
@@ -186,6 +185,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
               LOGGER.info("=====================================================");
               md = ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
               tvShow.setMetadata(md, tvShowScraperMetadataConfig);
+              tvShow.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
+              tvShow.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
             }
 
             // always add all episode data (for missing episodes and episode list)

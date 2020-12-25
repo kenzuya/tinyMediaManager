@@ -181,25 +181,25 @@ public class Movie extends MediaEntity implements IMediaInformation {
   private boolean                               offline                    = false;
 
   @JsonProperty
-  private List<MediaGenres>                     genres                     = new CopyOnWriteArrayList<>();
+  private final List<MediaGenres>               genres                     = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<String>                          tags                       = new CopyOnWriteArrayList<>();
+  private final List<String>                    tags                       = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<String>                          extraThumbs                = new CopyOnWriteArrayList<>();
+  private final List<String>                    extraThumbs                = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<String>                          extraFanarts               = new CopyOnWriteArrayList<>();
+  private final List<String>                    extraFanarts               = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                          actors                     = new CopyOnWriteArrayList<>();
+  private final List<Person>                    actors                     = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                          producers                  = new CopyOnWriteArrayList<>();
+  private final List<Person>                    producers                  = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                          directors                  = new CopyOnWriteArrayList<>();
+  private final List<Person>                    directors                  = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                          writers                    = new CopyOnWriteArrayList<>();
+  private final List<Person>                    writers                    = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<MediaTrailer>                    trailer                    = new CopyOnWriteArrayList<>();
+  private final List<MediaTrailer>              trailer                    = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<String>                          showlinks                  = new CopyOnWriteArrayList<>();
+  private final List<String>                    showlinks                  = new CopyOnWriteArrayList<>();
 
   private MovieSet                              movieSet;
   private String                                titleSortable              = "";
@@ -281,7 +281,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     setExtraFanarts(other.extraFanarts);
     setExtraThumbs(other.extraThumbs);
 
-    ArrayList<MediaTrailer> mergedTrailers = new ArrayList<>(trailer);
+    List<MediaTrailer> mergedTrailers = new ArrayList<>(trailer);
     ListUtils.mergeLists(mergedTrailers, other.trailer);
     setTrailers(mergedTrailers);
   }
@@ -384,7 +384,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return true/false
    */
   public Boolean getHasMetadata() {
-    return !plot.isEmpty() && !(year == 0);
+    return !plot.isEmpty() && year != 0;
   }
 
   /**

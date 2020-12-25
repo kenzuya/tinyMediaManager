@@ -47,7 +47,7 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeScrapeTask extends TmmTask {
-  
+
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowEpisodeScrapeTask.class);
 
   private final List<TvShowEpisode>                      episodes;
@@ -105,6 +105,8 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         MediaMetadata metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
         if (StringUtils.isNotBlank(metadata.getTitle())) {
           episode.setMetadata(metadata, config);
+          episode.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
+          episode.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
         }
       }
       catch (ScrapeException e) {

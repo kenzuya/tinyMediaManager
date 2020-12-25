@@ -50,7 +50,6 @@ import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 public class MovieSetScrapeTask extends TmmThreadPool {
   private static final Logger                       LOGGER = LoggerFactory.getLogger(MovieSetScrapeTask.class);
 
-
   private final List<MovieSet>                      movieSetsToScrape;
   private final MovieSetSearchAndScrapeOptions      scrapeOptions;
   private final List<MovieSetScraperMetadataConfig> scraperMetadataConfig;
@@ -160,6 +159,8 @@ public class MovieSetScrapeTask extends TmmThreadPool {
         // mix in the dummy movie
         MovieSet.MovieSetMovie movieSetMovie = new MovieSet.MovieSetMovie();
         movieSetMovie.setMetadata(item, Arrays.asList(MovieScraperMetadataConfig.values()));
+        movieSetMovie.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
+        movieSetMovie.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
 
         // POSTER
         if (!item.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).isEmpty()) {

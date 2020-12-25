@@ -59,7 +59,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * The Class MovieSetChooserModel.
  */
 public class MovieSetChooserModel extends AbstractModelObject {
-  
+
   private static final Logger              LOGGER         = LoggerFactory.getLogger(MovieSetChooserModel.class);
   public static final MovieSetChooserModel emptyResult    = new MovieSetChooserModel();
   private String                           name           = "";
@@ -235,6 +235,8 @@ public class MovieSetChooserModel extends AbstractModelObject {
             // mix in the dummy movie
             MovieSet.MovieSetMovie movieSetMovie = new MovieSet.MovieSetMovie();
             movieSetMovie.setMetadata(item, Arrays.asList(MovieScraperMetadataConfig.values()));
+            movieSetMovie.setLastScraperId(scraper.getMediaProvider().getId());
+            movieSetMovie.setLastScrapeLanguage(options.getLanguage().name());
 
             // POSTER
             if (!item.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {

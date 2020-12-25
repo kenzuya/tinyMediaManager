@@ -99,7 +99,6 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -115,7 +114,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonProperty
   private int                                episode               = -1;
   @JsonProperty
-  @JsonInclude(JsonInclude.Include.ALWAYS)
   private int                                season                = -1;
   @JsonProperty
   private int                                dvdSeason             = -1;
@@ -146,13 +144,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private boolean                            stacked               = false;
 
   @JsonProperty
-  private List<Person>                       actors                = new CopyOnWriteArrayList<>();
+  private final List<Person>                 actors                = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                       directors             = new CopyOnWriteArrayList<>();
+  private final List<Person>                 directors             = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                       writers               = new CopyOnWriteArrayList<>();
+  private final List<Person>                 writers               = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<String>                       tags                  = new CopyOnWriteArrayList<>();
+  private final List<String>                 tags                  = new CopyOnWriteArrayList<>();
 
   private TvShow                             tvShow                = null;
   private String                             titleSortable         = "";
@@ -305,6 +303,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     for (MediaRating mediaRating : source.getRatings().values()) {
       ratings.put(mediaRating.getId(), new MediaRating(mediaRating));
     }
+    tags.addAll(source.tags);
   }
 
   /**
