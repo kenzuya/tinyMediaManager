@@ -348,6 +348,40 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return false;
   }
 
+  /**
+   * clears all video related values
+   */
+  public void clearVideoInformation() {
+    setVideoWidth(0);
+    setVideoHeight(0);
+    setVideoBitRate(0);
+    setOverallBitRate(0);
+    setDuration(0);
+    setVideoCodec("");
+    setBitDepth(0);
+    setFrameRate(0);
+    setExactVideoFormat("");
+    setContainerFormat("");
+    setAspectRatio(0);
+    setVideo3DFormat("");
+    setHdrFormat("");
+    setAnimatedGraphic(false);
+  }
+
+  /**
+   * clears all audio related values
+   */
+  public void clearAudioInformation() {
+    setAudioStreams(Collections.emptyList());
+  }
+
+  /**
+   * clears all subtitle related values
+   */
+  public void clearSubtitleInformation() {
+    setSubtitles(Collections.emptyList());
+  }
+
   public Path getFile() {
     return getFileAsPath();
   }
