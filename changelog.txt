@@ -26,3 +26,4 @@ x improved HDR detection #1134
 x set displayepisode and displayseason #1146
 x added Soap to well known genres
 x re-read mediainfo data for (ex)changed files
+x (movie) remove missing/deleted files on update data sources

@@ -85,35 +85,34 @@ import com.sun.jna.Platform;
  * @author Myron Boyle
  */
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
-
+  private static final Logger       LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
 
   // constants
-  private static final String         VIDEO_TS         = "VIDEO_TS";
-  private static final String         BDMV             = "BDMV";
-  private static final String         HVDVD_TS         = "HVDVD_TS";
+  private static final String       VIDEO_TS         = "VIDEO_TS";
+  private static final String       BDMV             = "BDMV";
+  private static final String       HVDVD_TS         = "HVDVD_TS";
 
-  private static long                 preDir           = 0;
-  private static long                 postDir          = 0;
-  private static long                 visFile          = 0;
-  private static long                 preDirAll        = 0;
-  private static long                 postDirAll       = 0;
-  private static long                 visFileAll       = 0;
+  private static long               preDir           = 0;
+  private static long               postDir          = 0;
+  private static long               visFile          = 0;
+  private static long               preDirAll        = 0;
+  private static long               postDirAll       = 0;
+  private static long               visFileAll       = 0;
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String>   SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
+  private static final List<String> SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
       "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ");
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
-  private static final String         SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
-  private static final Pattern        VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
+  private static final String       SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";
+  private static final Pattern      VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
-  private final List<String>          dataSources;
-  private final List<String>          skipFolders;
-  private final List<Movie>           movieFolders     = new ArrayList<>();
-  private final MovieList             movieList        = MovieList.getInstance();
-  private final Set<Path>             filesFound       = ConcurrentHashMap.newKeySet();
-  private final List<Runnable>        miTasks          = Collections.synchronizedList(new ArrayList<>());
+  private final List<String>        dataSources;
+  private final List<String>        skipFolders;
+  private final List<Movie>         movieFolders     = new ArrayList<>();
+  private final MovieList           movieList        = MovieList.getInstance();
+  private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
+  private final List<Runnable>      miTasks          = Collections.synchronizedList(new ArrayList<>());
 
   public MovieUpdateDatasourceTask() {
     super(TmmResourceBundle.getString("update.datasource"));
@@ -701,6 +700,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     // ***************************************************************
+    // fifth round - remove files which are not here any more
+    // ***************************************************************
+    for (MediaFile mediaFile : movie.getMediaFiles()) {
+      if (!mediaFile.getFile().toFile().exists()) {
+        movie.removeFromMediaFiles(mediaFile);
+      }
+    }
+
+    // ***************************************************************
     // check if that movie is an offline movie
     // ***************************************************************
     boolean isOffline = false;
@@ -874,6 +882,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
       addMediafilesToMovie(movie, sameName);
       mfs.removeAll(sameName);
+
+      // ***************************************************************
+      // fifth round - remove files which are not here any more
+      // ***************************************************************
+      for (MediaFile mediaFile : movie.getMediaFiles()) {
+        if (!mediaFile.getFile().toFile().exists()) {
+          movie.removeFromMediaFiles(mediaFile);
+        }
+      }
 
       // check if that movie is an offline movie
       boolean isOffline = false;
