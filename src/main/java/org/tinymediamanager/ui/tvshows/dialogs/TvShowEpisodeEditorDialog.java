@@ -791,9 +791,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       // user rating
       Map<String, MediaRating> ratings = new HashMap<>();
 
-      if ((double) spRating.getValue() > 0) {
+      //if ((double) spRating.getValue() > 0) {
         ratings.put(MediaRating.USER, new MediaRating(MediaRating.USER, (double) spRating.getValue(), 1, 10));
-      }
+      //}
 
       // other ratings
       for (MediaRatingTable.Rating mediaRating : TvShowEpisodeEditorDialog.this.ratings) {

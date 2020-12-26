@@ -1367,9 +1367,9 @@ public class MovieEditorDialog extends TmmDialog {
       // user rating
       Map<String, MediaRating> newRatings = new HashMap<>();
 
-      if ((double) spRating.getValue() > 0) {
+      //if ((double) spRating.getValue() > 0) {
         newRatings.put(MediaRating.USER, new MediaRating(MediaRating.USER, (double) spRating.getValue(), 1, 10));
-      }
+      //}
 
       // other ratings
       for (MediaRatingTable.Rating rating : MovieEditorDialog.this.ratings) {
