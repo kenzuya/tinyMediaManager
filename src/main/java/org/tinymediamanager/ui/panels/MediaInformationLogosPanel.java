@@ -136,7 +136,7 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      String ratio = String.valueOf(aspectRatio);
+      String ratio = String.format(Locale.US, "%.2f", aspectRatio);
       // try to load image
       URL file = this.getClass().getResource(imageSource + "/aspectratio/" + ratio + ".png");
 
