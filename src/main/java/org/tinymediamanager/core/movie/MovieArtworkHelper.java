@@ -60,7 +60,7 @@ import org.tinymediamanager.thirdparty.VSMeta;
  */
 public class MovieArtworkHelper {
   private static final Logger  LOGGER        = LoggerFactory.getLogger(MovieArtworkHelper.class);
-  private static final Pattern INDEX_PATTERN = Pattern.compile(".*(\\d+)$");
+  private static final Pattern INDEX_PATTERN = Pattern.compile(".*?(\\d+)$");
 
   private MovieArtworkHelper() {
     // hide public constructor for utility classes
