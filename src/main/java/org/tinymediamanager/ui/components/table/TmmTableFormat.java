@@ -279,12 +279,15 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
 
     private int getImageValue(ImageIcon imageIcon) {
       if (imageIcon == IconManager.TABLE_OK) {
-        return 4;
+        return 8;
       }
       else if (imageIcon == IconManager.TABLE_PROBLEM) {
-        return 2;
+        return 4;
       }
       else if (imageIcon == IconManager.TABLE_NOT_OK) {
+        return 2;
+      }
+      else if (imageIcon != null) {
         return 1;
       }
       else {
