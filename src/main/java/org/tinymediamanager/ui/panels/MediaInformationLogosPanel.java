@@ -134,7 +134,7 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      return new AspectRatioIcon(String.valueOf(aspectRatio));
+      return new AspectRatioIcon(String.format(Locale.US, "%.2f", aspectRatio));
     }
     catch (Exception ignored) {
       // ignore
