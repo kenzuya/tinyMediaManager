@@ -5,7 +5,7 @@
 
     <groupId>org.tinymediamanager</groupId>
     <artifactId>tinyMediaManager</artifactId>
-    <version>4.0.7-SNAPSHOT</version>
+    <version>4.0.8-SNAPSHOT</version>
 
     <name>tinyMediaManager</name>
     <description>a media management tool written in Java</description>
@@ -334,6 +334,12 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>4.5.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tinymediamanager</groupId>
+            <artifactId>yt</artifactId>
+            <version>2.4.5-tmm</version>
         </dependency>
 
         <!-- testing -->

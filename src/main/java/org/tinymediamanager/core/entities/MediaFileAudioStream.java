@@ -29,6 +29,8 @@ public class MediaFileAudioStream extends MediaStreamInfo {
   private int    audioChannels = 0;
   @JsonProperty
   private int    bitrate       = 0;
+  @JsonProperty
+  private String audioTitle    = "";
 
   @JsonProperty
   @Deprecated
@@ -58,6 +60,14 @@ public class MediaFileAudioStream extends MediaStreamInfo {
     this.bitrate = bitrate;
   }
 
+  public void setAudioTitle(String audioTitle) {
+    this.audioTitle = audioTitle;
+  }
+
+  public String getAudioTitle() {
+    return audioTitle;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -72,11 +82,11 @@ public class MediaFileAudioStream extends MediaStreamInfo {
 
     MediaFileAudioStream that = (MediaFileAudioStream) o;
 
-    return audioChannels == that.audioChannels && bitrate == that.bitrate && defaultStream == that.defaultStream;
+    return audioChannels == that.audioChannels && bitrate == that.bitrate && defaultStream == that.defaultStream && audioTitle == that.audioTitle;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), audioChannels, bitrate, defaultStream);
+    return Objects.hash(super.hashCode(), audioChannels, bitrate, defaultStream, audioTitle);
   }
 }

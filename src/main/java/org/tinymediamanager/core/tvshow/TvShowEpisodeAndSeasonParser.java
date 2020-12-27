@@ -159,7 +159,7 @@ public class TvShowEpisodeAndSeasonParser {
    *          the show name
    * @return result the calculated result
    */
-  public static EpisodeMatchingResult detect(String name, String showname) {
+  private static EpisodeMatchingResult detect(String name, String showname) {
     LOGGER.debug("parsing '" + name + "'");
     EpisodeMatchingResult result = new EpisodeMatchingResult();
     Pattern regex;
@@ -167,7 +167,6 @@ public class TvShowEpisodeAndSeasonParser {
 
     // remove problematic strings from name
     String filename = FilenameUtils.getName(name);
-    String extension = FilenameUtils.getExtension(name);
 
     // check for disc files and remove!!
     if (filename.toLowerCase(Locale.ROOT).matches("(video_ts|vts_\\d\\d_\\d)\\.(vob|bup|ifo)") || // dvd
@@ -217,7 +216,7 @@ public class TvShowEpisodeAndSeasonParser {
           // can not happen from regex since we only come here with max 2 numeric chars
         }
         result.season = s;
-        LOGGER.trace("add found season {}", s);
+        LOGGER.trace("add found season '{}'", s);
       }
     }
 
@@ -246,7 +245,7 @@ public class TvShowEpisodeAndSeasonParser {
           if (ep > 0 && !result.episodes.contains(ep) && (lastFoundEpisode == 0 || lastFoundEpisode + 1 == ep)) {
             lastFoundEpisode = ep;
             result.episodes.add(ep);
-            LOGGER.trace("add found EP " + ep);
+            LOGGER.trace("add found EP '{}'", ep);
           }
         }
       }
@@ -255,7 +254,7 @@ public class TvShowEpisodeAndSeasonParser {
       }
       if (s >= 0) {
         result.season = s;
-        LOGGER.trace("add found season " + s);
+        LOGGER.trace("add found season '{}", s);
       }
     }
 
@@ -283,7 +282,7 @@ public class TvShowEpisodeAndSeasonParser {
           }
           if (ep > 0 && !result.episodes.contains(ep)) {
             result.episodes.add(ep);
-            LOGGER.trace("add found EP " + ep);
+            LOGGER.trace("add found EP '{}'", ep);
           }
         }
       }
@@ -292,7 +291,7 @@ public class TvShowEpisodeAndSeasonParser {
       }
       if (s >= 0) {
         result.season = s;
-        LOGGER.trace("add found season " + s);
+        LOGGER.trace("add found season '{}'", s);
       }
     }
 
@@ -310,7 +309,7 @@ public class TvShowEpisodeAndSeasonParser {
         }
         if (ep > 0 && !result.episodes.contains(ep)) {
           result.episodes.add(ep);
-          LOGGER.trace("add found EP " + ep);
+          LOGGER.trace("add found EP '{}'", ep);
         }
       }
     }
@@ -333,7 +332,7 @@ public class TvShowEpisodeAndSeasonParser {
         ep = decodeRoman(m.group(2));
         if (ep > 0 && !result.episodes.contains(ep)) {
           result.episodes.add(ep);
-          LOGGER.trace("add found EP " + ep);
+          LOGGER.trace("add found EP '{}'", ep);
         }
       }
     }
@@ -351,7 +350,7 @@ public class TvShowEpisodeAndSeasonParser {
           // can not happen from regex since we only come here with max 2 numeric chars
         }
         result.season = s;
-        LOGGER.trace("add found year as season " + s + " date: " + result.date);
+        LOGGER.trace("add found year as season '{}', date: '{}'", s, result.date);
         return postClean(result); // since we have a matching year, we wont find episodes solely by number
       }
     }
@@ -369,7 +368,7 @@ public class TvShowEpisodeAndSeasonParser {
           // can not happen from regex since we only come here with max 2 numeric chars
         }
         result.season = s;
-        LOGGER.trace("add found year as season " + s + " date: " + result.date);
+        LOGGER.trace("add found year as season '{}', date: '{}'", s, result.date);
         return postClean(result); // since we have a matching year, we wont find episodes solely by number
       }
     }
@@ -388,9 +387,9 @@ public class TvShowEpisodeAndSeasonParser {
         int ep = Integer.parseInt(num.substring(1));
         if (ep > 0 && !result.episodes.contains(ep)) {
           result.episodes.add(ep);
-          LOGGER.trace("add found EP " + ep);
+          LOGGER.trace("add found EP '{}'", ep);
         }
-        LOGGER.trace("add found season " + s);
+        LOGGER.trace("add found season '{}'", s);
         result.season = s;
         // for 3 character numbers, we iterate multiple times!
         // do not stop on first one"
@@ -408,7 +407,7 @@ public class TvShowEpisodeAndSeasonParser {
         int ep = Integer.parseInt(num);
         if (ep > 0 && !result.episodes.contains(ep)) {
           result.episodes.add(ep);
-          LOGGER.trace("add found EP " + ep);
+          LOGGER.trace("add found EP '{}'", ep);
         }
         return postClean(result);
       }
@@ -419,7 +418,7 @@ public class TvShowEpisodeAndSeasonParser {
         int ep = Integer.parseInt(num); // just one :P
         if (ep > 0 && !result.episodes.contains(ep)) {
           result.episodes.add(ep);
-          LOGGER.trace("add found EP " + ep);
+          LOGGER.trace("add found EP '{}'", ep);
         }
         return postClean(result);
       }
@@ -433,7 +432,7 @@ public class TvShowEpisodeAndSeasonParser {
     emr.cleanedName = cleanFilename(emr.name, new Pattern[] { SEASON_PATTERN, seasonMultiEP, seasonMultiEP2, episodePattern, episodePattern2,
         numbers3Pattern, numbers2Pattern, romanPattern, date1, date2 });
     Collections.sort(emr.episodes);
-    LOGGER.debug("returning result " + emr);
+    LOGGER.trace("returning result '{}'", emr);
     return emr;
   }
 

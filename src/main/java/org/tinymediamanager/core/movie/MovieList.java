@@ -16,6 +16,7 @@
 package org.tinymediamanager.core.movie;
 
 import static org.tinymediamanager.core.Constants.CERTIFICATION;
+import static org.tinymediamanager.core.Constants.DECADE;
 import static org.tinymediamanager.core.Constants.GENRE;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
@@ -108,6 +109,8 @@ public class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<Integer>            subtitlesInMovies;
   private final CopyOnWriteArrayList<String>             audioLanguagesInMovies;
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInMovies;
+  private final CopyOnWriteArrayList<String>             decadeInMovies;
+  private final CopyOnWriteArrayList<String>             hdrFormatInMovies;
 
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
@@ -133,6 +136,8 @@ public class MovieList extends AbstractModelObject {
     subtitlesInMovies = new CopyOnWriteArrayList<>();
     audioLanguagesInMovies = new CopyOnWriteArrayList<>();
     subtitleLanguagesInMovies = new CopyOnWriteArrayList<>();
+    decadeInMovies = new CopyOnWriteArrayList<>();
+    hdrFormatInMovies = new CopyOnWriteArrayList<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -848,6 +853,7 @@ public class MovieList extends AbstractModelObject {
 
   private void updateLists(Collection<Movie> movies) {
     updateYear(movies);
+    updateDecades(movies);
     updateTags(movies);
     updateGenres(movies);
     updateCertifications(movies);
@@ -866,6 +872,21 @@ public class MovieList extends AbstractModelObject {
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(yearsInMovies, years)) {
       firePropertyChange(YEAR, null, yearsInMovies);
+    }
+  }
+
+  /**
+   * Update decades in movies
+   *
+   * @param movies
+   *          all movies to update
+   */
+  private void updateDecades(Collection<Movie> movies) {
+    Set<String> decades = new HashSet<>();
+    movies.forEach(movie -> decades.add(movie.getDecadeShort()));
+
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(decadeInMovies, decades)) {
+      firePropertyChange(DECADE, null, decadeInMovies);
     }
   }
 
@@ -914,6 +935,7 @@ public class MovieList extends AbstractModelObject {
     Set<Integer> subtitleCount = new HashSet<>();
     Set<String> audioLanguages = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
+    Set<String> hdrFormat = new HashSet<>();
 
     // get Subtitle language from video files and subtitle files
     for (Movie movie : movies) {
@@ -966,6 +988,11 @@ public class MovieList extends AbstractModelObject {
             audioLanguages.add(lang);
           }
         }
+
+        // HDR Format
+        if (!mf.getHdrFormat().isEmpty()) {
+          hdrFormat.add(mf.getHdrFormat());
+        }
       }
     }
 
@@ -1008,6 +1035,11 @@ public class MovieList extends AbstractModelObject {
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleLanguagesInMovies, subtitleLanguages)) {
       firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInMovies);
     }
+
+    // HDR Format
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInMovies, hdrFormat)) {
+      firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInMovies);
+    }
   }
 
   /**
@@ -1032,6 +1064,15 @@ public class MovieList extends AbstractModelObject {
    */
   public Collection<Integer> getYearsInMovies() {
     return yearsInMovies;
+  }
+
+  /**
+   * get a {@link Set} of all decades in movies
+   *
+   * @return a {@link Set} of all decades
+   */
+  public Collection<String> getDecadeInMovies() {
+    return decadeInMovies;
   }
 
   /**
@@ -1077,6 +1118,10 @@ public class MovieList extends AbstractModelObject {
 
   public Collection<String> getSubtitleLanguagesInMovies() {
     return subtitleLanguagesInMovies;
+  }
+
+  public Collection<String> getHDRFormatInMovies() {
+    return hdrFormatInMovies;
   }
 
   /**

@@ -16,12 +16,37 @@
 
 package org.tinymediamanager.ui.tvshows.settings;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.ObservableElementList;
-import ca.odell.glazedlists.swing.GlazedListsSwing;
-import net.miginfocom.swing.MigLayout;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
+import static org.tinymediamanager.ui.TmmFontHelper.L2;
+
+import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -57,35 +82,12 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import java.awt.Font;
-import java.awt.event.ActionListener;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
-import static org.tinymediamanager.ui.TmmFontHelper.L2;
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
+import ca.odell.glazedlists.swing.GlazedListsSwing;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class TvShowRenamerSettingsPanel
@@ -98,10 +100,10 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
   private static final Logger                      LOGGER            = LoggerFactory.getLogger(TvShowRenamerSettingsPanel.class);
 
-  private TvShowSettings                           settings          = TvShowModuleManager.SETTINGS;
-  private List<String>                             spaceReplacements = new ArrayList<>(Arrays.asList("_", ".", "-"));
-  private List<String>                             colonReplacements = new ArrayList<>(Arrays.asList(" ", "-"));
-  private EventList<TvShowRenamerExample>          exampleEventList;
+  private final TvShowSettings                     settings          = TvShowModuleManager.SETTINGS;
+  private final List<String>                       spaceReplacements = new ArrayList<>(Arrays.asList("_", ".", "-"));
+  private final List<String>                       colonReplacements = new ArrayList<>(Arrays.asList(" ", "-", "_"));
+  private final EventList<TvShowRenamerExample>    exampleEventList;
 
   /*
    * UI components
@@ -507,8 +509,8 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
       if (tvShow != null && episode != null) {
         String tvShowDir = TvShowRenamer.getTvShowFoldername(tfTvShowFolder.getText(), tvShow);
-        MediaFile episodeMf = TvShowRenamer
-            .generateEpisodeFilenames(tfEpisodeFilename.getText(), tvShow, episode.getMediaFiles(MediaFileType.VIDEO).get(0)).get(0);
+        MediaFile episodeMf = TvShowRenamer.generateEpisodeFilenames(tfEpisodeFilename.getText(), tvShow,
+            episode.getMediaFiles(MediaFileType.VIDEO).get(0), episode.getMediaFiles(MediaFileType.VIDEO).get(0)).get(0);
 
         String newFilenameAndPath = episodeMf.getFile().toString().replace(episode.getTvShow().getPath(), "");
         lblExample.setText(tvShowDir + newFilenameAndPath);

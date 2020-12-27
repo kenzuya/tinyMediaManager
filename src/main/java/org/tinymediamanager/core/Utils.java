@@ -801,7 +801,7 @@ public class Utils {
         return false;
       }
       else {
-        LOGGER.info("Successfully moved file from {} to {}", srcFile, destFile);
+        LOGGER.debug("Successfully moved file from {} to {}", srcFile, destFile);
         return true;
       }
     }

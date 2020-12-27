@@ -197,9 +197,10 @@ public class TvShowExporter extends MediaEntityExporter {
     }
     if (entity instanceof TvShowEpisode) {
       TvShowEpisode episode = (TvShowEpisode) entity;
-      List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
+      MediaFile mainVideoFile = episode.getMainVideoFile();
       return FilenameUtils
-          .getBaseName(TvShowRenamer.generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mfs.get(0)).get(0).getFilename());
+          .getBaseName(TvShowRenamer.generateEpisodeFilenames(DEFAULT_RENAMER_FILE_PATTERN, episode.getTvShow(), mainVideoFile, mainVideoFile).get(0)
+              .getFilename());
     }
     return "";
   }

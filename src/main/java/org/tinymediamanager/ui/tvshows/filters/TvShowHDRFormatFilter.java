@@ -1,0 +1,73 @@
+package org.tinymediamanager.ui.tvshows.filters;
+
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import javax.swing.JLabel;
+
+import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.ui.components.TmmLabel;
+
+public class TvShowHDRFormatFilter extends AbstractCheckComboBoxTvShowUIFilter<String> {
+
+  private TvShowList tvShowList = TvShowList.getInstance();
+
+  public TvShowHDRFormatFilter() {
+    super();
+    checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
+    buildHdrArray();
+    PropertyChangeListener propertyChangeListener = evt -> buildHdrArray();
+    tvShowList.addPropertyChangeListener(Constants.HDR_FORMAT, propertyChangeListener);
+  }
+
+  @Override
+  protected JLabel createLabel() {
+    return new TmmLabel(BUNDLE.getString("metatag.hdrformat"));
+  }
+
+  @Override
+  public String getId() {
+    return "hdrFormatFilter";
+  }
+
+  @Override
+  protected String parseTypeToString(String type) throws Exception {
+    return type;
+  }
+
+  @Override
+  protected String parseStringToType(String string) throws Exception {
+    return string;
+  }
+
+  @Override
+  protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
+
+    List<String> hdrformat = checkComboBox.getSelectedItems();
+
+    for (TvShowEpisode episode : episodes) {
+      List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
+      for (MediaFile mf : mfs) {
+        if (invert ^ hdrformat.contains(mf.getHdrFormat())) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public void buildHdrArray() {
+    List<String> hdrformats = new ArrayList<>(tvShowList.getHdrFormatInEpisodes());
+    Collections.sort(hdrformats);
+    setValues(hdrformats);
+  }
+}

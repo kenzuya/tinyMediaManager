@@ -85,6 +85,8 @@ abstract public class MediaInformationPanel extends JPanel {
   protected JLabel                          lblHdrFormat;
 
   protected MediaFilesPanel                 panelMediaFiles;
+  protected TmmTable                        tableAudioStreams;
+  protected TmmTable                        tableSubtitles;
 
   public MediaInformationPanel() {
     mediaFileEventList = GlazedListsSwing.swingThreadProxyList(
@@ -187,7 +189,7 @@ abstract public class MediaInformationPanel extends JPanel {
       add(lblAudioT, "cell 0 9,aligny top");
 
       TmmTableModel<AudioStreamContainer> tmmTableModel = new TmmTableModel<>(audioStreamEventList, new AudioStreamTableFormat());
-      TmmTable tableAudioStreams = new TmmTable(tmmTableModel);
+      tableAudioStreams = new TmmTable(tmmTableModel);
       tableAudioStreams.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
       JScrollPane scrollPane = new JScrollPane();
@@ -200,7 +202,7 @@ abstract public class MediaInformationPanel extends JPanel {
       add(lblSubtitle, "cell 0 11,aligny top");
 
       TmmTableModel<SubtitleContainer> tmmTableModel = new TmmTableModel<>(subtitleEventList, new SubtitleTableFormat());
-      TmmTable tableSubtitles = new TmmTable(tmmTableModel);
+      tableSubtitles = new TmmTable(tmmTableModel);
       tableSubtitles.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
       JScrollPane scrollPane = new JScrollPane();
@@ -312,6 +314,13 @@ abstract public class MediaInformationPanel extends JPanel {
        * language
        */
       col = new Column(TmmResourceBundle.getString("metatag.language"), "language", container -> container.audioStream.getLanguage(), String.class);
+      col.setColumnComparator(stringComparator);
+      addColumn(col);
+
+      /*
+       * Audio title
+       */
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "title", container -> container.audioStream.getAudioTitle(), String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
     }

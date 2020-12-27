@@ -16,7 +16,32 @@
 
 package org.tinymediamanager.ui.tvshows.dialogs;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.ui.TmmFontHelper.L1;
+
+import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.TmmProperties;
@@ -49,6 +74,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowEmptyFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFilenameFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFrameRateFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowGenreFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowHDRFormatFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaFilesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMediaSourceFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingArtworkFilter;
@@ -67,30 +93,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowVideoContainerFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFormatFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowWatchedFilter;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-
-import static org.tinymediamanager.ui.TmmFontHelper.L1;
+import net.miginfocom.swing.MigLayout;
 
 public class TvShowFilterDialog extends TmmDialog {
   private static final long                          serialVersionUID = 2298540526328945319L;
@@ -180,6 +183,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowMissingArtworkFilter(), panelMediaData);
         addFilter(new TvShowMissingSubtitlesFilter(), panelMediaData);
         addFilter(new TvShowMissingEpisodesFilter(), panelMediaData);
+        addFilter(new TvShowHDRFormatFilter(), panelMediaData);
       }
 
       {

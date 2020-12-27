@@ -163,7 +163,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     super(TmmResourceBundle.getString("tvshowchooser.search") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowChooser");
 
     mediaScraper = tvShowList.getDefaultMediaScraper();
-    artworkScrapers = tvShowList.getAvailableArtworkScrapers();
+    artworkScrapers = tvShowList.getDefaultArtworkScrapers();
     trailerScrapers = tvShowList.getDefaultTrailerScrapers();
 
     // tableSearchResults format for the search result

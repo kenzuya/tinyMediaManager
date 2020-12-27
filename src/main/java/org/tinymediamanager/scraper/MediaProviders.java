@@ -30,6 +30,7 @@ import org.tinymediamanager.scraper.imdb.ImdbMovieArtworkProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.imdb.ImdbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.imdb.ImdbTvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IKodiMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
@@ -208,12 +209,24 @@ public class MediaProviders {
     }
 
     List<IMediaProvider> providers = MEDIA_PROVIDERS.get(id);
+
+    IMediaProvider mp = null;
     for (IMediaProvider mediaProvider : ListUtils.nullSafe(providers)) {
       if (clazz.isAssignableFrom(mediaProvider.getClass())) {
         return (T) mediaProvider;
       }
     }
 
-    return null;
+    // no media provider found? maybe a kodi one
+    if (mp == null) {
+      for (IKodiMetadataProvider kodi : MediaProviders.getProvidersForInterface(IKodiMetadataProvider.class)) {
+        mp = kodi.getPluginById(id);
+        if (mp != null) {
+          break;
+        }
+      }
+    }
+
+    return (T) mp;
   }
 }

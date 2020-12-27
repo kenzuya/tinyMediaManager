@@ -111,6 +111,7 @@ public class MovieSettings extends AbstractSettings {
   private static final String                    BAD_WORD                               = "badWord";
   private static final String                    SKIP_FOLDER                            = "skipFolder";
   private static final String                    CHECK_IMAGES_MOVIE                     = "checkImagesMovie";
+  private static final String                    CHECK_IMAGES_MOVIESET                  = "checkImagesMovieSet";
 
   private final List<String>                     movieDataSources                       = ObservableCollections.observableList(new ArrayList<>());
   private final List<MovieNfoNaming>             nfoFilenames                           = new ArrayList<>();
@@ -138,7 +139,6 @@ public class MovieSettings extends AbstractSettings {
   private final List<MovieSetDiscartNaming>      movieSetDiscartFilenames               = new ArrayList<>();
 
   private final List<MovieTrailerNaming>         trailerFilenames                       = new ArrayList<>();
-  private final List<MediaArtworkType>           checkImagesMovie                       = new ArrayList<>();
   private final List<String>                     badWords                               = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                     artworkScrapers                        = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                     trailerScrapers                        = ObservableCollections.observableList(new ArrayList<>());
@@ -226,6 +226,9 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                showMovieTableTooltips                 = true;
   private boolean                                showMovieSetTableTooltips              = true;
   private boolean                                displayMovieSetMissingMovies           = false;
+  private boolean                                showLogosPanel                         = true;
+  private final List<MediaArtworkType>           checkImagesMovie                       = new ArrayList<>();
+  private final List<MediaArtworkType>           checkImagesMovieSet                    = new ArrayList<>();
 
   public MovieSettings() {
     super();
@@ -297,6 +300,10 @@ public class MovieSettings extends AbstractSettings {
 
     movieSetDiscartFilenames.clear();
     addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+
+    checkImagesMovieSet.clear();
+    addCheckImagesMovieSet(MediaArtworkType.POSTER);
+    addCheckImagesMovieSet(MediaArtworkType.BACKGROUND);
 
     scraperMetadataConfig.addAll(Arrays.asList(MovieScraperMetadataConfig.values()));
   }
@@ -584,6 +591,22 @@ public class MovieSettings extends AbstractSettings {
     if (!checkImagesMovie.contains(type)) {
       checkImagesMovie.add(type);
       firePropertyChange(CHECK_IMAGES_MOVIE, null, checkImagesMovie);
+    }
+  }
+
+  public void clearCheckImagesMovieSet() {
+    checkImagesMovieSet.clear();
+    firePropertyChange(CHECK_IMAGES_MOVIESET, null, checkImagesMovieSet);
+  }
+
+  public List<MediaArtworkType> getCheckImagesMovieSet() {
+    return new ArrayList<>(this.checkImagesMovieSet);
+  }
+
+  public void addCheckImagesMovieSet(MediaArtworkType type) {
+    if (!checkImagesMovieSet.contains(type)) {
+      checkImagesMovieSet.add(type);
+      firePropertyChange(CHECK_IMAGES_MOVIESET, null, checkImagesMovieSet);
     }
   }
 

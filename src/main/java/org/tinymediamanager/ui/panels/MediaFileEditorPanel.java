@@ -605,6 +605,9 @@ public class MediaFileEditorPanel extends JPanel {
     Property mediaFileAudioStreamBeanProperty_3 = BeanProperty.create("bitrate");
     jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_3).setColumnName("Bitrate").setColumnClass(Integer.class);
     //
+    Property mediaFileAudioStreamBeanProperty_4 = BeanProperty.create("audioTitle");
+    jTableBinding_1.addColumnBinding(mediaFileAudioStreamBeanProperty_4).setColumnName("Audio Title").setColumnClass(String.class);
+
     jTableBinding_1.bind();
     //
     Property jTableBeanProperty_4 = BeanProperty.create("selectedElement.subtitles");

@@ -36,10 +36,11 @@ import ca.odell.glazedlists.matchers.Matcher;
  * @author Manuel Laggner
  */
 public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
+  private final MovieSettings  settings = MovieSettings.getInstance();
   private final JTextComponent textComponent;
+
   private String               normalizedFilterText;
   private Pattern              filterPattern;
-  private MovieSettings        settings = MovieSettings.getInstance();
 
   public MovieTextMatcherEditor(JTextComponent textComponent) {
     this.textComponent = textComponent;

@@ -35,7 +35,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.movie.tasks.MovieTrailerDownloadTask;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
-import org.tinymediamanager.core.tasks.YoutubeDownloadTask;
+import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 
@@ -186,7 +186,7 @@ public class MovieHelpers {
     try {
       Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
       if (matcher.matches()) {
-        YoutubeDownloadTask task = new YoutubeDownloadTask(trailer, MovieModuleManager.SETTINGS.getTrailerQuality()) {
+        YTDownloadTask task = new YTDownloadTask(trailer, MovieModuleManager.SETTINGS.getTrailerQuality()) {
           @Override
           protected Path getDestinationWoExtension() {
             return movie.getPathNIO().resolve(filename);

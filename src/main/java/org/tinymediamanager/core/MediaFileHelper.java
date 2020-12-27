@@ -1823,6 +1823,10 @@ public class MediaFileHelper {
         stream.setDefaultStream(true);
       }
 
+      // Title of audiostream
+      String title = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Title");
+      stream.setAudioTitle(title);
+
       audioStreams.add(stream);
     }
 

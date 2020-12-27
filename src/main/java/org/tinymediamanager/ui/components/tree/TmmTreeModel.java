@@ -31,6 +31,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The class TmmTreeModel is the base class for the tree model of the TmmTree
  * 
@@ -40,6 +43,7 @@ import javax.swing.tree.TreeNode;
  */
 public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
   private static final long              serialVersionUID     = 894025254282580674L;
+  private static final Logger            LOGGER               = LoggerFactory.getLogger(TmmTreeModel.class);
 
   protected final TmmTreeDataProvider<E> dataProvider;
   protected final TmmTree<E>             tree;
@@ -372,7 +376,13 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     // sort
     final Comparator<E> comparator = dataProvider.getTreeComparator();
     if (comparator != null) {
-      filteredAndSorted.sort(comparator);
+      try {
+        filteredAndSorted.sort(comparator);
+      }
+      catch (Exception e) {
+        // sometimes if the underlying is actively updated, an IllegalArgumentException can be thrown here, so just catch it
+        LOGGER.debug("could not sort the tree with the comparator '{}' - {}", comparator, e.getMessage());
+      }
     }
 
     return filteredAndSorted;
