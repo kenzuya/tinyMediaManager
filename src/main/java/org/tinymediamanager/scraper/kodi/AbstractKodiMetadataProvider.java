@@ -118,9 +118,9 @@ public abstract class AbstractKodiMetadataProvider implements IKodiMetadataProvi
       }
       String xmlString = processor.getSearchResults(url);
 
-      LOGGER.debug("========= BEGIN Kodi Scraper Search Xml Results: Url: {}", url);
-      LOGGER.debug(xmlString);
-      LOGGER.debug("========= END Kodi Scraper Search Xml Results: Url: {}", url);
+      LOGGER.trace("========= BEGIN Kodi Scraper Search Xml Results: Url: {}", url);
+      LOGGER.trace(xmlString);
+      LOGGER.trace("========= END Kodi Scraper Search Xml Results: Url: {}", url);
 
       Document xml = parseXmlString(xmlString);
 
@@ -270,7 +270,7 @@ public abstract class AbstractKodiMetadataProvider implements IKodiMetadataProvi
 
     if (doc == null) {
       LOGGER.error("Unabled to parse xml string");
-      LOGGER.error(xml);
+      LOGGER.trace(xml);
       throw new Exception("Unable to parse xml!");
     }
 
@@ -278,7 +278,7 @@ public abstract class AbstractKodiMetadataProvider implements IKodiMetadataProvi
   }
 
   protected void addMetadata(MediaMetadata md, Element details) {
-    LOGGER.debug("Processing <details> node....");
+    LOGGER.trace("Processing <details> node....");
 
     NodeList subDetails = details.getElementsByTagName("details");
 
