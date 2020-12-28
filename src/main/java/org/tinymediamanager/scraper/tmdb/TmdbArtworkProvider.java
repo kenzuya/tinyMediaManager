@@ -34,10 +34,14 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.tmdb2.Tmdb;
+import com.uwetrottmann.tmdb2.entities.AppendToResponse;
 import com.uwetrottmann.tmdb2.entities.Image;
 import com.uwetrottmann.tmdb2.entities.Images;
+import com.uwetrottmann.tmdb2.entities.TvShow;
+import com.uwetrottmann.tmdb2.enumerations.AppendToResponseItem;
 import com.uwetrottmann.tmdb2.exceptions.TmdbNotFoundException;
 
 /**
@@ -90,21 +94,40 @@ class TmdbArtworkProvider {
       throw new MissingIdException(MediaMetadata.TMDB, MediaMetadata.IMDB);
     }
 
-    Images images = null;
+    List<MediaArtwork> artwork = null;
     synchronized (api) {
       try {
         // posters and fanart
         switch (options.getMediaType()) {
           case MOVIE:
-            images = api.moviesService().images(tmdbId, null).execute().body();
+            artwork = prepareArtwork(api.moviesService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
             break;
 
           case MOVIE_SET:
-            images = api.collectionService().images(tmdbId, null).execute().body();
+            artwork = prepareArtwork(api.collectionService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
             break;
 
           case TV_SHOW:
-            images = api.tvService().images(tmdbId, null).execute().body();
+            // here we need to do a fetch of the base details to get the season count for all season related artwork
+            if (artworkType == MediaArtworkType.ALL || artworkType == MediaArtworkType.SEASON_POSTER) {
+              TvShow tvShow = api.tvService().tv(tmdbId, null, new AppendToResponse(AppendToResponseItem.IMAGES)).execute().body();
+              if (tvShow != null) {
+                artwork = prepareArtwork(tvShow.images, artworkType, tmdbId, options);
+                for (int i = 0; i <= MetadataUtil.unboxInteger(tvShow.number_of_seasons); i++) {
+                  try {
+                    artwork.addAll(prepareArtwork(api.tvSeasonsService().images(tmdbId, i, null).execute().body(), artworkType, tmdbId, i, options));
+                  }
+                  catch (Exception e) {
+                    LOGGER.debug("could not net season artwork: '{}'", e.getMessage());
+                  }
+                }
+              }
+            }
+            else {
+              // no season artwork requested - just use the easy call
+              artwork = prepareArtwork(api.moviesService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
+            }
+
             break;
 
           case TV_EPISODE:
@@ -112,7 +135,7 @@ class TmdbArtworkProvider {
             int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
 
             if (seasonNr > -1 && episodeNr > -1) {
-              images = api.tvEpisodesService().images(tmdbId, seasonNr, episodeNr).execute().body();
+              artwork = prepareArtwork(api.tvEpisodesService().images(tmdbId, seasonNr, episodeNr).execute().body(), artworkType, tmdbId, options);
             }
             break;
         }
@@ -132,11 +155,9 @@ class TmdbArtworkProvider {
       }
     }
 
-    if (images == null) {
+    if (ListUtils.isEmpty(artwork)) {
       return Collections.emptyList();
     }
-
-    List<MediaArtwork> artwork = prepareArtwork(images, artworkType, tmdbId, options);
 
     // buffer the artwork
     MediaMetadata md = options.getMetadata();
@@ -149,6 +170,11 @@ class TmdbArtworkProvider {
 
   private List<MediaArtwork> prepareArtwork(Images tmdbArtwork, MediaArtwork.MediaArtworkType artworkType, int tmdbId,
       ArtworkSearchAndScrapeOptions options) {
+    return prepareArtwork(tmdbArtwork, artworkType, tmdbId, -1, options);
+  }
+
+  private List<MediaArtwork> prepareArtwork(Images tmdbArtwork, MediaArtwork.MediaArtworkType artworkType, int tmdbId, int season,
+      ArtworkSearchAndScrapeOptions options) {
     List<MediaArtwork> artwork = new ArrayList<>();
 
     if (tmdbArtwork == null) {
@@ -157,20 +183,32 @@ class TmdbArtworkProvider {
 
     // first sort the artwork
     if (tmdbArtwork.posters != null) {
-      Collections.sort(tmdbArtwork.posters, new ImageComparator(options.getLanguage().toLocale()));
+      tmdbArtwork.posters.sort(new ImageComparator(options.getLanguage().toLocale()));
     }
     if (tmdbArtwork.backdrops != null) {
-      Collections.sort(tmdbArtwork.backdrops, new ImageComparator(options.getLanguage().toLocale()));
+      tmdbArtwork.backdrops.sort(new ImageComparator(options.getLanguage().toLocale()));
     }
 
     // prepare posters
-    if (artworkType == MediaArtwork.MediaArtworkType.POSTER || artworkType == MediaArtwork.MediaArtworkType.ALL) {
+    if (artworkType == MediaArtwork.MediaArtworkType.POSTER || artworkType == MediaArtworkType.SEASON_POSTER
+        || artworkType == MediaArtwork.MediaArtworkType.ALL) {
       for (Image image : ListUtils.nullSafe(tmdbArtwork.posters)) {
-        MediaArtwork ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        MediaArtwork ma;
+        if (season < 0) {
+          ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.POSTER);
+        }
+        else {
+          ma = new MediaArtwork(TmdbMetadataProvider.ID, MediaArtworkType.SEASON_POSTER);
+        }
+
         ma.setPreviewUrl(baseUrl + "w185" + image.file_path);
         ma.setOriginalUrl(baseUrl + "original" + image.file_path);
         ma.setLanguage(image.iso_639_1);
         ma.setTmdbId(tmdbId);
+
+        if (season > -1) {
+          ma.setSeason(season);
+        }
 
         // add different sizes
         // original
@@ -202,6 +240,10 @@ class TmdbArtworkProvider {
         ma.setOriginalUrl(baseUrl + "original" + image.file_path);
         ma.setLanguage(image.iso_639_1);
         ma.setTmdbId(tmdbId);
+
+        if (season > -1) {
+          ma.setSeason(season);
+        }
 
         // add different sizes
         // original (most of the time 1920x1080)

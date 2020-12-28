@@ -29,4 +29,4 @@ x re-read mediainfo data for (ex)changed files
 x (movie) remove missing/deleted files on update data sources
 x (movie) support more than 9 extrafanarts in the renamer #1156
 x (movie) sorting by new column #1161
-
+x (TV show) also fetch season artwork from tmdb #1158
