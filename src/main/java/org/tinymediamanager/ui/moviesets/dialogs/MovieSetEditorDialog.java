@@ -57,7 +57,6 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -148,22 +147,9 @@ public class MovieSetEditorDialog extends TmmDialog {
     super(TmmResourceBundle.getString("movieset.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "movieSetEditor");
 
     movieSetToEdit = movieSet;
+    artworkScrapers.addAll(movieList.getDefaultArtworkScrapers());
     this.queueIndex = queueIndex;
     this.queueSize = queueSize;
-
-    try {
-      List<String> enabledScrapers = new ArrayList<>();
-      if (MovieModuleManager.SETTINGS.getArtworkScrapers().contains(Constants.TMDB)) {
-        enabledScrapers.add(Constants.TMDB);
-      }
-      if (MovieModuleManager.SETTINGS.getArtworkScrapers().contains(Constants.FANART_TV)) {
-        enabledScrapers.add(Constants.FANART_TV);
-      }
-      artworkScrapers.addAll(movieList.getArtworkScrapers(enabledScrapers));
-    }
-    catch (Exception e2) {
-      LOGGER.warn("error getting IMediaArtworkProvider - {}", e2.getMessage());
-    }
 
     {
       JTabbedPane tabbedPane = new TmmTabbedPane();

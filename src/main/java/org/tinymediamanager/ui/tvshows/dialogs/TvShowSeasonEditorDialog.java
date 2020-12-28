@@ -15,7 +15,29 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
+import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
+
+import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JLayer;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -34,27 +56,7 @@ import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JLayer;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
-import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The Class TvShowSeasonEditor.
@@ -66,8 +68,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
   private static final String ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String SPACER              = "        ";
 
-  private TvShowSeason        tvShowSeasonToEdit;
-  private TvShowList          tvShowList          = TvShowList.getInstance();
+  private final TvShowSeason  tvShowSeasonToEdit;
+  private final TvShowList    tvShowList          = TvShowList.getInstance();
 
   private boolean             continueQueue       = true;
   private boolean             navigateBack        = false;
@@ -114,7 +116,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
       tfPoster.setText(tvShowSeason.getArtworkUrl(SEASON_POSTER));
       tfThumb.setText(tvShowSeason.getArtworkUrl(SEASON_THUMB));
       tfBanner.setText(tvShowSeason.getArtworkUrl(SEASON_BANNER));
-
     }
 
   }
@@ -159,7 +160,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_POSTER,
-                tvShowList.getAvailableArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblPoster, tfPoster);
@@ -193,7 +194,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_THUMB,
-                tvShowList.getAvailableArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblThumb, tfThumb);
@@ -227,7 +228,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_BANNER,
-                tvShowList.getAvailableArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblBanner, tfBanner);

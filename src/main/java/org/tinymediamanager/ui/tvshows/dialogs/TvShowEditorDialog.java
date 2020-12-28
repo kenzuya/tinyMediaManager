@@ -136,77 +136,77 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEditorDialog extends TmmDialog {
-  private static final long                  serialVersionUID    = 3270218410302989845L;
-  private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String                SPACER              = "    ";
+  private static final long                        serialVersionUID    = 3270218410302989845L;
+  private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
+  private static final String                      SPACER              = "    ";
 
-  private TvShow                             tvShowToEdit;
-  private TvShowList                         tvShowList          = TvShowList.getInstance();
-  private EventList<Person>                  actors;
-  private List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
-  private EventList<MediaId>                 ids;
-  private EventList<MediaRatingTable.Rating> ratings;
-  private List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
-  private EventList<EpisodeEditorContainer>  episodes;
-  private List<String>                       extrafanarts        = null;
-  private List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
-  private MediaRating                        userMediaRating;
-  private boolean                            continueQueue       = true;
-  private boolean                            navigateBack        = false;
-  private int                                queueIndex;
-  private int                                queueSize;
+  private final TvShow                             tvShowToEdit;
+  private final TvShowList                         tvShowList          = TvShowList.getInstance();
+  private final EventList<Person>                  actors;
+  private final List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
+  private final EventList<MediaId>                 ids;
+  private final EventList<MediaRatingTable.Rating> ratings;
+  private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
+  private final EventList<EpisodeEditorContainer>  episodes;
+  private final List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
+
+  private List<String>                             extrafanarts        = null;
+  private boolean                                  continueQueue       = true;
+  private boolean                                  navigateBack        = false;
+  private int                                      queueIndex;
+  private int                                      queueSize;
 
   /**
    * UI elements
    */
-  private JTextField                         tfTitle;
-  private YearSpinner                        spYear;
-  private JTextArea                          taPlot;
-  private TmmTable                           tableActors;
-  private ImageLabel                         lblPoster;
-  private ImageLabel                         lblFanart;
-  private ImageLabel                         lblBanner;
-  private JSpinner                           spRuntime;
-  private JTextField                         tfStudio;
-  private JList<MediaGenres>                 listGenres;
-  private AutocompleteComboBox<MediaGenres>  cbGenres;
-  private AutoCompleteSupport<MediaGenres>   cbGenresAutoCompleteSupport;
-  private JSpinner                           spRating;
-  private JComboBox<MediaCertification>      cbCertification;
-  private JComboBox<MediaAiredStatus>        cbStatus;
+  private JTextField                               tfTitle;
+  private YearSpinner                              spYear;
+  private JTextArea                                taPlot;
+  private TmmTable                                 tableActors;
+  private ImageLabel                               lblPoster;
+  private ImageLabel                               lblFanart;
+  private ImageLabel                               lblBanner;
+  private JSpinner                                 spRuntime;
+  private JTextField                               tfStudio;
+  private JList<MediaGenres>                       listGenres;
+  private AutocompleteComboBox<MediaGenres>        cbGenres;
+  private AutoCompleteSupport<MediaGenres>         cbGenresAutoCompleteSupport;
+  private JSpinner                                 spRating;
+  private JComboBox<MediaCertification>            cbCertification;
+  private JComboBox<MediaAiredStatus>              cbStatus;
 
-  private AutocompleteComboBox<String>       cbTags;
-  private AutoCompleteSupport<String>        cbTagsAutoCompleteSupport;
-  private JList<String>                      listTags;
-  private JSpinner                           spDateAdded;
-  private DatePicker                         dpPremiered;
-  private TmmTable                           tableEpisodes;
-  private JTextField                         tfSorttitle;
-  private JTextField                         tfNote;
+  private AutocompleteComboBox<String>             cbTags;
+  private AutoCompleteSupport<String>              cbTagsAutoCompleteSupport;
+  private JList<String>                            listTags;
+  private JSpinner                                 spDateAdded;
+  private DatePicker                               dpPremiered;
+  private TmmTable                                 tableEpisodes;
+  private JTextField                               tfSorttitle;
+  private JTextField                               tfNote;
 
-  private JTextField                         tfPoster;
-  private JTextField                         tfFanart;
-  private JTextField                         tfLogo;
-  private JTextField                         tfClearLogo;
-  private JTextField                         tfBanner;
-  private JTextField                         tfClearArt;
-  private JTextField                         tfThumb;
+  private JTextField                               tfPoster;
+  private JTextField                               tfFanart;
+  private JTextField                               tfLogo;
+  private JTextField                               tfClearLogo;
+  private JTextField                               tfBanner;
+  private JTextField                               tfClearArt;
+  private JTextField                               tfThumb;
 
-  private ImageLabel                         lblLogo;
-  private ImageLabel                         lblClearlogo;
-  private ImageLabel                         lblClearart;
-  private ImageLabel                         lblThumb;
-  private ImageLabel                         lblCharacterart;
-  private ImageLabel                         lblKeyart;
+  private ImageLabel                               lblLogo;
+  private ImageLabel                               lblClearlogo;
+  private ImageLabel                               lblClearart;
+  private ImageLabel                               lblThumb;
+  private ImageLabel                               lblCharacterart;
+  private ImageLabel                               lblKeyart;
 
-  private TmmTable                           tableIds;
-  private TmmTable                           tableRatings;
-  private JTextField                         tfOriginalTitle;
-  private JTextField                         tfCountry;
-  private JTextField                         tfCharacterart;
-  private JTextField                         tfKeyart;
+  private TmmTable                                 tableIds;
+  private TmmTable                                 tableRatings;
+  private JTextField                               tfOriginalTitle;
+  private JTextField                               tfCountry;
+  private JTextField                               tfCharacterart;
+  private JTextField                               tfKeyart;
 
-  private TmmTable                           tableTrailer;
+  private TmmTable                                 tableTrailer;
 
   /**
    * Instantiates a new tv show editor dialog.
@@ -219,15 +219,15 @@ public class TvShowEditorDialog extends TmmDialog {
    *          the queue size
    */
   public TvShowEditorDialog(TvShow tvShow, int queueIndex, int queueSize) {
-    super(TmmResourceBundle.getString("tvshow.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + tvShow.getPathNIO() + " >",
-        "tvShowEditor");
+    super(TmmResourceBundle.getString("tvshow.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + tvShow.getPathNIO()
+        + " >", "tvShowEditor");
 
     this.tvShowToEdit = tvShow;
     this.queueIndex = queueIndex;
     this.queueSize = queueSize;
     ids = MediaIdTable.convertIdMapToEventList(tvShowToEdit.getIds());
     ratings = MediaRatingTable.convertRatingMapToEventList(tvShowToEdit.getRatings(), false);
-    userMediaRating = tvShowToEdit.getRating(MediaRating.USER);
+    MediaRating userMediaRating = tvShowToEdit.getRating(MediaRating.USER);
 
     // creation of lists
     actors = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
@@ -377,7 +377,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), POSTER,
-                tvShowList.getAvailableArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -507,7 +507,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BACKGROUND,
-                tvShowList.getAvailableArtworkScrapers(), lblFanart, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblFanart, MediaType.TV_SHOW);
 
             dialog.bindExtraFanarts(extrafanarts);
 
@@ -696,7 +696,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARLOGO,
-                tvShowList.getAvailableArtworkScrapers(), lblClearlogo, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -732,7 +732,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BANNER,
-                tvShowList.getAvailableArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -768,7 +768,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARART,
-                tvShowList.getAvailableArtworkScrapers(), lblClearart, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblClearart, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -804,7 +804,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), LOGO,
-                tvShowList.getAvailableArtworkScrapers(), lblLogo, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblLogo, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -839,7 +839,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), KEYART,
-                tvShowList.getAvailableArtworkScrapers(), lblKeyart, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblKeyart, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -874,7 +874,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), THUMB,
-                tvShowList.getAvailableArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -909,7 +909,7 @@ public class TvShowEditorDialog extends TmmDialog {
           @Override
           public void mouseClicked(MouseEvent e) {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CHARACTERART,
-                tvShowList.getAvailableArtworkScrapers(), lblCharacterart, MediaType.TV_SHOW);
+                tvShowList.getDefaultArtworkScrapers(), lblCharacterart, MediaType.TV_SHOW);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
@@ -1312,7 +1312,8 @@ public class TvShowEditorDialog extends TmmDialog {
       rating.maxValue = 10;
       rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("rating.add"), rating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("rating.add"),
+          rating);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
@@ -1350,7 +1351,8 @@ public class TvShowEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       Person actor = new Person(ACTOR, TmmResourceBundle.getString("cast.actor.unknown"), TmmResourceBundle.getString("cast.role.unknown"));
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("cast.actor.add"), actor);
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("cast.actor.add"),
+          actor);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {

@@ -112,12 +112,13 @@ public class ImageChooserDialog extends TmmDialog {
   private final ImageLabel          imageLabel;
   private final List<MediaScraper>  artworkScrapers;
 
-  private ButtonGroup               buttonGroup      = new ButtonGroup();
+  private final ButtonGroup         buttonGroup      = new ButtonGroup();
+  private final List<JToggleButton> buttons          = new ArrayList<>();
+
   private JProgressBar              progressBar;
   private JLabel                    lblProgressAction;
   private JPanel                    panelImages;
   private LockableViewPort          viewport;
-  private List<JToggleButton>       buttons          = new ArrayList<>();
   private JTextField                tfImageUrl;
 
   private String                    openFolderPath   = null;
