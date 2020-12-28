@@ -777,7 +777,7 @@ public class MediaFileHelper {
     List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
 
     // read mediainfo.xml only if the file size has not been changed
-    if (fileSizeChanged) {
+    if (!fileSizeChanged) {
       LOGGER.trace("try to read XML");
       try {
         // just parse via XML
