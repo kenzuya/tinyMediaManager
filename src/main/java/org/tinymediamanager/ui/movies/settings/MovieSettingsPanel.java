@@ -17,20 +17,27 @@ package org.tinymediamanager.ui.movies.settings;
 
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
+import java.awt.Component;
 import java.awt.event.ItemListener;
 import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.jdesktop.swingbinding.JListBinding;
+import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -42,7 +49,9 @@ import org.tinymediamanager.thirdparty.trakttv.MovieClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 
 import net.miginfocom.swing.MigLayout;
@@ -55,8 +64,6 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -4173835431245178069L;
 
-  
-
   private final MovieSettings          settings         = MovieModuleManager.SETTINGS;
 
   private JButton                      btnClearTraktData;
@@ -66,16 +73,20 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxBuildImageCache;
   private JCheckBox                    chckbxExtractArtworkFromVsmeta;
   private JCheckBox                    chckbxRuntimeFromMi;
-  private JCheckBox                    chckbxShowLogos;
   private JButton                      btnPresetKodi;
   private JButton                      btnPresetXbmc;
   private JButton                      btnPresetMediaPortal1;
   private JButton                      btnPresetMediaPortal2;
   private JButton                      btnPresetPlex;
-  private JCheckBox                    chckbxPersonalRatingFirst;
   private AutocompleteComboBox<String> cbRating;
   private JCheckBox                    chckbxIncludeExternalAudioStreams;
   private JCheckBox                    chckbxMovieTableTooltips;
+
+  private JList                        listRatings;
+  private JButton                      btnAddRating;
+  private JButton                      btnRemoveRating;
+  private JButton                      btnMoveRatingUp;
+  private JButton                      btnMoveRatingDown;
 
   private JCheckBox                    chckbxCheckPoster;
   private JCheckBox                    chckbxCheckFanart;
@@ -103,6 +114,65 @@ public class MovieSettingsPanel extends JPanel {
     initDataBindings();
 
     // logic initializations
+    btnAddRating.addActionListener(arg0 -> {
+      Object selectedItem = cbRating.getSelectedItem();
+
+      // check, if text is selected (from auto completion), in this case we just
+      // remove the selection
+      Component editorComponent = cbRating.getEditor().getEditorComponent();
+      if (editorComponent instanceof JTextField) {
+        JTextField tf = (JTextField) editorComponent;
+        String selectedText = tf.getSelectedText();
+        if (selectedText != null) {
+          tf.setSelectionStart(0);
+          tf.setSelectionEnd(0);
+          tf.setCaretPosition(tf.getText().length());
+          return;
+        }
+      }
+
+      if (selectedItem instanceof String && StringUtils.isNotBlank((String) selectedItem)) {
+        MovieModuleManager.SETTINGS.addRatingSource((String) selectedItem);
+
+        // set text combobox text input to ""
+        if (editorComponent instanceof JTextField) {
+          AutoCompleteSupport<String> autoCompleteSupport = cbRating.getAutoCompleteSupport();
+          autoCompleteSupport.setFirstItem(null);
+          cbRating.setSelectedIndex(0);
+          autoCompleteSupport.removeFirstItem();
+        }
+      }
+
+    });
+
+    btnRemoveRating.addActionListener(arg0 -> {
+      int row = listRatings.getSelectedIndex();
+      if (row != -1) { // nothing selected
+        String ratingSource = settings.getRatingSources().get(row);
+        MovieModuleManager.SETTINGS.removeRatingSource(ratingSource);
+      }
+    });
+
+    btnMoveRatingUp.addActionListener(arg0 -> {
+      int row = listRatings.getSelectedIndex();
+      if (row != -1 && row != 0) {
+        settings.swapRatingSources(row, row - 1);
+        row = row - 1;
+        listRatings.setSelectedIndex(row);
+        listRatings.updateUI();
+      }
+    });
+
+    btnMoveRatingDown.addActionListener(arg0 -> {
+      int row = listRatings.getSelectedIndex();
+      if (row != -1 && row < listRatings.getModel().getSize() - 1) {
+        settings.swapRatingSources(row, row + 1);
+        row = row + 1;
+        listRatings.setSelectedIndex(row);
+        listRatings.updateUI();
+      }
+    });
+
     btnClearTraktData.addActionListener(e -> {
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
       int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("Settings.trakt.clearmovies.hint"),
@@ -220,50 +290,75 @@ public class MovieSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][]")); // 16lp ~ width of the
+      // 16lp ~ width of the checkbox
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][][10lp!][][100lp,grow]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
-        chckbxShowLogos = new JCheckBox(TmmResourceBundle.getString("Settings.showlogos"));
-        panelUiSettings.add(chckbxShowLogos, "cell 1 0 2 1");
-      }
-      {
-        JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "cell 1 1 2 1");
-
-        cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metascore", "rottenTomatoes"));
-        panelUiSettings.add(cbRating, "cell 1 1 2 1");
-      }
-      {
-        chckbxPersonalRatingFirst = new JCheckBox(TmmResourceBundle.getString("Settings.personalratingfirst"));
-        panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 2 2 1");
-      }
-      {
         JLabel lblMovieFilter = new JLabel(TmmResourceBundle.getString("Settings.movietitlefilter"));
-        panelUiSettings.add(lblMovieFilter, "cell 1 3 2 1");
+        panelUiSettings.add(lblMovieFilter, "cell 1 0 2 1");
+
         chckbxTitle = new JCheckBox(MovieTextMatcherList.TITLE.toString());
-        panelUiSettings.add(chckbxTitle, "cell 2 4");
+        panelUiSettings.add(chckbxTitle, "flowx,cell 2 1");
+
         chckbxSortableTitle = new JCheckBox(MovieTextMatcherList.TITLE_SORTABLE.toString());
-        panelUiSettings.add(chckbxSortableTitle, "cell 2 4");
+        panelUiSettings.add(chckbxSortableTitle, "cell 2 1");
+
         JLabel lblSortableTitleHint = new JLabel(IconManager.HINT);
         lblSortableTitleHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.renamer.${titleSortable}"));
-        panelUiSettings.add(lblSortableTitleHint, "cell 2 4");
+        panelUiSettings.add(lblSortableTitleHint, "cell 2 1");
+
         chckbxOriginalTitle = new JCheckBox(MovieTextMatcherList.ORIGINAL_TITLE.toString());
-        panelUiSettings.add(chckbxOriginalTitle, "cell 2 4");
+        panelUiSettings.add(chckbxOriginalTitle, "cell 2 1");
+
         chckbxSortableOriginalTitle = new JCheckBox(MovieTextMatcherList.ORIGINAL_TITLE_SORTABLE.toString());
-        panelUiSettings.add(chckbxSortableOriginalTitle, "cell 2 4");
+        panelUiSettings.add(chckbxSortableOriginalTitle, "cell 2 1");
+
         JLabel lblSortableOriginalTitleHint = new JLabel(IconManager.HINT);
         lblSortableOriginalTitleHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.renamer.${titleSortable}"));
-        panelUiSettings.add(lblSortableOriginalTitleHint, "cell 2 4");
+        panelUiSettings.add(lblSortableOriginalTitleHint, "cell 2 1");
+
         chckbxSortTitle = new JCheckBox(MovieTextMatcherList.SORTED_TITLE.toString());
-        panelUiSettings.add(chckbxSortTitle, "cell 2 4");
+        panelUiSettings.add(chckbxSortTitle, "cell 2 1");
       }
       {
         chckbxMovieTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movie.showtabletooltips"));
-        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 5 2 1");
+        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 3 2 1");
+      }
+      {
+        JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
+        panelUiSettings.add(lblRating, "cell 1 5 2 1");
+
+        JPanel panelRatingSource = new JPanel();
+        panelUiSettings.add(panelRatingSource, "cell 2 6,grow");
+        panelRatingSource.setLayout(new MigLayout("insets 0", "[100lp][]", "[grow][]"));
+        {
+          listRatings = new JList();
+          listRatings.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+          panelRatingSource.add(listRatings, "cell 0 0,grow");
+
+          btnMoveRatingUp = new SquareIconButton(IconManager.ARROW_UP_INV);
+          btnMoveRatingUp.setToolTipText(TmmResourceBundle.getString("Button.moveup"));
+          panelRatingSource.add(btnMoveRatingUp, "flowy,cell 1 0,aligny bottom");
+
+          btnMoveRatingDown = new SquareIconButton(IconManager.ARROW_DOWN_INV);
+          btnMoveRatingDown.setToolTipText(TmmResourceBundle.getString("Button.movedown"));
+          panelRatingSource.add(btnMoveRatingDown, "cell 1 0,aligny bottom");
+
+          cbRating = new AutocompleteComboBox(Arrays.asList("imdb", "tmdb", "metascore", "rottenTomatoes", "user"));
+          panelRatingSource.add(cbRating, "cell 0 1,growx");
+
+          btnRemoveRating = new SquareIconButton(IconManager.REMOVE_INV);
+          btnRemoveRating.setToolTipText(TmmResourceBundle.getString("Button.remove"));
+          panelRatingSource.add(btnRemoveRating, "cell 1 0");
+
+          btnAddRating = new SquareIconButton(IconManager.ADD_INV);
+          btnAddRating.setToolTipText(TmmResourceBundle.getString("Button.add"));
+          panelRatingSource.add(btnAddRating, "cell 1 1");
+        }
       }
     }
     {
@@ -407,11 +502,6 @@ public class MovieSettingsPanel extends JPanel {
         jCheckBoxBeanProperty);
     autoBinding_4.bind();
     //
-    Property movieSettingsBeanProperty_7 = BeanProperty.create("preferPersonalRating");
-    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_7,
-        chckbxPersonalRatingFirst, jCheckBoxBeanProperty);
-    autoBinding_7.bind();
-    //
     Property movieSettingsBeanProperty_8 = BeanProperty.create("preferredRating");
     Property autocompleteComboBoxBeanProperty = BeanProperty.create("selectedItem");
     AutoBinding autoBinding_8 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_8, cbRating,
@@ -422,11 +512,6 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_9,
         chckbxIncludeExternalAudioStreams, jCheckBoxBeanProperty);
     autoBinding_9.bind();
-    //
-    Property movieSettingsBeanProperty_10 = BeanProperty.create("showLogosPanel");
-    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_10, chckbxShowLogos,
-        jCheckBoxBeanProperty);
-    autoBinding_10.bind();
     //
     Property movieSettingsBeanProperty_11 = BeanProperty.create("extractArtworkFromVsmeta");
     AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_11,
@@ -463,9 +548,8 @@ public class MovieSettingsPanel extends JPanel {
         jCheckBoxBeanProperty);
     autoBinding_17.bind();
     //
-    Property movieSettingsBeanProperty = BeanProperty.create("showMovieTableTooltips");
-    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, chckbxMovieTableTooltips,
-        jCheckBoxBeanProperty);
-    autoBinding.bind();
+    Property movieSettingsBeanProperty = BeanProperty.create("ratingSources");
+    JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, listRatings);
+    jListBinding.bind();
   }
 }

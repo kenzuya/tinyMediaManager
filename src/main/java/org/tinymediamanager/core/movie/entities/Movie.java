@@ -1431,14 +1431,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public MediaRating getRating() {
     MediaRating mediaRating = null;
 
-    // the user rating
-    if (MovieModuleManager.SETTINGS.getPreferPersonalRating()) {
-      mediaRating = ratings.get(MediaRating.USER);
-    }
-
-    // the default rating
-    if (mediaRating == null && StringUtils.isNotBlank(MovieModuleManager.SETTINGS.getPreferredRating())) {
-      mediaRating = ratings.get(MovieModuleManager.SETTINGS.getPreferredRating());
+    for (String ratingSource : MovieModuleManager.SETTINGS.getRatingSources()) {
+      mediaRating = ratings.get(ratingSource);
+      if (mediaRating != null) {
+        break;
+      }
     }
 
     // then the default one (either NFO or DEFAULT)

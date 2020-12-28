@@ -262,7 +262,14 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
 
     // the default rating
     Map<String, MediaRating> ratings = movie.getRatings();
-    MediaRating mainMediaRating = ratings.get(MovieModuleManager.SETTINGS.getPreferredRating());
+
+    MediaRating mainMediaRating = null;
+    for (String ratingSource : MovieModuleManager.SETTINGS.getRatingSources()) {
+      mainMediaRating = ratings.get(ratingSource);
+      if (mainMediaRating != null) {
+        break;
+      }
+    }
 
     // is there any rating which is not the user rating?
     if (mainMediaRating == null) {

@@ -66,28 +66,26 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class UiSettingsPanel extends JPanel {
-  private static final long           serialVersionUID   = 6409982195347794360L;
+  private static final long          serialVersionUID   = 6409982195347794360L;
 
+  private static final Logger        LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
+  private static final Integer[]     DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
 
-  
-  private static final Logger         LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
-  private static final Integer[]      DEFAULT_FONT_SIZES = { 12, 14, 16, 18, 20, 22, 24, 26, 28 };
+  private final Settings             settings           = Settings.getInstance();
+  private final List<LocaleComboBox> locales            = new ArrayList<>();
 
-  private final Settings              settings           = Settings.getInstance();
-  private final List<LocaleComboBox>  locales            = new ArrayList<>();
-
-  private JComboBox                   cbLanguage;
-  private LinkLabel                   lblLinkTranslate;
-  private JComboBox                   cbFontSize;
-  private JComboBox                   cbFontFamily;
-  private JLabel                      lblLanguageChangeHint;
-  private JCheckBox                   chckbxStoreWindowPreferences;
-  private JComboBox                   cbTheme;
-  private JLabel                      lblThemeHint;
-  private JCheckBox                   chckbxShowMemory;
-  private JComboBox                   cbDatefield;
-  private JCheckBox                   chckbxImageChooserLastFolder;
-  private JCheckBox                   chckbxImageChooserEntityFolder;
+  private JComboBox                  cbLanguage;
+  private LinkLabel                  lblLinkTranslate;
+  private JComboBox                  cbFontSize;
+  private JComboBox                  cbFontFamily;
+  private JLabel                     lblLanguageChangeHint;
+  private JCheckBox                  chckbxStoreWindowPreferences;
+  private JComboBox                  cbTheme;
+  private JLabel                     lblThemeHint;
+  private JCheckBox                  chckbxShowMemory;
+  private JComboBox                  cbDatefield;
+  private JCheckBox                  chckbxImageChooserLastFolder;
+  private JCheckBox                  chckbxImageChooserEntityFolder;
 
   UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
@@ -232,7 +230,7 @@ class UiSettingsPanel extends JPanel {
 
     {
       JPanel panelFont = new JPanel();
-      panelFont.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelFont.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][][grow]", "[][][]")); // 16lp ~ width of the
 
       JLabel lblFontT = new TmmLabel(TmmResourceBundle.getString("Settings.font"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFont, lblFontT, true);

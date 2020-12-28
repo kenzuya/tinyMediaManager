@@ -124,8 +124,8 @@ class MovieDatasourceSettingsPanel extends JPanel {
     btnRemoveSkipFolder.addActionListener(e -> {
       int row = listSkipFolder.getSelectedIndex();
       if (row != -1) { // nothing selected
-        String ingore = settings.getSkipFolder().get(row);
-        settings.removeSkipFolder(ingore);
+        String ignore = settings.getSkipFolder().get(row);
+        settings.removeSkipFolder(ignore);
       }
     });
 

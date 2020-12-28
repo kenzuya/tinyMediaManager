@@ -56,6 +56,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.CountryCode;
@@ -212,8 +213,6 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                runtimeFromMediaInfo                   = false;
   private boolean                                includeExternalAudioStreams            = false;
   private boolean                                syncTrakt                              = false;
-  private boolean                                preferPersonalRating                   = true;
-  private String                                 preferredRating                        = "imdb";
   private boolean                                extractArtworkFromVsmeta               = false;
 
   private boolean                                title                                  = true;
@@ -226,7 +225,7 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                showMovieTableTooltips                 = true;
   private boolean                                showMovieSetTableTooltips              = true;
   private boolean                                displayMovieSetMissingMovies           = false;
-  private boolean                                showLogosPanel                         = true;
+  private final List<String>                     ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
   private final List<MediaArtworkType>           checkImagesMovie                       = new ArrayList<>();
   private final List<MediaArtworkType>           checkImagesMovieSet                    = new ArrayList<>();
 
@@ -276,6 +275,9 @@ public class MovieSettings extends AbstractSettings {
     checkImagesMovie.clear();
     addCheckImagesMovie(MediaArtworkType.POSTER);
     addCheckImagesMovie(MediaArtworkType.BACKGROUND);
+
+    ratingSources.clear();
+    addRatingSource(MediaMetadata.IMDB);
 
     movieSetPosterFilenames.clear();
     addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
@@ -399,7 +401,8 @@ public class MovieSettings extends AbstractSettings {
     String tmp = movieDataSources.get(pos1);
     movieDataSources.set(pos1, movieDataSources.get(pos2));
     movieDataSources.set(pos2, tmp);
-
+    firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
+    firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
   }
 
   public void addNfoFilename(MovieNfoNaming filename) {
@@ -1197,24 +1200,34 @@ public class MovieSettings extends AbstractSettings {
     return syncTrakt;
   }
 
-  public boolean getPreferPersonalRating() {
-    return preferPersonalRating;
+  public List<String> getRatingSources() {
+    return ratingSources;
   }
 
-  public void setPreferPersonalRating(boolean newValue) {
-    boolean oldValue = this.preferPersonalRating;
-    this.preferPersonalRating = newValue;
-    firePropertyChange("preferPersonalRating", oldValue, newValue);
+  public void setRatingSources(List<String> newValue) {
+    ratingSources.clear();
+    ratingSources.addAll(newValue);
+    firePropertyChange("ratingSources", null, ratingSources);
   }
 
-  public String getPreferredRating() {
-    return preferredRating;
+  public void addRatingSource(String ratingSource) {
+    if (!ratingSources.contains(ratingSource)) {
+      ratingSources.add(ratingSource);
+      firePropertyChange("ratingSources", null, ratingSources);
+    }
   }
 
-  public void setPreferredRating(String newValue) {
-    String oldValue = this.preferredRating;
-    this.preferredRating = newValue;
-    firePropertyChange("preferredRating", oldValue, newValue);
+  public void removeRatingSource(String ratingSource) {
+    if (ratingSources.remove(ratingSource)) {
+      firePropertyChange("ratingSources", null, ratingSources);
+    }
+  }
+
+  public void swapRatingSources(int pos1, int pos2) {
+    String tmp = ratingSources.get(pos1);
+    ratingSources.set(pos1, ratingSources.get(pos2));
+    ratingSources.set(pos2, tmp);
+    firePropertyChange("ratingSources", null, ratingSources);
   }
 
   public MediaLanguages getImageScraperLanguage() {
