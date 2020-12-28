@@ -20,6 +20,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -53,15 +54,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MediaScraperConfigurationPanel extends JPanel {
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");                         // stick to resourcebundle here
   private static final long           serialVersionUID = -4120483383064864579L;
   /** @wbp.nls.resourceBundle messages */
-  
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
 
-  private IMediaProvider              mediaProvider;
-  private boolean                     dirty            = false;
+  private final IMediaProvider        mediaProvider;
+  private final JPanel                configPanel;
 
-  private JPanel                      configPanel;
+  private boolean                     dirty            = false;
 
   public MediaScraperConfigurationPanel(IMediaProvider mediaProvider) {
     this.mediaProvider = mediaProvider;
@@ -226,7 +228,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
    */
   private String getStringFromBundle(String key) {
     try {
-      return TmmResourceBundle.getString(key);
+      return BUNDLE.getString(key);
     }
     catch (Exception ignored) {
       // an exception if thrown here if no string in the resources has been found -> silently ignore
