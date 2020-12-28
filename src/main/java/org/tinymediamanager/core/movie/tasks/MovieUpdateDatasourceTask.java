@@ -702,10 +702,20 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // ***************************************************************
     // fifth round - remove files which are not here any more
     // ***************************************************************
+    boolean videoRemoved = false;
+
     for (MediaFile mediaFile : movie.getMediaFiles()) {
       if (!mediaFile.getFile().toFile().exists()) {
+        if (mediaFile.getType() == MediaFileType.VIDEO) {
+          videoRemoved = true;
+        }
         movie.removeFromMediaFiles(mediaFile);
       }
+    }
+
+    // VIDEO file exchanged - treat this movie as new
+    if (videoRemoved && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+      movie.setNewlyAdded(true);
     }
 
     // ***************************************************************
