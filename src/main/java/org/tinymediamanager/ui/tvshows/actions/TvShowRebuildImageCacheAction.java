@@ -17,12 +17,15 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
@@ -73,15 +76,17 @@ public class TvShowRebuildImageCacheAction extends TmmAction {
       return;
     }
 
-    List<MediaFile> imageFiles = new ArrayList<>();
+    Set<MediaFile> imageFiles = new HashSet<>();
 
     // get data of all files within all selected TV shows/episodes
     for (TvShow tvShow : selectedTvShows) {
       imageFiles.addAll(tvShow.getImagesToCache());
+      ImageCache.clearImageCacheForMediaEntity(tvShow);
     }
 
     for (TvShowEpisode episode : selectedEpisodes) {
       imageFiles.addAll(episode.getImagesToCache());
+      ImageCache.clearImageCacheForMediaEntity(episode);
     }
 
     ImageCacheTask task = new ImageCacheTask(imageFiles.stream().distinct().collect(Collectors.toList()));

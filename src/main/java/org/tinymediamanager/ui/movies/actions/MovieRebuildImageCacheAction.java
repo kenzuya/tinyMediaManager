@@ -22,6 +22,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -64,6 +65,7 @@ public class MovieRebuildImageCacheAction extends TmmAction {
     // get data of all files within all selected movies
     for (Movie movie : selectedMovies) {
       imageFiles.addAll(movie.getImagesToCache());
+      ImageCache.clearImageCacheForMediaEntity(movie);
     }
 
     ImageCacheTask task = new ImageCacheTask(imageFiles);
