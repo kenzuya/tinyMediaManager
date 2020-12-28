@@ -15,7 +15,26 @@
  */
 package org.tinymediamanager.ui.tvshows.panels.episode;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.core.Constants.MEDIA_FILES;
+import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
+import static org.tinymediamanager.core.Constants.POSTER;
+import static org.tinymediamanager.core.Constants.SEASON_POSTER;
+import static org.tinymediamanager.core.Constants.THUMB;
+
+import java.awt.Dimension;
+import java.awt.Font;
+import java.beans.PropertyChangeListener;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextArea;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -47,24 +66,7 @@ import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextArea;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.beans.PropertyChangeListener;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.tinymediamanager.core.Constants.MEDIA_FILES;
-import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
-import static org.tinymediamanager.core.Constants.POSTER;
-import static org.tinymediamanager.core.Constants.SEASON_POSTER;
-import static org.tinymediamanager.core.Constants.THUMB;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The Class TvShowEpisodeInformationPanel.
@@ -74,7 +76,7 @@ import static org.tinymediamanager.core.Constants.THUMB;
 public class TvShowEpisodeInformationPanel extends JPanel {
   private static final Logger                LOGGER                = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
   private static final long                  serialVersionUID      = 2032708149757390567L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private final TvShowSettings               settings              = TvShowModuleManager.SETTINGS;

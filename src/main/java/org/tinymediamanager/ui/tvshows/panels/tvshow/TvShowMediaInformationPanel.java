@@ -23,7 +23,6 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -62,7 +61,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowMediaInformationPanel extends JPanel {
   private static final long           serialVersionUID = 1610264727610254912L;
-  /** @wbp.nls.resourceBundle messages */
+
   
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 

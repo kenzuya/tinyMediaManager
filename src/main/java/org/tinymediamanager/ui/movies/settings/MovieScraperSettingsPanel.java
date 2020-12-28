@@ -67,7 +67,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class MovieScraperSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -299825914193235308L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;

@@ -56,7 +56,7 @@ import net.miginfocom.swing.MigLayout;
 public class MediaScraperConfigurationPanel extends JPanel {
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");                         // stick to resourcebundle here
   private static final long           serialVersionUID = -4120483383064864579L;
-  /** @wbp.nls.resourceBundle messages */
+
 
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
 

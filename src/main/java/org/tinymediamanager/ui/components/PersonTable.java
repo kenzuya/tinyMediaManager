@@ -49,7 +49,7 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  * @author Manuel Laggner
  */
 public class PersonTable extends TmmTable {
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   /**

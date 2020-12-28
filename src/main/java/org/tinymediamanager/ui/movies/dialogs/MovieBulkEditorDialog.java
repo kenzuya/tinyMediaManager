@@ -60,7 +60,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieBulkEditorDialog extends TmmDialog {
   private static final long           serialVersionUID = -8515248604267310279L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private MovieList                   movieList        = MovieList.getInstance();

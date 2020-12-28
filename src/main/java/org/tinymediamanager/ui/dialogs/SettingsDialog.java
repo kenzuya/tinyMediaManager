@@ -58,7 +58,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class SettingsDialog extends TmmDialog {
   private static final long             serialVersionUID = 2435834806519338339L;
-  /** @wbp.nls.resourceBundle messages */
+
 
   private static JDialog                instance;
 

@@ -50,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieCastPanel extends JPanel {
   private static final long           serialVersionUID  = 2972207353452870494L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private MovieSelectionModel         selectionModel;

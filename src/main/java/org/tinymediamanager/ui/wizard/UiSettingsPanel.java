@@ -15,7 +15,22 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionListener;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,20 +45,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
-import java.awt.event.ActionListener;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class {@link UiSettingsPanel} is used to display generic UI settings
@@ -52,7 +54,7 @@ import java.util.Locale;
  */
 class UiSettingsPanel extends JPanel {
   private static final long           serialVersionUID   = -1241134514329815223L;
-  /** @wbp.nls.resourceBundle messages */
+
   
   private static final Logger         LOGGER             = LoggerFactory.getLogger(UiSettingsPanel.class);
 

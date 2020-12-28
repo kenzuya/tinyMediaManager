@@ -38,7 +38,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class DisclaimerPanel extends JPanel {
   private static final long            serialVersionUID = -4743134514329815273L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private final TinyMediaManagerWizard wizard;

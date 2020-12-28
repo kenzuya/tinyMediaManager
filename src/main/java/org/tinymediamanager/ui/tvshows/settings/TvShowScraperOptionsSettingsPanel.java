@@ -15,7 +15,13 @@
  */
 package org.tinymediamanager.ui.tvshows.settings;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -30,12 +36,7 @@ import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.tvshows.panels.TvShowScraperMetadataPanel;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class {@link TvShowScraperSettingsPanel} shows scraper options for the meta data scraper.
@@ -44,7 +45,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
  */
 class TvShowScraperOptionsSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;

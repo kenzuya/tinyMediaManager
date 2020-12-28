@@ -70,7 +70,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowSeasonInformationPanel extends JPanel {
   private static final long            serialVersionUID = 1911808562993073590L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private Color                        defaultColor;

@@ -94,7 +94,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListener {
   private static final long                    serialVersionUID = 5039498266207230875L;
-  /** @wbp.nls.resourceBundle messages */
+
 
   private static final Logger                  LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 

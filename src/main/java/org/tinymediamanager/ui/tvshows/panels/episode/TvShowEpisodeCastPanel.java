@@ -15,11 +15,14 @@
  */
 package org.tinymediamanager.ui.tvshows.panels.episode;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.GlazedLists;
-import ca.odell.glazedlists.ObservableElementList;
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.core.Constants.ACTORS;
+
+import java.beans.PropertyChangeListener;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -33,12 +36,11 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import java.beans.PropertyChangeListener;
-
-import static org.tinymediamanager.core.Constants.ACTORS;
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The Class TvShowEpisodeCastPanel.
@@ -47,7 +49,7 @@ import static org.tinymediamanager.core.Constants.ACTORS;
  */
 public class TvShowEpisodeCastPanel extends JPanel {
   private static final long                 serialVersionUID = 4712144916016763491L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private final TvShowEpisodeSelectionModel selectionModel;

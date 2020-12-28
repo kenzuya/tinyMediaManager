@@ -68,7 +68,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class SystemSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 500841588272296493L;
-  /** @wbp.nls.resourceBundle messages */
+
 
   private static final Logger         LOGGER           = LoggerFactory.getLogger(SystemSettingsPanel.class);
   private static final Pattern        MEMORY_PATTERN   = Pattern.compile("-Xmx([0-9]*)(.)");

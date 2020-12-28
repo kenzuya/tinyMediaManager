@@ -15,7 +15,20 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.swingbinding.JListBinding;
@@ -30,18 +43,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.SquareIconButton;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class MovieSourcePanel is used to maintain the movie data sources in the wizard
@@ -50,7 +52,7 @@ import java.util.List;
  */
 class MovieSourcePanel extends JPanel {
   private static final long           serialVersionUID = -8346420911623937902L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private final MovieSettings         settings         = MovieModuleManager.SETTINGS;

@@ -69,7 +69,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class MovieSubtitleSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -1607146878528487625L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;

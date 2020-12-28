@@ -63,7 +63,7 @@ import net.miginfocom.swing.MigLayout;
  */
 abstract public class MediaInformationPanel extends JPanel {
   private static final long                 serialVersionUID = 2513029074142934502L;
-  /** @wbp.nls.resourceBundle messages */
+
 
   private static final Logger               LOGGER           = LoggerFactory.getLogger(MediaInformationPanel.class);
 

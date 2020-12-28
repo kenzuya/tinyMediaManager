@@ -77,7 +77,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = -1681460428331929420L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   MovieSelectionModel                 selectionModel;

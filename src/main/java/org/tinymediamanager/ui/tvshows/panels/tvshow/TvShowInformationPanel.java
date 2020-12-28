@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -80,7 +79,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowInformationPanel extends JPanel {
   private static final long           serialVersionUID = 1911808562993073590L;
-  /** @wbp.nls.resourceBundle messages */
+
 
   private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowInformationPanel.class);
 

@@ -51,7 +51,7 @@ import net.miginfocom.swing.MigLayout;
 
 class FileTypesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 9136097757447080369L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private Settings                    settings         = Settings.getInstance();

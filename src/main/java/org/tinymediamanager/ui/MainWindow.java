@@ -15,8 +15,34 @@
  */
 package org.tinymediamanager.ui;
 
-import com.sun.jna.Platform;
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
+
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLayer;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.JTextComponent;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,32 +64,9 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 import org.tinymediamanager.ui.panels.StatusBarPanel;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLayer;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.event.ChangeListener;
-import javax.swing.text.JTextComponent;
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.sun.jna.Platform;
 
-import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The Class MainWindow.
@@ -71,7 +74,7 @@ import static org.tinymediamanager.TinyMediaManager.shutdownLogger;
  * @author Manuel Laggner
  */
 public class MainWindow extends JFrame {
-  /** @wbp.nls.resourceBundle messages */
+
 
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MainWindow.class);
   private static final long           serialVersionUID = 1L;

@@ -15,7 +15,17 @@
  */
 package org.tinymediamanager.ui.tvshows.settings;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
+
+import java.awt.event.ItemListener;
+import java.util.Arrays;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -34,15 +44,7 @@ import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import java.awt.event.ItemListener;
-import java.util.Arrays;
-
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The Class TvShowSettingsPanel.
@@ -51,7 +53,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
  */
 class TvShowSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -675729644848101096L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private final TvShowSettings         settings         = TvShowModuleManager.SETTINGS;

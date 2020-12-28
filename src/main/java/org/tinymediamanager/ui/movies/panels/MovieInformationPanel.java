@@ -80,7 +80,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieInformationPanel extends JPanel {
   private static final Logger                LOGGER                = LoggerFactory.getLogger(MovieInformationPanel.class);
   private static final long                  serialVersionUID      = -8527284262749511617L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private final MovieSelectionModel          movieSelectionModel;

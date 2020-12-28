@@ -97,7 +97,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class TvShowFilterDialog extends TmmDialog {
   private static final long                          serialVersionUID = 2298540526328945319L;
-  /** @wbp.nls.resourceBundle messages */
+
   protected static final ResourceBundle              BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final TmmTreeTable                         treeTable;

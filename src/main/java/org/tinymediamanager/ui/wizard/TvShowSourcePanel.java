@@ -15,7 +15,21 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -32,19 +46,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.SquareIconButton;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class TvShowSourcePanel is used to maintain the TV show data sources in the wizard
@@ -53,7 +55,7 @@ import java.util.List;
  */
 class TvShowSourcePanel extends JPanel {
   private static final long           serialVersionUID = -7126616245313008341L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;

@@ -81,7 +81,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = 5889203009864512935L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private TvShowList                  tvShowList       = TvShowList.getInstance();

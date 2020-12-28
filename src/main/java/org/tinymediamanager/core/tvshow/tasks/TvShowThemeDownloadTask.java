@@ -135,7 +135,6 @@ public class TvShowThemeDownloadTask extends TmmThreadPool {
             if (!Files.exists(tempFile) || Files.size(tempFile) == 0) {
               // cleanup the file
               FileUtils.deleteQuietly(tempFile.toFile());
-              throw new IOException("0byte file downloaded: " + filename);
             }
 
             // delete new destination if existing

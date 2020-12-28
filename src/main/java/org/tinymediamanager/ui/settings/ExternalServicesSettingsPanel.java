@@ -43,7 +43,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class ExternalServicesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 7266564870819511988L;
-  /** @wbp.nls.resourceBundle messages */
+
   
   private JButton                     btnGetTraktPin;
   private JButton                     btnTestTraktConnection;

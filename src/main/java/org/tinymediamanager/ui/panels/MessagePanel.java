@@ -19,6 +19,7 @@ package org.tinymediamanager.ui.panels;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.text.DateFormat;
+import java.util.ResourceBundle;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,7 +28,6 @@ import javax.swing.SwingConstants;
 
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.TmmDateFormat;
-import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -39,8 +39,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class MessagePanel extends JPanel {
   private static final long           serialVersionUID = -7224510527137312686L;
-  /** @wbp.nls.resourceBundle messages */
-  
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages"); // direct access to the message ids is needed here
 
   private JLabel                      lblTitle;
   private JTextArea                   taMessage;
@@ -67,7 +66,7 @@ public class MessagePanel extends JPanel {
     }
     else {
       try {
-        text = Utils.replacePlaceholders(TmmResourceBundle.getString(message.getMessageSender().toString()), message.getSenderParams());
+        text = Utils.replacePlaceholders(BUNDLE.getString(message.getMessageSender().toString()), message.getSenderParams());
       }
       catch (Exception e) {
         text = String.valueOf(message.getMessageSender());
@@ -78,7 +77,7 @@ public class MessagePanel extends JPanel {
     text = "";
     try {
       // try to get a localized version
-      text = Utils.replacePlaceholders(TmmResourceBundle.getString(message.getMessageId()), message.getIdParams());
+      text = Utils.replacePlaceholders(BUNDLE.getString(message.getMessageId()), message.getIdParams());
     }
     catch (Exception e) {
       // simply take the id

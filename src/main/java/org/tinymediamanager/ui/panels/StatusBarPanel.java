@@ -61,19 +61,19 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class StatusBarPanel extends JPanel implements TmmTaskListener {
-  private static final long           serialVersionUID = -6375900257553323558L;
-  /** @wbp.nls.resourceBundle messages */
+  private static final long        serialVersionUID = -6375900257553323558L;
 
 
-  private Set<TmmTaskHandle>          taskSet;
-  private TmmTaskHandle               activeTask;
+  private final Set<TmmTaskHandle> taskSet;
 
-  private JButton                     btnNotifications;
-  private JLabel                      lblMemory;
+  private TmmTaskHandle            activeTask;
 
-  private JLabel                      taskLabel;
-  private JProgressBar                taskProgressBar;
-  private JButton                     taskStopButton;
+  private JButton                  btnNotifications;
+  private JLabel                   lblMemory;
+
+  private JLabel                   taskLabel;
+  private JProgressBar             taskProgressBar;
+  private JButton                  taskStopButton;
 
   public StatusBarPanel() {
     initComponents();
@@ -207,8 +207,8 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     long free = maxMem - used;
 
     String phys = "";
-    return TmmResourceBundle.getString("tmm.memoryused") + " " + used / megs + " MiB  /  " + TmmResourceBundle.getString("tmm.memoryfree") + " " + free / megs + " MiB  /  "
-        + TmmResourceBundle.getString("tmm.memorymax") + " " + maxMem / megs + " MiB" + phys;
+    return TmmResourceBundle.getString("tmm.memoryused") + " " + used / megs + " MiB  /  " + TmmResourceBundle.getString("tmm.memoryfree") + " "
+        + free / megs + " MiB  /  " + TmmResourceBundle.getString("tmm.memorymax") + " " + maxMem / megs + " MiB" + phys;
   }
 
   @Override

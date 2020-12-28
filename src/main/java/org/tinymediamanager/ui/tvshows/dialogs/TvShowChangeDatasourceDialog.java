@@ -16,7 +16,18 @@
 
 package org.tinymediamanager.ui.tvshows.dialogs;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -29,16 +40,7 @@ import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * the class {@link TvShowChangeDatasourceDialog} is used to display the selection of the new datasource to be set to selected TV shows
@@ -47,7 +49,7 @@ import java.util.List;
  */
 public class TvShowChangeDatasourceDialog extends TmmDialog {
   private static final long           serialVersionUID = -1515243604267310274L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private List<TvShow>                tvShowsToEdit    = new ArrayList<>();

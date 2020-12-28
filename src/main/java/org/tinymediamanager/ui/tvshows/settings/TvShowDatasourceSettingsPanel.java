@@ -15,7 +15,25 @@
  */
 package org.tinymediamanager.ui.tvshows.settings;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
+
+import java.awt.Cursor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -35,23 +53,7 @@ import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.dialogs.ExchangeDatasourceDialog;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import java.awt.Cursor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class {@link TvShowDatasourceSettingsPanel} is used to display data sources related settings
@@ -60,7 +62,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
  */
 class TvShowDatasourceSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -675729644848101096L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;

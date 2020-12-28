@@ -70,7 +70,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class MovieImageSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 7312645402037806284L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private MovieSettings               settings         = MovieModuleManager.SETTINGS;

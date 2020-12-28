@@ -47,7 +47,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowCastPanel extends JPanel {
   private static final long           serialVersionUID = 2374973082749248956L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private final TvShowSelectionModel  selectionModel;

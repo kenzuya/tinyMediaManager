@@ -41,7 +41,7 @@ import ca.odell.glazedlists.gui.WritableTableFormat;
  */
 public class MediaRatingTable extends TmmTable {
   private static final long              serialVersionUID = 8010732881277204728L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private final Map<String, MediaRating> ratingMap;

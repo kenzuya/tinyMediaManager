@@ -49,7 +49,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieChangeDatasourceDialog extends TmmDialog {
   private static final long           serialVersionUID = -1515243604267310274L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private List<Movie>                 moviesToEdit     = new ArrayList<>();

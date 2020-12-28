@@ -15,7 +15,26 @@
  */
 package org.tinymediamanager.ui.tvshows.settings;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
+
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import javax.swing.UIManager;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -40,24 +59,7 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.panels.MediaScraperConfigurationPanel;
 import org.tinymediamanager.ui.panels.ScrollablePanel;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTable;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class {@link TvShowSubtitleSettingsPanel} is used to maintain subtitle related settings
@@ -66,7 +68,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
  */
 class TvShowSubtitleSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -1607146878528487625L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;

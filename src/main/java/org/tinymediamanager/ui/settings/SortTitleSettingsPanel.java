@@ -53,7 +53,7 @@ import net.miginfocom.swing.MigLayout;
  */
 class SortTitleSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 1857926059556024932L;
-  /** @wbp.nls.resourceBundle messages */
+
 
 
   private Settings                    settings         = Settings.getInstance();

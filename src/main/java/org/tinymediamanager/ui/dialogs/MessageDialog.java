@@ -43,11 +43,11 @@ import net.miginfocom.swing.MigLayout;
 public class MessageDialog extends TmmDialog {
   private static final long serialVersionUID = -9035402766767310658L;
 
-  private JLabel            lblImage;
-  private JTextPane         tpText;
-  private JTextPane         tpDescription;
-  private JScrollPane       scrollPane;
-  private JTextPane         textPane;
+  private final JLabel      lblImage;
+  private final JTextPane   tpText;
+  private final JTextPane   tpDescription;
+  private final JScrollPane scrollPane;
+  private final JTextPane   textPane;
 
   public MessageDialog(Window owner, String title) {
     super(owner, title, "messageDialog");

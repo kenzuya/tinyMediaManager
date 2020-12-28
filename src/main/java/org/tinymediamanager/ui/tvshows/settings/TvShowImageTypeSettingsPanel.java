@@ -15,7 +15,16 @@
  */
 package org.tinymediamanager.ui.tvshows.settings;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
+
+import java.awt.event.ItemListener;
+import java.io.File;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -39,14 +48,7 @@ import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import java.awt.event.ItemListener;
-import java.io.File;
-
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class {@link TvShowImageSettingsPanel} is used to display image file name settings.
@@ -55,7 +57,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
  */
 class TvShowImageTypeSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 4999827736720726395L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;

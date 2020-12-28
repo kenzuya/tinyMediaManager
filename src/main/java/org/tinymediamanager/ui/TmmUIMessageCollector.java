@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui;
 
+import java.util.ResourceBundle;
+
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -23,7 +25,6 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.IMessageListener;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
-import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -36,8 +37,8 @@ import ca.odell.glazedlists.GlazedLists;
  * @author Manuel Laggner
  */
 public class TmmUIMessageCollector extends AbstractModelObject implements IMessageListener {
-  /** @wbp.nls.resourceBundle messages */
-  
+  private static final ResourceBundle       BUNDLE      = ResourceBundle.getBundle("messages"); // direct access to the message ids is needed here
+
   public static final TmmUIMessageCollector instance    = new TmmUIMessageCollector();
 
   private final EventList<Message>          messages;
@@ -54,7 +55,7 @@ public class TmmUIMessageCollector extends AbstractModelObject implements IMessa
       SwingUtilities.invokeLater(() -> {
         String sender = "";
         try {
-          sender = Utils.replacePlaceholders(TmmResourceBundle.getString(message.getMessageSender().toString()), message.getSenderParams());
+          sender = Utils.replacePlaceholders(BUNDLE.getString(message.getMessageSender().toString()), message.getSenderParams());
         }
         catch (Exception e) {
           sender = String.valueOf(message.getMessageSender());
@@ -62,7 +63,7 @@ public class TmmUIMessageCollector extends AbstractModelObject implements IMessa
 
         String text = "";
         try {
-          text = Utils.replacePlaceholders(TmmResourceBundle.getString(message.getMessageId()), message.getIdParams());
+          text = Utils.replacePlaceholders(BUNDLE.getString(message.getMessageId()), message.getIdParams());
         }
         catch (Exception e) {
           text = String.valueOf(message.getMessageId());

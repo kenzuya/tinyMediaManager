@@ -15,7 +15,19 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
@@ -27,17 +39,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class TinyMediaManagerWizard provides a wizard for easy first time setup of tinyMediaManager
@@ -46,7 +48,7 @@ import java.util.List;
  */
 public class TinyMediaManagerWizard extends TmmDialog {
   private static final long           serialVersionUID = 1112053710541745443L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private final List<JPanel>          panels;

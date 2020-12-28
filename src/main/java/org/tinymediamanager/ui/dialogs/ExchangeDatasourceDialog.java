@@ -43,7 +43,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ExchangeDatasourceDialog extends TmmDialog {
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private JLabel                      lblNewDatasource;

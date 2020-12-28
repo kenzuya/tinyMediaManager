@@ -79,7 +79,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MediaFileEditorPanel extends JPanel {
   private static final long               serialVersionUID = -2416409052145301941L;
-  /** @wbp.nls.resourceBundle messages */
+
   
 
   private static final Map<Float, String> ASPECT_RATIOS    = createAspectRatios();
