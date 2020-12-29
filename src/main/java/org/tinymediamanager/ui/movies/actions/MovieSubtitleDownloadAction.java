@@ -25,6 +25,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -62,9 +63,10 @@ public class MovieSubtitleDownloadAction extends TmmAction {
 
     // do we want to scrape?
     if (dialog.shouldStartDownload()) {
-      MovieSubtitleSearchAndDownloadTask task = new MovieSubtitleSearchAndDownloadTask(selectedMovies, dialog.getSubtitleScrapers(),
-          dialog.getLanguage());
-      TmmTaskManager.getInstance().addMainTask(task);
+      for (MediaLanguages language : dialog.getLanguages()) {
+        MovieSubtitleSearchAndDownloadTask task = new MovieSubtitleSearchAndDownloadTask(selectedMovies, dialog.getSubtitleScrapers(), language);
+        TmmTaskManager.getInstance().addMainTask(task);
+      }
     }
   }
 }

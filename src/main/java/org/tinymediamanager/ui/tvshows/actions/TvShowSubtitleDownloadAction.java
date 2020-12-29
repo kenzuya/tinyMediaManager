@@ -15,19 +15,21 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.event.ActionEvent;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowSubtitleSearchAndDownloadTask;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowDownloadSubtitleDialog;
-
-import javax.swing.JOptionPane;
-import java.awt.event.ActionEvent;
-import java.util.List;
 
 /**
  * The MovieSubtitleDownloadAction - download subtitles (via hash) for all selected movies
@@ -60,9 +62,10 @@ public class TvShowSubtitleDownloadAction extends TmmAction {
 
     // do we want to scrape?
     if (dialog.shouldStartDownload()) {
-      TvShowSubtitleSearchAndDownloadTask task = new TvShowSubtitleSearchAndDownloadTask(episodes, dialog.getSubtitleScrapers(),
-          dialog.getLanguage());
-      TmmTaskManager.getInstance().addMainTask(task);
+      for (MediaLanguages language : dialog.getLanguages()) {
+        TvShowSubtitleSearchAndDownloadTask task = new TvShowSubtitleSearchAndDownloadTask(episodes, dialog.getSubtitleScrapers(), language);
+        TmmTaskManager.getInstance().addMainTask(task);
+      }
     }
   }
 }

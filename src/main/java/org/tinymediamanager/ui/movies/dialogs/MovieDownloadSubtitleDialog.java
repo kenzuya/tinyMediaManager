@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -35,6 +34,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
+import org.tinymediamanager.ui.components.combobox.TmmCheckComboBox;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -47,8 +47,9 @@ import net.miginfocom.swing.MigLayout;
 public class MovieDownloadSubtitleDialog extends TmmDialog {
   private static final long         serialVersionUID = 3826984454317879241L;
 
-  private MediaScraperCheckComboBox cbSubtitleScraper;
-  private JComboBox<MediaLanguages> cbLanguage;
+  private final MediaScraperCheckComboBox        cbSubtitleScraper;
+  private final TmmCheckComboBox<MediaLanguages> cbLanguage;
+
   private boolean                   startDownload    = false;
 
   public MovieDownloadSubtitleDialog(String title) {
@@ -69,8 +70,10 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
       panelScraper.add(lblLanguage, "cell 0 1,alignx right");
 
-      cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
+      cbLanguage = new TmmCheckComboBox<>(MediaLanguages.valuesSorted());
       panelScraper.add(cbLanguage, "cell 1 1,growx");
+
+      cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage());
 
       JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("movie.download.subtitles.hint"));
       taHint.setOpaque(false);
@@ -122,12 +125,12 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
   }
 
   /**
-   * Get the selected Language
+   * Get the selected Languages
    *
-   * @return the selected language
+   * @return the selected languages
    */
-  public MediaLanguages getLanguage() {
-    return (MediaLanguages) cbLanguage.getSelectedItem();
+  public List<MediaLanguages> getLanguages() {
+    return cbLanguage.getSelectedItems();
   }
 
   /**
