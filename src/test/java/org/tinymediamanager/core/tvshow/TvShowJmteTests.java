@@ -75,7 +75,7 @@ public class TvShowJmteTests {
       compare("${showTitle} (${showYear})", "The 4400 (1987)");
 
       // test empty brackets
-      compare("{ ${showTitle[100]} }", "{  }");
+      compare("{ ${showTitle[100]} }", "{ The 4400 }");
 
       // direct access
       compare("${tvShow.year}/${tvShow.title}", "1987/The 4400");
@@ -145,7 +145,7 @@ public class TvShowJmteTests {
       compare("${showTitle} - S${seasonNr2}E${episodeNr2} - ${title}", "The 4400 - S01E03 - Don't Pet the Teacher");
 
       // test empty brackets
-      compare("{ ${showTitle[100]} }", "{  }");
+      compare("{ ${showTitle[100]} }", "{ The 4400 }");
 
       // test direct access
       compare("${episode.firstAired;date(yyyy - MM - dd)} - ${episode.title}", "1987 - 04 - 26 - Don't Pet the Teacher");
