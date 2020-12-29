@@ -98,11 +98,21 @@ public class TmmModelAdaptor extends DefaultModelAdaptor {
             String[] interval = arrayIndex.split(",");
             int start = Integer.parseInt(interval[0]);
             int end = start + Integer.parseInt(interval[1]);
-            return array.toString().substring(start, end);
+            if (array.toString().length() > start) {
+              return array.toString().substring(start, Math.min(end, array.toString().length()));
+            }
+            else {
+              return array.toString();
+            }
           }
           else {
             int index = Integer.parseInt(arrayIndex);
-            return array.toString().substring(index, index + 1);
+            if (array.toString().length() > index) {
+              return array.toString().substring(index, index + 1);
+            }
+            else {
+              return array.toString();
+            }
           }
         }
         if (array != ERROR_STRING) {
