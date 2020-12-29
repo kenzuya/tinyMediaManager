@@ -396,6 +396,17 @@ public abstract class MediaEntity extends AbstractModelObject {
     return mediaRating;
   }
 
+  public MediaRating getUserRating() {
+    MediaRating mediaRating = ratings.get(MediaRating.USER);
+
+    if (mediaRating == null) {
+      mediaRating = MediaMetadata.EMPTY_RATING;
+    }
+
+    return mediaRating;
+
+  }
+
   public int getYear() {
     return year;
   }

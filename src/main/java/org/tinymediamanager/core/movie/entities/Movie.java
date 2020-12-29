@@ -1469,6 +1469,20 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * Gets the user rating
+   * 
+   * @return User Rating as String
+   */
+  public MediaRating getUserRating() {
+    MediaRating mediaRating = ratings.get(MediaRating.USER);
+
+    if (mediaRating == null) {
+      mediaRating = MediaMetadata.EMPTY_RATING;
+    }
+    return mediaRating;
+  }
+
+  /**
    * Gets the genres as string.
    * 
    * @return the genres as string

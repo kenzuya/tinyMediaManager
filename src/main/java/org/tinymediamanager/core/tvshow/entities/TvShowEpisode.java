@@ -557,6 +557,22 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return mediaRating;
   }
 
+
+  /**
+   * get the user rating
+   * @return user rating object
+   */
+  public MediaRating getUserRating() {
+    MediaRating mediaRating;
+
+    mediaRating = ratings.get(MediaRating.USER);
+
+    if (mediaRating == null) {
+      mediaRating = MediaMetadata.EMPTY_RATING;
+    }
+    return mediaRating;
+  }
+
   /**
    * Gets the title for ui.
    * 

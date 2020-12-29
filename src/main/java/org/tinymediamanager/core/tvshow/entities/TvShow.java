@@ -476,6 +476,21 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * get the user rating
+   * @return user rating object
+   */
+  public MediaRating getUserRating() {
+    MediaRating mediaRating;
+
+    mediaRating = ratings.get(MediaRating.USER);
+
+    if (mediaRating == null) {
+      mediaRating = MediaMetadata.EMPTY_RATING;
+    }
+    return mediaRating;
+  }
+
+  /**
    * Gets the episodes.
    *
    * @return the episodes

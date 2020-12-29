@@ -176,6 +176,18 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
+    * user rating
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.userrating"),"userrating", movie-> movie.getUserRating().getRating(), Float.class);
+    col.setColumnComparator(floatComparator);
+    col.setHeaderIcon(IconManager.RATING);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * votes (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", movie -> movie.getRating().getVotes(), Integer.class);
