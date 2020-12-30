@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
@@ -159,6 +160,83 @@ public class TvShowJmteTests {
 
   private void compare(String template, String expectedValue) {
     String actualValue = engine.transform(TvShowRenamer.morphTemplate(template), root);
+    assertThat(actualValue).isEqualTo(expectedValue);
+  }
+
+  @Test
+  public void testMultiEpisodePatterns() {
+    try {
+      // create two episodes with the same file
+      TvShow tvShow = createTvShow();
+      TvShowEpisode episode1 = createEpisode();
+      tvShow.addEpisode(episode1);
+      TvShowEpisode episode2 = createEpisode();
+      episode2.setEpisode(4);
+      episode2.setDvdEpisode(6);
+      episode2.setTitle("Part 2");
+      episode2.setFirstAired("1987-04-27");
+      tvShow.addEpisode(episode2);
+
+      List<TvShowEpisode> episodes = Arrays.asList(episode1, episode2);
+
+      // test single tokens from the TV show
+      compare2("${showTitle}", "The 4400", episodes);
+      compare2("${showTitleSortable}", "4400, The", episodes);
+      compare2("${showYear}", "1987", episodes);
+
+      // test single tokens from the episode
+      compare2("${episodeNr}", "3 4", episodes);
+      compare2("${episode.episode}", "3 4", episodes);
+      compare2("${episodeNr2}", "03 04", episodes);
+      compare2("${episodeNrDvd}", "5 6", episodes);
+      compare2("${episode.dvdEpisode}", "5 6", episodes);
+      compare2("${seasonNr}", "1 1", episodes);
+      compare2("${episode.season}", "1 1", episodes);
+      compare2("${seasonNr2}", "01 01", episodes);
+      compare2("${seasonNrDvd}", "1 1", episodes);
+      compare2("${episode.dvdSeason}", "1 1", episodes);
+      compare2("${title}", "Don't Pet the Teacher - Part 2", episodes);
+      compare2("${episode.title}", "Don't Pet the Teacher - Part 2", episodes);
+      compare2("${year}", "1987", episodes);
+      compare2("${airedDate}", "1987-04-26 - 1987-04-27", episodes);
+      compare2("${episode.firstAired;date(yyyy-MM-dd)}", "1987-04-26 - 1987-04-27", episodes);
+
+      compare2("${videoResolution}", "1280x720", episodes);
+      compare2("${videoFormat}", "720p", episodes);
+      compare2("${videoCodec}", "h264", episodes);
+      compare2("${audioCodec}", "AC3", episodes);
+      compare2("${audioCodecList[1]}", "MP3", episodes);
+      compare2("${audioCodecList[2]}", "", episodes);
+      compare2("${audioChannels}", "6ch", episodes);
+      compare2("${audioChannelList[1]}", "2ch", episodes);
+      compare2("${audioChannelList[2]}", "", episodes);
+      compare2("${audioLanguage}", "en", episodes);
+      compare2("${audioLanguageList[1]}", "de", episodes);
+      compare2("${audioLanguageList[1];upper}", "DE", episodes);
+      compare2("${audioLanguageList[2]}", "", episodes);
+
+      compare2("${mediaSource}", "Blu-ray", episodes);
+      compare2("${mediaSource.name}", "BLURAY", episodes);
+
+      // test combined tokens
+      compare2("${showTitle} - S${seasonNr2}E${episodeNr2} - ${title}", "The 4400 - S01E03 S01E04 - Don't Pet the Teacher - Part 2", episodes);
+
+      // test empty brackets
+      compare2("{ ${showTitle[100]} }", "{ The 4400 }", episodes);
+
+      // test direct access
+      compare2("${episode.firstAired;date(yyyy - MM - dd)} - ${episode.title}", "1987 - 04 - 26 - 1987 - 04 - 27 - Don't Pet the Teacher - Part 2",
+          episodes);
+      compare2("S${episode.season}E${episodeNr} - ${title[0,2]}", "S1E3 S1E4 - Do - Pa", episodes);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      Assertions.fail(e.getMessage());
+    }
+  }
+
+  private void compare2(String template, String expectedValue, List<TvShowEpisode> episodes) {
+    String actualValue = TvShowRenamer.createDestination(template, episodes);
     assertThat(actualValue).isEqualTo(expectedValue);
   }
 

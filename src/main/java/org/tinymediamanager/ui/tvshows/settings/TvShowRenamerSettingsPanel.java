@@ -597,7 +597,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
       Matcher matcher = TOKEN_PATTERN.matcher(token);
       if (matcher.find() && matcher.groupCount() > 1) {
         String alias = matcher.group(1);
-        String sourceToken = TvShowRenamer.TOKEN_MAP.get(alias);
+        String sourceToken = TvShowRenamer.getTokenMap().get(alias);
 
         if (StringUtils.isNotBlank(sourceToken)) {
           result = "<html>" + token + "<br>${" + sourceToken + matcher.group(2) + "</html>";
