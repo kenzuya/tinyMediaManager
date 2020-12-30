@@ -26,14 +26,14 @@ import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 
 /**
  * the class {@link TmdbTvShowTrailerProvider} is used to provide trailers for TV shows
  *
  * @author Manuel Laggner
  */
-public class TmdbTvShowTrailerProvider extends TmdbMetadataProvider implements IMovieTrailerProvider {
+public class TmdbTvShowTrailerProvider extends TmdbMetadataProvider implements ITvShowTrailerProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TmdbTvShowTrailerProvider.class);
 
   @Override
