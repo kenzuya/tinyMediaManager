@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.tvshows.panels;
 
+import static org.tinymediamanager.core.ScraperMetadataConfig.Type.THEME;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemListener;
@@ -124,6 +126,15 @@ public class TvShowScraperMetadataPanel extends JPanel {
     gbc.gridy++;
     for (TvShowScraperMetadataConfig value : TvShowScraperMetadataConfig.values()) {
       if (value.isArtwork()) {
+        addCheckbox(value, tvShowCheckboxes, gbc);
+      }
+    }
+
+    // theme
+    gbc.gridx = 0;
+    gbc.gridy++;
+    for (TvShowScraperMetadataConfig value : TvShowScraperMetadataConfig.values()) {
+      if (value.getType() == THEME) {
         addCheckbox(value, tvShowCheckboxes, gbc);
       }
     }

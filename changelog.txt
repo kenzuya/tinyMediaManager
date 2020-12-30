@@ -1,7 +1,7 @@
 Version 4.1
 =======================
 + BIG scraper rework:
-  We splitted up all scrapers into individual sub-scrapers for every scope (meta data, artwork, trailer, subtitle).
+  We split up all scrapers into individual sub-scrapers for every scope (meta data, artwork, trailer, subtitle).
   This offers new options to configure them:
     - now they are all independently configurable (no setting for the movie section influences the TV show section)
     - we could strip out options which are not needed for the actual section (e.g. TV show options in the movie scraper)

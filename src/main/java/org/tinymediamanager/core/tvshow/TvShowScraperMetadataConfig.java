@@ -69,11 +69,9 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   // theme
   THEME(Type.THEME);
 
-
-
-  private final Type                  type;
-  private final String                description;
-  private final String                tooltip;
+  private final Type   type;
+  private final String description;
+  private final String tooltip;
 
   TvShowScraperMetadataConfig(Type type) {
     this(type, null, null);
