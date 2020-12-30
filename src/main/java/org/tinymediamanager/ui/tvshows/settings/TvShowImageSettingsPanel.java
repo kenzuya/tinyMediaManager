@@ -91,7 +91,6 @@ class TvShowImageSettingsPanel extends JPanel {
   private JComboBox                   cbImagePosterSize;
   private JComboBox                   cbImageFanartSize;
   private JCheckBox                   chckbxSpecialSeason;
-  private JPanel                      panel;
   private JCheckBox                   chckbxExtraFanart1;
   private JCheckBox                   chckbxExtraFanart2;
 
@@ -129,7 +128,7 @@ class TvShowImageSettingsPanel extends JPanel {
         + color.getGreen() + "," + color.getBlue() + "); }";
 
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     tpScraperDescription.setEditorKit(new HTMLEditorKit());
@@ -292,7 +291,7 @@ class TvShowImageSettingsPanel extends JPanel {
         chckbxEnableExtrafanart = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrafanart"));
         panelOptions.add(chckbxEnableExtrafanart, "cell 1 5 2 1");
 
-        panel = new JPanel();
+        JPanel panel = new JPanel();
         panelOptions.add(panel, "cell 2 6,growx");
         panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
 
@@ -320,7 +319,8 @@ class TvShowImageSettingsPanel extends JPanel {
     jTableBinding_1.addColumnBinding(artworkScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)

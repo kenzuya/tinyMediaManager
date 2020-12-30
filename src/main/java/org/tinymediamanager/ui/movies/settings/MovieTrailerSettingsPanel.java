@@ -128,7 +128,7 @@ class MovieTrailerSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraperInTable, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraperInTable, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraperInTable, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraperInTable, 5);
 
     tableScraperInTable.getModel().addTableModelListener(arg0 -> {
@@ -316,7 +316,8 @@ class MovieTrailerSettingsPanel extends JPanel {
     jTableBinding.addColumnBinding(ScraperInTableBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> ScraperInTableBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> ScraperInTableBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding.addColumnBinding(ScraperInTableBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)

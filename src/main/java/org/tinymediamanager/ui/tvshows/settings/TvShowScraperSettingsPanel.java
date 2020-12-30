@@ -71,8 +71,8 @@ class TvShowScraperSettingsPanel extends JPanel {
 
 
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
-  private List<TvShowScraper>         scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final TvShowSettings      settings         = TvShowModuleManager.SETTINGS;
+  private final List<TvShowScraper> scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
   /** UI components */
   private TmmTable                    tableScraper;
@@ -121,7 +121,7 @@ class TvShowScraperSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
@@ -208,10 +208,12 @@ class TvShowScraperSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<TvShowScraper, Boolean> tvShowScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<TvShowScraper, Icon> tvShowScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setColumnClass(Icon.class).setEditable(false);
     //
     BeanProperty<TvShowScraper, String> tvShowScraperBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding.addColumnBinding(tvShowScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false);

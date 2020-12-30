@@ -73,8 +73,8 @@ class MovieImageSettingsPanel extends JPanel {
 
 
 
-  private MovieSettings               settings         = MovieModuleManager.SETTINGS;
-  private List<ScraperInTable>        scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
   private JComboBox                   cbImagePosterSize;
   private JComboBox                   cbImageFanartSize;
@@ -111,7 +111,7 @@ class MovieImageSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     tableScraper.getModel().addTableModelListener(arg0 -> {
@@ -242,7 +242,8 @@ class MovieImageSettingsPanel extends JPanel {
     jTableBinding.addColumnBinding(artworkScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(artworkScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(artworkScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding.addColumnBinding(artworkScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)

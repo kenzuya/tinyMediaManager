@@ -71,8 +71,9 @@ class TvShowSubtitleSettingsPanel extends JPanel {
 
 
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
-  private List<ScraperInTable>        scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+
   private TmmTable                    tableScraper;
   private JTextPane                   tpScraperDescription;
   private JPanel                      panelScraperOptions;
@@ -103,7 +104,7 @@ class TvShowSubtitleSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     tableScraper.getModel().addTableModelListener(arg0 -> {
@@ -213,7 +214,8 @@ class TvShowSubtitleSettingsPanel extends JPanel {
     jTableBinding.addColumnBinding(subtitleScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)

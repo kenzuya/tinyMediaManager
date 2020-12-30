@@ -69,20 +69,18 @@ import net.miginfocom.swing.MigLayout;
 
 public class TvShowTrailerSettingsPanel extends JPanel {
 
+  private final TvShowSettings       settings = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers = ObservableCollections.observableList(new ArrayList<>());
+  private final ItemListener         checkBoxListener;
 
-
-  private TvShowSettings              settings = TvShowModuleManager.SETTINGS;
-  private List<ScraperInTable>        scrapers = ObservableCollections.observableList(new ArrayList<>());
-  private TmmTable                    tableTrailerScraper;
-  private JTextPane                   tpScraperDescription;
-  private JComboBox<TrailerSources>   cbTrailerSource;
-  private JComboBox<TrailerQuality>   cbTrailerQuality;
-  private JCheckBox                   checkBox;
-  private JCheckBox                   chckbxAutomaticTrailerDownload;
-  private JPanel                      panelScraperOptions;
-  private JCheckBox                   cbTrailerFilename1;
-
-  private ItemListener                checkBoxListener;
+  private TmmTable                   tableTrailerScraper;
+  private JTextPane                  tpScraperDescription;
+  private JComboBox<TrailerSources>  cbTrailerSource;
+  private JComboBox<TrailerQuality>  cbTrailerQuality;
+  private JCheckBox                  checkBox;
+  private JCheckBox                  chckbxAutomaticTrailerDownload;
+  private JPanel                     panelScraperOptions;
+  private JCheckBox                  cbTrailerFilename1;
 
   TvShowTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -117,7 +115,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableTrailerScraper, 5);
 
     tableTrailerScraper.getModel().addTableModelListener(arg0 -> {
@@ -278,10 +276,12 @@ public class TvShowTrailerSettingsPanel extends JPanel {
         .createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, scrapers, tableTrailerScraper);
     //
     BeanProperty<ScraperInTable, Boolean> trailerScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> trailerScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> trailerScraperBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)

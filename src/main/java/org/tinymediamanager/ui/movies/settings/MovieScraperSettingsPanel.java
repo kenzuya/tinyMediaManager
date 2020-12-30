@@ -70,8 +70,8 @@ class MovieScraperSettingsPanel extends JPanel {
 
 
 
-  private MovieSettings               settings         = MovieModuleManager.SETTINGS;
-  private List<MovieScraper>          scrapers         = new ArrayList<>();
+  private final MovieSettings      settings         = MovieModuleManager.SETTINGS;
+  private final List<MovieScraper> scrapers         = new ArrayList<>();
 
   /**
    * UI Elements
@@ -123,7 +123,7 @@ class MovieScraperSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
@@ -207,10 +207,12 @@ class MovieScraperSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<MovieScraper, Boolean> movieScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<MovieScraper, Icon> movieScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setColumnClass(Icon.class).setEditable(false);
     //
     BeanProperty<MovieScraper, String> movieScraperBeanProperty_2 = BeanProperty.create("scraperName");
     jTableBinding.addColumnBinding(movieScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false);
