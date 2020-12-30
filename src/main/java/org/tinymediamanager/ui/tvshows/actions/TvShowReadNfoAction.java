@@ -48,7 +48,7 @@ public class TvShowReadNfoAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

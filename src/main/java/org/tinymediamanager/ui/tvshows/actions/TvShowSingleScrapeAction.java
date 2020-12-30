@@ -50,7 +50,7 @@ public class TvShowSingleScrapeAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     int count = selectedTvShows.size();
 

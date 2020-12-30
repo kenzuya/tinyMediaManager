@@ -16,12 +16,14 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -34,8 +36,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowDownloadActorImagesAction extends TmmAction {
 
-
-
   public TvShowDownloadActorImagesAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.downloadactorimages"));
     putValue(SMALL_ICON, IconManager.IMAGE);
@@ -44,16 +44,30 @@ public class TvShowDownloadActorImagesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
 
-    if (selectedTvShows.isEmpty()) {
+    // add all episodes which are not part of a selected tv show
+    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
+      if (obj instanceof TvShowEpisode) {
+        TvShowEpisode episode = (TvShowEpisode) obj;
+        if (!selectedTvShows.contains(episode.getTvShow())) {
+          selectedEpisodes.add(episode);
+        }
+      }
+    }
+
+    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     for (TvShow tvShow : selectedTvShows) {
       tvShow.writeActorImages();
+    }
+
+    for (TvShowEpisode episode : selectedEpisodes) {
+      episode.writeActorImages();
     }
   }
 }

@@ -46,7 +46,7 @@ public class TvShowDownloadThemeAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

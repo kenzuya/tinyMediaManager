@@ -15,6 +15,11 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.event.ActionEvent;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -23,10 +28,6 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
-
-import javax.swing.JOptionPane;
-import java.awt.event.ActionEvent;
-import java.util.List;
 
 /**
  * The class {@link TvShowSyncSelectedCollectionTraktTvAction}. To synchronize selected TV shows with trakt.tv (collection)
@@ -46,7 +47,7 @@ public class TvShowSyncSelectedCollectionTraktTvAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

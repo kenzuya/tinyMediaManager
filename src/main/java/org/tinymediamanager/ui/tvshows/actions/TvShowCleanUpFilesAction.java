@@ -45,8 +45,7 @@ public class TvShowCleanUpFilesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-
-    List<MediaEntity> selectedTvShows = new ArrayList<>(TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows());
+    List<MediaEntity> selectedTvShows = new ArrayList<>(TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive());
 
     if (selectedTvShows.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));

@@ -15,6 +15,14 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -28,13 +36,6 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
-
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.util.List;
 
 /**
  * The class TvShowSelectedScrapeAction. To scrape all selected TV shows
@@ -55,7 +56,7 @@ public class TvShowSelectedScrapeAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
