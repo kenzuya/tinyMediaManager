@@ -693,6 +693,9 @@ public class TvShowRenamer {
       return;
     }
 
+    // make sure we have actual stacking markers
+    episode.reEvaluateStacking();
+
     // all the good & needed mediafiles
     List<MediaFile> needed = new ArrayList<>();
     List<MediaFile> cleanup = new ArrayList<>(episode.getMediaFiles());

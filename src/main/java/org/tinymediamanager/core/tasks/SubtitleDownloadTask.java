@@ -81,6 +81,7 @@ public class SubtitleDownloadTask extends DownloadTask {
         if (mediaEntity != null) {
           MediaFile mf = new MediaFile(destination);
           mf.gatherMediaInformation();
+          mf.detectStackingInformation();
           mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
           mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
           mediaEntity.saveToDb();
@@ -139,6 +140,7 @@ public class SubtitleDownloadTask extends DownloadTask {
       if (mf != null && mf.getType() == MediaFileType.SUBTITLE) {
         if (mediaEntity != null) {
           mf.gatherMediaInformation();
+          mf.detectStackingInformation();
           mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
           mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
           mediaEntity.saveToDb();

@@ -471,6 +471,9 @@ public class MovieRenamer {
       newPathname = movie.getPathNIO().toString();
     }
 
+    // make sure we have actual stacking markers
+    movie.reEvaluateStacking();
+
     // ######################################################################
     // ## mark ALL existing and known files for cleanup (clone!!)
     // ######################################################################
