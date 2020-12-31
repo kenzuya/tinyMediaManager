@@ -557,9 +557,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return mediaRating;
   }
 
-
   /**
    * get the user rating
+   * 
    * @return user rating object
    */
   public MediaRating getUserRating() {
@@ -910,9 +910,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     // do not add actors which are in the TV show itself
     // tvShow is null while loading
     if (getTvShow() != null) {
-      for (Person actor : getTvShow().getActors()) {
-        newActors.remove(actor);
-      }
+      newActors.removeAll(getTvShow().getActors());
     }
 
     // two way sync of actors

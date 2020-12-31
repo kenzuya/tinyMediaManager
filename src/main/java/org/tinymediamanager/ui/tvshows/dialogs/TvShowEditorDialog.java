@@ -559,8 +559,8 @@ public class TvShowEditorDialog extends TmmDialog {
       JPanel details2Panel = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details2"), details2Panel);
 
-      details2Panel.setLayout(
-          new MigLayout("", "[][150lp:400lp,grow][20lp:n][][150lp:300lp,grow]", "[][:150lp:200lp,grow][20lp:n][100lp:150lp,grow][][100lp,grow 200]"));
+      details2Panel
+          .setLayout(new MigLayout("", "[][150lp:400lp,grow][20lp:n][][150lp:300lp,grow]", "[][150lp,grow 200][20lp:n][100lp:150lp,grow][][]"));
       {
         JLabel lblActors = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
         details2Panel.add(lblActors, "flowy,cell 0 0 1 2,alignx right,aligny top");
