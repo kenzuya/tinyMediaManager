@@ -80,32 +80,31 @@ import com.sun.jna.Platform;
  */
 
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
-
+  private static final Logger       LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
 
   // constants
-  private static final String         VIDEO_TS      = "VIDEO_TS";
-  private static final String         BDMV          = "BDMV";
-  private static final String         HVDVD_TS      = "HVDVD_TS";
+  private static final String       VIDEO_TS      = "VIDEO_TS";
+  private static final String       BDMV          = "BDMV";
+  private static final String       HVDVD_TS      = "HVDVD_TS";
 
   // skip well-known, but unneeded folders (UPPERCASE)
-  private static final List<String>   SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER", "SYSTEM VOLUME INFORMATION",
+  private static final List<String> SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER", "SYSTEM VOLUME INFORMATION",
       "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB");
 
   // skip folders starting with a SINGLE "." or "._"
-  private static final String         SKIP_REGEX    = "^[.][\\w@]+.*";
+  private static final String       SKIP_REGEX    = "^[.][\\w@]+.*";
 
-  private static final Pattern        seasonNumber  = Pattern.compile("(?i)season([0-9]{1,4}).*");
+  private static final Pattern      seasonNumber  = Pattern.compile("(?i)season([0-9]{1,4}).*");
 
-  private static long                 preDir        = 0;
-  private static long                 postDir       = 0;
-  private static long                 visFile       = 0;
+  private static long               preDir        = 0;
+  private static long               postDir       = 0;
+  private static long               visFile       = 0;
 
-  private final List<String>          dataSources;
-  private final List<String>          skipFolders;
-  private final List<Path>            tvShowFolders = new ArrayList<>();
-  private final TvShowList            tvShowList;
-  private final Set<Path>             filesFound    = ConcurrentHashMap.newKeySet();
+  private final List<String>        dataSources;
+  private final List<String>        skipFolders;
+  private final List<Path>          tvShowFolders = new ArrayList<>();
+  private final TvShowList          tvShowList;
+  private final Set<Path>           filesFound    = ConcurrentHashMap.newKeySet();
 
   /**
    * Instantiates a new scrape task - to update all datasources
@@ -425,14 +424,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       List<MediaFile> mediaFiles = new ArrayList<>(tvShow.getMediaFiles());
       for (MediaFile mf : mediaFiles) {
         if (!filesFound.contains(mf.getFileAsPath())) {
-          if (!mf.exists()) {
-            LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
-            tvShow.removeFromMediaFiles(mf);
-            dirty = true;
-          }
-          else {
-            LOGGER.warn("file {} not in hashset, but on hdd!", mf.getFileAsPath());
-          }
+          LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
+          tvShow.removeFromMediaFiles(mf);
+          dirty = true;
         }
       }
       List<TvShowEpisode> episodes = new ArrayList<>(tvShow.getEpisodes());
@@ -440,14 +434,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         mediaFiles = new ArrayList<>(episode.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
           if (!filesFound.contains(mf.getFileAsPath())) {
-            if (!mf.exists()) {
-              LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
-              episode.removeFromMediaFiles(mf);
-              dirty = true;
-            }
-            else {
-              LOGGER.warn("file {} not in hashset, but on hdd!", mf.getFileAsPath());
-            }
+            LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
+            episode.removeFromMediaFiles(mf);
+            dirty = true;
           }
         }
         // lets have a look if there is at least one video file for this episode

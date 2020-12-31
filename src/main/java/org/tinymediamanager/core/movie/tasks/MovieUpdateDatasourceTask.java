@@ -1062,6 +1062,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         break;
       }
       Movie movie = movieList.getMovies().get(i);
+      boolean dirty = false;
 
       // check only movies matching datasource
       if (!Paths.get(datasource).equals(Paths.get(movie.getDataSource()))) {
@@ -1088,21 +1089,18 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
           if (!filesFound.contains(mf.getFileAsPath())) {
-            if (!mf.exists()) {
-              LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
-              movie.removeFromMediaFiles(mf);
-            }
-            else {
-              // hmm...this should not happen
-              LOGGER.warn("file {} not in hashset, but on hdd!", mf.getFileAsPath());
-            }
+            LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
+            movie.removeFromMediaFiles(mf);
+            dirty = true;
           }
         }
+
         if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
           LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
           moviesToRemove.add(movie);
         }
-        else {
+
+        if (dirty) {
           movie.saveToDb();
         }
       }
@@ -1128,6 +1126,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       Movie movie = movies.get(i);
+      boolean dirty = false;
 
       Path movieDir = movie.getPathNIO();
       if (!filesFound.contains(movieDir)) {
@@ -1149,21 +1148,17 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         List<MediaFile> mediaFiles = new ArrayList<>(movie.getMediaFiles());
         for (MediaFile mf : mediaFiles) {
           if (!filesFound.contains(mf.getFileAsPath())) {
-            if (!mf.exists()) {
-              LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
-              movie.removeFromMediaFiles(mf);
-            }
-            else {
-              // hmm...this should not happen
-              LOGGER.warn("file {} not in hashset, but on hdd!", mf.getFileAsPath());
-            }
+            LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
+            movie.removeFromMediaFiles(mf);
+            dirty = true;
           }
         }
         if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
           LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
           moviesToRemove.add(movie);
         }
-        else {
+
+        if (dirty) {
           movie.saveToDb();
         }
       }
