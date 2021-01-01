@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,16 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import static org.tinymediamanager.core.MediaFileType.VIDEO;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -22,15 +32,6 @@ import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
-
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
 public class TvShowAudioStreamCountFilter extends AbstractCheckComboBoxTvShowUIFilter<Integer> {
 

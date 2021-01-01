@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,19 @@
  */
 package org.tinymediamanager.scraper.tvmaze.service;
 
-import org.tinymediamanager.scraper.tvmaze.entities.*;
+import java.util.List;
+
+import org.tinymediamanager.scraper.tvmaze.entities.Cast;
+import org.tinymediamanager.scraper.tvmaze.entities.Episode;
+import org.tinymediamanager.scraper.tvmaze.entities.Image;
+import org.tinymediamanager.scraper.tvmaze.entities.Season;
+import org.tinymediamanager.scraper.tvmaze.entities.Show;
+import org.tinymediamanager.scraper.tvmaze.entities.Shows;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-
-import java.util.List;
 
 public interface TvMazeService {
 

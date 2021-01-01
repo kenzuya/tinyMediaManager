@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.tvshows;
 
 import java.util.Date;
-import java.util.ResourceBundle;
 
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.TmmDateFormat;

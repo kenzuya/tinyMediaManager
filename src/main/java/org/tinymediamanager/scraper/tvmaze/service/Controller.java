@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,28 @@
  */
 package org.tinymediamanager.scraper.tvmaze.service;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.scraper.http.TmmHttpClient;
-import org.tinymediamanager.scraper.tvmaze.entities.*;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.http.TmmHttpClient;
+import org.tinymediamanager.scraper.tvmaze.entities.Cast;
+import org.tinymediamanager.scraper.tvmaze.entities.Episode;
+import org.tinymediamanager.scraper.tvmaze.entities.Image;
+import org.tinymediamanager.scraper.tvmaze.entities.Season;
+import org.tinymediamanager.scraper.tvmaze.entities.Show;
+import org.tinymediamanager.scraper.tvmaze.entities.Shows;
+
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.internal.bind.DateTypeAdapter;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Controller {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 package org.tinymediamanager.ui.wizard;
 
-import net.miginfocom.swing.MigLayout;
-import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.ui.components.ReadOnlyTextPane;
-import org.tinymediamanager.ui.images.Logo;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.text.html.HTMLEditorKit;
+
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
+import org.tinymediamanager.ui.images.Logo;
+
+import net.miginfocom.swing.MigLayout;
 
 /**
  * The class EntrancePanel is the first panel which is displayed in the wizard

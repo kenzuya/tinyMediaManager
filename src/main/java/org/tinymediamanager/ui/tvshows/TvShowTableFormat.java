@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 package org.tinymediamanager.ui.tvshows;
+
+import java.awt.FontMetrics;
+import java.util.Comparator;
+import java.util.Date;
+
+import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
@@ -31,11 +37,6 @@ import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.renderer.DateTableCellRenderer;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
-
-import javax.swing.ImageIcon;
-import java.awt.FontMetrics;
-import java.util.Comparator;
-import java.util.Date;
 
 /**
  * The class TvShowTableFormat is used to define the columns for the TV show tree table

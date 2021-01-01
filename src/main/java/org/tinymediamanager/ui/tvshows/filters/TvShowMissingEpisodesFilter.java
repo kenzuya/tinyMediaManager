@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import java.util.List;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import java.util.List;
 
 /**
  * This class implements a "missing episodes" filter for the TV show tree

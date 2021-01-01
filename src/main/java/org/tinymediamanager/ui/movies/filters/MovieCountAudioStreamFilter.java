@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 - 2021 Manuel Laggner
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.tinymediamanager.ui.movies.filters;
 
 import java.util.ArrayList;
@@ -16,13 +32,19 @@ import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
+/**
+ * the class {@link MovieCountAudioStreamFilter} is used to provide a filter for the count of audio streams
+ * 
+ * @author Wolfgang Janes
+ */
 public class MovieCountAudioStreamFilter extends AbstractCheckComboBoxMovieUIFilter<Integer> {
 
-  private MovieList movieList = MovieList.getInstance();
+  private final MovieList movieList = MovieList.getInstance();
 
   public MovieCountAudioStreamFilter() {
     super();
-    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s)
+        .startsWith(s2.toLowerCase(Locale.ROOT)));
     buildCountAudioStreamArray();
     movieList.addPropertyChangeListener(Constants.AUDIOSTREAMS_COUNT, evt -> SwingUtilities.invokeLater(this::buildCountAudioStreamArray));
   }
@@ -55,12 +77,16 @@ public class MovieCountAudioStreamFilter extends AbstractCheckComboBoxMovieUIFil
 
     for (MediaFile mf : mediaFileList) {
       // check for explicit empty search
-      if (selectedItems.isEmpty() && mf.getAudioStreams().isEmpty()) {
+      if (selectedItems.isEmpty() && mf.getAudioStreams()
+          .isEmpty()) {
         return true;
       }
-      if (selectedItems.contains(mf.getAudioStreams().size())) {
+
+      if (selectedItems.contains(mf.getAudioStreams()
+          .size())) {
         return true;
       }
+
     }
 
     return false;
