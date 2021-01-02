@@ -46,6 +46,7 @@ public class ActorImageLabel extends ImageLabel {
       if (actorWorker != null && !actorWorker.isDone()) {
         actorWorker.cancel(true);
       }
+      this.actor = actor;
       actorWorker = new ActorImageLoader(actor, mediaEntity);
       actorWorker.execute();
     }
