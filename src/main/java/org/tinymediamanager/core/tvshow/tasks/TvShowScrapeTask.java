@@ -17,7 +17,9 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
@@ -27,6 +29,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -114,8 +117,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
   }
 
   private class Worker implements Runnable {
-    private TvShowList tvShowList = TvShowList.getInstance();
-    private TvShow     tvShow;
+    private final TvShowList tvShowList = TvShowList.getInstance();
+    private final TvShow     tvShow;
 
     private Worker(TvShow tvShow) {
       this.tvShow = tvShow;
@@ -204,6 +207,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 ep.setActors(me.getCastMembers(Person.Type.ACTOR));
                 ep.setDirectors(me.getCastMembers(Person.Type.DIRECTOR));
                 ep.setWriters(me.getCastMembers(Person.Type.WRITER));
+
+                Map<String, MediaRating> newRatings = new HashMap<>();
+
+                for (MediaRating mediaRating : me.getRatings()) {
+                  newRatings.put(mediaRating.getId(), mediaRating);
+                }
+                ep.setRatings(newRatings);
 
                 episodes.add(ep);
               }

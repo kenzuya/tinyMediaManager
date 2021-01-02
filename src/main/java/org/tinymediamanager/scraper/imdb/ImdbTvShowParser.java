@@ -321,9 +321,9 @@ public class ImdbTvShowParser extends ImdbParser {
     md.setPlot(wantedEpisode.getPlot());
     md.setRatings(wantedEpisode.getRatings());
     md.setReleaseDate(wantedEpisode.getReleaseDate());
+    md.setRatings(wantedEpisode.getRatings());
 
     // and finally the cast which needed to be fetched from the reference page
-
     if (wantedEpisode.getId(ImdbMetadataProvider.ID) instanceof String) {
       episodeId = (String) wantedEpisode.getId(ImdbMetadataProvider.ID);
       if (MetadataUtil.isValidImdbId(episodeId)) {
