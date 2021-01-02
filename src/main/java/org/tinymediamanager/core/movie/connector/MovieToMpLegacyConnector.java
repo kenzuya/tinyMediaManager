@@ -27,6 +27,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -141,7 +142,7 @@ public class MovieToMpLegacyConnector extends MovieGenericXmlConnector {
   protected void addLanguages() {
     // prepare spoken language for MP - try to extract the iso codes to the UI language separated by a pipe
     List<String> languages = new ArrayList<>();
-    for (String langu : MovieNfoParser.split(movie.getSpokenLanguages())) {
+    for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
       String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale(),
           langu.trim());
       languages.add(translated);

@@ -26,9 +26,11 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -116,6 +118,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   private List<MediaFileSubtitle>    subtitles         = null;
 
   private Path                       file              = null;
+  // a map to temporarily preserve extra data from MI
+  private Map<String, String>        extraData         = null;
 
   /**
    * "clones" a new media file.
@@ -149,6 +153,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     if (ListUtils.isNotEmpty(clone.audioStreams)) {
       audioStreams = new CopyOnWriteArrayList<>(clone.audioStreams);
     }
+
     if (ListUtils.isNotEmpty(clone.subtitles)) {
       subtitles = new CopyOnWriteArrayList<>(clone.subtitles);
     }
@@ -184,6 +189,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.path = f.getParent() == null ? "" : f.getParent().toString(); // just path w/o filename
     this.filename = f.getFileName().toString();
     this.file = f.toAbsolutePath();
+
     if (type == null) {
       this.type = MediaFileHelper.parseMediaFileType(f);
     }
@@ -248,6 +254,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isGraphic() {
+
     switch (type) {
       case GRAPHIC:
       case BANNER:
@@ -278,6 +285,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false
    */
   public boolean isVideo() {
+
     switch (type) {
       case VIDEO:
       case TRAILER:
@@ -341,6 +349,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return
    */
   public boolean isMainDiscIdentifierFile() {
+
     if (getFilename().equalsIgnoreCase("video_ts.ifo") || getFilename().equalsIgnoreCase("index.bdmv")
         || getFilename().equalsIgnoreCase("hv000i01.ifo")) {
       return true;
@@ -387,6 +396,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   public Path getFileAsPath() {
+
     if (file == null) {
       Path f = Paths.get(this.path, this.filename);
       file = f.toAbsolutePath();
@@ -404,6 +414,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * if name/path changes, invalidate the file handle (if not null).
    */
   private void invalidateFileHandle() {
+
     if (file != null) {
       file = null;
     }
@@ -463,6 +474,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return the file name without the stacking info
    */
   public String getFilenameWithoutStacking() {
+
     if (stackingMarker.isEmpty()) {
       // no stacking, remove all occurrences
       // fname = Utils.cleanStackingMarkers(filename);
@@ -566,11 +578,13 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    */
   public void detectStackingInformation() {
     this.stacking = Utils.getStackingNumber(this.filename);
+
     if (this.stacking == 0) {
       // try to parse from parent directory
       this.stacking = Utils.getStackingNumber(FilenameUtils.getBaseName(getPath()));
     }
     this.stackingMarker = Utils.getStackingMarker(this.filename);
+
     if (this.stackingMarker.isEmpty()) {
       // try to parse from parent directory
       this.stackingMarker = Utils.getFolderStackingMarker(FilenameUtils.getBaseName(getPath()));
@@ -578,6 +592,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   public List<MediaFileSubtitle> getSubtitles() {
+
     if (this.subtitles == null) {
       return Collections.emptyList();
     }
@@ -591,7 +606,9 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    */
   public List<String> getSubtitleLanguagesList() {
     List<String> subtitleLanguages = new ArrayList<>();
+
     for (MediaFileSubtitle stream : ListUtils.nullSafe(subtitles)) {
+
       // just in case we couldn't detect the language name
       if (StringUtils.isBlank(stream.getLanguage())) {
         continue;
@@ -602,6 +619,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   public String getSubtitlesAsString() {
+
     if (this.subtitles == null) {
       return "";
     }
@@ -610,10 +628,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     Set<MediaFileSubtitle> cleansub = new LinkedHashSet<>(subtitles);
 
     for (MediaFileSubtitle sub : cleansub) {
+
       // just in case we couldn't detect the language name
       if (StringUtils.isBlank(sub.getLanguage())) {
         continue;
       }
+
       if (sb.length() > 0) {
         sb.append(", ");
       }
@@ -624,6 +644,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   public void setSubtitles(List<MediaFileSubtitle> subtitles) {
+
     if (this.subtitles == null && subtitles.isEmpty()) {
       // nothing to do
       return;
@@ -641,6 +662,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   public void addSubtitle(MediaFileSubtitle subtitle) {
+
     if (this.subtitles == null) {
       this.subtitles = new CopyOnWriteArrayList<>();
     }
@@ -700,10 +722,12 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    *          the new video codec
    */
   public void setVideoCodec(String newValue) {
+
     // AVC = h264 = x264; display as h264
     if ("avc".equalsIgnoreCase(newValue) || "x264".equalsIgnoreCase(newValue)) {
       newValue = "h264";
     }
+
     // HEVC = h265 = x265; display as h265
     if ("hevc".equalsIgnoreCase(newValue) || "x265".equalsIgnoreCase(newValue)) {
       newValue = "h265";
@@ -725,6 +749,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     // get audio stream with highest channel count
     MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
+
     if (highestStream != null) {
       codec = highestStream.getCodec();
     }
@@ -740,6 +765,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    */
   public List<String> getAudioCodecList() {
     List<String> audioCodecs = new ArrayList<>();
+
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
       audioCodecs.add(stream.getCodec());
     }
@@ -753,7 +779,9 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    */
   private MediaFileAudioStream getBestAudioStream() {
     MediaFileAudioStream highestStream = null;
+
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
+
       if (highestStream == null) {
         highestStream = stream;
       }
@@ -774,6 +802,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     // get audio stream with highest channel count
     MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
+
     if (highestStream != null) {
       language = highestStream.getLanguage();
     }
@@ -788,7 +817,9 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    */
   public List<String> getAudioLanguagesList() {
     List<String> audioLanguages = new ArrayList<>();
+
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
+
       // just in case we couldn't detect the language name
       if (StringUtils.isBlank(stream.getLanguage())) {
         continue;
@@ -872,6 +903,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     // get audio stream with highest channel count
     MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
+
     if (highestStream != null) {
       channels = highestStream.getAudioChannels() + "ch";
     }
@@ -881,6 +913,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public int getAudioChannelCount() {
     MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
+
     if (highestStream != null) {
       return highestStream.getAudioChannels();
     }
@@ -889,6 +922,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public List<String> getAudioChannelsList() {
     List<String> audioChannels = new ArrayList<>();
+
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
       audioChannels.add(stream.getAudioChannels() + "ch");
     }
@@ -901,6 +935,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return eg 1280x720
    */
   public String getVideoResolution() {
+
     if (this.videoWidth == 0 || this.videoHeight == 0) {
       return "";
     }
@@ -955,6 +990,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return true/false if widescreen
    */
   public Boolean isWidescreen() {
+
     if (this.videoWidth == 0 || this.videoHeight == 0) {
       return false;
     }
@@ -980,6 +1016,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return the aspect ratio
    */
   public float getAspectRatio() {
+
     // check whether the aspect ratio has been overridden
     if (aspectRatio > 0) {
       return getCommonAspectRatio(aspectRatio);
@@ -1101,9 +1138,11 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return bitrate in kbps
    */
   public int getVideoBitRate() {
+
     if (videoBitRate == 0 && overallBitRate != 0) {
       // LEGACY - only overall bitrate filled. Calculate the video bitrate
       int calculatedVideoBitRate = overallBitRate;
+
       for (MediaFileAudioStream audioStream : ListUtils.nullSafe(audioStreams)) {
         calculatedVideoBitRate -= audioStream.getBitrate();
       }
@@ -1231,12 +1270,14 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return the duration
    */
   public String getDurationHM() {
+
     if (this.durationInSecs == 0) {
       return "";
     }
     long h = TimeUnit.SECONDS.toHours(this.durationInSecs);
     long m = TimeUnit.SECONDS.toMinutes(this.durationInSecs - TimeUnit.HOURS.toSeconds(h));
     long s = TimeUnit.SECONDS.toSeconds(this.durationInSecs - TimeUnit.HOURS.toSeconds(h) - TimeUnit.MINUTES.toSeconds(m));
+
     if (s > 30) {
       m += 1; // round seconds
     }
@@ -1250,6 +1291,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return the duration
    */
   public String getDurationHMS() {
+
     if (this.durationInSecs == 0) {
       return "";
     }
@@ -1267,6 +1309,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return the duration
    */
   public String getDurationHHMMSS() {
+
     if (this.durationInSecs == 0) {
       return "";
     }
@@ -1283,12 +1326,14 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return the duration
    */
   public String getDurationShort() {
+
     if (this.durationInSecs == 0) {
       return "";
     }
     long h = TimeUnit.SECONDS.toHours(this.durationInSecs);
     long m = TimeUnit.SECONDS.toMinutes(this.durationInSecs - TimeUnit.HOURS.toSeconds(h));
     long s = TimeUnit.SECONDS.toSeconds(this.durationInSecs - TimeUnit.HOURS.toSeconds(h) - TimeUnit.MINUTES.toSeconds(m));
+
     if (h > 0) {
       return String.format("%d:%02d:%02d", h, m, s);
     }
@@ -1316,6 +1361,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   public List<MediaFileAudioStream> getAudioStreams() {
+
     if (this.audioStreams == null) {
       return Collections.emptyList();
     }
@@ -1331,6 +1377,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     MediaFileAudioStream ret = null;
 
     for (MediaFileAudioStream as : ListUtils.nullSafe(audioStreams)) {
+
       if (as.isDefaultStream()) {
         // first default
         ret = as;
@@ -1346,6 +1393,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   public void setAudioStreams(List<MediaFileAudioStream> audioStreams) {
+
     if (this.audioStreams == null && audioStreams.isEmpty()) {
       // nothing to do
       return;
@@ -1366,6 +1414,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     StringBuilder sb = new StringBuilder(videoCodec);
 
     for (MediaFileAudioStream audioStream : ListUtils.nullSafe(audioStreams)) {
+
       if (sb.length() > 0) {
         sb.append(" / ");
       }
@@ -1443,15 +1492,47 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
+   * adds the given key/value pair to the extra data map
+   * 
+   * @param key
+   *          the key to add
+   * @param value
+   *          the value to add
+   */
+  public void addExtraData(String key, String value) {
+
+    if (extraData == null) {
+      extraData = new HashMap<>();
+    }
+    extraData.put(key, value);
+  }
+
+  /**
+   * get the extra data from the previous mediainfo fetch (volatile!)
+   * 
+   * @return a {@link Map} with all extra data (if available) or an empty map
+   */
+  public Map<String, String> getExtraData() {
+
+    if (extraData == null) {
+      return Collections.emptyMap();
+    }
+    return extraData;
+  }
+
+  /**
    * checks all graphic file for animation, and sets animated flag<br>
    * currently supported only .GIF<br>
    * Direct file access - should be only used in mediaInfo method!
    */
   public void checkForAnimation() {
+
     if (isGraphic() && getExtension().equalsIgnoreCase("gif")) {
+
       try {
         GifDecoder decoder = new GifDecoder();
         decoder.read(getFileAsPath().toString());
+
         if (decoder.getFrameCount() > 1) {
           setAnimatedGraphic(true);
         }
@@ -1505,6 +1586,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   @Override
   public boolean equals(Object mf2) {
+
     if ((mf2 instanceof MediaFile)) {
       return compareTo((MediaFile) mf2) == 0;
     }

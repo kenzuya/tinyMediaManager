@@ -420,7 +420,26 @@ public class ParserUtils {
     return rate;
   }
 
-  public static class ParserInfo {
+  /**
+   * splits the given String into substrings by all known/supported separators
+   *
+   * @param source
+   *          the source String to split
+   * @return an array with all parts
+   */
+  public static List<String> split(String source) {
+    List<String> result = new ArrayList<>();
+
+    for (String string : source.split("\\s*[;,\\/|]\\s*")) {
+      if (StringUtils.isNotBlank(string)) {
+        result.add(string);
+      }
+    }
+
+    return result;
+  }
+
+  private static class ParserInfo {
     public String name  = "";
     public String year  = "";
     public String clean = "";

@@ -103,7 +103,6 @@ import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
-import org.tinymediamanager.core.movie.connector.MovieNfoParser;
 import org.tinymediamanager.core.movie.connector.MovieToKodiConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpLegacyConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpMovingPicturesConnector;
@@ -124,6 +123,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -1689,7 +1689,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public String getLocalizedSpokenLanguages() {
     if (StringUtils.isBlank(localizedSpokenLanguages)) {
       List<String> translatedLanguages = new ArrayList<>();
-      for (String langu : MovieNfoParser.split(getSpokenLanguages())) {
+      for (String langu : ParserUtils.split(getSpokenLanguages())) {
         String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(Utils.getLocaleFromLanguage(Globals.settings.getLanguage()),
             langu.trim());
         translatedLanguages.add(translated);
@@ -2548,6 +2548,52 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @Override
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
     super.callbackForGatheredMediainformation(mediaFile);
+
+    // did we get meta data via the video media file?
+    if (mediaFile.getType() == MediaFileType.VIDEO && !isScraped() && !mediaFile.getExtraData().isEmpty()) {
+      boolean dirty = false;
+
+      String title = mediaFile.getExtraData().get("title");
+      if (StringUtils.isNotBlank(title)) {
+        setTitle(title);
+        dirty = true;
+      }
+
+      String originalTitle = mediaFile.getExtraData().get("originalTitle");
+      if (StringUtils.isNotBlank(originalTitle)) {
+        setOriginalTitle(originalTitle);
+        dirty = true;
+      }
+
+      String year = mediaFile.getExtraData().get("year");
+      if (StringUtils.isNotBlank(year)) {
+        try {
+          int y = Integer.parseInt(year);
+          if (y > 1900 && y < 2100) {
+            setYear(y);
+          }
+        }
+        catch (Exception ignored) {
+        }
+      }
+
+      String plot = mediaFile.getExtraData().get("plot");
+      if (StringUtils.isNotBlank(plot)) {
+        setPlot(plot);
+        dirty = true;
+      }
+
+      String genre = mediaFile.getExtraData().get("genre");
+      if (StringUtils.isNotBlank(genre)) {
+        for (String part : ParserUtils.split(genre)) {
+          addGenre(MediaGenres.getGenre(part));
+        }
+      }
+
+      if (dirty) {
+        saveToDb();
+      }
+    }
 
     if (mediaFile.getType() == MediaFileType.TRAILER) {
       // re-write the trailer list

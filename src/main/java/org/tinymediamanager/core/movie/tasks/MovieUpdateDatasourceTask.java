@@ -758,18 +758,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   }
 
   /**
-   * more than one movie in dir? Then use that!
-   * 
-   * @param dataSource
-   *          the data source
-   * @param movieDir
-   *          the movie folder
-   */
-  private void createMultiMovieFromDir(Path dataSource, Path movieDir) {
-    createMultiMovieFromDir(dataSource, movieDir, listFilesOnly(movieDir));
-  }
-
-  /**
    * more than one movie in dir? Then use that with already known files
    * 
    * @param dataSource
@@ -972,11 +960,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             }
             break;
 
-          case TRAILER:
-            movie.addToMediaFiles(mf);
-
-            break;
-
           case SUBTITLE:
             if (!mf.isPacked()) {
               movie.addToMediaFiles(mf);
@@ -1001,6 +984,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             movie.addToMediaFiles(mf);
             break;
 
+          case TRAILER:
           case EXTRA:
           case SAMPLE:
           case NFO:

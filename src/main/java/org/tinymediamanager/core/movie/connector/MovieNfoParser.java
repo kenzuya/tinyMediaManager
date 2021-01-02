@@ -58,6 +58,7 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -817,7 +818,7 @@ public class MovieNfoParser {
     // if there is exactly one country tag, split the countries at the comma
     if (elements.size() == 1) {
       try {
-        countries.addAll(split(elements.get(0).ownText()));
+        countries.addAll(ParserUtils.split(elements.get(0).ownText()));
       }
       catch (Exception ignored) {
         // ignored here
@@ -930,7 +931,7 @@ public class MovieNfoParser {
       for (Element genre : elements) {
         if (StringUtils.isNotBlank(genre.ownText())) {
           // old style - single tag with delimiter
-          for (String sp : split(genre.ownText())) {
+          for (String sp : ParserUtils.split(genre.ownText())) {
             genres.add(MediaGenres.getGenre(sp.trim()));
           }
         }
@@ -952,7 +953,7 @@ public class MovieNfoParser {
     // if there is exactly one studio tag, split the studios at the comma
     if (elements.size() == 1) {
       try {
-        studios.addAll(split(elements.get(0).ownText()));
+        studios.addAll(ParserUtils.split(elements.get(0).ownText()));
       }
       catch (Exception ignored) {
         // just ignore
@@ -981,7 +982,7 @@ public class MovieNfoParser {
     // if there is exactly one credits tag, split the credits at the comma
     if (elements.size() == 1) {
       try {
-        for (String credit : split(elements.get(0).ownText())) {
+        for (String credit : ParserUtils.split(elements.get(0).ownText())) {
           Person person = new Person();
           person.name = credit;
           credits.add(person);
@@ -1016,7 +1017,7 @@ public class MovieNfoParser {
     // if there is exactly one director tag, split the directors at the comma
     if (elements.size() == 1) {
       try {
-        for (String director : split(elements.get(0).ownText())) {
+        for (String director : ParserUtils.split(elements.get(0).ownText())) {
           Person person = new Person();
           person.name = director;
           directors.add(person);
@@ -1314,7 +1315,7 @@ public class MovieNfoParser {
     // if the languages are in MediaPortal style, parse them and prepare them for tmm
     if (StringUtils.isNotBlank(languages)) {
       List<String> languages = new ArrayList<>();
-      for (String langu : split(this.languages)) {
+      for (String langu : ParserUtils.split(this.languages)) {
         langu = langu.trim();
         String languIso = LanguageUtils.getIso2LanguageFromLocalizedString(langu);
         if (StringUtils.isNotBlank(languIso)) {
@@ -1546,25 +1547,6 @@ public class MovieNfoParser {
     }
 
     return null;
-  }
-
-  /**
-   * splits the given String into substrings by all known/supported separators
-   * 
-   * @param source
-   *          the source String to split
-   * @return an array with all parts
-   */
-  public static List<String> split(String source) {
-    List<String> result = new ArrayList<>();
-
-    for (String string : source.split("\\s*[;,\\/|]\\s*")) {
-      if (StringUtils.isNotBlank(string)) {
-        result.add(string);
-      }
-    }
-
-    return result;
   }
 
   /**

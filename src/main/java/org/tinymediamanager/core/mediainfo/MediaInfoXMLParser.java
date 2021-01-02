@@ -155,7 +155,18 @@ public class MediaInfoXMLParser {
 
           String value = elem.ownText();
           if (value.isEmpty()) {
-            continue;
+            // maybe this is a nested tag?
+            if (elem.childNodeSize() > 0) {
+              // this has children - something like <extra> - just pass the values without any further cleanup
+              for (Element child : elem.children()) {
+                if (!child.ownText().isEmpty()) {
+                  streamInfo.put(elem.tagName() + "/" + child.tagName(), child.ownText());
+                }
+              }
+            }
+            else {
+              continue;
+            }
           }
 
           // Width and Height sometimes comes with the string "pixels"
@@ -299,40 +310,52 @@ public class MediaInfoXMLParser {
       case "Codec/String": // second codec entry
         k = "CodecID/Hint";
         break;
+
       case "Count_of_audio_streams":
         k = "AudioCount";
         break;
+
       case "Count_of_text_streams":
         k = "TextCount"; // assumption!
         break;
+
       case "Count_of_video_streams":
         k = "VideoCount"; // assumption!
         break;
+
       case "Count_of_menu_streams":
         k = "MenuCount"; // assumption!
         break;
+
       case "Channel_s_":
       case "Channels":
         k = "Channel(s)";
         break;
+
       case "Bit_rate":
         k = "BitRate";
         break;
+
       case "File_size":
         k = "FileSize";
         break;
+
       case "Overall_bit_rate":
         k = "OverallBitRate";
         break;
+
       case "Count_of_stream_of_this_kind":
         k = "StreamCount";
         break;
+
       case "Codec_Extensions_usually_used":
         k = "Codec/Extensions";
         break;
+
       case "Scan_type":
         k = "ScanType";
         break;
+
       default:
         break;
     }

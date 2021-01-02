@@ -1230,6 +1230,57 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
     super.callbackForGatheredMediainformation(mediaFile);
 
+    // did we get meta data via the video media file?
+    if (mediaFile.getType() == MediaFileType.VIDEO && !isScraped() && !mediaFile.getExtraData().isEmpty()) {
+      boolean dirty = false;
+
+      if (episode == -1) {
+        String episode = mediaFile.getExtraData().get("episode");
+        if (StringUtils.isNotBlank(episode)) {
+          try {
+            setEpisode(Integer.parseInt(episode));
+            dirty = true;
+          }
+          catch (Exception ignored) {
+          }
+        }
+      }
+
+      if (season == -1) {
+        String season = mediaFile.getExtraData().get("season");
+        if (StringUtils.isNotBlank(season)) {
+          try {
+            setSeason(Integer.parseInt(season));
+            dirty = true;
+          }
+          catch (Exception ignored) {
+          }
+        }
+      }
+
+      String title = mediaFile.getExtraData().get("title");
+      if (StringUtils.isNotBlank(title)) {
+        setTitle(title);
+        dirty = true;
+      }
+
+      String originalTitle = mediaFile.getExtraData().get("originalTitle");
+      if (StringUtils.isNotBlank(originalTitle)) {
+        setOriginalTitle(originalTitle);
+        dirty = true;
+      }
+
+      String plot = mediaFile.getExtraData().get("plot");
+      if (StringUtils.isNotBlank(plot)) {
+        setPlot(plot);
+        dirty = true;
+      }
+
+      if (dirty) {
+        saveToDb();
+      }
+    }
+
     // re-write NFO since we might have new mediainfo data
     if (mediaFile.getType() == MediaFileType.VIDEO) {
       writeNFO();

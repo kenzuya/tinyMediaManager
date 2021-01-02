@@ -403,6 +403,7 @@ public class MediaInfoTest extends BasicTest {
 
     System.out.println("----------------------");
     System.out.println("subs: " + mf.getSubtitlesAsString());
+    System.out.println("extra: " + mf.getExtraData());
   }
 
   /**
