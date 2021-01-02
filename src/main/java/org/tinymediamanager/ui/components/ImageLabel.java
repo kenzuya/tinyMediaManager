@@ -169,6 +169,7 @@ public class ImageLabel extends JComponent {
         // scale good
         scaledImage = Scalr.resize(originalImage, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, width, height, Scalr.OP_ANTIALIAS);
       }
+      originalImage.flush();
       animatedGif = null;
     }
   }
@@ -415,6 +416,7 @@ public class ImageLabel extends JComponent {
 
             // draw shadow
             drawImageAtScale1x(shadowImage, g2d, scaleHiDpi(g2d.getTransform(), shadowRectangle));
+            shadowImage.flush();
           }
 
           // draw image
@@ -499,6 +501,7 @@ public class ImageLabel extends JComponent {
 
               // draw shadow
               drawImageAtScale1x(shadowImage, g2d, scaleHiDpi(g2d.getTransform(), shadowRectangle));
+              shadowImage.flush();
             }
 
             g2.drawImage(NO_IMAGE.getImage(), (hiDpi.width - NO_IMAGE.getIconWidth()) / 2, (hiDpi.height - NO_IMAGE.getIconHeight()) / 2, null);
@@ -509,6 +512,7 @@ public class ImageLabel extends JComponent {
 
           // draw image
           drawImageAtScale1x(tmp, g2d, hiDpi);
+          tmp.flush();
         }
       }
     }

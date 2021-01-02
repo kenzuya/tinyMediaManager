@@ -75,6 +75,10 @@ public class ImageCache {
     createSubdirs();
   }
 
+  private ImageCache() {
+    throw new IllegalAccessError();
+  }
+
   public static void createSubdirs() {
     if (!Files.exists(CACHE_DIR)) {
       try {
@@ -241,6 +245,8 @@ public class ImageCache {
         retries--;
       } while (retries > 0);
 
+      originalImage.flush();
+
       if (scaledImage == null) {
         throw new IOException("could not scale image; probably due to memory limits");
       }
@@ -278,6 +284,8 @@ public class ImageCache {
       imgWrtr.dispose();
       output.flush();
       output.close();
+
+      scaledImage.flush();
 
       if (!Files.exists(cachedFile)) {
         throw new IOException("unable to cache file: " + originalFile);

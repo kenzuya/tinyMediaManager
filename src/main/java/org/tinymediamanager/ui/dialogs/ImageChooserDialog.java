@@ -579,6 +579,7 @@ public class ImageChooserDialog extends TmmDialog {
 
         SwingUtilities.invokeLater(() -> {
           addImage(bufferedImage, art);
+          bufferedImage.flush();
         });
         tfImageUrl.setText("");
       }

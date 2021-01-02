@@ -103,6 +103,8 @@ public class ImageLoader {
       Graphics2D g = newImage.createGraphics();
       g.drawImage(bi, 0, 0, null);
       g.dispose();
+      bi.flush();
+
       return newImage;
     }
     try {
