@@ -856,6 +856,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         movie.setNewlyAdded(true);
         movie.setPath(mf.getPath());
 
+        // remember the filename the first time the movie gets added to tmm
+        if (StringUtils.isBlank(movie.getOriginalFilename())) {
+          movie.setOriginalFilename(mf.getFilename());
+        }
+
         movies.add(movie); // add to our cached copy
       }
 

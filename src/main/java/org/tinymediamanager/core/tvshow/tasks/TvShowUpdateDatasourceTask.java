@@ -737,6 +737,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                   episode.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
                 }
                 episode.setNewlyAdded(true);
+
+                // remember the filename the first time the movie gets added to tmm
+                if (StringUtils.isBlank(episode.getOriginalFilename())) {
+                  episode.setOriginalFilename(mf.getFilename());
+                }
+
                 episode.addToMediaFiles(epFiles); // all found EP MFs
 
                 if (mf.isDiscFile()) {
@@ -788,6 +794,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
                 if (episodeBasenameWoStackingMarker.equals(mfBasenameWoStackingMarker)) {
                   ep.setNewlyAdded(true);
+
+                  // remember the filename the first time the movie gets added to tmm
+                  if (StringUtils.isBlank(ep.getOriginalFilename())) {
+                    ep.setOriginalFilename(mf.getFilename());
+                  }
+
                   ep.addToMediaFiles(mf);
                   found = true;
                   break;
@@ -818,6 +830,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 episode.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
               }
               episode.setNewlyAdded(true);
+
+              // remember the filename the first time the movie gets added to tmm
+              if (StringUtils.isBlank(episode.getOriginalFilename())) {
+                episode.setOriginalFilename(mf.getFilename());
+              }
 
               if (mf.isDiscFile()) {
                 episode.setDisc(true);
@@ -876,6 +893,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               episode.setMediaSource(MediaSource.parseMediaSource(mf.getFile().toString()));
             }
             episode.setNewlyAdded(true);
+
+            // remember the filename the first time the movie gets added to tmm
+            if (StringUtils.isBlank(episode.getOriginalFilename())) {
+              episode.setOriginalFilename(mf.getFilename());
+            }
+
             episode.merge(vsMetaEP); // merge VSmeta infos
             episode.saveToDb();
             tvShow.addEpisode(episode);
