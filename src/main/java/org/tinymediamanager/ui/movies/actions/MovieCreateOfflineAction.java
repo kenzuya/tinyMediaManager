@@ -16,6 +16,10 @@
 package org.tinymediamanager.ui.movies.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
@@ -36,6 +40,7 @@ public class MovieCreateOfflineAction extends TmmAction {
     putValue(LARGE_ICON_KEY, IconManager.ADD);
     putValue(SMALL_ICON, IconManager.ADD);
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.createoffline"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
   @Override
