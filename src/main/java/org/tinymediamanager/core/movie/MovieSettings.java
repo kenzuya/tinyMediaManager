@@ -239,69 +239,80 @@ public class MovieSettings extends AbstractSettings {
   }
 
   private void addDefaultEntries() {
+    // file names
     nfoFilenames.clear();
-    addNfoFilename(MovieNfoNaming.MOVIE_NFO);
+    addNfoFilename(MovieNfoNaming.FILENAME_NFO);
 
     posterFilenames.clear();
-    addPosterFilename(MoviePosterNaming.POSTER);
+    addPosterFilename(MoviePosterNaming.FILENAME_POSTER);
 
     fanartFilenames.clear();
-    addFanartFilename(MovieFanartNaming.FANART);
+    addFanartFilename(MovieFanartNaming.FILENAME_FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
 
     bannerFilenames.clear();
-    addBannerFilename(MovieBannerNaming.BANNER);
+    addBannerFilename(MovieBannerNaming.FILENAME_BANNER);
 
     clearartFilenames.clear();
-    addClearartFilename(MovieClearartNaming.CLEARART);
+    addClearartFilename(MovieClearartNaming.FILENAME_CLEARART);
 
     thumbFilenames.clear();
-    addThumbFilename(MovieThumbNaming.THUMB);
+    addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
 
     logoFilenames.clear();
-    addLogoFilename(MovieLogoNaming.LOGO);
+    addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
 
     clearlogoFilenames.clear();
-    addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
+    addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
 
     discartFilenames.clear();
-    addDiscartFilename(MovieDiscartNaming.DISC);
+    addDiscartFilename(MovieDiscartNaming.FILENAME_DISCART);
 
     keyartFilenames.clear();
-    addKeyartFilename(MovieKeyartNaming.KEYART);
+    addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
+
+    movieSetPosterFilenames.clear();
+    addMovieSetPosterFilename(MovieSetPosterNaming.KODI_POSTER);
+
+    movieSetFanartFilenames.clear();
+    addMovieSetFanartFilename(MovieSetFanartNaming.KODI_FANART);
+
+    movieSetBannerFilenames.clear();
+    addMovieSetBannerFilename(MovieSetBannerNaming.KODI_BANNER);
+
+    movieSetClearartFilenames.clear();
+    addMovieSetClearartFilename(MovieSetClearartNaming.KODI_CLEARART);
+
+    movieSetThumbFilenames.clear();
+    addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
+
+    movieSetLogoFilenames.clear();
+    addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
+
+    movieSetClearlogoFilenames.clear();
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
+
+    movieSetDiscartFilenames.clear();
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.KODI_DISCART);
 
     trailerFilenames.clear();
     addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
 
+    // other settings
+    setMovieConnector(MovieConnectors.KODI);
+    setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
+    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    setCertificationStyle(CertificationStyle.LARGE);
+
+    // UI settings
     checkImagesMovie.clear();
     addCheckImagesMovie(MediaArtworkType.POSTER);
     addCheckImagesMovie(MediaArtworkType.BACKGROUND);
 
     ratingSources.clear();
     addRatingSource(MediaMetadata.IMDB);
-
-    movieSetPosterFilenames.clear();
-    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
-
-    movieSetFanartFilenames.clear();
-    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
-
-    movieSetBannerFilenames.clear();
-    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
-
-    movieSetClearartFilenames.clear();
-    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
-
-    movieSetThumbFilenames.clear();
-    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSetLogoFilenames.clear();
-    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
-
-    movieSetClearlogoFilenames.clear();
-    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
-
-    movieSetDiscartFilenames.clear();
-    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
 
     checkImagesMovieSet.clear();
     addCheckImagesMovieSet(MediaArtworkType.POSTER);
@@ -1625,28 +1636,28 @@ public class MovieSettings extends AbstractSettings {
     addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
 
     movieSetPosterFilenames.clear();
-    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
+    addMovieSetPosterFilename(MovieSetPosterNaming.KODI_POSTER);
 
     movieSetFanartFilenames.clear();
-    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
+    addMovieSetFanartFilename(MovieSetFanartNaming.KODI_FANART);
 
     movieSetBannerFilenames.clear();
-    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
+    addMovieSetBannerFilename(MovieSetBannerNaming.KODI_BANNER);
 
     movieSetClearartFilenames.clear();
-    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
+    addMovieSetClearartFilename(MovieSetClearartNaming.KODI_CLEARART);
 
     movieSetThumbFilenames.clear();
-    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
+    addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
 
     movieSetLogoFilenames.clear();
-    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
+    addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
 
     movieSetClearlogoFilenames.clear();
-    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
 
     movieSetDiscartFilenames.clear();
-    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.KODI_DISCART);
 
     trailerFilenames.clear();
     addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);

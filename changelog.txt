@@ -33,3 +33,5 @@ x (movie) support more than 9 extrafanarts in the renamer #1156
 x (movie) sorting by new column #1161
 x (TV show) also fetch season artwork from tmdb #1158
 x (TV show) TV show related action can be triggered from episodes/seasons too #1115
+x (movie) adopted movie defaults/Kodi preset to Kodi v19
+
