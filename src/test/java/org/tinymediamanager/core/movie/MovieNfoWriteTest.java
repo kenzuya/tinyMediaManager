@@ -22,12 +22,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.util.Files;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 
@@ -54,13 +57,13 @@ public class MovieNfoWriteTest extends BasicTest {
     MovieModuleManager.SETTINGS.addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies_nfo").toAbsolutePath().toString());
   }
 
-  // @After
-  // public void tearDownAfterTest() throws Exception {
-  // MovieModuleManager.getInstance().shutDown();
-  // TmmModuleManager.getInstance().shutDown();
-  // Utils.deleteDirectoryRecursive(Paths.get(getSettingsFolder(), "testmovies_nfo"));
-  // Files.delete(new File(getSettingsFolder(), "movies.db"));
-  // }
+  @After
+  public void tearDownAfterTest() throws Exception {
+    MovieModuleManager.getInstance().shutDown();
+    TmmModuleManager.getInstance().shutDown();
+    Utils.deleteDirectoryRecursive(Paths.get(getSettingsFolder(), "testmovies_nfo"));
+    Files.delete(new File(getSettingsFolder(), "movies.db"));
+  }
 
   private void loadMovies() throws Exception {
     MovieUpdateDatasourceTask task = new MovieUpdateDatasourceTask();
@@ -98,7 +101,7 @@ public class MovieNfoWriteTest extends BasicTest {
     assertThat(nfo.toFile().exists()).isTrue();
 
     // single movie dir
-    nfo = Paths.get(base.toString(), "Single", "movie.nfo");
+    nfo = Paths.get(base.toString(), "Single", "singlefile.nfo");
     assertThat(nfo.toFile().exists()).isTrue();
 
     // multi movie dir
