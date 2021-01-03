@@ -199,7 +199,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
           Utils.writeStringToFile(f, xml);
         }
         else {
-          getLogger().debug("NFO did not change - do not write it!");
+          getLogger().trace("NFO did not change - do not write it!");
         }
         MediaFile mf = new MediaFile(f);
         mf.gatherMediaInformation(true); // force to update filedate

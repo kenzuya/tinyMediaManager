@@ -48,6 +48,7 @@ import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -1165,9 +1166,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // when movie IS stacked, remove stacking marker, else keep it!
       filename = Utils.cleanStackingMarkers(filename);
     }
-    filename = getNfoFilename(nfo, filename);
 
-    LOGGER.trace("getNfoFilename: {} -> '{}'", nfo, filename);
+    filename = getNfoFilename(nfo, filename);
     return filename;
   }
 
@@ -1204,7 +1204,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
         filename = "";
         break;
     }
-    LOGGER.trace("getNfoFilename: '{}' / {} -> '{}'", newMovieFilename, nfo, filename);
+    LOGGER.trace("getNfoFilename: '{}' / '{}' -> '{}'", newMovieFilename, nfo, filename);
     return filename;
   }
 
@@ -1315,13 +1315,9 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     if (connector != null) {
       List<MovieNfoNaming> nfonames = new ArrayList<>();
-      if (isMultiMovieDir()) {
+      if (isMultiMovieDir() || isDisc) {
         // Fixate the name regardless of setting
         nfonames.add(MovieNfoNaming.FILENAME_NFO);
-      }
-      else if (isDisc()) {
-        nfonames.add(MovieNfoNaming.FILENAME_NFO);
-        nfonames.add(MovieNfoNaming.MOVIE_NFO); // unneeded, but "TMM style"
       }
       else {
         nfonames = MovieModuleManager.SETTINGS.getNfoFilenames();
@@ -1645,15 +1641,25 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   public String findDiscMainFile() {
-    String ret = "";
-    for (MediaFile video : getMediaFiles(MediaFileType.VIDEO)) {
-      // get the MF from the "index" file.
-      // we need the name and especially the path where it is...
-      if (video.isMainDiscIdentifierFile()) {
-        ret = Utils.relPath(getPathNIO(), video.getFileAsPath());
-      }
+    MediaFile mainVideoFile = getMainVideoFile();
+
+    String filename = "";
+
+    if (mainVideoFile.isBlurayFile()) {
+      filename = "index.bdmv";
     }
-    return ret;
+    if (mainVideoFile.isDVDFile()) {
+      filename = "VIDEO_TS.ifo";
+    }
+    if (mainVideoFile.isHDDVDFile()) {
+      filename = "HVDVD_TS.ifo";
+    }
+
+    if (StringUtils.isNotBlank(filename) && mainVideoFile.getFile().toFile().isDirectory()) {
+      filename = mainVideoFile.getFilename() + File.separator + filename;
+    }
+
+    return filename;
   }
 
   public int getMediaInfoVideoBitrate() {
