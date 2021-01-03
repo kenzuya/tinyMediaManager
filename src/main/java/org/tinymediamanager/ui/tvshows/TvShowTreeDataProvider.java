@@ -128,6 +128,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           episode = (TvShowEpisode) evt.getSource();
           removeTvShowEpisode(episode);
           addTvShowEpisode(episode);
+          updateDummyEpisodesForTvShow(episode.getTvShow());
           break;
 
         case Constants.TV_SHOW:
@@ -152,6 +153,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
             removeDummyEpisodes();
           }
           break;
+
         case "displayMissingSpecials":
           if (TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
             addDummySpecials();
@@ -192,6 +194,26 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
         if (season.isDummy()) {
           removeTvShowSeason(season);
         }
+      }
+    }
+  }
+
+  /**
+   * update dummy episodes after changing S/E of existing episodes
+   */
+  private void updateDummyEpisodesForTvShow(TvShow tvShow) {
+    List<TvShowEpisode> dummyEpisodes = tvShow.getDummyEpisodes();
+    List<TvShowEpisode> episodesForDisplay = tvShow.getEpisodesForDisplay();
+
+    // iterate over all episodes for display and re-add/remove dummy episodes which needs an update
+    for (TvShowEpisode episode : dummyEpisodes) {
+      if (episodesForDisplay.contains(episode) && getNodeFromCache(episode) == null) {
+        // should be here, but isn't -> re-add
+        addTvShowEpisode(episode);
+      }
+      else if (!episodesForDisplay.contains(episode) && getNodeFromCache(episode) != null) {
+        // is here but shouldn't -> remove
+        removeTvShowEpisode(episode);
       }
     }
   }
@@ -412,7 +434,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     // okay, we've removed the episode; now check which seasons we have to remove too
     for (TvShowSeason season : episode.getTvShow().getSeasons()) {
-      if (season.getEpisodes().isEmpty()) {
+      if (season.getEpisodesForDisplay().isEmpty()) {
         removeTvShowSeason(season);
       }
     }
