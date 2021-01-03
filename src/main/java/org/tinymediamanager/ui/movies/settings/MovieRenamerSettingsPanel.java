@@ -561,7 +561,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       Matcher matcher = TOKEN_PATTERN.matcher(token);
       if (matcher.find() && matcher.groupCount() > 1) {
         String alias = matcher.group(1);
-        String sourceToken = MovieRenamer.TOKEN_MAP.get(alias);
+        String sourceToken = MovieRenamer.getTokenMap().get(alias);
 
         if (StringUtils.isNotBlank(sourceToken)) {
           result = "<html>" + token + "<br>${" + sourceToken + matcher.group(2) + "</html>";

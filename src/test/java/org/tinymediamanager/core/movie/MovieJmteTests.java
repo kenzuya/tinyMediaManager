@@ -17,7 +17,6 @@
 package org.tinymediamanager.core.movie;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.tinymediamanager.core.movie.MovieRenamer.morphTemplate;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
@@ -40,6 +38,7 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
@@ -51,14 +50,8 @@ import com.floreysoft.jmte.Engine;
 
 public class MovieJmteTests {
 
-  private static Map<String, String> TOKEN_MAP = new HashMap<>();
-  private Engine                     engine;
-  private Map<String, Object>        root;
-
-  @BeforeClass
-  public static void init() {
-    TOKEN_MAP.putAll(MovieRenamer.TOKEN_MAP);
-  }
+  private Engine              engine;
+  private Map<String, Object> root;
 
   @Test
   public void testMoviePatterns() {
@@ -149,7 +142,7 @@ public class MovieJmteTests {
   }
 
   private void compare(String template, String expectedValue) {
-    String actualValue = engine.transform(morphTemplate(template), root);
+    String actualValue = engine.transform(JmteUtils.morphTemplate(template, MovieRenamer.getTokenMap()), root);
     assertThat(actualValue).isEqualTo(expectedValue);
   }
 

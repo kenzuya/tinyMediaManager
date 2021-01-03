@@ -36,6 +36,7 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
@@ -159,7 +160,7 @@ public class TvShowJmteTests {
   }
 
   private void compare(String template, String expectedValue) {
-    String actualValue = engine.transform(TvShowRenamer.morphTemplate(template), root);
+    String actualValue = engine.transform(JmteUtils.morphTemplate(template, TvShowRenamer.getTokenMap()), root);
     assertThat(actualValue).isEqualTo(expectedValue);
   }
 

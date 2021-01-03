@@ -54,6 +54,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
@@ -173,39 +174,6 @@ public class TvShowRenamer {
    */
   public static Map<String, String> getTokenMap() {
     return Collections.unmodifiableMap(TOKEN_MAP);
-  }
-
-  /**
-   * morph the given template to the JMTE template
-   *
-   * @param template
-   *          the given template
-   * @return the JMTE compatible template
-   */
-  static String morphTemplate(String template) {
-    String morphedTemplate = template;
-    // replace normal template entries
-    for (Map.Entry<String, String> entry : TOKEN_MAP.entrySet()) {
-      Pattern pattern = Pattern.compile("\\$\\{" + entry.getKey() + "([^a-zA-Z0-9])", Pattern.CASE_INSENSITIVE);
-      Matcher matcher = pattern.matcher(morphedTemplate);
-      while (matcher.find()) {
-        morphedTemplate = morphedTemplate.replace(matcher.group(), "${" + entry.getValue() + matcher.group(1));
-      }
-    }
-
-    // replace conditional template entries
-    for (Map.Entry<String, String> entry : TOKEN_MAP.entrySet()) {
-      Pattern pattern = Pattern.compile("\\$\\{(.*?)," + entry.getKey() + "([^a-zA-Z0-9])", Pattern.CASE_INSENSITIVE);
-      Matcher matcher = pattern.matcher(morphedTemplate);
-      while (matcher.find()) {
-        morphedTemplate = morphedTemplate.replace(matcher.group(), "${" + matcher.group(1) + "," + entry.getValue() + matcher.group(2));
-      }
-    }
-
-    // last but not least escape single backslashes
-    morphedTemplate = morphedTemplate.replace("\\", "\\\\");
-
-    return morphedTemplate;
   }
 
   /**
@@ -1406,7 +1374,7 @@ public class TvShowRenamer {
         root.put("season", episode.getTvShowSeason());
       }
       root.put("tvShow", show);
-      return engine.transform(morphTemplate(token), root);
+      return engine.transform(JmteUtils.morphTemplate(token, TOKEN_MAP), root);
     }
     catch (Exception e) {
       LOGGER.warn("unable to process token: {}", token);
