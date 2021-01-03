@@ -38,10 +38,12 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -70,8 +72,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowSeasonInformationPanel extends JPanel {
   private static final long            serialVersionUID = 1911808562993073590L;
-
-
 
   private Color                        defaultColor;
   private Color                        dummyColor;
@@ -228,8 +228,17 @@ public class TvShowSeasonInformationPanel extends JPanel {
 
   private void setPoster(TvShowSeason season) {
     lblTvShowPoster.clearImage();
-    lblTvShowPoster.setImagePath(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER));
+
+    String posterPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER);
     Dimension posterSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
+
+    if (StringUtils.isBlank(posterPath)) {
+      // fall back to the show
+      posterPath = season.getTvShow().getArtworkFilename(MediaFileType.POSTER);
+      posterSize = season.getTvShow().getArtworkDimension(MediaFileType.POSTER);
+    }
+    lblTvShowPoster.setImagePath(posterPath);
+
     if (posterSize.width > 0 && posterSize.height > 0) {
       lblPosterSize.setText(TmmResourceBundle.getString("mediafiletype.poster") + " - " + posterSize.width + "x" + posterSize.height);
     }
@@ -240,8 +249,17 @@ public class TvShowSeasonInformationPanel extends JPanel {
 
   private void setBanner(TvShowSeason season) {
     lblTvShowBanner.clearImage();
-    lblTvShowBanner.setImagePath(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER));
+
+    String bannerPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER);
     Dimension bannerSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_BANNER);
+
+    if (StringUtils.isBlank(bannerPath)) {
+      // fall back to the show
+      bannerPath = season.getTvShow().getArtworkFilename(MediaFileType.BANNER);
+      bannerSize = season.getTvShow().getArtworkDimension(MediaFileType.BANNER);
+    }
+
+    lblTvShowBanner.setImagePath(bannerPath);
     if (bannerSize.width > 0 && bannerSize.height > 0) {
       lblBannerSize.setText(TmmResourceBundle.getString("mediafiletype.banner") + " - " + bannerSize.width + "x" + bannerSize.height);
     }
@@ -252,8 +270,16 @@ public class TvShowSeasonInformationPanel extends JPanel {
 
   private void setThumb(TvShowSeason season) {
     lblTvShowThumb.clearImage();
-    lblTvShowThumb.setImagePath(season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB));
+
+    String thumbPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB);
     Dimension thumbSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_THUMB);
+
+    if (StringUtils.isBlank(thumbPath)) {
+      thumbPath = season.getTvShow().getArtworkFilename(MediaFileType.FANART);
+      thumbSize = season.getTvShow().getArtworkDimension(MediaFileType.FANART);
+    }
+
+    lblTvShowThumb.setImagePath(thumbPath);
     if (thumbSize.width > 0 && thumbSize.height > 0) {
       lblThumbSize.setText(TmmResourceBundle.getString("mediafiletype.thumb") + " - " + thumbSize.width + "x" + thumbSize.height);
     }
