@@ -22,6 +22,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -174,7 +175,7 @@ public class MovieJmteTests {
     MediaTrailer trailer = new MediaTrailer();
     trailer.setUrl("https://trailer");
     trailer.setInNfo(true);
-    movie.addTrailer(trailer);
+    movie.addToTrailer(Collections.singletonList(trailer));
 
     MovieSet movieSet = new MovieSet();
     movieSet.setTitle("Aladdin Collection");
@@ -215,20 +216,18 @@ public class MovieJmteTests {
 
     movie.setWatched(true);
     movie.setGenres(Arrays.asList(MediaGenres.ADVENTURE, MediaGenres.FAMILY));
-    movie.addWriter(new Person(Person.Type.WRITER, "Ted Elliott", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "Terry Rossio", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "Ron Clements", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "John Jusker", "Writer"));
-    movie.addDirector(new Person(Person.Type.DIRECTOR, "Ron Clements", "Director"));
-    movie.addWriter(new Person(Person.Type.DIRECTOR, "John Jusker", "Director"));
-    movie.addToTags("Disney");
-    movie.addToTags("Oriental");
+    movie
+        .addToWriters(Arrays.asList(new Person(Person.Type.WRITER, "Ted Elliott", "Writer"), new Person(Person.Type.WRITER, "Terry Rossio", "Writer"),
+            new Person(Person.Type.WRITER, "Ron Clements", "Writer"), new Person(Person.Type.WRITER, "John Jusker", "Writer")));
+    movie.addToDirectors(
+        Arrays.asList(new Person(Person.Type.DIRECTOR, "Ron Clements", "Director"), new Person(Person.Type.DIRECTOR, "John Jusker", "Director")));
+    movie.addToTags(Arrays.asList("Disney", "Oriental"));
 
-    movie.addActor(new Person(Person.Type.ACTOR, "Scott Weinger", "Aladdin 'Al' (voice)"));
-    movie.addActor(new Person(Person.Type.ACTOR, "Robin Williams", "Genie (voice)"));
+    movie.addToActors(Arrays.asList(new Person(Person.Type.ACTOR, "Scott Weinger", "Aladdin 'Al' (voice)"),
+        new Person(Person.Type.ACTOR, "Robin Williams", "Genie (voice)")));
 
-    movie.addProducer(new Person(Person.Type.PRODUCER, "Ron Clements", "Producer"));
-    movie.addProducer(new Person(Person.Type.PRODUCER, "Donald W. Ernst", "Producer"));
+    movie.addToProducers(
+        Arrays.asList(new Person(Person.Type.PRODUCER, "Ron Clements", "Producer"), new Person(Person.Type.PRODUCER, "Donald W. Ernst", "Producer")));
 
     movie.setSpokenLanguages("en");
     movie.setMediaSource(MediaSource.BLURAY);

@@ -38,6 +38,8 @@ import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.PRODUCTION_COMPANY;
 import static org.tinymediamanager.core.Constants.RATING;
 import static org.tinymediamanager.core.Constants.SCRAPED;
+import static org.tinymediamanager.core.Constants.TAGS;
+import static org.tinymediamanager.core.Constants.TAGS_AS_STRING;
 import static org.tinymediamanager.core.Constants.THUMB;
 import static org.tinymediamanager.core.Constants.TITLE;
 import static org.tinymediamanager.core.Constants.YEAR;
@@ -46,17 +48,21 @@ import java.awt.Dimension;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -70,13 +76,16 @@ import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
  * The Class MediaEntity. The base class for all entities
@@ -118,6 +127,8 @@ public abstract class MediaEntity extends AbstractModelObject {
   protected Map<String, MediaRating>   ratings            = new ConcurrentHashMap<>(0);
   @JsonProperty
   private final List<MediaFile>        mediaFiles         = new ArrayList<>();
+  @JsonProperty
+  protected final List<String>         tags               = new CopyOnWriteArrayList<>();
   @JsonProperty
   protected Map<MediaFileType, String> artworkUrlMap      = new EnumMap<>(MediaFileType.class);
 
@@ -183,11 +194,13 @@ public abstract class MediaEntity extends AbstractModelObject {
     if (force) {
       ids.clear();
       ratings.clear();
+      tags.clear();
 
       artworkUrlMap.clear();
     }
 
     setRatings(other.ratings);
+    setTags(other.tags);
 
     for (String key : other.getIds().keySet()) {
       if (!ids.containsKey(key)) {
@@ -206,6 +219,9 @@ public abstract class MediaEntity extends AbstractModelObject {
    */
   public void initializeAfterLoading() {
     sortMediaFiles();
+
+    // remove empty tag and null values
+    Utils.removeEmptyStringsFromList(tags);
   }
 
   protected void sortMediaFiles() {
@@ -542,6 +558,7 @@ public abstract class MediaEntity extends AbstractModelObject {
           artworkUrlMap.put(type, url);
         }
         break;
+
       default:
         return;
     }
@@ -1206,6 +1223,95 @@ public abstract class MediaEntity extends AbstractModelObject {
     boolean oldValue = this.newlyAdded;
     this.newlyAdded = newValue;
     firePropertyChange(NEWLY_ADDED, oldValue, newValue);
+  }
+
+  /**
+   * Adds the given {@link Collection} the to tags.
+   *
+   * @param newTags
+   *          the new tags
+   */
+  public void addToTags(Collection<String> newTags) {
+    Set<String> newItems = new LinkedHashSet<>();
+
+    // do not accept duplicates or empty tags
+    for (String tag : ListUtils.nullSafe(newTags)) {
+      if (StringUtils.isBlank(tag) || tags.contains(tag)) {
+        continue;
+      }
+      newItems.add(tag);
+    }
+
+    if (newItems.isEmpty()) {
+      return;
+    }
+
+    tags.addAll(newItems);
+    firePropertyChange(TAGS, null, tags);
+    firePropertyChange(TAGS_AS_STRING, null, tags);
+  }
+
+  /**
+   * Removes the from tags.
+   *
+   * @param removeTag
+   *          the remove tag
+   */
+  public void removeFromTags(String removeTag) {
+    if (tags.remove(removeTag)) {
+      firePropertyChange(TAGS, null, removeTag);
+      firePropertyChange(TAGS_AS_STRING, null, removeTag);
+    }
+  }
+
+  /**
+   * Sets the tags.
+   *
+   * @param newTags
+   *          the new tags
+   */
+  @JsonSetter
+  public void setTags(List<String> newTags) {
+    // two way sync of tags
+    ListUtils.mergeLists(tags, newTags);
+    Utils.removeEmptyStringsFromList(tags);
+
+    firePropertyChange(TAGS, null, newTags);
+    firePropertyChange(TAGS_AS_STRING, null, newTags);
+  }
+
+  /**
+   * Gets the tag as string.
+   *
+   * @return the tag as string
+   */
+  public String getTagsAsString() {
+    StringBuilder sb = new StringBuilder();
+    for (String tag : tags) {
+      if (!StringUtils.isEmpty(sb)) {
+        sb.append(", ");
+      }
+      sb.append(tag);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Gets the tags.
+   *
+   * @return the tags
+   */
+  public List<String> getTags() {
+    return this.tags;
+  }
+
+  /**
+   * Remove all Tags from List
+   */
+  public void removeAllTags() {
+    tags.clear();
+    firePropertyChange(TAGS, null, tags);
+    firePropertyChange(TAGS_AS_STRING, null, tags);
   }
 
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {

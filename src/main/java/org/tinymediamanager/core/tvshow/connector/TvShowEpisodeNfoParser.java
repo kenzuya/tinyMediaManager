@@ -1351,27 +1351,31 @@ public class TvShowEpisodeNfoParser {
       }
       episode.setMediaSource(source);
 
+      List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();
       for (Person actor : actors) {
-        episode.addActor(morphPerson(ACTOR, actor));
+        newActors.add(morphPerson(ACTOR, actor));
       }
+      episode.addToActors(newActors);
 
+      List<org.tinymediamanager.core.entities.Person> newDirectors = new ArrayList<>();
       for (Person director : directors) {
         if (StringUtils.isBlank(director.role)) {
           director.role = "Director";
         }
-        episode.addDirector(morphPerson(DIRECTOR, director));
+        newDirectors.add(morphPerson(DIRECTOR, director));
       }
+      episode.addToDirectors(newDirectors);
 
+      List<org.tinymediamanager.core.entities.Person> newWriters = new ArrayList<>();
       for (Person writer : credits) {
         if (StringUtils.isBlank(writer.role)) {
           writer.role = "Writer";
         }
-        episode.addWriter(morphPerson(WRITER, writer));
+        newWriters.add(morphPerson(WRITER, writer));
       }
+      episode.addToWriters(newWriters);
 
-      for (String tag : tags) {
-        episode.addToTags(tag);
-      }
+      episode.addToTags(tags);
 
       episode.setOriginalFilename(originalFileName);
       episode.setNote(userNote);

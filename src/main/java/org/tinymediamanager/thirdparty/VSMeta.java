@@ -34,6 +34,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -253,15 +254,19 @@ public class VSMeta {
           case TAG_TITLE1:
             info.title1 = data.readStringVL();
             break;
+
           case TAG_TITLE2:
             info.title2 = data.readStringVL();
             break;
+
           case TAG_TITLE3:
             info.title3 = data.readStringVL();
             break;
+
           case TAG_YEAR:
             info.year = data.readU_VL_Int();
             break;
+
           case TAG_RELEASE_DATE:
             try {
               info.releaseDate = dateFormat.parse(data.readStringVL());
@@ -270,23 +275,29 @@ public class VSMeta {
               LOGGER.warn("Could not parse date...");
             }
             break;
+
           case TAG_LOCKED:
             info.locked = data.readU_VL_Int() != 0;
             break;
+
           case TAG_SUMMARY:
             info.summary = data.readStringVL();
             break;
+
           case TAG_META_JSON:
             info.entityJson = data.readStringVL();
             parseJSON(); // movie & episode
             break;
+
           case TAG_GROUP1:
             byte[] groupSize = data.readBytesVL();
             parseGroup(openSync(groupSize), info);
             break;
+
           case TAG_CLASSIFICATION:
             info.classification = data.readStringVL();
             break;
+
           case TAG_RATING:
             final int it = data.readU_VL_Int();
             if (it < 0) {
@@ -296,9 +307,11 @@ public class VSMeta {
               info.rating = ((double) it) / 10;
             }
             break;
+
           case TAG_POSTER_DATA:
             info.images.poster = fromBase64IgnoreSpaces(data.readStringVL());
             break;
+
           case TAG_GROUP3:
             // TODO: avatar (v1) fails, check with actual movie
             // info.images.backdrop = fromBase64IgnoreSpaces(data.readStringVL());
@@ -307,10 +320,12 @@ public class VSMeta {
             byte[] meta3 = data.readBytes(data3Size);
             parseGroup3(openSync(meta3), info, (int) pos3);
             break;
+
           case TAG_POSTER_MD5:
             // assert (hex(md5(info.imagedata.episodeImage)).equals(data.readStringVL()));
             data.readStringVL();
             break;
+
           case TAG_GROUP2: {
             int dataSize = data.readU_VL_Int();
             long pos2 = data.position();
@@ -318,6 +333,7 @@ public class VSMeta {
             parseGroup2(openSync(meta), info, (int) pos2);
             break;
           }
+
           default: {
             LOGGER.warn("[MAIN] Unexpected kind={} at {} - try skipping", Integer.toHexString(kind), pos);
             data.readStringVL(); // interpret next value as string.....
@@ -338,15 +354,19 @@ public class VSMeta {
         case TAG1_CAST:
           info.list.cast.add(s.readStringVL());
           break;
+
         case TAG1_DIRECTOR:
           info.list.director.add(s.readStringVL());
           break;
+
         case TAG1_GENRE:
           info.list.genre.add(s.readStringVL());
           break;
+
         case TAG1_WRITER:
           info.list.writer.add(s.readStringVL());
           break;
+
         default:
           LOGGER.warn("[GROUP1] Unexpected kind={} at {}", kind, pos);
       }
@@ -361,12 +381,15 @@ public class VSMeta {
         case TAG2_SEASON:
           info.season = s.readU_VL_Int();
           break;
+
         case TAG2_EPISODE:
           info.episode = s.readU_VL_Int();
           break;
+
         case TAG2_TVSHOW_YEAR:
           info.tvshowYear = s.readU_VL_Int();
           break;
+
         case TAG2_RELEASE_DATE_TV_SHOW:
           try {
             info.tvshowReleaseDate = dateFormat.parse(s.readStringVL());
@@ -375,25 +398,31 @@ public class VSMeta {
             LOGGER.warn("Could not parse date...");
           }
           break;
+
         case TAG2_LOCKED:
           info.tvshowLocked = s.readU_VL_Int() != 0;
           break;
+
         case TAG2_TVSHOW_SUMMARY:
           info.tvshowSummary = s.readStringVL();
           break;
+
         case TAG2_TVSHOW_POSTER_DATA:
           info.images.showImage = fromBase64IgnoreSpaces(s.readStringVL());
           // writeImage("-tvshow.jpg", info.images.showImage); // TODO: nah, we do not keep TvShow posters on episode basis
           break;
+
         case TAG2_TVSHOW_POSTER_MD5:
           String md5 = s.readStringVL();
           // if (!md5.equalsIgnoreCase(StrgUtils.bytesToHex(md5(info.images.tvshowPoster)))) {
           // LOGGER.warn("embedded MD5 does not match embedded image...?");
           // }
           break;
+
         case TAG2_TVSHOW_META_JSON:
           info.tvShowJson = s.readStringVL();
           break;
+
         case TAG2_GROUP3: { // GROUP3
           int dataSize = s.readU_VL_Int();
           int start2 = (int) s.position();
@@ -401,6 +430,7 @@ public class VSMeta {
           parseGroup3(openSync(data), info, start2 + start);
           break;
         }
+
         default:
           LOGGER.warn("[GROUP2] Unexpected kind={} at {}", kind, pos);
       }
@@ -415,15 +445,18 @@ public class VSMeta {
         case TAG3_BACKDROP_DATA:
           info.images.backdrop = fromBase64IgnoreSpaces(s.readStringVL());
           break;
+
         case TAG3_BACKDROP_MD5:
           String md5 = s.readStringVL();
           // if (!md5.equalsIgnoreCase(StrgUtils.bytesToHex(md5(info.images.tvshowBackdrop)))) {
           // LOGGER.warn("embedded MD5 does not match embedded image...?");
           // }
           break;
+
         case TAG3_TIMESTAMP:
           info.timestamp = new Date(s.readU_VL_Long() * 1000L);
           break;
+
         default:
           LOGGER.warn("[GROUP3] Unexpected kind={} at {}", kind, pos);
       }
@@ -509,12 +542,15 @@ public class VSMeta {
                   case "synovideodb":
                     ids.put(key, value);
                     break;
+
                   case "imdb":
                     ids.put(Constants.IMDB, value);
                     break;
+
                   case "thetvdb":
                     ids.put(Constants.TVDB, value);
                     break;
+
                   case "themoviedb":
                     try {
                       int t = Integer.parseInt(value);
@@ -627,24 +663,36 @@ public class VSMeta {
     for (MediaArtwork ma : artworks) {
       m.setArtworkUrl(ma.getDefaultUrl(), MediaFileType.getMediaFileType(ma.getType()));
     }
+
+    Set<MediaGenres> genres = new LinkedHashSet<>();
     for (String g : info.list.genre) {
-      m.addGenre(MediaGenres.getGenre(g));
+      genres.add(MediaGenres.getGenre(g));
     }
+    m.addToGenres(genres);
+
+    List<Person> actors = new ArrayList<>();
     for (String cast : info.list.cast) {
       Person mcm = new Person(ACTOR);
       mcm.setName(cast);
-      m.addActor(new Person(mcm));
+      actors.add(new Person(mcm));
     }
+    m.addToActors(actors);
+
+    List<Person> directors = new ArrayList<>();
     for (String dir : info.list.director) {
       Person mcm = new Person(DIRECTOR);
       mcm.setName(dir);
-      m.addDirector(new Person(mcm));
+      directors.add(new Person(mcm));
     }
+    m.addToDirectors(directors);
+
+    List<Person> writers = new ArrayList<>();
     for (String writ : info.list.writer) {
       Person mcm = new Person(WRITER);
       mcm.setName(writ);
-      m.addWriter(new Person(mcm));
+      writers.add(new Person(mcm));
     }
+    m.addToWriters(writers);
 
     return m;
   }
@@ -674,21 +722,30 @@ public class VSMeta {
     for (MediaArtwork ma : artworks) {
       ep.setArtworkUrl(ma.getDefaultUrl(), MediaFileType.getMediaFileType(ma.getType()));
     }
+
+    List<Person> actors = new ArrayList<>();
     for (String cast : info.list.cast) {
       Person mcm = new Person(ACTOR);
       mcm.setName(cast);
-      ep.addActor(new Person(mcm));
+      actors.add(new Person(mcm));
     }
+    ep.addToActors(actors);
+
+    List<Person> directors = new ArrayList<>();
     for (String dir : info.list.director) {
       Person mcm = new Person(DIRECTOR);
       mcm.setName(dir);
-      ep.addDirector(new Person(mcm));
+      directors.add(new Person(mcm));
     }
+    ep.addToDirectors(directors);
+
+    List<Person> writers = new ArrayList<>();
     for (String writ : info.list.writer) {
       Person mcm = new Person(WRITER);
       mcm.setName(writ);
-      ep.addWriter(new Person(mcm));
+      writers.add(new Person(mcm));
     }
+    ep.addToWriters(writers);
 
     return ep;
   }

@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -199,14 +200,12 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     tvShow.setFirstAired(sdf.parse("1987-04-12"));
 
-    tvShow.addGenre(MediaGenres.ACTION);
-    tvShow.addGenre(MediaGenres.ADVENTURE);
-    tvShow.addGenre(MediaGenres.DRAMA);
+    tvShow.addToGenres(Arrays.asList(MediaGenres.ACTION, MediaGenres.ADVENTURE, MediaGenres.DRAMA));
 
-    tvShow.addToTags("80s");
+    tvShow.addToTags(Collections.singletonList("80s"));
 
-    tvShow.addActor(new Person(Person.Type.ACTOR, "Johnny Depp", "Officer Tom Hanson", "http://thumb1"));
-    tvShow.addActor(new Person(Person.Type.ACTOR, "Holly Robinson Peete", "Officer Judy Hoffs", "http://thumb2"));
+    tvShow.addToActors(Arrays.asList(new Person(Person.Type.ACTOR, "Johnny Depp", "Officer Tom Hanson", "http://thumb1"),
+        new Person(Person.Type.ACTOR, "Holly Robinson Peete", "Officer Judy Hoffs", "http://thumb2")));
 
     return tvShow;
   }
@@ -263,16 +262,16 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
     episode1.setArtworkUrl("http://thumb1", MediaFileType.THUMB);
     episode1.setWatched(true);
 
-    episode1.addToTags("Pilot");
+    episode1.addToTags(Collections.singletonList("Pilot"));
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     episode1.setFirstAired(sdf.parse("1987-04-12"));
 
-    episode1.addDirector(new Person(Person.Type.DIRECTOR, "Kim Manners", "Director"));
-    episode1.addWriter(new Person(Person.Type.DIRECTOR, "Patrick Hasburgh", "Writer"));
+    episode1.addToDirectors(Collections.singletonList(new Person(Person.Type.DIRECTOR, "Kim Manners", "Director")));
+    episode1.addToWriters(Collections.singletonList(new Person(Person.Type.WRITER, "Patrick Hasburgh", "Writer")));
 
-    episode1.addActor(new Person(Person.Type.ACTOR, "Charles Payne", "Unknown", "http://thumb1"));
-    episode1.addActor(new Person(Person.Type.ACTOR, "Reginald T. Dorsey", "", "http://thumb2"));
+    episode1.addToActors(Arrays.asList(new Person(Person.Type.ACTOR, "Charles Payne", "Unknown", "http://thumb1"),
+        new Person(Person.Type.ACTOR, "Reginald T. Dorsey", "", "http://thumb2")));
 
     MediaFile mf = new MediaFile();
     mf.setType(MediaFileType.VIDEO);
@@ -315,11 +314,11 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
       sdf = new SimpleDateFormat("yyyy-MM-dd");
       episode2.setFirstAired(sdf.parse("1987-04-19"));
 
-      episode2.addDirector(new Person(Person.Type.DIRECTOR, "Kim Manners", "Director"));
-      episode2.addWriter(new Person(Person.Type.DIRECTOR, "Patrick Hasburgh", "Writer"));
+      episode2.addToDirectors(Arrays.asList(new Person(Person.Type.DIRECTOR, "Kim Manners", "Director")));
+      episode2.addToWriters(Arrays.asList(new Person(Person.Type.WRITER, "Patrick Hasburgh", "Writer")));
 
-      episode2.addActor(new Person(Person.Type.ACTOR, "Charles Payne", "Unknown", "http://thumb1"));
-      episode2.addActor(new Person(Person.Type.ACTOR, "Reginald T. Dorsey", "", "http://thumb2"));
+      episode2.addToActors(Arrays.asList(new Person(Person.Type.ACTOR, "Charles Payne", "Unknown", "http://thumb1"),
+          new Person(Person.Type.ACTOR, "Reginald T. Dorsey", "", "http://thumb2")));
 
       mf = new MediaFile();
       mf.setType(MediaFileType.VIDEO);

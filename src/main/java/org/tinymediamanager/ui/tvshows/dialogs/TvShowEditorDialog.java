@@ -1244,9 +1244,7 @@ public class TvShowEditorDialog extends TmmDialog {
       }
 
       tvShowToEdit.removeAllTrailers();
-      for (MediaTrailer trailer : trailers) {
-        tvShowToEdit.addTrailer(trailer);
-      }
+      tvShowToEdit.addToTrailer(trailers);
 
       tvShowToEdit.writeNFO();
       tvShowToEdit.saveToDb();

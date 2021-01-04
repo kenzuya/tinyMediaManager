@@ -20,7 +20,7 @@ import static org.tinymediamanager.core.Constants.DECADE;
 import static org.tinymediamanager.core.Constants.GENRE;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
-import static org.tinymediamanager.core.Constants.TAG;
+import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.YEAR;
 
 import java.beans.PropertyChangeListener;
@@ -158,7 +158,7 @@ public class MovieList extends AbstractModelObject {
             updateGenres(Collections.singletonList(movie));
             break;
 
-          case TAG:
+          case TAGS:
             updateTags(Collections.singletonList(movie));
             break;
 
@@ -916,7 +916,7 @@ public class MovieList extends AbstractModelObject {
     movies.forEach(movie -> tags.addAll(movie.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInMovies, tags)) {
-      firePropertyChange(TAG, null, tagsInMovies);
+      firePropertyChange(TAGS, null, tagsInMovies);
     }
   }
 

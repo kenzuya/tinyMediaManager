@@ -49,7 +49,7 @@ public class TvShowTagFilter extends AbstractCheckComboBoxTvShowUIFilter<String>
     comparator = new TmmTableFormat.StringComparator();
     buildAndInstallTagsArray();
     PropertyChangeListener propertyChangeListener = evt -> buildAndInstallTagsArray();
-    tvShowList.addPropertyChangeListener(Constants.TAG, propertyChangeListener);
+    tvShowList.addPropertyChangeListener(Constants.TAGS, propertyChangeListener);
   }
 
   @Override

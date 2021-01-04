@@ -20,7 +20,7 @@ import static org.tinymediamanager.core.Constants.EPISODE_COUNT;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.REMOVED_TV_SHOW;
-import static org.tinymediamanager.core.Constants.TAG;
+import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.TV_SHOWS;
 import static org.tinymediamanager.core.Constants.TV_SHOW_COUNT;
 
@@ -125,11 +125,11 @@ public class TvShowList extends AbstractModelObject {
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
-      if (Constants.TAG.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow) {
         TvShow tvShow = (TvShow) evt.getSource();
         updateTvShowTags(Collections.singleton(tvShow));
       }
-      if (Constants.TAG.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode) {
         TvShowEpisode episode = (TvShowEpisode) evt.getSource();
         updateEpisodeTags(Collections.singleton(episode));
       }
@@ -745,7 +745,7 @@ public class TvShowList extends AbstractModelObject {
     tvShows.forEach(tvShow -> tags.addAll(tvShow.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInTvShows, tags)) {
-      firePropertyChange(TAG, null, tagsInTvShows);
+      firePropertyChange(TAGS, null, tagsInTvShows);
     }
   }
 
@@ -767,7 +767,7 @@ public class TvShowList extends AbstractModelObject {
     episodes.forEach(episode -> tags.addAll(episode.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInEpisodes, tags)) {
-      firePropertyChange(TAG, null, tagsInEpisodes);
+      firePropertyChange(TAGS, null, tagsInEpisodes);
     }
   }
 

@@ -27,6 +27,7 @@ import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1660,31 +1661,37 @@ public class MovieNfoParser {
 
     movie.setSortTitle(sorttitle);
 
+    List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();
     for (Person actor : actors) {
-      movie.addActor(morphPerson(ACTOR, actor));
+      newActors.add(morphPerson(ACTOR, actor));
     }
+    movie.addToActors(newActors);
 
+    List<org.tinymediamanager.core.entities.Person> newProducers = new ArrayList<>();
     for (Person producer : producers) {
-      movie.addProducer(morphPerson(PRODUCER, producer));
+      newProducers.add(morphPerson(PRODUCER, producer));
     }
+    movie.addToProducers(newProducers);
 
+    List<org.tinymediamanager.core.entities.Person> newDirectors = new ArrayList<>();
     for (Person director : directors) {
       if (StringUtils.isBlank(director.role)) {
         director.role = "Director";
       }
-      movie.addDirector(morphPerson(DIRECTOR, director));
+      newDirectors.add(morphPerson(DIRECTOR, director));
     }
+    movie.addToDirectors(newDirectors);
 
+    List<org.tinymediamanager.core.entities.Person> newWriters = new ArrayList<>();
     for (Person writer : credits) {
       if (StringUtils.isBlank(writer.role)) {
         writer.role = "Writer";
       }
-      movie.addWriter(morphPerson(WRITER, writer));
+      newWriters.add(morphPerson(WRITER, writer));
     }
+    movie.addToWriters(newWriters);
 
-    for (MediaGenres genre : genres) {
-      movie.addGenre(genre);
-    }
+    movie.addToGenres(genres);
 
     if (StringUtils.isNotEmpty(trailer)) {
       if (!trailer.startsWith("file")) {
@@ -1695,17 +1702,12 @@ public class MovieNfoParser {
         trailer.setQuality("unknown");
         trailer.setUrl(this.trailer);
         trailer.setInNfo(true);
-        movie.addTrailer(trailer);
+        movie.addToTrailer(Collections.singletonList(trailer));
       }
     }
 
-    for (String tag : tags) {
-      movie.addToTags(tag);
-    }
-
-    for (String showlink : showlinks) {
-      movie.addShowlink(showlink);
-    }
+    movie.addToTags(tags);
+    movie.addShowlinks(showlinks);
 
     movie.setOriginalFilename(originalFilename);
     movie.setNote(userNote);

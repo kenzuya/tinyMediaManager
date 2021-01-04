@@ -235,8 +235,8 @@ public class MovieEditorDialog extends TmmDialog {
    *          the queue size
    */
   public MovieEditorDialog(Movie movie, int queueIndex, int queueSize) {
-    super(TmmResourceBundle.getString("movie.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + movie.getPathNIO() + " >",
-        "movieEditor");
+    super(TmmResourceBundle.getString("movie.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : "") + "  < " + movie.getPathNIO()
+        + " >", "movieEditor");
 
     // creation of lists
     cast = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
@@ -366,21 +366,22 @@ public class MovieEditorDialog extends TmmDialog {
     tableRatings.adjustColumnPreferredWidths(5);
 
     // implement listener to simulate button group
-    tableTrailer.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        MediaTrailer changedTrailer = trailers.get(row);
-        // if flag inNFO was changed, change all other trailers flags
-        if (changedTrailer.getInNfo()) {
-          for (MediaTrailer trailer : trailers) {
-            if (trailer != changedTrailer) {
-              trailer.setInNfo(Boolean.FALSE);
+    tableTrailer.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            MediaTrailer changedTrailer = trailers.get(row);
+            // if flag inNFO was changed, change all other trailers flags
+            if (changedTrailer.getInNfo()) {
+              for (MediaTrailer trailer : trailers) {
+                if (trailer != changedTrailer) {
+                  trailer.setInNfo(Boolean.FALSE);
+                }
+              }
             }
           }
-        }
-      }
-    });
+        });
   }
 
   private void initComponents() {
@@ -1396,9 +1397,7 @@ public class MovieEditorDialog extends TmmDialog {
       movieToEdit.setGenres(genres);
 
       movieToEdit.removeAllTrailers();
-      for (MediaTrailer trailer : trailers) {
-        movieToEdit.addTrailer(trailer);
-      }
+      movieToEdit.addToTrailer(trailers);
 
       movieToEdit.setTags(tags);
       movieToEdit.setShowlinks(showlinks);
@@ -1498,7 +1497,8 @@ public class MovieEditorDialog extends TmmDialog {
       rating.maxValue = 10;
       rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), TmmResourceBundle.getString("rating.add"), rating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), TmmResourceBundle.getString("rating.add"),
+          rating);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
@@ -1536,7 +1536,8 @@ public class MovieEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       MediaId mediaId = new MediaId();
-      IdEditorDialog dialog = new IdEditorDialog(SwingUtilities.getWindowAncestor(tableIds), TmmResourceBundle.getString("id.add"), mediaId, ScraperType.MOVIE);
+      IdEditorDialog dialog = new IdEditorDialog(SwingUtilities.getWindowAncestor(tableIds), TmmResourceBundle.getString("id.add"), mediaId,
+          ScraperType.MOVIE);
       dialog.setVisible(true);
 
       if (StringUtils.isNoneBlank(mediaId.key, mediaId.value)) {
@@ -1573,8 +1574,10 @@ public class MovieEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"), TmmResourceBundle.getString("cast.role.unknown"));
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("cast.actor.add"), actor);
+      Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"),
+          TmmResourceBundle.getString("cast.role.unknown"));
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableActors), TmmResourceBundle.getString("cast.actor.add"),
+          actor);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
@@ -1611,9 +1614,10 @@ public class MovieEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person producer = new Person(Person.Type.PRODUCER, TmmResourceBundle.getString("producer.name.unknown"), TmmResourceBundle.getString("producer.role.unknown"));
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableProducers), TmmResourceBundle.getString("cast.producer.add"),
-          producer);
+      Person producer = new Person(Person.Type.PRODUCER, TmmResourceBundle.getString("producer.name.unknown"),
+          TmmResourceBundle.getString("producer.role.unknown"));
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableProducers),
+          TmmResourceBundle.getString("cast.producer.add"), producer);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(producer.getName()) && !producer.getName().equals(TmmResourceBundle.getString("producer.name.unknown"))) {
@@ -2045,8 +2049,8 @@ public class MovieEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("director.name.unknown"), "Director");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableDirectors), TmmResourceBundle.getString("cast.director.add"),
-          person);
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableDirectors),
+          TmmResourceBundle.getString("cast.director.add"), person);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("director.name.unknown"))) {
@@ -2120,7 +2124,8 @@ public class MovieEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("writer.name.unknown"), "Writer");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableWriters), TmmResourceBundle.getString("cast.writer.add"), person);
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableWriters),
+          TmmResourceBundle.getString("cast.writer.add"), person);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("writer.name.unknown"))) {

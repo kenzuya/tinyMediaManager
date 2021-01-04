@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -240,14 +241,12 @@ public class TvShowToNfoConnectorTest extends BasicTest {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     tvShow.setFirstAired(sdf.parse("1987-04-12"));
 
-    tvShow.addGenre(MediaGenres.ACTION);
-    tvShow.addGenre(MediaGenres.ADVENTURE);
-    tvShow.addGenre(MediaGenres.DRAMA);
+    tvShow.addToGenres(Arrays.asList(MediaGenres.ACTION, MediaGenres.ADVENTURE, MediaGenres.DRAMA));
 
-    tvShow.addToTags("80s");
+    tvShow.addToTags(Collections.singletonList("80s"));
 
-    tvShow.addActor(new Person(Person.Type.ACTOR, "Johnny Depp", "Officer Tom Hanson", "http://thumb1"));
-    tvShow.addActor(new Person(Person.Type.ACTOR, "Holly Robinson Peete", "Officer Judy Hoffs", "http://thumb2"));
+    tvShow.addToActors(Arrays.asList(new Person(Person.Type.ACTOR, "Johnny Depp", "Officer Tom Hanson", "http://thumb1"),
+        new Person(Person.Type.ACTOR, "Holly Robinson Peete", "Officer Judy Hoffs", "http://thumb2")));
 
     return tvShow;
   }

@@ -1463,17 +1463,14 @@ public class TvShowNfoParser {
     show.setCertification(certification);
     show.setStatus(status);
 
+    List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();
     for (Person actor : actors) {
-      show.addActor(morphPerson(org.tinymediamanager.core.entities.Person.Type.ACTOR, actor));
+      newActors.add(morphPerson(org.tinymediamanager.core.entities.Person.Type.ACTOR, actor));
     }
+    show.setActors(newActors);
 
-    for (MediaGenres genre : genres) {
-      show.addGenre(genre);
-    }
-
-    for (String tag : tags) {
-      show.addToTags(tag);
-    }
+    show.addToGenres(genres);
+    show.addToTags(tags);
 
     show.setNote(userNote);
 

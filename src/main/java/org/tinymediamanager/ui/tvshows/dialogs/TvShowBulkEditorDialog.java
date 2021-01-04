@@ -20,6 +20,7 @@ import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -122,7 +123,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
 
           if (genre != null) {
             for (TvShow tvShow : tvShowsToEdit) {
-              tvShow.addGenre(genre);
+              tvShow.addToGenres(Collections.singletonList(genre));
             }
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -156,7 +157,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           String tag = (String) cbTags.getSelectedItem();
           for (TvShow tvShow : tvShowsToEdit) {
-            tvShow.addToTags(tag);
+            tvShow.addToTags(Collections.singletonList(tag));
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
@@ -315,7 +316,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           String tag = (String) cbTagsEpisode.getSelectedItem();
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            episode.addToTags(tag);
+            episode.addToTags(Collections.singletonList(tag));
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });

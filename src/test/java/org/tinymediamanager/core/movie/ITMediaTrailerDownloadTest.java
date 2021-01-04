@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Locale;
 
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class ITMediaTrailerDownloadTest {
 
       MediaTrailer t = new MediaTrailer();
       t.setUrl("http://movietrailers.apple.com/movies/disney/coco/coco-trailer-3_h480p.mov");
-      m.addTrailer(t);
+      m.addToTrailer(Collections.singletonList(t));
 
       String filename = m.getTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
 
@@ -94,7 +95,7 @@ public class ITMediaTrailerDownloadTest {
       t.setProvider("youtube");
       t.setQuality("720P");
       t.setUrl("https://www.youtube.com/watch?v=zNCz4mQzfEI");
-      m.addTrailer(t);
+      m.addToTrailer(Collections.singletonList(t));
 
       YTDownloadTask task = new YTDownloadTask(t, TrailerQuality.HD_720) {
         @Override

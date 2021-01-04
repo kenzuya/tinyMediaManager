@@ -50,7 +50,7 @@ public class MovieTagFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
     oldTags = new HashSet<>();
 
     buildAndInstallTagsArray();
-    movieList.addPropertyChangeListener(Constants.TAG, evt -> SwingUtilities.invokeLater(this::buildAndInstallTagsArray));
+    movieList.addPropertyChangeListener(Constants.TAGS, evt -> SwingUtilities.invokeLater(this::buildAndInstallTagsArray));
   }
 
   @Override

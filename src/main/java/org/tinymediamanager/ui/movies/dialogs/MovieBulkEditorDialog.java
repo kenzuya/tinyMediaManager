@@ -21,6 +21,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -110,7 +111,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
 
           if (genre != null) {
             for (Movie movie : moviesToEdit) {
-              movie.addGenre(genre);
+              movie.addToGenres(Collections.singletonList(genre));
             }
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -174,7 +175,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
 
           for (Movie movie : moviesToEdit) {
-            movie.addToTags(tag);
+            movie.addToTags(Collections.singletonList(tag));
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
