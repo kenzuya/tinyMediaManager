@@ -185,17 +185,10 @@ public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
       insets.right = 0;
     }
 
-    if ("half".equals(this.tabPane.getClientProperty("rightBorder"))) {
-      insets.right = tabAreaInsets.right / 2;
-    }
-
     if (Boolean.FALSE.equals(this.tabPane.getClientProperty("leftBorder"))) {
       insets.left = 0;
     }
 
-    if ("half".equals(this.tabPane.getClientProperty("leftBorder"))) {
-      insets.left = tabAreaInsets.left / 2;
-    }
     return insets;
   }
 
