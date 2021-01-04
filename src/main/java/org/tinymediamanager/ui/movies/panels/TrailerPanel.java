@@ -23,12 +23,10 @@ import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeListener;
 import java.util.Locale;
 
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -45,6 +43,7 @@ import org.tinymediamanager.scraper.util.UrlUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.table.NullSelectionModel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -321,110 +320,6 @@ public class TrailerPanel extends JPanel {
 
     @Override
     public void mouseDragged(MouseEvent arg0) {
-    }
-  }
-
-  private static class NullSelectionModel extends DefaultListSelectionModel {
-    private static final long serialVersionUID = -1956483331520197616L;
-
-    @Override
-    public boolean isSelectionEmpty() {
-      return true;
-    }
-
-    @Override
-    public boolean isSelectedIndex(int index) {
-      return false;
-    }
-
-    @Override
-    public int getMinSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public int getMaxSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public int getLeadSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public int getAnchorSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public void setSelectionInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void setLeadSelectionIndex(int index) {
-      // nothing to do
-    }
-
-    @Override
-    public void setAnchorSelectionIndex(int index) {
-      // nothing to do
-    }
-
-    @Override
-    public void addSelectionInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void insertIndexInterval(int index, int length, boolean before) {
-      // nothing to do
-    }
-
-    @Override
-    public void clearSelection() {
-      // nothing to do
-    }
-
-    @Override
-    public void removeSelectionInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void removeIndexInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void setSelectionMode(int selectionMode) {
-      // nothing to do
-    }
-
-    @Override
-    public int getSelectionMode() {
-      return SINGLE_SELECTION;
-    }
-
-    @Override
-    public void addListSelectionListener(ListSelectionListener lsl) {
-      // nothing to do
-    }
-
-    @Override
-    public void removeListSelectionListener(ListSelectionListener lsl) {
-      // nothing to do
-    }
-
-    @Override
-    public void setValueIsAdjusting(boolean valueIsAdjusting) {
-      // nothing to do
-    }
-
-    @Override
-    public boolean getValueIsAdjusting() {
-      return false;
     }
   }
 }

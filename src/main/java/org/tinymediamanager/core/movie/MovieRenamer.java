@@ -97,7 +97,7 @@ public class MovieRenamer {
   private static final Map<String, String> TOKEN_MAP                   = createTokenMap();
 
   private MovieRenamer() {
-    // hide public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -1146,7 +1146,7 @@ public class MovieRenamer {
   }
 
   /**
-   * gets the token value (${x}) from specified movie object
+   * gets the token value (${x}) from specified movie object with all renamer related replacements!
    * 
    * @param movie
    *          our movie
@@ -1156,15 +1156,7 @@ public class MovieRenamer {
    */
   public static String getTokenValue(Movie movie, String token) {
     try {
-      Engine engine = Engine.createEngine();
-      engine.registerRenderer(Number.class, new ZeroNumberRenderer());
-      engine.registerNamedRenderer(new NamedDateRenderer());
-      engine.registerNamedRenderer(new NamedUpperCaseRenderer());
-      engine.registerNamedRenderer(new NamedLowerCaseRenderer());
-      engine.registerNamedRenderer(new NamedTitleCaseRenderer());
-      engine.registerNamedRenderer(new MovieNamedFirstCharacterRenderer());
-      engine.registerNamedRenderer(new NamedArrayRenderer());
-      engine.registerNamedRenderer(new NamedFilesizeRenderer());
+      Engine engine = createEngine();
       engine.setModelAdaptor(new MovieRenamerModelAdaptor());
       Map<String, Object> root = new HashMap<>();
       root.put("movie", movie);
@@ -1181,6 +1173,25 @@ public class MovieRenamer {
       LOGGER.warn("unable to process token: {}", token);
       return token;
     }
+  }
+
+  /**
+   * create the {@link Engine} to be used with JMTE
+   * 
+   * @return the pre-created Engine
+   */
+  public static Engine createEngine() {
+    Engine engine = Engine.createEngine();
+    engine.registerRenderer(Number.class, new ZeroNumberRenderer());
+    engine.registerNamedRenderer(new NamedDateRenderer());
+    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
+    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
+    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
+    engine.registerNamedRenderer(new MovieNamedFirstCharacterRenderer());
+    engine.registerNamedRenderer(new NamedArrayRenderer());
+    engine.registerNamedRenderer(new NamedFilesizeRenderer());
+
+    return engine;
   }
 
   /**

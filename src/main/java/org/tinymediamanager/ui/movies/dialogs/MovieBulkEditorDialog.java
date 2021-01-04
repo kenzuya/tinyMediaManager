@@ -20,9 +20,13 @@ import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyDescriptor;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -30,28 +34,47 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
+import org.tinymediamanager.ui.components.table.NullSelectionModel;
+import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.components.table.TmmTableFormat;
+import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetAddAction;
 
+import com.floreysoft.jmte.Engine;
+
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.GlazedLists;
+import ca.odell.glazedlists.ObservableElementList;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -60,15 +83,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieBulkEditorDialog extends TmmDialog {
-  private static final long           serialVersionUID = -8515248604267310279L;
+  private static final long              serialVersionUID = -8515248604267310279L;
 
-  
+  private final MovieList                movieList        = MovieList.getInstance();
+  private final List<Movie>              moviesToEdit     = new ArrayList<>();
 
-  private MovieList                   movieList        = MovieList.getInstance();
-  private List<Movie>                 moviesToEdit;
-  private boolean                     changed          = false;
+  private boolean                        changed          = false;
 
-  private JComboBox                   cbMovieSet;
+  private final JComboBox                cbMovieSet;
+  private final JComboBox<MovieProperty> cbProperty;
+
+  private final EventList<MovieValues>   movieValuesEventList;
 
   /**
    * Instantiates a new movie batch editor.
@@ -79,14 +104,19 @@ public class MovieBulkEditorDialog extends TmmDialog {
   public MovieBulkEditorDialog(final List<Movie> movies) {
     super(TmmResourceBundle.getString("movie.edit"), "movieBulkEditor");
 
+    movieValuesEventList = GlazedLists
+        .threadSafeList(new ObservableElementList<>(new BasicEventList<>(), GlazedLists.beanConnector(MovieValues.class)));
+
+    TmmTabbedPane tabbedPane = new TmmTabbedPane();
+    getContentPane().add(tabbedPane, BorderLayout.CENTER);
     {
       JPanel panelContent = new JPanel();
-      getContentPane().add(panelContent, BorderLayout.CENTER);
-      panelContent.setLayout(new MigLayout("", "[20lp:n][200lp:350lp,grow][][][]", "[][][][][][][][][][][][][][]"));
+      panelContent.setLayout(new MigLayout("", "[20lp:n][200lp:350lp,grow][][][]", "[][][][][][][][][][][][][]"));
 
       {
         JLabel lblGenresT = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
         panelContent.add(lblGenresT, "cell 0 0,alignx right");
+        tabbedPane.addTab(TmmResourceBundle.getString("bulkedit.basic"), panelContent);
 
         JComboBox cbGenres = new AutocompleteComboBox(MediaGenres.values());
         cbGenres.setEditable(true);
@@ -425,18 +455,7 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnSetSorttitle, "cell 1 11");
-
-        JButton btnClearSorttitle = new JButton(TmmResourceBundle.getString("edit.clearsorttitle"));
-        btnClearSorttitle.addActionListener(e -> {
-          changed = true;
-          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (Movie movie : moviesToEdit) {
-            movie.setSortTitle("");
-          }
-          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        });
-        panelContent.add(btnClearSorttitle, "cell 1 13");
+        panelContent.add(btnSetSorttitle, "flowx,cell 1 11 4 1");
       }
       {
         JLabel lblSpokenLanguages = new TmmLabel(TmmResourceBundle.getString("metatag.spokenlanguages"));
@@ -478,8 +497,102 @@ public class MovieBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnAllAudioStreams, "cell 1 12");
       }
+
+      JButton btnClearSorttitle = new JButton(TmmResourceBundle.getString("edit.clearsorttitle"));
+      btnClearSorttitle.addActionListener(e -> {
+        changed = true;
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        for (Movie movie : moviesToEdit) {
+          movie.setSortTitle("");
+        }
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      });
+      panelContent.add(btnClearSorttitle, "cell 1 11 3 1");
     }
 
+    /*
+     * EXPERT MODE
+     */
+    {
+      JPanel panelContent = new JPanel();
+
+      tabbedPane.addTab(TmmResourceBundle.getString("bulkedit.expert"), panelContent);
+      panelContent.setLayout(new MigLayout("", "[][grow][]", "[grow][20lp!][][50lp][20lp!][grow]"));
+
+      {
+        JTextPane tpDescription = new ReadOnlyTextPane(TmmResourceBundle.getString("bulkedit.description"));
+        panelContent.add(tpDescription, "cell 0 0 3 1,grow");
+      }
+      {
+        JLabel lblPropertyT = new TmmLabel(TmmResourceBundle.getString("bulkedit.field"));
+        panelContent.add(lblPropertyT, "cell 0 2,alignx right");
+
+        cbProperty = new JComboBox();
+        cbProperty.addItem(new MovieProperty("title", TmmResourceBundle.getString("metatag.title")));
+        cbProperty.addItem(new MovieProperty("originalTitle", TmmResourceBundle.getString("metatag.originaltitle")));
+        cbProperty.addItem(new MovieProperty("sortTitle", TmmResourceBundle.getString("metatag.sorttitle")));
+        cbProperty.addItem(new MovieProperty("tagline", TmmResourceBundle.getString("metatag.tagline")));
+        cbProperty.addItem(new MovieProperty("plot", TmmResourceBundle.getString("metatag.plot")));
+        cbProperty.addItem(new MovieProperty("productionCompany", TmmResourceBundle.getString("metatag.production")));
+        cbProperty.addItem(new MovieProperty("spokenLanguages", TmmResourceBundle.getString("metatag.spokenlanguages")));
+        cbProperty.addItem(new MovieProperty("country", TmmResourceBundle.getString("metatag.country")));
+        cbProperty.addItem(new MovieProperty("note", TmmResourceBundle.getString("metatag.note")));
+        cbProperty.addItem(new MovieProperty("originalFilename", TmmResourceBundle.getString("metatag.originalfile")));
+
+        cbProperty.addItemListener(
+            e -> movieValuesEventList.forEach(movieValues -> movieValues.changeProperty(((MovieProperty) cbProperty.getSelectedItem()).property)));
+        panelContent.add(cbProperty, "cell 1 2,growx,wmin 0");
+      }
+
+      {
+        JLabel lblPatternT = new TmmLabel(TmmResourceBundle.getString("bulkedit.value"));
+        panelContent.add(lblPatternT, "cell 0 3,alignx right");
+
+        JTextField tfPattern = new JTextField();
+        tfPattern.getDocument().addDocumentListener(new DocumentListener() {
+          @Override
+          public void insertUpdate(DocumentEvent e) {
+            changePattern();
+          }
+
+          @Override
+          public void removeUpdate(DocumentEvent e) {
+            changePattern();
+          }
+
+          @Override
+          public void changedUpdate(DocumentEvent e) {
+            changePattern();
+          }
+
+          private void changePattern() {
+            movieValuesEventList.forEach(movieValues -> movieValues.changePattern(tfPattern.getText()));
+          }
+        });
+
+        panelContent.add(tfPattern, "cell 1 3,wmin 0,grow");
+      }
+      {
+        JButton btnApply = new SquareIconButton(IconManager.APPLY_INV);
+        btnApply.addActionListener(e -> {
+          changed = true;
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          movieValuesEventList.forEach(MovieValues::applyValue);
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+        panelContent.add(btnApply, "cell 2 3,aligny bottom");
+      }
+      {
+        TmmTable tableValues = new TmmTable(new TmmTableModel<>(movieValuesEventList, new MovieValuesTableFormat()));
+        tableValues.setSelectionModel(new NullSelectionModel());
+
+        JScrollPane scrollPane = new JScrollPane();
+        tableValues.configureScrollPane(scrollPane);
+        panelContent.add(scrollPane, "cell 0 5 3 1,grow");
+
+        scrollPane.setViewportView(tableValues);
+      }
+    }
     {
       JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.setIcon(IconManager.APPLY_INV);
@@ -522,7 +635,13 @@ public class MovieBulkEditorDialog extends TmmDialog {
 
     {
       setMovieSets();
-      moviesToEdit = movies;
+      moviesToEdit.addAll(movies);
+
+      for (Movie movie : moviesToEdit) {
+        MovieValues movieValues = new MovieValues(movie);
+        movieValues.changeProperty(((MovieProperty) cbProperty.getSelectedItem()).property);
+        movieValuesEventList.add(movieValues);
+      }
 
       PropertyChangeListener listener = evt -> {
         if ("addedMovieSet".equals(evt.getPropertyName())) {
@@ -563,6 +682,121 @@ public class MovieBulkEditorDialog extends TmmDialog {
     }
     else {
       return false;
+    }
+  }
+
+  private static class MovieValues extends AbstractModelObject {
+    private final Movie movie;
+
+    private String      property;
+    private String      propertyValue = "";
+    private String      patternValue  = "";
+
+    public MovieValues(Movie movie) {
+      this.movie = movie;
+    }
+
+    public void changeProperty(String property) {
+      this.property = property;
+      String oldValue = propertyValue;
+      propertyValue = "";
+
+      try {
+        PropertyDescriptor descriptor = new PropertyDescriptor(property, Movie.class);
+        Object value = descriptor.getReadMethod().invoke(movie);
+        if (value != null) {
+          propertyValue = value.toString();
+        }
+      }
+      catch (Exception e) {
+        // just do nothing
+      }
+
+      firePropertyChange("propertyValue", oldValue, propertyValue);
+    }
+
+    public void changePattern(String pattern) {
+      String oldValue = patternValue;
+      patternValue = getPatternValue(pattern);
+
+      firePropertyChange("patternValue", oldValue, patternValue);
+    }
+
+    private String getPatternValue(String pattern) {
+      try {
+        Engine engine = MovieRenamer.createEngine();
+        Map<String, Object> root = new HashMap<>();
+        root.put("movie", movie);
+        return engine.transform(JmteUtils.morphTemplate(pattern, MovieRenamer.getTokenMap()), root);
+      }
+      catch (Exception e) {
+        return pattern;
+      }
+    }
+
+    public void applyValue() {
+      try {
+        // set the property in the movie
+        PropertyDescriptor descriptor = new PropertyDescriptor(property, Movie.class);
+        descriptor.getWriteMethod().invoke(movie, patternValue);
+
+        // and update old value
+        String oldValue = propertyValue;
+        propertyValue = patternValue;
+        firePropertyChange("propertyValue", oldValue, propertyValue);
+      }
+      catch (Exception e) {
+        // just do nothing
+      }
+    }
+
+    public String getMovieTitle() {
+      return movie.getTitle();
+    }
+
+    public String getPropertyValue() {
+      return propertyValue;
+    }
+
+    public String getPatternValue() {
+      return patternValue;
+    }
+  }
+
+  private static class MovieValuesTableFormat extends TmmTableFormat<MovieValues> {
+    public MovieValuesTableFormat() {
+      /*
+       * movie title
+       */
+      Column col = new Column(TmmResourceBundle.getString("metatag.title"), "title", MovieValues::getMovieTitle, String.class);
+      addColumn(col);
+
+      /*
+       * old value
+       */
+      col = new Column(TmmResourceBundle.getString("bulkedit.oldvalue"), "oldValue", MovieValues::getPropertyValue, String.class);
+      addColumn(col);
+
+      /*
+       * new value
+       */
+      col = new Column(TmmResourceBundle.getString("bulkedit.newvalue"), "newValue", MovieValues::getPatternValue, String.class);
+      addColumn(col);
+    }
+  }
+
+  private static class MovieProperty {
+    private final String property;
+    private final String description;
+
+    public MovieProperty(String property, String description) {
+      this.property = property;
+      this.description = description;
+    }
+
+    @Override
+    public String toString() {
+      return description;
     }
   }
 }
