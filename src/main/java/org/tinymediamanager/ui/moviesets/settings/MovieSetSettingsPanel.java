@@ -44,14 +44,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -4173835431245178069L;
+  private static final long   serialVersionUID = -4173835431245178069L;
 
+  private final MovieSettings settings         = MovieModuleManager.SETTINGS;
 
-
-  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
-
-  private JCheckBox                   chckbxShowMissingMovies;
-  private JCheckBox                   chckbxTvShowTableTooltips;
+  private JCheckBox           chckbxShowMissingMovies;
+  private JCheckBox           chckbxTvShowTableTooltips;
 
   private JCheckBox           chckbxCheckPoster;
   private JCheckBox           chckbxCheckFanart;
@@ -119,6 +117,7 @@ public class MovieSetSettingsPanel extends JPanel {
         case POSTER:
           chckbxCheckPoster.setSelected(true);
           break;
+
         case BACKGROUND:
           chckbxCheckFanart.setSelected(true);
           break;
@@ -166,11 +165,10 @@ public class MovieSetSettingsPanel extends JPanel {
     for (JCheckBox checkbox : checkBoxes) {
       checkbox.setSelected(false);
     }
-    initComponents();
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][]"));
     {
       JPanel panelUiSettings = new JPanel();
       panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][]")); // 16lp ~ width of the
@@ -228,7 +226,6 @@ public class MovieSetSettingsPanel extends JPanel {
         panelCheckImages.add(chckbxCheckDiscart, "cell 7 0");
       }
     }
-    initDataBindings();
   }
 
   protected void initDataBindings() {

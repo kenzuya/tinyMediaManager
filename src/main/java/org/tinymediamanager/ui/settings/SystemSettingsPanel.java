@@ -67,28 +67,27 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class SystemSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 500841588272296493L;
+  private static final long    serialVersionUID = 500841588272296493L;
 
+  private static final Logger  LOGGER           = LoggerFactory.getLogger(SystemSettingsPanel.class);
+  private static final Pattern MEMORY_PATTERN   = Pattern.compile("-Xmx([0-9]*)(.)");
 
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(SystemSettingsPanel.class);
-  private static final Pattern        MEMORY_PATTERN   = Pattern.compile("-Xmx([0-9]*)(.)");
+  private final Settings       settings         = Settings.getInstance();
 
-  private final Settings              settings         = Settings.getInstance();
-
-  private JTextField                  tfProxyHost;
-  private JTextField                  tfProxyPort;
-  private JTextField                  tfProxyUsername;
-  private JPasswordField              tfProxyPassword;
-  private JTextField                  tfMediaPlayer;
-  private JTextField                  tfMediaFramework;
-  private JButton                     btnSearchMediaPlayer;
-  private JButton                     btnSearchFFMpegBinary;
-  private JSlider                     sliderFFMPEG;
-  private JSlider                     sliderMemory;
-  private JLabel                      lblMemory;
-  private JLabel                      lblFFMPEG;
-  private JCheckBox                   chckbxIgnoreSSLProblems;
-  private JSpinner                    spMaximumDownloadThreads;
+  private JTextField           tfProxyHost;
+  private JTextField           tfProxyPort;
+  private JTextField           tfProxyUsername;
+  private JPasswordField       tfProxyPassword;
+  private JTextField           tfMediaPlayer;
+  private JTextField           tfMediaFramework;
+  private JButton              btnSearchMediaPlayer;
+  private JButton              btnSearchFFMpegBinary;
+  private JSlider              sliderFFMPEG;
+  private JSlider              sliderMemory;
+  private JLabel               lblMemory;
+  private JLabel               lblFFMPEG;
+  private JCheckBox            chckbxIgnoreSSLProblems;
+  private JSpinner             spMaximumDownloadThreads;
 
   /**
    * Instantiates a new general settings panel.
@@ -146,7 +145,7 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelMediaFramework = new JPanel();
-      panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", ""));
+      panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][][grow][]", "[][][]"));
       JLabel lblMediaFrameworkT = new TmmLabel(TmmResourceBundle.getString("Settings.mediaframework"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaFramework, lblMediaFrameworkT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
@@ -224,7 +223,7 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelProxy = new JPanel();
-      panelProxy.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelProxy.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][][grow]", "[][][][]")); // 16lp ~ width of the
 
       JLabel lblProxyT = new TmmLabel(TmmResourceBundle.getString("Settings.proxy"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelProxy, lblProxyT, true);
