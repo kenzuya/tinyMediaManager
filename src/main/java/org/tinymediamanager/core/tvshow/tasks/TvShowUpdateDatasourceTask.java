@@ -68,7 +68,9 @@ import org.tinymediamanager.core.tvshow.connector.TvShowNfoParser;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
+import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.VSMeta;
 
 import com.sun.jna.Platform;
@@ -628,13 +630,19 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
 
         // was NFO, but parsing exception. try to find at least imdb id within
-        if (tvShow.getImdbId().isEmpty() && Files.exists(showNFO.getFileAsPath())) {
+        if ((tvShow.getImdbId().isEmpty() || tvShow.getTmdbId() == 0) && Files.exists(showNFO.getFileAsPath())) {
           try {
             String content = Utils.readFileToString(showNFO.getFileAsPath());
             String imdb = ParserUtils.detectImdbId(content);
             if (!imdb.isEmpty()) {
               LOGGER.debug("| Found IMDB id: {}", imdb);
               tvShow.setImdbId(imdb);
+            }
+
+            String tmdb = StrgUtils.substr(content, "themoviedb\\.org\\/tv\\/(\\d+)");
+            if (tvShow.getTmdbId() == 0 && !tmdb.isEmpty()) {
+              LOGGER.debug("| Found TMDB id: {}", tmdb);
+              tvShow.setTmdbId(MetadataUtil.parseInt(tmdb, 0));
             }
           }
           catch (IOException e) {
