@@ -154,7 +154,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * movie set (hidden per default)
      */
-    Function<Movie, String> movieSetFunction = movie -> movie.getMovieSet() == null ? null : movie.getMovieSet().getTitle();
+    Function<Movie, String> movieSetFunction = movie -> movie.getMovieSet() == null ? null : movie.getMovieSet().getTitleSortable();
     col = new Column(TmmResourceBundle.getString("metatag.movieset"), "movieset", movieSetFunction, String.class);
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);

@@ -48,14 +48,6 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.filenaming.IMovieSetFileNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetBannerNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetClearartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetClearlogoNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetDiscartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetFanartNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetLogoNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
-import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -134,11 +126,7 @@ public class MovieSetArtworkHelper {
       }
 
       // search all available folders (with our preference)
-      MediaFile artworkFile = getArtworkFromMediaFiles(movieSet, mediaFiles, fileNamings);
-      if (artworkFile == null) {
-        // okay, lets search with all possible namings
-        artworkFile = getArtworkFromMediaFiles(movieSet, mediaFiles, type);
-      }
+      MediaFile artworkFile = getArtworkFromMediaFiles(movieSet, mediaFiles, type, fileNamings);
 
       // now we _should_ have at least one artwork file; now distribute that to all other places (if needed)
       if (artworkFile != null) {
@@ -281,63 +269,25 @@ public class MovieSetArtworkHelper {
 
   /**
    * find the artwork from the artwork folder
-   * 
-   * @param movieSet
-   *          the {@link MovieSet} to find the artwork for
-   * @param mediaFiles
-   *          the {@link MediaFile}s to search the artwork for
-   * @param type
-   *          the {@link MediaFileType} to search the artwork for
-   * @return the {@link MediaFile} in the preferred artwork folder or null
-   */
-  private static MediaFile getArtworkFromMediaFiles(MovieSet movieSet, List<MediaFile> mediaFiles, MediaFileType type) {
-    switch (type) {
-      case POSTER:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetPosterNaming.values()));
-
-      case FANART:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetFanartNaming.values()));
-
-      case BANNER:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetBannerNaming.values()));
-
-      case CLEARART:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetClearartNaming.values()));
-
-      case LOGO:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetLogoNaming.values()));
-
-      case CLEARLOGO:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetClearlogoNaming.values()));
-
-      case THUMB:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetThumbNaming.values()));
-
-      case DISC:
-        return getArtworkFromMediaFiles(movieSet, mediaFiles, Arrays.asList(MovieSetDiscartNaming.values()));
-
-      default:
-        return null;
-    }
-  }
-
-  /**
-   * find the artwork from the artwork folder
    *
    * @param movieSet
    *          the {@link MovieSet} to find the artwork for
    * @param mediaFiles
    *          the {@link MediaFile}s to search the artwork for
+   * @param type
+   *          the {@link MediaFileType} to search if the file name search fails
    * @param fileNamings
    *          a list of all available {@link IMovieSetFileNaming}s for this artwork type
    * @return the {@link MediaFile} in the preferred artwork folder or null
    */
-  private static MediaFile getArtworkFromMediaFiles(MovieSet movieSet, List<MediaFile> mediaFiles, List<IMovieSetFileNaming> fileNamings) {
+  private static MediaFile getArtworkFromMediaFiles(MovieSet movieSet, List<MediaFile> mediaFiles, MediaFileType type,
+      List<IMovieSetFileNaming> fileNamings) {
     Path artworkFolder = getArtworkFolder();
     if (artworkFolder == null) {
       return null;
     }
 
+    // try to resolve via the filename
     for (IMovieSetFileNaming fileNaming : fileNamings) {
       for (MediaFile mediaFile : mediaFiles) {
         String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
@@ -348,14 +298,14 @@ public class MovieSetArtworkHelper {
         if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
           // Kodi style: <movie set artwork folder>/<movie set name>/<artwork type>.ext
           Path path = Paths.get(artworkFolder.toString(), movieSetName, fileNaming.getFilename(movieSetName, ""));
-          if (mediaFile.getFileAsPath().startsWith(artworkFolder.resolve(movieSetName))) {
+          if (mediaFile.getFileAsPath().toAbsolutePath().startsWith(path)) {
             return mediaFile;
           }
         }
         else if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.AUTOMATOR_STYLE_FOLDER) {
           // Artwork Automator style: <movie set artwork folder>/<movie set name>-<artwork type>.ext
           Path path = Paths.get(artworkFolder.toString(), fileNaming.getFilename(movieSetName, ""));
-          if (mediaFile.getFileAsPath().startsWith(artworkFolder.resolve(movieSetName))) {
+          if (mediaFile.getFileAsPath().toAbsolutePath().startsWith(path)) {
             return mediaFile;
           }
         }
@@ -364,6 +314,13 @@ public class MovieSetArtworkHelper {
             return mediaFile;
           }
         }
+      }
+    }
+
+    // not found via filename? maybe the name changed -> search for the type
+    for (MediaFile mediaFile : mediaFiles) {
+      if (mediaFile.getType() == type) {
+        return mediaFile;
       }
     }
 
@@ -955,7 +912,8 @@ public class MovieSetArtworkHelper {
       }
 
       List<IMovieSetFileNaming> movieFileNamings = fileNamings.stream()
-          .filter(fileNaming -> fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.MOVIE_FOLDER).collect(Collectors.toList());
+          .filter(fileNaming -> fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.MOVIE_FOLDER)
+          .collect(Collectors.toList());
 
       for (IMovieSetFileNaming fileNaming : movieFileNamings) {
         String filename = fileNaming.getFilename("", extension);
