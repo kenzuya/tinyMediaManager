@@ -27,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -237,6 +238,7 @@ public class MovieSettingsPanel extends JPanel {
         case POSTER:
           chckbxCheckPoster.setSelected(true);
           break;
+
         case BACKGROUND:
           chckbxCheckFanart.setSelected(true);
           break;
@@ -291,7 +293,7 @@ public class MovieSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][][10lp!][][100lp,grow]"));
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][][10lp!][][125lp,grow]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -338,7 +340,10 @@ public class MovieSettingsPanel extends JPanel {
         {
           listRatings = new JList();
           listRatings.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-          panelRatingSource.add(listRatings, "cell 0 0,grow");
+
+          JScrollPane scrollPane = new JScrollPane();
+          scrollPane.setViewportView(listRatings);
+          panelRatingSource.add(scrollPane, "cell 0 0,grow");
 
           btnMoveRatingUp = new SquareIconButton(IconManager.ARROW_UP_INV);
           btnMoveRatingUp.setToolTipText(TmmResourceBundle.getString("Button.moveup"));
