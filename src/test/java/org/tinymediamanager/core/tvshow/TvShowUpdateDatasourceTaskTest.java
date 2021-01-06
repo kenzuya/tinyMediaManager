@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import org.junit.After;
@@ -53,15 +52,26 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
     TvShowUpdateDatasourceTask task = new TvShowUpdateDatasourceTask();
     task.run();
 
-    // let the propertychangeevents finish
-    Thread.sleep(3000);
-
     check();
   }
 
-  private void check() {
-    // do some checks before shutting down the database
+  private void check() throws Exception {
     TvShowList tvShowList = TvShowList.getInstance();
+
+    // wait until all TV shows have been added (let propertychanges finish)
+    for (int i = 0; i < 20; i++) {
+      if (tvShowList.getTvShows().size() == NUMBER_OF_EXPECTED_SHOWS) {
+        break;
+      }
+
+      // not all here yet? wait for a second
+      System.out.println("waiting for 1000 ms");
+      Thread.sleep(1000);
+    }
+
+    assertThat(tvShowList.getTvShows().size()).isEqualTo(NUMBER_OF_EXPECTED_SHOWS);
+
+    // do some checks before shutting down the database
     for (TvShow show : tvShowList.getTvShows()) {
       System.out.println(show.getPath());
 
@@ -70,9 +80,6 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
         assertThat(episode.getMediaFiles(MediaFileType.VIDEO)).isNotEmpty();
       }
     }
-
-    assertThat(tvShowList.getTvShows().size()).isEqualTo(NUMBER_OF_EXPECTED_SHOWS);
-    Comparator<TvShowSeason> seasonComparator = Comparator.comparingInt(TvShowSeason::getSeason);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // Breaking Bad

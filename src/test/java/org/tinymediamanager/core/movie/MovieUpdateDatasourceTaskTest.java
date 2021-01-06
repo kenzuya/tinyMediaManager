@@ -61,13 +61,23 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
     MovieUpdateDatasourceTask task = new MovieUpdateDatasourceTask();
     task.run();
 
-    // let the propertychangeevents finish
-    Thread.sleep(3000);
-
     showEntries();
   }
 
-  private void showEntries() {
+  private void showEntries() throws Exception {
+    // wait until all movies have been added (let propertychanges finish)
+    for (int i = 0; i < 20; i++) {
+      if (MovieList.getInstance().getMovieCount() == NUMBER_OF_EXPECTED_MOVIES) {
+        break;
+      }
+
+      // not all here yet? wait for a second
+      System.out.println("waiting for 1000 ms");
+      Thread.sleep(1000);
+    }
+
+    assertEqual("Amount of movies does not match!", NUMBER_OF_EXPECTED_MOVIES, MovieList.getInstance().getMovieCount());
+
     int stack = 0;
     int disc = 0;
     for (Movie m : MovieList.getInstance().getMovies()) {
@@ -80,7 +90,6 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
         disc++;
       }
     }
-    assertEqual("Amount of movies does not match!", NUMBER_OF_EXPECTED_MOVIES, MovieList.getInstance().getMovieCount());
     assertEqual("Amount of stacked movies does not match!", NUMBER_OF_STACKED_MOVIES, stack);
     assertEqual("Amount of disc folders does not match!", NUMBER_OF_DISC_MOVIES, disc);
   }
