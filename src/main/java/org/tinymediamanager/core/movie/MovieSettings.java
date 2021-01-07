@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.DateField;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
@@ -56,6 +56,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.CountryCode;
@@ -212,8 +213,6 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                runtimeFromMediaInfo                   = false;
   private boolean                                includeExternalAudioStreams            = false;
   private boolean                                syncTrakt                              = false;
-  private boolean                                preferPersonalRating                   = true;
-  private String                                 preferredRating                        = "imdb";
   private boolean                                extractArtworkFromVsmeta               = false;
 
   private boolean                                title                                  = true;
@@ -223,7 +222,10 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                sortTitle                              = false;
 
   // ui
-  private boolean                                showLogosPanel                         = true;
+  private boolean                                showMovieTableTooltips                 = true;
+  private boolean                                showMovieSetTableTooltips              = true;
+  private boolean                                displayMovieSetMissingMovies           = false;
+  private final List<String>                     ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
   private final List<MediaArtworkType>           checkImagesMovie                       = new ArrayList<>();
   private final List<MediaArtworkType>           checkImagesMovieSet                    = new ArrayList<>();
 
@@ -237,66 +239,80 @@ public class MovieSettings extends AbstractSettings {
   }
 
   private void addDefaultEntries() {
+    // file names
     nfoFilenames.clear();
-    addNfoFilename(MovieNfoNaming.MOVIE_NFO);
+    addNfoFilename(MovieNfoNaming.FILENAME_NFO);
 
     posterFilenames.clear();
-    addPosterFilename(MoviePosterNaming.POSTER);
+    addPosterFilename(MoviePosterNaming.FILENAME_POSTER);
 
     fanartFilenames.clear();
-    addFanartFilename(MovieFanartNaming.FANART);
+    addFanartFilename(MovieFanartNaming.FILENAME_FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
 
     bannerFilenames.clear();
-    addBannerFilename(MovieBannerNaming.BANNER);
+    addBannerFilename(MovieBannerNaming.FILENAME_BANNER);
 
     clearartFilenames.clear();
-    addClearartFilename(MovieClearartNaming.CLEARART);
+    addClearartFilename(MovieClearartNaming.FILENAME_CLEARART);
 
     thumbFilenames.clear();
-    addThumbFilename(MovieThumbNaming.THUMB);
+    addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
 
     logoFilenames.clear();
-    addLogoFilename(MovieLogoNaming.LOGO);
+    addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
 
     clearlogoFilenames.clear();
-    addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
+    addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
 
     discartFilenames.clear();
-    addDiscartFilename(MovieDiscartNaming.DISC);
+    addDiscartFilename(MovieDiscartNaming.FILENAME_DISCART);
 
     keyartFilenames.clear();
-    addKeyartFilename(MovieKeyartNaming.KEYART);
+    addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
+
+    movieSetPosterFilenames.clear();
+    addMovieSetPosterFilename(MovieSetPosterNaming.KODI_POSTER);
+
+    movieSetFanartFilenames.clear();
+    addMovieSetFanartFilename(MovieSetFanartNaming.KODI_FANART);
+
+    movieSetBannerFilenames.clear();
+    addMovieSetBannerFilename(MovieSetBannerNaming.KODI_BANNER);
+
+    movieSetClearartFilenames.clear();
+    addMovieSetClearartFilename(MovieSetClearartNaming.KODI_CLEARART);
+
+    movieSetThumbFilenames.clear();
+    addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
+
+    movieSetLogoFilenames.clear();
+    addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
+
+    movieSetClearlogoFilenames.clear();
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
+
+    movieSetDiscartFilenames.clear();
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.KODI_DISCART);
 
     trailerFilenames.clear();
     addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
 
+    // other settings
+    setMovieConnector(MovieConnectors.KODI);
+    setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
+    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    setCertificationStyle(CertificationStyle.LARGE);
+
+    // UI settings
     checkImagesMovie.clear();
     addCheckImagesMovie(MediaArtworkType.POSTER);
     addCheckImagesMovie(MediaArtworkType.BACKGROUND);
 
-    movieSetPosterFilenames.clear();
-    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
-
-    movieSetFanartFilenames.clear();
-    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
-
-    movieSetBannerFilenames.clear();
-    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
-
-    movieSetClearartFilenames.clear();
-    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
-
-    movieSetThumbFilenames.clear();
-    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
-
-    movieSetLogoFilenames.clear();
-    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
-
-    movieSetClearlogoFilenames.clear();
-    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
-
-    movieSetDiscartFilenames.clear();
-    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+    ratingSources.clear();
+    addRatingSource(MediaMetadata.IMDB);
 
     checkImagesMovieSet.clear();
     addCheckImagesMovieSet(MediaArtworkType.POSTER);
@@ -379,6 +395,15 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
   }
 
+  public void exchangeMovieDatasource(String oldDatasource, String newDatasource) {
+    int index = movieDataSources.indexOf(oldDatasource);
+    if (index > -1) {
+      movieDataSources.remove(oldDatasource);
+      movieDataSources.add(index, newDatasource);
+      MovieList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+    }
+  }
+
   public List<String> getMovieDataSource() {
     return movieDataSources;
   }
@@ -387,7 +412,8 @@ public class MovieSettings extends AbstractSettings {
     String tmp = movieDataSources.get(pos1);
     movieDataSources.set(pos1, movieDataSources.get(pos2));
     movieDataSources.set(pos2, tmp);
-
+    firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
+    firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
   }
 
   public void addNfoFilename(MovieNfoNaming filename) {
@@ -1185,24 +1211,34 @@ public class MovieSettings extends AbstractSettings {
     return syncTrakt;
   }
 
-  public boolean getPreferPersonalRating() {
-    return preferPersonalRating;
+  public List<String> getRatingSources() {
+    return ratingSources;
   }
 
-  public void setPreferPersonalRating(boolean newValue) {
-    boolean oldValue = this.preferPersonalRating;
-    this.preferPersonalRating = newValue;
-    firePropertyChange("preferPersonalRating", oldValue, newValue);
+  public void setRatingSources(List<String> newValue) {
+    ratingSources.clear();
+    ratingSources.addAll(newValue);
+    firePropertyChange("ratingSources", null, ratingSources);
   }
 
-  public String getPreferredRating() {
-    return preferredRating;
+  public void addRatingSource(String ratingSource) {
+    if (!ratingSources.contains(ratingSource)) {
+      ratingSources.add(ratingSource);
+      firePropertyChange("ratingSources", null, ratingSources);
+    }
   }
 
-  public void setPreferredRating(String newValue) {
-    String oldValue = this.preferredRating;
-    this.preferredRating = newValue;
-    firePropertyChange("preferredRating", oldValue, newValue);
+  public void removeRatingSource(String ratingSource) {
+    if (ratingSources.remove(ratingSource)) {
+      firePropertyChange("ratingSources", null, ratingSources);
+    }
+  }
+
+  public void swapRatingSources(int pos1, int pos2) {
+    String tmp = ratingSources.get(pos1);
+    ratingSources.set(pos1, ratingSources.get(pos2));
+    ratingSources.set(pos2, tmp);
+    firePropertyChange("ratingSources", null, ratingSources);
   }
 
   public MediaLanguages getImageScraperLanguage() {
@@ -1323,16 +1359,6 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = this.capitalWordsInTitles;
     this.capitalWordsInTitles = newValue;
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
-  }
-
-  public boolean isShowLogosPanel() {
-    return showLogosPanel;
-  }
-
-  public void setShowLogosPanel(boolean newValue) {
-    boolean oldValue = showLogosPanel;
-    this.showLogosPanel = newValue;
-    firePropertyChange("showLogosPanel", oldValue, newValue);
   }
 
   public void addMovieSetPosterFilename(MovieSetPosterNaming filename) {
@@ -1463,6 +1489,36 @@ public class MovieSettings extends AbstractSettings {
     return new ArrayList<>(this.movieSetDiscartFilenames);
   }
 
+  public boolean isShowMovieTableTooltips() {
+    return showMovieTableTooltips;
+  }
+
+  public void setShowMovieTableTooltips(boolean newValue) {
+    boolean oldValue = showMovieTableTooltips;
+    showMovieTableTooltips = newValue;
+    firePropertyChange("showMovieTableTooltips", oldValue, newValue);
+  }
+
+  public boolean isShowMovieSetTableTooltips() {
+    return showMovieSetTableTooltips;
+  }
+
+  public void setShowMovieSetTableTooltips(boolean newValue) {
+    boolean oldValue = showMovieSetTableTooltips;
+    showMovieSetTableTooltips = newValue;
+    firePropertyChange("showMovieSetTableTooltips", oldValue, newValue);
+  }
+
+  public boolean isDisplayMovieSetMissingMovies() {
+    return displayMovieSetMissingMovies;
+  }
+
+  public void setDisplayMovieSetMissingMovies(boolean newValue) {
+    boolean oldValue = this.displayMovieSetMissingMovies;
+    this.displayMovieSetMissingMovies = newValue;
+    firePropertyChange("displayMovieSetMissingMovies", oldValue, newValue);
+  }
+
   /*****************************************************************
    * defaults
    *****************************************************************/
@@ -1580,28 +1636,28 @@ public class MovieSettings extends AbstractSettings {
     addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
 
     movieSetPosterFilenames.clear();
-    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
+    addMovieSetPosterFilename(MovieSetPosterNaming.KODI_POSTER);
 
     movieSetFanartFilenames.clear();
-    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
+    addMovieSetFanartFilename(MovieSetFanartNaming.KODI_FANART);
 
     movieSetBannerFilenames.clear();
-    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
+    addMovieSetBannerFilename(MovieSetBannerNaming.KODI_BANNER);
 
     movieSetClearartFilenames.clear();
-    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
+    addMovieSetClearartFilename(MovieSetClearartNaming.KODI_CLEARART);
 
     movieSetThumbFilenames.clear();
-    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
+    addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
 
     movieSetLogoFilenames.clear();
-    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
+    addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
 
     movieSetClearlogoFilenames.clear();
-    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
 
     movieSetDiscartFilenames.clear();
-    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.KODI_DISCART);
 
     trailerFilenames.clear();
     addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
@@ -1853,7 +1909,7 @@ public class MovieSettings extends AbstractSettings {
     }
 
     subtitleScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.MOVIE_SUBTITLE)) {
       addMovieSubtitleScraper(ms.getId());
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,6 @@ import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTmdbMetadataProvider;
@@ -64,27 +63,38 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   private static final String                               SEARCH              = "search";
   private static final String                               RATINGS             = "ratings";
   private static final Logger                               LOGGER              = LoggerFactory.getLogger(UniversalTvShowMetadataProvider.class);
-  private static final MediaProviderInfo                    PROVIDER_INFO       = createMediaProviderInfo();
   private static final Map<String, ITvShowMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
   private static final ExecutorService                      EXECUTOR            = Executors.newFixedThreadPool(4);
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    return new MediaProviderInfo(ID, "Universal TV show scraper",
+  private final MediaProviderInfo                           providerInfo;
+
+  public UniversalTvShowMetadataProvider() {
+    providerInfo = createMediaProviderInfo();
+    init();
+  }
+
+  private MediaProviderInfo createMediaProviderInfo() {
+    return new MediaProviderInfo(ID, ID, "Universal TV show scraper",
         "<html><h3>Universal TV show scraper</h3><br />A meta scraper which allows to collect data from several other scrapers</html>",
         UniversalTvShowMetadataProvider.class.getResource("/org/tinymediamanager/scraper/tmm_logo.svg"));
   }
 
-  public static void addProvider(IMediaProvider provider) {
+  @Override
+  public boolean isActive() {
+    return true;
+  }
+
+  public static void addProvider(ITvShowMetadataProvider provider) {
     // called for each plugin implementing that interface
-    if (!provider.getProviderInfo().getId().equals(PROVIDER_INFO.getId()) && !COMPATIBLE_SCRAPERS.containsKey(provider.getProviderInfo().getId())
+    if (!provider.getProviderInfo().getId().equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getProviderInfo().getId())
         && (provider instanceof ITvShowTvdbMetadataProvider || provider instanceof ITvShowImdbMetadataProvider)
         || provider instanceof ITvShowTmdbMetadataProvider) {
-      COMPATIBLE_SCRAPERS.put(provider.getProviderInfo().getId(), (ITvShowMetadataProvider) provider);
+      COMPATIBLE_SCRAPERS.put(provider.getProviderInfo().getId(), provider);
     }
   }
 
-  public static void afterInitialization() {
-    MediaProviderConfig config = PROVIDER_INFO.getConfig();
+  private void init() {
+    MediaProviderConfig config = providerInfo.getConfig();
 
     List<String> compatibleScraperIds = new ArrayList<>(COMPATIBLE_SCRAPERS.keySet());
     compatibleScraperIds.add(0, UNDEFINED); // no scraper
@@ -104,14 +114,13 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     config.addSelect(RATINGS, "metatag.rating", compatibleScraperIds, UNDEFINED);
     config.addSelect("genres", "metatag.genre", compatibleScraperIds, UNDEFINED);
     config.addSelect("certifications", "metatag.certification", compatibleScraperIds, UNDEFINED);
-    config.addSelect("productionCompanies", "metatag.production", compatibleScraperIds, UNDEFINED);
+    config.addSelect("productionCompanies", "metatag.studio", compatibleScraperIds, UNDEFINED);
     config.addSelect("castMembers", "metatag.cast", compatibleScraperIds, UNDEFINED);
     config.addSelect("spokenLanguages", "metatag.spokenlanguages", compatibleScraperIds, UNDEFINED);
     config.addSelect("countries", "metatag.country", compatibleScraperIds, UNDEFINED);
     config.addSelect("tags", "metatag.tags", compatibleScraperIds, UNDEFINED);
     config.addSelect("mediaArt", "metatag.artwork", compatibleScraperIds, UNDEFINED);
     config.addSelect("status", "metatag.status", compatibleScraperIds, UNDEFINED);
-    config.addSelect("country", "metatag.country", compatibleScraperIds, UNDEFINED);
 
     config.addLabel("episodeLabel", "metatag.episode");
     config.addSelect("episodes", "metatag.episodes", compatibleScraperIds, UNDEFINED);
@@ -126,12 +135,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
   @Override
   public MediaProviderInfo getProviderInfo() {
-    return PROVIDER_INFO;
-  }
-
-  @Override
-  public String getId() {
-    return ID;
+    return providerInfo;
   }
 
   @Override
@@ -140,14 +144,14 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
-    ITvShowMetadataProvider mp = COMPATIBLE_SCRAPERS.get(PROVIDER_INFO.getConfig().getValue(SEARCH));
+    ITvShowMetadataProvider mp = COMPATIBLE_SCRAPERS.get(providerInfo.getConfig().getValue(SEARCH));
     if (mp == null) {
       return results;
     }
 
     try {
       for (MediaSearchResult result : mp.search(options)) {
-        result.setProviderId(PROVIDER_INFO.getId());
+        result.setProviderId(providerInfo.getId());
         results.add(result);
       }
     }
@@ -161,7 +165,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
   private Set<ITvShowMetadataProvider> getRelevantMetadataProviders(boolean episode) {
     Set<ITvShowMetadataProvider> metadataProviders = new HashSet<>();
-    for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
+    for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
       if ((episode && entry.getKey().startsWith("episode"))
           || (!episode && !entry.getKey().startsWith("episode")) && !UNDEFINED.equals(entry.getValue())) {
         ITvShowMetadataProvider mp = COMPATIBLE_SCRAPERS.get(entry.getValue());
@@ -351,7 +355,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getMetadata() - {}", options);
 
-    MediaMetadata md = new MediaMetadata(PROVIDER_INFO.getId());
+    MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
     // check which scrapers should be used
     Set<ITvShowMetadataProvider> metadataProviders = getRelevantMetadataProviders(false);
@@ -381,7 +385,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     // assign the requested metadata
-    for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
+    for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (!entry.getKey().startsWith("episode") && !SEARCH.equals(entry.getKey()) && !UNDEFINED.equals(entry.getValue())) {
         // all specified fields should be filled from the desired scraper
         MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());
@@ -419,7 +423,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getMetadata() - {}", options);
 
-    MediaMetadata md = new MediaMetadata(PROVIDER_INFO.getId());
+    MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
     // check which scrapers should be used
     Set<ITvShowMetadataProvider> metadataProviders = getRelevantMetadataProviders(true);
@@ -445,7 +449,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     }
 
     // assign the requested metadata
-    for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
+    for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (entry.getKey().startsWith("episode") && !UNDEFINED.equals(entry.getValue())) {
         MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());
 
@@ -502,7 +506,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
     List<MediaMetadata> episodeList = new ArrayList<>();
 
-    ITvShowMetadataProvider metadataProvider = COMPATIBLE_SCRAPERS.get(PROVIDER_INFO.getConfig().getConfigKeyValuePairs().get("episodes"));
+    ITvShowMetadataProvider metadataProvider = COMPATIBLE_SCRAPERS.get(providerInfo.getConfig().getConfigKeyValuePairs().get("episodes"));
     if (metadataProvider != null) {
       // get all relevant ids (if not present)
       injectMissingIds(Collections.singleton(metadataProvider), options);

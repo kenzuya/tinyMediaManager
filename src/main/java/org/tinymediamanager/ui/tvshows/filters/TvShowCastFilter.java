@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -116,6 +117,6 @@ public class TvShowCastFilter extends AbstractTextTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.cast"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.cast"));
   }
 }

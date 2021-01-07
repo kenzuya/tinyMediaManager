@@ -43,7 +43,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testSearch() throws Exception {
-    ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+    ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
 
     searchShow(metadataProvider, "Un village français", "fr", "211941", 2009);
     searchShow(metadataProvider, "Der Mondbár", "de", "81049", 2007);
@@ -105,7 +105,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
   @Test
   public void testSpecialCharacters() throws Exception {
     // (semi)colons are not removed anylonger
-    ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+    ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
     searchShow(metadataProvider, "X-Men: The Animated Series", "de", "76115", 1989);
     searchShow(metadataProvider, "ChäoS;Child", "de", "320459", 2017);
     searchShow(metadataProvider, "Steins:;Gate", "de", "244061", 2011);
@@ -113,7 +113,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testSearchWithFallback() throws Exception {
-    ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+    ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
     metadataProvider.getProviderInfo().getConfig().setValue("fallbackLanguage", MediaLanguages.el.toString());
     searchShow(metadataProvider, "Wonderfalls", "de", "78845", 2004); // 404 with DE, but found with EN
 
@@ -127,7 +127,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      * Psych (79335)
      */
     try {
-      ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+      ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
       TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
@@ -171,7 +171,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      * Psych (79335)
      */
     try {
-      ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+      ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
       metadataProvider.getProviderInfo().getConfig().setValue("fallbackLanguage", MediaLanguages.de.toString());
 
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
@@ -218,7 +218,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      * Psych (79335)
      */
     try {
-      ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+      ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
 
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setTvShowIds(Collections.singletonMap(metadataProvider.getProviderInfo().getId(), "79335"));
@@ -236,7 +236,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
       assertThat(md.getSeasonNumber()).isEqualTo(1);
       assertThat(md.getDvdEpisodeNumber()).isEqualTo(2);
       assertThat(md.getDvdSeasonNumber()).isEqualTo(1);
-      assertThat(md.getTitle()).isEqualTo("The Spelling Bee");
+      assertThat(md.getTitle()).isEqualTo("The Spellingg Bee");
       assertThat(md.getPlot()).startsWith("When what begins as a little competitive sabotage in a regional spelling");
       assertEquals("14-07-2006", sdf.format(md.getReleaseDate()));
       assertEquals(18, md.getCastMembers(ACTOR).size());
@@ -265,7 +265,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      * Psych (79335)
      */
     try {
-      ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+      ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
       metadataProvider.getProviderInfo().getConfig().setValue("fallbackLanguage", MediaLanguages.de.toString());
 
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
@@ -312,7 +312,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      * Psych (79335)
      */
     try {
-      ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+      ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
       ITvShowArtworkProvider artworkProvider = (ITvShowArtworkProvider) metadataProvider;
 
       // all scrape
@@ -363,7 +363,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      * Psych (79335)
      */
     try {
-      ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+      ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
 
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
@@ -388,7 +388,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
       assertThat(episode.getSeasonNumber()).isEqualTo(1);
       assertThat(episode.getDvdEpisodeNumber()).isEqualTo(2);
       assertThat(episode.getDvdSeasonNumber()).isEqualTo(1);
-      assertThat(episode.getTitle()).isEqualTo("The Spelling Bee");
+      assertThat(episode.getTitle()).isEqualTo("The Spellingg Bee");
       assertThat(episode.getPlot()).startsWith("When what begins as a little competitive sabotage in a regional spelling");
       assertThat(episode.getReleaseDate()).isEqualTo("2006-07-14");
 
@@ -405,7 +405,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      * Psych (79335)
      */
     try {
-      ITvShowMetadataProvider metadataProvider = new TheTvDbMetadataProvider();
+      ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
       metadataProvider.getProviderInfo().getConfig().setValue("fallbackLanguage", MediaLanguages.de.toString());
 
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();

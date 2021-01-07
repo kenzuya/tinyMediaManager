@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
-import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.PROVIDER_INFO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieScrapeDataIntegrityInEnglish() throws Exception {
-    IMovieMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieMetadataProvider mp = new TmdbMovieMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setId(mp.getId(), "63");
     options.setLanguage(MediaLanguages.en);
@@ -50,7 +49,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieScrapeDataIntegrityInGerman() throws Exception {
-    IMovieMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieMetadataProvider mp = new TmdbMovieMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
 
     options.setLanguage(MediaLanguages.de);
@@ -71,10 +70,10 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
   @Test
   public void testMovieScrapeDataWithFallBackLanguageShouldFallbackAndReturnCorrectData() throws Exception {
 
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
+    IMovieMetadataProvider mp = new TmdbMovieMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
-    IMovieMetadataProvider mp = new TmdbMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
     options.setCertificationCountry(CountryCode.US);
@@ -83,8 +82,6 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     MediaMetadata md = mp.getMetadata(options);
 
     assertThat(md.getTitle()).isEqualTo("The Front Line");
-
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   // @Test
@@ -128,10 +125,10 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieSearchWithFallBackLanguageEnglishVerifyFallbackInitiatedAndChangedTitlesNumberIntegrity() throws Exception {
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
+    IMovieMetadataProvider mp = new TmdbMovieMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
-    IMovieMetadataProvider mp = new TmdbMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setSearchQuery("The Front Line");
     options.setLanguage(MediaLanguages.el);
@@ -145,14 +142,12 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     assertThat(results.size()).isGreaterThan(0);
 
     assertThat(results.get(1).getTitle()).isEqualTo("The Front Line");
-
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test
   public void testMovieSearchDataIntegrity() throws Exception {
 
-    IMovieMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieMetadataProvider mp = new TmdbMovieMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setSearchQuery("Harry Potter");
     options.setLanguage(MediaLanguages.en);
@@ -169,7 +164,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieSearchDataIntegrityInGerman() throws Exception {
-    IMovieMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieMetadataProvider mp = new TmdbMovieMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setSearchQuery("Harry Potter");
     options.setLanguage(MediaLanguages.de);
@@ -198,7 +193,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
 
   @Test
   public void testImdbSearch() throws Exception {
-    IMovieMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieMetadataProvider mp = new TmdbMovieMetadataProvider();
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setImdbId("tt0114746");
     options.setLanguage(MediaLanguages.en);

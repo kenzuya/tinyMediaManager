@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,9 +50,11 @@ public class MediaProviderConfig {
 
   private final Map<String, MediaProviderConfigObject> settings = new LinkedHashMap<>();
   private final String                                 id;
+  private final String                                 subId;
 
   public MediaProviderConfig(MediaProviderInfo mpi) {
     this.id = mpi.getId();
+    this.subId = mpi.getSubId();
   }
 
   /**
@@ -71,20 +73,25 @@ public class MediaProviderConfig {
       return;
     }
     Properties p = new Properties();
-    Path conf = Paths.get(folder, "scraper_" + id + ".conf");
-    try (InputStream stream = Files.newInputStream(conf)) {
-      p.load(stream);
-      LOGGER.info("load settings '{}'", conf);
-      for (MediaProviderConfigObject co : settings.values()) {
-        String value = p.getProperty(co.getKey());
-        if (co.isEncrypt()) {
-          value = decryptField(value, co.getKey());
-        }
-        co.setValue(value == null ? co.getDefaultValue() : value);
-      }
+    Path conf = Paths.get(folder, "scraper_" + id + "_" + subId + ".conf");
+    if (!Files.exists(conf)) {
+      conf = Paths.get(folder, "scraper_" + id + ".conf");
     }
-    catch (Exception e) {
-      LOGGER.trace("Cannot load settings '{}' - using defaults", conf);
+    if (Files.exists(conf)) {
+      try (InputStream stream = Files.newInputStream(conf)) {
+        p.load(stream);
+        LOGGER.info("load settings '{}'", conf);
+        for (MediaProviderConfigObject co : settings.values()) {
+          String value = p.getProperty(co.getKey());
+          if (co.isEncrypt()) {
+            value = decryptField(value, co.getKey());
+          }
+          co.setValue(value == null ? co.getDefaultValue() : value);
+        }
+      }
+      catch (Exception e) {
+        LOGGER.trace("Cannot load settings '{}' - using defaults", conf);
+      }
     }
   }
 
@@ -108,7 +115,13 @@ public class MediaProviderConfig {
       p.setProperty(co.getKey(), value);
     }
 
-    Path conf = Paths.get(folder, "scraper_" + id + ".conf");
+    Path conf;
+    if (id.equalsIgnoreCase(subId)) {
+      conf = Paths.get(folder, "scraper_" + id + ".conf");
+    }
+    else {
+      conf = Paths.get(folder, "scraper_" + id + "_" + subId + ".conf");
+    }
     try (OutputStream stream = Files.newOutputStream(conf)) {
       p.store(stream, "");
     }
@@ -153,7 +166,7 @@ public class MediaProviderConfig {
   public MediaProviderConfigObject getConfigObject(String key) {
     MediaProviderConfigObject co = settings.get(key);
     if (co == null) {
-      LOGGER.warn("Could not get configuration object for key '{}' - key not defined!", key);
+      LOGGER.debug("Could not get configuration object for key '{}' - key not defined!", key);
       return new MediaProviderConfigObject();
     }
     return co;
@@ -196,6 +209,24 @@ public class MediaProviderConfig {
    */
   public Boolean getValueAsBool(String key) {
     return getConfigObject(key).getValueAsBool();
+  }
+
+  /**
+   * If you know that this key is a boolean, use that :)<br>
+   * will return the given default value if it cannot be parsed as boolean
+   *
+   * @param key
+   *          the key for the config value to get
+   * @param defaultValue
+   *          the default value to return
+   * @return true|false or the default value
+   */
+  public Boolean getValueAsBool(String key, boolean defaultValue) {
+    Boolean value = getConfigObject(key).getValueAsBool();
+    if (value == null) {
+      value = defaultValue;
+    }
+    return value;
   }
 
   /**

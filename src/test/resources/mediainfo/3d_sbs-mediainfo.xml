@@ -1,0 +1,253 @@
+﻿﻿<?xml version="1.0" encoding="UTF-8"?>
+        <!--
+          ~ Copyright 2012 - 2020 Manuel Laggner
+          ~
+          ~ Licensed under the Apache License, Version 2.0 (the "License");
+          ~ you may not use this file except in compliance with the License.
+          ~ You may obtain a copy of the License at
+          ~
+          ~     http://www.apache.org/licenses/LICENSE-2.0
+          ~
+          ~ Unless required by applicable law or agreed to in writing, software
+          ~ distributed under the License is distributed on an "AS IS" BASIS,
+          ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+          ~ See the License for the specific language governing permissions and
+          ~ limitations under the License.
+          -->
+
+<MediaInfo
+        xmlns="https://mediaarea.net/mediainfo"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+        version="2.0">
+    <creatingLibrary version="20.09" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="xxxx.mkv">
+        <track type="General">
+            <UniqueID>84701662806826045618357076359359384858</UniqueID>
+            <VideoCount>1</VideoCount>
+            <AudioCount>2</AudioCount>
+            <TextCount>3</TextCount>
+            <MenuCount>1</MenuCount>
+            <FileExtension>mkv</FileExtension>
+            <Format>Matroska</Format>
+            <Format_Version>4</Format_Version>
+            <FileSize>8555187716</FileSize>
+            <Duration>7680.310</Duration>
+            <OverallBitRate_Mode>VBR</OverallBitRate_Mode>
+            <OverallBitRate>8911294</OverallBitRate>
+            <FrameRate>23.976</FrameRate>
+            <FrameCount>184142</FrameCount>
+            <IsStreamable>Yes</IsStreamable>
+            <Encoded_Date>UTC 2017-12-19 23:53:00</Encoded_Date>
+            <File_Created_Date>UTC 2017-12-20 00:01:03.000</File_Created_Date>
+            <File_Created_Date_Local>2017-12-20 01:01:03.000</File_Created_Date_Local>
+            <File_Modified_Date>UTC 2017-12-20 00:01:03.000</File_Modified_Date>
+            <File_Modified_Date_Local>2017-12-20 01:01:03.000</File_Modified_Date_Local>
+            <Encoded_Application>mkvmerge v17.0.0 (&apos;Be Ur Friend&apos;) 64-bit</Encoded_Application>
+            <Encoded_Library>libebml v1.3.5 + libmatroska v1.4.8</Encoded_Library>
+        </track>
+        <track type="Video">
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <UniqueID>16672310099524511078</UniqueID>
+            <Format>HEVC</Format>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5</Format_Level>
+            <Format_Tier>Main</Format_Tier>
+            <MultiView_Count>2</MultiView_Count>
+            <MultiView_Layout>Side by Side (left eye first)</MultiView_Layout>
+            <CodecID>V_MPEGH/ISO/HEVC</CodecID>
+            <Duration>7680.264000000</Duration>
+            <BitRate>6071257</BitRate>
+            <Width>3840</Width>
+            <Height>800</Height>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>800</Sampled_Height>
+            <PixelAspectRatio>0.500</PixelAspectRatio>
+            <PixelAspectRatio_Original>1.000</PixelAspectRatio_Original>
+            <DisplayAspectRatio>2.400</DisplayAspectRatio>
+            <DisplayAspectRatio_Original>4.800</DisplayAspectRatio_Original>
+            <FrameRate_Mode>CFR</FrameRate_Mode>
+            <FrameRate>23.976</FrameRate>
+            <FrameCount>184142</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <BitDepth>10</BitDepth>
+            <Delay>0.000</Delay>
+            <StreamSize>5828607995</StreamSize>
+            <Encoded_Library>x265 - 2.5:[Linux][GCC 5.4.1][64 bit] 10bit</Encoded_Library>
+            <Encoded_Library_Name>x265</Encoded_Library_Name>
+            <Encoded_Library_Version>2.5:[Linux][GCC 5.4.1][64 bit] 10bit</Encoded_Library_Version>
+            <Encoded_Library_Settings>cpuid=1173503 / frame-threads=4 / wpp / no-pmode / no-pme / no-psnr / no-ssim /
+                log-level=2 / input-csp=1 / input-res=3840x800 / interlace=0 / total-frames=0 / level-idc=0 /
+                high-tier=1 / uhd-bd=0 / ref=3 / no-allow-non-conformance / no-repeat-headers / annexb / no-aud / no-hrd
+                / info / hash=0 / no-temporal-layers / open-gop / min-keyint=23 / keyint=250 / bframes=4 / b-adapt=2 /
+                b-pyramid / bframe-bias=0 / rc-lookahead=20 / lookahead-slices=5 / scenecut=40 / no-intra-refresh /
+                ctu=64 / min-cu-size=8 / no-rect / no-amp / max-tu-size=32 / tu-inter-depth=1 / tu-intra-depth=1 /
+                limit-tu=0 / rdoq-level=0 / dynamic-rd=0.00 / ssim-rd / signhide / no-tskip / nr-intra=0 / nr-inter=0 /
+                no-constrained-intra / strong-intra-smoothing / max-merge=2 / limit-refs=3 / no-limit-modes / me=1 /
+                subme=2 / merange=57 / temporal-mvp / weightp / no-weightb / no-analyze-src-pics / deblock=0:0 / sao /
+                no-sao-non-deblock / rd=3 / no-early-skip / rskip / no-fast-intra / no-tskip-fast / no-cu-lossless /
+                no-b-intra / rdpenalty=0 / psy-rd=0.00 / psy-rdoq=0.00 / no-rd-refine / analysis-reuse-mode=0 /
+                no-lossless / cbqpoffs=0 / crqpoffs=0 / rc=crf / crf=16.0 / qcomp=0.60 / qpstep=4 / stats-write=0 /
+                stats-read=0 / ipratio=1.40 / pbratio=1.30 / aq-mode=1 / aq-strength=1.00 / cutree / zone-count=0 /
+                no-strict-cbr / qg-size=32 / no-rc-grain / qpmax=69 / qpmin=0 / no-const-vbv / sar=1 / overscan=0 /
+                videoformat=5 / range=0 / colorprim=2 / transfer=2 / colormatrix=2 / chromaloc=0 / display-window=0 /
+                max-cll=0,0 / min-luma=0 / max-luma=1023 / log2-max-poc-lsb=8 / vui-timing-info / vui-hrd-info /
+                slices=1 / opt-qp-pps / opt-ref-list-length-pps / no-multi-pass-opt-rps / scenecut-bias=0.05 /
+                no-opt-cu-delta-qp / no-aq-motion / no-hdr / no-hdr-opt / no-dhdr10-opt / analysis-reuse-level=5 /
+                scale-factor=0 / refine-intra=0 / refine-inter=0 / refine-mv=0 / no-limit-sao / ctu-info=0
+            </Encoded_Library_Settings>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+        </track>
+        <track type="Audio" typeorder="1">
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <UniqueID>3918374027</UniqueID>
+            <Format>AC-3</Format>
+            <Format_Commercial_IfAny>Dolby Digital</Format_Commercial_IfAny>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <CodecID>A_AC3</CodecID>
+            <Duration>7680.256000000</Duration>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate>448000</BitRate>
+            <Channels>6</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
+            <ChannelLayout>L R C LFE Ls Rs</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>368652288</SamplingCount>
+            <FrameRate>31.250</FrameRate>
+            <FrameCount>240008</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Delay>0.000</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>430094336</StreamSize>
+            <StreamSize_Proportion>0.05027</StreamSize_Proportion>
+            <Language>en</Language>
+            <ServiceKind>CM</ServiceKind>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+            <extra>
+                <bsid>8</bsid>
+                <dialnorm>-31</dialnorm>
+                <compr>-0.28</compr>
+                <acmod>7</acmod>
+                <lfeon>1</lfeon>
+                <dialnorm_Average>-31</dialnorm_Average>
+                <dialnorm_Minimum>-31</dialnorm_Minimum>
+                <compr_Average>2.66</compr_Average>
+                <compr_Minimum>0.53</compr_Minimum>
+                <compr_Maximum>5.46</compr_Maximum>
+                <compr_Count>609</compr_Count>
+                <dynrng_Average>2.40</dynrng_Average>
+                <dynrng_Minimum>0.00</dynrng_Minimum>
+                <dynrng_Maximum>5.31</dynrng_Maximum>
+                <dynrng_Count>643</dynrng_Count>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="2">
+            <StreamOrder>2</StreamOrder>
+            <ID>3</ID>
+            <UniqueID>636643713</UniqueID>
+            <Format>DTS</Format>
+            <Format_Commercial_IfAny>DTS-HD Master Audio</Format_Commercial_IfAny>
+            <Format_Settings_Mode>16</Format_Settings_Mode>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <Format_AdditionalFeatures>XLL</Format_AdditionalFeatures>
+            <CodecID>A_DTS</CodecID>
+            <Duration>7680.310000000</Duration>
+            <BitRate_Mode>VBR</BitRate_Mode>
+            <BitRate>2328069</BitRate>
+            <Channels>6</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
+            <ChannelLayout>C L R Ls Rs LFE</ChannelLayout>
+            <SamplesPerFrame>512</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>368654880</SamplingCount>
+            <FrameRate>93.750</FrameRate>
+            <FrameCount>720029</FrameCount>
+            <BitDepth>16</BitDepth>
+            <Compression_Mode>Lossless</Compression_Mode>
+            <Delay>0.000</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>2235037104</StreamSize>
+            <StreamSize_Proportion>0.26125</StreamSize_Proportion>
+            <Language>de</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+        </track>
+        <track type="Text" typeorder="1">
+            <StreamOrder>3</StreamOrder>
+            <ID>4</ID>
+            <UniqueID>4024411819</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>7552.962000000</Duration>
+            <BitRate>48083</BitRate>
+            <FrameRate>0.404</FrameRate>
+            <FrameCount>3052</FrameCount>
+            <ElementCount>3052</ElementCount>
+            <StreamSize>45396551</StreamSize>
+            <Language>en</Language>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+        </track>
+        <track type="Text" typeorder="2">
+            <StreamOrder>4</StreamOrder>
+            <ID>5</ID>
+            <UniqueID>3639961499</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>7552.962000000</Duration>
+            <BitRate>49686</BitRate>
+            <FrameRate>0.410</FrameRate>
+            <FrameCount>3100</FrameCount>
+            <ElementCount>3100</ElementCount>
+            <StreamSize>46910276</StreamSize>
+            <Language>de</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+        </track>
+        <track type="Text" typeorder="3">
+            <StreamOrder>5</StreamOrder>
+            <ID>6</ID>
+            <UniqueID>232115610</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>7678.004000000</Duration>
+            <BitRate>116621</BitRate>
+            <FrameRate>0.787</FrameRate>
+            <FrameCount>6043</FrameCount>
+            <ElementCount>6043</ElementCount>
+            <StreamSize>111927989</StreamSize>
+            <Language>de</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+        </track>
+        <track type="Menu">
+            <extra>
+                <_00_00_00_000>en:(01)00:00:00:000</_00_00_00_000>
+                <_00_07_45_923>en:(02)00:07:45:923</_00_07_45_923>
+                <_00_14_39_670>en:(03)00:14:39:670</_00_14_39_670>
+                <_00_22_57_542>en:(04)00:22:57:542</_00_22_57_542>
+                <_00_32_58_226>en:(05)00:32:58:226</_00_32_58_226>
+                <_00_41_25_065>en:(06)00:41:25:065</_00_41_25_065>
+                <_00_48_42_502>en:(07)00:48:42:502</_00_48_42_502>
+                <_00_55_10_932>en:(08)00:55:10:932</_00_55_10_932>
+                <_01_03_17_293>en:(09)01:03:17:293</_01_03_17_293>
+                <_01_12_29_011>en:(10)01:12:29:011</_01_12_29_011>
+                <_01_17_51_750>en:(11)01:17:51:750</_01_17_51_750>
+                <_01_24_38_948>en:(12)01:24:38:948</_01_24_38_948>
+                <_01_34_04_555>en:(13)01:34:04:555</_01_34_04_555>
+                <_01_42_59_548>en:(14)01:42:59:548</_01_42_59_548>
+                <_01_52_16_354>en:(15)01:52:16:354</_01_52_16_354>
+                <_02_00_52_912>en:(16)02:00:52:912</_02_00_52_912>
+            </extra>
+        </track>
+    </media>
+</MediaInfo>

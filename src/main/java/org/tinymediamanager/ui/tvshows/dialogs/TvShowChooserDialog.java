@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,15 @@
 package org.tinymediamanager.ui.tvshows.dialogs;
 
 import static java.util.Locale.ROOT;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CHARACTERART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -60,7 +69,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
-import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -73,11 +82,12 @@ import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
@@ -91,7 +101,6 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
 import org.tinymediamanager.ui.tvshows.TvShowChooserModel;
@@ -151,7 +160,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
    *          the queue size
    */
   public TvShowChooserDialog(TvShow tvShow, int queueIndex, int queueSize) {
-    super(BUNDLE.getString("tvshowchooser.search") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowChooser");
+    super(TmmResourceBundle.getString("tvshowchooser.search") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowChooser");
 
     mediaScraper = tvShowList.getDefaultMediaScraper();
     artworkScrapers = tvShowList.getDefaultArtworkScrapers();
@@ -185,7 +194,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(panelSearchField, "cell 0 0,grow");
       panelSearchField.setLayout(new MigLayout("", "[][][grow][]", "[23px][]"));
       {
-        JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper"));
+        JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
         panelSearchField.add(lblScraper, "cell 0 0,alignx right");
       }
       {
@@ -204,7 +213,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         panelSearchField.add(textFieldSearchString, "cell 2 0,growx");
         textFieldSearchString.setColumns(10);
 
-        JButton btnSearch = new JButton(BUNDLE.getString("Button.search"));
+        JButton btnSearch = new JButton(TmmResourceBundle.getString("Button.search"));
         btnSearch.setIcon(IconManager.SEARCH_INV);
         panelSearchField.add(btnSearch, "cell 3 0");
         btnSearch.addActionListener(searchAction);
@@ -278,11 +287,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(panelScraperConfig, "cell 0 4,grow");
       panelScraperConfig.setLayout(new MigLayout("", "[][grow]", "[][][]"));
       {
-        JLabel lblScrapeFollowingItems = new TmmLabel(BUNDLE.getString("chooser.scrape"));
+        JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("chooser.scrape"));
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0 2 1");
       }
       {
-        JLabel lblTvShowsT = new TmmLabel(BUNDLE.getString("metatag.tvshows"));
+        JLabel lblTvShowsT = new TmmLabel(TmmResourceBundle.getString("metatag.tvshows"));
         panelScraperConfig.add(lblTvShowsT, "cell 0 1,alignx trailing");
 
         cbTvShowScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowScraperMetadataConfig.values());
@@ -291,7 +300,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         panelScraperConfig.add(cbTvShowScraperConfig, "cell 1 1,grow, wmin 0");
       }
       {
-        JLabel lblEpisodesT = new TmmLabel(BUNDLE.getString("metatag.episodes"));
+        JLabel lblEpisodesT = new TmmLabel(TmmResourceBundle.getString("metatag.episodes"));
         panelScraperConfig.add(lblEpisodesT, "cell 0 2,alignx trailing");
 
         cbEpisodeScraperConfig = new ScraperMetadataConfigCheckComboBox(TvShowEpisodeScraperMetadataConfig.values());
@@ -315,27 +324,27 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       }
       {
         if (queueSize > 1) {
-          JButton abortButton = new JButton(BUNDLE.getString("Button.abortqueue"));
+          JButton abortButton = new JButton(TmmResourceBundle.getString("Button.abortqueue"));
           abortButton.setActionCommand("Abort");
           abortButton.addActionListener(this);
           abortButton.setIcon(IconManager.STOP_INV);
           addButton(abortButton);
 
           if (queueIndex > 0) {
-            JButton backButton = new JButton(BUNDLE.getString("Button.back"));
+            JButton backButton = new JButton(TmmResourceBundle.getString("Button.back"));
             backButton.setIcon(IconManager.BACK_INV);
             backButton.setActionCommand("Back");
             backButton.addActionListener(this);
             addButton(backButton);
           }
         }
-        JButton cancelButton = new JButton(BUNDLE.getString("Button.cancel"));
+        JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
         cancelButton.setActionCommand("Cancel");
         cancelButton.setIcon(IconManager.CANCEL_INV);
         cancelButton.addActionListener(this);
         addButton(cancelButton);
 
-        okButton = new JButton(BUNDLE.getString("Button.ok"));
+        okButton = new JButton(TmmResourceBundle.getString("Button.ok"));
         okButton.setActionCommand("OK");
         okButton.setIcon(IconManager.APPLY_INV);
         okButton.addActionListener(this);
@@ -450,6 +459,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
           // set scraped metadata
           tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig);
+          tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
+          tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
           // get the episode list for display?
           if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
@@ -526,7 +537,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
           if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
-            TmmTask task = new SyncTraktTvTask(null, Collections.singletonList(tvShowToScrape));
+            TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(Collections.singletonList(tvShowToScrape));
+            task.setSyncCollection(true);
+            task.setSyncWatched(true);
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
 
@@ -554,7 +567,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private void chooseArtwork(MediaFileType mediaFileType) {
-    ImageType imageType;
+    MediaArtwork.MediaArtworkType imageType;
     List<String> extrafanarts = null;
 
     switch (mediaFileType) {
@@ -562,14 +575,14 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         if (TvShowModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.POSTER;
+        imageType = POSTER;
         break;
 
       case FANART:
         if (TvShowModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.FANART;
+        imageType = BACKGROUND;
         extrafanarts = new ArrayList<>();
         break;
 
@@ -577,57 +590,57 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         if (TvShowModuleManager.SETTINGS.getBannerFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.BANNER;
+        imageType = BANNER;
         break;
 
       case LOGO:
         if (TvShowModuleManager.SETTINGS.getLogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.LOGO;
+        imageType = LOGO;
         break;
 
       case CLEARLOGO:
         if (TvShowModuleManager.SETTINGS.getClearlogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARLOGO;
+        imageType = CLEARLOGO;
         break;
 
       case CLEARART:
         if (TvShowModuleManager.SETTINGS.getClearartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARART;
+        imageType = CLEARART;
         break;
 
       case CHARACTERART:
         if (TvShowModuleManager.SETTINGS.getCharacterartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CHARACTERART;
+        imageType = CHARACTERART;
         break;
 
       case THUMB:
         if (TvShowModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.THUMB;
+        imageType = THUMB;
         break;
 
       case KEYART:
         if (TvShowModuleManager.SETTINGS.getKeyartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.KEYART;
+        imageType = KEYART;
         break;
 
       default:
         return;
     }
 
-    String imageUrl = ImageChooserDialog.chooseImage(this, tvShowToScrape.getIds(), imageType, artworkScrapers, null, extrafanarts,
-        MediaType.TV_SHOW);
+    String imageUrl = ImageChooserDialog.chooseImage(this, tvShowToScrape.getIds(), imageType, artworkScrapers, null, extrafanarts, MediaType.TV_SHOW,
+        tvShowToScrape.getPathNIO().toAbsolutePath().toString());
 
     tvShowToScrape.setArtworkUrl(imageUrl, mediaFileType);
     if (StringUtils.isNotBlank(imageUrl)) {
@@ -693,7 +706,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + searchTerm);
+      startProgressBar(TmmResourceBundle.getString("chooser.searchingfor") + " " + searchTerm);
       searchResult = tvShowList.searchTvShow(searchTerm, show.getYear(), withIds ? show.getIds() : null, mediaScraper, language);
       return null;
     }
@@ -737,7 +750,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.scrapeing") + " " + model.getTitle());
+      startProgressBar(TmmResourceBundle.getString("chooser.scrapeing") + " " + model.getTitle());
 
       // disable ok button as long as its scraping
       okButton.setEnabled(false);
@@ -789,7 +802,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       /*
        * title
        */
-      Column col = new Column(BUNDLE.getString("chooser.searchresult"), "title", result -> result, TvShowChooserModel.class);
+      Column col = new Column(TmmResourceBundle.getString("chooser.searchresult"), "title", result -> result, TvShowChooserModel.class);
       col.setColumnComparator(searchResultComparator);
       col.setCellRenderer(new SearchResultRenderer());
       addColumn(col);
@@ -797,7 +810,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       /*
        * year
        */
-      col = new Column(BUNDLE.getString("metatag.year"), "year", TvShowChooserModel::getYear, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.year"), "year", TvShowChooserModel::getYear, String.class);
       col.setColumnComparator(stringComparator);
       col.setColumnResizeable(false);
       col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.2f));

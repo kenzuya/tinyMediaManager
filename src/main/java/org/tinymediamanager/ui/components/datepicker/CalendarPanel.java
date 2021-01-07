@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,13 @@ import java.beans.PropertyChangeListener;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.SpinnerNumberModel;
+
+import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
  * The class CalendarPanel is used to display a calendar like panel for date choosing
@@ -38,7 +39,7 @@ import javax.swing.SpinnerNumberModel;
  */
 class CalendarPanel extends JPanel implements PropertyChangeListener {
   private static final long           serialVersionUID = -1214699062624370112L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private Calendar                    calendar;
   protected Locale                    locale;
@@ -103,10 +104,10 @@ class CalendarPanel extends JPanel implements PropertyChangeListener {
     noDateButton.addActionListener(e -> firePropertyChange("day", 0, -1));
 
     specialButtonPanel.setLayout(new GridLayout(1, 2));
-    todayButton.setText(BUNDLE.getString("Button.today"));
+    todayButton.setText(TmmResourceBundle.getString("Button.today"));
     specialButtonPanel.add(todayButton);
 
-    noDateButton.setText(BUNDLE.getString("Button.nodate"));
+    noDateButton.setText(TmmResourceBundle.getString("Button.nodate"));
     specialButtonPanel.add(noDateButton);
     add(specialButtonPanel, BorderLayout.SOUTH);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -185,17 +185,10 @@ public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
       insets.right = 0;
     }
 
-    if ("half".equals(this.tabPane.getClientProperty("rightBorder"))) {
-      insets.right = tabAreaInsets.right / 2;
-    }
-
     if (Boolean.FALSE.equals(this.tabPane.getClientProperty("leftBorder"))) {
       insets.left = 0;
     }
 
-    if ("half".equals(this.tabPane.getClientProperty("leftBorder"))) {
-      insets.left = tabAreaInsets.left / 2;
-    }
     return insets;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -100,7 +101,7 @@ public class MovieToMpMyVideoConnector extends MovieGenericXmlConnector {
   protected void addCountry() {
     Element country = document.createElement("country");
 
-    List<String> countries = MovieNfoParser.split(movie.getCountry());
+    List<String> countries = ParserUtils.split(movie.getCountry());
     country.setTextContent(StringUtils.join(countries, " / "));
 
     root.appendChild(country);
@@ -113,7 +114,7 @@ public class MovieToMpMyVideoConnector extends MovieGenericXmlConnector {
   protected void addStudios() {
     Element studio = document.createElement("studio");
 
-    List<String> studios = MovieNfoParser.split(movie.getProductionCompany());
+    List<String> studios = ParserUtils.split(movie.getProductionCompany());
     studio.setTextContent(StringUtils.join(studios, " / "));
 
     root.appendChild(studio);
@@ -146,7 +147,7 @@ public class MovieToMpMyVideoConnector extends MovieGenericXmlConnector {
   protected void addLanguages() {
     // prepare spoken language for MP - try to extract the iso codes to the UI language separated by a pipe
     List<String> languages = new ArrayList<>();
-    for (String langu : MovieNfoParser.split(movie.getSpokenLanguages())) {
+    for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
       String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale(),
           langu.trim());
       languages.add(translated);

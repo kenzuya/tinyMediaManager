@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,6 @@ import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.SEASON_BANNER;
 import static org.tinymediamanager.core.Constants.SEASON_POSTER;
 import static org.tinymediamanager.core.Constants.SEASON_THUMB;
-import static org.tinymediamanager.core.Constants.TAG;
-import static org.tinymediamanager.core.Constants.TAGS_AS_STRING;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TVDB;
@@ -49,13 +47,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -99,7 +100,6 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -115,7 +115,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonProperty
   private int                                episode               = -1;
   @JsonProperty
-  @JsonInclude(JsonInclude.Include.ALWAYS)
   private int                                season                = -1;
   @JsonProperty
   private int                                dvdSeason             = -1;
@@ -135,6 +134,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonProperty
   private boolean                            watched               = false;
   @JsonProperty
+  private int                                playcount             = 0;
+  @JsonProperty
   private boolean                            isDvdOrder            = false;
   @JsonProperty
   private UUID                               tvShowId              = null;
@@ -144,13 +145,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private boolean                            stacked               = false;
 
   @JsonProperty
-  private List<Person>                       actors                = new CopyOnWriteArrayList<>();
+  private final List<Person>                 actors                = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                       directors             = new CopyOnWriteArrayList<>();
+  private final List<Person>                 directors             = new CopyOnWriteArrayList<>();
   @JsonProperty
-  private List<Person>                       writers               = new CopyOnWriteArrayList<>();
-  @JsonProperty
-  private List<String>                       tags                  = new CopyOnWriteArrayList<>();
+  private final List<Person>                 writers               = new CopyOnWriteArrayList<>();
 
   private TvShow                             tvShow                = null;
   private String                             titleSortable         = "";
@@ -202,16 +201,15 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     setDisplaySeason(displaySeason < 0 || force ? other.displaySeason : displaySeason);
     setFirstAired(firstAired == null || force ? other.firstAired : firstAired);
     setWatched(!watched || force ? other.watched : watched);
+    setPlaycount(playcount == 0 || force ? other.playcount : playcount);
     setMediaSource(mediaSource == MediaSource.UNKNOWN || force ? other.mediaSource : mediaSource);
 
     if (force) {
-      tags.clear();
       actors.clear();
       directors.clear();
       writers.clear();
     }
 
-    setTags(other.tags);
     setActors(other.actors);
     setDirectors(other.directors);
     setWriters(other.writers);
@@ -288,6 +286,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     disc = source.disc;
     watched = source.watched;
+    playcount = source.playcount;
 
     for (Person actor : source.getActors()) {
       actors.add(new Person(actor));
@@ -301,6 +300,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     for (MediaRating mediaRating : source.getRatings().values()) {
       ratings.put(mediaRating.getId(), new MediaRating(mediaRating));
     }
+    tags.addAll(source.tags);
   }
 
   /**
@@ -555,6 +555,22 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
+   * get the user rating
+   * 
+   * @return user rating object
+   */
+  public MediaRating getUserRating() {
+    MediaRating mediaRating;
+
+    mediaRating = ratings.get(MediaRating.USER);
+
+    if (mediaRating == null) {
+      mediaRating = MediaMetadata.EMPTY_RATING;
+    }
+    return mediaRating;
+  }
+
+  /**
    * Gets the title for ui.
    * 
    * @return the title for ui
@@ -575,9 +591,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public void initializeAfterLoading() {
     super.initializeAfterLoading();
-
-    // remove empty tag and null values
-    Utils.removeEmptyStringsFromList(tags);
   }
 
   /**
@@ -671,6 +684,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (!matchFound) {
       // clear the old ids to set only the new ones
       ids.clear();
+      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -727,7 +741,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS)) {
-      setTags(metadata.getTags());
+      addToTags(metadata.getTags());
     }
 
     if (ScraperMetadataConfig.containsAnyCast(config)) {
@@ -836,14 +850,32 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
-   * add an actor.
-   * 
-   * @param newActor
-   *          the actor to be added
+   * adds the given actors
+   *
+   * @param newActors
+   *          a {@link Collection} of all actors to be added
    */
-  public void addActor(Person newActor) {
-    actors.add(newActor);
-    firePropertyChange(ACTORS, null, this.getActors());
+  public void addToActors(Collection<Person> newActors) {
+    Set<Person> newItems = new LinkedHashSet<>();
+
+    // do not accept duplicates or null values
+    for (Person person : ListUtils.nullSafe(newActors)) {
+      if (person == null || actors.contains(person)) {
+        continue;
+      }
+      if (person.getType() != Person.Type.ACTOR) {
+        return;
+      }
+
+      newItems.add(person);
+    }
+
+    if (newItems.isEmpty()) {
+      return;
+    }
+
+    actors.addAll(newItems);
+    firePropertyChange(ACTORS, null, actors);
   }
 
   /**
@@ -891,9 +923,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     // do not add actors which are in the TV show itself
     // tvShow is null while loading
     if (getTvShow() != null) {
-      for (Person actor : getTvShow().getActors()) {
-        newActors.remove(actor);
-      }
+      newActors.removeAll(getTvShow().getActors());
     }
 
     // two way sync of actors
@@ -902,15 +932,33 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
-   * add a director
+   * add the given list of directors
    *
-   * @param director
-   *          the director to be added
+   * @param newDirectors
+   *          a {@link Collection} of directors to be added
    */
-  public void addDirector(Person director) {
-    directors.add(director);
-    firePropertyChange(DIRECTORS, null, this.getDirectors());
-    firePropertyChange(DIRECTORS_AS_STRING, null, this.getDirectorsAsString());
+  public void addToDirectors(Collection<Person> newDirectors) {
+    Set<Person> newItems = new LinkedHashSet<>();
+
+    // do not accept duplicates or null values
+    for (Person person : ListUtils.nullSafe(newDirectors)) {
+      if (person == null || directors.contains(person)) {
+        continue;
+      }
+      if (person.getType() != Person.Type.DIRECTOR) {
+        return;
+      }
+
+      newItems.add(person);
+    }
+
+    if (newItems.isEmpty()) {
+      return;
+    }
+
+    directors.addAll(newItems);
+    firePropertyChange(DIRECTORS, null, directors);
+    firePropertyChange(DIRECTORS_AS_STRING, null, getDirectorsAsString());
   }
 
   /**
@@ -963,15 +1011,33 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
-   * add a writer
+   * add the given writers
    *
-   * @param writer
-   *          the writer to be added
+   * @param newWriters
+   *          a {@link Collection} of the writers to be added
    */
-  public void addWriter(Person writer) {
-    writers.add(writer);
-    firePropertyChange(WRITERS, null, this.getWriters());
-    firePropertyChange(WRITERS_AS_STRING, null, this.getWritersAsString());
+  public void addToWriters(Collection<Person> newWriters) {
+    Set<Person> newItems = new LinkedHashSet<>();
+
+    // do not accept duplicates or null values
+    for (Person person : ListUtils.nullSafe(newWriters)) {
+      if (person == null || writers.contains(person)) {
+        continue;
+      }
+      if (person.getType() != Person.Type.WRITER) {
+        return;
+      }
+
+      newItems.add(person);
+    }
+
+    if (newItems.isEmpty()) {
+      return;
+    }
+
+    writers.addAll(newItems);
+    firePropertyChange(WRITERS, null, getWriters());
+    firePropertyChange(WRITERS_AS_STRING, null, getWritersAsString());
   }
 
   /**
@@ -1042,6 +1108,27 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     boolean oldValue = this.watched;
     this.watched = newValue;
     firePropertyChange(WATCHED, oldValue, newValue);
+  }
+
+  /**
+   * get the play count (mainly passed from/to trakt.tv/NFO)
+   * 
+   * @return the play count of this movie
+   */
+  public int getPlaycount() {
+    return playcount;
+  }
+
+  /**
+   * sets the play count
+   * 
+   * @param newValue
+   *          the play count of this movie
+   */
+  public void setPlaycount(int newValue) {
+    int oldValue = this.playcount;
+    this.playcount = newValue;
+    firePropertyChange("playcount", oldValue, newValue);
   }
 
   public Date getLastWatched() {
@@ -1189,6 +1276,67 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   @Override
+  public void callbackForGatheredMediainformation(MediaFile mediaFile) {
+    super.callbackForGatheredMediainformation(mediaFile);
+
+    // did we get meta data via the video media file?
+    if (mediaFile.getType() == MediaFileType.VIDEO && !isScraped() && !mediaFile.getExtraData().isEmpty()) {
+      boolean dirty = false;
+
+      if (episode == -1) {
+        String episode = mediaFile.getExtraData().get("episode");
+        if (StringUtils.isNotBlank(episode)) {
+          try {
+            setEpisode(Integer.parseInt(episode));
+            dirty = true;
+          }
+          catch (Exception ignored) {
+          }
+        }
+      }
+
+      if (season == -1) {
+        String season = mediaFile.getExtraData().get("season");
+        if (StringUtils.isNotBlank(season)) {
+          try {
+            setSeason(Integer.parseInt(season));
+            dirty = true;
+          }
+          catch (Exception ignored) {
+          }
+        }
+      }
+
+      String title = mediaFile.getExtraData().get("title");
+      if (StringUtils.isNotBlank(title)) {
+        setTitle(title);
+        dirty = true;
+      }
+
+      String originalTitle = mediaFile.getExtraData().get("originalTitle");
+      if (StringUtils.isNotBlank(originalTitle)) {
+        setOriginalTitle(originalTitle);
+        dirty = true;
+      }
+
+      String plot = mediaFile.getExtraData().get("plot");
+      if (StringUtils.isNotBlank(plot)) {
+        setPlot(plot);
+        dirty = true;
+      }
+
+      if (dirty) {
+        saveToDb();
+      }
+    }
+
+    // re-write NFO since we might have new mediainfo data
+    if (mediaFile.getType() == MediaFileType.VIDEO) {
+      writeNFO();
+    }
+  }
+
+  @Override
   public void saveToDb() {
     // update/insert this episode to the database
     TvShowList.getInstance().persistEpisode(this);
@@ -1238,71 +1386,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   /**
-   * Adds the to tags.
-   * 
-   * @param newTag
-   *          the new tag
-   */
-  public void addToTags(String newTag) {
-    if (StringUtils.isBlank(newTag)) {
-      return;
-    }
-
-    for (String tag : tags) {
-      if (tag.equals(newTag)) {
-        return;
-      }
-    }
-
-    tags.add(newTag);
-    firePropertyChange(TAG, null, newTag);
-    firePropertyChange(TAGS_AS_STRING, null, newTag);
-  }
-
-  /**
-   * Removes the from tags.
-   * 
-   * @param removeTag
-   *          the remove tag
-   */
-  public void removeFromTags(String removeTag) {
-    tags.remove(removeTag);
-    firePropertyChange(TAG, null, removeTag);
-    firePropertyChange(TAGS_AS_STRING, null, removeTag);
-  }
-
-  /**
-   * Sets the tags.
-   * 
-   * @param newTags
-   *          the new tags
-   */
-  @JsonSetter
-  public void setTags(List<String> newTags) {
-    // two way sync of tags
-    ListUtils.mergeLists(tags, newTags);
-
-    firePropertyChange(TAG, null, newTags);
-    firePropertyChange(TAGS_AS_STRING, null, newTags);
-  }
-
-  /**
-   * Gets the tag as string.
-   * 
-   * @return the tag as string
-   */
-  public String getTagsAsString() {
-    StringBuilder sb = new StringBuilder();
-    for (String tag : tags) {
-      if (!StringUtils.isEmpty(sb)) {
-        sb.append(", ");
-      }
-      sb.append(tag);
-    }
-    return sb.toString();
-  }
-
-  /**
    * Gets the tvdb id.
    * 
    * @return the tvdb id
@@ -1313,10 +1396,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       return "";
     }
     return obj.toString();
-  }
-
-  public List<String> getTags() {
-    return this.tags;
   }
 
   public int getDvdSeason() {

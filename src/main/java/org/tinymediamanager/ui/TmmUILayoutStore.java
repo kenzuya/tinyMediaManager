@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,29 +143,27 @@ public class TmmUILayoutStore implements AWTEventListener {
 
     // settings for main window
     if ("mainWindow".equals(frame.getName())) {
-      // was the main window maximized?
-      if (properties.getPropertyAsBoolean("mainWindowMaximized")) {
-        frame.setExtendedState(frame.getExtendedState() | MAXIMIZED_BOTH);
-        frame.validate();
+      // only set location/size if something was stored
+      Rectangle rect = getWindowBounds("mainWindow");
+      if (rect.width > 0) {
+        GraphicsDevice ge = getScreenForBounds(rect);
+        if (ge.getDefaultConfiguration() != frame.getGraphicsConfiguration()) {
+          // move to another screen
+          JFrame dummy = new JFrame(ge.getDefaultConfiguration());
+          frame.setLocationRelativeTo(dummy);
+          dummy.dispose();
+        }
+
+        frame.setBounds(rect);
+
+        // was the main window maximized?
+        if (properties.getPropertyAsBoolean("mainWindowMaximized")) {
+          frame.setExtendedState(frame.getExtendedState() | MAXIMIZED_BOTH);
+          frame.validate();
+        }
       }
       else {
-        // only set location/size if something was stored
-        Rectangle rect = getWindowBounds("mainWindow");
-        if (rect.width > 0) {
-          GraphicsDevice ge = getScreenForBounds(rect);
-          if (ge.getDefaultConfiguration() != frame.getGraphicsConfiguration()) {
-            // move to another screen
-            JFrame dummy = new JFrame(ge.getDefaultConfiguration());
-            frame.setLocationRelativeTo(dummy);
-            dummy.dispose();
-          }
-
-          frame.setBounds(rect);
-          // frame.validate();
-        }
-        else {
-          frame.setLocationRelativeTo(null);
-        }
+        frame.setLocationRelativeTo(null);
       }
     }
   }

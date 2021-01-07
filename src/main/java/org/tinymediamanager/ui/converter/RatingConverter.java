@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package org.tinymediamanager.ui.converter;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.jdesktop.beansbinding.Converter;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 
 /**
@@ -27,7 +27,7 @@ import org.tinymediamanager.core.entities.MediaRating;
  * @author Manuel Laggner
  */
 public class RatingConverter<T extends MediaRating> extends Converter<T, String> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
   private final Locale                locale = Locale.getDefault();
 
   @Override
@@ -57,11 +57,11 @@ public class RatingConverter<T extends MediaRating> extends Converter<T, String>
 
       if (rating.getVotes() > 1 && !defaultUserRating) {
         return String.format(locale, "%.1f / %,d (%,d %s / %s)", rating.getRating(), rating.getMaxValue(), rating.getVotes(),
-            BUNDLE.getString("metatag.votes"), rating.getId());
+            TmmResourceBundle.getString("metatag.votes"), rating.getId());
       }
       else if (rating.getVotes() > 1 && defaultUserRating) {
         return String.format(locale, "%.1f / %,d (%,d %s)", rating.getRating(), rating.getMaxValue(), rating.getVotes(),
-            BUNDLE.getString("metatag.votes"));
+            TmmResourceBundle.getString("metatag.votes"));
       }
       else if (!defaultUserRating && rating.getVotes() >= 1) {
         return String.format(locale, "%.1f / %,d (%s)", rating.getRating(), rating.getMaxValue(), rating.getId());

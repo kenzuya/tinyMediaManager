@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.config.MediaProviderConfigObject;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
@@ -53,15 +54,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MediaScraperConfigurationPanel extends JPanel {
+  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");                         // stick to resourcebundle here
   private static final long           serialVersionUID = -4120483383064864579L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
 
-  private IMediaProvider              mediaProvider;
-  private boolean                     dirty            = false;
+  private final IMediaProvider        mediaProvider;
+  private final JPanel                configPanel;
 
-  private JPanel                      configPanel;
+  private boolean                     dirty            = false;
 
   public MediaScraperConfigurationPanel(IMediaProvider mediaProvider) {
     this.mediaProvider = mediaProvider;
@@ -71,7 +73,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
     JPanel panelHead = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
     add(panelHead, BorderLayout.NORTH);
 
-    JLabel lblScraperOptions = new TmmLabel(BUNDLE.getString("Settings.scraper.options"), 1.2);
+    JLabel lblScraperOptions = new TmmLabel(TmmResourceBundle.getString("Settings.scraper.options"), 1.2);
     panelHead.add(lblScraperOptions);
 
     configPanel = createConfigPanel();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 package org.tinymediamanager.ui.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 
@@ -30,12 +30,12 @@ import org.tinymediamanager.scraper.http.TmmHttpClient;
  */
 public class ClearHttpCacheAction extends TmmAction {
   private static final long           serialVersionUID = -4615019451671427233L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ClearHttpCacheAction.class);
 
   public ClearHttpCacheAction() {
-    putValue(NAME, BUNDLE.getString("tmm.clearhttpcache"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tmm.clearhttpcache"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.clearhttpcache"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.clearhttpcache"));
   }
 
   @Override

@@ -33,7 +33,10 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.interfaces.IMediaArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 
 public class ITImdbMetadataProviderTest extends BasicTest {
 
@@ -49,14 +52,14 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieSearch() {
-    ImdbMetadataProvider mp = null;
+    IMovieMetadataProvider mp = null;
     List<MediaSearchResult> results = null;
 
     /*
      * test on akas.imdb.com - "9"
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("9");
       options.setSearchYear(2016);
@@ -86,7 +89,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * test on www.imdb.com - "Inglorious Basterds"
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Inglorious Basterds");
       options.setLanguage(MediaLanguages.en);
@@ -116,7 +119,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * test on www.imdb.com - "Asterix der Gallier" in de
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Asterix der Gallier");
       options.setLanguage(MediaLanguages.de);
@@ -141,14 +144,14 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowSearch() {
-    ImdbMetadataProvider mp = null;
+    ITvShowMetadataProvider mp = null;
     List<MediaSearchResult> results = null;
 
     /*
      * test on akas.imdb.com - "Psych"
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbTvShowMetadataProvider();
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery("Psych");
       options.setLanguage(MediaLanguages.de);
@@ -173,14 +176,14 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testEpisodeListing() {
-    ImdbMetadataProvider mp = null;
+    ITvShowMetadataProvider mp = null;
     List<MediaMetadata> episodes = null;
 
     /*
      * test on akas.imdb.com - Psych (tt0491738)
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbTvShowMetadataProvider();
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setId(mp.getProviderInfo().getId(), "tt0491738");
       options.setLanguage(MediaLanguages.en);
@@ -192,7 +195,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       assertNotNull("Episodes", episodes);
 
       // result count
-      assertEquals("Episodes count", 121, episodes.size());
+      assertEquals("Episodes count", 120, episodes.size());
 
     }
     catch (Exception e) {
@@ -203,7 +206,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowScrape() {
-    ImdbMetadataProvider mp = null;
+    ITvShowMetadataProvider mp = null;
     TvShowSearchAndScrapeOptions options = null;
     MediaMetadata md = null;
 
@@ -211,7 +214,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * test on akas.imdb.com - Psych (tt0491738)
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbTvShowMetadataProvider();
       options = new TvShowSearchAndScrapeOptions();
       options.setImdbId("tt0491738");
       options.setLanguage(MediaLanguages.en);
@@ -233,7 +236,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * test on akas.imdb.com - Firefly (tt0303461)
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbTvShowMetadataProvider();
       options = new TvShowSearchAndScrapeOptions();
       options.setImdbId("tt0303461");
       options.setLanguage(MediaLanguages.de);
@@ -255,7 +258,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowScrapeWithTmdb() {
-    ImdbMetadataProvider mp = null;
+    ITvShowMetadataProvider mp = null;
     TvShowSearchAndScrapeOptions options = null;
     MediaMetadata md = null;
 
@@ -265,8 +268,8 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * test on akas.imdb.com - Psych (tt0491738)
      */
     try {
-      mp = new ImdbMetadataProvider();
-      mp.getProviderInfo().getConfig().setValue(ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
+      mp = new ImdbTvShowMetadataProvider();
+      mp.getProviderInfo().getConfig().setValue(ImdbParser.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
       options = new TvShowSearchAndScrapeOptions();
       options.setImdbId("tt0491738");
       options.setLanguage(MediaLanguages.de);
@@ -278,7 +281,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       assertNotNull("MediaMetadata", md);
 
       assertEquals("Psych", md.getTitle());
-      assertThat(md.getIds().size()).isGreaterThan(1);
+      assertThat(md.getIds().size()).isGreaterThanOrEqualTo(1);
       assertThat(md.getPlot()).startsWith("Shawn Spencer ist selbsternannter Detektiv");
     }
     catch (Exception e) {
@@ -289,7 +292,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testEpisodeScrape() {
-    ImdbMetadataProvider mp = null;
+    ITvShowMetadataProvider mp = null;
     TvShowEpisodeSearchAndScrapeOptions options = null;
     MediaMetadata md = null;
     SimpleDateFormat sdf = new SimpleDateFormat("d MMMM yyyy", Locale.US);
@@ -299,7 +302,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      */
     // S1E1
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbTvShowMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
       TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
@@ -335,7 +338,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
     }
     // S3E12
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbTvShowMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
       TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
@@ -368,7 +371,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testEpisodeScrapeWithTmdb() {
-    ImdbMetadataProvider mp = null;
+    ITvShowMetadataProvider mp = null;
     TvShowEpisodeSearchAndScrapeOptions options = null;
     MediaMetadata md = null;
     SimpleDateFormat sdf = new SimpleDateFormat("d MMMM yyyy", Locale.US);
@@ -380,9 +383,9 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      */
     // S1E1
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbTvShowMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
-      mp.getProviderInfo().getConfig().setValue(ImdbMetadataProvider.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
+      mp.getProviderInfo().getConfig().setValue(ImdbParser.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
       options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
       TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.de);
@@ -434,7 +437,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieScrape() {
-    ImdbMetadataProvider mp = null;
+    IMovieMetadataProvider mp = null;
     MovieSearchAndScrapeOptions options = null;
     MediaMetadata md = null;
 
@@ -442,7 +445,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * scrape www.imdb.com - 9 - tt0472033
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       mp.getProviderInfo().getConfig().addBoolean("scrapeLanguageNames", false);
       mp.getProviderInfo().getConfig().addBoolean("scrapeKeywordsPage", true);
       options = new MovieSearchAndScrapeOptions();
@@ -480,8 +483,9 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * scrape www.imdb.com - 12 Monkeys - tt0114746
      */
     try {
-      mp = new ImdbMetadataProvider();
-      mp.getProviderInfo().getConfig().addBoolean("localReleaseDate", true);
+      mp = new ImdbMovieMetadataProvider();
+      mp.getProviderInfo().getConfig().setValue("localReleaseDate", true);
+      mp.getProviderInfo().getConfig().setValue("scrapeLanguageNames", false);
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt0114746");
       options.setLanguage(MediaLanguages.de);
@@ -503,7 +507,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       checkMoviePoster(md);
 
       // check localized values
-      assertThat(md.getCountries()).containsOnly("US");
+      assertThat(md.getCountries()).containsAnyOf("US");
       assertThat(md.getSpokenLanguages()).containsOnly("en", "fr");
 
       assertThat(md.getTags()).isNotEmpty();
@@ -517,7 +521,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * scrape www.imdb.com - Brave - tt1217209
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt1217209");
       options.setLanguage(MediaLanguages.en);
@@ -549,7 +553,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * scrape akas.imdb.com - Brave - tt1217209 - in DE
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt1217209");
       options.setLanguage(MediaLanguages.de);
@@ -575,7 +579,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * scrape www.imdb.com - Winnebago Man - tt1396557
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setImdbId("tt1396557");
       options.setLanguage(MediaLanguages.en);
@@ -607,7 +611,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
      * Despicable Me - tmdb id 20352
      */
     try {
-      mp = new ImdbMetadataProvider();
+      mp = new ImdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setTmdbId(20352);
       options.setLanguage(MediaLanguages.en);
@@ -623,7 +627,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
           "Cinco Paul, Ken Daurio, Sergio Pablos", "", "09-07-2010", md);
 
       assertThat(md.getGenres()).isNotEmpty();
-      assertThat(md.getPlot()).contains("Gru", "Margo");
+      assertThat(md.getPlot()).contains("criminal", "orphan");
       checkCastMembers(md);
       checkProductionCompany(md);
       checkMoviePoster(md);
@@ -707,9 +711,10 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieArtworkScrapeWithImdbId() throws Exception {
-    IMediaArtworkProvider mp = new ImdbMetadataProvider();
+    IMovieArtworkProvider mp = new ImdbMovieArtworkProvider();
 
     ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+    options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
     options.setImdbId("tt1217209");
 
     List<MediaArtwork> artworks = mp.getArtwork(options);
@@ -722,9 +727,10 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testMovieArtworkScrapeWithTmdbId() throws Exception {
-    IMediaArtworkProvider mp = new ImdbMetadataProvider();
+    IMovieArtworkProvider mp = new ImdbMovieArtworkProvider();
 
     ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+    options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
     options.setTmdbId(20352);
 
     List<MediaArtwork> artworks = mp.getArtwork(options);
@@ -737,9 +743,10 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testTvShowArtworkScrapeWithImdbId() throws Exception {
-    IMediaArtworkProvider mp = new ImdbMetadataProvider();
+    ITvShowArtworkProvider mp = new ImdbTvShowArtworkProvider();
 
     ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_SHOW);
+    options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
     options.setImdbId("tt0491738");
 
     List<MediaArtwork> artworks = mp.getArtwork(options);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,11 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
   public KodiTvShowMetadataProvider(KodiScraper scraper) {
     super(scraper);
+  }
+
+  @Override
+  public boolean isActive() {
+    return true;
   }
 
   @Override
@@ -123,11 +128,11 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
       String title = DOMUtils.getElementValue(el, "title");
       KodiUrl epUrl = new KodiUrl(DOMUtils.getElementValue(el, "url"));
 
-      LOGGER.info("Getting episode details S{} E{} - {}", lz(season), lz(ep), title);
+      LOGGER.trace("Getting episode details S{} E{} - {}", lz(season), lz(ep), title);
       String xmlDetails = processor.getEpisodeDetails(epUrl, id);
-      LOGGER.debug("******** BEGIN EPISODE DETAILS XML ***********");
-      LOGGER.debug(xmlDetails);
-      LOGGER.debug("******** END EPISODE DETAILS XML ***********");
+      LOGGER.trace("******** BEGIN EPISODE DETAILS XML ***********");
+      LOGGER.trace(xmlDetails);
+      LOGGER.trace("******** END EPISODE DETAILS XML ***********");
 
       // update again, using the episode specific data
       Document epDetailXml = parseXmlString(xmlDetails);
@@ -136,7 +141,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
       addMetadata(md, epXmlEl);
       md.setEpisodeNumber(ep);
       md.setSeasonNumber(season);
-      LOGGER.debug("MetaData: {}", md);
+      LOGGER.trace("MetaData: {}", md);
 
       // cache EPISODE MetaData as provideId_S00_E00
       KodiMetadataProvider.XML_CACHE.put(scraper.getProviderInfo().getId() + "_" + showId + "_S" + lz(season) + "_E" + lz(ep) + "_DETAIL",
@@ -156,13 +161,13 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
   @Override
   protected void processXmlContent(String xmlDetails, MediaMetadata md, MediaSearchResult result) throws Exception {
     if (xmlDetails == null || StringUtils.isEmpty(xmlDetails)) {
-      LOGGER.warn("Cannot process empty Xml Contents.");
+      LOGGER.debug("Cannot process empty Xml Contents.");
       return;
     }
 
-    LOGGER.debug("******* BEGIN XML ***********");
-    LOGGER.debug(xmlDetails);
-    LOGGER.debug("******* END XML ***********");
+    LOGGER.trace("******* BEGIN XML ***********");
+    LOGGER.trace(xmlDetails);
+    LOGGER.trace("******* END XML ***********");
 
     Document xml = parseXmlString(xmlDetails);
     addMetadata(md, xml.getDocumentElement());
@@ -172,14 +177,14 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
     // might be multiple!!
     String episodeUrl = innerXml(DOMUtils.getElementByTagName(xml.getDocumentElement(), EPISODEGUIDE));
     if (StringUtils.isEmpty(episodeUrl)) {
-      LOGGER.error("No Episode Data!");
+      LOGGER.warn("No Episode Data!");
     }
     else {
       KodiMetadataProvider.XML_CACHE.put(scraper.getProviderInfo().getId() + "_" + showId + "_" + "EPISODEGUIDE_URL", episodeUrl);
       md.addExtraData(EPISODEGUIDE, episodeUrl);
       result.setMetadata(md);
     }
-    LOGGER.debug("MetaData: {}", md);
+    LOGGER.trace("MetaData: {}", md);
     KodiMetadataProvider.XML_CACHE.put(scraper.getProviderInfo().getId() + "_" + showId + "_" + result.getId(), xmlDetails);
   }
 
@@ -221,9 +226,9 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
         epListXml = processor.getEpisodeList(url);
         KodiMetadataProvider.XML_CACHE.put(scraper.getProviderInfo().getId() + "_" + showId + "_" + EPISODEGUIDE, epListXml);
       }
-      LOGGER.debug("******** BEGIN EPISODE LIST XML ***********");
-      LOGGER.debug(epListXml);
-      LOGGER.debug("******** END EPISODE LIST XML ***********");
+      LOGGER.trace("******** BEGIN EPISODE LIST XML ***********");
+      LOGGER.trace(epListXml);
+      LOGGER.trace("******** END EPISODE LIST XML ***********");
       Document epListDoc = parseXmlString(epListXml);
 
       // <episode>
@@ -287,7 +292,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
   @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
-    LOGGER.debug("******* BEGIN ARTWORK XML FOR {} ***********", options.getArtworkType());
+    LOGGER.trace("******* BEGIN ARTWORK XML FOR {} ***********", options.getArtworkType());
     List<MediaArtwork> mas = new ArrayList<>();
     // scrape again to get Kodi XML (thank god we have a mem cachedUrl)
     try {
@@ -297,7 +302,7 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
       MediaMetadata md = _getMetadata(options);
       mas.addAll(md.getMediaArt(options.getArtworkType()));
-      LOGGER.debug("******* END ARTWORK XML FOR {} ***********", options.getArtworkType());
+      LOGGER.trace("******* END ARTWORK XML FOR {} ***********", options.getArtworkType());
     }
     catch (Exception e) {
       LOGGER.error("error getting artwork: {}", e.getMessage());

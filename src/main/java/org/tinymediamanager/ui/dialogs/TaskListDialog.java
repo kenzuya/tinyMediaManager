@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -42,7 +43,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class TaskListDialog extends TmmDialog implements TmmTaskListener {
   private static final long                           serialVersionUID = 4151412495928010232L;
-  /** @wbp.nls.resourceBundle messages */
+
   protected static final ResourceBundle               BUNDLE           = ResourceBundle.getBundle("messages");
 
   private static TaskListDialog                       instance;
@@ -54,14 +55,14 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
   private final JPanel                                panelContent;
 
   private TaskListDialog() {
-    super(BUNDLE.getString("tasklist.title"), "taskList");
+    super(TmmResourceBundle.getString("tasklist.title"), "taskList");
     setModalityType(ModalityType.MODELESS);
 
     {
       panelContent = new JPanel();
       panelContent.setOpaque(false);
 
-      noActiveTask = new TaskListComponent(BUNDLE.getString("task.nonerunning"));
+      noActiveTask = new TaskListComponent(TmmResourceBundle.getString("task.nonerunning"));
       noActiveTask.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
       panelContent.add(noActiveTask);
 
@@ -82,7 +83,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
 
       getContentPane().add(rootPanel, BorderLayout.CENTER);
 
-      JButton btnAbortAll = new JButton(BUNDLE.getString("Button.abortqueue"));
+      JButton btnAbortAll = new JButton(TmmResourceBundle.getString("Button.abortqueue"));
       btnAbortAll.addActionListener(e -> taskMap.forEach((task, component) -> {
         task.cancel();
         removeListItem(task);
@@ -151,8 +152,7 @@ public class TaskListDialog extends TmmDialog implements TmmTaskListener {
     bottomPanel.setVisible(true);
 
     if (isShowing()) {
-      revalidate();
-      pack();
+      invalidate();
       repaint();
     }
   }

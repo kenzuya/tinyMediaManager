@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTmdbMetadataProvider;
@@ -61,25 +60,36 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   private static final String                              SEARCH              = "search";
   private static final String                              RATINGS             = "ratings";
   private static final Logger                              LOGGER              = LoggerFactory.getLogger(UniversalMovieMetadataProvider.class);
-  private static final MediaProviderInfo                   PROVIDER_INFO       = createMediaProviderInfo();
   private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    return new MediaProviderInfo(ID, "Universal movie scraper",
+  private final MediaProviderInfo                          providerInfo;
+
+  public UniversalMovieMetadataProvider() {
+    providerInfo = createMediaProviderInfo();
+    init();
+  }
+
+  private MediaProviderInfo createMediaProviderInfo() {
+    return new MediaProviderInfo(ID, ID, "Universal movie scraper",
         "<html><h3>Universal movie scraper</h3><br />A meta scraper which allows to collect data from several other scrapers</html>",
         UniversalMovieMetadataProvider.class.getResource("/org/tinymediamanager/scraper/tmm_logo.svg"));
   }
 
-  public static void addProvider(IMediaProvider provider) {
+  @Override
+  public boolean isActive() {
+    return true;
+  }
+
+  public static void addProvider(IMovieMetadataProvider provider) {
     // called for each plugin implementing that interface
-    if (!provider.getProviderInfo().getId().equals(PROVIDER_INFO.getId()) && !COMPATIBLE_SCRAPERS.containsKey(provider.getProviderInfo().getId())
+    if (!provider.getProviderInfo().getId().equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getProviderInfo().getId())
         && (provider instanceof IMovieTmdbMetadataProvider || provider instanceof IMovieImdbMetadataProvider)) {
-      COMPATIBLE_SCRAPERS.put(provider.getProviderInfo().getId(), (IMovieMetadataProvider) provider);
+      COMPATIBLE_SCRAPERS.put(provider.getProviderInfo().getId(), provider);
     }
   }
 
-  public static void afterInitialization() {
-    MediaProviderConfig config = PROVIDER_INFO.getConfig();
+  private void init() {
+    MediaProviderConfig config = providerInfo.getConfig();
 
     List<String> compatibleScraperIds = new ArrayList<>(COMPATIBLE_SCRAPERS.keySet());
     compatibleScraperIds.add(0, UNDEFINED); // no scraper
@@ -117,12 +127,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
   @Override
   public MediaProviderInfo getProviderInfo() {
-    return PROVIDER_INFO;
-  }
-
-  @Override
-  public String getId() {
-    return ID;
+    return providerInfo;
   }
 
   @Override
@@ -131,14 +136,14 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
-    IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(PROVIDER_INFO.getConfig().getValue(SEARCH));
+    IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(providerInfo.getConfig().getValue(SEARCH));
     if (mp == null) {
       return results;
     }
 
     try {
       for (MediaSearchResult result : mp.search(options)) {
-        result.setProviderId(PROVIDER_INFO.getId());
+        result.setProviderId(providerInfo.getId());
         results.add(result);
       }
     }
@@ -154,7 +159,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws NothingFoundException {
     LOGGER.debug("getMetadata() - {}", options);
 
-    MediaMetadata md = new MediaMetadata(PROVIDER_INFO.getId());
+    MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
     // check which scrapers should be used
     Set<IMovieMetadataProvider> metadataProviders = getRelevantMetadataProviders();
@@ -177,7 +182,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
   private Set<IMovieMetadataProvider> getRelevantMetadataProviders() {
     Set<IMovieMetadataProvider> metadataProviders = new HashSet<>();
-    for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
+    for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (!UNDEFINED.equals(entry.getValue())) {
         IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(entry.getValue());
         if (mp != null) {
@@ -297,7 +302,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     }
 
     // assign the requested metadata
-    for (Map.Entry<String, String> entry : PROVIDER_INFO.getConfig().getConfigKeyValuePairs().entrySet()) {
+    for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (!SEARCH.equals(entry.getKey()) && !UNDEFINED.equals(entry.getValue())) {
         // all specified fields should be filled from the desired scraper
         MediaMetadata mediaMetadata = metadataMap.get(entry.getValue());

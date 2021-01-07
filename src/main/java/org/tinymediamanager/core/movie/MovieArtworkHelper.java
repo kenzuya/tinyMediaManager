@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 package org.tinymediamanager.core.movie;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.IFileNaming;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.ScraperMetadataConfig;
@@ -46,6 +50,7 @@ import org.tinymediamanager.core.tasks.MediaEntityImageFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.thirdparty.VSMeta;
 
 /**
@@ -55,7 +60,7 @@ import org.tinymediamanager.thirdparty.VSMeta;
  */
 public class MovieArtworkHelper {
   private static final Logger  LOGGER        = LoggerFactory.getLogger(MovieArtworkHelper.class);
-  private static final Pattern INDEX_PATTERN = Pattern.compile(".*(\\d+)$");
+  private static final Pattern INDEX_PATTERN = Pattern.compile(".*?(\\d+)$");
 
   private MovieArtworkHelper() {
     // hide public constructor for utility classes
@@ -1261,5 +1266,61 @@ public class MovieArtworkHelper {
     }
 
     return -1;
+  }
+
+  /**
+   * create a still/thumb of the given {@link Movie} via FFmpeg
+   *
+   * @param movie
+   *          the movie to create a thumb for
+   */
+  public static void createThumbWithFfmpeg(Movie movie) throws Exception {
+
+    if (movie.isDisc()) {
+      throw new UnsupportedOperationException("This cannot be done for disc images");
+    }
+
+    // extract the thumb to a temp folder
+    Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
+
+    MediaFile mf = movie.getMainVideoFile();
+
+    String fileType = "." + FilenameUtils.getExtension(mf.getFilename().toLowerCase(Locale.ROOT));
+    int seconds = (Globals.settings.getFfmpegPercentage() * mf.getDuration()) / 100;
+
+    if (!Globals.settings.getAllSupportedFileTypes().contains(fileType)) {
+      throw new UnsupportedOperationException("invalid video file for FFmpeg");
+    }
+
+    FFmpeg.createStill(mf.getFileAsPath(), tempFile, seconds);
+
+    if (tempFile.toFile().exists()) {
+      movie.removeAllMediaFiles(MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
+
+      boolean first = true;
+
+      // and copy it to all desired locations
+      for (MovieThumbNaming thumbNaming : getThumbNamesForMovie(movie)) {
+        Path thumb = movie.getPathNIO().resolve(getArtworkFilename(movie, thumbNaming, "jpg"));
+
+        if (thumb.toFile().exists()) {
+          Utils.deleteFileSafely(thumb);
+        }
+
+        Utils.copyFileSafe(tempFile, thumb);
+
+        if (first) {
+          movie.setArtwork(thumb, MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
+          movie.callbackForWrittenArtwork(MediaArtworkType.THUMB);
+          first = false;
+        }
+
+        MediaFile artwork = new MediaFile(thumb, MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
+        artwork.gatherMediaInformation();
+        movie.addToMediaFiles(artwork);
+      }
+
+      movie.saveToDb();
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,15 +36,15 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
 import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.SquareIconButton;
@@ -77,7 +78,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
    *          the episodes
    */
   public TvShowBulkEditorDialog(final List<TvShow> tvShows, final List<TvShowEpisode> episodes) {
-    super(BUNDLE.getString("tvshow.bulkedit"), "tvShowBulkEditor");
+    super(TmmResourceBundle.getString("tvshow.bulkedit"), "tvShowBulkEditor");
 
     tvShowsToEdit = tvShows;
     tvShowEpisodesToEdit = episodes;
@@ -93,9 +94,9 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     {
       JPanel panelContent = new JPanel();
       panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][grow]"));
-      tabbedPane.add(BUNDLE.getString("metatag.tvshow"), panelContent);
+      tabbedPane.add(TmmResourceBundle.getString("metatag.tvshow"), panelContent);
       {
-        JLabel lblGenres = new TmmLabel(BUNDLE.getString("metatag.genre"));
+        JLabel lblGenres = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
         panelContent.add(lblGenres, "cell 0 0,alignx right");
 
         JComboBox<MediaGenres> cbGenres = new AutocompleteComboBox(MediaGenres.values());
@@ -122,7 +123,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
 
           if (genre != null) {
             for (TvShow tvShow : tvShowsToEdit) {
-              tvShow.addGenre(genre);
+              tvShow.addToGenres(Collections.singletonList(genre));
             }
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -142,7 +143,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblTags = new TmmLabel(BUNDLE.getString("metatag.tags"));
+        JLabel lblTags = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
         panelContent.add(lblTags, "cell 0 1,alignx right");
 
         JComboBox<String> cbTags = new AutocompleteComboBox<>(ListUtils.asSortedList(tvShowList.getTagsInTvShows()));
@@ -156,7 +157,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           String tag = (String) cbTags.getSelectedItem();
           for (TvShow tvShow : tvShowsToEdit) {
-            tvShow.addToTags(tag);
+            tvShow.addToTags(Collections.singletonList(tag));
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
@@ -175,7 +176,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblCountry = new TmmLabel(BUNDLE.getString("metatag.country"));
+        JLabel lblCountry = new TmmLabel(TmmResourceBundle.getString("metatag.country"));
         panelContent.add(lblCountry, "cell 0 2,alignx right");
 
         JTextField tfCountry = new JTextField();
@@ -194,7 +195,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblStudio = new TmmLabel(BUNDLE.getString("metatag.studio"));
+        JLabel lblStudio = new TmmLabel(TmmResourceBundle.getString("metatag.studio"));
         panelContent.add(lblStudio, "cell 0 3,alignx right");
 
         JTextField tfStudio = new JTextField();
@@ -213,7 +214,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblTvShowNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
+        JLabel lblTvShowNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
         panelContent.add(lblTvShowNoteT, "cell 0 4,alignx right");
 
         JTextField tfTvShowNote = new JTextField();
@@ -234,14 +235,14 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     {
       JPanel panelContent = new JPanel();
       panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][][grow]"));
-      tabbedPane.add(BUNDLE.getString("metatag.episode"), panelContent);
+      tabbedPane.add(TmmResourceBundle.getString("metatag.episode"), panelContent);
 
-      JTextArea textArea = new ReadOnlyTextArea(BUNDLE.getString("tvshow.bulkedit.episodesfromshows"));
+      JTextArea textArea = new ReadOnlyTextArea(TmmResourceBundle.getString("tvshow.bulkedit.episodesfromshows"));
       textArea.setWrapStyleWord(true);
       panelContent.add(textArea, "cell 0 0 2 1,wmin 0,grow");
 
       {
-        JLabel lblWatched = new TmmLabel(BUNDLE.getString("metatag.watched"));
+        JLabel lblWatched = new TmmLabel(TmmResourceBundle.getString("metatag.watched"));
         panelContent.add(lblWatched, "cell 0 1,alignx right");
 
         JCheckBox chckbxWatched = new JCheckBox("");
@@ -260,7 +261,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblSeason = new TmmLabel(BUNDLE.getString("metatag.season"));
+        JLabel lblSeason = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
         panelContent.add(lblSeason, "cell 0 2,alignx right");
 
         JSpinner spSeason = new JSpinner();
@@ -281,7 +282,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblDvdOrder = new TmmLabel(BUNDLE.getString("metatag.dvdorder"));
+        JLabel lblDvdOrder = new TmmLabel(TmmResourceBundle.getString("metatag.dvdorder"));
         panelContent.add(lblDvdOrder, "cell 0 3,alignx right");
 
         final JCheckBox cbDvdOrder = new JCheckBox("");
@@ -301,7 +302,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
 
       {
 
-        JLabel lblTagsEpisode = new TmmLabel(BUNDLE.getString("metatag.tags"));
+        JLabel lblTagsEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
         panelContent.add(lblTagsEpisode, "cell 0 4,alignx right");
 
         JComboBox<String> cbTagsEpisode = new AutocompleteComboBox(tvShowList.getTagsInEpisodes().toArray());
@@ -315,7 +316,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           String tag = (String) cbTagsEpisode.getSelectedItem();
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
-            episode.addToTags(tag);
+            episode.addToTags(Collections.singletonList(tag));
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
@@ -334,7 +335,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblMediasourceEpisode = new TmmLabel(BUNDLE.getString("metatag.source"));
+        JLabel lblMediasourceEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.source"));
         panelContent.add(lblMediasourceEpisode, "cell 0 5,alignx right");
 
         JComboBox<MediaSource> cbMediaSourceEpisode = new JComboBox(MediaSource.values());
@@ -357,7 +358,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblEpisodeNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
+        JLabel lblEpisodeNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
         panelContent.add(lblEpisodeNoteT, "cell 0 6,alignx right");
 
         JTextField tfEpisodeNote = new JTextField();
@@ -376,7 +377,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
 
       {
-        JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+        JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
         btnClose.setIcon(IconManager.APPLY_INV);
         btnClose.addActionListener(arg0 -> {
           // rewrite tv show if anything changed
@@ -405,7 +406,10 @@ public class TvShowBulkEditorDialog extends TmmDialog {
               tvShows1.add(episode.getTvShow());
             }
             tvShows1.addAll(tvShowsToEdit);
-            TmmTask task = new SyncTraktTvTask(null, new ArrayList<>(tvShows1));
+            TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows1));
+            task.setSyncCollection(true);
+            task.setSyncWatched(true);
+
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
 

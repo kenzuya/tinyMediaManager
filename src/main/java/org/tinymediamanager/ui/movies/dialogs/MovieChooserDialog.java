@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,15 @@
 package org.tinymediamanager.ui.movies.dialogs;
 
 import static java.util.Locale.ROOT;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.KEYART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -59,21 +68,22 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.StrgUtils;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -89,7 +99,6 @@ import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieChooserModel;
 import org.tinymediamanager.ui.renderer.BorderTableCellRenderer;
@@ -157,7 +166,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
    *          the queue size
    */
   public MovieChooserDialog(Movie movie, int queueIndex, int queueSize) {
-    super(BUNDLE.getString("moviechooser.search") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "movieChooser");
+    super(TmmResourceBundle.getString("moviechooser.search") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "movieChooser");
 
     mediaScraper = movieList.getDefaultMediaScraper();
     artworkScrapers = movieList.getDefaultArtworkScrapers();
@@ -210,7 +219,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(panelSearchField, "cell 0 0,grow");
       panelSearchField.setLayout(new MigLayout("insets 0", "[][][grow][]", "[]2lp[]"));
       {
-        JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper"));
+        JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
         panelSearchField.add(lblScraper, "cell 0 0,alignx right");
       }
       {
@@ -229,13 +238,13 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         panelSearchField.add(textFieldSearchString, "cell 2 0,growx");
         textFieldSearchString.setColumns(10);
 
-        JButton btnSearch = new JButton(BUNDLE.getString("Button.search"));
+        JButton btnSearch = new JButton(TmmResourceBundle.getString("Button.search"));
         panelSearchField.add(btnSearch, "cell 3 0");
         btnSearch.setIcon(IconManager.SEARCH_INV);
         btnSearch.addActionListener(searchAction);
       }
       {
-        JLabel lblLanguage = new TmmLabel(BUNDLE.getString("metatag.language"));
+        JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
         panelSearchField.add(lblLanguage, "cell 0 1,alignx right");
         cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
         cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getScraperLanguage());
@@ -307,7 +316,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       contentPanel.add(separator, "cell 0 3,growx");
     }
     {
-      JLabel lblScrapeFollowingItems = new TmmLabel(BUNDLE.getString("chooser.scrape"));
+      JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("chooser.scrape"));
       contentPanel.add(lblScrapeFollowingItems, "cell 0 4,growx");
 
       cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.values());
@@ -331,14 +340,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       }
       {
         if (queueSize > 1) {
-          JButton abortButton = new JButton(BUNDLE.getString("Button.abortqueue"));
+          JButton abortButton = new JButton(TmmResourceBundle.getString("Button.abortqueue"));
           abortButton.setIcon(IconManager.STOP_INV);
           abortButton.setActionCommand("Abort");
           abortButton.addActionListener(this);
           addButton(abortButton);
 
           if (queueIndex > 0) {
-            JButton backButton = new JButton(BUNDLE.getString("Button.back"));
+            JButton backButton = new JButton(TmmResourceBundle.getString("Button.back"));
             backButton.setIcon(IconManager.BACK_INV);
             backButton.setActionCommand("Back");
             backButton.addActionListener(this);
@@ -346,13 +355,13 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           }
         }
 
-        JButton cancelButton = new JButton(BUNDLE.getString("Button.cancel"));
+        JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
         cancelButton.setIcon(IconManager.CANCEL_INV);
         cancelButton.setActionCommand("Cancel");
         cancelButton.addActionListener(this);
         addButton(cancelButton);
 
-        okButton = new JButton(BUNDLE.getString("Button.ok"));
+        okButton = new JButton(TmmResourceBundle.getString("Button.ok"));
         okButton.setIcon(IconManager.APPLY_INV);
         okButton.setActionCommand("OK");
         okButton.addActionListener(this);
@@ -470,6 +479,8 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           // set scraped metadata
           List<MovieScraperMetadataConfig> scraperConfig = cbScraperConfig.getSelectedItems();
           movieToScrape.setMetadata(md, scraperConfig);
+          movieToScrape.setLastScrapeLanguage(model.getMetadataProvider().getId());
+          movieToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -518,7 +529,10 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
           // if configured - sync with trakt.tv
           if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
-            TmmTask task = new SyncTraktTvTask(Collections.singletonList(movieToScrape), null);
+            MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(Collections.singletonList(movieToScrape));
+            task.setSyncCollection(true);
+            task.setSyncWatched(true);
+
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
 
@@ -548,7 +562,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private void chooseArtwork(MediaFileType mediaFileType) {
-    ImageType imageType;
+    MediaArtwork.MediaArtworkType imageType;
     List<String> extrathumbs = null;
     List<String> extrafanarts = null;
 
@@ -557,14 +571,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         if (MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.POSTER;
+        imageType = POSTER;
         break;
 
       case FANART:
         if (MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.FANART;
+        imageType = BACKGROUND;
         if (MovieModuleManager.SETTINGS.isImageExtraThumbs()) {
           extrathumbs = new ArrayList<>();
         }
@@ -577,49 +591,49 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         if (MovieModuleManager.SETTINGS.getBannerFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.BANNER;
+        imageType = BANNER;
         break;
 
       case LOGO:
         if (MovieModuleManager.SETTINGS.getLogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.LOGO;
+        imageType = LOGO;
         break;
 
       case CLEARLOGO:
         if (MovieModuleManager.SETTINGS.getClearlogoFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARLOGO;
+        imageType = CLEARLOGO;
         break;
 
       case CLEARART:
         if (MovieModuleManager.SETTINGS.getClearartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.CLEARART;
+        imageType = CLEARART;
         break;
 
       case DISC:
         if (MovieModuleManager.SETTINGS.getDiscartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.DISC;
+        imageType = DISC;
         break;
 
       case THUMB:
         if (MovieModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.THUMB;
+        imageType = THUMB;
         break;
 
       case KEYART:
         if (MovieModuleManager.SETTINGS.getKeyartFilenames().isEmpty()) {
           return;
         }
-        imageType = ImageType.KEYART;
+        imageType = KEYART;
         break;
 
       default:
@@ -627,7 +641,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     }
 
     String imageUrl = ImageChooserDialog.chooseImage(this, movieToScrape.getIds(), imageType, artworkScrapers, extrathumbs, extrafanarts,
-        MediaType.MOVIE);
+        MediaType.MOVIE, movieToScrape.getPathNIO().toAbsolutePath().toString());
 
     movieToScrape.setArtworkUrl(imageUrl, mediaFileType);
     if (StringUtils.isNotBlank(imageUrl)) {
@@ -707,10 +721,10 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private String                  searchTerm;
-    private Movie                   movie;
-    private boolean                 withIds;
-    private MediaLanguages          language;
+    private final String            searchTerm;
+    private final Movie             movie;
+    private final boolean           withIds;
+    private final MediaLanguages    language;
 
     private List<MediaSearchResult> searchResult;
     boolean                         cancel = false;
@@ -724,7 +738,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.searchingfor") + " " + searchTerm);
+      startProgressBar(TmmResourceBundle.getString("chooser.searchingfor") + " " + searchTerm);
       searchResult = movieList.searchMovie(searchTerm, movie.getYear(), withIds ? movie.getIds() : null, mediaScraper, language);
       return null;
     }
@@ -764,7 +778,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class ScrapeTask extends SwingWorker<Void, Void> {
-    private MovieChooserModel model;
+    private final MovieChooserModel model;
 
     private ScrapeTask(MovieChooserModel model) {
       this.model = model;
@@ -772,7 +786,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public Void doInBackground() {
-      startProgressBar(BUNDLE.getString("chooser.scrapeing") + " " + model.getTitle());
+      startProgressBar(TmmResourceBundle.getString("chooser.scrapeing") + " " + model.getTitle());
 
       // disable button as long as its scraping
       okButton.setEnabled(false);
@@ -800,7 +814,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       /*
        * title
        */
-      Column col = new Column(BUNDLE.getString("chooser.searchresult"), "title", result -> result, MovieChooserModel.class);
+      Column col = new Column(TmmResourceBundle.getString("chooser.searchresult"), "title", result -> result, MovieChooserModel.class);
       col.setColumnTooltip(MovieChooserModel::getTitle);
       col.setColumnComparator(searchResultComparator);
       col.setCellRenderer(new SearchResultRenderer());
@@ -809,7 +823,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       /*
        * year
        */
-      col = new Column(BUNDLE.getString("metatag.year"), "year", MovieChooserModel::getYear, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.year"), "year", MovieChooserModel::getYear, String.class);
       col.setColumnComparator(stringComparator);
       col.setColumnResizeable(false);
       col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.2f));
@@ -865,14 +879,14 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       /*
        * name
        */
-      Column col = new Column(BUNDLE.getString("metatag.name"), "name", Person::getName, String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.name"), "name", Person::getName, String.class);
       col.setColumnTooltip(Person::getName);
       addColumn(col);
 
       /*
        * role
        */
-      col = new Column(BUNDLE.getString("metatag.role"), "role", Person::getRole, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.role"), "role", Person::getRole, String.class);
       col.setColumnTooltip(Person::getRole);
       addColumn(col);
     }
@@ -893,7 +907,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           setHorizontalTextPosition(SwingConstants.LEADING);
           setIconTextGap(10);
           setIcon(IconManager.WARN);
-          setToolTipText(BUNDLE.getString("moviechooser.duplicate.desc"));
+          setToolTipText(TmmResourceBundle.getString("moviechooser.duplicate.desc"));
         }
         else {
           setIcon(null);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -49,7 +50,7 @@ public class MovieTagFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
     oldTags = new HashSet<>();
 
     buildAndInstallTagsArray();
-    movieList.addPropertyChangeListener(Constants.TAG, evt -> SwingUtilities.invokeLater(this::buildAndInstallTagsArray));
+    movieList.addPropertyChangeListener(Constants.TAGS, evt -> SwingUtilities.invokeLater(this::buildAndInstallTagsArray));
   }
 
   @Override
@@ -77,7 +78,7 @@ public class MovieTagFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.tag"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.tag"));
   }
 
   private void buildAndInstallTagsArray() {

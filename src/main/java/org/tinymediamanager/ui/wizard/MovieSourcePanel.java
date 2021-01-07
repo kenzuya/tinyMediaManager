@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.awt.Font;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -35,6 +34,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.ui.IconManager;
@@ -52,8 +52,8 @@ import net.miginfocom.swing.MigLayout;
  */
 class MovieSourcePanel extends JPanel {
   private static final long           serialVersionUID = -8346420911623937902L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+  
 
   private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
 
@@ -70,7 +70,7 @@ class MovieSourcePanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[grow]", "[][200lp,grow]"));
     {
-      JLabel lblMovieDataSources = new JLabel(BUNDLE.getString("wizard.movie.datasources"));
+      JLabel lblMovieDataSources = new JLabel(TmmResourceBundle.getString("wizard.movie.datasources"));
       TmmFontHelper.changeFont(lblMovieDataSources, 1.3333, Font.BOLD);
       add(lblMovieDataSources, "cell 0 0");
     }
@@ -79,7 +79,7 @@ class MovieSourcePanel extends JPanel {
     add(panelMovieDataSources, "cell 0 1,grow");
     panelMovieDataSources.setLayout(new MigLayout("", "[grow][]", "[][200lp,grow]"));
     {
-      JTextArea tpDatasourceHint = new ReadOnlyTextArea(BUNDLE.getString("wizard.datasource.hint"));
+      JTextArea tpDatasourceHint = new ReadOnlyTextArea(TmmResourceBundle.getString("wizard.datasource.hint"));
       panelMovieDataSources.add(tpDatasourceHint, "cell 0 0 2 1,grow");
     }
     {
@@ -92,10 +92,10 @@ class MovieSourcePanel extends JPanel {
     {
       JButton btnAdd = new SquareIconButton(IconManager.ADD_INV);
       panelMovieDataSources.add(btnAdd, "flowy,cell 1 1,aligny top");
-      btnAdd.setToolTipText(BUNDLE.getString("Button.add"));
+      btnAdd.setToolTipText(TmmResourceBundle.getString("Button.add"));
       btnAdd.addActionListener(arg0 -> {
         String path = TmmProperties.getInstance().getProperty("movie.datasource.path");
-        Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("Settings.datasource.folderchooser"), path);
+        Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.datasource.folderchooser"), path);
         if (file != null && Files.isDirectory(file)) {
           MovieModuleManager.SETTINGS.addMovieDataSources(file.toAbsolutePath().toString());
         }
@@ -103,15 +103,15 @@ class MovieSourcePanel extends JPanel {
 
       JButton btnRemove = new SquareIconButton(IconManager.REMOVE_INV);
       panelMovieDataSources.add(btnRemove, "cell 1 1");
-      btnRemove.setToolTipText(BUNDLE.getString("Button.remove"));
+      btnRemove.setToolTipText(TmmResourceBundle.getString("Button.remove"));
       btnRemove.addActionListener(arg0 -> {
         int row = listDataSources.getSelectedIndex();
         if (row != -1) { // nothing selected
           String path = MovieModuleManager.SETTINGS.getMovieDataSource().get(row);
-          String[] choices = { BUNDLE.getString("Button.continue"), BUNDLE.getString("Button.abort") };
-          int decision = JOptionPane.showOptionDialog(null, String.format(BUNDLE.getString("Settings.movie.datasource.remove.info"), path),
-              BUNDLE.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
-              BUNDLE.getString("Button.abort"));
+          String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
+          int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.movie.datasource.remove.info"), path),
+              TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
+              TmmResourceBundle.getString("Button.abort"));
           if (decision == JOptionPane.YES_OPTION) {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             MovieModuleManager.SETTINGS.removeMovieDataSources(path);

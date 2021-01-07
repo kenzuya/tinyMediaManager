@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.WrapLayout;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -140,11 +141,11 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
     checkComboBoxItems.add(nullItem);
 
-    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectall"));
     checkComboBoxItem.setSelected(false);
     checkComboBoxItems.add(checkComboBoxItem);
 
-    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectnone"));
     checkComboBoxItem.setSelected(true);
     checkComboBoxItems.add(checkComboBoxItem);
 
@@ -393,7 +394,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       }
 
       list.setToolTipText(null);
-      return defaultRenderer.getListCellRendererComponent(list, BUNDLE.getString("ComboBox.select"), index, isSelected, cellHasFocus);
+      return defaultRenderer.getListCellRendererComponent(list, TmmResourceBundle.getString("ComboBox.select"), index, isSelected, cellHasFocus);
     }
   }
 
@@ -417,7 +418,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
       List<E> objs = getSelectedItems();
       if (objs.isEmpty()) {
-        add(new JLabel(BUNDLE.getString("ComboBox.select")));
+        add(new JLabel(TmmResourceBundle.getString("ComboBox.select")));
       }
       else {
         for (E obj : objs) {

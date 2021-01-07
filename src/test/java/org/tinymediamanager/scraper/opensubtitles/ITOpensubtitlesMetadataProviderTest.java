@@ -54,7 +54,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
   @Test
   public void testSearchByMovieHash() {
     try {
-      OpensubtitlesMetadataProvider os = new OpensubtitlesMetadataProvider();
+      OpenSubtitlesSubtitleProvider os = new OpenSubtitlesMovieSubtitleProvider();
 
       File parentDir = new File("");
       File[] subDirs = parentDir.listFiles();
@@ -95,7 +95,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
   @Test
   public void testSearchByTitle() {
     try {
-      OpensubtitlesMetadataProvider mp = new OpensubtitlesMetadataProvider();
+      OpenSubtitlesSubtitleProvider mp = new OpenSubtitlesMovieSubtitleProvider();
       SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
       options.setSearchQuery("The Matrix");
       options.setLanguage(MediaLanguages.de);

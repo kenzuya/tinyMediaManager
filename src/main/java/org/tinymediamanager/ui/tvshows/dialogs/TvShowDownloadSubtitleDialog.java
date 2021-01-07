@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -33,6 +33,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
+import org.tinymediamanager.ui.components.combobox.TmmCheckComboBox;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -43,13 +44,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowDownloadSubtitleDialog extends TmmDialog {
-  private static final long         serialVersionUID = 3826984454317879241L;
+  private static final long                      serialVersionUID = 3826984454317879241L;
 
-  private final TvShowList          tvShowList       = TvShowList.getInstance();
+  private final MediaScraperCheckComboBox        cbSubtitleScraper;
+  private final TmmCheckComboBox<MediaLanguages> cbLanguage;
 
-  private MediaScraperCheckComboBox cbSubtitleScraper;
-  private JComboBox<MediaLanguages> cbLanguage;
-  private boolean                   startDownload    = false;
+  private boolean                                startDownload    = false;
 
   public TvShowDownloadSubtitleDialog(String title) {
     super(title, "downloadSubtitle");
@@ -59,26 +59,26 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
       getContentPane().add(panelCenter, BorderLayout.CENTER);
       panelCenter.setLayout(new MigLayout("", "[][300lp]", "[][][20lp:n][]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper"));
+      JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
       panelCenter.add(lblScraper, "cell 0 0");
 
-      cbSubtitleScraper = new MediaScraperCheckComboBox(tvShowList.getAvailableSubtitleScrapers());
+      cbSubtitleScraper = new MediaScraperCheckComboBox(TvShowList.getInstance().getAvailableSubtitleScrapers());
       panelCenter.add(cbSubtitleScraper, "cell 1 0,growx");
 
-      JLabel lblLanguage = new TmmLabel(BUNDLE.getString("metatag.language"));
+      JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
       panelCenter.add(lblLanguage, "cell 0 1");
 
-      cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
+      cbLanguage = new TmmCheckComboBox<>(MediaLanguages.valuesSorted());
       panelCenter.add(cbLanguage, "cell 1 1,growx");
 
       cbLanguage.setSelectedItem(TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage());
 
-      JTextArea taHint = new ReadOnlyTextArea(BUNDLE.getString("tvshow.download.subtitles.hint"));
+      JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("tvshow.download.subtitles.hint"));
       taHint.setOpaque(false);
       panelCenter.add(taHint, "cell 0 3 2 1,growx");
     }
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(e -> {
         startDownload = false;
@@ -86,7 +86,7 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
       });
       addButton(btnCancel);
 
-      JButton btnStart = new JButton(BUNDLE.getString("scraper.start"));
+      JButton btnStart = new JButton(TmmResourceBundle.getString("scraper.start"));
       btnStart.setIcon(IconManager.APPLY_INV);
       btnStart.addActionListener(e -> {
         startDownload = true;
@@ -98,7 +98,7 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
 
     // Subtitle scraper
     List<MediaScraper> selectedSubtitleScrapers = new ArrayList<>();
-    for (MediaScraper subtitleScraper : tvShowList.getAvailableSubtitleScrapers()) {
+    for (MediaScraper subtitleScraper : TvShowList.getInstance().getAvailableSubtitleScrapers()) {
       if (TvShowModuleManager.SETTINGS.getSubtitleScrapers().contains(subtitleScraper.getId())) {
         selectedSubtitleScrapers.add(subtitleScraper);
       }
@@ -119,12 +119,12 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
   }
 
   /**
-   * Get the selected Language
+   * Get the selected Languages
    *
-   * @return the selected language
+   * @return the selected languages
    */
-  public MediaLanguages getLanguage() {
-    return (MediaLanguages) cbLanguage.getSelectedItem();
+  public List<MediaLanguages> getLanguages() {
+    return cbLanguage.getSelectedItems();
   }
 
   /**

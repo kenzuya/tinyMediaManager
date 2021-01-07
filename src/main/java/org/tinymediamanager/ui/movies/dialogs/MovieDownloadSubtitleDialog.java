@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -34,6 +34,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
+import org.tinymediamanager.ui.components.combobox.TmmCheckComboBox;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -46,8 +47,9 @@ import net.miginfocom.swing.MigLayout;
 public class MovieDownloadSubtitleDialog extends TmmDialog {
   private static final long         serialVersionUID = 3826984454317879241L;
 
-  private MediaScraperCheckComboBox cbSubtitleScraper;
-  private JComboBox<MediaLanguages> cbLanguage;
+  private final MediaScraperCheckComboBox        cbSubtitleScraper;
+  private final TmmCheckComboBox<MediaLanguages> cbLanguage;
+
   private boolean                   startDownload    = false;
 
   public MovieDownloadSubtitleDialog(String title) {
@@ -59,25 +61,27 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       getContentPane().add(panelScraper, BorderLayout.CENTER);
       panelScraper.setLayout(new MigLayout("", "[][300lp]", "[][][20lp:n][]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper"));
+      JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
       panelScraper.add(lblScraper, "cell 0 0,alignx right");
 
       cbSubtitleScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableSubtitleScrapers());
       panelScraper.add(cbSubtitleScraper, "cell 1 0,growx");
 
-      JLabel lblLanguage = new TmmLabel(BUNDLE.getString("metatag.language"));
+      JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
       panelScraper.add(lblLanguage, "cell 0 1,alignx right");
 
-      cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
+      cbLanguage = new TmmCheckComboBox<>(MediaLanguages.valuesSorted());
       panelScraper.add(cbLanguage, "cell 1 1,growx");
 
-      JTextArea taHint = new ReadOnlyTextArea(BUNDLE.getString("movie.download.subtitles.hint"));
+      cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage());
+
+      JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("movie.download.subtitles.hint"));
       taHint.setOpaque(false);
       panelScraper.add(taHint, "cell 0 3 2 1,grow");
     }
 
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(e -> {
         startDownload = false;
@@ -86,7 +90,7 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
 
       addButton(btnCancel);
 
-      JButton btnStart = new JButton(BUNDLE.getString("scraper.start"));
+      JButton btnStart = new JButton(TmmResourceBundle.getString("scraper.start"));
       btnStart.setIcon(IconManager.APPLY_INV);
       btnStart.addActionListener(e -> {
         startDownload = true;
@@ -121,12 +125,12 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
   }
 
   /**
-   * Get the selected Language
+   * Get the selected Languages
    *
-   * @return the selected language
+   * @return the selected languages
    */
-  public MediaLanguages getLanguage() {
-    return (MediaLanguages) cbLanguage.getSelectedItem();
+  public List<MediaLanguages> getLanguages() {
+    return cbLanguage.getSelectedItems();
   }
 
   /**

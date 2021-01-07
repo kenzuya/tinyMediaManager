@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
@@ -37,12 +37,12 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  */
 public class MovieReloadMediaInformationTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieReloadMediaInformationTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   private List<Movie>                 moviesToReload;
 
   public MovieReloadMediaInformationTask(List<Movie> movies) {
-    super(BUNDLE.getString("movie.updatemediainfo"));
+    super(TmmResourceBundle.getString("movie.updatemediainfo"));
     moviesToReload = new ArrayList<>(movies);
     initThreadPool(1, "reloadMI");
   }

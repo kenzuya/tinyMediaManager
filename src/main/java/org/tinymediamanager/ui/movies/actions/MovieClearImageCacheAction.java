@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -36,10 +36,10 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieClearImageCacheAction extends TmmAction {
   private static final long           serialVersionUID = -5089957097690621345L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieClearImageCacheAction() {
-    putValue(NAME, BUNDLE.getString("movie.clearimagecache"));
+    putValue(NAME, TmmResourceBundle.getString("movie.clearimagecache"));
     putValue(LARGE_ICON_KEY, "");
   }
 
@@ -48,7 +48,7 @@ public class MovieClearImageCacheAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

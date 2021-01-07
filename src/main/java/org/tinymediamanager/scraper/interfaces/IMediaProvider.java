@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,5 +37,14 @@ public interface IMediaProvider {
    * 
    * @return the scraper id
    */
-  String getId();
+  default String getId() {
+    return getProviderInfo().getId();
+  }
+
+  /**
+   * indicates whether this scraper is active or not (private and valid API key OR public to be active)
+   * 
+   * @return true/false
+   */
+  boolean isActive();
 }

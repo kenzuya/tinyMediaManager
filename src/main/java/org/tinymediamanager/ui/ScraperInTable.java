@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
@@ -37,7 +38,7 @@ import org.tinymediamanager.ui.images.TmmSvgIcon;
  * The class {@link ScraperInTable} is used to display scrapers in a table
  */
 public class ScraperInTable extends AbstractModelObject {
-  /** @wbp.nls.resourceBundle messages */
+
   protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   protected MediaScraper                scraper;
@@ -96,7 +97,7 @@ public class ScraperInTable extends AbstractModelObject {
     // first try to get the localized version
     String description = null;
     try {
-      description = BUNDLE.getString("scraper." + scraper.getId() + ".hint");
+      description = TmmResourceBundle.getString("scraper." + scraper.getId() + ".hint");
     }
     catch (Exception ignored) {
     }

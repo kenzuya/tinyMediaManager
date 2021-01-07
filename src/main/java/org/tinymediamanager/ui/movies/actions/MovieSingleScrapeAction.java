@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -39,13 +39,13 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
  */
 public class MovieSingleScrapeAction extends TmmAction {
   private static final long           serialVersionUID = 3066746719177708420L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieSingleScrapeAction() {
-    putValue(NAME, BUNDLE.getString("movie.scrape.selected"));
+    putValue(NAME, TmmResourceBundle.getString("movie.scrape.selected"));
     putValue(SMALL_ICON, IconManager.SEARCH);
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.scrape.selected"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.scrape.selected"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
@@ -57,7 +57,7 @@ public class MovieSingleScrapeAction extends TmmAction {
     int index = 0;
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

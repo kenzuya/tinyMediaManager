@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Date;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -37,6 +36,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
@@ -59,7 +59,7 @@ import net.miginfocom.swing.MigLayout;
 public abstract class MediaFilesPanel extends JPanel {
   private static final long           serialVersionUID = -4929581173434859034L;
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private TmmTable                    tableFiles;
 
@@ -128,55 +128,55 @@ public abstract class MediaFilesPanel extends JPanel {
       /*
        * filename
        */
-      col = new Column(BUNDLE.getString("metatag.filename"), "filename", MediaFile::getFilename, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", MediaFile::getFilename, String.class);
       addColumn(col);
 
       /*
        * filetype
        */
-      col = new Column(BUNDLE.getString("metatag.mediafiletype"), "filetype", mediaFile -> getMediaFileTypeLocalized(mediaFile.getType()),
+      col = new Column(TmmResourceBundle.getString("metatag.mediafiletype"), "filetype", mediaFile -> getMediaFileTypeLocalized(mediaFile.getType()),
           String.class);
       addColumn(col);
 
       /*
        * file size
        */
-      col = new Column(BUNDLE.getString("metatag.size"), "filesize", MediaFile::getFilesizeInMegabytes, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.size"), "filesize", MediaFile::getFilesizeInMegabytes, String.class);
       col.setCellRenderer(new RightAlignTableCellRenderer());
       addColumn(col);
 
       /*
        * codec
        */
-      col = new Column(BUNDLE.getString("metatag.codec"), "codec", MediaFile::getCombinedCodecs, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.codec"), "codec", MediaFile::getCombinedCodecs, String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * resolution
        */
-      col = new Column(BUNDLE.getString("metatag.resolution"), "resolution", MediaFile::getVideoResolution, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.resolution"), "resolution", MediaFile::getVideoResolution, String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * runtime
        */
-      col = new Column(BUNDLE.getString("metatag.runtime"), "runtime", MediaFile::getDurationHMS, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.runtime"), "runtime", MediaFile::getDurationHMS, String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * subtitle
        */
-      col = new Column(BUNDLE.getString("metatag.subtitle"), "subtitle", MediaFile::getSubtitlesAsString, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.subtitle"), "subtitle", MediaFile::getSubtitlesAsString, String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * creation date
        */
-      col = new Column(BUNDLE.getString("metatag.filecreationdate"), "filecreationdate", mediaFile -> formatDate(mediaFile.getDateCreated()),
+      col = new Column(TmmResourceBundle.getString("metatag.filecreationdate"), "filecreationdate", mediaFile -> formatDate(mediaFile.getDateCreated()),
           String.class);
       col.setColumnResizeable(false);
       addColumn(col);
@@ -184,7 +184,7 @@ public abstract class MediaFilesPanel extends JPanel {
       /*
        * last modified date
        */
-      col = new Column(BUNDLE.getString("metatag.filelastmodifieddate"), "filelastmodifieddate",
+      col = new Column(TmmResourceBundle.getString("metatag.filelastmodifieddate"), "filelastmodifieddate",
           mediaFile -> formatDate(mediaFile.getDateLastModified()), String.class);
       col.setColumnResizeable(false);
       addColumn(col);
@@ -192,7 +192,7 @@ public abstract class MediaFilesPanel extends JPanel {
 
     private String getMediaFileTypeLocalized(MediaFileType type) {
       String prop = "mediafiletype." + type.name().toLowerCase(Locale.ROOT);
-      return BUNDLE.getString(prop);
+      return TmmResourceBundle.getString(prop);
     }
 
     private String formatDate(Date date) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.scraper;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -27,10 +26,11 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSubtitleProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowSubtitleProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 
 /**
@@ -40,15 +40,15 @@ import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
  * @author Manuel Laggner
  */
 public class MediaScraper {
-  private static final ResourceBundle BUNDLE  = ResourceBundle.getBundle("messages");
-  private String                      id      = "";
-  private String                      version = "";
-  private String                      name    = "";
-  private String                      summary = "";
-  private String                      description;
-  private URL                         logoUrl;
-  private ScraperType                 type;
-  private IMediaProvider              mediaProvider;
+  private final IMediaProvider mediaProvider;
+
+  private String               id;
+  private String               version;
+  private String               name;
+  private String               summary;
+  private String               description;
+  private URL                  logoUrl;
+  private ScraperType          type;
 
   public MediaScraper(ScraperType type, IMediaProvider mediaProvider) {
     this.mediaProvider = mediaProvider;
@@ -135,33 +135,10 @@ public class MediaScraper {
     ArrayList<MediaScraper> scraper = new ArrayList<>();
 
     ArrayList<IMediaProvider> plugins = new ArrayList<>();
-    switch (type) {
-      case MOVIE:
-        plugins.addAll(MediaProviders.getProvidersForInterface(IMovieMetadataProvider.class));
-        break;
-      case TV_SHOW:
-        plugins.addAll(MediaProviders.getProvidersForInterface(ITvShowMetadataProvider.class));
-        break;
-      case MOVIE_SET:
-        plugins.addAll(MediaProviders.getProvidersForInterface(IMovieSetMetadataProvider.class));
-        break;
-      case MOVIE_ARTWORK:
-        plugins.addAll(MediaProviders.getProvidersForInterface(IMovieArtworkProvider.class));
-        break;
-      case TV_SHOW_ARTWORK:
-        plugins.addAll(MediaProviders.getProvidersForInterface(ITvShowArtworkProvider.class));
-        break;
-      case MOVIE_TRAILER:
-        plugins.addAll(MediaProviders.getProvidersForInterface(IMovieTrailerProvider.class));
-        break;
-      case TVSHOW_TRAILER:
-        plugins.addAll(MediaProviders.getProvidersForInterface(ITvShowTrailerProvider.class));
-        break;
-      case SUBTITLE:
-        plugins.addAll(MediaProviders.getProvidersForInterface(ISubtitleProvider.class));
-        break;
-      default:
-        break;
+
+    Class<? extends IMediaProvider> clazz = getClassForType(type);
+    if (clazz != null) {
+      plugins.addAll(MediaProviders.getProvidersForInterface(clazz));
     }
 
     for (IMediaProvider p : plugins) {
@@ -187,12 +164,46 @@ public class MediaScraper {
       return null;
     }
 
-    IMediaProvider mediaProvider = MediaProviders.getProviderById(id);
+    IMediaProvider mediaProvider = MediaProviders.getProviderById(id, getClassForType(type));
     if (mediaProvider != null) {
       return new MediaScraper(type, mediaProvider);
     }
 
     return null;
+  }
+
+  private static Class<? extends IMediaProvider> getClassForType(ScraperType type) {
+    switch (type) {
+      case MOVIE:
+        return IMovieMetadataProvider.class;
+
+      case TV_SHOW:
+        return ITvShowMetadataProvider.class;
+
+      case MOVIE_SET:
+        return IMovieSetMetadataProvider.class;
+
+      case MOVIE_ARTWORK:
+        return IMovieArtworkProvider.class;
+
+      case TVSHOW_ARTWORK:
+        return ITvShowArtworkProvider.class;
+
+      case MOVIE_TRAILER:
+        return IMovieTrailerProvider.class;
+
+      case TVSHOW_TRAILER:
+        return ITvShowTrailerProvider.class;
+
+      case MOVIE_SUBTITLE:
+        return IMovieSubtitleProvider.class;
+
+      case TVSHOW_SUBTITLE:
+        return ITvShowSubtitleProvider.class;
+
+      default:
+        return null;
+    }
   }
 
   @Override

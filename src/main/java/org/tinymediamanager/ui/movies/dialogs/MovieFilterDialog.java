@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings.UIFilters;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -100,7 +101,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class MovieFilterDialog extends TmmDialog {
   private static final long                      serialVersionUID = 2298540526428945319L;
-  /** @wbp.nls.resourceBundle messages */
+
   protected static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private final MovieSelectionModel              selectionModel;
@@ -113,7 +114,7 @@ public class MovieFilterDialog extends TmmDialog {
   private JComboBox<String>                      cbPreset;
 
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
-    super(BUNDLE.getString("movieextendedsearch.options"), "movieFilter");
+    super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieFilter");
     setModalityType(ModalityType.MODELESS);
     setMinimumSize(new Dimension(400, 0));
 
@@ -141,9 +142,9 @@ public class MovieFilterDialog extends TmmDialog {
         JPanel panelMain = new JPanel(new MigLayout("", "[][][50lp:150lp,grow]", "[]"));
         JScrollPane scrollPaneMain = new NoBorderScrollPane(panelMain);
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(BUNDLE.getString("metatag.details"), scrollPaneMain);
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
 
-        panelMain.add(new TmmLabel(BUNDLE.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
 
         addFilter(new MovieNewMoviesFilter(), panelMain);
         addFilter(new MovieDuplicateFilter(), panelMain);
@@ -151,7 +152,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieGenreFilter(), panelMain);
         addFilter(new MovieCertificationFilter(), panelMain);
         addFilter(new MovieYearFilter(), panelMain);
-        addFilter(new MovieDecadesFilter(),panelMain);
+        addFilter(new MovieDecadesFilter(), panelMain);
         addFilter(new MovieCastFilter(), panelMain);
         addFilter(new MovieCountryFilter(), panelMain);
         addFilter(new MovieLanguageFilter(), panelMain);
@@ -168,8 +169,8 @@ public class MovieFilterDialog extends TmmDialog {
         JScrollPane scrollPaneMediaData = new NoBorderScrollPane(panelMediaData);
 
         scrollPaneMediaData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tabbedPane.addTab(BUNDLE.getString("metatag.mediainformation"), scrollPaneMediaData);
-        panelMediaData.add(new TmmLabel(BUNDLE.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediainformation"), scrollPaneMediaData);
+        panelMediaData.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
 
         addFilter(new MovieMediaSourceFilter(), panelMediaData);
         addFilter(new MovieMediaFilesFilter(), panelMediaData);
@@ -191,7 +192,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieMissingMetadataFilter(), panelMediaData);
         addFilter(new MovieMissingArtworkFilter(), panelMediaData);
         addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
-        addFilter(new MovieHDRFormatFilter(),panelMediaData);
+        addFilter(new MovieHDRFormatFilter(), panelMediaData);
       }
 
       {
@@ -202,7 +203,7 @@ public class MovieFilterDialog extends TmmDialog {
         JSeparator separator = new JSeparator();
         panelFilterPreset.add(separator, "cell 0 1 4 1,growx,aligny top");
 
-        JLabel lblEnableAllT = new TmmLabel(BUNDLE.getString("filter.enableall"));
+        JLabel lblEnableAllT = new TmmLabel(TmmResourceBundle.getString("filter.enableall"));
         panelFilterPreset.add(lblEnableAllT, "cell 1 2, alignx trailing");
 
         JCheckBox chkbxEnableAll = new JCheckBox();
@@ -210,7 +211,7 @@ public class MovieFilterDialog extends TmmDialog {
         chkbxEnableAll.addActionListener(e -> selectionModel.setFiltersActive(chkbxEnableAll.isSelected()));
         panelFilterPreset.add(chkbxEnableAll, "cell 2 2");
 
-        JLabel lblFilterPresetT = new TmmLabel(BUNDLE.getString("filter.presets"));
+        JLabel lblFilterPresetT = new TmmLabel(TmmResourceBundle.getString("filter.presets"));
         panelFilterPreset.add(lblFilterPresetT, "cell 1 3, alignx trailing");
 
         cbPreset = new JComboBox<>();
@@ -226,7 +227,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelFilterPreset.add(cbPreset, "cell 2 3");
 
         JButton btnSavePreset = new FlatButton(IconManager.SAVE);
-        btnSavePreset.setToolTipText(BUNDLE.getString("filter.savepreset"));
+        btnSavePreset.setToolTipText(TmmResourceBundle.getString("filter.savepreset"));
         btnSavePreset.addActionListener(e -> {
           Set<UIFilters> activeUiFilters = getActiveUiFilters();
           if (!activeUiFilters.isEmpty()) {
@@ -247,7 +248,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelFilterPreset.add(btnSavePreset, "cell 2 3");
 
         JButton btnDeletePreset = new FlatButton(IconManager.DELETE_GRAY);
-        btnDeletePreset.setToolTipText(BUNDLE.getString("filter.remove"));
+        btnDeletePreset.setToolTipText(TmmResourceBundle.getString("filter.remove"));
         btnDeletePreset.addActionListener(e -> {
           String filterName = (String) cbPreset.getSelectedItem();
           if (StringUtils.isBlank(filterName)) {
@@ -256,13 +257,13 @@ public class MovieFilterDialog extends TmmDialog {
 
           // display warning and ask the user again
           if (!TmmProperties.getInstance().getPropertyAsBoolean("movie.hidefilterhint")) {
-            JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+            JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
             TmmFontHelper.changeFont(checkBox, L1);
             checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-            Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-            Object[] params = { BUNDLE.getString("filter.remove"), checkBox };
-            int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("filter.remove"),
+            Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+            Object[] params = { TmmResourceBundle.getString("filter.remove"), checkBox };
+            int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("filter.remove"),
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
             // the user don't want to show this dialog again

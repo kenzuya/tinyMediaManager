@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package org.tinymediamanager.core.movie.tasks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -49,7 +49,7 @@ import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
  */
 public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger                    LOGGER = LoggerFactory.getLogger(MovieMissingArtworkDownloadTask.class);
-  private static final ResourceBundle            BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private final List<Movie>                      moviesToScrape;
   private final MovieSearchAndScrapeOptions      scrapeOptions;
@@ -57,7 +57,7 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
 
   public MovieMissingArtworkDownloadTask(List<Movie> moviesToScrape, MovieSearchAndScrapeOptions scrapeOptions,
       List<MovieScraperMetadataConfig> metadataConfig) {
-    super(BUNDLE.getString("task.missingartwork"));
+    super(TmmResourceBundle.getString("task.missingartwork"));
     this.moviesToScrape = moviesToScrape;
     this.scrapeOptions = scrapeOptions;
     this.metadataConfig = metadataConfig;

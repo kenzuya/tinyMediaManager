@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package org.tinymediamanager.core.movie;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
  * The enum MovieScraperMetadataConfig is used to control which fields will be set after scraping
@@ -66,7 +66,7 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   EXTRAFANART(Type.ARTWORK),
   EXTRATHUMB(Type.ARTWORK);
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private Type                        type;
   private String                      description;
@@ -96,10 +96,10 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
     if (StringUtils.isBlank(description)) {
       try {
         if (type == Type.ARTWORK) {
-          return BUNDLE.getString("mediafiletype." + name().toLowerCase(Locale.ROOT));
+          return TmmResourceBundle.getString("mediafiletype." + name().toLowerCase(Locale.ROOT));
         }
         else {
-          return BUNDLE.getString("metatag." + name().toLowerCase(Locale.ROOT));
+          return TmmResourceBundle.getString("metatag." + name().toLowerCase(Locale.ROOT));
         }
       }
       catch (Exception ignored) {
@@ -108,7 +108,7 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
     }
     else {
       try {
-        return BUNDLE.getString(description);
+        return TmmResourceBundle.getString(description);
       }
       catch (Exception ignored) {
         // just not crash
@@ -123,7 +123,7 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
       return null;
     }
     try {
-      return BUNDLE.getString(tooltip);
+      return TmmResourceBundle.getString(tooltip);
     }
     catch (Exception ignored) {
       // just not crash

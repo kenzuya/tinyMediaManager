@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
   @Test
   public void testProviderInfo() {
     try {
-      MpdbMetadataProvider mp = new MpdbMetadataProvider();
+      MpdbMovieMetadataProvider mp = new MpdbMovieMetadataProvider();
       MediaProviderInfo providerInfo = mp.getProviderInfo();
 
       assertThat(providerInfo.getDescription()).isNotNull();
@@ -60,7 +60,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testSearch() throws ScrapeException {
-    MpdbMetadataProvider mp = new MpdbMetadataProvider();
+    MpdbMovieMetadataProvider mp = new MpdbMovieMetadataProvider();
     mp.getProviderInfo().getConfig().setValue("aboKey", System.getProperty("mpdb_aboKey"));
     mp.getProviderInfo().getConfig().setValue("username", System.getProperty("mpdb_username"));
 
@@ -78,7 +78,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
 
   @Test
   public void testScrape() throws ScrapeException {
-    MpdbMetadataProvider mp = new MpdbMetadataProvider();
+    MpdbMovieMetadataProvider mp = new MpdbMovieMetadataProvider();
     mp.getProviderInfo().getConfig().setValue("aboKey", System.getProperty("mpdb_aboKey"));
     mp.getProviderInfo().getConfig().setValue("username", System.getProperty("mpdb_username"));
 

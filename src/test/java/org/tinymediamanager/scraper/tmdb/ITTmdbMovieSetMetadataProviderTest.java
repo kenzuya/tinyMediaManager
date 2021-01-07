@@ -2,7 +2,6 @@ package org.tinymediamanager.scraper.tmdb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider.PROVIDER_INFO;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
 
   @Test
   public void testCollectionSearchDataIntegrity() throws Exception {
-    IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieSetMetadataProvider mp = new TmdbMovieMetadataProvider();
 
     MovieSetSearchAndScrapeOptions searchOptions = new MovieSetSearchAndScrapeOptions();
     searchOptions.setSearchQuery("F*ck You, Goethe Collection");
@@ -45,7 +44,7 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
 
   @Test
   public void testCollectionSearchDataIntegrityInGerman() throws Exception {
-    IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieSetMetadataProvider mp = new TmdbMovieMetadataProvider();
 
     MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
     options.setSearchQuery("F*ck You, Goethe Collection");
@@ -62,7 +61,7 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
 
   @Test
   public void testCollectionSearchDataIntegrityInGreek() throws Exception {
-    IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieSetMetadataProvider mp = new TmdbMovieMetadataProvider();
 
     MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
     options.setSearchQuery("F*ck You, Goethe Collection");
@@ -79,10 +78,9 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
 
   @Test
   public void testCollectionSearchDataIntegrityInGreekWithFallbackLanguageEnglish() throws Exception {
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
-
-    IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieSetMetadataProvider mp = new TmdbMovieMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
     MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
     options.setSearchQuery("F*ck You, Goethe Collection");
@@ -95,13 +93,11 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
     assertThat(searchResults.size()).isGreaterThanOrEqualTo(1);
 
     assertThat(searchResults.get(0).getTitle()).isEqualTo("F*ck You, Goethe Collection");
-
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
   }
 
   @Test
   public void testCollectionScrapeDataIntegrityWithoutFallbackLanguageReturnMissingData() throws Exception {
-    IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieSetMetadataProvider mp = new TmdbMovieMetadataProvider();
 
     MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
     options.setId(mp.getId(), "257960");
@@ -121,10 +117,9 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
 
   @Test
   public void testCollectionScrapeDataIntegrityWithFallbackLanguageReturnCorrectData() throws Exception {
-    PROVIDER_INFO.getConfig().setValue("titleFallback", true);
-    PROVIDER_INFO.getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
-
-    IMovieSetMetadataProvider mp = new TmdbMetadataProvider();
+    IMovieSetMetadataProvider mp = new TmdbMovieMetadataProvider();
+    mp.getProviderInfo().getConfig().setValue("titleFallback", true);
+    mp.getProviderInfo().getConfig().setValue("titleFallbackLanguage", MediaLanguages.en.toString());
 
     MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
     options.setId(mp.getId(), "257960");
@@ -139,9 +134,6 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
     assertThat(md.getSubItems()).hasSize(2);
     assertThat(md.getSubItems().get(0).getTitle()).isEqualTo("Επιχείρηση: Χάος");
     assertThat(md.getSubItems().get(1).getTitle()).isEqualTo("The Raid 2");
-
-    PROVIDER_INFO.getConfig().setValue("titleFallback", false);
-
   }
 
 }

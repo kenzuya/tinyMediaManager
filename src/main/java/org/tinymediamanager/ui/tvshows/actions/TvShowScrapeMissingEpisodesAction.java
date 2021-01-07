@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package org.tinymediamanager.ui.tvshows.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -40,20 +40,20 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowScrapeMissingEpisodesAction extends TmmAction {
   private static final long           serialVersionUID = -389165862194237592L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowScrapeMissingEpisodesAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.scrape.missingepisodes"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.missingepisodes"));
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);
     putValue(SMALL_ICON, IconManager.SEARCH);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

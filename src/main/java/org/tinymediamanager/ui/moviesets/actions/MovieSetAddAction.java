@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
@@ -33,21 +33,21 @@ import org.tinymediamanager.ui.actions.TmmAction;
  */
 public class MovieSetAddAction extends TmmAction {
   private static final long           serialVersionUID = 819724436270051906L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   /**
    * Instantiates a new adds the movie set action.
    */
   public MovieSetAddAction() {
-    putValue(NAME, BUNDLE.getString("movieset.add.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movieset.add.desc"));
     putValue(LARGE_ICON_KEY, IconManager.ADD);
     putValue(SMALL_ICON, IconManager.ADD);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.add.desc"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.add.desc"));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    String name = JOptionPane.showInputDialog(MainWindow.getInstance(), BUNDLE.getString("movieset.title"), "", JOptionPane.QUESTION_MESSAGE);
+    String name = JOptionPane.showInputDialog(MainWindow.getInstance(), TmmResourceBundle.getString("movieset.title"), "", JOptionPane.QUESTION_MESSAGE);
     if (StringUtils.isNotEmpty(name)) {
       MovieSet movieSet = new MovieSet(name);
       movieSet.saveToDb();

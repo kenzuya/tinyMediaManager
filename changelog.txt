@@ -1,144 +1,39 @@
-Upcoming version
+Version 4.1
 =======================
-x only use configured artwork scrapers for TV shows
-x fixed movie set artwork completeness check
++ BIG scraper rework:
+  We split up all scrapers into individual sub-scrapers for every scope (meta data, artwork, trailer, subtitle).
+  This offers new options to configure them:
+    - now they are all independently configurable (no setting for the movie section influences the TV show section)
+    - we could strip out options which are not needed for the actual section (e.g. TV show options in the movie scraper)
+    - they have a better code base for future changes
+  The only drawback here is, that you may have to enter some options (like an individual API key) in every sub-scraper
+  ATTENTION: since almost everything changed in the scraper setup, you may need to re-set the scraper options after the update
 
-
-Version 4.0.7
-=======================
-+ added decades filter for movies
-+ added new column (audio title) in MediaInformationPanels (Movie / TvShows)
-+ added HDR Format filter for movies and episodes
-+ added movie set artwork completeness check options (like for movies) #1145
-+ added "_" as a colon separator in the renamer settings #974
++ added missing movies in movie set #1111
++ feature for still/thumb creation via FFmpeg #1017
++ added an option to suppress tooltips in the main tables #1128
++ added a function to migrate existing movies/TV shows to a new data source #1044
++ remember last used scraper for each entry - for scraping new episodes the same scraper will be taken into account as for the TV show
++ (movie) added full customization in which priority/order the rating should be loaded #986
++ use qualified metadata (title, plot, year, IMDB id, episode/season number) from mediainfo on first import #669 #1065
++ (movie) added an expert mode to the bulk editor to "freely" edit text based fields
++ added a JMTE replacement renderer for custom replacements (movie/TV show, renamer & exporter)
+x rewritten Trakt.tv integration to be more flexible and ready for multiple versions of the same movie/episode #1031 #1081
+x exchanged native file dialogs with tiny file dialogs
+  Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows
 x better error messages for SSL errors #1122
-x fixed downloading trailers #1136
-x detecting video resolution for certain 3D SBS files #1133
-x writing of movie set artwork with a path separator in the name #1145
-x smaller fixes to the movie search #1140
-x fixed renaming of episode extras (e.g. extra text files)
-x fixed loading of Kodi scrapers
-x fixed: do not set "episode guide" tag when selecting KODI preset
-
-
-Version 4.0.6
-=======================
-+ added support of Kodi v19 style extrafanart (fanartX.ext)
-+ added support of sorting in movie set/TV show tree #540
-+ provide a filter for multi select combo boxes
-+ added file name options for movie set artwork
-+ added support for downloading TV show themes #825
-+ added video bitrate to movie columns
-+ added audio language filter
-+ added subtitle language filter
-+ major rework of the TV show renamer (cleanup of TV show related files)
-+ added first aired date to the episode chooser
-x added the media source .WEB. to WEB-DL
-x added "decade" tokens to movie renamer
-x better movie title search (#1089)
-x add support for syncing MP2, FLAC and DTS-ES metadata to Trakt.tv
-x enhanced visualization of the image chooser #1090
-x enhanced detection of container formats #1038
-x added more icons for media sources #1069
-x fetching 0.0 rated movies
-x detect 4 digit episode numbers
-x fixed TV show genre filter #1104
-x separated reload media information from rewriting the mediainfo.xml file #1105
-x skip data sources in "update data source" which are excluded in the settings
-x prevent a possible memory leak in the trailer downloader #1099
-x do not show missing seasons as shown #1102
-x added aac logo
-
-
-Version 4.0.5
-=======================
-+ added support for trailer download to /trailers #787
-+ re-added tinyMediaManagerCMD.exe for Windows command line execution
-+ added subtitle count filter for TV shows
-+ updated libmediainfo to 20.09
-x fixed reading hybrid DVD ISOs
-x completely reworked trailer downloading to fix several issues #1060
-x reworked aspect ratio calculation
-x lowered memory consumption of the imdb rating fetching
-x draw table/tree grid when multiple rows are selected
-x improved loading time of large libraries
-x more precise search results when searching for text only
-x added an option to specify which actors should be fetched from IMDB #1062
-x updated live calculation of movie set/movie count #1064
-x inversion of media file filter for TV shows #1063
-x prevent trailer from being renamed from within /trailer(s) folder
-x support reading of the mediainfo.xml for unsupported files (.disc, .img, ...)
-x fixed reading of mediainfo via UNC paths #1071
-x fixed some updater issues
-x fixed macOS dock pin issue
-x MPAA tag in the NFO now also respects the certification style setting
-
-
-Version 4.0.4
-=======================
-+ added setting to suppress writing of <episodeguide> tag
-x (image chooser) show original image always in original size
-x errors when downloading images #1039
-x (TV show) write trailer urls in Kodi compatible format into NFO #1040
-x proper update of vote count for ratings
-x fixed writing of the .desktop files in linux
-x fixed restart of tinyMediaManager after upgrade to v4
-
-
-Version 4.0.3
-=======================
-+ added a year column in the TV show tree #1026
-+ added a release date column in the movie table #1029
-x do not cleanup episodes if the TV show has not been loaded
-x several fixes for the universal TV show scraper #1024
-x added second runtime column
-x better movie detection when having them in 'reserved names' folders
-x also respect current file names in the file name filter #1007
-x show original image in original size #992
-x several fixes to the command line interface
-x universal TV show scraper uses less memory now
-
-
-Version 4.0.2
-=======================
-+ enhanced display of ratings
-+ added action to re-fetch IMDB ratings #989
-x set "Disable SSL certificate verification" to true per default to avoid connection problems
-x cleanup of changed artwork extensions #1015
-x show language names in UI language #1010
-x added more rating providers to the settings
-x re-added file size to the media files table
-x preserve epbookmark tag in episode NFOs
-x reworked the new indicator to use less space
-x rebuild image cache when changing data source #1021
-x writing/cleanup of downloaded subtitle files #993
-
-
-Version 4.0.1
-=======================
-x fixed upgrade of v3 settings
-
-
-Version 4.0
-=======================
-
-+ bundled JRE and rewritten launcher (no installed Java needed any more)
-+ real HiDPI support (slightly changed look and feel to achieve correct UI scaling)
-+ mix in IMDB ratings for almost every scraper without the need of the universal scrapers
-+ universal TV show scraper
-+ completely reworked libmediainfo usage:
-  - full support of reading/writing mediainfo XML files
-  - better support of disc structures (.iso and VIDEO_TS/BDMV/HVDVD_TS folders)
-  - several fixes for reading data out of libmediainfo
-+ enhanced filter management
-+ new command line interface
-+ mediainfo integration for Trakt.tv
-+ support for Windows taskbar / macOS dock access
-+ added a true regular expression search for movies/movie set/TV show titles
-+ display missing episodes in the season overview panel
-+ provide artwork from TMDB for Trakt.tv search
-+ added showlink support for movies
-x better performance in regular expression searches
-x fixed handling of MP2/MP3 streams
-x enhanced downloading of youtube trailers
-x KodiRPC: improve matching
+x added zxx (No linguistic content) to the language code detection #1125
+x allow selecting of E00 in episode chooser for some special episodes #967
+x added an HiDPI splash screen
+x re-write NFO on gathering mediainfo data #1135
+x improved HDR detection #1134
+x set displayepisode and displayseason #1146
+x added Soap to well known genres
+x re-read mediainfo data for (ex)changed files
+x (movie) remove missing/deleted files on update data sources
+x (movie) support more than 9 extrafanarts in the renamer #1156
+x (movie) sorting by new column #1161
+x (TV show) also fetch season artwork from tmdb #1158
+x (TV show) TV show related action can be triggered from episodes/seasons too #1115
+x (movie) adopted movie defaults/Kodi preset to Kodi v19
+x (TV show) fall back to TV show artwork if season artwork is not available #987

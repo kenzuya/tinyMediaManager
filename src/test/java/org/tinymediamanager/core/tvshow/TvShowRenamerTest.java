@@ -180,8 +180,8 @@ public class TvShowRenamerTest extends BasicTest {
   @Test
   public void testDiscEpisode() throws IOException {
     Utils.copyDirectoryRecursive(Paths.get("target/test-classes/testtvshows"), Paths.get(FOLDER, "tv"));
-    TvShowRenamer.renameEpisode(discEP.getEpisode(1, 1));
-    TvShowRenamer.renameEpisode(disc.getEpisode(1, 2));
+    TvShowRenamer.renameEpisode(discEP.getEpisode(1, 1).get(0));
+    TvShowRenamer.renameEpisode(disc.getEpisode(1, 2).get(0));
   }
 
   private Path gen(TvShow show, String showPattern, String seasonPattern, String filePattern, boolean recommended) {

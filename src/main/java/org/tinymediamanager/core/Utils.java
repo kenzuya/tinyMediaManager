@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -547,8 +548,8 @@ public class Utils {
   }
 
   public static void removeEmptyStringsFromList(List<String> list) {
-    list.removeAll(Collections.singleton(null));
-    list.removeAll(Collections.singleton(""));
+    List<String> toFilter = list.stream().filter(StringUtils::isBlank).collect(Collectors.toList());
+    list.removeAll(toFilter);
   }
 
   /**

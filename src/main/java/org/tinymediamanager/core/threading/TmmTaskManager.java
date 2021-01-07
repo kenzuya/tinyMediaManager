@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.tinymediamanager.core.threading;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
@@ -27,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskState;
 import org.tinymediamanager.core.threading.TmmThreadPool.TmmThreadFactory;
 
@@ -37,7 +37,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool.TmmThreadFactory;
  */
 public class TmmTaskManager implements TmmTaskListener {
   public final AtomicLong                GLOB_THRD_CNT    = new AtomicLong(1);
-  private static final ResourceBundle    BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final TmmTaskManager    instance         = new TmmTaskManager();
   private final Set<TmmTaskListener>     taskListener     = new CopyOnWriteArraySet<>();
   private final Set<TmmTaskHandle>       runningTasks     = new CopyOnWriteArraySet<>();
@@ -374,7 +374,7 @@ public class TmmTaskManager implements TmmTaskListener {
   private class ImageQueueTaskHandle implements TmmTaskHandle {
     @Override
     public String getTaskName() {
-      return BUNDLE.getString("task.imagedownloads");
+      return TmmResourceBundle.getString("task.imagedownloads");
     }
 
     @Override
@@ -397,7 +397,7 @@ public class TmmTaskManager implements TmmTaskListener {
 
     @Override
     public String getTaskDescription() {
-      return getOpenTasks() + " " + BUNDLE.getString("task.remaining");
+      return getOpenTasks() + " " + TmmResourceBundle.getString("task.remaining");
     }
 
     private int getOpenTasks() {

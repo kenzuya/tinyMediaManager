@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import static org.tinymediamanager.core.Constants.EPISODE_COUNT;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.REMOVED_TV_SHOW;
-import static org.tinymediamanager.core.Constants.TAG;
+import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.TV_SHOWS;
 import static org.tinymediamanager.core.Constants.TV_SHOW_COUNT;
 
@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -54,6 +55,8 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
@@ -122,11 +125,11 @@ public class TvShowList extends AbstractModelObject {
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
       // listen to changes of tags
-      if (Constants.TAG.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShow) {
         TvShow tvShow = (TvShow) evt.getSource();
         updateTvShowTags(Collections.singleton(tvShow));
       }
-      if (Constants.TAG.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode) {
+      if (Constants.TAGS.equals(evt.getPropertyName()) && evt.getSource() instanceof TvShowEpisode) {
         TvShowEpisode episode = (TvShowEpisode) evt.getSource();
         updateEpisodeTags(Collections.singleton(episode));
       }
@@ -274,6 +277,45 @@ public class TvShowList extends AbstractModelObject {
       if (Paths.get(path).equals(Paths.get(tvShow.getDataSource()))) {
         removeTvShow(tvShow);
       }
+    }
+  }
+
+  /**
+   * exchanges the given datasource in the entities/database with a new one
+   */
+  void exchangeDatasource(String oldDatasource, String newDatasource) {
+    Path oldPath = Paths.get(oldDatasource);
+    List<TvShow> tvShowsToChange = tvShowList.stream().filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource())))
+        .collect(Collectors.toList());
+    List<MediaFile> imagesToCache = new ArrayList<>();
+
+    for (TvShow tvShow : tvShowsToChange) {
+      Path oldTvShowPath = tvShow.getPathNIO();
+      Path newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+
+      tvShow.setDataSource(newDatasource);
+      tvShow.setPath(newTvShowPath.toAbsolutePath().toString());
+      tvShow.updateMediaFilePath(oldTvShowPath, newTvShowPath);
+
+      for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
+        episode.setDataSource(newDatasource);
+        episode.replacePathForRenamedFolder(oldTvShowPath, newTvShowPath);
+        episode.updateMediaFilePath(oldTvShowPath, newTvShowPath);
+        episode.saveToDb();
+
+        // re-build the image cache afterwards in an own thread
+        imagesToCache.addAll(episode.getImagesToCache());
+      }
+
+      tvShow.saveToDb(); // since we moved already, save it
+
+      // re-build the image cache afterwards in an own thread
+      imagesToCache.addAll(tvShow.getImagesToCache());
+    }
+
+    if (!imagesToCache.isEmpty()) {
+      ImageCacheTask task = new ImageCacheTask(imagesToCache);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
     }
   }
 
@@ -566,7 +608,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the artwork scrapers
    */
   public List<MediaScraper> getAvailableArtworkScrapers() {
-    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.TV_SHOW_ARTWORK);
+    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK);
     // we can use the TvShowMediaScraperComparator here too, since TheTvDb should also be first
     availableScrapers.sort(new TvShowMediaScraperComparator());
     return availableScrapers;
@@ -584,7 +626,7 @@ public class TvShowList extends AbstractModelObject {
       if (StringUtils.isBlank(providerId)) {
         continue;
       }
-      MediaScraper artworkScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.TV_SHOW_ARTWORK);
+      MediaScraper artworkScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.TVSHOW_ARTWORK);
       if (artworkScraper != null) {
         artworkScrapers.add(artworkScraper);
       }
@@ -703,7 +745,7 @@ public class TvShowList extends AbstractModelObject {
     tvShows.forEach(tvShow -> tags.addAll(tvShow.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInTvShows, tags)) {
-      firePropertyChange(TAG, null, tagsInTvShows);
+      firePropertyChange(TAGS, null, tagsInTvShows);
     }
   }
 
@@ -725,7 +767,7 @@ public class TvShowList extends AbstractModelObject {
     episodes.forEach(episode -> tags.addAll(episode.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInEpisodes, tags)) {
-      firePropertyChange(TAG, null, tagsInEpisodes);
+      firePropertyChange(TAGS, null, tagsInEpisodes);
     }
   }
 
@@ -850,9 +892,9 @@ public class TvShowList extends AbstractModelObject {
       firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInEpisodes);
     }
 
-    //HDR Format
+    // HDR Format
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInEpisodes, hdrFormat)) {
-      firePropertyChange(Constants.HDR_FORMAT,null, hdrFormatInEpisodes);
+      firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInEpisodes);
     }
   }
 
@@ -892,7 +934,9 @@ public class TvShowList extends AbstractModelObject {
     return subtitleLanguagesInEpisodes;
   }
 
-  public Collection<String> getHdrFormatInEpisodes() { return hdrFormatInEpisodes; }
+  public Collection<String> getHdrFormatInEpisodes() {
+    return hdrFormatInEpisodes;
+  }
 
   /**
    * Gets the TV show by path.
@@ -1039,7 +1083,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the subtitle scrapers
    */
   public List<MediaScraper> getAvailableSubtitleScrapers() {
-    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.SUBTITLE);
+    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE);
     availableScrapers.sort(new TvShowMediaScraperComparator());
     return availableScrapers;
   }
@@ -1076,7 +1120,7 @@ public class TvShowList extends AbstractModelObject {
       if (StringUtils.isBlank(providerId)) {
         continue;
       }
-      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.SUBTITLE);
+      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.TVSHOW_SUBTITLE);
       if (subtitleScraper != null) {
         subtitleScrapers.add(subtitleScraper);
       }

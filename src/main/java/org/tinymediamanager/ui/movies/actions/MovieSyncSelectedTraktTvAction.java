@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,31 +18,30 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
 /**
- * The class MovieSyncSelectedTraktTvAction. To synchronize all selected movies with trakt.tv (collection + watched state)
+ * The class {@link MovieSyncSelectedTraktTvAction}. To synchronize all selected movies with trakt.tv (collection and watched)
  * 
  * @author Manuel Laggner
  */
 public class MovieSyncSelectedTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieSyncSelectedTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("movie.synctrakt.selected"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.synctrakt.selected.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.synctrakt.selected"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.selected.desc"));
     putValue(SMALL_ICON, IconManager.SYNC);
     putValue(LARGE_ICON_KEY, IconManager.SYNC);
   }
@@ -52,11 +51,14 @@ public class MovieSyncSelectedTraktTvAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    TmmTask task = new SyncTraktTvTask(selectedMovies, null);
+    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(selectedMovies);
+    task.setSyncCollection(true);
+    task.setSyncWatched(true);
+
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }

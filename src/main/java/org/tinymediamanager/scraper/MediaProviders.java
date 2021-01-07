@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,41 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.scraper.anidb.AniDBMetadataProvider;
-import org.tinymediamanager.scraper.fanarttv.FanartTvMetadataProvider;
-import org.tinymediamanager.scraper.hdtrailersnet.HDTrailersNetTrailerProvider;
-import org.tinymediamanager.scraper.imdb.ImdbMetadataProvider;
+import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
+import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
+import org.tinymediamanager.scraper.fanarttv.FanartTvTvShowArtworkProvider;
+import org.tinymediamanager.scraper.hdtrailersnet.HdTrailersNetMovieTrailerProvider;
+import org.tinymediamanager.scraper.imdb.ImdbMovieArtworkProvider;
+import org.tinymediamanager.scraper.imdb.ImdbMovieMetadataProvider;
+import org.tinymediamanager.scraper.imdb.ImdbTvShowArtworkProvider;
+import org.tinymediamanager.scraper.imdb.ImdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IKodiMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.kodi.KodiMetadataProvider;
-import org.tinymediamanager.scraper.moviemeter.MovieMeterMetadataProvider;
-import org.tinymediamanager.scraper.mpdbtv.MpdbMetadataProvider;
-import org.tinymediamanager.scraper.ofdb.OfdbMetadataProvider;
-import org.tinymediamanager.scraper.omdb.OmdbMetadataProvider;
-import org.tinymediamanager.scraper.opensubtitles.OpensubtitlesMetadataProvider;
-import org.tinymediamanager.scraper.thetvdb.TheTvDbMetadataProvider;
-import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
-import org.tinymediamanager.scraper.trakt.TraktMetadataProvider;
+import org.tinymediamanager.scraper.moviemeter.MovieMeterMovieMetadataProvider;
+import org.tinymediamanager.scraper.mpdbtv.MpdbMovieArtworkMetadataProvider;
+import org.tinymediamanager.scraper.mpdbtv.MpdbMovieMetadataProvider;
+import org.tinymediamanager.scraper.ofdb.OfdbMovieMetadataProvider;
+import org.tinymediamanager.scraper.ofdb.OfdbMovieTrailerProvider;
+import org.tinymediamanager.scraper.omdb.OmdbMovieMetadataProvider;
+import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
+import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
+import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowArtworkProvider;
+import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbMovieArtworkProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbMovieMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbMovieTrailerProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbTvShowArtworkProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbTvShowMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbTvShowTrailerProvider;
+import org.tinymediamanager.scraper.trakt.TraktMovieMetadataProvider;
+import org.tinymediamanager.scraper.trakt.TraktTvShowMetadataProvider;
+import org.tinymediamanager.scraper.tvmaze.TvMazeTvShowMetadataProvider;
 import org.tinymediamanager.scraper.universal_movie.UniversalMovieMetadataProvider;
 import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 
 /**
  * the class {@link MediaProviders} is used to manage all loaded {@link IMediaProvider}s.
@@ -46,8 +64,8 @@ import org.tinymediamanager.scraper.universal_tvshow.UniversalTvShowMetadataProv
  * @author Manuel Laggner
  */
 public class MediaProviders {
-  private static final Logger                          LOGGER          = LoggerFactory.getLogger(MediaProviders.class);
-  private static final HashMap<String, IMediaProvider> MEDIA_PROVIDERS = new HashMap<>();
+  private static final Logger                                LOGGER          = LoggerFactory.getLogger(MediaProviders.class);
+  private static final HashMap<String, List<IMediaProvider>> MEDIA_PROVIDERS = new HashMap<>();
 
   private MediaProviders() {
     // private constructor for utility classes
@@ -65,51 +83,81 @@ public class MediaProviders {
     /////////////////////////////////////////////
     // MOVIE
     /////////////////////////////////////////////
-    loadProvider(TmdbMetadataProvider.class);
-    loadProvider(ImdbMetadataProvider.class);
-    loadProvider(MovieMeterMetadataProvider.class);
-    loadProvider(OfdbMetadataProvider.class);
-    loadProvider(OmdbMetadataProvider.class);
-    loadProvider(MpdbMetadataProvider.class);
+    loadProvider(TmdbMovieMetadataProvider.class);
+    loadProvider(ImdbMovieMetadataProvider.class);
+    loadProvider(MovieMeterMovieMetadataProvider.class);
+    loadProvider(OfdbMovieMetadataProvider.class);
+    loadProvider(OmdbMovieMetadataProvider.class);
+    loadProvider(MpdbMovieMetadataProvider.class);
     loadProvider(KodiMetadataProvider.class);
-    loadProvider(TraktMetadataProvider.class);
-    loadProvider(UniversalMovieMetadataProvider.class);
+    loadProvider(TraktMovieMetadataProvider.class);
 
     // register all compatible scrapers in the universal scraper
-    MEDIA_PROVIDERS.forEach((key, value) -> UniversalMovieMetadataProvider.addProvider(value));
-    UniversalMovieMetadataProvider.afterInitialization();
+    MEDIA_PROVIDERS.forEach((key, value) -> {
+      if (value instanceof IMovieMetadataProvider) {
+        UniversalMovieMetadataProvider.addProvider((IMovieMetadataProvider) value);
+      }
+    });
+
+    // and finally add the universal scraper itself
+    loadProvider(UniversalMovieMetadataProvider.class);
+
+    /////////////////////////////////////////////
+    // MOVIE ARTWORK
+    /////////////////////////////////////////////
+    loadProvider(TmdbMovieArtworkProvider.class);
+    loadProvider(FanartTvMovieArtworkProvider.class);
+    loadProvider(ImdbMovieArtworkProvider.class);
+    loadProvider(MpdbMovieArtworkMetadataProvider.class);
+
+    /////////////////////////////////////////////
+    // MOVIE TRAILER
+    /////////////////////////////////////////////
+    loadProvider(TmdbMovieTrailerProvider.class);
+    loadProvider(HdTrailersNetMovieTrailerProvider.class);
+    loadProvider(OfdbMovieTrailerProvider.class);
+
+    /////////////////////////////////////////////
+    // MOVIE SUBTITLES
+    /////////////////////////////////////////////
+    loadProvider(OpenSubtitlesMovieSubtitleProvider.class);
 
     /////////////////////////////////////////////
     // TV SHOWS
     /////////////////////////////////////////////
-    loadProvider(TheTvDbMetadataProvider.class);
-    loadProvider(AniDBMetadataProvider.class);
-    loadProvider(UniversalTvShowMetadataProvider.class);
-    // tmdb, imdb and trakt are already loaded in the movie block
-
+    loadProvider(TheTvDbTvShowMetadataProvider.class);
+    loadProvider(TmdbTvShowMetadataProvider.class);
+    loadProvider(ImdbTvShowMetadataProvider.class);
+    loadProvider(TraktTvShowMetadataProvider.class);
+    loadProvider(AniDbTvShowMetadataProvider.class);
+    loadProvider(TvMazeTvShowMetadataProvider.class);
     // register all compatible scrapers in the universal scraper
-    MEDIA_PROVIDERS.forEach((key, value) -> UniversalTvShowMetadataProvider.addProvider(value));
-    UniversalTvShowMetadataProvider.afterInitialization();
+    MEDIA_PROVIDERS.forEach((key, value) -> {
+      if (value instanceof ITvShowMetadataProvider) {
+        UniversalTvShowMetadataProvider.addProvider((ITvShowMetadataProvider) value);
+      }
+    });
+
+    // and finally add the universal scraper itself
+    loadProvider(UniversalTvShowMetadataProvider.class);
 
     /////////////////////////////////////////////
-    // ARTWORK
+    // TV SHOW ARTWORK
     /////////////////////////////////////////////
-    loadProvider(FanartTvMetadataProvider.class);
-    // loadProvider(KyradbMetadataProvider.class); EOL
-    // tmdb is already loaded in the movie block
-    // tvdb is already loaded in the TV show block
-    // imdb is already loaded in the movie block
+    loadProvider(TheTvDbTvShowArtworkProvider.class);
+    loadProvider(FanartTvTvShowArtworkProvider.class);
+    loadProvider(TmdbTvShowArtworkProvider.class);
+    loadProvider(ImdbTvShowArtworkProvider.class);
 
     /////////////////////////////////////////////
-    // TRAILER
+    // TV SHOW TRAILER
     /////////////////////////////////////////////
-    loadProvider(HDTrailersNetTrailerProvider.class);
-    // tmdb is already loaded in the movie block
+    loadProvider(TmdbTvShowTrailerProvider.class);
 
     /////////////////////////////////////////////
-    // SUBTITLES
+    // TV SHOW SUBTITLES
     /////////////////////////////////////////////
-    loadProvider(OpensubtitlesMetadataProvider.class);
+    loadProvider(OpenSubtitlesTvShowSubtitleProvider.class); // already loaded in movie section, because this scraper share its instances
   }
 
   private static void loadProvider(Class<? extends IMediaProvider> clazz) {
@@ -117,7 +165,8 @@ public class MediaProviders {
       IMediaProvider provider = clazz.getDeclaredConstructor().newInstance();
 
       // add the provider to our list of supported providers
-      MEDIA_PROVIDERS.putIfAbsent(provider.getProviderInfo().getId(), provider);
+      List<IMediaProvider> providers = MEDIA_PROVIDERS.computeIfAbsent(provider.getId(), k -> new ArrayList<>());
+      providers.add(provider);
     }
     catch (Exception e) {
       LOGGER.error("could not load media provider {} - {}", clazz.getName(), e.getMessage());
@@ -137,8 +186,10 @@ public class MediaProviders {
     List<T> providers = new ArrayList<>();
 
     MEDIA_PROVIDERS.forEach((key, value) -> {
-      if (clazz.isAssignableFrom(value.getClass())) {
-        providers.add((T) value);
+      for (IMediaProvider provider : value) {
+        if (clazz.isAssignableFrom(provider.getClass())) {
+          providers.add((T) provider);
+        }
       }
     });
 
@@ -152,12 +203,19 @@ public class MediaProviders {
    *          the id of the media provider
    * @return the {@link IMediaProvider} or null
    */
-  public static IMediaProvider getProviderById(String id) {
+  public static <T extends IMediaProvider> T getProviderById(String id, Class<T> clazz) {
     if (StringUtils.isBlank(id)) {
       return null;
     }
 
-    IMediaProvider mp = MEDIA_PROVIDERS.get(id);
+    List<IMediaProvider> providers = MEDIA_PROVIDERS.get(id);
+
+    IMediaProvider mp = null;
+    for (IMediaProvider mediaProvider : ListUtils.nullSafe(providers)) {
+      if (clazz.isAssignableFrom(mediaProvider.getClass())) {
+        return (T) mediaProvider;
+      }
+    }
 
     // no media provider found? maybe a kodi one
     if (mp == null) {
@@ -169,6 +227,6 @@ public class MediaProviders {
       }
     }
 
-    return mp;
+    return (T) mp;
   }
 }

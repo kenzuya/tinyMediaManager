@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.license.SizeLimitExceededException;
@@ -46,20 +47,20 @@ public class MovieCreateOfflineDialog extends TmmDialog {
   private MovieList         movieList        = MovieList.getInstance();
 
   public MovieCreateOfflineDialog() {
-    super(BUNDLE.getString("movie.createoffline"), "movieCreateOffline");
+    super(TmmResourceBundle.getString("movie.createoffline"), "movieCreateOffline");
 
     JPanel panelContent = new JPanel();
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("", "[][][]", "[][][]"));
 
-    JLabel lblTitle = new TmmLabel(BUNDLE.getString("metatag.title"));
+    JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
     panelContent.add(lblTitle, "cell 0 0,alignx right");
 
     final JTextField tfMovieName = new JTextField();
     panelContent.add(tfMovieName, "cell 1 0,growx");
     tfMovieName.setColumns(10);
 
-    JLabel lblMediaSource = new TmmLabel(BUNDLE.getString("metatag.source"));
+    JLabel lblMediaSource = new TmmLabel(TmmResourceBundle.getString("metatag.source"));
     panelContent.add(lblMediaSource, "cell 0 1,alignx right");
 
     final JComboBox<MediaSource> cbMediaSource = new JComboBox();
@@ -70,7 +71,7 @@ public class MovieCreateOfflineDialog extends TmmDialog {
     cbMediaSource.addItem(MediaSource.VHS);
     panelContent.add(cbMediaSource, "cell 1 1,growx");
 
-    JLabel lblDatasource = new TmmLabel(BUNDLE.getString("metatag.datasource"));
+    JLabel lblDatasource = new TmmLabel(TmmResourceBundle.getString("metatag.datasource"));
     panelContent.add(lblDatasource, "cell 0 2,alignx right");
 
     final JComboBox<String> cbDatasource = new JComboBox();
@@ -85,19 +86,19 @@ public class MovieCreateOfflineDialog extends TmmDialog {
         try {
           movieList.addOfflineMovie(title, datasource, mediaSource);
           // message
-          String text = BUNDLE.getString("movie.createoffline.created").replaceAll("\\{\\}", title);
+          String text = TmmResourceBundle.getString("movie.createoffline.created").replaceAll("\\{\\}", title);
           JOptionPane.showMessageDialog(MovieCreateOfflineDialog.this, text); // $NON-NLS-1$
         }
         catch (SizeLimitExceededException e1) {
-          JOptionPane.showMessageDialog(MovieCreateOfflineDialog.this, BUNDLE.getString("message.sizelimitexceeded"),
-              BUNDLE.getString("movie.createoffline"), JOptionPane.ERROR_MESSAGE); // $NON-NLS-1$
+          JOptionPane.showMessageDialog(MovieCreateOfflineDialog.this, TmmResourceBundle.getString("message.sizelimitexceeded"),
+              TmmResourceBundle.getString("movie.createoffline"), JOptionPane.ERROR_MESSAGE); // $NON-NLS-1$
         }
       }
     });
     panelContent.add(btnAdd, "cell 2 0");
 
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(e -> setVisible(false));
       addButton(btnClose);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -74,7 +75,7 @@ public class MovieGenreFilter extends AbstractCheckComboBoxMovieUIFilter<MediaGe
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.genre"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.genre"));
   }
 
   private void buildAndInstallMediaGenres() {

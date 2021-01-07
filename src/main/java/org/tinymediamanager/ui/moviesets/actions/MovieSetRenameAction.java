@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
@@ -38,12 +38,12 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * 
  */
 public class MovieSetRenameAction extends TmmAction {
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
   private static final long           serialVersionUID = 1677285197819210130L;
 
   public MovieSetRenameAction() {
-    putValue(NAME, BUNDLE.getString("movie.rename"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.rename"));
+    putValue(NAME, TmmResourceBundle.getString("movie.rename"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.rename"));
   }
 
   @Override
@@ -52,7 +52,10 @@ public class MovieSetRenameAction extends TmmAction {
     Set<Movie> selectedMovies = new HashSet<>();
 
     for (Object obj : selectedObjects) {
-      if (obj instanceof Movie) {
+      if (obj instanceof MovieSet.MovieSetMovie) {
+        // do nothing
+      }
+      else if (obj instanceof Movie) {
         selectedMovies.add((Movie) obj);
       }
       else if (obj instanceof MovieSet) {
@@ -61,7 +64,7 @@ public class MovieSetRenameAction extends TmmAction {
     }
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

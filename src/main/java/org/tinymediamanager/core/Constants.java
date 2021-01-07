@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public final class Constants {
   public static final String SUBTITLES              = "subtitles";
   public static final String SUBTITLES_COUNT        = "countSubtitles";
   public static final String SUBTITLE_LANGUAGES     = "subtitleLanguages";
-  public static final String TAG                    = "tag";
+  public static final String TAGS                   = "tags";
   public static final String TAGS_AS_STRING         = "tagsAsString";
   public static final String THUMB                  = "thumb";
   public static final String THUMB_URL              = "thumbUrl";

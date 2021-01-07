@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package org.tinymediamanager.core.tasks;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.EmptyFileException;
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 
@@ -35,7 +35,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  */
 public class ImageCacheTask extends TmmThreadPool {
   private static final Logger         LOGGER       = LoggerFactory.getLogger(ImageCacheTask.class);
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
+
 
   private final List<MediaFile>       filesToCache = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class ImageCacheTask extends TmmThreadPool {
   }
 
   public ImageCacheTask(List<MediaFile> files) {
-    super(BUNDLE.getString("tmm.rebuildimagecache"));
+    super(TmmResourceBundle.getString("tmm.rebuildimagecache"));
     filesToCache.addAll(files);
   }
 
@@ -83,10 +83,10 @@ public class ImageCacheTask extends TmmThreadPool {
         ImageCache.cacheImage(fileToCache);
       }
       catch (EmptyFileException e) {
-        LOGGER.warn("failed to cache file (file is empty): {}", fileToCache);
+        LOGGER.debug("failed to cache file (file is empty): {}", fileToCache);
       }
       catch (FileNotFoundException e) {
-        LOGGER.warn("file '{}' has not been found", fileToCache.getFilename());
+        LOGGER.debug("file '{}' has not been found", fileToCache.getFilename());
       }
       catch (Exception e) {
         LOGGER.warn("failed to cache file: {} - {}", fileToCache.getFile(), e.getMessage());

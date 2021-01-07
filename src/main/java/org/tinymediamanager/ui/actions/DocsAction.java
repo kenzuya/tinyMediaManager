@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package org.tinymediamanager.ui.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -27,12 +27,12 @@ import org.tinymediamanager.ui.TmmUIHelper;
  */
 public class DocsAction extends TmmAction {
   private static final long           serialVersionUID = 1668251251156765161L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public static final String          DOCS_URL         = "https://www.tinymediamanager.org/docs";
 
   public DocsAction() {
-    putValue(NAME, BUNDLE.getString("tmm.docs"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.docs"));
   }
 
   @Override

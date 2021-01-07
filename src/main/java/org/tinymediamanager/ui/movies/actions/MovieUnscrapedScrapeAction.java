@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -42,11 +42,11 @@ import org.tinymediamanager.ui.movies.dialogs.MovieScrapeMetadataDialog;
  */
 public class MovieUnscrapedScrapeAction extends TmmAction {
   private static final long           serialVersionUID = -5330113139288186736L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieUnscrapedScrapeAction() {
-    putValue(NAME, BUNDLE.getString("movie.scrape.unscraped"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.scrape.unscraped.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.scrape.unscraped"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.scrape.unscraped.desc"));
     putValue(SMALL_ICON, IconManager.SEARCH);
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
@@ -56,7 +56,7 @@ public class MovieUnscrapedScrapeAction extends TmmAction {
   protected void processAction(ActionEvent e) {
     List<Movie> unscrapedMovies = MovieList.getInstance().getUnscrapedMovies();
     if (!unscrapedMovies.isEmpty()) {
-      MovieScrapeMetadataDialog dialog = new MovieScrapeMetadataDialog(BUNDLE.getString("movie.scrape.unscraped"));
+      MovieScrapeMetadataDialog dialog = new MovieScrapeMetadataDialog(TmmResourceBundle.getString("movie.scrape.unscraped"));
       dialog.setLocationRelativeTo(MainWindow.getInstance());
       dialog.setVisible(true);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -38,13 +38,13 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  */
 public class TvShowReloadMediaInformationTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowReloadMediaInformationTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   private List<TvShow>                tvShows;
   private List<TvShowEpisode>         episodes;
 
   public TvShowReloadMediaInformationTask(List<TvShow> tvShows, List<TvShowEpisode> episodes) {
-    super(BUNDLE.getString("tvshow.updatemediainfo"));
+    super(TmmResourceBundle.getString("tvshow.updatemediainfo"));
     this.tvShows = new ArrayList<>(tvShows);
     this.episodes = new ArrayList<>(episodes);
 

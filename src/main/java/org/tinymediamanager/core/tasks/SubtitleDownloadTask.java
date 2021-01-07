@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -41,13 +41,13 @@ import org.tinymediamanager.core.entities.MediaFile;
  */
 public class SubtitleDownloadTask extends DownloadTask {
   private static final Logger         LOGGER = LoggerFactory.getLogger(SubtitleDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private final MediaEntity           mediaEntity;
   private final Path                  destinationFile;
 
   public SubtitleDownloadTask(String url, Path destinationFile, MediaEntity mediaEntity) {
-    super(BUNDLE.getString("subtitle.downloading"), url);
+    super(TmmResourceBundle.getString("subtitle.downloading"), url);
     this.mediaEntity = mediaEntity;
     this.destinationFile = destinationFile;
   }
@@ -81,6 +81,7 @@ public class SubtitleDownloadTask extends DownloadTask {
         if (mediaEntity != null) {
           MediaFile mf = new MediaFile(destination);
           mf.gatherMediaInformation();
+          mf.detectStackingInformation();
           mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
           mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
           mediaEntity.saveToDb();
@@ -131,7 +132,6 @@ public class SubtitleDownloadTask extends DownloadTask {
       }
       catch (Exception e) {
         LOGGER.debug("could not extract subtitle: {}", e.getMessage());
-        setState(TaskState.FAILED);
       }
       finally {
         Utils.deleteFileSafely(destinationFile);
@@ -140,6 +140,7 @@ public class SubtitleDownloadTask extends DownloadTask {
       if (mf != null && mf.getType() == MediaFileType.SUBTITLE) {
         if (mediaEntity != null) {
           mf.gatherMediaInformation();
+          mf.detectStackingInformation();
           mediaEntity.removeFromMediaFiles(mf); // remove old (possibly same) file
           mediaEntity.addToMediaFiles(mf); // add file, but maybe with other MI values
           mediaEntity.saveToDb();

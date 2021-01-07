@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.awt.Font;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
@@ -47,6 +46,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -69,20 +69,18 @@ import net.miginfocom.swing.MigLayout;
 
 public class TvShowTrailerSettingsPanel extends JPanel {
 
-  private static final ResourceBundle BUNDLE   = ResourceBundle.getBundle("messages");
+  private final TvShowSettings       settings = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers = ObservableCollections.observableList(new ArrayList<>());
+  private final ItemListener         checkBoxListener;
 
-  private TvShowSettings              settings = TvShowModuleManager.SETTINGS;
-  private List<ScraperInTable>        scrapers = ObservableCollections.observableList(new ArrayList<>());
-  private TmmTable                    tableTrailerScraper;
-  private JTextPane                   tpScraperDescription;
-  private JComboBox<TrailerSources>   cbTrailerSource;
-  private JComboBox<TrailerQuality>   cbTrailerQuality;
-  private JCheckBox                   checkBox;
-  private JCheckBox                   chckbxAutomaticTrailerDownload;
-  private JPanel                      panelScraperOptions;
-  private JCheckBox                   cbTrailerFilename1;
-
-  private ItemListener                checkBoxListener;
+  private TmmTable                   tableTrailerScraper;
+  private JTextPane                  tpScraperDescription;
+  private JComboBox<TrailerSources>  cbTrailerSource;
+  private JComboBox<TrailerQuality>  cbTrailerQuality;
+  private JCheckBox                  checkBox;
+  private JCheckBox                  chckbxAutomaticTrailerDownload;
+  private JPanel                     panelScraperOptions;
+  private JCheckBox                  cbTrailerFilename1;
 
   TvShowTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -117,7 +115,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableTrailerScraper, 5);
 
     tableTrailerScraper.getModel().addTableModelListener(arg0 -> {
@@ -201,7 +199,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.trailer"), H3);
+      JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper.trailer"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#trailer"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
@@ -229,34 +227,34 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
+      JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options-2"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
-        checkBox = new JCheckBox(BUNDLE.getString("Settings.trailer.preferred"));
+        checkBox = new JCheckBox(TmmResourceBundle.getString("Settings.trailer.preferred"));
         panelOptions.add(checkBox, "cell 1 0 2 1");
 
-        JLabel lblTrailerSource = new JLabel(BUNDLE.getString("Settings.trailer.source"));
+        JLabel lblTrailerSource = new JLabel(TmmResourceBundle.getString("Settings.trailer.source"));
         panelOptions.add(lblTrailerSource, "cell 2 1");
 
         cbTrailerSource = new JComboBox();
         cbTrailerSource.setModel(new DefaultComboBoxModel<>(TrailerSources.values()));
         panelOptions.add(cbTrailerSource, "cell 2 1");
 
-        JLabel lblTrailerQuality = new JLabel(BUNDLE.getString("Settings.trailer.quality"));
+        JLabel lblTrailerQuality = new JLabel(TmmResourceBundle.getString("Settings.trailer.quality"));
         panelOptions.add(lblTrailerQuality, "cell 2 2");
 
         cbTrailerQuality = new JComboBox();
         cbTrailerQuality.setModel(new DefaultComboBoxModel<>(TrailerQuality.values()));
         panelOptions.add(cbTrailerQuality, "cell 2 2");
 
-        chckbxAutomaticTrailerDownload = new JCheckBox(BUNDLE.getString("Settings.trailer.automaticdownload"));
+        chckbxAutomaticTrailerDownload = new JCheckBox(TmmResourceBundle.getString("Settings.trailer.automaticdownload"));
         panelOptions.add(chckbxAutomaticTrailerDownload, "cell 1 3 2 1");
 
-        JLabel lblAutomaticTrailerDownloadHint = new JLabel(BUNDLE.getString("Settings.trailer.automaticdownload.hint"));
+        JLabel lblAutomaticTrailerDownloadHint = new JLabel(TmmResourceBundle.getString("Settings.trailer.automaticdownload.hint"));
         panelOptions.add(lblAutomaticTrailerDownloadHint, "cell 2 4");
         TmmFontHelper.changeFont(lblAutomaticTrailerDownloadHint, L2);
 
@@ -264,10 +262,10 @@ public class TvShowTrailerSettingsPanel extends JPanel {
         panelOptions.add(panelTrailerFilenames, "cell 1 5 2 1");
         panelTrailerFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][]"));
 
-        JLabel lblTrailerFileNaming = new JLabel(BUNDLE.getString("Settings.trailerFileNaming"));
+        JLabel lblTrailerFileNaming = new JLabel(TmmResourceBundle.getString("Settings.trailerFileNaming"));
         panelTrailerFilenames.add(lblTrailerFileNaming, "cell 0 0");
 
-        cbTrailerFilename1 = new JCheckBox("tvshow-trailer." + BUNDLE.getString("Settings.artwork.extension"));
+        cbTrailerFilename1 = new JCheckBox("tvshow-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelTrailerFilenames.add(cbTrailerFilename1, "cell 1 0");
       }
     }
@@ -278,13 +276,15 @@ public class TvShowTrailerSettingsPanel extends JPanel {
         .createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, scrapers, tableTrailerScraper);
     //
     BeanProperty<ScraperInTable, Boolean> trailerScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> trailerScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> trailerScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding.bind();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ public abstract class DownloadTask extends TmmTask {
 
         if (u.isFault()) {
           MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, u.getUrl(), u.getStatusLine()));
-          is.close();
+          setState(TaskState.FAILED);
           return;
         }
 

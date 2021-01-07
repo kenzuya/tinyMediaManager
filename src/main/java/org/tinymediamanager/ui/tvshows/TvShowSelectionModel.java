@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package org.tinymediamanager.ui.tvshows;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -118,6 +120,29 @@ public class TvShowSelectionModel extends AbstractModelObject {
     }
 
     return selectedTvShows;
+  }
+
+  /**
+   * Gets the selected TV shows (recursive - also from child node)
+   *
+   * @return the selected TV shows
+   */
+  public List<TvShow> getSelectedTvShowsRecursive() {
+    Set<TvShow> selectedTvShows = new LinkedHashSet<>();
+
+    for (Object obj : getSelectedObjects()) {
+      if (obj instanceof TvShow) {
+        selectedTvShows.add((TvShow) obj);
+      }
+      if (obj instanceof TvShowSeason) {
+        selectedTvShows.add(((TvShowSeason) obj).getTvShow());
+      }
+      if (obj instanceof TvShowEpisode) {
+        selectedTvShows.add(((TvShowEpisode) obj).getTvShow());
+      }
+    }
+
+    return new ArrayList<>(selectedTvShows);
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.function.Function;
 
 import javax.swing.ImageIcon;
@@ -29,10 +28,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieEdition;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
@@ -47,7 +48,7 @@ import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
  * @author Manuel Laggner
  */
 public class MovieTableFormat extends TmmTableFormat<Movie> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   public MovieTableFormat() {
 
@@ -77,36 +78,36 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * title
      */
-    Column col = new Column(BUNDLE.getString("metatag.title"), "title", movie -> movie, Movie.class);
+    Column col = new Column(TmmResourceBundle.getString("metatag.title"), "title", movie -> movie, Movie.class);
     col.setColumnComparator(movieComparator);
     col.setCellRenderer(new MovieBorderTableCellRenderer());
-    col.setColumnTooltip(Movie::getTitleSortable);
+    col.setColumnTooltip(showTooltip(Movie::getTitleSortable));
     addColumn(col);
 
     /*
      * original title (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.originaltitle"), "originalTitle", movie -> movie, Movie.class);
+    col = new Column(TmmResourceBundle.getString("metatag.originaltitle"), "originalTitle", movie -> movie, Movie.class);
     col.setColumnComparator(originalTitleComparator);
     col.setCellRenderer(new MovieBorderTableCellRenderer());
-    col.setColumnTooltip(Movie::getOriginalTitleSortable);
+    col.setColumnTooltip(showTooltip(Movie::getOriginalTitleSortable));
     col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * sorttitle (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.sorttitle"), "sortTitle", Movie::getSortTitle, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.sorttitle"), "sortTitle", Movie::getSortTitle, String.class);
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
-    col.setColumnTooltip(Movie::getSortTitle);
+    col.setColumnTooltip(showTooltip(Movie::getSortTitle));
     col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * year
      */
-    col = new Column(BUNDLE.getString("metatag.year"), "year", MediaEntity::getYear, Integer.class);
+    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", MediaEntity::getYear, Integer.class);
     col.setColumnComparator(integerComparator);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
@@ -115,7 +116,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * date added (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.releasedate"), "releaseDate", Movie::getReleaseDate, Date.class);
+    col = new Column(TmmResourceBundle.getString("metatag.releasedate"), "releaseDate", Movie::getReleaseDate, Date.class);
     col.setColumnComparator(dateComparator);
     col.setHeaderIcon(IconManager.DATE_AIRED);
     col.setCellRenderer(new DateTableCellRenderer());
@@ -132,10 +133,10 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * file name (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.filename"), "filename", movie -> movie.getMainVideoFile().getFilename(), String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", movie -> movie.getMainVideoFile().getFilename(), String.class);
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
-    col.setColumnTooltip(movie -> movie.getMainVideoFile().getFilename());
+    col.setColumnTooltip(showTooltip(movie -> movie.getMainVideoFile().getFilename()));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -143,41 +144,53 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      * folder name (hidden per default)
      */
     Function<Movie, String> pathFunction = movie -> movie.getPathNIO().toString();
-    col = new Column(BUNDLE.getString("metatag.path"), "path", pathFunction, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.path"), "path", pathFunction, String.class);
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
-    col.setColumnTooltip(pathFunction);
+    col.setColumnTooltip(showTooltip(pathFunction));
     col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * movie set (hidden per default)
      */
-    Function<Movie, String> movieSetFunction = movie -> movie.getMovieSet() == null ? null : movie.getMovieSet().getTitle();
-    col = new Column(BUNDLE.getString("metatag.movieset"), "movieset", movieSetFunction, String.class);
+    Function<Movie, String> movieSetFunction = movie -> movie.getMovieSet() == null ? null : movie.getMovieSet().getTitleSortable();
+    col = new Column(TmmResourceBundle.getString("metatag.movieset"), "movieset", movieSetFunction, String.class);
     col.setColumnComparator(stringComparator);
     col.setColumnResizeable(true);
-    col.setColumnTooltip(movieSetFunction);
+    col.setColumnTooltip(showTooltip(movieSetFunction));
     col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * rating
      */
-    col = new Column(BUNDLE.getString("metatag.rating"), "rating", movie -> movie.getRating().getRating(), Float.class);
+    col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", movie -> movie.getRating().getRating(), Float.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
     col.setColumnTooltip(
-        movie -> movie.getRating().getRating() + " (" + movie.getRating().getVotes() + " " + BUNDLE.getString("metatag.votes") + ")");
+        showTooltip(movie -> movie.getRating().getRating() + " (" + movie.getRating().getVotes() + " " + TmmResourceBundle.getString("metatag.votes") + ")"));
+    addColumn(col);
+
+    /*
+    * user rating
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.userrating"),"userrating", movie-> movie.getUserRating().getRating(), Float.class);
+    col.setColumnComparator(floatComparator);
+    col.setHeaderIcon(IconManager.RATING);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * votes (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.votes"), "votes", movie -> movie.getRating().getVotes(), Integer.class);
+    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", movie -> movie.getRating().getVotes(), Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.VOTES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
@@ -189,7 +202,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * certification (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.certification"), "certification", Movie::getCertification, MediaCertification.class);
+    col = new Column(TmmResourceBundle.getString("metatag.certification"), "certification", Movie::getCertification, MediaCertification.class);
     col.setColumnComparator(certificationComparator);
     col.setHeaderIcon(IconManager.CERTIFICATION);
     col.setColumnResizeable(true);
@@ -199,7 +212,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * date added (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.dateadded"), "dateAdded", MediaEntity::getDateAddedForUi, Date.class);
+    col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateAdded", MediaEntity::getDateAddedForUi, Date.class);
     col.setColumnComparator(dateComparator);
     col.setHeaderIcon(IconManager.DATE_ADDED);
     col.setCellRenderer(new DateTableCellRenderer());
@@ -216,7 +229,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * file creation date (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.filecreationdate"), "fileCreationDate", movie -> movie.getMainVideoFile().getDateCreated(),
+    col = new Column(TmmResourceBundle.getString("metatag.filecreationdate"), "fileCreationDate", movie -> movie.getMainVideoFile().getDateCreated(),
         Date.class);
     col.setColumnComparator(dateComparator);
     col.setHeaderIcon(IconManager.DATE_CREATED);
@@ -234,7 +247,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * runtime (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.runtime") + " [min]", "runtime", Movie::getRuntime, Integer.class);
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", Movie::getRuntime, Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
@@ -246,7 +259,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * runtime HH:MM (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.runtime") + " [hh:mm]", "runtime2", Movie::getRuntime, Integer.class);
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", Movie::getRuntime, Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
@@ -258,7 +271,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * video format (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.format"), "videoFormat", Movie::getMediaInfoVideoFormat, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.format"), "videoFormat", Movie::getMediaInfoVideoFormat, String.class);
     col.setColumnComparator(videoFormatComparator);
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
@@ -269,7 +282,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * video codec (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.videocodec"), "videoCodec", Movie::getMediaInfoVideoCodec, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", Movie::getMediaInfoVideoCodec, String.class);
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.VIDEO_CODEC);
     col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
@@ -279,7 +292,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * video bitrate (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.videobitrate"), "videoBitrate", Movie::getMediaInfoVideoBitrate, Integer.class);
+    col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", Movie::getMediaInfoVideoBitrate, Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.VIDEO_BITRATE);
     col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
@@ -289,7 +302,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * audio codec and channels(hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.audio"), "audio", movie -> {
+    col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", movie -> {
       List<MediaFile> videos = movie.getMediaFiles(MediaFileType.VIDEO);
       if (!videos.isEmpty()) {
         MediaFile mediaFile = videos.get(0);
@@ -308,7 +321,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * main video file size (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.size"), "fileSize", movie -> {
+    col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", movie -> {
       long size = 0;
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
@@ -328,10 +341,10 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      */
     Function<Movie, String> movieEditionFunction = movie -> movie.getEdition() == null || movie.getEdition() == MovieEdition.NONE ? null
         : movie.getEdition().toString();
-    col = new Column(BUNDLE.getString("metatag.edition"), "edition", movieEditionFunction, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.edition"), "edition", movieEditionFunction, String.class);
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.EDITION);
-    col.setColumnTooltip(movieEditionFunction);
+    col.setColumnTooltip(showTooltip(movieEditionFunction));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -339,17 +352,17 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      * Source (hidden per default)
      */
     Function<Movie, String> mediaSourceFunction = movie -> movie.getMediaSource() == null ? null : movie.getMediaSource().toString();
-    col = new Column(BUNDLE.getString("metatag.source"), "mediaSource", mediaSourceFunction, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.source"), "mediaSource", mediaSourceFunction, String.class);
     col.setColumnComparator(stringComparator);
     col.setHeaderIcon(IconManager.SOURCE);
-    col.setColumnTooltip(mediaSourceFunction);
+    col.setColumnTooltip(showTooltip(mediaSourceFunction));
     col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * new indicator
      */
-    col = new Column(BUNDLE.getString("movieextendedsearch.newmovies"), "new", movie -> getNewIcon(movie.isNewlyAdded()), ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("movieextendedsearch.newmovies"), "new", movie -> getNewIcon(movie.isNewlyAdded()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.NEW);
     col.setColumnResizeable(false);
@@ -358,7 +371,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * 3D (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.3d"), "video3d", movie -> getCheckIcon(movie.isVideoIn3D()), ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("metatag.3d"), "video3d", movie -> getCheckIcon(movie.isVideoIn3D()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.VIDEO_3D);
     col.setColumnResizeable(false);
@@ -368,7 +381,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * NFO
      */
-    col = new Column(BUNDLE.getString("tmm.nfo"), "nfo", movie -> getCheckIcon(movie.getHasNfoFile()), ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.nfo"), "nfo", movie -> getCheckIcon(movie.getHasNfoFile()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
@@ -377,7 +390,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * images
      */
-    col = new Column(BUNDLE.getString("tmm.images"), "images", movie -> getCheckIcon(movie.getHasImages()), ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.images"), "images", movie -> getCheckIcon(movie.getHasImages()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
@@ -386,7 +399,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * trailer
      */
-    col = new Column(BUNDLE.getString("tmm.trailer"), "trailer", movie -> getCheckIcon(movie.getHasTrailer()), ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.trailer"), "trailer", movie -> getCheckIcon(movie.getHasTrailer()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.TRAILER);
     col.setColumnResizeable(false);
@@ -395,7 +408,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * subtitles
      */
-    col = new Column(BUNDLE.getString("tmm.subtitles"), "subtitles", movie -> getCheckIcon(movie.getHasSubtitles()), ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.subtitles"), "subtitles", movie -> getCheckIcon(movie.getHasSubtitles()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.SUBTITLES);
     col.setColumnResizeable(false);
@@ -404,10 +417,21 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * watched
      */
-    col = new Column(BUNDLE.getString("metatag.watched"), "watched", movie -> getCheckIcon(movie.isWatched()), ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("metatag.watched"), "watched", movie -> getCheckIcon(movie.isWatched()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     addColumn(col);
+  }
+
+  private <E> Function<E, String> showTooltip(Function<E, String> tooltipFunction) {
+    return movie -> {
+      if (MovieModuleManager.SETTINGS.isShowMovieTableTooltips()) {
+        return tooltipFunction.apply(movie);
+      }
+      else {
+        return null;
+      }
+    };
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +28,10 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -55,7 +57,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
  * The class TvShowScrapeTask. This starts scraping of TV shows
@@ -64,7 +66,6 @@ import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
  */
 public class TvShowScrapeTask extends TmmThreadPool {
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
-  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<TvShow>                             tvShowsToScrape;
   private final boolean                                  doSearch;
@@ -84,7 +85,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
    */
   public TvShowScrapeTask(List<TvShow> tvShowsToScrape, boolean doSearch, TvShowSearchAndScrapeOptions options,
       List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
-    super(BUNDLE.getString("tvshow.scraping"));
+    super(TmmResourceBundle.getString("tvshow.scraping"));
     this.tvShowsToScrape = tvShowsToScrape;
     this.doSearch = doSearch;
     this.scrapeOptions = options;
@@ -105,7 +106,10 @@ public class TvShowScrapeTask extends TmmThreadPool {
     waitForCompletionOrCancel();
 
     if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
-      TmmTask task = new SyncTraktTvTask(null, tvShowsToScrape);
+      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(tvShowsToScrape);
+      task.setSyncCollection(true);
+      task.setSyncWatched(true);
+
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
 
@@ -113,8 +117,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
   }
 
   private class Worker implements Runnable {
-    private TvShowList tvShowList = TvShowList.getInstance();
-    private TvShow     tvShow;
+    private final TvShowList tvShowList = TvShowList.getInstance();
+    private final TvShow     tvShow;
 
     private Worker(TvShow tvShow) {
       this.tvShow = tvShow;
@@ -184,6 +188,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
               LOGGER.info("=====================================================");
               md = ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
               tvShow.setMetadata(md, tvShowScraperMetadataConfig);
+              tvShow.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
+              tvShow.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
             }
 
             // always add all episode data (for missing episodes and episode list)
@@ -201,6 +207,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 ep.setActors(me.getCastMembers(Person.Type.ACTOR));
                 ep.setDirectors(me.getCastMembers(Person.Type.DIRECTOR));
                 ep.setWriters(me.getCastMembers(Person.Type.WRITER));
+
+                Map<String, MediaRating> newRatings = new HashMap<>();
+
+                for (MediaRating mediaRating : me.getRatings()) {
+                  newRatings.put(mediaRating.getId(), mediaRating);
+                }
+                ep.setRatings(newRatings);
 
                 episodes.add(ep);
               }

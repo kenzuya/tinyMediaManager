@@ -79,14 +79,12 @@ public class MediaInfoUtils {
         Utils.copyDirectoryRecursive(tmmNativeDir, nativeDir);
 
         System.setProperty("jna.library.path", nativeDir.toString()); // MI
-        System.setProperty("org.lwjgl.librarypath", nativeDir.toString()); // nfd
         LOGGER.debug("Loading native libs from: {}", nativeDir);
       }
       catch (Exception e) {
         // not possible somehow -> load directly from tmm folder
         LOGGER.info("could not copy native libs to the temp folder -> try to load from install dir");
         System.setProperty("jna.library.path", tmmNativeDir.toString()); // MI
-        System.setProperty("org.lwjgl.librarypath", tmmNativeDir.toString()); // nfd
         LOGGER.debug("Loading native libs from: {}", tmmNativeDir);
       }
 

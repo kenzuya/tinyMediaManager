@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,11 @@ public class KodiMovieMetadataProvider extends AbstractKodiMetadataProvider impl
   }
 
   @Override
+  public boolean isActive() {
+    return true;
+  }
+
+  @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     return _search(options);
   }
@@ -69,13 +74,13 @@ public class KodiMovieMetadataProvider extends AbstractKodiMetadataProvider impl
       return;
     }
 
-    LOGGER.debug("******* BEGIN XML ***********");
-    LOGGER.debug(xmlDetails);
-    LOGGER.debug("******* END XML ***********");
+    LOGGER.trace("******* BEGIN XML ***********");
+    LOGGER.trace(xmlDetails);
+    LOGGER.trace("******* END XML ***********");
 
     Document xml = parseXmlString(xmlDetails);
     addMetadata(md, xml.getDocumentElement());
-    LOGGER.debug("MetaData: {}", md);
+    LOGGER.trace("MetaData: {}", md);
   }
 
   @Override

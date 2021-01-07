@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static org.tinymediamanager.scraper.entities.MediaType.MOVIE;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +30,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -44,7 +44,7 @@ import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSubtitleProvider;
 
 /**
  * The class MovieSubtitleSearchAndDownloadTask is used to search and download subtitles by hash
@@ -53,21 +53,21 @@ import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
  */
 public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieSubtitleSearchAndDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private final List<Movie>           movies;
   private final List<MediaScraper>    subtitleScrapers;
   private final MediaLanguages        language;
 
   public MovieSubtitleSearchAndDownloadTask(List<Movie> movies, MediaLanguages language) {
-    super(BUNDLE.getString("movie.download.subtitles"));
+    super(TmmResourceBundle.getString("movie.download.subtitles"));
     this.movies = movies;
     this.language = language;
 
     // get scrapers
     this.subtitleScrapers = new ArrayList<>();
     for (String scraperId : MovieModuleManager.SETTINGS.getSubtitleScrapers()) {
-      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.SUBTITLE);
+      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.MOVIE_SUBTITLE);
       if (scraper != null) {
         subtitleScrapers.add(scraper);
       }
@@ -75,7 +75,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
   }
 
   public MovieSubtitleSearchAndDownloadTask(List<Movie> movies, List<MediaScraper> subtitleScrapers, MediaLanguages language) {
-    super(BUNDLE.getString("movie.download.subtitles"));
+    super(TmmResourceBundle.getString("movie.download.subtitles"));
     this.movies = movies;
     this.subtitleScrapers = subtitleScrapers;
     this.language = language;
@@ -118,7 +118,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
           try {
             MediaFile mf = movie.getMediaFiles(MediaFileType.VIDEO).get(0);
 
-            ISubtitleProvider subtitleProvider = (ISubtitleProvider) scraper.getMediaProvider();
+            IMovieSubtitleProvider subtitleProvider = (IMovieSubtitleProvider) scraper.getMediaProvider();
             SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MOVIE);
             options.setFile(mf.getFileAsPath().toFile());
             options.setSearchQuery(movie.getOriginalTitle());

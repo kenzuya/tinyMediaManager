@@ -35,6 +35,8 @@ resource = [mac os x] macOS/Info.plist
 resource = [mac os x] macOS/Resources/tmm.icns
 resource = version
 resource = splashscreen.png
+resource = splashscreen@150pct.png
+resource = splashscreen@200pct.png
 resource = tmm.png
 resource = changelog.txt
 resource = launcher.yml
@@ -52,13 +54,10 @@ resource = [mac os x] jre/jre-macos.tar.br
 # mediainfo native libs
 resource = [mac os x] native/mac/libmediainfo.dylib
 resource = [windows-amd64] native/windows/MediaInfo.dll
-resource = [windows-amd64] native/windows/MediaInfo.dll
 
-# nativefiledialogs native libs
-resource = [windows-amd64] native/windows/lwjgl.dll
-resource = [windows-amd64] native/windows/lwjgl_nfd.dll
-resource = [linux-amd64] native/linux/liblwjgl.so
-resource = [linux-amd64] native/linux/liblwjgl_nfd.so
+# tiny file dialogs native libs
+resource = [windows-amd64] native/windows/tinyfiledialogs.dll
+resource = [linux-amd64] native/linux/libtinyfiledialogs.so
 
 # templates
 resource = templates/templates.tar.bz2

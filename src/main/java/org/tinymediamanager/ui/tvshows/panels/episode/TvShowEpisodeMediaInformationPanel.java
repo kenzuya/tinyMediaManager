@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 
 import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -32,6 +31,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
@@ -48,8 +48,8 @@ import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
  */
 public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
   private static final long           serialVersionUID = 2513029074142934502L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+
 
   private TvShowEpisodeSelectionModel selectionModel;
 
@@ -159,17 +159,20 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
           container.audioStream = audioStream;
 
           if (mediaFile.getType() == MediaFileType.VIDEO) {
-            container.source = BUNDLE.getString("metatag.internal");
-          } else {
-            container.source = BUNDLE.getString("metatag.external");
+            container.source = TmmResourceBundle.getString("metatag.internal");
+          }
+          else {
+            container.source = TmmResourceBundle.getString("metatag.external");
           }
 
           audioStreamEventList.add(container);
         }
       }
-    } catch (Exception ignored) {
-      //ignored
-    } finally {
+    }
+    catch (Exception ignored) {
+      // ignored
+    }
+    finally {
       audioStreamEventList.getReadWriteLock().writeLock().unlock();
       tableAudioStreams.adjustColumnPreferredWidths(6);
     }
@@ -192,17 +195,20 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
           container.subtitle = subtitle;
 
           if (mediaFile.getType() == MediaFileType.VIDEO) {
-            container.source = BUNDLE.getString("metatag.internal");
-          } else {
-            container.source = BUNDLE.getString("metatag.external");
+            container.source = TmmResourceBundle.getString("metatag.internal");
+          }
+          else {
+            container.source = TmmResourceBundle.getString("metatag.external");
           }
 
           subtitleEventList.add(container);
         }
       }
-    } catch (Exception ignored) {
+    }
+    catch (Exception ignored) {
       // ignored
-    } finally {
+    }
+    finally {
       subtitleEventList.getReadWriteLock().writeLock().unlock();
       tableSubtitles.adjustColumnPreferredWidths(6);
     }

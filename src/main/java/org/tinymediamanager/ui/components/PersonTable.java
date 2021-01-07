@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
@@ -32,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -49,8 +49,8 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  * @author Manuel Laggner
  */
 public class PersonTable extends TmmTable {
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
+
 
   /**
    * create a PersonTable for display only
@@ -77,7 +77,7 @@ public class PersonTable extends TmmTable {
     // init();
 
     adjustColumnPreferredWidths(3);
-    PersonTableButtonListener listener = new PersonTableButtonListener(this, personEventList, BUNDLE.getString("cast.edit"));
+    PersonTableButtonListener listener = new PersonTableButtonListener(this, personEventList, TmmResourceBundle.getString("cast.edit"));
     addMouseListener(listener);
     addMouseMotionListener(listener);
   }
@@ -90,21 +90,21 @@ public class PersonTable extends TmmTable {
       /*
        * name
        */
-      Column col = new Column(BUNDLE.getString("metatag.name"), "name", Person::getName, String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.name"), "name", Person::getName, String.class);
       col.setColumnResizeable(true);
       addColumn(col);
 
       /*
        * role
        */
-      col = new Column(BUNDLE.getString("metatag.role"), "role", Person::getRole, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.role"), "role", Person::getRole, String.class);
       col.setColumnResizeable(true);
       addColumn(col);
 
       /*
        * image
        */
-      col = new Column(BUNDLE.getString("image.url"), "imageUrl", person -> {
+      col = new Column(TmmResourceBundle.getString("image.url"), "imageUrl", person -> {
         if (StringUtils.isNotBlank(person.getThumbUrl())) {
           return IconManager.TABLE_OK;
         }
@@ -117,7 +117,7 @@ public class PersonTable extends TmmTable {
       /*
        * profile
        */
-      col = new Column(BUNDLE.getString("profile.url"), "profileUrl", person -> {
+      col = new Column(TmmResourceBundle.getString("profile.url"), "profileUrl", person -> {
         if (StringUtils.isNotBlank(person.getProfileUrl())) {
           return IconManager.TABLE_OK;
         }
@@ -131,7 +131,7 @@ public class PersonTable extends TmmTable {
        * edit
        */
       if (edit) {
-        col = new Column(BUNDLE.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
+        col = new Column(TmmResourceBundle.getString("Button.edit"), "edit", person -> IconManager.EDIT, ImageIcon.class);
         col.setColumnResizeable(false);
         col.setHeaderIcon(IconManager.EDIT_HEADER);
         addColumn(col);

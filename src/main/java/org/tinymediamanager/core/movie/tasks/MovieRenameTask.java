@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
@@ -27,6 +26,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -41,7 +41,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  */
 public class MovieRenameTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieRenameTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   private List<Movie>                 moviesToRename;
 
@@ -52,7 +52,7 @@ public class MovieRenameTask extends TmmThreadPool {
    *          the movies to rename
    */
   public MovieRenameTask(List<Movie> moviesToRename) {
-    super(BUNDLE.getString("movie.rename"));
+    super(TmmResourceBundle.getString("movie.rename"));
     this.moviesToRename = moviesToRename;
   }
 

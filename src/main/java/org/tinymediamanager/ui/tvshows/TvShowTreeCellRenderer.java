@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableCellRenderer;
@@ -62,5 +63,14 @@ public class TvShowTreeCellRenderer extends TmmTreeTableCellRenderer {
     }
 
     return renderer;
+  }
+
+  @Override
+  public String getToolTipText() {
+    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+      return null;
+    }
+
+    return super.getToolTipText();
   }
 }

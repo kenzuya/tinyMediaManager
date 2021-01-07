@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
@@ -82,6 +83,10 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           removeMovie(movie);
           break;
 
+        case "dummyMovies":
+          mixinDummyMovies((MovieSet) evt.getSource());
+          break;
+
         default:
           nodeChanged(evt.getSource());
           break;
@@ -97,6 +102,14 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     };
 
     setTreeComparator(new MovieSetTreeNodeComparator());
+
+    MovieModuleManager.SETTINGS.addPropertyChangeListener(evt -> {
+      switch (evt.getPropertyName()) {
+        case "displayMovieSetMissingMovies":
+          mixinDummyMovies();
+          break;
+      }
+    });
   }
 
   /**
@@ -150,9 +163,15 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     else if (parent.getUserObject() instanceof MovieSet) {
       MovieSet movieSet = (MovieSet) parent.getUserObject();
       ArrayList<TmmTreeNode> nodes = new ArrayList<>();
-      for (Movie movie : movieSet.getMovies()) {
-        // cross check if that movie is also in the movie set
+      for (Movie movie : movieSet.getMoviesForDisplay()) {
         if (movie.getMovieSet() == movieSet) {
+          // cross check if that movie is also in the movie set
+          TmmTreeNode node = new MovieTreeNode(movie, this);
+          putNodeToCache(movie, node);
+          nodes.add(node);
+        }
+        else if (movie instanceof MovieSet.MovieSetMovie) {
+          // also add dummy movies
           TmmTreeNode node = new MovieTreeNode(movie, this);
           putNodeToCache(movie, node);
           nodes.add(node);
@@ -166,11 +185,6 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   @Override
   public boolean isLeaf(TmmTreeNode node) {
     return node.getUserObject() instanceof Movie;
-  }
-
-  @Override
-  public Comparator<TmmTreeNode> getTreeComparator() {
-    return super.getTreeComparator();
   }
 
   private TmmTreeNode addMovieSet(MovieSet movieSet) {
@@ -237,6 +251,40 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     firePropertyChange(NODE_REMOVED, null, cachedNode);
   }
 
+  private void mixinDummyMovies() {
+    for (MovieSet movieSet : movieList.getMovieSetList()) {
+      mixinDummyMovies(movieSet);
+    }
+  }
+
+  private void mixinDummyMovies(MovieSet movieSet) {
+    TmmTreeNode movieSetNode = getNodeFromCache(movieSet);
+    if (movieSetNode == null) {
+      return;
+    }
+
+    List<Movie> movies = movieSet.getMoviesForDisplay();
+
+    // a) check if there is a (dummy) movie in the tree which has to be removed
+    List<TmmTreeNode> nodesToRemove = new ArrayList<>();
+    for (int i = 0; i < movieSetNode.getChildCount(); i++) {
+      TmmTreeNode child = (TmmTreeNode) movieSetNode.getChildAt(i);
+      if (!movies.contains(child.getUserObject())) {
+        nodesToRemove.add(child);
+      }
+    }
+    for (TmmTreeNode node : nodesToRemove) {
+      if (node.getUserObject() instanceof Movie) {
+        removeMovie((Movie) node.getUserObject());
+      }
+    }
+
+    // b) mixin new movies
+    for (Movie movie : movies) {
+      addMovie(movie);
+    }
+  }
+
   /*
    * helper classes
    */
@@ -263,23 +311,23 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       Object userObject2 = o2.getUserObject();
 
       if (userObject1 instanceof MovieSet && userObject2 instanceof MovieSet) {
-        int compairingResult = sortComparator.compare(getColumnValue(o1, sortColumn), getColumnValue(o2, sortColumn));
-        if (compairingResult == 0 && sortColumn != 0) {
-          compairingResult = stringComparator.compare(getColumnValue(o1, 0), getColumnValue(o2, 0));
+        int comparingResult = sortComparator.compare(getColumnValue(o1, sortColumn), getColumnValue(o2, sortColumn));
+        if (comparingResult == 0 && sortColumn != 0) {
+          comparingResult = stringComparator.compare(getColumnValue(o1, 0), getColumnValue(o2, 0));
         }
         else {
           if (sortDirection == SortDirection.DESCENDING) {
-            compairingResult = compairingResult * -1;
+            comparingResult = comparingResult * -1;
           }
         }
-        return compairingResult;
+        return comparingResult;
       }
 
       if (userObject1 instanceof Movie && userObject2 instanceof Movie) {
         Movie movie1 = (Movie) userObject1;
         Movie movie2 = (Movie) userObject2;
         if (movie1.getMovieSet() != null && movie1.getMovieSet() == movie2.getMovieSet()) {
-          List<Movie> moviesInSet = movie1.getMovieSet().getMovies();
+          List<Movie> moviesInSet = movie1.getMovieSet().getMoviesForDisplay();
           return moviesInSet.indexOf(movie1) - moviesInSet.indexOf(movie2);
         }
       }
@@ -305,7 +353,7 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       sortComparator = getSortComparator();
     }
 
-    private Comparator getSortComparator() {
+    private Comparator<?> getSortComparator() {
       if (sortColumn == 0) {
         // sort on the node/title
         return stringComparator;

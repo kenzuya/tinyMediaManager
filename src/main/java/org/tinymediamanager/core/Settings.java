@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.DateField;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.ImageCache.CacheSize;
@@ -46,74 +45,77 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * @author Manuel Laggner
  */
 public class Settings extends AbstractSettings {
-  private static final Logger   LOGGER                 = LoggerFactory.getLogger(Settings.class);
+  private static final Logger   LOGGER                      = LoggerFactory.getLogger(Settings.class);
 
   /**
    * Constants mainly for events
    */
-  private static final String   TITLE_PREFIX           = "titlePrefixes";
-  private static final String   VIDEO_FILE_TYPE        = "videoFileType";
-  private static final String   AUDIO_FILE_TYPE        = "audioFileType";
-  private static final String   SUBTITLE_FILE_TYPE     = "subtitleFileType";
-  private static final String   CLEANUP_FILE_TYPE      = "cleanupFileType";
-  private static final String   WOL_DEVICES            = "wolDevices";
+  private static final String   TITLE_PREFIX                = "titlePrefixes";
+  private static final String   VIDEO_FILE_TYPE             = "videoFileType";
+  private static final String   AUDIO_FILE_TYPE             = "audioFileType";
+  private static final String   SUBTITLE_FILE_TYPE          = "subtitleFileType";
+  private static final String   CLEANUP_FILE_TYPE           = "cleanupFileType";
+  private static final String   WOL_DEVICES                 = "wolDevices";
 
   /**
    * statics
    */
-  private static final String   CONFIG_FILE            = "tmm.json";
+  private static final String   CONFIG_FILE                 = "tmm.json";
   private static final int      DEFAULT_KODI_HTTP_PORT;
 
   private static Settings       instance;
 
-  private final List<String>    titlePrefixes          = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>    videoFileTypes         = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>    audioFileTypes         = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>    subtitleFileTypes      = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>    cleanupFileTypes       = ObservableCollections.observableList(new ArrayList<>());
-  private final List<WolDevice> wolDevices             = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    titlePrefixes               = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    videoFileTypes              = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    audioFileTypes              = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    subtitleFileTypes           = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    cleanupFileTypes            = ObservableCollections.observableList(new ArrayList<>());
+  private final List<WolDevice> wolDevices                  = ObservableCollections.observableList(new ArrayList<>());
 
-  private String                version                = "";
+  private String                version                     = "";
 
   private String                proxyHost;
   private String                proxyPort;
   private String                proxyUsername;
   private String                proxyPassword;
-  private int                   maximumDownloadThreads = 2;
+  private int                   maximumDownloadThreads      = 2;
 
-  private String                traktAccessToken       = "";
-  private String                traktRefreshToken      = "";
+  private String                traktAccessToken            = "";
+  private String                traktRefreshToken           = "";
 
-  private String                kodiHost               = "";
-  private int                   kodiHttpPort           = DEFAULT_KODI_HTTP_PORT;
-  private int                   kodiTcpPort            = 9090;
-  private String                kodiUsername           = "";
-  private String                kodiPassword           = "";
+  private String                kodiHost                    = "";
+  private int                   kodiHttpPort                = DEFAULT_KODI_HTTP_PORT;
+  private int                   kodiTcpPort                 = 9090;
+  private String                kodiUsername                = "";
+  private String                kodiPassword                = "";
 
-  private boolean               imageCache             = true;
-  private CacheSize             imageCacheSize         = CacheSize.BIG;
-  private CacheType             imageCacheType         = CacheType.QUALITY;
+  private boolean               imageCache                  = true;
+  private CacheSize             imageCacheSize              = CacheSize.BIG;
+  private CacheType             imageCacheType              = CacheType.QUALITY;
 
   // language 2 char - saved to config
   private String                language;
-  private String                mediaPlayer            = "";
+  private String                mediaPlayer                 = "";
+  private String                mediaFramework              = "";
+  private Integer               ffmpegPercentage            = 50;
 
-  private String                theme                  = "Light";
-  private int                   fontSize               = 12;
-  private String                fontFamily             = "Dialog";
+  private String                theme                       = "Light";
+  private int                   fontSize                    = 12;
+  private String                fontFamily                  = "Dialog";
 
-  private boolean               storeWindowPreferences = true;
-  private DateField             dateField              = DateField.DATE_ADDED;
+  private boolean               imageChooserUseEntityFolder = false;
+  private boolean               storeWindowPreferences      = true;
+  private DateField             dateField                   = DateField.DATE_ADDED;
 
-  private boolean               deleteTrashOnExit      = false;
-  private boolean               showMemory             = false;
+  private boolean               deleteTrashOnExit           = false;
+  private boolean               showMemory                  = false;
 
-  private boolean               upnpShareLibrary       = false;
-  private boolean               upnpRemotePlay         = false;
+  private boolean               upnpShareLibrary            = false;
+  private boolean               upnpRemotePlay              = false;
 
-  private boolean               ignoreSSLProblems      = true;
+  private boolean               ignoreSSLProblems           = true;
 
-  private boolean               writeMediaInfoXml      = false;
+  private boolean               writeMediaInfoXml           = false;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -867,6 +869,26 @@ public class Settings extends AbstractSettings {
     firePropertyChange("mediaPlayer", oldValue, newValue);
   }
 
+  public void setMediaFramework(String newValue) {
+    String oldValue = mediaFramework;
+    mediaFramework = newValue;
+    firePropertyChange("mediaFramework", oldValue, newValue);
+  }
+
+  public String getMediaFramework() {
+    return mediaFramework;
+  }
+
+  public void setFfmpegPercentage(Integer newValue) {
+    Integer oldValue = ffmpegPercentage;
+    ffmpegPercentage = newValue;
+    firePropertyChange("ffmpegPercentage", oldValue, newValue);
+  }
+
+  public Integer getFfmpegPercentage() {
+    return ffmpegPercentage;
+  }
+
   public String getMediaPlayer() {
     return mediaPlayer;
   }
@@ -919,6 +941,16 @@ public class Settings extends AbstractSettings {
 
   public boolean isStoreWindowPreferences() {
     return storeWindowPreferences;
+  }
+
+  public boolean isImageChooserUseEntityFolder() {
+    return imageChooserUseEntityFolder;
+  }
+
+  public void setImageChooserUseEntityFolder(boolean newValue) {
+    boolean oldvalue = imageChooserUseEntityFolder;
+    imageChooserUseEntityFolder = newValue;
+    firePropertyChange("imageChooserUseEntityFolder", oldvalue, newValue);
   }
 
   public boolean isShowMemory() {

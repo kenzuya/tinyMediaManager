@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,10 @@ public class ImageCache {
 
   static {
     createSubdirs();
+  }
+
+  private ImageCache() {
+    throw new IllegalAccessError();
   }
 
   public static void createSubdirs() {
@@ -241,6 +245,8 @@ public class ImageCache {
         retries--;
       } while (retries > 0);
 
+      originalImage.flush();
+
       if (scaledImage == null) {
         throw new IOException("could not scale image; probably due to memory limits");
       }
@@ -278,6 +284,8 @@ public class ImageCache {
       imgWrtr.dispose();
       output.flush();
       output.close();
+
+      scaledImage.flush();
 
       if (!Files.exists(cachedFile)) {
         throw new IOException("unable to cache file: " + originalFile);

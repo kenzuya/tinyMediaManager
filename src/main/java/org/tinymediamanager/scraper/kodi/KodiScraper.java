@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,16 +39,16 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 
 public class KodiScraper implements IMediaProvider {
-  private static final Logger          LOGGER    = LoggerFactory.getLogger(KodiScraper.class);
-  private Map<String, ScraperFunction> functions = new TreeMap<>();
+  private static final Logger                LOGGER    = LoggerFactory.getLogger(KodiScraper.class);
+  private final Map<String, ScraperFunction> functions = new TreeMap<>();
 
-  MediaType                            type;
-  String                               language;
-  String                               provider;
-  File                                 addonFolder;
-  String                               scraperXml;
-  MediaProviderInfo                    providerInfo;
-  List<String>                         imports   = new ArrayList<>();
+  MediaType                                  type;
+  String                                     language;
+  String                                     provider;
+  File                                       addonFolder;
+  String                                     scraperXml;
+  MediaProviderInfo                          providerInfo;
+  List<String>                               imports   = new ArrayList<>();
 
   @Override
   public MediaProviderInfo getProviderInfo() {
@@ -56,8 +56,8 @@ public class KodiScraper implements IMediaProvider {
   }
 
   @Override
-  public String getId() {
-    return providerInfo.getId();
+  public boolean isActive() {
+    return true;
   }
 
   /**
@@ -148,11 +148,11 @@ public class KodiScraper implements IMediaProvider {
       }
       if (this.scraperXml.toLowerCase(Locale.ROOT).endsWith(".py")) {
         LOGGER.info("Found a python scraper {}, but we can only load XML based ones - sorry.", scraperFolder);
-        providerInfo = new MediaProviderInfo("", name, ""); // set blank ID, so the outer loop ignores
+        providerInfo = new MediaProviderInfo("", "", name, ""); // set blank ID, so the outer loop ignores
         return;
       }
 
-      providerInfo = new MediaProviderInfo(id, "Kodi: " + name, "<h3>" + summary + "</h3><br>" + description,
+      providerInfo = new MediaProviderInfo(id, id, "Kodi: " + name, "<h3>" + summary + "</h3><br>" + description,
           KodiScraper.class.getResource("/org/tinymediamanager/scraper/kodi_tv.svg"));
       providerInfo.setVersion(version); // deprecated solely for Kodi, so ok
 

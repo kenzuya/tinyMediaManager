@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -29,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
@@ -44,11 +44,11 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieRemoveAction extends TmmAction {
   private static final long           serialVersionUID = -984567332370801730L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieRemoveAction() {
     putValue(SMALL_ICON, IconManager.DELETE);
-    putValue(NAME, BUNDLE.getString("movie.remove"));
+    putValue(NAME, TmmResourceBundle.getString("movie.remove"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
   }
 
@@ -57,19 +57,19 @@ public class MovieRemoveAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // display warning and ask the user again
     if (!TmmProperties.getInstance().getPropertyAsBoolean("movie.hideremovehint")) {
-      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+      JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      Object[] params = { BUNDLE.getString("movie.remove.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("movie.remove"), JOptionPane.YES_NO_OPTION,
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      Object[] params = { TmmResourceBundle.getString("movie.remove.desc"), checkBox };
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("movie.remove"), JOptionPane.YES_NO_OPTION,
           JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again

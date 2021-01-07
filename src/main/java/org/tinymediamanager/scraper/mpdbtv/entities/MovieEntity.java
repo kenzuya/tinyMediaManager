@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.google.gson.annotations.SerializedName;
 public class MovieEntity {
 
   @SerializedName("id")
-  public Integer           id;
+  public String            id;
 
   @SerializedName("original_title")
   public String            originalTitle;

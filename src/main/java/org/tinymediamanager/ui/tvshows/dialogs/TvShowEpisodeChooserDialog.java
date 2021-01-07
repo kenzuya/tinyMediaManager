@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -80,23 +81,24 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                serialVersionUID = 3317576458848699068L;
-  private static final Logger                              LOGGER           = LoggerFactory.getLogger(TvShowEpisodeChooserDialog.class);
+  private static final long                                      serialVersionUID = 3317576458848699068L;
+  private static final Logger                                    LOGGER           = LoggerFactory.getLogger(TvShowEpisodeChooserDialog.class);
 
-  private TvShowEpisode                                    episode;
-  private MediaScraper                                     mediaScraper;
-  private MediaMetadata                                    metadata;
-  private ObservableElementList<TvShowEpisodeChooserModel> episodeEventList;
-  private final List<TvShowEpisodeChooserModel>            selectedEpisodes;
-  private final SortedList<TvShowEpisodeChooserModel>      sortedEpisodes;
+  private final TvShowEpisode                                    episode;
+  private final MediaScraper                                     mediaScraper;
+  private final ObservableElementList<TvShowEpisodeChooserModel> episodeEventList;
 
-  private JLabel                                           lblPath;
-  private TmmTable                                         table;
-  private JTextArea                                        taPlot;
-  private JTextField                                       textField;
+  private MediaMetadata                                          metadata;
+  private final List<TvShowEpisodeChooserModel>                  selectedEpisodes;
+  private final SortedList<TvShowEpisodeChooserModel>            sortedEpisodes;
+
+  private JLabel                                                 lblPath;
+  private TmmTable                                               table;
+  private JTextArea                                              taPlot;
+  private JTextField                                             textField;
 
   public TvShowEpisodeChooserDialog(TvShowEpisode ep, MediaScraper mediaScraper) {
-    super(BUNDLE.getString("tvshowepisode.choose"), "episodeChooser");
+    super(TmmResourceBundle.getString("tvshowepisode.choose"), "episodeChooser");
 
     this.episode = ep;
     this.mediaScraper = mediaScraper;
@@ -178,15 +180,15 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     }
     {
 
-      JButton cancelButton = new JButton(BUNDLE.getString("Button.cancel"));
-      cancelButton.setToolTipText(BUNDLE.getString("edit.discard"));
+      JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
+      cancelButton.setToolTipText(TmmResourceBundle.getString("edit.discard"));
       cancelButton.setIcon(IconManager.CANCEL_INV);
       cancelButton.setActionCommand("Cancel");
       cancelButton.addActionListener(this);
       addButton(cancelButton);
 
-      final JButton okButton = new JButton(BUNDLE.getString("Button.ok"));
-      okButton.setToolTipText(BUNDLE.getString("tvshow.change"));
+      final JButton okButton = new JButton(TmmResourceBundle.getString("Button.ok"));
+      okButton.setToolTipText(TmmResourceBundle.getString("tvshow.change"));
       okButton.setIcon(IconManager.APPLY_INV);
       okButton.setActionCommand("OK");
       okButton.addActionListener(this);
@@ -366,16 +368,16 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     public String getColumnName(int column) {
       switch (column) {
         case 0:
-          return BUNDLE.getString("metatag.season");
+          return TmmResourceBundle.getString("metatag.season");
 
         case 1:
-          return BUNDLE.getString("metatag.episode");
+          return TmmResourceBundle.getString("metatag.episode");
 
         case 2:
-          return BUNDLE.getString("metatag.aired");
+          return TmmResourceBundle.getString("metatag.aired");
 
         case 3:
-          return BUNDLE.getString("metatag.title");
+          return TmmResourceBundle.getString("metatag.title");
       }
       return null;
     }

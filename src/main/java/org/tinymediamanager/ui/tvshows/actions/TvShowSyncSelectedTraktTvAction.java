@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,45 +17,47 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
- * The class TvShowSyncSelectedTraktTvAction. To synchronize selected TV shows with trakt.tv (collection + watched)
+ * The class {@link TvShowSyncSelectedTraktTvAction}. To synchronize selected TV shows with trakt.tv (collection + watched)
  * 
  * @author Manuel Laggner
  */
 public class TvShowSyncSelectedTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public TvShowSyncSelectedTraktTvAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.synctrakt.selected"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.synctrakt.selected.desc"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.synctrakt.selected"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.synctrakt.selected.desc"));
     putValue(SMALL_ICON, IconManager.SYNC);
     putValue(LARGE_ICON_KEY, IconManager.SYNC);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    TmmTask task = new SyncTraktTvTask(null, selectedTvShows);
+    TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(selectedTvShows);
+    task.setSyncCollection(true);
+    task.setSyncWatched(true);
+
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }

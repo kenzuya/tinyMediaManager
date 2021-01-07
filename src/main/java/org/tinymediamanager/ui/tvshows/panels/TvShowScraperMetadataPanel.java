@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.tvshows.panels;
 
+import static org.tinymediamanager.core.ScraperMetadataConfig.Type.THEME;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemListener;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -31,6 +32,7 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -50,7 +52,7 @@ public class TvShowScraperMetadataPanel extends JPanel {
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle                        BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   private TvShowSettings                                     settings         = TvShowModuleManager.SETTINGS;
   private Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowCheckboxes;
@@ -98,7 +100,7 @@ public class TvShowScraperMetadataPanel extends JPanel {
     /////////////////////////////////////////
     // TV SHOWS
     /////////////////////////////////////////
-    JLabel label = new TmmLabel(BUNDLE.getString("metatag.tvshows"));
+    JLabel label = new TmmLabel(TmmResourceBundle.getString("metatag.tvshows"));
     add(label, gbc);
 
     // Metadata
@@ -128,16 +130,25 @@ public class TvShowScraperMetadataPanel extends JPanel {
       }
     }
 
+    // theme
+    gbc.gridx = 0;
+    gbc.gridy++;
+    for (TvShowScraperMetadataConfig value : TvShowScraperMetadataConfig.values()) {
+      if (value.getType() == THEME) {
+        addCheckbox(value, tvShowCheckboxes, gbc);
+      }
+    }
+
     // add/remove all buttons
     JPanel panel = new JPanel();
     JButton btnSelectAll = new JButton(IconManager.CHECK_ALL);
     panel.add(btnSelectAll);
-    btnSelectAll.setToolTipText(BUNDLE.getString("Button.select.all"));
+    btnSelectAll.setToolTipText(TmmResourceBundle.getString("Button.select.all"));
     btnSelectAll.addActionListener(e -> setTvShowCheckBoxState(true));
 
     JButton btnDeSelectAll = new JButton(IconManager.CLEAR_ALL);
     panel.add(btnDeSelectAll);
-    btnDeSelectAll.setToolTipText(BUNDLE.getString("Button.select.none"));
+    btnDeSelectAll.setToolTipText(TmmResourceBundle.getString("Button.select.none"));
     btnDeSelectAll.addActionListener(e -> setTvShowCheckBoxState(false));
 
     gbc.gridx = 0;
@@ -149,7 +160,7 @@ public class TvShowScraperMetadataPanel extends JPanel {
     /////////////////////////////////////////
     gbc.gridx = 0;
     gbc.gridy++;
-    label = new TmmLabel(BUNDLE.getString("metatag.episodes"));
+    label = new TmmLabel(TmmResourceBundle.getString("metatag.episodes"));
     add(label, gbc);
 
     // Metadata
@@ -183,12 +194,12 @@ public class TvShowScraperMetadataPanel extends JPanel {
     panel = new JPanel();
     btnSelectAll = new JButton(IconManager.CHECK_ALL);
     panel.add(btnSelectAll);
-    btnSelectAll.setToolTipText(BUNDLE.getString("Button.select.all"));
+    btnSelectAll.setToolTipText(TmmResourceBundle.getString("Button.select.all"));
     btnSelectAll.addActionListener(e -> setEpisodeCheckBoxState(true));
 
     btnDeSelectAll = new JButton(IconManager.CLEAR_ALL);
     panel.add(btnDeSelectAll);
-    btnDeSelectAll.setToolTipText(BUNDLE.getString("Button.select.none"));
+    btnDeSelectAll.setToolTipText(TmmResourceBundle.getString("Button.select.none"));
     btnDeSelectAll.addActionListener(e -> setEpisodeCheckBoxState(false));
 
     gbc.gridx = 0;

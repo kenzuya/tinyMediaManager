@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,7 @@ public class IconManager {
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
   public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
   public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
+  public static final ImageIcon              MOVIE                        = createMenuIcon("film.svg");
   public static final ImageIcon              MUSIC                        = createMenuIcon("music.svg");
   public static final ImageIcon              PLAY                         = createMenuIcon("play.svg");
   public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
@@ -95,6 +96,8 @@ public class IconManager {
   public static final ImageIcon              RATING_BLUE                  = createMenuIcon("star.svg");
   public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
   public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
+  public static final ImageIcon              THUMB                        = createMenuIcon("photo-video.svg");
+  public static final ImageIcon              WATCHED_MENU                 = createMenuIcon("play.svg");
 
   // font awesome icons for the table/tree
   public static final ImageIcon              TABLE_OK                     = createSVGIcon("check.svg", new Color(31, 187, 0));
@@ -135,6 +138,7 @@ public class IconManager {
   public static final ImageIcon              COPY_INV                     = createButtonIcon("clone.svg");
   public static final ImageIcon              DATE_PICKER                  = createButtonIcon("calendar-alt.svg");
   public static final ImageIcon              DELETE_INV                   = createButtonIcon("trash-alt.svg");
+  public static final ImageIcon              EXCHANGE                     = createButtonIcon("exchange.svg");
   public static final ImageIcon              FILE_OPEN_INV                = createButtonIcon("folder-open.svg");
   public static final ImageIcon              IMAGE_INV                    = createButtonIcon("image.svg");
   public static final ImageIcon              PLAY_INV                     = createButtonIcon("play.svg");

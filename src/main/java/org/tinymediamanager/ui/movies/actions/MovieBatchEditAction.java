@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -39,11 +39,11 @@ import org.tinymediamanager.ui.movies.dialogs.MovieBulkEditorDialog;
  */
 public class MovieBatchEditAction extends TmmAction {
   private static final long           serialVersionUID = -3974602352019088416L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieBatchEditAction() {
-    putValue(NAME, BUNDLE.getString("movie.bulkedit"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.bulkedit.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.bulkedit"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.bulkedit.desc"));
     putValue(SMALL_ICON, IconManager.EDIT);
     putValue(LARGE_ICON_KEY, IconManager.EDIT);
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
@@ -54,7 +54,7 @@ public class MovieBatchEditAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

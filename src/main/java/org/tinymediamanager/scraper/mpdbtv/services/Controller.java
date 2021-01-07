@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class Controller {
     return getService().movieSearch(apikey, username, subscriptionkey, searchstring, language, saga, format).execute().body();
   }
 
-  public MovieEntity getScrapeInformation(String apikey, String username, String subscriptionkey, int id, Locale language, String typeId,
+  public MovieEntity getScrapeInformation(String apikey, String username, String subscriptionkey, String id, Locale language, String typeId,
       String format) throws IOException {
 
     return getService().movieScrapebyID(apikey, username, subscriptionkey, id, language, typeId, format).execute().body();

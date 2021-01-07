@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,13 @@ import java.awt.event.WindowEvent;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
@@ -48,8 +48,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TinyMediaManagerWizard extends TmmDialog {
   private static final long           serialVersionUID = 1112053710541745443L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+  
 
   private final List<JPanel>          panels;
   private int                         activePanelIndex = 0;
@@ -143,7 +143,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
     private static final long serialVersionUID = -510135441507847318L;
 
     public BackAction() {
-      putValue(NAME, BUNDLE.getString("wizard.back"));
+      putValue(NAME, TmmResourceBundle.getString("wizard.back"));
     }
 
     @Override
@@ -163,7 +163,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
     private static final long serialVersionUID = -7813935881525980050L;
 
     public NextAction() {
-      putValue(NAME, BUNDLE.getString("wizard.next"));
+      putValue(NAME, TmmResourceBundle.getString("wizard.next"));
     }
 
     @Override
@@ -184,7 +184,7 @@ public class TinyMediaManagerWizard extends TmmDialog {
     private static final long serialVersionUID = 8047070989186510289L;
 
     public FinishAction() {
-      putValue(NAME, BUNDLE.getString("wizard.finish"));
+      putValue(NAME, TmmResourceBundle.getString("wizard.finish"));
     }
 
     @Override

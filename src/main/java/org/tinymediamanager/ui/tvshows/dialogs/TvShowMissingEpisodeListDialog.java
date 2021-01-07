@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -71,7 +72,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
   private TmmTable                    tblMissingEpisodeList;
 
   public TvShowMissingEpisodeListDialog(List<TvShow> tvShows) {
-    super(BUNDLE.getString("tvshow.missingepisodelist"), "missingepisodelist");
+    super(TmmResourceBundle.getString("tvshow.missingepisodelist"), "missingepisodelist");
 
     results = new SortedList<>(GlazedListsSwing.swingThreadProxyList(GlazedLists.threadSafeList(new BasicEventList<>())),
         new EpisodeContainerComparator());
@@ -99,7 +100,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       setBottomInformationPanel(infoPanel);
     }
     {
-      btnClose = new JButton(BUNDLE.getString("Button.close"));
+      btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(e -> setVisible(false));
       this.addDefaultButton(btnClose);
     }
@@ -140,18 +141,18 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       /*
        * title
        */
-      Column col = new Column(BUNDLE.getString("metatag.tvshow"), "title", container -> container.tvShowTitle, String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.tvshow"), "title", container -> container.tvShowTitle, String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
 
       /*
        * season
        */
-      col = new Column(BUNDLE.getString("metatag.season"), "season", container -> container.season, Integer.class);
+      col = new Column(TmmResourceBundle.getString("metatag.season"), "season", container -> container.season, Integer.class);
       col.setColumnComparator(integerComparator);
       col.setCellRenderer(new RightAlignTableCellRenderer());
       col.setColumnResizeable(false);
-      int seasonWidth = fontMetrics.stringWidth(BUNDLE.getString("metatag.season"));
+      int seasonWidth = fontMetrics.stringWidth(TmmResourceBundle.getString("metatag.season"));
       col.setMinWidth((int) (seasonWidth * 1.2f));
       col.setMaxWidth((int) (seasonWidth * 1.5f));
       addColumn(col);
@@ -159,11 +160,11 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       /*
        * episode
        */
-      col = new Column(BUNDLE.getString("metatag.episode"), "episode", container -> container.episode, Integer.class);
+      col = new Column(TmmResourceBundle.getString("metatag.episode"), "episode", container -> container.episode, Integer.class);
       col.setColumnComparator(integerComparator);
       col.setCellRenderer(new RightAlignTableCellRenderer());
       col.setColumnResizeable(false);
-      int episodeWidth = fontMetrics.stringWidth(BUNDLE.getString("metatag.episode"));
+      int episodeWidth = fontMetrics.stringWidth(TmmResourceBundle.getString("metatag.episode"));
       col.setMinWidth((int) (episodeWidth * 1.2f));
       col.setMaxWidth((int) (episodeWidth * 1.5f));
       addColumn(col);
@@ -171,7 +172,7 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
       /*
        * Episode Title
        */
-      col = new Column(BUNDLE.getString("metatag.title"), "episodeTitle", container -> container.episodeTitle, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.title"), "episodeTitle", container -> container.episodeTitle, String.class);
       col.setColumnComparator(stringComparator);
       col.setColumnResizeable(true);
       addColumn(col);

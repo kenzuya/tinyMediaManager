@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -34,6 +33,7 @@ import org.tinymediamanager.core.CustomNullStringSerializerProvider;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.NullKeySerializer;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
@@ -50,7 +50,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * @author Manuel Laggner
  */
 public class MovieModuleManager implements ITmmModule {
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
+  
   public static final MovieSettings   SETTINGS     = MovieSettings.getInstance();
 
   private static final String         MODULE_TITLE = "Movie management";
@@ -107,7 +107,7 @@ public class MovieModuleManager implements ITmmModule {
         mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(4096).open();
 
         // inform user that the DB could not be loaded
-        startupMessages.add(BUNDLE.getString("movie.loaddb.failed"));
+        startupMessages.add(TmmResourceBundle.getString("movie.loaddb.failed"));
       }
       catch (Exception e1) {
         LOGGER.error("could not move old database file and create a new one: {}", e1.getMessage());

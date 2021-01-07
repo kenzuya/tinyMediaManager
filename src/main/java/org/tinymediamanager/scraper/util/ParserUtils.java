@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -420,7 +420,26 @@ public class ParserUtils {
     return rate;
   }
 
-  public static class ParserInfo {
+  /**
+   * splits the given String into substrings by all known/supported separators
+   *
+   * @param source
+   *          the source String to split
+   * @return an array with all parts
+   */
+  public static List<String> split(String source) {
+    List<String> result = new ArrayList<>();
+
+    for (String string : source.split("\\s*[;,\\/|]\\s*")) {
+      if (StringUtils.isNotBlank(string)) {
+        result.add(string);
+      }
+    }
+
+    return result;
+  }
+
+  private static class ParserInfo {
     public String name  = "";
     public String year  = "";
     public String clean = "";

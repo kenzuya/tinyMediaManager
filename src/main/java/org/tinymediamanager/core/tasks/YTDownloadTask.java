@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,6 +37,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmMuxer;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
@@ -63,15 +63,15 @@ import com.github.kiulian.downloader.model.quality.VideoQuality;
  */
 public abstract class YTDownloadTask extends TmmTask {
 
-  private static final Logger         LOGGER                      = LoggerFactory.getLogger(YTDownloadTask.class);
+  private static final Logger  LOGGER                      = LoggerFactory.getLogger(YTDownloadTask.class);
   private static final char[]         ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
       ':' };
 
-  private static final ResourceBundle BUNDLE                      = ResourceBundle.getBundle("messages");
+
   private final MediaTrailer          mediaTrailer;
   private final TrailerQuality        desiredQuality;
 
-  private YoutubeVideo                video;
+  private YoutubeVideo         video;
 
   /* helpers for calculating the download speed */
   private long                        timestamp1                  = System.nanoTime();
@@ -81,7 +81,7 @@ public abstract class YTDownloadTask extends TmmTask {
   private double                      speed                       = 0;
 
   public YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
-    super(BUNDLE.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
     this.mediaTrailer = mediaTrailer;
     this.desiredQuality = desiredQuality;
 

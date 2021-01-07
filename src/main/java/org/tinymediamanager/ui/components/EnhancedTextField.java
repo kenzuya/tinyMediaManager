@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.awt.Cursor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -30,6 +29,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 
 import com.formdev.flatlaf.FlatClientProperties;
@@ -43,10 +43,9 @@ import com.formdev.flatlaf.FlatClientProperties;
  * @author Manuel Laggner
  */
 public class EnhancedTextField extends JTextField {
-  private static final long           serialVersionUID = 5397356153111919435L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long serialVersionUID = 5397356153111919435L;
 
-  protected JLabel                    lblIcon;
+  protected JLabel          lblIcon;
 
   /**
    * just create a simple JTextField
@@ -122,7 +121,7 @@ public class EnhancedTextField extends JTextField {
    * @return the JTextField for searching
    */
   public static EnhancedTextField createSearchTextField() {
-    EnhancedTextField textField = new EnhancedTextField(BUNDLE.getString("tmm.searchfield"), IconManager.SEARCH_GREY);
+    EnhancedTextField textField = new EnhancedTextField(TmmResourceBundle.getString("tmm.searchfield"), IconManager.SEARCH_GREY);
     textField.addIconMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {

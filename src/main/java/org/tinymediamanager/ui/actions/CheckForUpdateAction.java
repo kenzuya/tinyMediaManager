@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package org.tinymediamanager.ui.actions;
 import static org.tinymediamanager.ui.TmmUIHelper.checkForUpdate;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
-import org.tinymediamanager.license.License;
+import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
  * The CheckForUpdateAction is used to trigger an update check
@@ -29,11 +28,11 @@ import org.tinymediamanager.license.License;
  */
 public class CheckForUpdateAction extends TmmAction {
   private static final long           serialVersionUID = 3046686017542572465L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public CheckForUpdateAction() {
-    putValue(NAME, BUNDLE.getString("tmm.updater.check"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tmm.updater.check"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.updater.check"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.updater.check"));
   }
 
   @Override

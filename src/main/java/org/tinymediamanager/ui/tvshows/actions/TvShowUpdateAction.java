@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ import java.awt.event.ActionEvent;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -39,21 +39,21 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowUpdateAction extends TmmAction {
   private static final long           serialVersionUID = 7216738427209633666L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowUpdateAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.update"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.update"));
     putValue(LARGE_ICON_KEY, IconManager.REFRESH);
     putValue(SMALL_ICON, IconManager.REFRESH);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
     List<Path> tvShowFolders = new ArrayList<>();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

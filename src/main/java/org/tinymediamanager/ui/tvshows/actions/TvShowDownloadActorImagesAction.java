@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -34,26 +36,38 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowDownloadActorImagesAction extends TmmAction {
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
-
   public TvShowDownloadActorImagesAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.downloadactorimages"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.downloadactorimages"));
     putValue(SMALL_ICON, IconManager.IMAGE);
     putValue(LARGE_ICON_KEY, IconManager.IMAGE);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
 
-    if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+    // add all episodes which are not part of a selected tv show
+    for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
+      if (obj instanceof TvShowEpisode) {
+        TvShowEpisode episode = (TvShowEpisode) obj;
+        if (!selectedTvShows.contains(episode.getTvShow())) {
+          selectedEpisodes.add(episode);
+        }
+      }
+    }
+
+    if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     for (TvShow tvShow : selectedTvShows) {
       tvShow.writeActorImages();
+    }
+
+    for (TvShowEpisode episode : selectedEpisodes) {
+      episode.writeActorImages();
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.awt.Cursor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -43,6 +42,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.ui.IconManager;
@@ -51,6 +51,7 @@ import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.dialogs.ExchangeDatasourceDialog;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -61,10 +62,11 @@ import net.miginfocom.swing.MigLayout;
  */
 class TvShowDatasourceSettingsPanel extends JPanel {
   private static final long           serialVersionUID = -675729644848101096L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
+
+
+  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
+
   private JCheckBox                   chckbxDvdOrder;
   private JTextField                  tfAddBadword;
   private JList<String>               listBadWords;
@@ -78,6 +80,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
   private JButton                     btnAddBadWord;
   private JButton                     btnMoveUpDatasoure;
   private JButton                     btnMoveDownDatasource;
+  private JButton                     btnExchangeDatasource;
 
   TvShowDatasourceSettingsPanel() {
     // UI initializations
@@ -87,7 +90,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
     // logic initializations
     btnAddDatasource.addActionListener(arg0 -> {
       String path = TmmProperties.getInstance().getProperty("tvshow.datasource.path");
-      Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("Settings.tvshowdatasource.folderchooser"), path);
+      Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.tvshowdatasource.folderchooser"), path);
       if (file != null && Files.isDirectory(file)) {
         settings.addTvShowDataSources(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("tvshow.datasource.path", file.toAbsolutePath().toString());
@@ -97,10 +100,10 @@ class TvShowDatasourceSettingsPanel extends JPanel {
       int row = listDatasources.getSelectedIndex();
       if (row != -1) { // nothing selected
         String path = settings.getTvShowDataSource().get(row);
-        String[] choices = { BUNDLE.getString("Button.continue"), BUNDLE.getString("Button.abort") };
-        int decision = JOptionPane.showOptionDialog(null, String.format(BUNDLE.getString("Settings.tvshowdatasource.remove.info"), path),
-            BUNDLE.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
-            BUNDLE.getString("Button.abort"));
+        String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
+        int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.tvshowdatasource.remove.info"), path),
+            TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
+            TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           settings.removeTvShowDataSources(path);
@@ -110,7 +113,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
     });
     btnAddSkipFolder.addActionListener(e -> {
       String path = TmmProperties.getInstance().getProperty("tvshow.ignore.path");
-      Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("Settings.ignore"), path);
+      Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.ignore"), path);
       if (file != null && Files.isDirectory(file)) {
         settings.addSkipFolder(file.toAbsolutePath().toString());
         TmmProperties.getInstance().putProperty("tvshow.ignore.path", file.toAbsolutePath().toString());
@@ -129,7 +132,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
           Pattern.compile(tfAddBadword.getText());
         }
         catch (PatternSyntaxException ex) {
-          JOptionPane.showMessageDialog(null, BUNDLE.getString("message.regex.error"));
+          JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
         TvShowModuleManager.SETTINGS.addBadWord(tfAddBadword.getText());
@@ -162,20 +165,35 @@ class TvShowDatasourceSettingsPanel extends JPanel {
         listDatasources.updateUI();
       }
     });
+
+    btnExchangeDatasource.addActionListener(arg0 -> {
+      int row = listDatasources.getSelectedIndex();
+      if (row != -1) { // nothing selected
+        String path = TvShowModuleManager.SETTINGS.getTvShowDataSource().get(row);
+        ExchangeDatasourceDialog dialog = new ExchangeDatasourceDialog(path);
+        dialog.setVisible(true);
+
+        if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          TvShowModuleManager.SETTINGS.exchangeTvShowDatasource(path, dialog.getNewDatasource());
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+      }
+    });
   }
 
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
-      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow][][]"));
+      JPanel panelDatasources = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow][][10lp!][]"));
 
-      JLabel lblDatasourcesT = new TmmLabel(BUNDLE.getString("Settings.source"), H3);
+      JLabel lblDatasourcesT = new TmmLabel(TmmResourceBundle.getString("Settings.source"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelDatasources, lblDatasourcesT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#data-sources-1"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
         JScrollPane scrollPaneDataSources = new JScrollPane();
-        panelDatasources.add(scrollPaneDataSources, "cell 1 0,grow");
+        panelDatasources.add(scrollPaneDataSources, "cell 1 0 1 2,grow");
 
         listDatasources = new JList();
         listDatasources.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -183,28 +201,32 @@ class TvShowDatasourceSettingsPanel extends JPanel {
 
         btnAddDatasource = new SquareIconButton(IconManager.ADD_INV);
         panelDatasources.add(btnAddDatasource, "flowy, cell 2 0, aligny top, growx");
-        btnAddDatasource.setToolTipText(BUNDLE.getString("Button.add"));
+        btnAddDatasource.setToolTipText(TmmResourceBundle.getString("Button.add"));
 
         btnRemoveDatasource = new SquareIconButton(IconManager.REMOVE_INV);
         panelDatasources.add(btnRemoveDatasource, "flowy, cell 2 0, aligny top, growx");
-        btnRemoveDatasource.setToolTipText(BUNDLE.getString("Button.remove"));
+        btnRemoveDatasource.setToolTipText(TmmResourceBundle.getString("Button.remove"));
 
         btnMoveUpDatasoure = new SquareIconButton(IconManager.ARROW_UP_INV);
         panelDatasources.add(btnMoveUpDatasoure, "flowy, cell 2 0, aligny top, growx");
-        btnMoveUpDatasoure.setToolTipText(BUNDLE.getString("Button.moveup"));
+        btnMoveUpDatasoure.setToolTipText(TmmResourceBundle.getString("Button.moveup"));
 
         btnMoveDownDatasource = new SquareIconButton(IconManager.ARROW_DOWN_INV);
         panelDatasources.add(btnMoveDownDatasource, "flowy, cell 2 0, aligny top, growx");
-        btnMoveDownDatasource.setToolTipText(BUNDLE.getString("Button.movedown"));
+        btnMoveDownDatasource.setToolTipText(TmmResourceBundle.getString("Button.movedown"));
 
-        chckbxDvdOrder = new JCheckBox(BUNDLE.getString("Settings.dvdorder"));
-        panelDatasources.add(chckbxDvdOrder, "cell 1 2 2 1");
+        btnExchangeDatasource = new SquareIconButton(IconManager.EXCHANGE);
+        btnExchangeDatasource.setToolTipText(TmmResourceBundle.getString("Settings.exchangedatasource.desc"));
+        panelDatasources.add(btnExchangeDatasource, "cell 2 1");
+
+        chckbxDvdOrder = new JCheckBox(TmmResourceBundle.getString("Settings.dvdorder"));
+        panelDatasources.add(chckbxDvdOrder, "cell 1 3 2 1");
       }
     }
     {
       JPanel panelIgnore = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow]"));
 
-      JLabel lblIgnoreT = new TmmLabel(BUNDLE.getString("Settings.ignore"), H3);
+      JLabel lblIgnoreT = new TmmLabel(TmmResourceBundle.getString("Settings.ignore"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelIgnore, lblIgnoreT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#exclude-folders-from-scan"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
@@ -217,22 +239,22 @@ class TvShowDatasourceSettingsPanel extends JPanel {
 
         btnAddSkipFolder = new SquareIconButton(IconManager.ADD_INV);
         panelIgnore.add(btnAddSkipFolder, "flowy, cell 2 0, aligny top, growx");
-        btnAddSkipFolder.setToolTipText(BUNDLE.getString("Settings.addignore"));
+        btnAddSkipFolder.setToolTipText(TmmResourceBundle.getString("Settings.addignore"));
 
         btnRemoveSkipFolder = new SquareIconButton(IconManager.REMOVE_INV);
         panelIgnore.add(btnRemoveSkipFolder, "flowy, cell 2 0, aligny top, growx");
-        btnRemoveSkipFolder.setToolTipText(BUNDLE.getString("Settings.removeignore"));
+        btnRemoveSkipFolder.setToolTipText(TmmResourceBundle.getString("Settings.removeignore"));
       }
     }
     {
       JPanel panelBadWords = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][300lp][][grow]", "[][100lp,grow][]"));
 
-      JLabel lblBadWordsT = new TmmLabel(BUNDLE.getString("Settings.movie.badwords"), H3);
+      JLabel lblBadWordsT = new TmmLabel(TmmResourceBundle.getString("Settings.movie.badwords"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelBadWords, lblBadWordsT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#bad-words"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
-        JLabel lblBadWordsDesc = new JLabel(BUNDLE.getString("Settings.movie.badwords.hint"));
+        JLabel lblBadWordsDesc = new JLabel(TmmResourceBundle.getString("Settings.movie.badwords.hint"));
         panelBadWords.add(lblBadWordsDesc, "cell 1 0 3 1");
 
         JScrollPane scrollPaneBadWords = new JScrollPane();
@@ -243,14 +265,14 @@ class TvShowDatasourceSettingsPanel extends JPanel {
 
         btnRemoveBadWord = new SquareIconButton(IconManager.REMOVE_INV);
         panelBadWords.add(btnRemoveBadWord, "cell 2 1,aligny bottom");
-        btnRemoveBadWord.setToolTipText(BUNDLE.getString("Button.remove"));
+        btnRemoveBadWord.setToolTipText(TmmResourceBundle.getString("Button.remove"));
 
         tfAddBadword = new JTextField();
         panelBadWords.add(tfAddBadword, "cell 1 2,growx");
 
         btnAddBadWord = new SquareIconButton(IconManager.ADD_INV);
         panelBadWords.add(btnAddBadWord, "cell 2 2, growx");
-        btnAddBadWord.setToolTipText(BUNDLE.getString("Button.add"));
+        btnAddBadWord.setToolTipText(TmmResourceBundle.getString("Button.add"));
       }
     }
   }

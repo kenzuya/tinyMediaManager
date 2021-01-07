@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -34,16 +34,16 @@ import org.tinymediamanager.ui.moviesets.dialogs.MovieSetChooserDialog;
  */
 public class MovieSetSearchAction extends TmmAction {
   private static final long           serialVersionUID = -2260581786599155278L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   /**
    * Instantiates a new search movie set action.
    */
   public MovieSetSearchAction() {
-    putValue(NAME, BUNDLE.getString("movieset.search"));
+    putValue(NAME, TmmResourceBundle.getString("movieset.search"));
     putValue(LARGE_ICON_KEY, IconManager.SEARCH);
     putValue(SMALL_ICON, IconManager.SEARCH);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.search"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.search"));
   }
 
   @Override
@@ -51,7 +51,7 @@ public class MovieSetSearchAction extends TmmAction {
     List<MovieSet> selectedMovieSets = MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets();
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

@@ -22,6 +22,7 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
 /**
  * @author Wolfgang Janes
@@ -39,13 +40,14 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
   @Test
   public void testProviderInfo() {
     try {
-      OmdbMetadataProvider mp = new OmdbMetadataProvider();
+      OmdbMovieMetadataProvider mp = new OmdbMovieMetadataProvider();
       MediaProviderInfo providerInfo = mp.getProviderInfo();
 
       assertNotNull(providerInfo.getDescription());
       assertNotNull(providerInfo.getId());
       assertNotNull(providerInfo.getName());
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }
@@ -55,7 +57,7 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
   @Test
   public void testSearch() {
     try {
-      OmdbMetadataProvider mp = new OmdbMetadataProvider();
+      IMovieMetadataProvider mp = new OmdbMovieMetadataProvider();
 
       // Matrix
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
@@ -80,7 +82,8 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
       assertThat(resultList.get(0).getMediaType()).isEqualTo(MediaType.MOVIE);
       assertThat(resultList.get(0).getPosterUrl()).isNotEmpty();
 
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }
@@ -90,13 +93,13 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
   @Test
   public void testScrapeById() {
     try {
-      OmdbMetadataProvider mp = new OmdbMetadataProvider();
+      IMovieMetadataProvider mp = new OmdbMovieMetadataProvider();
 
       MovieSearchAndScrapeOptions scrapeOptions = new MovieSearchAndScrapeOptions();
       scrapeOptions.setLanguage(MediaLanguages.en);
       scrapeOptions.setCertificationCountry(CountryCode.US);
 
-      MediaMetadata md = null;
+      MediaMetadata md;
 
       // Matrix
       scrapeOptions.setImdbId("tt0133093");
@@ -141,7 +144,8 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
       assertThat(md.getGenres()).contains(MediaGenres.ADVENTURE, MediaGenres.COMEDY);
       assertThat(md.getMediaArt(MediaArtwork.MediaArtworkType.POSTER)).isNotNull();
 
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -58,7 +59,7 @@ public class MovieCertificationFilter extends AbstractCheckComboBoxMovieUIFilter
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.certification"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.certification"));
   }
 
   private void buildAndInstallCertificationArray() {

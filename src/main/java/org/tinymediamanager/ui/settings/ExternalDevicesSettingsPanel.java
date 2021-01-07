@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -41,6 +40,7 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
 import org.tinymediamanager.jsonrpc.io.ApiException;
@@ -63,8 +63,8 @@ class ExternalDevicesSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 8176824801347872222L;
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
 
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+  
 
   private Settings                    settings         = Settings.getInstance();
 
@@ -118,8 +118,8 @@ class ExternalDevicesSettingsPanel extends JPanel {
     });
 
     // set column titles
-    tableWolDevices.getColumnModel().getColumn(0).setHeaderValue(BUNDLE.getString("Settings.devicename"));
-    tableWolDevices.getColumnModel().getColumn(1).setHeaderValue(BUNDLE.getString("Settings.macaddress"));
+    tableWolDevices.getColumnModel().getColumn(0).setHeaderValue(TmmResourceBundle.getString("Settings.devicename"));
+    tableWolDevices.getColumnModel().getColumn(1).setHeaderValue(TmmResourceBundle.getString("Settings.macaddress"));
   }
 
   private void initComponents() {
@@ -127,7 +127,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
     {
       JPanel panelWol = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][]", "[100lp]"));
 
-      JLabel lblWolT = new TmmLabel(BUNDLE.getString("tmm.wakeonlan"), H3);
+      JLabel lblWolT = new TmmLabel(TmmResourceBundle.getString("tmm.wakeonlan"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelWol, lblWolT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#wake-on-lan"));
       add(collapsiblePanel, "growx,wmin 0");
@@ -138,13 +138,13 @@ class ExternalDevicesSettingsPanel extends JPanel {
         tableWolDevices = new TmmTable();
         spWolDevices.setViewportView(tableWolDevices);
 
-        btnAddWolDevice = new JButton(BUNDLE.getString("Button.add"));
+        btnAddWolDevice = new JButton(TmmResourceBundle.getString("Button.add"));
         panelWol.add(btnAddWolDevice, "flowy,cell 2 0,growx,aligny top");
 
-        btnEditWolDevice = new JButton(BUNDLE.getString("Button.edit"));
+        btnEditWolDevice = new JButton(TmmResourceBundle.getString("Button.edit"));
         panelWol.add(btnEditWolDevice, "cell 2 0,growx");
 
-        btnRemoveWolDevice = new JButton(BUNDLE.getString("Button.remove"));
+        btnRemoveWolDevice = new JButton(TmmResourceBundle.getString("Button.remove"));
         panelWol.add(btnRemoveWolDevice, "cell 2 0,growx");
       }
     }
@@ -156,14 +156,14 @@ class ExternalDevicesSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#kodixbmc"));
       add(collapsiblePanel, "cell 0 2,growx,wmin 0");
       {
-        JLabel lblKodiHostT = new JLabel(BUNDLE.getString("Settings.kodi.host"));
+        JLabel lblKodiHostT = new JLabel(TmmResourceBundle.getString("Settings.kodi.host"));
         panelKodi.add(lblKodiHostT, "cell 1 0");
 
         tfKodiHost = new JTextField();
         panelKodi.add(tfKodiHost, "cell 2 0");
         tfKodiHost.setColumns(20);
 
-        JButton btnKodiConnect = new JButton(BUNDLE.getString("Settings.kodi.connect"));
+        JButton btnKodiConnect = new JButton(TmmResourceBundle.getString("Settings.kodi.connect"));
         btnKodiConnect.addActionListener(e -> {
           HostConfig c = new HostConfig(tfKodiHost.getText(), tfKodiHttpPort.getText(), tfKodiTcpPort.getText(), tfKodiUsername.getText(),
               new String(tfKodiPassword.getPassword()));
@@ -177,32 +177,32 @@ class ExternalDevicesSettingsPanel extends JPanel {
         });
         panelKodi.add(btnKodiConnect, "cell 3 0,growx");
 
-        JLabel lblKodiHttpPortT = new JLabel(BUNDLE.getString("Settings.kodi.httpport"));
+        JLabel lblKodiHttpPortT = new JLabel(TmmResourceBundle.getString("Settings.kodi.httpport"));
         panelKodi.add(lblKodiHttpPortT, "cell 1 1");
 
         tfKodiHttpPort = new JTextField();
         panelKodi.add(tfKodiHttpPort, "cell 2 1");
         tfKodiHttpPort.setColumns(20);
 
-        JButton btnKodiDisconnect = new JButton(BUNDLE.getString("Settings.kodi.disconnect"));
+        JButton btnKodiDisconnect = new JButton(TmmResourceBundle.getString("Settings.kodi.disconnect"));
         btnKodiDisconnect.addActionListener(e -> KodiRPC.getInstance().disconnect());
         panelKodi.add(btnKodiDisconnect, "cell 3 1,growx");
 
-        JLabel lblKodiTcpPortT = new JLabel(BUNDLE.getString("Settings.kodi.tcpport"));
+        JLabel lblKodiTcpPortT = new JLabel(TmmResourceBundle.getString("Settings.kodi.tcpport"));
         panelKodi.add(lblKodiTcpPortT, "cell 1 2");
 
         tfKodiTcpPort = new JTextField();
         panelKodi.add(tfKodiTcpPort, "cell 2 2");
         tfKodiTcpPort.setColumns(20);
 
-        JLabel lblKodiUsernameT = new JLabel(BUNDLE.getString("Settings.kodi.user"));
+        JLabel lblKodiUsernameT = new JLabel(TmmResourceBundle.getString("Settings.kodi.user"));
         panelKodi.add(lblKodiUsernameT, "cell 1 3");
 
         tfKodiUsername = new JTextField();
         panelKodi.add(tfKodiUsername, "cell 2 3");
         tfKodiUsername.setColumns(20);
 
-        JLabel lblKodiPasswordT = new JLabel(BUNDLE.getString("Settings.kodi.pass"));
+        JLabel lblKodiPasswordT = new JLabel(TmmResourceBundle.getString("Settings.kodi.pass"));
         panelKodi.add(lblKodiPasswordT, "cell 1 4");
 
         tfKodiPassword = new JPasswordField();
@@ -212,17 +212,17 @@ class ExternalDevicesSettingsPanel extends JPanel {
     }
     {
       JPanel panelUpnp = new JPanel();
-      panelUpnp.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelUpnp.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
 
       JLabel lblUpnp = new TmmLabel("UPnP", H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUpnp, lblUpnp, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#upnp"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
-        chckbxUpnpShareLibrary = new JCheckBox(BUNDLE.getString("Settings.upnp.share"));
+        chckbxUpnpShareLibrary = new JCheckBox(TmmResourceBundle.getString("Settings.upnp.share"));
         panelUpnp.add(chckbxUpnpShareLibrary, "cell 1 0 2 1");
 
-        chckbxUpnpRemotePlay = new JCheckBox(BUNDLE.getString("Settings.upnp.play"));
+        chckbxUpnpRemotePlay = new JCheckBox(TmmResourceBundle.getString("Settings.upnp.play"));
         panelUpnp.add(chckbxUpnpRemotePlay, "cell 1 1 2 1");
       }
     }

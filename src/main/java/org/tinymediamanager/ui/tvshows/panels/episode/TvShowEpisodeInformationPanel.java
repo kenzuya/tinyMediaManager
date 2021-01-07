@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -46,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -76,8 +76,8 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEpisodeInformationPanel extends JPanel {
   private static final Logger                LOGGER                = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
   private static final long                  serialVersionUID      = 2032708149757390567L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle        BUNDLE                = ResourceBundle.getBundle("messages");
+
+  
 
   private final TvShowSettings               settings              = TvShowModuleManager.SETTINGS;
   private final TvShowEpisodeSelectionModel  tvShowEpisodeSelectionModel;
@@ -190,7 +190,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       panelLeft.add(lblSeasonPoster);
       lblSeasonPoster.enableLightbox();
 
-      lblSeasonPosterSize = new JLabel(BUNDLE.getString("mediafiletype.season_poster"));
+      lblSeasonPosterSize = new JLabel(TmmResourceBundle.getString("mediafiletype.season_poster"));
       panelLeft.add(lblSeasonPosterSize);
       panelLeft.add(Box.createVerticalStrut(20));
 
@@ -199,7 +199,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       panelLeft.add(lblEpisodeThumb);
       lblEpisodeThumb.enableLightbox();
 
-      lblEpisodeThumbSize = new JLabel(BUNDLE.getString("mediafiletype.thumb"));
+      lblEpisodeThumbSize = new JLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
       panelLeft.add(lblEpisodeThumbSize);
     }
     {
@@ -237,7 +237,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
         panelRight.add(panelTopDetails, "cell 0 0,grow");
         {
-          JLabel lblSeasonT = new JLabel(BUNDLE.getString("metatag.season"));
+          JLabel lblSeasonT = new JLabel(TmmResourceBundle.getString("metatag.season"));
           TmmFontHelper.changeFont(lblSeasonT, 1.166, Font.BOLD);
           panelTopDetails.add(lblSeasonT, "cell 0 0");
 
@@ -246,7 +246,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
           panelTopDetails.add(lblSeason, "cell 2 0");
         }
         {
-          JLabel lblEpisodeT = new JLabel(BUNDLE.getString("metatag.episode"));
+          JLabel lblEpisodeT = new JLabel(TmmResourceBundle.getString("metatag.episode"));
           TmmFontHelper.changeFont(lblEpisodeT, 1.166, Font.BOLD);
           panelTopDetails.add(lblEpisodeT, "cell 0 1");
 
@@ -254,7 +254,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
           TmmFontHelper.changeFont(lblEpisode, 1.166);
           panelTopDetails.add(lblEpisode, "cell 2 1");
         }
-        JLabel lblAiredT = new TmmLabel(BUNDLE.getString("metatag.aired"));
+        JLabel lblAiredT = new TmmLabel(TmmResourceBundle.getString("metatag.aired"));
         panelTopDetails.add(lblAiredT, "cell 0 2");
         {
 
@@ -285,7 +285,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         panelRight.add(new JSeparator(), "cell 0 5,growx");
       }
       {
-        JLabel lblPlot = new TmmLabel(BUNDLE.getString("metatag.plot"));
+        JLabel lblPlot = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlot, "cell 0 6");
 
         taOverview = new ReadOnlyTextArea();
@@ -300,21 +300,21 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         panelBottomDetails.setLayout(new MigLayout("insets 0", "[][10lp][200lp,grow]", "[]2lp[]2lp[]"));
         {
           {
-            JLabel lblTagsT = new TmmLabel(BUNDLE.getString("metatag.tags"));
+            JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
             panelBottomDetails.add(lblTagsT, "cell 0 0");
 
             taTags = new ReadOnlyTextArea();
             panelBottomDetails.add(taTags, "cell 2 0,growx,wmin 0");
           }
           {
-            JLabel lblPathT = new TmmLabel(BUNDLE.getString("metatag.path"));
+            JLabel lblPathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
             panelBottomDetails.add(lblPathT, "cell 0 1");
 
             lblPath = new LinkLabel("");
             panelBottomDetails.add(lblPath, "cell 2 1,growx,wmin 0");
           }
           {
-            JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
+            JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
             panelBottomDetails.add(lblNoteT, "cell 0 2");
 
             lblNote = new JLabel("");
@@ -330,10 +330,10 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     lblSeasonPoster.setImagePath(tvShowEpisode.getTvShowSeason().getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER));
     Dimension posterSize = tvShowEpisode.getTvShowSeason().getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
     if (posterSize.width > 0 && posterSize.height > 0) {
-      lblSeasonPosterSize.setText(BUNDLE.getString("mediafiletype.season_poster") + " - " + posterSize.width + "x" + posterSize.height);
+      lblSeasonPosterSize.setText(TmmResourceBundle.getString("mediafiletype.season_poster") + " - " + posterSize.width + "x" + posterSize.height);
     }
     else {
-      lblSeasonPosterSize.setText(BUNDLE.getString("mediafiletype.season_poster"));
+      lblSeasonPosterSize.setText(TmmResourceBundle.getString("mediafiletype.season_poster"));
     }
   }
 
@@ -342,10 +342,10 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     lblEpisodeThumb.setImagePath(tvShowEpisode.getArtworkFilename(MediaFileType.THUMB));
     Dimension thumbSize = tvShowEpisode.getArtworkDimension(MediaFileType.THUMB);
     if (thumbSize.width > 0 && thumbSize.height > 0) {
-      lblEpisodeThumbSize.setText(BUNDLE.getString("mediafiletype.thumb") + " - " + thumbSize.width + "x" + thumbSize.height);
+      lblEpisodeThumbSize.setText(TmmResourceBundle.getString("mediafiletype.thumb") + " - " + thumbSize.width + "x" + thumbSize.height);
     }
     else {
-      lblEpisodeThumbSize.setText(BUNDLE.getString("mediafiletype.thumb"));
+      lblEpisodeThumbSize.setText(TmmResourceBundle.getString("mediafiletype.thumb"));
     }
   }
 

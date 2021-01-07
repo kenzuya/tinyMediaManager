@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,12 +42,13 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.tmdb.TmdbMovieArtworkProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.RatingUtil;
 
-import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.CastMember;
 import com.uwetrottmann.trakt5.entities.Credits;
 import com.uwetrottmann.trakt5.entities.CrewMember;
@@ -62,18 +63,27 @@ import retrofit2.Response;
  * The class TraktMovieMetadataProvider is used to provide metadata for movies from trakt.tv
  */
 
-class TraktMovieMetadataProvider {
+public class TraktMovieMetadataProvider extends TraktMetadataProvider implements IMovieMetadataProvider, IMovieImdbMetadataProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TraktMovieMetadataProvider.class);
 
-  private final TraktV2       api;
-
-  TraktMovieMetadataProvider(TraktV2 api) {
-    this.api = api;
+  @Override
+  protected String getSubId() {
+    return "movie";
   }
 
-  SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+  @Override
+  protected Logger getLogger() {
+    return LOGGER;
+  }
 
-    TmdbMetadataProvider tmdb = new TmdbMetadataProvider();
+  @Override
+  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+    LOGGER.debug("search() - {}", options);
+
+    // lazy initialization of the api
+    initAPI();
+
+    TmdbMovieArtworkProvider tmdb = new TmdbMovieArtworkProvider();
 
     String searchString = "";
     if (StringUtils.isEmpty(searchString) && StringUtils.isNotEmpty(options.getSearchQuery())) {
@@ -108,7 +118,7 @@ class TraktMovieMetadataProvider {
       MediaSearchResult m = TraktUtils.morphTraktResultToTmmResult(options, result);
 
       // also try to get the poster url from tmdb
-      if (MetadataUtil.isValidImdbId(m.getIMDBId()) || m.getIdAsInt(TMDB) > 0) {
+      if (tmdb.isActive() && MetadataUtil.isValidImdbId(m.getIMDBId()) || m.getIdAsInt(TMDB) > 0) {
         try {
           ArtworkSearchAndScrapeOptions tmdbOptions = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
           tmdbOptions.setIds(m.getIds());
@@ -130,9 +140,15 @@ class TraktMovieMetadataProvider {
     return results;
   }
 
-  MediaMetadata scrape(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(TraktMetadataProvider.PROVIDER_INFO.getId());
-    String id = options.getIdAsString(TraktMetadataProvider.PROVIDER_INFO.getId());
+  @Override
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+    LOGGER.debug("getMetadata(): {}", options);
+
+    // lazy initialization of the api
+    initAPI();
+
+    MediaMetadata md = new MediaMetadata(getId());
+    String id = options.getIdAsString(getId());
 
     // alternatively we can take the imdbid
     if (StringUtils.isBlank(id)) {
@@ -141,7 +157,7 @@ class TraktMovieMetadataProvider {
 
     if (StringUtils.isBlank(id)) {
       LOGGER.warn("no id available");
-      throw new MissingIdException(MediaMetadata.IMDB, TraktMetadataProvider.PROVIDER_INFO.getId());
+      throw new MissingIdException(MediaMetadata.IMDB, getId());
     }
 
     // scrape
@@ -152,24 +168,22 @@ class TraktMovieMetadataProvider {
 
     Movie movie = null;
     Credits credits = null;
-    synchronized (api) {
-      try {
-        Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-          throw new HttpException(response.code(), response.message());
-        }
-        movie = response.body();
-        if (!"en".equals(lang)) {
-          // only call translation when we're not already EN ;)
-          translations = api.movies().translation(id, lang).execute().body();
-        }
-        credits = api.movies().people(id).execute().body();
+    try {
+      Response<Movie> response = api.movies().summary(id, Extended.FULL).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
       }
-      catch (Exception e) {
-        LOGGER.debug("failed to get meta data: {}", e.getMessage());
-        throw new ScrapeException(e);
+      movie = response.body();
+      if (!"en".equals(lang)) {
+        // only call translation when we're not already EN ;)
+        translations = api.movies().translation(id, lang).execute().body();
       }
+      credits = api.movies().people(id).execute().body();
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to get meta data: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (movie == null) {
@@ -208,7 +222,7 @@ class TraktMovieMetadataProvider {
 
     // ids
     if (movie.ids != null) {
-      md.setId(TraktMetadataProvider.PROVIDER_INFO.getId(), movie.ids.trakt);
+      md.setId(getId(), movie.ids.trakt);
       if (movie.ids.tmdb != null && movie.ids.tmdb > 0) {
         md.setId(TMDB, movie.ids.tmdb);
       }

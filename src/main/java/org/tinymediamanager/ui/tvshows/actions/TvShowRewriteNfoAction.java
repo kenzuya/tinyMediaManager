@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle.TaskType;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -36,23 +36,23 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowRewriteNfoAction extends TmmAction {
   private static final long           serialVersionUID = -6575156436788397648L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public TvShowRewriteNfoAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.rewritenfo"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.rewritenfo"));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
+    final List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
 
     if (selectedTvShows.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // rewrite selected NFOs
-    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(BUNDLE.getString("tvshow.rewritenfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.rewritenfo"), selectedTvShows.size(), TaskType.BACKGROUND_TASK) {
       @Override
       protected void doInBackground() {
         int i = 0;

@@ -17,6 +17,8 @@
 package org.tinymediamanager.core.mediainfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.tinymediamanager.core.MediaFileHelper.VIDEO_3D_HSBS;
+import static org.tinymediamanager.core.MediaFileHelper.VIDEO_3D_SBS;
 
 import java.nio.file.Paths;
 import java.util.Date;
@@ -113,11 +115,11 @@ public class MediaInfoTest extends BasicTest {
   public void testVideofiles() {
     MediaFile mf = new MediaFile(Paths.get("src/test/resources/samples/3D-FSBS.mkv"));
     mf.gatherMediaInformation();
-    assertThat(mf.getVideo3DFormat()).isEqualTo(MediaFileHelper.VIDEO_3D_SBS);
+    assertThat(mf.getVideo3DFormat()).isEqualTo(VIDEO_3D_SBS);
 
     mf = new MediaFile(Paths.get("src/test/resources/samples/3D-HSBS.mkv"));
     mf.gatherMediaInformation();
-    assertThat(mf.getVideo3DFormat()).isEqualTo(MediaFileHelper.VIDEO_3D_HSBS);
+    assertThat(mf.getVideo3DFormat()).isEqualTo(VIDEO_3D_HSBS);
 
     mf = new MediaFile(Paths.get("src/test/resources/samples/3D-FTAB.mkv"));
     mf.gatherMediaInformation();
@@ -401,6 +403,7 @@ public class MediaInfoTest extends BasicTest {
 
     System.out.println("----------------------");
     System.out.println("subs: " + mf.getSubtitlesAsString());
+    System.out.println("extra: " + mf.getExtraData());
   }
 
   /**
@@ -567,4 +570,59 @@ public class MediaInfoTest extends BasicTest {
   // // TODO: handle exception
   // }
   // }
+
+  @Test
+  public void testHdrDetection() throws Exception {
+    // Dolby Vision
+    MediaFile mf = new MediaFile(Paths.get("target/test-classes/mediainfo/dolby_vision.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/dolby_vision2.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("Dolby Vision");
+
+    // HDR10
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
+
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10-2.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10");
+
+    // HDR10+
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hdr10plus.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HDR10+");
+
+    // HLG
+    mf = new MediaFile(Paths.get("target/test-classes/mediainfo/hlg.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getHdrFormat()).isEqualTo("HLG");
+  }
+
+  @Test
+  public void test3d() throws Exception {
+    // Dolby Vision
+    MediaFile mf = new MediaFile(Paths.get("target/test-classes/mediainfo/3d_sbs.avi"));
+    mf.setContainerFormat("avi");
+    MediaFileHelper.gatherMediaInformation(mf, true);
+
+    assertThat(mf.getVideo3DFormat()).isEqualTo(VIDEO_3D_HSBS);
+    assertThat(mf.getVideoWidth()).isEqualTo(1920);
+    assertThat(mf.getVideoHeight()).isEqualTo(800);
+  }
 }

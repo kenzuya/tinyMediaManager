@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class ITOfdbMetadataProviderTest extends BasicTest {
       // Die Piefke Saga
       results = null;
       try {
-        mp = new OfdbMetadataProvider();
+        mp = new OfdbMovieMetadataProvider();
         options = new MovieSearchAndScrapeOptions();
         options.setSearchQuery("Die Piefke Saga");
         options.setLanguage(MediaLanguages.de);
@@ -77,7 +77,7 @@ public class ITOfdbMetadataProviderTest extends BasicTest {
       // Lucky # Slevin
       results = null;
       try {
-        mp = new OfdbMetadataProvider();
+        mp = new OfdbMovieMetadataProvider();
         options = new MovieSearchAndScrapeOptions();
         options.setSearchQuery("Slevin");
         options.setLanguage(MediaLanguages.de);
@@ -113,7 +113,7 @@ public class ITOfdbMetadataProviderTest extends BasicTest {
 
     // Merida
     try {
-      mp = new OfdbMetadataProvider();
+      mp = new OfdbMovieMetadataProvider();
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
@@ -150,7 +150,7 @@ public class ITOfdbMetadataProviderTest extends BasicTest {
 
     // with imdbid (Bourne Vermächtnis)
     try {
-      mp = new OfdbMetadataProvider();
+      mp = new OfdbMovieMetadataProvider();
 
       MovieSearchAndScrapeOptions scop = new MovieSearchAndScrapeOptions();
       scop.setId(MediaMetadata.IMDB, "tt1194173");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -30,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -49,15 +49,15 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowChangeDatasourceDialog extends TmmDialog {
   private static final long           serialVersionUID = -1515243604267310274L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+
 
   private List<TvShow>                tvShowsToEdit    = new ArrayList<>();
 
   private JComboBox<String>           cbDatasource;
 
   public TvShowChangeDatasourceDialog(final List<TvShow> tvShows) {
-    super(BUNDLE.getString("tvshow.changedatasource"), "tvShowDatasourceEditor");
+    super(TmmResourceBundle.getString("tvshow.changedatasource"), "tvShowDatasourceEditor");
 
     tvShowsToEdit.addAll(tvShows);
 
@@ -66,11 +66,11 @@ public class TvShowChangeDatasourceDialog extends TmmDialog {
       getContentPane().add(panelContent, BorderLayout.CENTER);
       panelContent.setLayout(new MigLayout("", "[][300lp,grow]", "[][20lp][][20lp]"));
       {
-        JTextArea textArea = new ReadOnlyTextArea(BUNDLE.getString("changedatasource.hint.tvshow"));
+        JTextArea textArea = new ReadOnlyTextArea(TmmResourceBundle.getString("changedatasource.hint.tvshow"));
         panelContent.add(textArea, "cell 0 0 2 1,grow");
       }
       {
-        JLabel lblDatasourceT = new TmmLabel(BUNDLE.getString("changedatasource.newdatasource"));
+        JLabel lblDatasourceT = new TmmLabel(TmmResourceBundle.getString("changedatasource.newdatasource"));
         panelContent.add(lblDatasourceT, "cell 0 2");
       }
       {
@@ -95,8 +95,8 @@ public class TvShowChangeDatasourceDialog extends TmmDialog {
     private static final long serialVersionUID = -3767744690599233490L;
 
     private ChangeDatasourceAction() {
-      putValue(NAME, BUNDLE.getString("Button.ok"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.changedatasource"));
+      putValue(NAME, TmmResourceBundle.getString("Button.ok"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.changedatasource"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }
@@ -117,8 +117,8 @@ public class TvShowChangeDatasourceDialog extends TmmDialog {
     private static final long serialVersionUID = -5581329896797961536L;
 
     private DiscardAction() {
-      putValue(NAME, BUNDLE.getString("Button.cancel"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("edit.discard"));
+      putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
     }
 

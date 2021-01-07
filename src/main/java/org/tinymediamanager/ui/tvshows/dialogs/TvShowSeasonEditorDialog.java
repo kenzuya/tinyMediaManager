@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -53,7 +54,6 @@ import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -68,8 +68,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
   private static final String ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String SPACER              = "        ";
 
-  private TvShowSeason        tvShowSeasonToEdit;
-  private TvShowList          tvShowList          = TvShowList.getInstance();
+  private final TvShowSeason  tvShowSeasonToEdit;
+  private final TvShowList    tvShowList          = TvShowList.getInstance();
 
   private boolean             continueQueue       = true;
   private boolean             navigateBack        = false;
@@ -99,7 +99,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
    *          the queue size
    */
   public TvShowSeasonEditorDialog(TvShowSeason tvShowSeason, int queueIndex, int queueSize) {
-    super(BUNDLE.getString("tvshowseason.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowSeasonEditor");
+    super(TmmResourceBundle.getString("tvshowseason.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "tvShowSeasonEditor");
 
     this.tvShowSeasonToEdit = tvShowSeason;
     this.queueIndex = queueIndex;
@@ -116,7 +116,6 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
       tfPoster.setText(tvShowSeason.getArtworkUrl(SEASON_POSTER));
       tfThumb.setText(tvShowSeason.getArtworkUrl(SEASON_THUMB));
       tfBanner.setText(tvShowSeason.getArtworkUrl(SEASON_BANNER));
-
     }
 
   }
@@ -133,20 +132,20 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       JPanel artworkPanel = new JPanel();
-      tabbedPane.addTab(BUNDLE.getString("metatag.details"), null, artworkPanel, null);
+      tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), null, artworkPanel, null);
       artworkPanel.setLayout(new MigLayout("", "[200lp:300lp,grow][20lp:n][200lp:300lp,grow]", "[][][100lp:125lp,grow][20lp:n][][100lp:125lp,grow]"));
 
-      JLabel lblTitleT = new TmmLabel(BUNDLE.getString("metatag.title"));
+      JLabel lblTitleT = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
       artworkPanel.add(lblTitleT, "flowx,cell 0 0 3 1");
       {
-        JLabel lblPosterT = new TmmLabel(BUNDLE.getString("mediafiletype.poster"));
+        JLabel lblPosterT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.poster"));
         artworkPanel.add(lblPosterT, "cell 0 1");
 
         LinkLabel lblPosterSize = new LinkLabel();
         artworkPanel.add(lblPosterSize, "cell 0 1");
 
         JButton btnDeletePoster = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-        btnDeletePoster.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+        btnDeletePoster.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
         btnDeletePoster.addActionListener(e -> {
           lblPoster.clearImage();
           tfPoster.setText("");
@@ -160,8 +159,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, ImageType.SEASON_POSTER,
-                tvShowList.getAvailableArtworkScrapers(), lblPoster, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_POSTER,
+                tvShowList.getDefaultArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblPoster, tfPoster);
@@ -173,14 +172,14 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             e -> setImageSizeAndCreateLink(lblPosterSize, lblPoster, MediaArtwork.MediaArtworkType.SEASON_POSTER));
       }
       {
-        JLabel lblThumbT = new TmmLabel(BUNDLE.getString("mediafiletype.thumb"));
+        JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
         artworkPanel.add(lblThumbT, "cell 2 1");
 
         LinkLabel lblThumbSize = new LinkLabel();
         artworkPanel.add(lblThumbSize, "cell 2 1");
 
         JButton btnDeleteThumb = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-        btnDeleteThumb.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+        btnDeleteThumb.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
         btnDeleteThumb.addActionListener(e -> {
           lblThumb.clearImage();
           tfThumb.setText("");
@@ -194,8 +193,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, ImageType.SEASON_THUMB,
-                tvShowList.getAvailableArtworkScrapers(), lblThumb, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_THUMB,
+                tvShowList.getDefaultArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblThumb, tfThumb);
@@ -207,14 +206,14 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
             e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, MediaArtwork.MediaArtworkType.SEASON_THUMB));
       }
       {
-        JLabel lblBannerT = new TmmLabel(BUNDLE.getString("mediafiletype.banner"));
+        JLabel lblBannerT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.banner"));
         artworkPanel.add(lblBannerT, "cell 0 4");
 
         LinkLabel lblBannerSize = new LinkLabel();
         artworkPanel.add(lblBannerSize, "cell 0 4");
 
         JButton btnDeleteBanner = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-        btnDeleteBanner.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+        btnDeleteBanner.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
         btnDeleteBanner.addActionListener(e -> {
           lblBanner.clearImage();
           tfBanner.setText("");
@@ -228,8 +227,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
           public void mouseClicked(MouseEvent e) {
             Map<String, Object> ids = new HashMap<>(tvShowSeasonToEdit.getTvShow().getIds());
             ids.put("tvShowSeason", tvShowSeasonToEdit.getSeason());
-            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, ImageType.SEASON_BANNER,
-                tvShowList.getAvailableArtworkScrapers(), lblBanner, null, null, MediaType.TV_SHOW);
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowSeasonEditorDialog.this, ids, SEASON_BANNER,
+                tvShowList.getDefaultArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
             dialog.setLocationRelativeTo(MainWindow.getInstance());
             dialog.setVisible(true);
             updateArtworkUrl(lblBanner, tfBanner);
@@ -250,24 +249,24 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       JPanel artworkPanel = new JPanel();
-      tabbedPane.addTab(BUNDLE.getString("edit.artwork"), null, artworkPanel, null);
+      tabbedPane.addTab(TmmResourceBundle.getString("edit.artwork"), null, artworkPanel, null);
       artworkPanel.setLayout(new MigLayout("", "[][grow]", "[][][]"));
       {
-        JLabel lblPosterT = new TmmLabel(BUNDLE.getString("mediafiletype.poster"));
+        JLabel lblPosterT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.poster"));
         artworkPanel.add(lblPosterT, "cell 0 0,alignx right");
 
         tfPoster = new JTextField();
         artworkPanel.add(tfPoster, "cell 1 0,growx");
       }
       {
-        JLabel lblBannerT = new TmmLabel(BUNDLE.getString("mediafiletype.banner"));
+        JLabel lblBannerT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.banner"));
         artworkPanel.add(lblBannerT, "cell 0 1,alignx right");
 
         tfBanner = new JTextField();
         artworkPanel.add(tfBanner, "cell 1 1,growx");
       }
       {
-        JLabel lblThumbT = new TmmLabel(BUNDLE.getString("mediafiletype.thumb"));
+        JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
         artworkPanel.add(lblThumbT, "cell 0 2,alignx right");
 
         tfThumb = new JTextField();
@@ -342,8 +341,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 6699599213348390696L;
 
     OKAction() {
-      putValue(NAME, BUNDLE.getString("Button.ok"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.change"));
+      putValue(NAME, TmmResourceBundle.getString("Button.ok"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.change"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }
@@ -368,8 +367,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -4617793684152607277L;
 
     CancelAction() {
-      putValue(NAME, BUNDLE.getString("Button.cancel"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("edit.discard"));
+      putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
       putValue(LARGE_ICON_KEY, IconManager.CANCEL_INV);
     }
@@ -384,7 +383,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -1652218154720642310L;
 
     public NavigateBackAction() {
-      putValue(NAME, BUNDLE.getString("Button.back"));
+      putValue(NAME, TmmResourceBundle.getString("Button.back"));
       putValue(SMALL_ICON, IconManager.BACK_INV);
     }
 
@@ -417,8 +416,8 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -7652218354710642510L;
 
     AbortAction() {
-      putValue(NAME, BUNDLE.getString("Button.abortqueue"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.edit.abortqueue.desc"));
+      putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.edit.abortqueue.desc"));
       putValue(SMALL_ICON, IconManager.STOP_INV);
       putValue(LARGE_ICON_KEY, IconManager.STOP_INV);
     }

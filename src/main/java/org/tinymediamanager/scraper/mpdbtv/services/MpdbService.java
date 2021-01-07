@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,6 @@ public interface MpdbService {
 
   @GET("movies/{apikey}/{username}/{subscriptionkey}/{id}")
   Call<MovieEntity> movieScrapebyID(@Path("apikey") String apikey, @Path("username") String username, @Path("subscriptionkey") String subscriptionkey,
-      @Path("id") int mpdb_id, @Query("language") Locale lang, @Query("typeId") String id, @Query("_format") String format);
+      @Path("id") String mpdb_id, @Query("language") Locale lang, @Query("typeId") String id, @Query("_format") String format);
 
 }

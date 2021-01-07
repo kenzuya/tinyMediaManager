@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  */
 package org.tinymediamanager.ui.movies;
 
-import java.util.ResourceBundle;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
@@ -29,7 +28,7 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
  * @author Manuel Laggner
  */
 public class MovieSubtitleChooserModel extends AbstractModelObject {
-  private static final ResourceBundle           BUNDLE       = ResourceBundle.getBundle("messages");
+
   private static final Logger                   LOGGER       = LoggerFactory.getLogger(MovieSubtitleChooserModel.class);
   public static final MovieSubtitleChooserModel EMPTY_RESULT = new MovieSubtitleChooserModel();
 
@@ -53,7 +52,7 @@ public class MovieSubtitleChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private MovieSubtitleChooserModel() {
-    name = BUNDLE.getString("chooser.nothingfound");
+    name = TmmResourceBundle.getString("chooser.nothingfound");
   }
 
   public String getName() {

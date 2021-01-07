@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2012 - 2020 Manuel Laggner
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<MediaInfo
+        xmlns="https://mediaarea.net/mediainfo"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+        version="2.0">
+    <creatingLibrary version="20.09" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="/home/manuel/Downloads/FF-001.mkv">
+        <track type="General">
+            <UniqueID>39338272249145962079733342011762560068</UniqueID>
+            <VideoCount>1</VideoCount>
+            <AudioCount>4</AudioCount>
+            <TextCount>6</TextCount>
+            <MenuCount>1</MenuCount>
+            <FileExtension>mkv</FileExtension>
+            <Format>Matroska</Format>
+            <Format_Version>4</Format_Version>
+            <FileSize>30237834</FileSize>
+            <Duration>5.024</Duration>
+            <OverallBitRate_Mode>VBR</OverallBitRate_Mode>
+            <OverallBitRate>48149417</OverallBitRate>
+            <FrameRate>23.976</FrameRate>
+            <FrameCount>118</FrameCount>
+            <StreamSize>100001</StreamSize>
+            <IsStreamable>Yes</IsStreamable>
+            <Title>A</Title>
+            <Movie>A</Movie>
+            <Encoded_Date>UTC 2020-12-10 09:46:21</Encoded_Date>
+            <File_Modified_Date>UTC 2020-12-12 10:43:35</File_Modified_Date>
+            <File_Modified_Date_Local>2020-12-12 11:43:35</File_Modified_Date_Local>
+            <Encoded_Application>mkvmerge v51.0.0 (&apos;I Wish&apos;) 64-bit</Encoded_Application>
+            <Encoded_Library>libebml v1.4.0 + libmatroska v1.6.2</Encoded_Library>
+        </track>
+        <track type="Video">
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <OriginalSourceMedium_ID>4113</OriginalSourceMedium_ID>
+            <UniqueID>1</UniqueID>
+            <Format>HEVC</Format>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5.1</Format_Level>
+            <Format_Tier>High</Format_Tier>
+            <HDR_Format>Dolby Vision / SMPTE ST 2094 App 4</HDR_Format>
+            <HDR_Format_Version>1.0 / 1</HDR_Format_Version>
+            <HDR_Format_Profile>dvhe.07 /</HDR_Format_Profile>
+            <HDR_Format_Level>06 /</HDR_Format_Level>
+            <HDR_Format_Settings>BL+EL+RPU /</HDR_Format_Settings>
+            <HDR_Format_Compatibility>Blu-ray / HDR10+ Profile B / HDR10</HDR_Format_Compatibility>
+            <CodecID>V_MPEGH/ISO/HEVC</CodecID>
+            <Duration>4.922000000</Duration>
+            <BitRate>44283395</BitRate>
+            <Width>3840</Width>
+            <Height>2160</Height>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>2160</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <FrameRate_Mode>CFR</FrameRate_Mode>
+            <FrameRate>23.976</FrameRate>
+            <FrameRate_Original>23.976</FrameRate_Original>
+            <FrameCount>118</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_Position>Type 2</ChromaSubsampling_Position>
+            <BitDepth>10</BitDepth>
+            <Delay>0.000</Delay>
+            <StreamSize>27245359</StreamSize>
+            <Language>en</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <colour_description_present>Yes</colour_description_present>
+            <colour_description_present_Source>Stream</colour_description_present_Source>
+            <colour_range>Limited</colour_range>
+            <colour_range_Source>Stream</colour_range_Source>
+            <colour_primaries>BT.2020</colour_primaries>
+            <colour_primaries_Source>Stream</colour_primaries_Source>
+            <transfer_characteristics>PQ</transfer_characteristics>
+            <transfer_characteristics_Source>Stream</transfer_characteristics_Source>
+            <matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
+            <matrix_coefficients_Source>Stream</matrix_coefficients_Source>
+            <MasteringDisplay_ColorPrimaries>Display P3</MasteringDisplay_ColorPrimaries>
+            <MasteringDisplay_ColorPrimaries_Source>Stream</MasteringDisplay_ColorPrimaries_Source>
+            <MasteringDisplay_Luminance>min: 0.0050 cd/m2, max: 4000 cd/m2</MasteringDisplay_Luminance>
+            <MasteringDisplay_Luminance_Source>Stream</MasteringDisplay_Luminance_Source>
+            <MaxCLL>1000 cd/m2</MaxCLL>
+            <MaxCLL_Source>Stream</MaxCLL_Source>
+            <MaxFALL>419 cd/m2</MaxFALL>
+            <MaxFALL_Source>Stream</MaxFALL_Source>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="1">
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <OriginalSourceMedium_ID>4352</OriginalSourceMedium_ID>
+            <UniqueID>2</UniqueID>
+            <Format>MLP FBA</Format>
+            <Format_Commercial_IfAny>Dolby TrueHD with Dolby Atmos</Format_Commercial_IfAny>
+            <Format_AdditionalFeatures>16-ch</Format_AdditionalFeatures>
+            <CodecID>A_TRUEHD</CodecID>
+            <Duration>5.005000000</Duration>
+            <BitRate_Mode>VBR</BitRate_Mode>
+            <BitRate>1523976</BitRate>
+            <BitRate_Maximum>5127000</BitRate_Maximum>
+            <Channels>8</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, Back: L R, LFE</ChannelPositions>
+            <ChannelLayout>L R C LFE Ls Rs Lb Rb</ChannelLayout>
+            <SamplesPerFrame>40</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>240240</SamplingCount>
+            <FrameRate>1200.000</FrameRate>
+            <FrameCount>6006</FrameCount>
+            <Compression_Mode>Lossless</Compression_Mode>
+            <Delay>0.000</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>953438</StreamSize>
+            <StreamSize_Proportion>0.03153</StreamSize_Proportion>
+            <Title>Surround 7.1</Title>
+            <Language>en</Language>
+            <Default>Yes</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+                <NumberOfDynamicObjects>11</NumberOfDynamicObjects>
+                <BedChannelCount>1</BedChannelCount>
+                <BedChannelConfiguration>LFE</BedChannelConfiguration>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="2">
+            <StreamOrder>2</StreamOrder>
+            <ID>3</ID>
+            <OriginalSourceMedium_ID>4352</OriginalSourceMedium_ID>
+            <UniqueID>3</UniqueID>
+            <Format>AC-3</Format>
+            <Format_Commercial_IfAny>Dolby Digital</Format_Commercial_IfAny>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <CodecID>A_AC3</CodecID>
+            <Duration>5.024000000</Duration>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate>448000</BitRate>
+            <Channels>6</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
+            <ChannelLayout>L R C LFE Ls Rs</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>241152</SamplingCount>
+            <FrameRate>31.250</FrameRate>
+            <FrameCount>157</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Delay>0.000</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>281344</StreamSize>
+            <StreamSize_Proportion>0.00930</StreamSize_Proportion>
+            <Title>Surround 5.1</Title>
+            <Language>en</Language>
+            <ServiceKind>CM</ServiceKind>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+                <bsid>8</bsid>
+                <dialnorm>-27</dialnorm>
+                <compr>5.74</compr>
+                <dynrng>5.60</dynrng>
+                <acmod>7</acmod>
+                <lfeon>1</lfeon>
+                <dialnorm_Average>-27</dialnorm_Average>
+                <dialnorm_Minimum>-27</dialnorm_Minimum>
+                <compr_Average>5.74</compr_Average>
+                <compr_Minimum>5.74</compr_Minimum>
+                <compr_Maximum>5.74</compr_Maximum>
+                <compr_Count>71</compr_Count>
+                <dynrng_Average>5.75</dynrng_Average>
+                <dynrng_Minimum>5.60</dynrng_Minimum>
+                <dynrng_Maximum>5.88</dynrng_Maximum>
+                <dynrng_Count>71</dynrng_Count>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="3">
+            <StreamOrder>3</StreamOrder>
+            <ID>4</ID>
+            <OriginalSourceMedium_ID>4353</OriginalSourceMedium_ID>
+            <UniqueID>4</UniqueID>
+            <Format>MLP FBA</Format>
+            <Format_Commercial_IfAny>Dolby TrueHD with Dolby Atmos</Format_Commercial_IfAny>
+            <Format_AdditionalFeatures>16-ch</Format_AdditionalFeatures>
+            <CodecID>A_TRUEHD</CodecID>
+            <Duration>5.005000000</Duration>
+            <BitRate_Mode>VBR</BitRate_Mode>
+            <BitRate>2199956</BitRate>
+            <BitRate_Maximum>5433000</BitRate_Maximum>
+            <Channels>8</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, Back: L R, LFE</ChannelPositions>
+            <ChannelLayout>L R C LFE Ls Rs Lb Rb</ChannelLayout>
+            <SamplesPerFrame>40</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>240240</SamplingCount>
+            <FrameRate>1200.000</FrameRate>
+            <FrameCount>6006</FrameCount>
+            <Compression_Mode>Lossless</Compression_Mode>
+            <Delay>0.000</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>1376348</StreamSize>
+            <StreamSize_Proportion>0.04552</StreamSize_Proportion>
+            <Title>Surround 7.1</Title>
+            <Language>de</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+                <NumberOfDynamicObjects>11</NumberOfDynamicObjects>
+                <BedChannelCount>1</BedChannelCount>
+                <BedChannelConfiguration>LFE</BedChannelConfiguration>
+            </extra>
+        </track>
+        <track type="Audio" typeorder="4">
+            <StreamOrder>4</StreamOrder>
+            <ID>5</ID>
+            <OriginalSourceMedium_ID>4353</OriginalSourceMedium_ID>
+            <UniqueID>5</UniqueID>
+            <Format>AC-3</Format>
+            <Format_Commercial_IfAny>Dolby Digital</Format_Commercial_IfAny>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <CodecID>A_AC3</CodecID>
+            <Duration>5.024000000</Duration>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate>448000</BitRate>
+            <Channels>6</Channels>
+            <ChannelPositions>Front: L C R, Side: L R, LFE</ChannelPositions>
+            <ChannelLayout>L R C LFE Ls Rs</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>241152</SamplingCount>
+            <FrameRate>31.250</FrameRate>
+            <FrameCount>157</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Delay>0.000</Delay>
+            <Delay_Source>Container</Delay_Source>
+            <StreamSize>281344</StreamSize>
+            <StreamSize_Proportion>0.00930</StreamSize_Proportion>
+            <Title>Surround 5.1</Title>
+            <Language>de</Language>
+            <ServiceKind>CM</ServiceKind>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+                <bsid>8</bsid>
+                <dialnorm>-27</dialnorm>
+                <compr>5.74</compr>
+                <dynrng>5.60</dynrng>
+                <acmod>7</acmod>
+                <lfeon>1</lfeon>
+                <dialnorm_Average>-27</dialnorm_Average>
+                <dialnorm_Minimum>-27</dialnorm_Minimum>
+                <compr_Average>5.74</compr_Average>
+                <compr_Minimum>5.74</compr_Minimum>
+                <compr_Maximum>5.74</compr_Maximum>
+                <compr_Count>71</compr_Count>
+                <dynrng_Average>5.75</dynrng_Average>
+                <dynrng_Minimum>5.60</dynrng_Minimum>
+                <dynrng_Maximum>5.88</dynrng_Maximum>
+                <dynrng_Count>71</dynrng_Count>
+            </extra>
+        </track>
+        <track type="Text" typeorder="1">
+            <StreamOrder>5</StreamOrder>
+            <ID>6</ID>
+            <OriginalSourceMedium_ID>4768</OriginalSourceMedium_ID>
+            <UniqueID>6</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>0.000000000</Duration>
+            <BitRate>0</BitRate>
+            <FrameCount>0</FrameCount>
+            <ElementCount>0</ElementCount>
+            <StreamSize>0</StreamSize>
+            <Language>en</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+            </extra>
+        </track>
+        <track type="Text" typeorder="2">
+            <StreamOrder>6</StreamOrder>
+            <ID>7</ID>
+            <OriginalSourceMedium_ID>4769</OriginalSourceMedium_ID>
+            <UniqueID>8</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>0.000000000</Duration>
+            <BitRate>0</BitRate>
+            <FrameCount>0</FrameCount>
+            <ElementCount>0</ElementCount>
+            <StreamSize>0</StreamSize>
+            <Language>de</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+            </extra>
+        </track>
+        <track type="Text" typeorder="3">
+            <StreamOrder>7</StreamOrder>
+            <ID>8</ID>
+            <OriginalSourceMedium_ID>4772</OriginalSourceMedium_ID>
+            <UniqueID>10</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>0.000000000</Duration>
+            <BitRate>0</BitRate>
+            <FrameCount>0</FrameCount>
+            <ElementCount>0</ElementCount>
+            <StreamSize>0</StreamSize>
+            <Language>en</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+            </extra>
+        </track>
+        <track type="Text" typeorder="4">
+            <StreamOrder>8</StreamOrder>
+            <ID>9</ID>
+            <OriginalSourceMedium_ID>4773</OriginalSourceMedium_ID>
+            <UniqueID>12</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>0.000000000</Duration>
+            <BitRate>0</BitRate>
+            <FrameCount>0</FrameCount>
+            <ElementCount>0</ElementCount>
+            <StreamSize>0</StreamSize>
+            <Language>de</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+            </extra>
+        </track>
+        <track type="Text" typeorder="5">
+            <StreamOrder>9</StreamOrder>
+            <ID>10</ID>
+            <OriginalSourceMedium_ID>4775</OriginalSourceMedium_ID>
+            <UniqueID>14</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>0.000000000</Duration>
+            <BitRate>0</BitRate>
+            <FrameCount>0</FrameCount>
+            <ElementCount>0</ElementCount>
+            <StreamSize>0</StreamSize>
+            <Language>en</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+            </extra>
+        </track>
+        <track type="Text" typeorder="6">
+            <StreamOrder>10</StreamOrder>
+            <ID>11</ID>
+            <OriginalSourceMedium_ID>4776</OriginalSourceMedium_ID>
+            <UniqueID>16</UniqueID>
+            <Format>PGS</Format>
+            <MuxingMode>zlib</MuxingMode>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <Duration>0.000000000</Duration>
+            <BitRate>0</BitRate>
+            <FrameCount>0</FrameCount>
+            <ElementCount>0</ElementCount>
+            <StreamSize>0</StreamSize>
+            <Language>de</Language>
+            <Default>No</Default>
+            <Forced>No</Forced>
+            <extra>
+                <OriginalSourceMedium>Blu-ray</OriginalSourceMedium>
+            </extra>
+        </track>
+        <track type="Menu">
+            <extra>
+                <_00_00_00_000>en:Chapter 01</_00_00_00_000>
+            </extra>
+        </track>
+    </media>
+</MediaInfo>

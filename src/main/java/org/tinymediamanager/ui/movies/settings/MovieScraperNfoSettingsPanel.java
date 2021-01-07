@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import java.awt.event.ItemListener;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -31,9 +30,10 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.tinymediamanager.DateField;
 import org.tinymediamanager.core.CertificationStyle;
+import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
@@ -54,8 +54,6 @@ import net.miginfocom.swing.MigLayout;
  */
 class MovieScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = -299825914193235308L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle          BUNDLE           = ResourceBundle.getBundle("messages");
 
   private MovieSettings                        settings         = MovieModuleManager.SETTINGS;
   private JComboBox<MovieConnectors>           cbNfoFormat;
@@ -163,14 +161,14 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[]"));
     {
       JPanel panelNfo = new JPanel();
-      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][][]")); // 16lp ~ width of the
 
-      JLabel lblNfoT = new TmmLabel(BUNDLE.getString("Settings.nfo"), H3);
+      JLabel lblNfoT = new TmmLabel(TmmResourceBundle.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#nfo-settings"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
-        JLabel lblNfoFormat = new JLabel(BUNDLE.getString("Settings.nfoFormat"));
+        JLabel lblNfoFormat = new JLabel(TmmResourceBundle.getString("Settings.nfoFormat"));
         panelNfo.add(lblNfoFormat, "cell 1 0 2 1");
 
         cbNfoFormat = new JComboBox(MovieConnectors.values());
@@ -181,46 +179,46 @@ class MovieScraperNfoSettingsPanel extends JPanel {
           panelNfo.add(panelNfoFormat, "cell 1 1 2 1");
           panelNfoFormat.setLayout(new MigLayout("insets 0", "[][]", "[][]"));
 
-          JLabel lblNfoFileNaming = new JLabel(BUNDLE.getString("Settings.nofFileNaming"));
+          JLabel lblNfoFileNaming = new JLabel(TmmResourceBundle.getString("Settings.nofFileNaming"));
           panelNfoFormat.add(lblNfoFileNaming, "cell 0 0");
 
-          cbMovieNfoFilename1 = new JCheckBox(BUNDLE.getString("Settings.moviefilename") + ".nfo");
+          cbMovieNfoFilename1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + ".nfo");
           panelNfoFormat.add(cbMovieNfoFilename1, "cell 1 0");
 
           cbMovieNfoFilename2 = new JCheckBox("movie.nfo");
           panelNfoFormat.add(cbMovieNfoFilename2, "cell 1 1");
         }
 
-        chckbxWriteCleanNfo = new JCheckBox(BUNDLE.getString("Settings.writecleannfo"));
+        chckbxWriteCleanNfo = new JCheckBox(TmmResourceBundle.getString("Settings.writecleannfo"));
         panelNfo.add(chckbxWriteCleanNfo, "cell 1 2 2 1");
 
-        JLabel lblNfoDatefield = new JLabel(BUNDLE.getString("Settings.dateadded"));
+        JLabel lblNfoDatefield = new JLabel(TmmResourceBundle.getString("Settings.dateadded"));
         panelNfo.add(lblNfoDatefield, "cell 1 4 2 1");
 
         cbDatefield = new JComboBox(DateField.values());
         panelNfo.add(cbDatefield, "cell 1 4");
 
-        JLabel lblNfoLanguage = new JLabel(BUNDLE.getString("Settings.nfolanguage"));
+        JLabel lblNfoLanguage = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage"));
         panelNfo.add(lblNfoLanguage, "cell 1 5 2 1");
 
         cbNfoLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelNfo.add(cbNfoLanguage, "cell 1 5");
 
-        JLabel lblNfoLanguageDesc = new JLabel(BUNDLE.getString("Settings.nfolanguage.desc"));
+        JLabel lblNfoLanguageDesc = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage.desc"));
         panelNfo.add(lblNfoLanguageDesc, "cell 2 6");
 
-        JLabel lblCertificationStyle = new JLabel(BUNDLE.getString("Settings.certificationformat"));
+        JLabel lblCertificationStyle = new JLabel(TmmResourceBundle.getString("Settings.certificationformat"));
         panelNfo.add(lblCertificationStyle, "flowx,cell 1 7 2 1");
 
         cbCertificationStyle = new JComboBox();
         panelNfo.add(cbCertificationStyle, "cell 1 7, wmin 0");
 
-        chckbxCreateOutline = new JHintCheckBox(BUNDLE.getString("Settings.createoutline"));
-        chckbxCreateOutline.setToolTipText(BUNDLE.getString("Settings.createoutline.hint"));
+        chckbxCreateOutline = new JHintCheckBox(TmmResourceBundle.getString("Settings.createoutline"));
+        chckbxCreateOutline.setToolTipText(TmmResourceBundle.getString("Settings.createoutline.hint"));
         chckbxCreateOutline.setHintIcon(IconManager.HINT);
         panelNfo.add(chckbxCreateOutline, "cell 1 8 2 1");
 
-        chckbxOutlineFirstSentence = new JCheckBox(BUNDLE.getString("Settings.outlinefirstsentence"));
+        chckbxOutlineFirstSentence = new JCheckBox(TmmResourceBundle.getString("Settings.outlinefirstsentence"));
         panelNfo.add(chckbxOutlineFirstSentence, "cell 2 9");
       }
     }
@@ -253,7 +251,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
 
     @Override
     public String toString() {
-      String bundleTag = BUNDLE.getString("Settings.certification." + style.name().toLowerCase(Locale.ROOT));
+      String bundleTag = TmmResourceBundle.getString("Settings.certification." + style.name().toLowerCase(Locale.ROOT));
       return bundleTag.replace("{}", CertificationStyle.formatCertification(MediaCertification.DE_FSK16, style));
     }
   }
