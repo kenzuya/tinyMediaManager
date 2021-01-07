@@ -162,23 +162,25 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       LOGGER.trace("could not get Image information: {}", e.getMessage());
     }
 
-    label: for (Image image : imageList) {
+    for (Image image : imageList) {
       switch (image.type) {
         case "poster":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
           ma.setDefaultUrl(image.resolutions.original.url);
           md.addMediaArt(ma);
-          break label;
+          break;
+
         case "background":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BACKGROUND);
           ma.setDefaultUrl(image.resolutions.original.url);
           md.addMediaArt(ma);
-          break label;
+          break;
+
         case "banner":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.BANNER);
           ma.setDefaultUrl(image.resolutions.original.url);
           md.addMediaArt(ma);
-          break label;
+          break;
       }
     }
 
@@ -209,21 +211,9 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
-    SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
+    SortedSet<MediaSearchResult> searchResults = new TreeSet<>();
 
     List<Shows> searchResult;
-
-    // it seems that this scraper only supports EN
-    // because there is no language parameter
-    // we have to check if the selected language is EN
-    if (!options.getLanguage().getLanguage().equalsIgnoreCase("EN")) {
-
-      LOGGER.info("Scraper only supports Language EN");
-      return mediaResult;
-
-    }
-
-    LOGGER.debug("search for: {}", options.getSearchQuery());
 
     try {
       searchResult = controller.getTvShowSearchResults(options.getSearchQuery());
@@ -235,11 +225,10 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
 
     if (searchResult == null) {
       LOGGER.warn("no result from tvmaze.com");
-      return mediaResult;
+      return searchResults;
     }
 
     for (Shows shows : searchResult) {
-
       MediaSearchResult result = new MediaSearchResult(getId(), MediaType.TV_SHOW);
       result.setProviderId(getId());
       result.setTitle(shows.show.title);
@@ -262,11 +251,22 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
         }
       }
 
-      mediaResult.add(result);
+      // calculate score
+      if ((org.apache.commons.lang3.StringUtils.isNotBlank(options.getImdbId()) && options.getImdbId().equals(result.getIMDBId()))
+          || String.valueOf(options.getTmdbId()).equals(result.getId())) {
+        LOGGER.debug("perfect match by ID - set score to 1");
+        result.setScore(1);
+      }
+      else {
+        // calculate the score by comparing the search result with the search options
+        result.calculateScore(options);
+      }
+
+      searchResults.add(result);
 
     }
 
-    return mediaResult;
+    return searchResults;
   }
 
   @Override
