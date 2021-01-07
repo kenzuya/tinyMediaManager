@@ -82,9 +82,9 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
   public static void addProvider(IMovieMetadataProvider provider) {
     // called for each plugin implementing that interface
-    if (!provider.getProviderInfo().getId().equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getProviderInfo().getId())
+    if (!provider.getId().equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getId())
         && (provider instanceof IMovieTmdbMetadataProvider || provider instanceof IMovieImdbMetadataProvider)) {
-      COMPATIBLE_SCRAPERS.put(provider.getProviderInfo().getId(), provider);
+      COMPATIBLE_SCRAPERS.put(provider.getId(), provider);
     }
   }
 

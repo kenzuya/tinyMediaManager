@@ -86,10 +86,10 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
   public static void addProvider(ITvShowMetadataProvider provider) {
     // called for each plugin implementing that interface
-    if (!provider.getProviderInfo().getId().equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getProviderInfo().getId())
+    if (!provider.getId().equals(ID) && !COMPATIBLE_SCRAPERS.containsKey(provider.getId())
         && (provider instanceof ITvShowTvdbMetadataProvider || provider instanceof ITvShowImdbMetadataProvider)
         || provider instanceof ITvShowTmdbMetadataProvider) {
-      COMPATIBLE_SCRAPERS.put(provider.getProviderInfo().getId(), provider);
+      COMPATIBLE_SCRAPERS.put(provider.getId(), provider);
     }
   }
 

@@ -94,8 +94,10 @@ public class MediaProviders {
 
     // register all compatible scrapers in the universal scraper
     MEDIA_PROVIDERS.forEach((key, value) -> {
-      if (value instanceof IMovieMetadataProvider) {
-        UniversalMovieMetadataProvider.addProvider((IMovieMetadataProvider) value);
+      for (IMediaProvider mediaProvider : ListUtils.nullSafe(value)) {
+        if (mediaProvider instanceof IMovieMetadataProvider) {
+          UniversalMovieMetadataProvider.addProvider((IMovieMetadataProvider) mediaProvider);
+        }
       }
     });
 
@@ -131,10 +133,13 @@ public class MediaProviders {
     loadProvider(TraktTvShowMetadataProvider.class);
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
+
     // register all compatible scrapers in the universal scraper
     MEDIA_PROVIDERS.forEach((key, value) -> {
-      if (value instanceof ITvShowMetadataProvider) {
-        UniversalTvShowMetadataProvider.addProvider((ITvShowMetadataProvider) value);
+      for (IMediaProvider mediaProvider : ListUtils.nullSafe(value)) {
+        if (mediaProvider instanceof ITvShowMetadataProvider) {
+          UniversalTvShowMetadataProvider.addProvider((ITvShowMetadataProvider) mediaProvider);
+        }
       }
     });
 
