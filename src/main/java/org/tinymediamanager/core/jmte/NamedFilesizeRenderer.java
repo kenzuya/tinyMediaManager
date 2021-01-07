@@ -30,15 +30,63 @@ import com.floreysoft.jmte.RenderFormatInfo;
 public class NamedFilesizeRenderer implements NamedRenderer {
   @Override
   public String render(Object o, String s, Locale locale, Map<String, Object> map) {
+    if (o == null) {
+      return "";
+    }
+
     // part 1 is the string format (default = %.2f)
     String format = "%.2f";
 
-    // part 2 is the unit (default = G)
-    float value = 0;
-    if (o instanceof Number) {
-      value = ((Number) o).longValue() / (1000 * 1000 * 1000f);
+    if (!(o instanceof Number)) {
+      return o.toString();
     }
-    format += " G";
+
+    float value = ((Number) o).longValue();
+    String unit = s;
+
+    if (unit == null) {
+      unit = "G";
+    }
+
+    // part 2 is the unit (default = G)
+    switch (unit) {
+      case "K":
+      case "k":
+      case "kB":
+      case "KB":
+        value = value / (1000f);
+        break;
+
+      case "kiB":
+      case "KiB":
+        value = value / (1024f);
+        break;
+
+      case "M":
+      case "MB":
+        value = value / (1000 * 1000f);
+        break;
+
+      case "MiB":
+        value = value / (1024 * 1024f);
+        break;
+
+      case "GiB":
+        value = value / (1024 * 1024 * 1024f);
+        break;
+
+      case "G":
+      case "GB":
+        value = value / (1000 * 1000 * 1000f);
+        break;
+
+      default:
+        value = value / (1000 * 1000 * 1000f);
+        unit = "G";
+        break;
+    }
+
+    format += " " + unit;
 
     try {
       return String.format(format, value);
