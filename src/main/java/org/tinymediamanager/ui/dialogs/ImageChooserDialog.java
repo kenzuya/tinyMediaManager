@@ -126,6 +126,14 @@ public class ImageChooserDialog extends TmmDialog {
   private List<String>              extraFanarts     = null;
   private DownloadTask              task;
 
+  private JLabel                    labelThumbs;
+  private JButton                   btnMarkExtrathumbs;
+  private JButton                   btnUnMarkExtrathumbs;
+
+  private JLabel                    labelFanart;
+  private JButton                   btnMarkExtrafanart;
+  private JButton                   btnUnMarkExtrafanart;
+
   /**
    * Instantiates a new image chooser dialog.
    *
@@ -263,12 +271,14 @@ public class ImageChooserDialog extends TmmDialog {
     }
 
     // add buttons to select/deselect all extrafanarts/extrathumbs
-    if (type == BACKGROUND && extraThumbs != null) {
-      JLabel labelThumbs = new JLabel("Extrathumbs:");
-      contentPanel.add(labelThumbs, "flowx,cell 0 2");
+    if (type == BACKGROUND) {
+      labelThumbs = new JLabel("Extrathumbs:");
+      contentPanel.add(labelThumbs, "flowx,cell 0 3");
+      labelThumbs.setVisible(false);
 
-      JButton btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
-      contentPanel.add(btnMarkExtrathumbs, "cell 0 2");
+      btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
+      contentPanel.add(btnMarkExtrathumbs, "cell 0 3");
+      btnMarkExtrathumbs.setVisible(false);
       btnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.markall"));
       btnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
@@ -279,8 +289,9 @@ public class ImageChooserDialog extends TmmDialog {
         }
       });
 
-      JButton btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
-      contentPanel.add(btnUnMarkExtrathumbs, "cell 0 2");
+      btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
+      contentPanel.add(btnUnMarkExtrathumbs, "cell 0 3");
+      btnUnMarkExtrathumbs.setVisible(false);
       btnUnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.unmarkall"));
       btnUnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
@@ -290,31 +301,33 @@ public class ImageChooserDialog extends TmmDialog {
           }
         }
       });
-    }
-    if (type == BACKGROUND && extraFanarts != null) {
-      JLabel labelFanart = new JLabel("Extrafanart:");
-      contentPanel.add(labelFanart, "flowx,cell 0 3");
 
-      JButton btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
-      contentPanel.add(btnMarkExtrafanart, "cell 0 3");
+      labelFanart = new JLabel("Extrafanart:");
+      contentPanel.add(labelFanart, "flowx,cell 0 4");
+      labelFanart.setVisible(false);
+
+      btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
+      contentPanel.add(btnMarkExtrafanart, "cell 0 4");
+      btnMarkExtrafanart.setVisible(false);
       btnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.markall"));
+      btnMarkExtrafanart.addActionListener(arg0 -> {
+        for (JToggleButton button : buttons) {
+          if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
+            JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
+            chkbx.setSelected(true);
+          }
+        }
+      });
 
-      JButton btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
-      contentPanel.add(btnUnMarkExtrafanart, "cell 0 3");
+      btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
+      contentPanel.add(btnUnMarkExtrafanart, "cell 0 4");
+      btnUnMarkExtrafanart.setVisible(false);
       btnUnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.unmarkall"));
       btnUnMarkExtrafanart.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
           if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
             JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
             chkbx.setSelected(false);
-          }
-        }
-      });
-      btnMarkExtrafanart.addActionListener(arg0 -> {
-        for (JToggleButton button : buttons) {
-          if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
-            JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
-            chkbx.setSelected(true);
           }
         }
       });
@@ -357,10 +370,32 @@ public class ImageChooserDialog extends TmmDialog {
 
   public void bindExtraThumbs(List<String> extraThumbs) {
     this.extraThumbs = extraThumbs;
+
+    if (extraThumbs != null) {
+      labelThumbs.setVisible(true);
+      btnMarkExtrathumbs.setVisible(true);
+      btnUnMarkExtrathumbs.setVisible(true);
+    }
+    else {
+      labelThumbs.setVisible(false);
+      btnMarkExtrathumbs.setVisible(false);
+      btnUnMarkExtrathumbs.setVisible(false);
+    }
   }
 
   public void bindExtraFanarts(List<String> extraFanarts) {
     this.extraFanarts = extraFanarts;
+
+    if (extraFanarts != null) {
+      labelFanart.setVisible(true);
+      btnMarkExtrafanart.setVisible(true);
+      btnUnMarkExtrafanart.setVisible(true);
+    }
+    else {
+      labelFanart.setVisible(false);
+      btnMarkExtrafanart.setVisible(false);
+      btnUnMarkExtrafanart.setVisible(false);
+    }
   }
 
   public void setOpenFolderPath(String openFolderPath) {
@@ -530,39 +565,51 @@ public class ImageChooserDialog extends TmmDialog {
           case BANNER:
             art = new MediaArtwork("", MediaArtworkType.BANNER);
             break;
+
           case CLEARART:
             art = new MediaArtwork("", MediaArtworkType.CLEARART);
             break;
+
           case DISC:
             art = new MediaArtwork("", MediaArtworkType.DISC);
             break;
+
           case BACKGROUND:
             art = new MediaArtwork("", BACKGROUND);
             break;
+
           case LOGO:
             art = new MediaArtwork("", MediaArtworkType.LOGO);
             break;
+
           case CLEARLOGO:
             art = new MediaArtwork("", MediaArtworkType.CLEARLOGO);
             break;
+
           case CHARACTERART:
             art = new MediaArtwork("", MediaArtworkType.CHARACTERART);
             break;
+
           case POSTER:
             art = new MediaArtwork("", MediaArtworkType.POSTER);
             break;
+
           case SEASON_POSTER:
             art = new MediaArtwork("", MediaArtworkType.SEASON_POSTER);
             break;
+
           case SEASON_BANNER:
             art = new MediaArtwork("", MediaArtworkType.SEASON_BANNER);
             break;
+
           case SEASON_THUMB:
             art = new MediaArtwork("", MediaArtworkType.SEASON_THUMB);
             break;
+
           case THUMB:
             art = new MediaArtwork("", MediaArtworkType.THUMB);
             break;
+
           case KEYART:
             art = new MediaArtwork("", MediaArtworkType.KEYART);
             break;
