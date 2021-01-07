@@ -18,6 +18,7 @@ Version 4.1
 + (movie) added full customization in which priority/order the rating should be loaded #986
 + use qualified metadata (title, plot, year, IMDB id, episode/season number) from mediainfo on first import #669 #1065
 + (movie) added an expert mode to the bulk editor to "freely" edit text based fields
++ added a JMTE replacement renderer for custom replacements (movie/TV show, renamer & exporter)
 x exchanged native file dialogs with tiny file dialogs
   Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows
 x better error messages for SSL errors #1122
