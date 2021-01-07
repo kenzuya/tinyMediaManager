@@ -9,7 +9,6 @@ Version 4.1
   The only drawback here is, that you may have to enter some options (like an individual API key) in every sub-scraper
   ATTENTION: since almost everything changed in the scraper setup, you may need to re-set the scraper options after the update
 
-+ rewritten Trakt.tv integration to be more flexible and ready for multiple versions of the same movie/episode #1031 #1081
 + added missing movies in movie set #1111
 + feature for still/thumb creation via FFmpeg #1017
 + added an option to suppress tooltips in the main tables #1128
@@ -19,6 +18,7 @@ Version 4.1
 + use qualified metadata (title, plot, year, IMDB id, episode/season number) from mediainfo on first import #669 #1065
 + (movie) added an expert mode to the bulk editor to "freely" edit text based fields
 + added a JMTE replacement renderer for custom replacements (movie/TV show, renamer & exporter)
+x rewritten Trakt.tv integration to be more flexible and ready for multiple versions of the same movie/episode #1031 #1081
 x exchanged native file dialogs with tiny file dialogs
   Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows
 x better error messages for SSL errors #1122
