@@ -19,6 +19,7 @@ Version 4.1
 + use qualified metadata (title, plot, year, IMDB id, episode/season number) from mediainfo on first import #669 #1065
 + (movie) added an expert mode to the bulk editor to "freely" edit text based fields
 + added a JMTE replacement renderer for custom replacements (movie/TV show, renamer & exporter)
++ added OMDB TV Show scraping
 x rewritten Trakt.tv integration to be more flexible and ready for multiple versions of the same movie/episode #1031 #1081
 x exchanged native file dialogs with tiny file dialogs
   Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows

@@ -16,9 +16,9 @@
 
 package org.tinymediamanager.scraper.omdb.service;
 
-import org.tinymediamanager.scraper.omdb.entities.MovieEntity;
-import org.tinymediamanager.scraper.omdb.entities.MovieSearch;
-import org.tinymediamanager.scraper.omdb.entities.SeasonSearch;
+import org.tinymediamanager.scraper.omdb.entities.MediaEntity;
+import org.tinymediamanager.scraper.omdb.entities.MediaSearch;
+import org.tinymediamanager.scraper.omdb.entities.SeasonEntity;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -27,17 +27,17 @@ import retrofit2.http.Query;
 public interface OmdbService {
 
   @GET("/")
-  Call<MovieSearch> movieSearch(@Query("apikey") String apikey, @Query("s") String user, @Query("type") String type, @Query("y") String year);
+  Call<MediaSearch> mediaSearch(@Query("apikey") String apikey, @Query("s") String user, @Query("type") String type, @Query("y") String year);
 
   @GET("/")
-  Call<MovieEntity> movieScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("y") String year,
-      @Query("plot") String plot, @Query("tomatoes") boolean useTomatoRating);
+  Call<MediaEntity> movieScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("y") String year,
+                                    @Query("plot") String plot, @Query("tomatoes") boolean useTomatoRating);
 
   @GET("/")
-  Call<SeasonSearch> seasonScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("Season") int season);
+  Call<SeasonEntity> seasonScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("Season") int season);
 
   @GET("/")
-  Call<MovieEntity> episodeScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("Season") int season,
-      @Query("Episode") int episode);
+  Call<MediaEntity> episodeScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("Season") int season,
+                                      @Query("Episode") int episode);
 
 }

@@ -23,9 +23,9 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
-import org.tinymediamanager.scraper.omdb.entities.MovieEntity;
-import org.tinymediamanager.scraper.omdb.entities.MovieSearch;
-import org.tinymediamanager.scraper.omdb.entities.SeasonSearch;
+import org.tinymediamanager.scraper.omdb.entities.MediaEntity;
+import org.tinymediamanager.scraper.omdb.entities.MediaSearch;
+import org.tinymediamanager.scraper.omdb.entities.SeasonEntity;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -96,12 +96,12 @@ public class Controller {
    *          the entity type to search for (movie/series)
    * @param year
    *          set the year of the movie (optional)
-   * @return the {@link MovieSearch} item
+   * @return the {@link MediaSearch} item
    * @throws IOException
    *           any exception that could occur
    */
-  public MovieSearch getMovieSearchInfo(String apiKey, String searchTerm, String type, String year) throws IOException {
-    return getService().movieSearch(apiKey, searchTerm, type, year).execute().body();
+  public MediaSearch getMovieSearchInfo(String apiKey, String searchTerm, String type, String year) throws IOException {
+    return getService().mediaSearch(apiKey, searchTerm, type, year).execute().body();
   }
 
   /**
@@ -113,24 +113,23 @@ public class Controller {
    *          the entity type to search for (movie/series)
    * @param full
    *          scrape full info
-   * @return the {@link MovieEntity} item
+   * @return the {@link MediaEntity} item
    * @throws IOException
    *           any exception that could occur
    */
-  public MovieEntity getScrapeDataById(String apiKey, String id, String type, boolean full) throws IOException {
+  public MediaEntity getScrapeDataById(String apiKey, String id, String type, boolean full) throws IOException {
     String plotStyle = "short";
     if (full) {
       plotStyle = "full";
     }
-
     return getService().movieScrapeById(apiKey, id, type, null, plotStyle,true).execute().body();
   }
 
-  public SeasonSearch getSeasonsById(String apiKey, String id, String type, int season) throws IOException {
+  public SeasonEntity getSeasonById(String apiKey, String id, String type, int season) throws IOException {
     return getService().seasonScrapeById(apiKey, id, type, season).execute().body();
   }
 
-  public MovieEntity getEpisodesBySeasons(String apiKey, String id, String type, int season, int episode) throws IOException {
+  public MediaEntity getEpisodeById(String apiKey, String id, String type, int season, int episode) throws IOException {
     return getService().episodeScrapeById(apiKey, id, type, season, episode).execute().body();
   }
 

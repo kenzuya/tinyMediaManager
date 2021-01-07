@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -44,9 +43,9 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.omdb.entities.MovieEntity;
-import org.tinymediamanager.scraper.omdb.entities.MovieRating;
-import org.tinymediamanager.scraper.omdb.entities.MovieSearch;
+import org.tinymediamanager.scraper.omdb.entities.MediaEntity;
+import org.tinymediamanager.scraper.omdb.entities.MediaRating;
+import org.tinymediamanager.scraper.omdb.entities.MediaSearch;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -104,7 +103,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     DateFormat format = new SimpleDateFormat("d MMMM yyyy", Locale.ENGLISH);
     LOGGER.info("========= BEGIN OMDB Scraping");
 
-    MovieEntity result = null;
+    MediaEntity result = null;
     try {
       result = controller.getScrapeDataById(apiKey, imdbId, "movie", true);
     }
@@ -182,7 +181,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     metadata.setCountries(getResult(result.country, ","));
 
     try {
-      MediaRating rating = new MediaRating("imdb");
+      org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("imdb");
       rating.setRating(Float.parseFloat(result.imdbRating));
       rating.setVotes(MetadataUtil.parseInt(result.imdbVotes));
       rating.setMaxValue(10);
@@ -192,7 +191,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
       LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
     try {
-      MediaRating rating = new MediaRating("metascore");
+      org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("metascore");
       rating.setRating(Float.parseFloat(result.metascore));
       rating.setMaxValue(100);
       metadata.addRating(rating);
@@ -205,7 +204,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
 
     try {
       if (!result.tomatoMeter.contains("N/A")) {
-        MediaRating rating = new MediaRating("tomatometerallcritics");
+        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallcritics");
         rating.setRating(Float.parseFloat(result.tomatoMeter));
         rating.setMaxValue(100);
         rating.setVotes(MetadataUtil.parseInt(result.tomatoReviews));
@@ -218,7 +217,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
 
     try {
       if (!result.tomatoUserMeter.contains("N/A")) {
-        MediaRating rating = new MediaRating("tomatometerallaudience");
+        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallaudience");
         rating.setRating(Float.parseFloat(result.tomatoUserMeter));
         rating.setMaxValue(100);
         rating.setVotes(MetadataUtil.parseInt(result.tomatoUserReviews));
@@ -231,7 +230,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
 
     try {
       if (!result.tomatoRating.contains("N/A")) {
-        MediaRating rating = new MediaRating("tomatometeravgcritics");
+        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgcritics");
         rating.setRating(Float.parseFloat(result.tomatoRating));
         rating.setMaxValue(100);
         rating.setVotes(MetadataUtil.parseInt(result.tomatoReviews));
@@ -244,7 +243,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
 
     try {
       if (!result.tomatoUserRating.contains("N/A")) {
-        MediaRating rating = new MediaRating("tomatometeravgaudience");
+        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgaudience");
         rating.setRating(Float.parseFloat(result.tomatoUserRating));
         rating.setMaxValue(100);
         rating.setVotes(MetadataUtil.parseInt(result.tomatoUserReviews));
@@ -255,11 +254,11 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
       LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
     // use rotten tomates from the Ratings block
-    for (MovieRating movieRating : ListUtils.nullSafe(result.ratings)) {
+    for (MediaRating movieRating : ListUtils.nullSafe(result.ratings)) {
       switch (movieRating.source) {
         case "Rotten Tomatoes":
           try {
-            MediaRating rating = new MediaRating("rottenTomatoes");
+            org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("rottenTomatoes");
             rating.setRating(Integer.parseInt(movieRating.value.replace("%", "")));
             rating.setMaxValue(100);
             metadata.addRating(rating);
@@ -273,8 +272,8 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     // get the imdb rating from the imdb dataset too (and probably replace an
     // outdated rating from omdb)
     if (metadata.getId(MediaMetadata.IMDB) instanceof String) {
-      MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
-      MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
+      org.tinymediamanager.core.entities.MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
+      org.tinymediamanager.core.entities.MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
       if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
         metadata.getRatings().remove(omdbRating);
         metadata.addRating(imdbRating);
@@ -303,7 +302,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
       return mediaResult;
     }
 
-    MovieSearch resultList;
+    MediaSearch resultList;
     try {
       resultList = controller.getMovieSearchInfo(apiKey, query.getSearchQuery(), "movie", null);
     }
@@ -317,7 +316,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
       return mediaResult;
     }
 
-    for (MovieEntity entity : ListUtils.nullSafe(resultList.search)) {
+    for (MediaEntity entity : ListUtils.nullSafe(resultList.search)) {
       MediaSearchResult result = new MediaSearchResult(getId(), MediaType.MOVIE);
 
       result.setTitle(entity.title);

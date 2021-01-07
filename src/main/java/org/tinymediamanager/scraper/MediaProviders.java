@@ -41,6 +41,7 @@ import org.tinymediamanager.scraper.mpdbtv.MpdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.ofdb.OfdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.ofdb.OfdbMovieTrailerProvider;
 import org.tinymediamanager.scraper.omdb.OmdbMovieMetadataProvider;
+import org.tinymediamanager.scraper.omdb.OmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowArtworkProvider;
@@ -133,7 +134,7 @@ public class MediaProviders {
     loadProvider(TraktTvShowMetadataProvider.class);
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
-
+    loadProvider(OmdbTvShowMetadataProvider.class);
     // register all compatible scrapers in the universal scraper
     MEDIA_PROVIDERS.forEach((key, value) -> {
       for (IMediaProvider mediaProvider : ListUtils.nullSafe(value)) {

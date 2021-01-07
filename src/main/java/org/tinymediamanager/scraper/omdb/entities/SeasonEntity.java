@@ -16,6 +16,8 @@
 
 package org.tinymediamanager.scraper.omdb.entities;
 
+import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -23,18 +25,18 @@ public class SeasonEntity {
 
   @SerializedName("Title")
   @Expose
-  public String title;
-  @SerializedName("Released")
+  public String             title;
+  @SerializedName("Season")
   @Expose
-  public String released;
-  @SerializedName("Episode")
+  public String             season;
+  @SerializedName("totalSeasons")
   @Expose
-  public String episode;
-  @SerializedName("imdbRating")
+  public String             totalSeasons;
+  @SerializedName("Episodes")
   @Expose
-  public String imdbRating;
-  @SerializedName("imdbID")
+  public List<EpisodeEntity> episodes = null;
+  @SerializedName("Response")
   @Expose
-  public String imdbID;
+  public String             response;
 
 }

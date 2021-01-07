@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.omdb.service.Controller;
 
 /**
@@ -29,7 +30,7 @@ import org.tinymediamanager.scraper.omdb.service.Controller;
  *
  * @author Wolfgang Janes
  */
-abstract class OmdbMetadataProvider {
+abstract class OmdbMetadataProvider  {
   private static final String     ID = "omdbapi";
 
   private final MediaProviderInfo providerInfo;
@@ -77,63 +78,6 @@ abstract class OmdbMetadataProvider {
     }
   }
 
-  // @Override
-  // public List<MediaEpisode> getEpisodeList(MediaScrapeOptions query) throws
-  // Exception {
-  //
-  // LOGGER.debug("scrape() Episodes " + query.toString());
-  // List<MediaEpisode> mediaEpisode = new ArrayList<>();
-  // SeasonSearch season;
-  // season = null;
-  // MovieEntity result = null;
-  // MovieEntity episodes;
-  //
-  // // First scrape the id to get the total number of Seasons
-  // try {
-  // if(API_KEY.equals(apiKey)){
-  // OmdbConnectionCounter.trackConnections();
-  // }
-  // LOGGER.debug("Getting TotalSeasons From Scraping");
-  // result = controller.getScrapeDataById(apiKey,
-  // query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", true);
-  // }
-  // catch (Exception e) {
-  // LOGGER.error("error scraping: " + e.getMessage());
-  // }
-  //
-  // for (int i = 1; i <= Integer.parseInt(result.totalSeasons); i++) {
-  // LOGGER.debug("Scrape Season " + i);
-  // season = controller.getSeasonsById(apiKey,
-  // query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", i);
-  //
-  // for (SeasonEntity episodeResult : ListUtils.nullSafe(season.episodes)) {
-  // MediaEpisode mediaResult = new
-  // MediaEpisode(OmdbMetadataProvider.providerinfo.getId());
-  // episodes = controller.getEpisodesBySeasons(apiKey,
-  // query.getId(OmdbMetadataProvider.providerinfo.getId()), "series", i,
-  // Integer.parseInt(episodeResult.episode));
-  //
-  // mediaResult.season = i;
-  // mediaResult.plot = episodes.plot;
-  // try {
-  // mediaResult.episode = Integer.parseInt(episodeResult.episode);
-  // mediaResult.rating = Integer.parseInt(episodes.imdbVotes);
-  // }
-  // catch (NumberFormatException ignored) {
-  //
-  // }
-  // mediaResult.title = episodes.title;
-  //
-  // mediaEpisode.add(mediaResult);
-  //
-  // }
-  //
-  // }
-  //
-  // return mediaEpisode;
-  //
-  // }
-
   /**
    * return a list of results that were separated by a delimiter
    *
@@ -163,4 +107,7 @@ abstract class OmdbMetadataProvider {
   void setVerbose(boolean verbose) {
     controller = new Controller(verbose);
   }
+
+
+
 }

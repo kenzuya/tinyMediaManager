@@ -25,9 +25,9 @@ import com.google.gson.annotations.SerializedName;
  *
  * @author Wolfgang Janes
  */
-public class MovieSearch {
+public class MediaSearch {
   @SerializedName("Search")
-  public List<MovieEntity> search = null;
+  public List<MediaEntity> search = null;
 
   @SerializedName("totalResults")
   public String            totalResults;

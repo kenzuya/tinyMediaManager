@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class MovieEntity {
+public class MediaEntity {
 
   @SerializedName("Title")
   public String            title;
@@ -30,6 +30,10 @@ public class MovieEntity {
   public String            rated;
   @SerializedName("Released")
   public String            released;
+  @SerializedName("Season")
+  public int               season;
+  @SerializedName("Episode")
+  public int               episode;
   @SerializedName("Runtime")
   public String            runtime;
   @SerializedName("Genre")
@@ -65,7 +69,7 @@ public class MovieEntity {
   @SerializedName("Response")
   public String            response;
   @SerializedName("Ratings")
-  public List<MovieRating> ratings;
+  public List<MediaRating> ratings;
   @SerializedName("tomatoMeter")
   public String            tomatoMeter;
   @SerializedName("tomatoRating")
