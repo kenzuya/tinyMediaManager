@@ -213,7 +213,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
     md.addMediaArt(ma);
 
     for (String country : fd.countries) {
-      if (providerInfo.getConfig().getValueAsBool("scrapeLanguageNames")) {
+      if (Boolean.TRUE.equals(providerInfo.getConfig().getValueAsBool("scrapeLanguageNames"))) {
         md.addCountry(LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().getLanguage(), country));
       }
       else {

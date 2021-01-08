@@ -245,7 +245,7 @@ public class ImdbMovieParser extends ImdbParser {
             }
           }
 
-          if (config.getValueAsBool("scrapeCollectionInfo")) {
+          if (Boolean.TRUE.equals(config.getValueAsBool("scrapeCollectionInfo"))) {
             md.setCollectionName(tmdbMd.getCollectionName());
           }
         }

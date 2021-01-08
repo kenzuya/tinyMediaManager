@@ -178,7 +178,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
         }
-        for (BaseMovie movie : httpResponse.body().movie_results) { // should be only one
+        for (BaseMovie movie : ListUtils.nullSafe(httpResponse.body().movie_results)) { // should be only one
           injectTranslations(Locale.forLanguageTag(language), movie);
           results.add(morphMovieToSearchResult(movie, options));
         }
@@ -275,7 +275,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
           searchResult.setTitle(collection.name);
           searchResult.setPosterUrl(artworkBaseUrl + "w342" + collection.poster_path);
           searchResult.setScore(MetadataUtil.calculateScore(searchString, collection.name));
-          if (searchResult.getScore() < 0.5 && getProviderInfo().getConfig().getValueAsBool("titleFallback")) {
+          if (searchResult.getScore() < 0.5 && Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
             if (verifyMovieSetTitleLanguage(movieSetsFound, resultsPage, options)) {
               break;
             }
@@ -300,7 +300,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
 
     Exception savedException = null;
 
-    MediaMetadata md = new MediaMetadata(getProviderInfo().getId());
+    MediaMetadata md;
 
     // tmdbId from option
     int tmdbId = options.getTmdbId();
@@ -401,7 +401,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
         collection = api.collectionService().summary(tmdbId, language).execute().body();
         // if collection title/overview is not availbale, rescrape in the fallback language
         if (collection != null && (StringUtils.isBlank(collection.overview) || StringUtils.isBlank(collection.name))
-            && getProviderInfo().getConfig().getValueAsBool("titleFallback")) {
+            && Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
 
           String fallbackLang = MediaLanguages.get(getProviderInfo().getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
           Collection collectionInFallbackLanguage = api.collectionService().summary(tmdbId, fallbackLang).execute().body();
@@ -586,7 +586,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
    * So we never know exactly what is missing.. so we just inject everything here by hand if a fallback language has been found
    */
   private void injectTranslations(Locale language, Movie movie) {
-    if (getProviderInfo().getConfig().getValueAsBool("titleFallback")) {
+    if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
       Locale fallbackLanguage = Locale.forLanguageTag(getProviderInfo().getConfig().getValue("titleFallbackLanguage"));
       // get in desired localization
       String[] val = getValuesFromTranslation(movie.translations, language);
@@ -621,7 +621,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
    */
   private void injectTranslations(Locale language, BaseMovie movie) throws IOException {
     // NOT doing a fallback scrape when overview empty, used only for SEARCH - unneeded!
-    if (getProviderInfo().getConfig().getValueAsBool("titleFallback")) {
+    if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
       Locale fallbackLanguage = Locale.forLanguageTag(getProviderInfo().getConfig().getValue("titleFallbackLanguage"));
 
       // tmdb provides title = originalTitle if no title in the requested language has been found,
@@ -722,7 +722,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     }
 
     for (SpokenLanguage lang : ListUtils.nullSafe(movie.spoken_languages)) {
-      if (getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames")) {
+      if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
         md.addSpokenLanguage(LanguageUtils.getLocalizedLanguageNameFromLocalizedString(options.getLanguage().toLocale(), lang.name, lang.iso_639_1));
       }
       else {
@@ -731,7 +731,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     }
 
     for (Country country : ListUtils.nullSafe(movie.production_countries)) {
-      if (getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames")) {
+      if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
         md.addCountry(LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().toLocale(), country.name, country.iso_3166_1));
       }
       else {

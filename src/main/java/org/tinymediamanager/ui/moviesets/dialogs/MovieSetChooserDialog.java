@@ -167,7 +167,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
               selectedRow = tableMovieSets.convertRowIndexToModel(selectedRow);
               try {
                 MovieSetChooserModel model = movieSetsFound.get(selectedRow);
-                if (model != MovieSetChooserModel.emptyResult && !model.isScraped()) {
+                if (model != MovieSetChooserModel.EMPTY_RESULT && !model.isScraped()) {
                   ScrapeTask task = new ScrapeTask(model);
                   task.execute();
 
@@ -315,7 +315,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
           List<MediaSearchResult> movieSets = mp.search(options);
           movieSetsFound.clear();
           if (movieSets.isEmpty()) {
-            movieSetsFound.add(MovieSetChooserModel.emptyResult);
+            movieSetsFound.add(MovieSetChooserModel.EMPTY_RESULT);
           }
           else {
             for (MediaSearchResult collection : movieSets) {
@@ -370,7 +370,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
       int row = tableMovieSets.getSelectedRow();
       if (row >= 0) {
         MovieSetChooserModel model = movieSetsFound.get(row);
-        if (model != MovieSetChooserModel.emptyResult) {
+        if (model != MovieSetChooserModel.EMPTY_RESULT) {
           // when scraping was not successful, abort saving
           if (!model.isScraped()) {
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "message.scrape.threadcrashed"));

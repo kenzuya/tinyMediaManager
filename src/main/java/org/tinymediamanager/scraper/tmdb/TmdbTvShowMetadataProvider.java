@@ -406,7 +406,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     md.setReleaseDate(complete.first_air_date);
     md.setPlot(complete.overview);
     for (String country : ListUtils.nullSafe(complete.origin_country)) {
-      if (getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames")) {
+      if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("scrapeLanguageNames"))) {
         md.addCountry(LanguageUtils.getLocalizedCountryForLanguage(options.getLanguage().toLocale(), country));
       }
       else {
@@ -860,7 +860,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
    * So we never know exactly what is missing.. so we just inject everything here by hand if a fallback language has been found
    */
   private void injectTranslations(Locale language, TvShow show) {
-    if (getProviderInfo().getConfig().getValueAsBool("titleFallback")) {
+    if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
       Locale fallbackLanguage = Locale.forLanguageTag(getProviderInfo().getConfig().getValue("titleFallbackLanguage"));
       // get in desired localization
       String[] val = getValuesFromTranslation(show.translations, language);
@@ -896,7 +896,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
    */
   private void injectTranslations(Locale language, BaseTvShow show) throws IOException {
     // NOT doing a fallback scrape when overview empty, used only for SEARCH - unneeded!
-    if (getProviderInfo().getConfig().getValueAsBool("titleFallback")) {
+    if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("titleFallback"))) {
       Locale fallbackLanguage = Locale.forLanguageTag(getProviderInfo().getConfig().getValue("titleFallbackLanguage"));
 
       // tmdb provides title = originalTitle if no title in the requested language has been found,

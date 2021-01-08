@@ -450,20 +450,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     // then the default one (either NFO or DEFAULT)
     if (mediaRating == null) {
-      mediaRating = ratings.get(MediaRating.NFO);
-    }
-    if (mediaRating == null) {
-      mediaRating = ratings.get(MediaRating.DEFAULT);
-    }
-
-    // is there any rating?
-    if (mediaRating == null && !ratings.isEmpty()) {
-      mediaRating = ratings.values().iterator().next();
-    }
-
-    // last but not least a non null value
-    if (mediaRating == null) {
-      mediaRating = MediaMetadata.EMPTY_RATING;
+      mediaRating = super.getRating();
     }
 
     return mediaRating;

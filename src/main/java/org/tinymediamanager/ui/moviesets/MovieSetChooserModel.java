@@ -60,21 +60,21 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  */
 public class MovieSetChooserModel extends AbstractModelObject {
 
-  private static final Logger              LOGGER         = LoggerFactory.getLogger(MovieSetChooserModel.class);
-  public static final MovieSetChooserModel emptyResult    = new MovieSetChooserModel();
-  private String                           name           = "";
-  private String                           posterUrl      = "";
-  private String                           fanartUrl      = "";
-  private String                           overview       = "";
-  private int                              tmdbId         = 0;
-  private MediaSearchResult                result         = null;
-  private MediaMetadata                    metadata       = null;
-  private List<MovieInSet>                 movies         = ObservableCollections.observableList(new ArrayList<>());
-  private MediaScraper                     scraper;
+  private static final Logger                LOGGER         = LoggerFactory.getLogger(MovieSetChooserModel.class);
+  public static final MovieSetChooserModel   EMPTY_RESULT   = new MovieSetChooserModel();
 
-  private List<MovieSet.MovieSetMovie>     movieSetMovies = new ArrayList<>();
+  private final List<MovieInSet>             movies         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<MovieSet.MovieSetMovie> movieSetMovies = new ArrayList<>();
 
-  private boolean                          scraped;
+  private MediaScraper                       scraper;
+  private MediaSearchResult                  result         = null;
+  private MediaMetadata                      metadata       = null;
+  private String                             name           = "";
+  private String                             posterUrl      = "";
+  private String                             fanartUrl      = "";
+  private String                             overview       = "";
+  private int                                tmdbId         = 0;
+  private boolean                            scraped;
 
   public MovieSetChooserModel(MediaSearchResult result) {
     this.result = result;
@@ -268,10 +268,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
   }
 
   public String getOverview() {
-    if (metadata == null) {
-      return "";
-    }
-    return metadata.getPlot();
+    return overview;
   }
 
   public List<MovieInSet> getMovies() {

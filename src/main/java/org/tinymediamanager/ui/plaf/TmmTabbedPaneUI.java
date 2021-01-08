@@ -62,13 +62,14 @@ public class TmmTabbedPaneUI extends FlatTabbedPaneUI {
 
   @Override
   protected void paintTabSelection(Graphics g, int tabPlacement, int x, int y, int w, int h) {
+    // not needed
   }
 
   @Override
   protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
     Graphics2D g2D = (Graphics2D) g.create();
     try {
-      FlatUIUtils.setRenderingHints((Graphics2D) g);
+      FlatUIUtils.setRenderingHints(g);
 
       Insets insets = tabPane.getInsets();
 
