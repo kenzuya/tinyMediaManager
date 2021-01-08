@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.components.combobox;
 import static javax.swing.SwingConstants.HORIZONTAL;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -118,6 +119,11 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
   public void enableFilter(BiPredicate<E, String> userFilter) {
     decorator = TmmCheckComboBoxFilterDecorator.decorate(this, userFilter);
+  }
+
+  @Override
+  public void doLayout() {
+    super.doLayout();
   }
 
   /**
@@ -399,6 +405,8 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
   }
 
   protected class CheckBoxEditor extends JPanel implements ComboBoxEditor {
+    private Dimension cachedLayoutSize;
+
     public CheckBoxEditor() {
       super();
 
@@ -410,6 +418,17 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     @Override
     public Component getEditorComponent() {
       return this;
+    }
+
+    @Override
+    public void doLayout() {
+      super.doLayout();
+
+      // re-layout on height change
+      if (cachedLayoutSize == null || cachedLayoutSize.height != getMinimumSize().height) {
+        firePropertyChange("border", false, true); // trigger re-layout via the property border
+        cachedLayoutSize = getMinimumSize();
+      }
     }
 
     @Override
