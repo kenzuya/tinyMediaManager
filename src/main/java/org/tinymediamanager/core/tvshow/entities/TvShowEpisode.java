@@ -100,6 +100,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
@@ -113,16 +114,22 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   private static final Comparator<MediaFile> MEDIA_FILE_COMPARATOR = new TvShowMediaFileComparator();
 
   @JsonProperty
+  @JsonInclude
   private int                                episode               = -1;
   @JsonProperty
+  @JsonInclude
   private int                                season                = -1;
   @JsonProperty
+  @JsonInclude
   private int                                dvdSeason             = -1;
   @JsonProperty
+  @JsonInclude
   private int                                dvdEpisode            = -1;
   @JsonProperty
+  @JsonInclude
   private int                                displaySeason         = -1;
   @JsonProperty
+  @JsonInclude
   private int                                displayEpisode        = -1;
   @JsonProperty
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
