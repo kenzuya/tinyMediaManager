@@ -1280,17 +1280,15 @@ public class MovieArtworkHelper {
       throw new UnsupportedOperationException("This cannot be done for disc images");
     }
 
-    // extract the thumb to a temp folder
-    Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
-
     MediaFile mf = movie.getMainVideoFile();
-
     String fileType = "." + FilenameUtils.getExtension(mf.getFilename().toLowerCase(Locale.ROOT));
-    int seconds = (Globals.settings.getFfmpegPercentage() * mf.getDuration()) / 100;
-
     if (!Globals.settings.getAllSupportedFileTypes().contains(fileType)) {
       throw new UnsupportedOperationException("invalid video file for FFmpeg");
     }
+
+    int seconds = (Globals.settings.getFfmpegPercentage() * mf.getDuration()) / 100;
+    // extract the thumb to a temp folder
+    Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
 
     FFmpeg.createStill(mf.getFileAsPath(), tempFile, seconds);
 

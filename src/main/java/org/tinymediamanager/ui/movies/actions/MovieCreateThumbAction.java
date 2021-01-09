@@ -84,7 +84,7 @@ public class MovieCreateThumbAction extends TmmAction {
             MovieArtworkHelper.createThumbWithFfmpeg(movie);
           }
           catch (Exception ex) {
-            LOGGER.error("could not create FFmpeg thumb - {}", ex.getMessage());
+            LOGGER.error("could not create FFmpeg thumb", ex);
           }
         }
       }
