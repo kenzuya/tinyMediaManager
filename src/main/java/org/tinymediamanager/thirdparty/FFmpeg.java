@@ -17,9 +17,11 @@ package org.tinymediamanager.thirdparty;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.tinymediamanager.Globals;
 
 /**
@@ -52,19 +54,34 @@ public class FFmpeg {
   }
 
   private static String[] createCommandforStill(Path videoFile, Path stillFile, int second) {
-    List<String> cmdListLinux = new LinkedList<>();
+    List<String> cmdList = new LinkedList<>();
 
-    cmdListLinux.add(Globals.settings.getMediaFramework());
-    cmdListLinux.add("-y");
-    cmdListLinux.add("-ss");
-    cmdListLinux.add(String.valueOf(second));
-    cmdListLinux.add("-i");
-    cmdListLinux.add(videoFile.toAbsolutePath().toString());
-    cmdListLinux.add("-frames:v");
-    cmdListLinux.add("1");
-    cmdListLinux.add(stillFile.toAbsolutePath().toString());
+    if (SystemUtils.IS_OS_WINDOWS) {
+      cmdList.add("cmd");
+      cmdList.add("/c");
+    }
+    else if (SystemUtils.IS_OS_MAC) {
+      cmdList.add("/bin/sh");
+      cmdList.add("-c");
+    }
+    else {
+      cmdList.add("/bin/sh");
+      cmdList.add("-c");
+    }
 
-    return cmdListLinux.toArray(new String[0]);
+    List<String> params = new ArrayList<>();
+    params.add("'" + Globals.settings.getMediaFramework() + "'");
+    params.add("-y");
+    params.add("-ss");
+    params.add(String.valueOf(second));
+    params.add("-i");
+    params.add("'" + videoFile.toAbsolutePath().toString().replace("'", "\\'") + "'");
+    params.add("-frames:v 1");
+    params.add("'" + stillFile.toAbsolutePath().toString().replace("'", "\\'") + "'");
+
+    cmdList.add(String.join(" ", params));
+
+    return cmdList.toArray(new String[0]);
   }
 
   private static void executeCommand(String[] cmdline) throws IOException, InterruptedException {
