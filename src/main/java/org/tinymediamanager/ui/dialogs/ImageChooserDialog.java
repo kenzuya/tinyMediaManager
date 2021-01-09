@@ -369,6 +369,10 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   public void bindExtraThumbs(List<String> extraThumbs) {
+    if (type != BACKGROUND) {
+      return;
+    }
+
     this.extraThumbs = extraThumbs;
 
     if (extraThumbs != null) {
@@ -384,6 +388,10 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   public void bindExtraFanarts(List<String> extraFanarts) {
+    if (type != BACKGROUND) {
+      return;
+    }
+
     this.extraFanarts = extraFanarts;
 
     if (extraFanarts != null) {
