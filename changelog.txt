@@ -39,3 +39,4 @@ x (TV show) also fetch season artwork from tmdb #1158
 x (TV show) TV show related action can be triggered from episodes/seasons too #1115
 x (movie) adopted movie defaults/Kodi preset to Kodi v19
 x (TV show) fall back to TV show artwork if season artwork is not available #987
+x removing negative filters in presets

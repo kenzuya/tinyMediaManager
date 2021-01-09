@@ -88,6 +88,13 @@ public class TriStateCheckBox extends JCheckBox implements ActionListener {
     setIcon(null);
   }
 
+  @Override
+  public void setSelected(boolean b) {
+    // just remove any _old_ tri state icon
+    restoreMixedIcon();
+    super.setSelected(b);
+  }
+
   /**
    * Checks if the check box is in mixed selection state.
    *
@@ -272,6 +279,7 @@ public class TriStateCheckBox extends JCheckBox implements ActionListener {
         internalSetSelected(!isSelected());
       }
       super.setSelected(b);
+      fireStateChanged();
     }
 
     void internalSetSelected(boolean b) {

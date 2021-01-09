@@ -124,13 +124,15 @@ public class MovieFilterDialog extends TmmDialog {
     this.selectionModel.addPropertyChangeListener("filterChanged", evt -> filterChanged());
 
     ActionListener actionListener = e -> {
+      SwingUtilities.invokeLater(() -> {
       String filterName = (String) cbPreset.getSelectedItem();
       if (StringUtils.isNotBlank(filterName)) {
         selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getMovieUiFilterPresets().get(filterName));
       }
       else {
         selectionModel.setFilterValues(Collections.emptyList());
-      }
+        }
+      });
     };
 
     {
@@ -256,7 +258,7 @@ public class MovieFilterDialog extends TmmDialog {
           }
 
           // display warning and ask the user again
-          if (!TmmProperties.getInstance().getPropertyAsBoolean("movie.hidefilterhint")) {
+          if (Boolean.FALSE.equals(TmmProperties.getInstance().getPropertyAsBoolean("movie.hidefilterhint"))) {
             JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
             TmmFontHelper.changeFont(checkBox, L1);
             checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
