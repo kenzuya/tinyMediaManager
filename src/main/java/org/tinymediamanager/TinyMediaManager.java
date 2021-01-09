@@ -356,7 +356,7 @@ public class TinyMediaManager {
               // wizard will no more appear
               // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the next
               // startup
-              checkForUpdate();
+              checkForUpdate(5, false);
             }
 
             // show changelog

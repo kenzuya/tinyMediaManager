@@ -536,7 +536,7 @@ public class TmmUIHelper {
     }
   }
 
-  public static void checkForUpdate() {
+  public static void checkForUpdate(int delayInSeconds, boolean showNoUpdateFoundMessage) {
     Runnable runnable = () -> {
       try {
         UpdateCheck updateCheck = new UpdateCheck();
@@ -560,8 +560,8 @@ public class TmmUIHelper {
             else {
               // do the update without changelog popup
               Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-              int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"), TmmResourceBundle.getString("tmm.update.title"),
-                  JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+              int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),
+                  TmmResourceBundle.getString("tmm.update.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
               if (answer == JOptionPane.YES_OPTION) {
                 LOGGER.info("Updating...");
 
@@ -570,7 +570,13 @@ public class TmmUIHelper {
               }
             }
           });
-
+        }
+        else {
+          // no update found
+          if (showNoUpdateFoundMessage) {
+            JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
+                JOptionPane.INFORMATION_MESSAGE);
+          }
         }
       }
       catch (Exception e) {
@@ -578,16 +584,21 @@ public class TmmUIHelper {
       }
     };
 
-    // update task start a few secs after GUI...
-    Timer timer = new Timer(5000, e -> runnable.run());
-    timer.setRepeats(false);
-    timer.start();
+    if (delayInSeconds > 0) {
+      // update task start a few secs after GUI...
+      Timer timer = new Timer(delayInSeconds * 1000, e -> runnable.run());
+      timer.setRepeats(false);
+      timer.start();
+    }
+    else {
+      runnable.run();
+    }
   }
 
   public static void restartWarningAfterV4Upgrade() {
     Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-    int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.upgrade.finished.desc"), TmmResourceBundle.getString("tmm.upgrade.finished"),
-        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+    int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.upgrade.finished.desc"),
+        TmmResourceBundle.getString("tmm.upgrade.finished"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (confirm == JOptionPane.YES_OPTION) {
       MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
     }
