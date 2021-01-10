@@ -26,7 +26,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
  * the class {@link FFmpeg} is used to access FFmpeg
@@ -76,27 +75,48 @@ public class FFmpeg {
   private static void executeCommand(String[] cmdline) throws IOException, InterruptedException {
     LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 
-    Process process = null;
-    try (ByteArrayOutputStream errorStream = new ByteArrayOutputStream()) {
-      process = new ProcessBuilder(cmdline).start();
-      new TmmUIHelper.StreamRedirectThread(process.getErrorStream(), errorStream);
-      int processValue = process.waitFor();
-      if (processValue != 0) {
-        LOGGER.debug("error at FFmpeg: '{}", errorStream.toString(StandardCharsets.UTF_8));
-        throw new IOException("could not create the still - code '" + processValue + "'");
+    try {
+      ProcessBuilder pb = new ProcessBuilder(cmdline).redirectErrorStream(true);
+      final Process process = pb.start();
+
+      try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ByteArrayOutputStream errorStream = new ByteArrayOutputStream()) {
+
+        new Thread(() -> {
+          try {
+            IOUtils.copy(process.getInputStream(), outputStream);
+          }
+          catch (IOException e) {
+            LOGGER.debug("could not get output from the process", e);
+          }
+        }).start();
+
+        new Thread(() -> {
+          try {
+            IOUtils.copy(process.getErrorStream(), errorStream);
+          }
+          catch (IOException e) {
+            LOGGER.debug("could not get output from the process", e);
+          }
+        }).start();
+
+        int processValue = process.waitFor();
+        if (processValue != 0) {
+          LOGGER.debug("error at FFmpeg: '{}", errorStream.toString(StandardCharsets.UTF_8));
+          throw new IOException("could not create the still - code '" + processValue + "'");
+        }
+      }
+      finally {
+        if (process != null) {
+          process.destroy();
+          // Process must be destroyed before closing streams, can't use try-with-resources,
+          // as resources are closing when leaving try block, before finally
+          IOUtils.close(process.getErrorStream());
+        }
       }
     }
     catch (IOException e) {
       LOGGER.error("could not run FFmpeg", e);
       throw new RuntimeException("Failed to start process.", e);
-    }
-    finally {
-      if (process != null) {
-        process.destroy();
-        // Process must be destroyed before closing streams, can't use try-with-resources,
-        // as resources are closing when leaving try block, before finally
-        IOUtils.close(process.getErrorStream());
-      }
     }
   }
 }
