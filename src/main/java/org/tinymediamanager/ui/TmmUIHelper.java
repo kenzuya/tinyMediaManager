@@ -469,9 +469,9 @@ public class TmmUIHelper {
   /**
    * Reads from an InputStream and writes the contents directly to an OutputStream
    */
-  private static class StreamRedirectThread implements Runnable {
-    private InputStream  in;
-    private OutputStream out;
+  public static class StreamRedirectThread implements Runnable {
+    private final InputStream  in;
+    private final OutputStream out;
 
     public StreamRedirectThread(InputStream in, OutputStream out) {
       super();

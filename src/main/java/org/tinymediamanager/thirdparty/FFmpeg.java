@@ -15,14 +15,18 @@
  */
 package org.tinymediamanager.thirdparty;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
  * the class {@link FFmpeg} is used to access FFmpeg
@@ -30,6 +34,7 @@ import org.tinymediamanager.Globals;
  * @author Manuel Laggner/Wolfgang Janes
  */
 public class FFmpeg {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FFmpeg.class);
 
   private FFmpeg() {
     throw new IllegalAccessError();
@@ -54,41 +59,44 @@ public class FFmpeg {
   }
 
   private static String[] createCommandforStill(Path videoFile, Path stillFile, int second) {
-    List<String> cmdList = new LinkedList<>();
-
-    if (SystemUtils.IS_OS_WINDOWS) {
-      cmdList.add("cmd");
-      cmdList.add("/c");
-    }
-    else if (SystemUtils.IS_OS_MAC) {
-      cmdList.add("/bin/sh");
-      cmdList.add("-c");
-    }
-    else {
-      cmdList.add("/bin/sh");
-      cmdList.add("-c");
-    }
-
-    List<String> params = new ArrayList<>();
-    params.add("'" + Globals.settings.getMediaFramework() + "'");
-    params.add("-y");
-    params.add("-ss");
-    params.add(String.valueOf(second));
-    params.add("-i");
-    params.add("'" + videoFile.toAbsolutePath().toString().replace("'", "\\'") + "'");
-    params.add("-frames:v 1");
-    params.add("'" + stillFile.toAbsolutePath().toString().replace("'", "\\'") + "'");
-
-    cmdList.add(String.join(" ", params));
+    List<String> cmdList = new ArrayList<>();
+    cmdList.add(Globals.settings.getMediaFramework());
+    cmdList.add("-y");
+    cmdList.add("-ss");
+    cmdList.add(String.valueOf(second));
+    cmdList.add("-i");
+    cmdList.add(videoFile.toAbsolutePath().toString());
+    cmdList.add("-frames:v");
+    cmdList.add("1");
+    cmdList.add(stillFile.toAbsolutePath().toString());
 
     return cmdList.toArray(new String[0]);
   }
 
   private static void executeCommand(String[] cmdline) throws IOException, InterruptedException {
-    Process p = Runtime.getRuntime().exec(cmdline);
-    int processValue = p.waitFor();
-    if (processValue != 0) {
-      throw new IOException("could not create the still");
+    LOGGER.debug("Running command: {}", String.join(" ", cmdline));
+
+    Process process = null;
+    try (ByteArrayOutputStream errorStream = new ByteArrayOutputStream()) {
+      process = new ProcessBuilder(cmdline).start();
+      new TmmUIHelper.StreamRedirectThread(process.getErrorStream(), errorStream);
+      int processValue = process.waitFor();
+      if (processValue != 0) {
+        LOGGER.debug("error at FFmpeg: '{}", errorStream.toString(StandardCharsets.UTF_8));
+        throw new IOException("could not create the still - code '" + processValue + "'");
+      }
+    }
+    catch (IOException e) {
+      LOGGER.error("could not run FFmpeg", e);
+      throw new RuntimeException("Failed to start process.", e);
+    }
+    finally {
+      if (process != null) {
+        process.destroy();
+        // Process must be destroyed before closing streams, can't use try-with-resources,
+        // as resources are closing when leaving try block, before finally
+        IOUtils.close(process.getErrorStream());
+      }
     }
   }
 }
