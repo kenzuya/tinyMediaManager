@@ -79,8 +79,7 @@ public class FFmpeg {
       ProcessBuilder pb = new ProcessBuilder(cmdline).redirectErrorStream(true);
       final Process process = pb.start();
 
-      try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ByteArrayOutputStream errorStream = new ByteArrayOutputStream()) {
-
+      try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
         new Thread(() -> {
           try {
             IOUtils.copy(process.getInputStream(), outputStream);
@@ -90,18 +89,9 @@ public class FFmpeg {
           }
         }).start();
 
-        new Thread(() -> {
-          try {
-            IOUtils.copy(process.getErrorStream(), errorStream);
-          }
-          catch (IOException e) {
-            LOGGER.debug("could not get output from the process", e);
-          }
-        }).start();
-
         int processValue = process.waitFor();
         if (processValue != 0) {
-          LOGGER.debug("error at FFmpeg: '{}", errorStream.toString(StandardCharsets.UTF_8));
+          LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
           throw new IOException("could not create the still - code '" + processValue + "'");
         }
       }
