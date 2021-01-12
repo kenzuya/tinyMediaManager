@@ -195,6 +195,12 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
       md.setOriginalTitle(StrgUtils.removeCommonSortableName(originalTitle));
     }
 
+    // Production: <a href="view.php?page=blaettern&amp;Kat=Land&amp;Text=Argentinien">Argentinien</a>
+    el = doc.getElementsByAttributeValueContaining("href", "Kat=Land");
+    for (Element g : el) {
+      md.addCountry(g.ownText());
+    }
+
     // Genre: <a href="view.php?page=genre&Genre=Action">Action</a>
     el = doc.getElementsByAttributeValueContaining("href", "page=genre");
     for (Element g : el) {

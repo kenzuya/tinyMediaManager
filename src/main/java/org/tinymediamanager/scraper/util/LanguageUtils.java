@@ -47,7 +47,7 @@ public class LanguageUtils {
   }
 
   private LanguageUtils() {
-    // hide the public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   private static Map<Locale, String> createIso6392BExceptions() {
