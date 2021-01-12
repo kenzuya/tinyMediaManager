@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Episode {
@@ -138,8 +140,16 @@ public class Episode {
     return episodeTitle;
   }
 
-  public Date getFirstAired() throws ParseException {
-    return new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(firstAired);
+  public Date getFirstAired() {
+    if (StringUtils.isBlank(firstAired)) {
+      return null;
+    }
+    try {
+      return new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(firstAired);
+    }
+    catch (ParseException e) {
+      return null;
+    }
   }
 
   public boolean isAiredFilled() {

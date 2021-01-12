@@ -17,10 +17,8 @@ package org.tinymediamanager.scraper.theshowdb;
 
 import static org.tinymediamanager.core.TmmDateFormat.LOGGER;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.io.InterruptedIOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -43,10 +41,17 @@ import org.tinymediamanager.scraper.theshowdb.entities.Episode;
 import org.tinymediamanager.scraper.theshowdb.entities.Episodes;
 import org.tinymediamanager.scraper.theshowdb.entities.Show;
 import org.tinymediamanager.scraper.theshowdb.entities.Shows;
+import org.tinymediamanager.scraper.util.CacheMap;
+import org.tinymediamanager.scraper.util.ListUtils;
 
+/**
+ * the class {@link TheShowDBTvShowMetadataProvider} provides a meta data provider for TV shows
+ * 
+ * @author Wolfgang Janes
+ */
 public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implements ITvShowMetadataProvider {
 
-  List<MediaMetadata> episodeList = new ArrayList<>();
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(60, 10);
 
   @Override
   public boolean isActive() {
@@ -91,12 +96,8 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
         MediaCertification mc = MediaCertification.findCertification(show.getCertification());
         md.addCertification(mc);
 
-        try {
-          md.setYear(show.getAiredYear());
-        }
-        catch (ParseException ignored) {
-          LOGGER.warn("Error getting Year from TvShow");
-        }
+        md.setReleaseDate(show.getAired());
+        md.setYear(show.getAiredYear());
 
         // Artwork
         MediaArtwork poster = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.SEASON_POSTER);
@@ -113,9 +114,6 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       }
     }
 
-    // Get EpisodeList for given TvShow
-    episodeList = getEpisodeList(options);
-
     return md;
   }
 
@@ -128,16 +126,26 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
     int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
 
-    if (episodeList.isEmpty()) {
-      LOGGER.error("EpisodeList is empty, cannot fetch Episode Information");
-      return md;
-    }
+    // first get the base episode metadata which can be gathered via getEpisodeList()
+    List<MediaMetadata> episodes = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
 
-    for (MediaMetadata metadata : episodeList) {
+    MediaMetadata wantedEpisode = null;
+    for (MediaMetadata metadata : episodes) {
       if (seasonNr == metadata.getSeasonNumber() && episodeNr == metadata.getEpisodeNumber()) {
-        md = metadata;
+        wantedEpisode = metadata;
+        break;
       }
     }
+
+    // we did not find the episode; return
+    if (wantedEpisode == null) {
+      LOGGER.warn("episode not found");
+      throw new NothingFoundException();
+    }
+
+    // TODO scrape the rest of the episode data
+    // controller.getEpisodeDetailsByEpisodeId()
+
     return md;
   }
 
@@ -187,17 +195,8 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       result.setProviderId(getProviderInfo().getId());
       result.setPosterUrl(show.getPosterUrl());
       result.setOverview(show.getPlot());
+      result.setYear(show.getAiredYear());
 
-      if (show.isAiredFilled()) {
-        Calendar calendar = new GregorianCalendar();
-        try {
-          calendar.setTime(show.getAired());
-          result.setYear(calendar.get(Calendar.YEAR));
-        }
-        catch (ParseException e) {
-          e.printStackTrace();
-        }
-      }
       results.add(result);
     }
 
@@ -206,27 +205,38 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
 
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-
     LOGGER.debug("getEpisodeList(): {}", options);
-    List<MediaMetadata> episodeList = new ArrayList<>();
-    Episodes episodes;
 
     // Get TvShow ID From the options
     String tvShowId = options.getIdAsString("theshowdb");
 
-    if (tvShowId == null) {
-      LOGGER.error("Show ID not found");
+    if (StringUtils.isBlank(tvShowId)) {
+      throw new MissingIdException("theshowdb");
+    }
+
+    // look in the cache map if there is an entry
+    List<MediaMetadata> episodeList = EPISODE_LIST_CACHE_MAP.get(tvShowId + "_" + options.getLanguage().getLanguage());
+    if (ListUtils.isNotEmpty(episodeList)) {
+      // cache hit!
       return episodeList;
     }
 
-    LOGGER.info("========= BEGIN TheShowDB getEpisodeList for TvShow");
-
+    Episodes episodes = null;
     try {
       episodes = controller.getAllEpisodesByShowId(getApiKey(), tvShowId);
+    }
+    catch (InterruptedIOException e) {
+      // do not swallow these Exceptions
+      Thread.currentThread().interrupt();
     }
     catch (Exception e) {
       LOGGER.error("error getting episodes: {} ", e.getMessage());
       throw new ScrapeException(e);
+    }
+
+    if (episodes == null) {
+      LOGGER.debug("nothing found");
+      return Collections.emptyList();
     }
 
     for (Episode episode : episodes.getEpisodes()) {
@@ -235,14 +245,7 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       md.setSeasonNumber(episode.getSeasonNumber());
       md.setPlot(episode.getEpisodePlot());
       md.setTitle(episode.getEpisodeTitle());
-      if (episode.isAiredFilled()) {
-        try {
-          md.setReleaseDate(episode.getFirstAired());
-        }
-        catch (ParseException ignored) {
-          LOGGER.warn("Could not parse Aired Date");
-        }
-      }
+      md.setReleaseDate(episode.getFirstAired());
 
       // Thumb
       if (episode.getThumbUrl() != null && episode.getThumbUrl().isBlank()) {
@@ -258,6 +261,12 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
 
       episodeList.add(md);
     }
+
+    // cache for further fast access
+    if (!episodeList.isEmpty()) {
+      EPISODE_LIST_CACHE_MAP.put(tvShowId + "_" + options.getLanguage().getLanguage(), episodeList);
+    }
+
     return episodeList;
   }
 

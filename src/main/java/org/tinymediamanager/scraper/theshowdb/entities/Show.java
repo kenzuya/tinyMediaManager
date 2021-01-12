@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Show {
@@ -115,26 +117,24 @@ public class Show {
     return showStatus;
   }
 
-  public Date getAired() throws ParseException {
-    return new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(aired);
+  public Date getAired() {
+    if (StringUtils.isBlank(aired)) {
+      return null;
+    }
+    try {
+      return new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(aired);
+    }
+    catch (ParseException e) {
+      return null;
+    }
   }
 
-  public boolean isAiredFilled() {
-    if (aired == null) {
-      return false;
-    }
-    else {
-      return true;
-    }
-  }
-
-  public int getAiredYear() throws ParseException {
-    if (isAiredFilled()) {
-      Date aired = getAired();
+  public int getAiredYear() {
+    Date airedDate = getAired();
+    if (airedDate != null) {
       Calendar calendar = new GregorianCalendar();
-      calendar.setTime(aired);
+      calendar.setTime(airedDate);
       return calendar.get(Calendar.YEAR);
-
     }
     return 0;
   }
