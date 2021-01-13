@@ -100,6 +100,36 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * year
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
+    col.setColumnComparator(integerComparator);
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * file name (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", this::getVideoFilename, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setColumnTooltip(this::getVideoFilename);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * folder name (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.path"), "path", this::getMoviePath, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setColumnTooltip(this::getMoviePath);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * rating
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", this::getRating, String.class);
@@ -112,9 +142,21 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * user rating
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.userrating"),"userrating", this::getUserRating, String.class);
+    col.setColumnComparator(floatComparator);
+    col.setHeaderIcon(IconManager.RATING);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * votes (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, Integer.class);
+    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, String.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.VOTES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
@@ -124,14 +166,26 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
-     * user rating
+     * runtime (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.userrating"),"userrating", this::getUserRating, Float.class);
-    col.setColumnComparator(floatComparator);
-    col.setHeaderIcon(IconManager.RATING);
-    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", this::getRuntime, String.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("200") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * runtime HH:MM (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", this::getRuntime, String.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("4:00") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -143,6 +197,36 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
     col.setColumnComparator(videoFormatComparator);
+    addColumn(col);
+
+    /*
+     * video codec (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", this::getMediaInfoVideoCodec, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setHeaderIcon(IconManager.VIDEO_CODEC);
+    col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * video bitrate (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getMediaInfoVideoBitrate, String.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.VIDEO_BITRATE);
+    col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * audio codec and channels(hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", this::getAudioInformation, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setHeaderIcon(IconManager.AUDIO);
+    col.setMinWidth((int) (fontMetrics.stringWidth("DTS 7ch") * 1.2f + 10));
+    col.setDefaultHidden(true);
     addColumn(col);
 
     /*
@@ -181,101 +265,6 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
-    addColumn(col);
-
-    /*
-     * runtime (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", this::getRuntime, Integer.class);
-    col.setColumnComparator(integerComparator);
-    col.setHeaderIcon(IconManager.RUNTIME);
-    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
-    col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("200") * 1.2f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * runtime HH:MM (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", this::getRuntime, Integer.class);
-    col.setColumnComparator(integerComparator);
-    col.setHeaderIcon(IconManager.RUNTIME);
-    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
-    col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("4:00") * 1.2f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * year
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, Integer.class);
-    col.setColumnComparator(integerComparator);
-    col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * video format (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.format"), "videoFormat", this::getMediaInfoVideoFormat, String.class);
-    col.setColumnComparator(videoFormatComparator);
-    col.setHeaderIcon(IconManager.VIDEO_FORMAT);
-    col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * video codec (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", this::getMediaInfoVideoCodec, String.class);
-    col.setColumnComparator(stringComparator);
-    col.setHeaderIcon(IconManager.VIDEO_CODEC);
-    col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * video bitrate (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getMediaInfoVideoBitrate, Integer.class);
-    col.setColumnComparator(integerComparator);
-    col.setHeaderIcon(IconManager.VIDEO_BITRATE);
-    col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * audio codec and channels(hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", this::getAudioInformation, String.class);
-    col.setColumnComparator(stringComparator);
-    col.setHeaderIcon(IconManager.AUDIO);
-    col.setMinWidth((int) (fontMetrics.stringWidth("DTS 7ch") * 1.2f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * file name (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", this::getVideoFilename, String.class);
-    col.setColumnComparator(stringComparator);
-    col.setColumnResizeable(true);
-    col.setColumnTooltip(this::getVideoFilename);
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * folder name (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.path"), "path", this::getMoviePath, String.class);
-    col.setColumnComparator(stringComparator);
-    col.setColumnResizeable(true);
-    col.setColumnTooltip(this::getMoviePath);
-    col.setDefaultHidden(true);
     addColumn(col);
 
   }
@@ -378,20 +367,20 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private int getRuntime(TmmTreeNode node) {
+  private String getRuntime(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof Movie) {
-      return ((Movie) userObject).getRuntime();
+      return String.valueOf(((Movie) userObject).getRuntime());
     }
-    return 0;
+    return null;
   }
 
-  private int getYear(TmmTreeNode node) {
+  private String getYear(TmmTreeNode node) {
     Object userobject = node.getUserObject();
     if (userobject instanceof Movie) {
-      return ((Movie) userobject).getYear();
+      return String.valueOf(((Movie) userobject).getYear());
     }
-    return 0;
+    return null;
   }
 
   private String getMediaInfoVideoFormat(TmmTreeNode node) {
@@ -412,12 +401,12 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private int getMediaInfoVideoBitrate(TmmTreeNode node) {
+  private String getMediaInfoVideoBitrate(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof Movie) {
-      return ((Movie) userObject).getMediaInfoVideoBitrate();
+      return String.valueOf(((Movie) userObject).getMediaInfoVideoBitrate());
     }
-    return 0;
+    return null;
   }
 
   private String getUserRating(TmmTreeNode node) {
@@ -431,15 +420,12 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private Integer getVotes(TmmTreeNode node) {
+  private String getVotes(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof Movie) {
-      int votes = ((MediaEntity) userObject).getRating().getVotes();
-      if (votes > 0) {
-        return votes;
-      }
+      return String.valueOf(((MediaEntity) userObject).getRating().getVotes());
     }
-    return 0;
+    return null;
   }
 
   private String getAudioInformation(TmmTreeNode node) {
