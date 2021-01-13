@@ -2549,7 +2549,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && !isScraped() && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.SETTINGS.isUseMediainfoMetadata() && !isScraped()
+        && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       String title = mediaFile.getExtraData().get("title");
