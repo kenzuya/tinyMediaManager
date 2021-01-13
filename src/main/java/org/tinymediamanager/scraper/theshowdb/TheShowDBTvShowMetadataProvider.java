@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.theshowdb;
 import static org.tinymediamanager.core.TmmDateFormat.LOGGER;
 
 import java.io.InterruptedIOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -26,6 +27,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -66,11 +68,17 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     MediaMetadata md = new MediaMetadata(getId());
     Shows shows = null;
 
+    if (StringUtils.isBlank(showId)) {
+      throw new MissingIdException("theshowdb");
+    }
+
     try {
       shows = controller.getShowDetailsByShowId(getApiKey(), showId);
     }
     catch (Exception e) {
-      LOGGER.trace("could not get Main TvShow information: {}", e.getMessage());
+    }
+
+    if (shows == null) {
     }
 
     if (!shows.getShows().isEmpty()) {
@@ -114,6 +122,9 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       }
     }
 
+    //Get Episodes from given tvshow
+    getEpisodeList(options);
+
     return md;
   }
 
@@ -142,9 +153,6 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       LOGGER.warn("episode not found");
       throw new NothingFoundException();
     }
-
-    // TODO scrape the rest of the episode data
-    // controller.getEpisodeDetailsByEpisodeId()
 
     return md;
   }
@@ -221,6 +229,8 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       return episodeList;
     }
 
+    episodeList = new ArrayList<>();
+
     Episodes episodes = null;
     try {
       episodes = controller.getAllEpisodesByShowId(getApiKey(), tvShowId);
@@ -240,12 +250,16 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     }
 
     for (Episode episode : episodes.getEpisodes()) {
+
       MediaMetadata md = new MediaMetadata(getProviderInfo().getId());
       md.setEpisodeNumber(episode.getEpisodeNumber());
       md.setSeasonNumber(episode.getSeasonNumber());
       md.setPlot(episode.getEpisodePlot());
       md.setTitle(episode.getEpisodeTitle());
       md.setReleaseDate(episode.getFirstAired());
+      md.setAbsoluteNumber(episode.getAbsoluteNumber());
+      md.setDvdSeasonNumber(episode.getSeasonNumber());
+      md.setDvdEpisodeNumber(episode.getDvdEpisodeNumber());
 
       // Thumb
       if (episode.getThumbUrl() != null && episode.getThumbUrl().isBlank()) {
@@ -258,6 +272,27 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       md.setId("theshowdb", episode.getEpisodeId());
       md.setId(MediaMetadata.TVDB, episode.getTvdbEpisodeId());
       md.setId(MediaMetadata.IMDB, episode.getImdbId());
+
+      // Guest Stars
+      for (String guestStars : episode.getGuestStars()) {
+        Person person = new Person(Person.Type.ACTOR);
+        person.setName(guestStars);
+        md.addCastMember(person);
+      }
+      // Director
+      for (String director : episode.getDirectorName() ) {
+        Person person = new Person(Person.Type.DIRECTOR);
+        person.setName(director);
+        md.addCastMember(person);
+      }
+
+      // Writer
+      for (String writer : episode.getWriterName()) {
+        Person person = new Person(Person.Type.WRITER);
+        person.setName(writer);
+        md.addCastMember(person);
+      }
+
 
       episodeList.add(md);
     }

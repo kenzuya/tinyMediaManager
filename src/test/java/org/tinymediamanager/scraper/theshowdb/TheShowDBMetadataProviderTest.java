@@ -63,22 +63,4 @@ public class TheShowDBMetadataProviderTest extends BasicTest {
     assertThat(result.getId("zap2it")).isEqualTo("SH672362");
 
   }
-
-  @Test
-  public void getEpisodes() throws MissingIdException, ScrapeException, NothingFoundException {
-
-    getTvShow();
-
-    TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
-    options.setId("theshowdb","602648");
-    options.setId(MediaMetadata.SEASON_NR,"1");
-    options.setId(MediaMetadata.EPISODE_NR, "3");
-    MediaMetadata result;
-
-    result = mp.getMetadata(options);
-    assertThat(result).isNotNull();
-    assertThat(result.getTitle()).isEqualTo("Tabula Rasa");
-
-  }
-
 }

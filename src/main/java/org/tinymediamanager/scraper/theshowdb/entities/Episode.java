@@ -2,10 +2,14 @@ package org.tinymediamanager.scraper.theshowdb.entities;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -74,16 +78,31 @@ public class Episode {
   @SerializedName("absolute_number")
   private String absoluteNumber;
 
-  public String getAbsoluteNumber() {
-    return absoluteNumber;
+  public int getAbsoluteNumber() {
+    if (absoluteNumber != null) {
+      return MetadataUtil.parseInt(absoluteNumber);
+    }
+    else {
+      return -1;
+    }
   }
 
-  public String getDvdSeasonNumber() {
-    return dvdSeasonNumber;
+  public int getDvdSeasonNumber() {
+    if (dvdSeasonNumber != null) {
+      return MetadataUtil.parseInt(dvdSeasonNumber);
+    }
+    else {
+      return -1;
+    }
   }
 
-  public String getDvdEpisodeNumber() {
-    return dvdEpisodeNumber;
+  public int getDvdEpisodeNumber() {
+    if (dvdEpisodeNumber != null) {
+      return MetadataUtil.parseInt(dvdEpisodeNumber);
+    }
+    else {
+      return -1;
+    }
   }
 
   public String getEpisodeId() {
@@ -119,21 +138,11 @@ public class Episode {
   }
 
   public int getSeasonNumber() {
-    try {
-      return Integer.parseInt(seasonNumber);
-    }
-    catch (NumberFormatException ignored) {
-      return -1;
-    }
+    return MetadataUtil.parseInt(seasonNumber);
   }
 
   public int getEpisodeNumber() {
-    try {
-      return Integer.parseInt(episodeNumber);
-    }
-    catch (NumberFormatException ignored) {
-      return -1;
-    }
+    return MetadataUtil.parseInt(episodeNumber);
   }
 
   public String getEpisodeTitle() {
@@ -156,16 +165,31 @@ public class Episode {
     return firstAired != null;
   }
 
-  public String getGuestStars() {
-    return guestStars;
+  public List<String> getGuestStars() {
+    if (guestStars != null) {
+      return ParserUtils.split(guestStars);
+    }
+    else {
+      return new ArrayList<>();
+    }
   }
 
-  public String getDirectorName() {
-    return directorName;
+  public List<String> getDirectorName() {
+    if (directorName != null) {
+      return ParserUtils.split(directorName);
+    }
+    else {
+      return new ArrayList<>();
+    }
   }
 
-  public String getWriterName() {
-    return writerName;
+  public List<String> getWriterName() {
+    if (writerName != null) {
+      return ParserUtils.split(writerName);
+    }
+    else {
+      return new ArrayList<>();
+    }
   }
 
   public String getEpisodePlot() {
