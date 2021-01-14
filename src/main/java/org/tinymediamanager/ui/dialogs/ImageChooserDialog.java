@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -883,7 +882,7 @@ public class ImageChooserDialog extends TmmDialog {
       pool.allowCoreThreadTimeOut(true);
       ExecutorCompletionService<DownloadChunk> service = new ExecutorCompletionService<>(pool);
 
-      // get images from all artworkproviders
+      // get images from all artwork providers
       for (MediaScraper scraper : artworkScrapers) {
         try {
           IMediaArtworkProvider artworkProvider = (IMediaArtworkProvider) scraper.getMediaProvider();
@@ -894,7 +893,7 @@ public class ImageChooserDialog extends TmmDialog {
             options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
             options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
           }
-          else if (mediaType == MediaType.TV_SHOW) {
+          else if (mediaType == MediaType.TV_SHOW || mediaType == MediaType.TV_EPISODE) {
             options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
           }
           else {
@@ -955,12 +954,7 @@ public class ImageChooserDialog extends TmmDialog {
           }
 
           // populate ids
-          for (Entry<String, Object> entry : ids.entrySet()) {
-            Object v = entry.getValue();
-            if (v != null) {
-              options.setId(entry.getKey(), v.toString());
-            }
-          }
+          options.setIds(ids);
 
           // get the artwork
           List<MediaArtwork> artwork = artworkProvider.getArtwork(options);

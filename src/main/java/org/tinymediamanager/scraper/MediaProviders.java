@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvTvShowArtworkProvider;
+import org.tinymediamanager.scraper.ffmpeg.FFmpegMovieArtworkProvider;
+import org.tinymediamanager.scraper.ffmpeg.FFmpegTvShowArtworkProvider;
 import org.tinymediamanager.scraper.hdtrailersnet.HdTrailersNetMovieTrailerProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMovieArtworkProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMovieMetadataProvider;
@@ -44,7 +46,6 @@ import org.tinymediamanager.scraper.omdb.OmdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.omdb.OmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
-import org.tinymediamanager.scraper.theshowdb.TheShowDBTvShowMetadataProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMovieArtworkProvider;
@@ -113,6 +114,7 @@ public class MediaProviders {
     loadProvider(FanartTvMovieArtworkProvider.class);
     loadProvider(ImdbMovieArtworkProvider.class);
     loadProvider(MpdbMovieArtworkMetadataProvider.class);
+    loadProvider(FFmpegMovieArtworkProvider.class);
 
     /////////////////////////////////////////////
     // MOVIE TRAILER
@@ -156,6 +158,7 @@ public class MediaProviders {
     loadProvider(FanartTvTvShowArtworkProvider.class);
     loadProvider(TmdbTvShowArtworkProvider.class);
     loadProvider(ImdbTvShowArtworkProvider.class);
+    loadProvider(FFmpegTvShowArtworkProvider.class);
 
     /////////////////////////////////////////////
     // TV SHOW TRAILER

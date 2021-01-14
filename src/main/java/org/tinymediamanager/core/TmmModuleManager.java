@@ -94,6 +94,7 @@ public class TmmModuleManager {
 
     // do cleanup tasks
     RatingUtil.shutdown();
+    Utils.clearTempFolder();
   }
 
   /**

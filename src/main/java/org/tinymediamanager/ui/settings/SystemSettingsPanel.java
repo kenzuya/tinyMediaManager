@@ -157,7 +157,7 @@ class SystemSettingsPanel extends JPanel {
         btnSearchFFMpegBinary = new JButton(TmmResourceBundle.getString("Button.chooseffmpeglocation"));
         panelMediaFramework.add(btnSearchFFMpegBinary, "cell 1 0");
 
-        JTextArea tpFFMpegLocation = new ReadOnlyTextArea("Specify the FFMPEG Binary location");
+        JTextArea tpFFMpegLocation = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.mediaframework.hint"));
         panelMediaFramework.add(tpFFMpegLocation, "cell 1 1 2 1, growx");
         TmmFontHelper.changeFont(tpFFMpegLocation, L2);
 

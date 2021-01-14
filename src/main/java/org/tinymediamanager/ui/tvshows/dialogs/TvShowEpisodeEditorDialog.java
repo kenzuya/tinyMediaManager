@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
@@ -25,7 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -54,7 +54,6 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -64,14 +63,13 @@ import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
@@ -84,11 +82,13 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -106,6 +106,7 @@ import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.IdEditorDialog;
+import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -370,15 +371,22 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         lblThumb.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            String path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
-            Path file = TmmUIHelper.selectFile(TmmResourceBundle.getString("image.choose"), path,
-                new FileNameExtensionFilter("Image files", ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tbn"));
-            if (file != null && Utils.isRegularFile(file)) {
-              String fileName = file.toAbsolutePath().toString();
-              TmmProperties.getInstance().putProperty(DIALOG_ID + ".path", file.getParent().toString());
-              lblThumb.setImageUrl("file:/" + fileName);
-              tfThumb.setText(lblThumb.getImageUrl());
+            Map<String, Object> newIds = new HashMap<>(episodeToEdit.getIds());
+            newIds.put("seasonNr", spSeason.getValue());
+            newIds.put("episodeNr", spEpisode.getValue());
+            newIds.put("mediaFile", episodeToEdit.getMainFile());
+            newIds.put("tvShowIds", episodeToEdit.getTvShow().getIds());
+
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEpisodeEditorDialog.this, newIds, THUMB, tvShowList.getDefaultArtworkScrapers(),
+                lblThumb, MediaType.TV_EPISODE);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(episodeToEdit.getPathNIO().toAbsolutePath().toString());
             }
+
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
+            dialog.setVisible(true);
+            updateArtworkUrl(lblThumb, tfThumb);
           }
         });
         lblThumb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -634,6 +642,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
       JButton okButton = new JButton(new ChangeEpisodeAction());
       addDefaultButton(okButton);
+    }
+  }
+
+  private void updateArtworkUrl(ImageLabel imageLabel, JTextField textField) {
+    if (StringUtils.isNotBlank(imageLabel.getImageUrl())) {
+      textField.setText(imageLabel.getImageUrl());
     }
   }
 
@@ -1033,7 +1047,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       rating.maxValue = 10;
       rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), TmmResourceBundle.getString("rating.add"), rating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), TmmResourceBundle.getString("rating.add"),
+          rating);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
@@ -1214,8 +1229,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"), TmmResourceBundle.getString("cast.role.unknown"));
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableGuests), TmmResourceBundle.getString("cast.guest.add"), actor);
+      Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"),
+          TmmResourceBundle.getString("cast.role.unknown"));
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableGuests), TmmResourceBundle.getString("cast.guest.add"),
+          actor);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
@@ -1289,8 +1306,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("director.name.unknown"), "Director");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableDirectors), TmmResourceBundle.getString("cast.director.add"),
-          person);
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableDirectors),
+          TmmResourceBundle.getString("cast.director.add"), person);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("director.name.unknown"))) {
@@ -1364,7 +1381,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("writer.name.unknown"), "Writer");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableWriters), TmmResourceBundle.getString("cast.writer.add"), person);
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableWriters),
+          TmmResourceBundle.getString("cast.writer.add"), person);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("writer.name.unknown"))) {

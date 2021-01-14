@@ -57,7 +57,6 @@ public class MediaScraperConfigurationPanel extends JPanel {
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");                         // stick to resourcebundle here
   private static final long           serialVersionUID = -4120483383064864579L;
 
-
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaScraperConfigurationPanel.class);
 
   private final IMediaProvider        mediaProvider;
@@ -102,7 +101,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
   }
 
   private JPanel createConfigPanel() {
-    JPanel panel = new JPanel(new MigLayout("gapy 2lp", "[][20lp!][]", ""));
+    JPanel panel = new JPanel(new MigLayout("gapy 2lp", "[][20lp!][100lp,grow]", ""));
 
     int row = 0;
 
@@ -122,17 +121,14 @@ public class MediaScraperConfigurationPanel extends JPanel {
       if (StringUtils.isBlank(keyDescription)) {
         keyDescription = entry.getValue().getKeyDescription();
       }
-      JLabel label;
+
       if (entry.getValue().getType() == MediaProviderConfigObject.ConfigType.LABEL) {
         // if we have a LABEL here, use a bold style label
-        label = new TmmLabel(keyDescription);
-        // and insert a empty line
-        row++;
+        panel.add(new TmmLabel(keyDescription), "cell 0 " + row + " 3 1, gaptop 10lp");
       }
       else {
-        label = new JLabel(keyDescription);
+        panel.add(new JLabel(keyDescription), "cell 0 " + row);
       }
-      panel.add(label, "cell 0 " + row);
 
       JComponent comp = null;
       switch (entry.getValue().getType()) {
@@ -199,7 +195,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
 
       if (comp != null) {
         comp.putClientProperty(entry.getKey(), entry.getKey());
-        panel.add(comp, "cell 3 " + row);
+        panel.add(comp, "cell 2 " + row);
       }
 
       // add a hint if a long text has been found
@@ -208,7 +204,7 @@ public class MediaScraperConfigurationPanel extends JPanel {
         if (StringUtils.isNotBlank(desc)) {
           JLabel lblHint = new JLabel(IconManager.HINT);
           lblHint.setToolTipText(desc);
-          panel.add(lblHint, "cell 3 " + row);
+          panel.add(lblHint, "cell 2 " + row);
         }
       }
       catch (Exception e) {

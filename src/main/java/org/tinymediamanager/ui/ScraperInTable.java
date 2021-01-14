@@ -29,7 +29,6 @@ import javax.swing.JPanel;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
-import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
@@ -97,7 +96,7 @@ public class ScraperInTable extends AbstractModelObject {
     // first try to get the localized version
     String description = null;
     try {
-      description = TmmResourceBundle.getString("scraper." + scraper.getId() + ".hint");
+      description = BUNDLE.getString("scraper." + scraper.getId() + ".hint");
     }
     catch (Exception ignored) {
     }

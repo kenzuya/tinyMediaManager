@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,6 @@ import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
  */
 public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger            LOGGER = LoggerFactory.getLogger(MovieSetMissingArtworkDownloadTask.class);
-
 
   private List<MovieSet>                 moviesToScrape;
   private MovieSetSearchAndScrapeOptions scrapeOptions;
@@ -87,7 +85,7 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private class Worker implements Runnable {
-    private MovieSet  movieSet;
+    private MovieSet movieSet;
 
     public Worker(MovieSet movieSet) {
       this.movieSet = movieSet;
@@ -102,9 +100,7 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
         ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE_SET);
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtworkType.ALL);
-        for (Map.Entry<String, Object> entry : movieSet.getIds().entrySet()) {
-          options.setId(entry.getKey(), entry.getValue().toString());
-        }
+        options.setIds(movieSet.getIds());
         options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
         options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
         options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());

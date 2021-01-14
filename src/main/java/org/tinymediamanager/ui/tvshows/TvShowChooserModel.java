@@ -361,7 +361,7 @@ public class TvShowChooserModel extends AbstractModelObject {
   }
 
   private class TrailerScrapeTask extends TmmTask {
-    private TvShow tvShowtoScrape;
+    private final TvShow tvShowtoScrape;
 
     public TrailerScrapeTask(TvShow tvShow) {
       super(TmmResourceBundle.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);

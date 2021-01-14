@@ -53,7 +53,6 @@ import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowMissingArtworkDownloadTask.class);
 
-
   private final List<TvShow>                             tvShows;
   private final List<TvShowEpisode>                      episodes;
   private final TvShowSearchAndScrapeOptions             scrapeOptions;
@@ -170,9 +169,8 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
   }
 
   private static class TvShowEpisodeWorker implements Runnable {
-    private TvShowList                  tvShowList = TvShowList.getInstance();
-    private TvShowEpisode               episode;
-    private MediaSearchAndScrapeOptions scrapeOptions;
+    private final TvShowEpisode               episode;
+    private final MediaSearchAndScrapeOptions scrapeOptions;
 
     private TvShowEpisodeWorker(TvShowEpisode episode, MediaSearchAndScrapeOptions scrapeOptions) {
       this.episode = episode;
@@ -189,10 +187,9 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
         options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+        options.setId("tvShowIds", episode.getTvShow().getIds());
+        options.setId("mediaFile", episode.getMainFile());
 
-        for (Map.Entry<String, Object> entry : episode.getTvShow().getIds().entrySet()) {
-          options.setId(entry.getKey(), entry.getValue().toString());
-        }
         if (episode.isDvdOrder()) {
           options.setId(MediaMetadata.SEASON_NR_DVD, String.valueOf(episode.getDvdSeason()));
           options.setId(MediaMetadata.EPISODE_NR_DVD, String.valueOf(episode.getDvdEpisode()));

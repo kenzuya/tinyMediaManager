@@ -125,7 +125,7 @@ public class MovieSetScrapeTask extends TmmThreadPool {
     private List<MediaArtwork> getArtwork(MovieSet movieSet, MediaMetadata metadata, List<MediaScraper> artworkScrapers) {
       List<MediaArtwork> artwork = new ArrayList<>();
 
-      ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+      ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE_SET);
       options.setDataFromOtherOptions(scrapeOptions);
       options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
       options.setMetadata(metadata);

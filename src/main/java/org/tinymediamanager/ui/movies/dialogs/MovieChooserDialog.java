@@ -41,7 +41,9 @@ import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -640,8 +642,11 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         return;
     }
 
-    String imageUrl = ImageChooserDialog.chooseImage(this, movieToScrape.getIds(), imageType, artworkScrapers, extrathumbs, extrafanarts,
-        MediaType.MOVIE, movieToScrape.getPathNIO().toAbsolutePath().toString());
+    Map<String, Object> newIds = new HashMap<>(movieToScrape.getIds());
+    newIds.put("mediaFile", movieToScrape.getMainFile());
+
+    String imageUrl = ImageChooserDialog.chooseImage(this, newIds, imageType, artworkScrapers, extrathumbs, extrafanarts, MediaType.MOVIE,
+        movieToScrape.getPathNIO().toAbsolutePath().toString());
 
     movieToScrape.setArtworkUrl(imageUrl, mediaFileType);
     if (StringUtils.isNotBlank(imageUrl)) {

@@ -261,7 +261,7 @@ public abstract class MediaSearchAndScrapeOptions {
    * @param id
    *          the media id
    */
-  public void setId(String providerId, String id) {
+  public void setId(String providerId, Object id) {
     ids.put(providerId, id);
   }
 

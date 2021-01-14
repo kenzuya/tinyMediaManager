@@ -63,8 +63,8 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class MovieChooserModel extends AbstractModelObject {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieChooserModel.class);
-  public static final MovieChooserModel emptyResult = new MovieChooserModel();
+  private static final Logger           LOGGER           = LoggerFactory.getLogger(MovieChooserModel.class);
+  public static final MovieChooserModel emptyResult      = new MovieChooserModel();
 
   private final Movie                   movieToScrape;
   private MediaScraper                  metadataProvider = null;
@@ -350,6 +350,7 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setArtworkType(MediaArtworkType.ALL);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
+      options.setId("mediaFile", movieToScrape.getMainFile());
       options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
       options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
@@ -413,7 +414,7 @@ public class MovieChooserModel extends AbstractModelObject {
         catch (ScrapeException e) {
           LOGGER.error("getTrailers {}", e.getMessage());
           MessageManager.instance.pushMessage(
-                  new Message(MessageLevel.ERROR, "MovieChooser", "message.scrape.trailerfailed", new String[]{":", e.getLocalizedMessage()}));
+              new Message(MessageLevel.ERROR, "MovieChooser", "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
         }
         catch (MissingIdException ignored) {
           LOGGER.debug("no id found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
