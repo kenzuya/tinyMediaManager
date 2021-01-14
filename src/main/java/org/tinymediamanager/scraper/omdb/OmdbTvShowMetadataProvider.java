@@ -42,6 +42,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -51,6 +52,7 @@ import org.tinymediamanager.scraper.omdb.entities.MediaEntity;
 import org.tinymediamanager.scraper.omdb.entities.MediaRating;
 import org.tinymediamanager.scraper.omdb.entities.MediaSearch;
 import org.tinymediamanager.scraper.omdb.entities.SeasonEntity;
+import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -58,8 +60,8 @@ import org.tinymediamanager.scraper.util.RatingUtil;
 
 public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements ITvShowMetadataProvider {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OmdbTvShowMetadataProvider.class);
-  private List<MediaMetadata> episodeList = new ArrayList<>();
+  private static final Logger                                LOGGER                 = LoggerFactory.getLogger(OmdbTvShowMetadataProvider.class);
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(60, 10);
 
   @Override
   public boolean isActive() {
@@ -86,6 +88,10 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     }
 
     String imdbId = getImdbId(options);
+
+    if (StringUtils.isBlank(imdbId)) {
+      throw new MissingIdException(imdbId);
+    }
 
     try {
       result = controller.getScrapeDataById(apiKey, imdbId, "series", true);
@@ -247,7 +253,8 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
           rating.setRating(Integer.parseInt(movieRating.value.replace("%", "")));
           rating.setMaxValue(100);
           metadata.addRating(rating);
-        } catch (Exception ignored) {
+        }
+        catch (Exception ignored) {
         }
       }
     }
@@ -273,8 +280,8 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       metadata.addMediaArt(artwork);
     }
 
-    //Get all Episode Information for given TvShow
-    episodeList = getEpisodeList(options);
+    // Get all Episode Information for given TvShow
+    getEpisodeList(options);
 
     return metadata;
   }
@@ -304,7 +311,6 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   @Override
   public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
 
-
     DateFormat format = new SimpleDateFormat("d MMMM yyyy", Locale.ENGLISH);
     String imdbID = "";
     MediaMetadata md = new MediaMetadata(getId());
@@ -313,9 +319,12 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     int seasonNr = options.getIdAsIntOrDefault(MediaMetadata.SEASON_NR, -1);
     int episodeNr = options.getIdAsIntOrDefault(MediaMetadata.EPISODE_NR, -1);
 
+    // first get the base episode metadata which can be gathered via getEpisodeList()
+    List<MediaMetadata> episodeList = getEpisodeList(options.createTvShowSearchAndScrapeOptions());
+
     if (episodeList.isEmpty()) {
       LOGGER.error("EpisodeList is empty, cannot fetch Episode Information");
-      return md;
+      throw new NothingFoundException();
     }
 
     for (MediaMetadata metadata : episodeList) {
@@ -326,191 +335,192 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     }
 
     if (imdbID.isBlank()) {
-      LOGGER.warn("no imdb id found for season {} episode {}",seasonNr, episodeNr);
+      LOGGER.warn("no imdb id found for season {} episode {}", seasonNr, episodeNr);
       return md;
     }
 
-      MediaEntity mediaEntity = null;
+    MediaEntity mediaEntity = null;
+
+    try {
+      mediaEntity = controller.getScrapeDataById(getApiKey(), imdbID, "episode", true);
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    if (mediaEntity != null) {
+
+      // Add the Information
+      md.setTitle(mediaEntity.title);
+      try {
+        md.setYear(Integer.parseInt(mediaEntity.year));
+      }
+      catch (NumberFormatException e) {
+        LOGGER.trace("could not parse year: {}", e.getMessage());
+      }
+      md.addCertification(MediaCertification.findCertification(mediaEntity.rated));
+
+      // ReleaseDate
+      try {
+        md.setReleaseDate(format.parse(mediaEntity.released));
+      }
+      catch (Exception ignored) {
+      }
+
+      md.setSeasonNumber(mediaEntity.season);
+      md.setEpisodeNumber(mediaEntity.episode);
+
+      // Runtime
+      Pattern p = Pattern.compile("\\d+");
+      Matcher m = p.matcher(mediaEntity.runtime);
+      while (m.find()) {
+        try {
+          md.setRuntime(Integer.parseInt(m.group()));
+        }
+        catch (NumberFormatException ignored) {
+        }
+      }
+
+      String[] genres = mediaEntity.genre.split(",");
+      for (String genre : genres) {
+        genre = genre.trim();
+        MediaGenres mediaGenres = MediaGenres.getGenre(genre);
+        md.addGenre(mediaGenres);
+      }
+
+      String[] directors = mediaEntity.director.split(",");
+      for (String d : directors) {
+        Person director = new Person(DIRECTOR);
+        director.setName(d.trim());
+        md.addCastMember(director);
+      }
+
+      String[] writers = mediaEntity.writer.split(",");
+      for (String w : writers) {
+        Person writer = new Person(WRITER);
+        writer.setName(w.trim());
+        md.addCastMember(writer);
+      }
+
+      String[] actors = mediaEntity.actors.split(",");
+      for (String a : actors) {
+        Person actor = new Person(ACTOR);
+        actor.setName(a.trim());
+        md.addCastMember(actor);
+      }
+
+      md.setPlot(mediaEntity.plot);
+      md.setSpokenLanguages(getResult(mediaEntity.language, ","));
+      md.setCountries(getResult(mediaEntity.country, ","));
 
       try {
-        mediaEntity = controller.getScrapeDataById(getApiKey(), imdbID, "episode", true);
+        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("imdb");
+        rating.setRating(Float.parseFloat(mediaEntity.imdbRating));
+        rating.setVotes(MetadataUtil.parseInt(mediaEntity.imdbVotes));
+        rating.setMaxValue(10);
+        md.addRating(rating);
       }
-      catch (IOException e) {
-        e.printStackTrace();
+      catch (NumberFormatException e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
+      try {
+        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("metascore");
+        rating.setRating(Float.parseFloat(mediaEntity.metascore));
+        rating.setMaxValue(100);
+        md.addRating(rating);
+      }
+      catch (NumberFormatException e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
       }
 
-      if (mediaEntity != null) {
+      // Tomatoratings
 
-        // Add the Information
-        md.setTitle(mediaEntity.title);
-        try {
-          md.setYear(Integer.parseInt(mediaEntity.year));
-        }
-        catch (NumberFormatException e) {
-          LOGGER.trace("could not parse year: {}", e.getMessage());
-        }
-        md.addCertification(MediaCertification.findCertification(mediaEntity.rated));
-
-        // ReleaseDate
-        try {
-          md.setReleaseDate(format.parse(mediaEntity.released));
-        }
-        catch (Exception ignored) {
-        }
-
-        md.setSeasonNumber(mediaEntity.season);
-        md.setEpisodeNumber(mediaEntity.episode);
-
-        // Runtime
-        Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(mediaEntity.runtime);
-        while (m.find()) {
-          try {
-            md.setRuntime(Integer.parseInt(m.group()));
-          }
-          catch (NumberFormatException ignored) {
-          }
-        }
-
-        String[] genres = mediaEntity.genre.split(",");
-        for (String genre : genres) {
-          genre = genre.trim();
-          MediaGenres mediaGenres = MediaGenres.getGenre(genre);
-          md.addGenre(mediaGenres);
-        }
-
-        String[] directors = mediaEntity.director.split(",");
-        for (String d : directors) {
-          Person director = new Person(DIRECTOR);
-          director.setName(d.trim());
-          md.addCastMember(director);
-        }
-
-        String[] writers = mediaEntity.writer.split(",");
-        for (String w : writers) {
-          Person writer = new Person(WRITER);
-          writer.setName(w.trim());
-          md.addCastMember(writer);
-        }
-
-        String[] actors = mediaEntity.actors.split(",");
-        for (String a : actors) {
-          Person actor = new Person(ACTOR);
-          actor.setName(a.trim());
-          md.addCastMember(actor);
-        }
-
-        md.setPlot(mediaEntity.plot);
-        md.setSpokenLanguages(getResult(mediaEntity.language, ","));
-        md.setCountries(getResult(mediaEntity.country, ","));
-
-        try {
-          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("imdb");
-          rating.setRating(Float.parseFloat(mediaEntity.imdbRating));
-          rating.setVotes(MetadataUtil.parseInt(mediaEntity.imdbVotes));
-          rating.setMaxValue(10);
-          md.addRating(rating);
-        }
-        catch (NumberFormatException e) {
-          LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-        }
-        try {
-          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("metascore");
-          rating.setRating(Float.parseFloat(mediaEntity.metascore));
+      try {
+        if (!mediaEntity.tomatoMeter.contains("N/A")) {
+          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallcritics");
+          rating.setRating(Float.parseFloat(mediaEntity.tomatoMeter));
           rating.setMaxValue(100);
+          rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoReviews));
           md.addRating(rating);
         }
-        catch (NumberFormatException e) {
-          LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-        }
+      }
+      catch (NumberFormatException e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
 
-        // Tomatoratings
-
-        try {
-          if (!mediaEntity.tomatoMeter.contains("N/A")) {
-            org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallcritics");
-            rating.setRating(Float.parseFloat(mediaEntity.tomatoMeter));
-            rating.setMaxValue(100);
-            rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoReviews));
-            md.addRating(rating);
-          }
-        }
-        catch (NumberFormatException e) {
-          LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-        }
-
-        try {
-          if (!mediaEntity.tomatoUserMeter.contains("N/A")) {
-            org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallaudience");
-            rating.setRating(Float.parseFloat(mediaEntity.tomatoUserMeter));
-            rating.setMaxValue(100);
-            rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoUserReviews));
-            md.addRating(rating);
-          }
-        }
-        catch (NumberFormatException e) {
-          LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-        }
-
-        try {
-          if (!mediaEntity.tomatoRating.contains("N/A")) {
-            org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgcritics");
-            rating.setRating(Float.parseFloat(mediaEntity.tomatoRating));
-            rating.setMaxValue(100);
-            rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoReviews));
-            md.addRating(rating);
-          }
-        }
-        catch (NumberFormatException e) {
-          LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-        }
-
-        try {
-          if (!mediaEntity.tomatoUserRating.contains("N/A")) {
-            org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgaudience");
-            rating.setRating(Float.parseFloat(mediaEntity.tomatoUserRating));
-            rating.setMaxValue(100);
-            rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoUserReviews));
-            md.addRating(rating);
-          }
-        }
-        catch (NumberFormatException e) {
-          LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-        }
-        // use rotten tomates from the Ratings block
-        for (MediaRating movieRating : ListUtils.nullSafe(mediaEntity.ratings)) {
-          if ("Rotten Tomatoes".equals(movieRating.source)) {
-            try {
-              org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("rottenTomatoes");
-              rating.setRating(Integer.parseInt(movieRating.value.replace("%", "")));
-              rating.setMaxValue(100);
-              md.addRating(rating);
-            } catch (Exception ignored) {
-            }
-          }
-        }
-
-        // get the imdb rating from the imdb dataset too (and probably replace an
-        // outdated rating from omdb)
-        if (md.getId(MediaMetadata.IMDB) instanceof String) {
-          org.tinymediamanager.core.entities.MediaRating omdbRating = md.getRatings()
-                  .stream()
-                  .filter(rating -> MediaMetadata.IMDB.equals(rating.getId()))
-                  .findFirst()
-                  .orElse(null);
-          org.tinymediamanager.core.entities.MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
-          if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
-            md.getRatings().remove(omdbRating);
-            md.addRating(imdbRating);
-          }
-        }
-
-        if (StringUtils.isNotBlank(mediaEntity.poster)) {
-          MediaArtwork artwork = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
-          artwork.setDefaultUrl(mediaEntity.poster);
-          md.addMediaArt(artwork);
+      try {
+        if (!mediaEntity.tomatoUserMeter.contains("N/A")) {
+          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallaudience");
+          rating.setRating(Float.parseFloat(mediaEntity.tomatoUserMeter));
+          rating.setMaxValue(100);
+          rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoUserReviews));
+          md.addRating(rating);
         }
       }
+      catch (NumberFormatException e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
+
+      try {
+        if (!mediaEntity.tomatoRating.contains("N/A")) {
+          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgcritics");
+          rating.setRating(Float.parseFloat(mediaEntity.tomatoRating));
+          rating.setMaxValue(100);
+          rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoReviews));
+          md.addRating(rating);
+        }
+      }
+      catch (NumberFormatException e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
+
+      try {
+        if (!mediaEntity.tomatoUserRating.contains("N/A")) {
+          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgaudience");
+          rating.setRating(Float.parseFloat(mediaEntity.tomatoUserRating));
+          rating.setMaxValue(100);
+          rating.setVotes(MetadataUtil.parseInt(mediaEntity.tomatoUserReviews));
+          md.addRating(rating);
+        }
+      }
+      catch (NumberFormatException e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
+      // use rotten tomates from the Ratings block
+      for (MediaRating movieRating : ListUtils.nullSafe(mediaEntity.ratings)) {
+        if ("Rotten Tomatoes".equals(movieRating.source)) {
+          try {
+            org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("rottenTomatoes");
+            rating.setRating(Integer.parseInt(movieRating.value.replace("%", "")));
+            rating.setMaxValue(100);
+            md.addRating(rating);
+          }
+          catch (Exception ignored) {
+          }
+        }
+      }
+
+      // get the imdb rating from the imdb dataset too (and probably replace an
+      // outdated rating from omdb)
+      if (md.getId(MediaMetadata.IMDB) instanceof String) {
+        org.tinymediamanager.core.entities.MediaRating omdbRating = md.getRatings()
+            .stream()
+            .filter(rating -> MediaMetadata.IMDB.equals(rating.getId()))
+            .findFirst()
+            .orElse(null);
+        org.tinymediamanager.core.entities.MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+        if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
+          md.getRatings().remove(omdbRating);
+          md.addRating(imdbRating);
+        }
+      }
+
+      if (StringUtils.isNotBlank(mediaEntity.poster)) {
+        MediaArtwork artwork = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
+        artwork.setDefaultUrl(mediaEntity.poster);
+        md.addMediaArt(artwork);
+      }
+    }
     return md;
   }
 
@@ -573,15 +583,27 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
 
     String imdbId = getImdbId(options);
-    List<MediaMetadata> mediaMetadataList = new ArrayList<>();
-    MediaEntity tvShowResult;
-    SeasonEntity seasonEntity;
 
-    if (StringUtils.isBlank(getApiKey())) {
-      LOGGER.warn("no API key found");
+    if (StringUtils.isBlank(imdbId)) {
+      throw new MissingIdException("imdbId");
+    }
+
+    // look in the cache map if there is an entry
+    List<MediaMetadata> mediaMetadataList = EPISODE_LIST_CACHE_MAP.get(imdbId + "_" + options.getLanguage().getLanguage());
+
+    if (ListUtils.isNotEmpty(mediaMetadataList)) {
+      // cache hit!
       return mediaMetadataList;
     }
 
+    mediaMetadataList = new ArrayList<>();
+
+    if (StringUtils.isBlank(getApiKey())) {
+      LOGGER.warn("no API Key found");
+      throw new ScrapeException(new HttpException(401, "Unauthorized"));
+    }
+
+    MediaEntity tvShowResult;
     try {
       tvShowResult = controller.getScrapeDataById(getApiKey(), imdbId, "series", true);
     }
@@ -596,33 +618,44 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     }
 
     // First get the total amount of seasons
-    if ( tvShowResult.totalSeasons.equals("N/A")) {
+    if (tvShowResult.totalSeasons.equals("N/A")) {
       LOGGER.error("cannot parse total amount of seasons");
       return mediaMetadataList;
     }
     int seasons = Integer.parseInt(tvShowResult.totalSeasons);
 
-
     // Then get Information for every Season and save it in metadata result
     for (int i = 1; i < seasons + 1; i++) {
 
+      SeasonEntity seasonEntity;
       try {
         seasonEntity = controller.getSeasonById(getApiKey(), imdbId, "series", i);
       }
       catch (IOException e) {
-        LOGGER.error("error scraping season information: {}", e.getMessage());
-        throw new ScrapeException(e);
+        LOGGER.error("error scraping season {} information: {}", i, e.getMessage());
+        continue;
       }
 
-      for( EpisodeEntity ep : seasonEntity.episodes ) {
+      if (seasonEntity.episodes == null) {
+        LOGGER.error("No Episode Information for Season: {}", i);
+        continue;
+      }
+
+      for (EpisodeEntity ep : seasonEntity.episodes) {
         MediaMetadata md = new MediaMetadata(getId());
 
         md.setSeasonNumber(i);
         md.setEpisodeNumber(Integer.parseInt(ep.episode));
-        md.setId("imdbId",ep.imdbID);
+        md.setId("imdbId", ep.imdbID);
         mediaMetadataList.add(md);
       }
     }
+
+    // cache for further fast access
+    if (!mediaMetadataList.isEmpty()) {
+      EPISODE_LIST_CACHE_MAP.put(imdbId + "_" + options.getLanguage().getLanguage(), mediaMetadataList);
+    }
+
     return mediaMetadataList;
   }
 }
