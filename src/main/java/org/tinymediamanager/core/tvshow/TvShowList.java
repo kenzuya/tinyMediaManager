@@ -60,8 +60,6 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
-import org.tinymediamanager.license.SizeLimitExceededException;
-import org.tinymediamanager.license.TvShowEventList;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -74,6 +72,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
+import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -108,7 +107,7 @@ public class TvShowList extends AbstractModelObject {
    */
   private TvShowList() {
     // create the lists
-    tvShowList = new ObservableElementList<>(new TvShowEventList<>(), GlazedLists.beanConnector(TvShow.class));
+    tvShowList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(TvShow.class));
     tagsInTvShows = new CopyOnWriteArrayList<>();
     tagsInEpisodes = new CopyOnWriteArrayList<>();
     videoCodecsInEpisodes = new CopyOnWriteArrayList<>();
@@ -443,10 +442,6 @@ public class TvShowList extends AbstractModelObject {
 
         // for performance reasons we add tv shows directly
         tvShowList.add(tvShow);
-      }
-      catch (SizeLimitExceededException e) {
-        LOGGER.debug("size limit exceeded - ignoring DB entry");
-        break;
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding TV show json string: {}", e.getMessage());

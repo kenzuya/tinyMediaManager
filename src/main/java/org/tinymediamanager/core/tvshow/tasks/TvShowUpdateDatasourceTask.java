@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +73,6 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.VSMeta;
-
-import com.sun.jna.Platform;
 
 /**
  * The Class TvShowUpdateDataSourcesTask.
@@ -209,7 +208,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // when there is _nothing_ found in the ds root, it might be offline -
           // skip further processing
           // not in Windows since that won't happen there
-          if (rootList.isEmpty() && !Platform.isWindows()) {
+          if (rootList.isEmpty() && !SystemUtils.IS_OS_WINDOWS) {
             // error - continue with next datasource
             MessageManager.instance
                 .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));

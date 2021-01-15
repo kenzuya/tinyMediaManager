@@ -67,8 +67,6 @@ import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.license.License;
-import org.tinymediamanager.license.MovieEventList;
-import org.tinymediamanager.license.SizeLimitExceededException;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -81,6 +79,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
+import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -121,7 +120,7 @@ public class MovieList extends AbstractModelObject {
    */
   private MovieList() {
     // create all lists
-    movieList = new ObservableElementList<>(new MovieEventList<>(), GlazedLists.beanConnector(Movie.class));
+    movieList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Movie.class));
     movieSetList = new ObservableCopyOnWriteArrayList<>();
 
     yearsInMovies = new CopyOnWriteArrayList<>();
@@ -417,10 +416,6 @@ public class MovieList extends AbstractModelObject {
 
         // for performance reasons we add movies directly
         movieList.add(movie);
-      }
-      catch (SizeLimitExceededException e) {
-        LOGGER.debug("size limit exceeded - ignoring DB entry");
-        break;
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
