@@ -167,7 +167,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * runtime (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", this::getRuntime, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", this::getRuntime, Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
@@ -179,7 +179,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * runtime HH:MM (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", this::getRuntime, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", this::getRuntime, Integer.class);
     col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.RUNTIME);
     col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
@@ -354,14 +354,14 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private String getRuntime(TmmTreeNode node) {
+  private Integer getRuntime(TmmTreeNode node) {
     Object userObject = node.getUserObject();
 
     if (userObject instanceof Movie) {
       int runtime = ((Movie) userObject).getRuntime();
 
       if (runtime > 0) {
-        return String.valueOf(runtime);
+        return runtime;
       }
     }
 
