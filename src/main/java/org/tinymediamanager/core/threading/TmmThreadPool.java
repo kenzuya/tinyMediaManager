@@ -98,11 +98,22 @@ public abstract class TmmThreadPool extends TmmTask {
   protected void waitForCompletionOrCancel() {
 
     pool.shutdown();
-    while (!cancel && !pool.isTerminated() && progressDone < workUnits) {
+    while (true) {
       try {
-        final Future<Object> future = service.take();
-        progressDone++;
-        callback(future.get());
+        final Future<Object> future = service.poll(500, TimeUnit.MILLISECONDS);
+        if (cancel) {
+          pool.shutdownNow();
+          break;
+        }
+
+        if (future != null) {
+          progressDone++;
+          callback(future.get());
+        }
+        else if (pool.isTerminated()) {
+          // no result got and the pool is terminated -> we're finished
+          break;
+        }
       }
       catch (InterruptedException e) {
         LOGGER.error("ThreadPool {} interrupted!", poolname);
