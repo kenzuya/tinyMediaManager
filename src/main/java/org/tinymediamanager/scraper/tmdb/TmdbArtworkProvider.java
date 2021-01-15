@@ -125,7 +125,7 @@ class TmdbArtworkProvider {
             }
             else {
               // no season artwork requested - just use the easy call
-              artwork = prepareArtwork(api.moviesService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
+              artwork = prepareArtwork(api.tvService().images(tmdbId, null).execute().body(), artworkType, tmdbId, options);
             }
 
             break;
