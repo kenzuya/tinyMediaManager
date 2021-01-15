@@ -214,7 +214,7 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                includeExternalAudioStreams            = false;
   private boolean                                syncTrakt                              = false;
   private boolean                                extractArtworkFromVsmeta               = false;
-  private boolean                                useMediainfoMetadata                   = true;
+  private boolean                                useMediainfoMetadata                   = false;
 
   private boolean                                title                                  = true;
   private boolean                                sortableTitle                          = false;

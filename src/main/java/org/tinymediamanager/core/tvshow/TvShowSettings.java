@@ -211,7 +211,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        preferPersonalRating                   = true;
   private String                                         preferredRating                        = "tvdb";
   private boolean                                        extractArtworkFromVsmeta               = false;
-  private boolean                                        useMediainfoMetadata                   = true;
+  private boolean                                        useMediainfoMetadata                   = false;
 
   // ui
   private boolean                                        displayMissingEpisodes                 = false;
