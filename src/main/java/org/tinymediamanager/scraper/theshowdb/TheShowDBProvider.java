@@ -24,8 +24,8 @@ import org.tinymediamanager.scraper.theshowdb.services.TheShowDBController;
 abstract class TheShowDBProvider {
 
   private static final String     ID = "theshowdb";
-  private MediaProviderInfo providerInfo;
-  protected TheShowDBController controller;
+  private final MediaProviderInfo providerInfo;
+  protected TheShowDBController   controller;
 
   TheShowDBProvider() {
     providerInfo = createMediaProviderInfo();

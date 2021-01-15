@@ -20,6 +20,7 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -280,9 +281,6 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       metadata.addMediaArt(artwork);
     }
 
-    // Get all Episode Information for given TvShow
-    getEpisodeList(options);
-
     return metadata;
   }
 
@@ -334,7 +332,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       }
     }
 
-    if (imdbID.isBlank()) {
+    if (StringUtils.isBlank(imdbID)) {
       LOGGER.warn("no imdb id found for season {} episode {}", seasonNr, episodeNr);
       return md;
     }
@@ -345,7 +343,8 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       mediaEntity = controller.getScrapeDataById(getApiKey(), imdbID, "episode", true);
     }
     catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("error searching: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (mediaEntity != null) {
@@ -536,11 +535,15 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       return mediaResult;
     }
 
-    MediaSearch resultList;
+    MediaSearch resultList = null;
     try {
       resultList = controller.getMovieSearchInfo(apiKey, options.getSearchQuery(), "series", null);
     }
-    catch (Exception e) {
+    catch (InterruptedIOException e) {
+      // do not swallow these Exceptions
+      Thread.currentThread().interrupt();
+    }
+    catch (IOException e) {
       LOGGER.error("error searching: {}", e.getMessage());
       throw new ScrapeException(e);
     }
@@ -603,9 +606,13 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       throw new ScrapeException(new HttpException(401, "Unauthorized"));
     }
 
-    MediaEntity tvShowResult;
+    MediaEntity tvShowResult = null;
     try {
       tvShowResult = controller.getScrapeDataById(getApiKey(), imdbId, "series", true);
+    }
+    catch (InterruptedIOException e) {
+      // do not swallow these Exceptions
+      Thread.currentThread().interrupt();
     }
     catch (IOException e) {
       LOGGER.error("error searching: {}", e.getMessage());

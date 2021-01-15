@@ -17,6 +17,7 @@ package org.tinymediamanager.scraper.theshowdb;
 
 import static org.tinymediamanager.core.TmmDateFormat.LOGGER;
 
+import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,10 +76,17 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     try {
       shows = controller.getShowDetailsByShowId(getApiKey(), showId);
     }
-    catch (Exception e) {
+    catch (InterruptedIOException e) {
+      // do not swallow these Exceptions
+      Thread.currentThread().interrupt();
+    }
+    catch (IOException e) {
+      LOGGER.error("error searching: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (shows == null) {
+      throw new NothingFoundException();
     }
 
     if (!shows.getShows().isEmpty()) {
@@ -121,9 +129,6 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
         md.addMediaArt(thumb);
       }
     }
-
-    //Get Episodes from given tvshow
-    getEpisodeList(options);
 
     return md;
   }
@@ -191,7 +196,6 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     }
 
     for (Show show : searchResult.getShows()) {
-
       MediaSearchResult result = new MediaSearchResult(getProviderInfo().getId(), MediaType.TV_SHOW);
       result.setTitle(show.getTitle());
 
@@ -280,7 +284,7 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
         md.addCastMember(person);
       }
       // Director
-      for (String director : episode.getDirectorName() ) {
+      for (String director : episode.getDirectorName()) {
         Person person = new Person(Person.Type.DIRECTOR);
         person.setName(director);
         md.addCastMember(person);
@@ -292,7 +296,6 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
         person.setName(writer);
         md.addCastMember(person);
       }
-
 
       episodeList.add(md);
     }
