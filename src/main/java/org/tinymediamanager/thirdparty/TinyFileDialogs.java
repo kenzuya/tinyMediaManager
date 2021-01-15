@@ -20,6 +20,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+
+import com.sun.jna.WString;
 
 /**
  * the class {@link TinyFileDialogs} is the wrapper to the native part of tinyfiledialogs
@@ -42,7 +45,21 @@ public class TinyFileDialogs {
       }
     }
 
-    String path = TinyFileDialogsLibrary.INSTANCE.tinyfd_selectFolderDialog(title, initialPath);
+    String path = null;
+
+    if (SystemUtils.IS_OS_WINDOWS) {
+      WString titleW = title != null ? new WString(title) : null;
+      WString initialPathW = initialPath != null ? new WString(initialPath) : null;
+
+      WString result = TinyFileDialogsLibrary.INSTANCE.tinyfd_selectFolderDialogW(titleW, initialPathW);
+      if (result != null) {
+        path = result.toString();
+      }
+    }
+    else {
+      path = TinyFileDialogsLibrary.INSTANCE.tinyfd_selectFolderDialog(title, initialPath);
+    }
+
     if (StringUtils.isBlank(path)) {
       return null;
     }
@@ -69,8 +86,32 @@ public class TinyFileDialogs {
       filterPatternCount = filterPatterns.length;
     }
 
-    String path = TinyFileDialogsLibrary.INSTANCE.tinyfd_openFileDialog(title, initialFile, filterPatternCount, filterPatterns,
-        singleFilterDescription, 0);
+    String path = null;
+
+    if (SystemUtils.IS_OS_WINDOWS) {
+      WString titleW = title != null ? new WString(title) : null;
+      WString initialFileW = initialFile != null ? new WString(initialFile) : null;
+      WString singleFilterDescriptionW = singleFilterDescription != null ? new WString(singleFilterDescription) : null;
+      WString[] filterPatternsW = null;
+
+      if (filterPatterns != null) {
+        filterPatternsW = new WString[filterPatterns.length];
+        for (int i = 0; i < filterPatterns.length; i++) {
+          filterPatternsW[i] = new WString(filterPatterns[i]);
+        }
+      }
+
+      WString result = TinyFileDialogsLibrary.INSTANCE.tinyfd_openFileDialogW(titleW, initialFileW, filterPatternCount, filterPatternsW,
+          singleFilterDescriptionW, 0);
+      if (result != null) {
+        path = result.toString();
+      }
+    }
+    else {
+      path = TinyFileDialogsLibrary.INSTANCE.tinyfd_openFileDialog(title, initialFile, filterPatternCount, filterPatterns, singleFilterDescription,
+          0);
+    }
+
     if (StringUtils.isBlank(path)) {
       return null;
     }
@@ -89,8 +130,31 @@ public class TinyFileDialogs {
       filterPatternCount = filterPatterns.length;
     }
 
-    String path = TinyFileDialogsLibrary.INSTANCE.tinyfd_saveFileDialog(title, initialFile, filterPatternCount, filterPatterns,
-        singleFilterDescription);
+    String path = null;
+
+    if (SystemUtils.IS_OS_WINDOWS) {
+      WString titleW = title != null ? new WString(title) : null;
+      WString initialFileW = initialFile != null ? new WString(initialFile) : null;
+      WString singleFilterDescriptionW = singleFilterDescription != null ? new WString(singleFilterDescription) : null;
+      WString[] filterPatternsW = null;
+
+      if (filterPatterns != null) {
+        filterPatternsW = new WString[filterPatterns.length];
+        for (int i = 0; i < filterPatterns.length; i++) {
+          filterPatternsW[i] = new WString(filterPatterns[i]);
+        }
+      }
+
+      WString result = TinyFileDialogsLibrary.INSTANCE.tinyfd_saveFileDialogW(titleW, initialFileW, filterPatternCount, filterPatternsW,
+          singleFilterDescriptionW);
+      if (result != null) {
+        path = result.toString();
+      }
+    }
+    else {
+      path = TinyFileDialogsLibrary.INSTANCE.tinyfd_saveFileDialog(title, initialFile, filterPatternCount, filterPatterns, singleFilterDescription);
+    }
+
     if (StringUtils.isBlank(path)) {
       return null;
     }
