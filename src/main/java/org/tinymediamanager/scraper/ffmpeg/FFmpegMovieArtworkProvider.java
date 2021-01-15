@@ -55,19 +55,33 @@ public class FFmpegMovieArtworkProvider extends FFmpegArtworkProvider implements
   @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
     // only allow ALL, THUMB and BACKGROUD per se
-    if (options.getArtworkType() != MediaArtwork.MediaArtworkType.ALL && options.getArtworkType() != MediaArtwork.MediaArtworkType.THUMB
-        && options.getArtworkType() != MediaArtwork.MediaArtworkType.BACKGROUND) {
-      return Collections.emptyList();
-    }
 
-    if ((options.getArtworkType() != MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() != MediaArtwork.MediaArtworkType.THUMB)
-        && Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("thumb"))) {
-      return Collections.emptyList();
-    }
+    switch (options.getArtworkType()) {
+      case ALL:
+        // if ALL is selected and all are deselected -> return an empty list
+        if (Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("fanart"))
+            && Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("thumb"))) {
+          return Collections.emptyList();
+        }
+        break;
 
-    if ((options.getArtworkType() != MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() != MediaArtwork.MediaArtworkType.BACKGROUND)
-        && Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("fanart"))) {
-      return Collections.emptyList();
+      // for BACKGROUND "fanart" has to be selected
+      case BACKGROUND:
+        if (Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("fanart"))) {
+          return Collections.emptyList();
+        }
+        break;
+
+      // for THUMB "thumb" has to be selected
+      case THUMB:
+        if (Boolean.FALSE.equals(getProviderInfo().getConfig().getValueAsBool("thumb"))) {
+          return Collections.emptyList();
+        }
+        break;
+
+      // others are not supported
+      default:
+        return Collections.emptyList();
     }
 
     return super.getArtwork(options);

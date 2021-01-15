@@ -113,9 +113,9 @@ abstract class FFmpegArtworkProvider {
         FFmpeg.createStill(mediaFile.getFile(), tempFile, second);
 
         MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
-        still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file://" + tempFile.toAbsolutePath().toString());
-        still.setDefaultUrl("file://" + tempFile.toAbsolutePath().toString());
-        still.setOriginalUrl("file://" + tempFile.toAbsolutePath().toString());
+        still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath().toString());
+        still.setDefaultUrl("file:/" + tempFile.toAbsolutePath().toString());
+        still.setOriginalUrl("file:/" + tempFile.toAbsolutePath().toString());
         artworks.add(still);
 
       }
