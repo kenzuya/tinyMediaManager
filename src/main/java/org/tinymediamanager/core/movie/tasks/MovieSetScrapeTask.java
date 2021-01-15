@@ -114,6 +114,7 @@ public class MovieSetScrapeTask extends TmmThreadPool {
         List<MovieSet.MovieSetMovie> movieSetMovies = createMovieSetMovies(metadata);
         if (!movieSetMovies.isEmpty()) {
           movieSet.setDummyMovies(movieSetMovies);
+          movieSet.saveToDb();
         }
       }
       catch (Exception e) {

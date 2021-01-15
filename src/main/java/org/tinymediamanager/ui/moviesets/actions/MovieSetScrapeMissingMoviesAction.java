@@ -23,7 +23,6 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
@@ -61,10 +60,6 @@ public class MovieSetScrapeMissingMoviesAction extends TmmAction {
     if (selectedMovieSets.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
-    }
-
-    for (MovieSet movieSet : selectedMovieSets) {
-      MovieSetArtworkHelper.cleanupArtwork(movieSet);
     }
 
     MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
