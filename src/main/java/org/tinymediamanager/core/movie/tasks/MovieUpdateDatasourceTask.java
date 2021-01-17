@@ -32,19 +32,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
@@ -77,8 +78,6 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.VSMeta;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 
-import com.sun.jna.Platform;
-
 /**
  * The Class UpdateDataSourcesTask.
  * 
@@ -109,10 +108,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   private final List<String>        dataSources;
   private final List<String>        skipFolders;
-  private final List<Movie>         movieFolders     = new ArrayList<>();
+  private final List<Movie>         moviesToUpdate   = new ArrayList<>();
   private final MovieList           movieList        = MovieList.getInstance();
   private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
   private final List<Runnable>      miTasks          = Collections.synchronizedList(new ArrayList<>());
+  private final List<Path>          existingMovies   = new ArrayList<>();
+  private final List<MediaFile>     imageFiles       = new ArrayList<>();
 
   public MovieUpdateDatasourceTask() {
     super(TmmResourceBundle.getString("update.datasource"));
@@ -130,7 +131,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   public MovieUpdateDatasourceTask(List<Movie> movies) {
     super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(0);
-    movieFolders.addAll(movies);
+    moviesToUpdate.addAll(movies);
     skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
   }
 
@@ -138,7 +139,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   public void doInBackground() {
     // check if there is at least one DS to update
     Utils.removeEmptyStringsFromList(dataSources);
-    if (dataSources.isEmpty() && movieFolders.isEmpty()) {
+    if (dataSources.isEmpty() && moviesToUpdate.isEmpty()) {
       LOGGER.info("no datasource to update");
       MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.nonespecified"));
       return;
@@ -151,160 +152,19 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     visFileAll = 0;
 
     // get existing movie folders
-    List<Path> existing = new ArrayList<>();
     for (Movie movie : movieList.getMovies()) {
-      existing.add(movie.getPathNIO());
+      existingMovies.add(movie.getPathNIO());
     }
 
     try {
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
-      List<MediaFile> imageFiles = new ArrayList<>();
 
-      if (movieFolders.isEmpty()) {
-        for (String ds : dataSources) {
-          // check the special case, that the data source is also an ignore folder
-          if (skipFolders.contains(ds)) {
-            LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
-            continue;
-          }
-
-          LOGGER.info("Start UDS on datasource: {}", ds);
-          miTasks.clear();
-          initThreadPool(3, "update");
-          setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
-          publishState();
-
-          Path dsAsPath = Paths.get(ds);
-
-          // first of all check if the DS is available; we can take the
-          // Files.exist here:
-          // if the DS exists (and we have access to read it): Files.exist = true
-          if (!Files.exists(dsAsPath)) {
-            // error - continue with next datasource
-            MessageManager.instance
-                .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
-            continue;
-          }
-          publishState();
-
-          // just check datasource folder, parse NEW folders first
-          List<Path> newMovieDirs = new ArrayList<>();
-          List<Path> existingMovieDirs = new ArrayList<>();
-          List<Path> rootList = listFilesAndDirs(dsAsPath);
-
-          // when there is _nothing_ found in the ds root, it might be offline - skip further processing
-          // not in Windows since that won't happen there
-          if (rootList.isEmpty() && !Platform.isWindows()) {
-            // error - continue with next datasource
-            MessageManager.instance
-                .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
-            continue;
-          }
-
-          List<Path> rootFiles = new ArrayList<>();
-          for (Path path : rootList) {
-            if (Files.isDirectory(path)) {
-              if (existing.contains(path)) {
-                existingMovieDirs.add(path);
-              }
-              else {
-                newMovieDirs.add(path);
-              }
-            }
-            else {
-              rootFiles.add(path);
-            }
-          }
-          rootList.clear();
-          publishState();
-
-          for (Path path : newMovieDirs) {
-            searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
-          }
-          for (Path path : existingMovieDirs) {
-            searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
-          }
-          if (!rootFiles.isEmpty()) {
-            submitTask(new ParseMultiMovieDirTask(dsAsPath.toAbsolutePath(), dsAsPath.toAbsolutePath(), rootFiles));
-          }
-
-          waitForCompletionOrCancel();
-
-          // print stats
-          LOGGER.info("FilesFound: {}", filesFound.size());
-          LOGGER.info("moviesFound: {}", movieList.getMovieCount());
-          LOGGER.debug("PreDir: {}", preDir);
-          LOGGER.debug("PostDir: {}", postDir);
-          LOGGER.debug("VisFile: {}", visFile);
-          LOGGER.debug("PreDirAll: {}", preDirAll);
-          LOGGER.debug("PostDirAll: {}", postDirAll);
-          LOGGER.debug("VisFileAll: {}", visFileAll);
-
-          newMovieDirs.clear();
-          existingMovieDirs.clear();
-          rootFiles.clear();
-
-          if (cancel) {
-            break;
-          }
-
-          // cleanup
-          cleanup(ds);
-
-          // mediainfo
-          gatherMediainfo(ds);
-
-          if (cancel) {
-            break;
-          }
-
-          // build image cache on import
-          if (MovieModuleManager.SETTINGS.isBuildImageCacheOnImport()) {
-            for (Movie movie : movieList.getMovies()) {
-              if (!dsAsPath.equals(Paths.get(movie.getDataSource()))) {
-                // check only movies matching datasource
-                continue;
-              }
-              imageFiles.addAll(movie.getImagesToCache());
-            }
-          }
-        } // END datasource loop
+      if (moviesToUpdate.isEmpty()) {
+        updateDatasource();
       }
       else {
-        LOGGER.info("Start UDS for selected movies");
-        initThreadPool(3, "update");
-        setTaskName(TmmResourceBundle.getString("update.datasource"));
-        publishState();
-
-        // update per movie folder
-        Map<Path, String> folder = new HashMap<>(movieFolders.size());
-        // no dupes b/c of possible MMD movies with same path
-        for (Movie m : movieFolders) {
-          folder.put(m.getPathNIO(), m.getDataSource());
-        }
-        for (Map.Entry<Path, String> entry : folder.entrySet()) {
-          Path dir = entry.getKey();
-          String ds = entry.getValue();
-          submitTask(new FindMovieTask(dir, Paths.get(ds)));
-        }
-        waitForCompletionOrCancel();
-
-        // print stats
-        LOGGER.info("FilesFound: {}", filesFound.size());
-        LOGGER.info("moviesFound: {}", movieList.getMovieCount());
-        LOGGER.debug("PreDir: {}", preDir);
-        LOGGER.debug("PostDir: {}", postDir);
-        LOGGER.debug("VisFile: {}", visFile);
-        LOGGER.debug("PreDirAll: {}", preDirAll);
-        LOGGER.debug("PostDirAll: {}", postDirAll);
-        LOGGER.debug("VisFileAll: {}", visFileAll);
-
-        // cleanup
-        cleanup(movieFolders);
-
-        // mediainfo
-        gatherMediainfo(movieFolders);
+        updateMovies();
       }
 
       if (!imageFiles.isEmpty()) {
@@ -327,6 +187,190 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       LOGGER.error("Thread crashed", e);
       MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "message.update.threadcrashed"));
     }
+  }
+
+  private void updateDatasource() {
+    for (String ds : dataSources) {
+      // check the special case, that the data source is also an ignore folder
+      if (skipFolders.contains(ds)) {
+        LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
+        continue;
+      }
+
+      LOGGER.info("Start UDS on datasource: {}", ds);
+      miTasks.clear();
+      initThreadPool(3, "update");
+      setTaskName(TmmResourceBundle.getString("update.datasource") + " '" + ds + "'");
+      publishState();
+
+      Path dsAsPath = Paths.get(ds);
+      // first of all check if the DS is available; we can take the
+      // Files.exist here:
+      // if the DS exists (and we have access to read it): Files.exist = true
+      if (!Files.exists(dsAsPath)) {
+        // error - continue with next datasource
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+        continue;
+      }
+
+      publishState();
+
+      // just check datasource folder, parse NEW folders first
+      List<Path> newMovieDirs = new ArrayList<>();
+      List<Path> existingMovieDirs = new ArrayList<>();
+      List<Path> rootList = listFilesAndDirs(dsAsPath);
+
+      // when there is _nothing_ found in the ds root, it might be offline - skip further processing
+      // not in Windows since that won't happen there
+      if (rootList.isEmpty() && !SystemUtils.IS_OS_WINDOWS) {
+        // error - continue with next datasource
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+        continue;
+      }
+
+      List<Path> rootFiles = new ArrayList<>();
+      for (Path path : rootList) {
+        if (Files.isDirectory(path)) {
+          if (existingMovies.contains(path)) {
+            existingMovieDirs.add(path);
+          }
+          else {
+            newMovieDirs.add(path);
+          }
+        }
+        else {
+          rootFiles.add(path);
+        }
+      }
+      rootList.clear();
+      publishState();
+
+      for (Path path : newMovieDirs) {
+        searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
+      }
+      for (Path path : existingMovieDirs) {
+        searchAndParse(dsAsPath.toAbsolutePath(), path, Integer.MAX_VALUE);
+      }
+      if (!rootFiles.isEmpty()) {
+        submitTask(new ParseMultiMovieDirTask(dsAsPath.toAbsolutePath(), dsAsPath.toAbsolutePath(), rootFiles));
+      }
+
+      waitForCompletionOrCancel();
+
+      // print stats
+      LOGGER.info("FilesFound: {}", filesFound.size());
+      LOGGER.info("moviesFound: {}", movieList.getMovieCount());
+      LOGGER.debug("PreDir: {}", preDir);
+      LOGGER.debug("PostDir: {}", postDir);
+      LOGGER.debug("VisFile: {}", visFile);
+      LOGGER.debug("PreDirAll: {}", preDirAll);
+      LOGGER.debug("PostDirAll: {}", postDirAll);
+      LOGGER.debug("VisFileAll: {}", visFileAll);
+
+      newMovieDirs.clear();
+      existingMovieDirs.clear();
+      rootFiles.clear();
+
+      if (cancel) {
+        break;
+      }
+
+      // cleanup
+      cleanup(ds);
+
+      // mediainfo
+      gatherMediainfo(ds);
+
+      if (cancel) {
+        break;
+      }
+
+      // build image cache on import
+      if (MovieModuleManager.SETTINGS.isBuildImageCacheOnImport()) {
+        for (Movie movie : movieList.getMovies()) {
+          if (!dsAsPath.equals(Paths.get(movie.getDataSource()))) {
+            // check only movies matching datasource
+            continue;
+          }
+          imageFiles.addAll(movie.getImagesToCache());
+        }
+      }
+    } // END datasource loop
+  }
+
+  private void updateMovies() {
+    LOGGER.info("Start UDS for selected movies");
+    initThreadPool(3, "update");
+    setTaskName(TmmResourceBundle.getString("update.datasource"));
+    publishState();
+
+    // get distinct data sources
+    Set<String> movieDatasources = new HashSet<>();
+    moviesToUpdate.forEach(movie -> movieDatasources.add(movie.getDataSource()));
+
+    // update movies grouped by data source
+    for (String ds : movieDatasources) {
+      Path dsAsPath = Paths.get(ds);
+      // first of all check if the DS is available; we can take the
+      // Files.exist here:
+      // if the DS exists (and we have access to read it): Files.exist = true
+      if (!Files.exists(dsAsPath)) {
+        // error - continue with next datasource
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+        continue;
+      }
+
+      // check the size - if the size of the data source is 0 we assume that this is unmounted
+      long dsSize;
+      try {
+        dsSize = FileUtils.sizeOfDirectory(dsAsPath.toFile());
+      }
+      catch (Exception e) {
+        dsSize = 0;
+      }
+
+      if (dsSize == 0) {
+        // error - continue with next datasource
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
+        continue;
+      }
+
+      // no dupes b/c of possible MMD movies with same path
+      Set<Path> movieDirs = new LinkedHashSet<>();
+      for (Movie movie : moviesToUpdate) {
+        if (!movie.getDataSource().equals(ds)) {
+          continue;
+        }
+
+        movieDirs.add(movie.getPathNIO());
+      }
+
+      for (Path path : movieDirs) {
+        submitTask(new FindMovieTask(path, Paths.get(ds)));
+      }
+    }
+
+    waitForCompletionOrCancel();
+
+    // print stats
+    LOGGER.info("FilesFound: {}", filesFound.size());
+    LOGGER.info("moviesFound: {}", movieList.getMovieCount());
+    LOGGER.debug("PreDir: {}", preDir);
+    LOGGER.debug("PostDir: {}", postDir);
+    LOGGER.debug("VisFile: {}", visFile);
+    LOGGER.debug("PreDirAll: {}", preDirAll);
+    LOGGER.debug("PostDirAll: {}", postDirAll);
+    LOGGER.debug("VisFileAll: {}", visFileAll);
+
+    // cleanup
+    cleanup(moviesToUpdate);
+
+    // mediainfo
+    gatherMediainfo(moviesToUpdate);
   }
 
   /**
