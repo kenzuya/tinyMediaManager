@@ -685,8 +685,6 @@ public class MovieSetEditorDialog extends TmmDialog {
         movieSetToEdit.removeMovie(movie, true);
       }
 
-      MovieList.getInstance().sortMoviesInMovieSet(movieSetToEdit);
-
       // and rewrite NFO
       for (Movie movie : moviesInSet) {
         movie.writeNFO();

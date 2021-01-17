@@ -1423,6 +1423,7 @@ public class MovieEditorDialog extends TmmDialog {
           movieToEdit.removeFromMovieSet();
           movieToEdit.setMovieSet(movieSet);
           movieSet.insertMovie(movieToEdit);
+          movieSet.saveToDb();
         }
       }
 

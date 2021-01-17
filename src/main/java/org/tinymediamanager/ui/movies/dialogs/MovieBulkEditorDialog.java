@@ -319,6 +319,12 @@ public class MovieBulkEditorDialog extends TmmDialog {
               }
             }
           }
+
+          if (obj instanceof MovieSet) {
+            MovieSet movieSet = (MovieSet) obj;
+            movieSet.saveToDb();
+          }
+
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
         panelContent.add(btnSetMovieSet, "cell 2 4");

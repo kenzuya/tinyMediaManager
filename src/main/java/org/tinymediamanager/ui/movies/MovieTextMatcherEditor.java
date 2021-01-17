@@ -66,11 +66,11 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
     normalizedFilterText = StrgUtils.normalizeString(textComponent.getText());
     try {
       filterPattern = Pattern.compile(normalizedFilterText, Pattern.CASE_INSENSITIVE);
+      fireChanged(new MovieMatcher());
     }
     catch (PatternSyntaxException ignore) {
+      filterPattern = null;
     }
-
-    fireChanged(new MovieMatcher());
   }
 
   /*
@@ -79,41 +79,42 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
   private class MovieMatcher implements Matcher<Movie> {
     @Override
     public boolean matches(Movie movie) {
-      if (StringUtils.isBlank(normalizedFilterText)) {
+      if (StringUtils.isBlank(normalizedFilterText) || filterPattern == null) {
         return true;
       }
 
-      if (StringUtils.isNotEmpty(movie.getTitle()) && settings.getTitle()) {
+      if (StringUtils.isNotBlank(movie.getTitle()) && settings.getTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitle()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotEmpty(movie.getTitleSortable()) && settings.getSortableTitle()) {
+      if (StringUtils.isNotBlank(movie.getTitleSortable()) && settings.getSortableTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getTitleSortable()));
         if (matcher.find()) {
           return true;
         }
       }
 
-      if (StringUtils.isNotEmpty(movie.getOriginalTitle()) && settings.getOriginalTitle()) {
+      if (StringUtils.isNotBlank(movie.getOriginalTitle()) && settings.getOriginalTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalTitle()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotEmpty(movie.getOriginalTitleSortable()) && settings.getSortableOriginalTitle()) {
+      if (StringUtils.isNotBlank(movie.getOriginalTitleSortable()) && settings.getSortableOriginalTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getOriginalTitleSortable()));
         if (matcher.find()) {
           return true;
         }
       }
-      if (StringUtils.isNotEmpty(movie.getSortTitle()) && settings.getSortTitle()) {
+      if (StringUtils.isNotBlank(movie.getSortTitle()) && settings.getSortTitle()) {
         java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getSortTitle()));
         if (matcher.find()) {
           return true;
         }
       }
+
       return false;
     }
   }

@@ -404,7 +404,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
               movie.setMovieSet(movieSetToScrape);
               movie.writeNFO();
               movie.saveToDb();
-              movieSetToScrape.addMovie(movie);
+              movieSetToScrape.insertMovie(movie);
             }
 
             // and finally save assignments

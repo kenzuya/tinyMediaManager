@@ -66,7 +66,6 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -185,12 +184,6 @@ public class MovieList extends AbstractModelObject {
     };
 
     movieSettings = MovieModuleManager.SETTINGS;
-
-    License.getInstance().addEventListener(() -> {
-      firePropertyChange("movieCount", 0, movieList.size());
-      firePropertyChange("movieSetCount", 0, movieSetList.size());
-      firePropertyChange("movieInMovieSetCount", 0, getMovieInMovieSetCount());
-    });
   }
 
   /**
@@ -1257,19 +1250,6 @@ public class MovieList extends AbstractModelObject {
     }
 
     return movieSet;
-  }
-
-  /**
-   * Sort movies in movie set.
-   * 
-   * @param movieSet
-   *          the movie set
-   */
-  public void sortMoviesInMovieSet(MovieSet movieSet) {
-    if (movieSet.getMovies().size() > 1) {
-      movieSet.sortMovies();
-    }
-    firePropertyChange("sortedMovieSets", null, movieSetList);
   }
 
   /**

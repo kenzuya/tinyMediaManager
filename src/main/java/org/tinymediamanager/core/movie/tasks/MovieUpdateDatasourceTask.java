@@ -652,13 +652,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     movie.setPath(movieDir.toAbsolutePath().toString());
     movie.setDataSource(dataSource.toString());
 
-    if (movie.getMovieSet() != null) {
-      LOGGER.debug("| movie is part of a movieset");
-      movie.getMovieSet().insertMovie(movie);
-      movieList.sortMoviesInMovieSet(movie.getMovieSet());
-      movie.getMovieSet().saveToDb();
-    }
-
     // ***************************************************************
     // third round - check for UNKNOWN, if they match a video file name - we might keep them
     // ***************************************************************
@@ -754,6 +747,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
         MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
       }
+    }
+
+    // last but not least attach it to the movie set (this is the last step - otherwise the movie set gets too much events)
+    if (movie.getMovieSet() != null) {
+      LOGGER.debug("| movie is part of a movieset");
+      movie.getMovieSet().insertMovie(movie);
+      movie.getMovieSet().saveToDb();
     }
   }
 
@@ -907,7 +907,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (movie.getMovieSet() != null) {
         LOGGER.debug("| movie is part of a movieset");
         movie.getMovieSet().insertMovie(movie);
-        movieList.sortMoviesInMovieSet(movie.getMovieSet());
         movie.getMovieSet().saveToDb();
       }
 
