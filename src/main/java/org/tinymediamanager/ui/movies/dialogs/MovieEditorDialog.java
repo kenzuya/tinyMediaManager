@@ -1093,6 +1093,8 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), THUMB,
                 movieList.getDefaultArtworkScrapers(), lblThumb, MediaType.MOVIE);
 
+            dialog.bindExtraThumbs(extrathumbs);
+
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }

@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.dialogs;
 
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -270,7 +271,7 @@ public class ImageChooserDialog extends TmmDialog {
     }
 
     // add buttons to select/deselect all extrafanarts/extrathumbs
-    if (type == BACKGROUND) {
+    if (type == BACKGROUND || type == THUMB) {
       labelThumbs = new JLabel("Extrathumbs:");
       contentPanel.add(labelThumbs, "flowx,cell 0 3");
       labelThumbs.setVisible(false);
@@ -300,7 +301,8 @@ public class ImageChooserDialog extends TmmDialog {
           }
         }
       });
-
+    }
+    if (type == BACKGROUND) {
       labelFanart = new JLabel("Extrafanart:");
       contentPanel.add(labelFanart, "flowx,cell 0 4");
       labelFanart.setVisible(false);
@@ -368,7 +370,7 @@ public class ImageChooserDialog extends TmmDialog {
   }
 
   public void bindExtraThumbs(List<String> extraThumbs) {
-    if (type != BACKGROUND) {
+    if (type != BACKGROUND && type != THUMB) {
       return;
     }
 
@@ -518,7 +520,7 @@ public class ImageChooserDialog extends TmmDialog {
     imagePanel.add(lblShowImage, gbc);
 
     // should we provide an option for extrathumbs
-    if (type == BACKGROUND && extraThumbs != null) {
+    if (extraThumbs != null) {
       gbc = new GridBagConstraints();
       gbc.gridx = 1;
       gbc.gridy = row;
@@ -538,7 +540,7 @@ public class ImageChooserDialog extends TmmDialog {
     }
 
     // should we provide an option for extrafanart
-    if (type == BACKGROUND && extraFanarts != null) {
+    if (extraFanarts != null) {
       gbc = new GridBagConstraints();
       gbc.gridx = 1;
       gbc.gridy = ++row;
@@ -757,12 +759,12 @@ public class ImageChooserDialog extends TmmDialog {
       }
 
       // extrathumbs
-      if (type == BACKGROUND && extraThumbs != null) {
+      if (extraThumbs != null) {
         processExtraThumbs();
       }
 
       // extrafanart
-      if (type == BACKGROUND && extraFanarts != null) {
+      if (extraFanarts != null) {
         processExtraFanart();
       }
 
