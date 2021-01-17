@@ -83,7 +83,7 @@ public class TvShowRenameAction extends TmmAction {
     }
 
     // display warning and ask the user again
-    if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hiderenamehint")) {
+    if (Boolean.FALSE.equals(TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hiderenamehint"))) {
       JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));

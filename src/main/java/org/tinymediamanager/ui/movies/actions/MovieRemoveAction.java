@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.movies.actions;
 
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -83,6 +84,8 @@ public class MovieRemoveAction extends TmmAction {
     }
 
     // remove selected movies
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     MovieList.getInstance().removeMovies(selectedMovies);
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

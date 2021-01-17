@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class TvShowRemoveAction extends TmmAction {
     }
 
     // display warning and ask the user again
-    if (!TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hideremovehint")) {
+    if (Boolean.FALSE.equals(TmmProperties.getInstance().getPropertyAsBoolean("tvshow.hideremovehint"))) {
       JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -84,6 +85,7 @@ public class TvShowRemoveAction extends TmmAction {
       }
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Object obj : selectedObjects) {
       // remove a whole TV show
       if (obj instanceof TvShow) {
@@ -104,5 +106,6 @@ public class TvShowRemoveAction extends TmmAction {
         tvShowEpisode.getTvShow().removeEpisode(tvShowEpisode);
       }
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

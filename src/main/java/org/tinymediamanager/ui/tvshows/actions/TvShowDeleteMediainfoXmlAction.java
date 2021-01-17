@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -108,6 +109,7 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
       }
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (TvShow tvShow : selectedTvShows) {
       tvShow.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
         Utils.deleteFileSafely(mediaFile.getFileAsPath());
@@ -120,5 +122,6 @@ public class TvShowDeleteMediainfoXmlAction extends TmmAction {
         episode.removeFromMediaFiles(mediaFile);
       });
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

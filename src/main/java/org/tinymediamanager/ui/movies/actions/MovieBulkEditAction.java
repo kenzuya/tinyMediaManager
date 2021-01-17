@@ -37,11 +37,11 @@ import org.tinymediamanager.ui.movies.dialogs.MovieBulkEditorDialog;
  * 
  * @author Manuel Laggner
  */
-public class MovieBatchEditAction extends TmmAction {
+public class MovieBulkEditAction extends TmmAction {
   private static final long           serialVersionUID = -3974602352019088416L;
   
 
-  public MovieBatchEditAction() {
+  public MovieBulkEditAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.bulkedit"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.bulkedit.desc"));
     putValue(SMALL_ICON, IconManager.EDIT);
