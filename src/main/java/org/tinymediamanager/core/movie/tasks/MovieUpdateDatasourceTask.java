@@ -310,6 +310,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     Set<String> movieDatasources = new HashSet<>();
     moviesToUpdate.forEach(movie -> movieDatasources.add(movie.getDataSource()));
 
+    List<Movie> moviesToCleanup = new ArrayList<>();
+
     // update movies grouped by data source
     for (String ds : movieDatasources) {
       Path dsAsPath = Paths.get(ds);
@@ -347,6 +349,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
 
         movieDirs.add(movie.getPathNIO());
+        moviesToCleanup.add(movie);
       }
 
       for (Path path : movieDirs) {
@@ -367,10 +370,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     LOGGER.debug("VisFileAll: {}", visFileAll);
 
     // cleanup
-    cleanup(moviesToUpdate);
+    cleanup(moviesToCleanup);
 
     // mediainfo
-    gatherMediainfo(moviesToUpdate);
+    gatherMediainfo(moviesToCleanup);
   }
 
   /**
