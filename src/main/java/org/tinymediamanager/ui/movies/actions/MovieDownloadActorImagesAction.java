@@ -22,6 +22,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -35,8 +36,6 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  */
 public class MovieDownloadActorImagesAction extends TmmAction {
 
-  
-
   public MovieDownloadActorImagesAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.downloadactorimages"));
     putValue(SMALL_ICON, IconManager.IMAGE);
@@ -45,6 +44,11 @@ public class MovieDownloadActorImagesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
+    if (!MovieModuleManager.SETTINGS.isWriteActorImages()) {
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.downloadactorimages.activate"));
+      return;
+    }
+
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
