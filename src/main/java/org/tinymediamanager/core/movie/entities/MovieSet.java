@@ -391,7 +391,7 @@ public class MovieSet extends MediaEntity {
    */
   public Boolean getHasImages() {
     for (MediaArtworkType type : MovieModuleManager.SETTINGS.getCheckImagesMovieSet()) {
-      if (StringUtils.isEmpty(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
+      if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
         return false;
       }
     }
