@@ -233,17 +233,16 @@ public class TmmUILayoutStore implements AWTEventListener {
 
     // settings for main window
     if ("mainWindow".equals(frame.getName()) && frame instanceof MainWindow) {
-      addParam("mainWindowMaximized", (frame.getExtendedState() & MAXIMIZED_BOTH) == MAXIMIZED_BOTH);
-      Rectangle bounds = frame.getBounds();
 
-      // if the frame is maximized, we need to respect the screen insets too
+      // if the frame is maximized, we simply take the screen coordinates
       if ((frame.getExtendedState() & MAXIMIZED_BOTH) == MAXIMIZED_BOTH) {
-        Insets screenInsets = frame.getToolkit().getScreenInsets(frame.getGraphicsConfiguration());
-        bounds = new Rectangle(bounds.x + screenInsets.left, bounds.y + screenInsets.top, bounds.width - screenInsets.left - screenInsets.right,
-            bounds.height - screenInsets.top - screenInsets.bottom);
+        storeWindowBounds("mainWindow", frame.getGraphicsConfiguration().getBounds());
+        addParam("mainWindowMaximized", true);
       }
-
-      storeWindowBounds("mainWindow", bounds);
+      else {
+        storeWindowBounds("mainWindow", frame.getBounds());
+        addParam("mainWindowMaximized", false);
+      }
     }
 
     saveChildren(frame);
