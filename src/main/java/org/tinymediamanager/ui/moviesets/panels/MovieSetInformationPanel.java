@@ -45,6 +45,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -109,10 +110,10 @@ public class MovieSetInformationPanel extends JPanel {
         return;
       }
 
-      MovieSetSelectionModel model = (MovieSetSelectionModel) source;
       MovieSet movieSet = selectionModel.getSelectedMovieSet();
 
-      if (SELECTED_MOVIE_SET.equals(property) || MEDIA_FILES.equals(property) || "movies".equals(property)) {
+      if (SELECTED_MOVIE_SET.equals(property) || MEDIA_FILES.equals(property) || Constants.ADDED_MOVIE.equals(property)
+          || Constants.REMOVED_MOVIE.equals(property)) {
         movieEventList.clear();
         movieEventList.addAll(movieSet.getMovies());
       }
