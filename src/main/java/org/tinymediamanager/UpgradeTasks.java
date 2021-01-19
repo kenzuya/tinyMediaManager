@@ -23,7 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -314,6 +318,21 @@ public class UpgradeTasks {
         }
       }
     }
+
+    if (StrgUtils.compareVersion(v, "4.1") < 0) {
+      // remove invalid ratings
+      for (Movie movie : movieList.getMovies()) {
+        removeInvalidRating(movie);
+      }
+
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        removeInvalidRating(tvShow);
+
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          removeInvalidRating(episode);
+        }
+      }
+    }
   }
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {
@@ -338,6 +357,22 @@ public class UpgradeTasks {
 
       default:
         return false;
+    }
+  }
+
+  private static void removeInvalidRating(MediaEntity entity) {
+    boolean dirty = false;
+
+    Map<String, MediaRating> ratings = new HashMap<>(entity.getRatings());
+    for (Map.Entry<String, MediaRating> entry : ratings.entrySet()) {
+      if (entry.getValue().getRating() < 0) {
+        entity.removeRating(entry.getKey());
+        dirty = true;
+      }
+    }
+
+    if (dirty) {
+      entity.saveToDb();
     }
   }
 
