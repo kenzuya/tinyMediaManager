@@ -17,6 +17,8 @@ package org.tinymediamanager.ui.movies.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
@@ -35,8 +37,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -554,8 +558,9 @@ public class MovieBulkEditorDialog extends TmmDialog {
         JLabel lblPatternT = new TmmLabel(TmmResourceBundle.getString("bulkedit.value"));
         panelContent.add(lblPatternT, "cell 0 3,alignx right");
 
-        JTextField tfPattern = new JTextField();
-        tfPattern.getDocument().addDocumentListener(new DocumentListener() {
+        JTextArea taPattern = new JTextArea();
+        taPattern.setBorder(UIManager.getBorder("ScrollPane.border"));
+        taPattern.getDocument().addDocumentListener(new DocumentListener() {
           @Override
           public void insertUpdate(DocumentEvent e) {
             changePattern();
@@ -572,11 +577,23 @@ public class MovieBulkEditorDialog extends TmmDialog {
           }
 
           private void changePattern() {
-            movieValuesEventList.forEach(movieValues -> movieValues.changePattern(tfPattern.getText()));
+            movieValuesEventList.forEach(movieValues -> movieValues.changePattern(taPattern.getText()));
           }
         });
 
-        panelContent.add(tfPattern, "cell 1 3,wmin 0,grow");
+        taPattern.addFocusListener(new FocusListener() {
+          @Override
+          public void focusGained(FocusEvent e) {
+            taPattern.repaint();
+          }
+
+          @Override
+          public void focusLost(FocusEvent e) {
+            taPattern.repaint();
+          }
+        });
+
+        panelContent.add(taPattern, "cell 1 3,wmin 0,grow");
       }
       {
         JButton btnApply = new SquareIconButton(IconManager.APPLY_INV);
