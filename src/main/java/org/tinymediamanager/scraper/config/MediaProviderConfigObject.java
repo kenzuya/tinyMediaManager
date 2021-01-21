@@ -113,10 +113,10 @@ public class MediaProviderConfigObject {
   }
 
   public Boolean getValueAsBool() {
-    Boolean bool = null;
+    Boolean bool = Boolean.FALSE;
     if (type != ConfigType.BOOL) {
       LOGGER.trace("This is not a boolean '{}={}' - returning NULL ", key, value);
-      return null;
+      return bool;
     }
     if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) { // always false when unparseable :/
       bool = Boolean.valueOf(value);
