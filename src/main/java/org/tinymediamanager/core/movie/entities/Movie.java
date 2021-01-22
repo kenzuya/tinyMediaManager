@@ -1386,7 +1386,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     if (mediaRating == null) {
-      mediaRating = super.getRating();
+      mediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     return mediaRating;

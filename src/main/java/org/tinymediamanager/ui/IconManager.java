@@ -70,9 +70,15 @@ public class IconManager {
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR       = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR);
   public static final ImageIcon              TOOLBAR_MENU_INDICATOR_HOVER = createSVGIcon("caret-down-solid.svg", ToolbarMenu.COLOR_HOVER);
 
-  // packaged icons
+  // rating icons
   public static final ImageIcon              STAR_FILLED                  = createSVGIcon("star-filled.svg", new Dimension(24, 24), true);
   public static final ImageIcon              STAR_EMPTY                   = createSVGIcon("star-empty.svg", new Dimension(24, 24), true);
+  public static final ImageIcon              RATING_NEUTRAL               = createSVGIcon("rating.svg", new Dimension(42, 42), true);
+  public static final ImageIcon              RATING_USER                  = createSVGIcon("rating-user.svg", new Dimension(42, 42), true);
+  public static final ImageIcon              RATING_IMDB                  = createSVGIcon("rating-imdb.svg", new Dimension(42, 42), true);
+  public static final ImageIcon              RATING_TMDB                  = createSVGIcon("rating-tmdb.svg", new Dimension(42, 42), true);
+  public static final ImageIcon              RATING_ROTTEN_TOMATOES       = createSVGIcon("rating-rottentomatoes.svg", new Dimension(42, 42), true);
+  public static final ImageIcon              RATING_METACRITIC            = createSVGIcon("rating-metacritic.svg", new Dimension(42, 42), true);
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
@@ -158,7 +164,9 @@ public class IconManager {
   public static final ImageIcon              EPISODES                     = createTextIcon("E", 1.5);
   public static final ImageIcon              FILE_SIZE                    = createTableHeaderIcon("save.svg");
   public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
+  public static final ImageIcon              IMDB                         = createTextIcon("IMDb", 0.9);
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
+  public static final ImageIcon              METASCORE                    = createTextIcon("MS", 0.9);
   public static final ImageIcon              NEW                          = createTableHeaderIcon("plus-circle.svg");
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");
@@ -166,6 +174,8 @@ public class IconManager {
   public static final ImageIcon              SEASONS                      = createTextIcon("S", 1.5);
   public static final ImageIcon              SOURCE                       = createTableHeaderIcon("location.svg");
   public static final ImageIcon              SUBTITLES                    = createTableHeaderIcon("comments.svg");
+  public static final ImageIcon              TMDB                         = createTextIcon("TMDB", 0.9);
+  public static final ImageIcon              ROTTEN_TOMATOES              = createTextIcon("RT", 0.9);
   public static final ImageIcon              TRAILER                      = createTableHeaderIcon("film.svg");
   public static final ImageIcon              VIDEO_3D                     = createTableHeaderIcon("cube.svg");
   public static final ImageIcon              VIDEO_FORMAT                 = createTableHeaderIcon("expand-wide.svg");
@@ -335,6 +345,10 @@ public class IconManager {
     catch (Exception e) {
       return (int) Math.floor(12 * scaleFactor);
     }
+  }
+
+  private static ImageIcon createTextIcon(String text) {
+    return createTextIcon(text, 1, UIManager.getColor("Label.foreground"));
   }
 
   private static ImageIcon createTextIcon(String text, Color color) {
