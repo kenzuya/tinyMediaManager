@@ -23,6 +23,7 @@ Version 4.1
 + added more Columns for Movie Sets
 + added period (year of movies in collection) for Movie Sets
 + reworked visualization of ratings
++ added original title column for tvshows / episodes
 x rewritten Trakt.tv integration to be more flexible and ready for multiple versions of the same movie/episode #1031 #1081
 x exchanged native file dialogs with tiny file dialogs
   Windows users will see a change here, because tiny file dialogs uses the "folder browser" component from Windows

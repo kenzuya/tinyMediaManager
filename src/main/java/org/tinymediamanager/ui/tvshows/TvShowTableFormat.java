@@ -94,9 +94,17 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Comparator<String> fileSizeComparator = new FileSizeComparator();
 
     /*
+     * Original Title
+     */
+    Column col = new Column(TmmResourceBundle.getString("metatag.originaltitle"), "originalTitle", this::getOriginialTitle, String.class);
+    col.setDefaultHidden(true);
+    col.setColumnComparator(stringComparator);
+    addColumn(col);
+
+    /*
      * year
      */
-    Column col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
     col.setColumnComparator(integerComparator);
@@ -530,4 +538,16 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     return null;
   }
+
+  private String getOriginialTitle(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      return ((TvShow) userObject).getOriginalTitle();
+    }
+    else if (userObject instanceof TvShowEpisode) {
+      return ((TvShowEpisode) userObject).getOriginalTitle();
+    }
+    return null;
+  }
+
 }
