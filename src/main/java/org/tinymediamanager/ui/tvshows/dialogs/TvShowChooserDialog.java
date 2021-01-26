@@ -90,10 +90,12 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
@@ -175,13 +177,29 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     {
       final JPanel panelPath = new JPanel();
-      panelPath.setLayout(new MigLayout("", "[grow]", "[]"));
+      panelPath.setLayout(new MigLayout("", "[grow][]", "[]"));
       {
         lblPath = new JLabel("");
         TmmFontHelper.changeFont(lblPath, 1.16667, Font.BOLD);
         panelPath.add(lblPath, "cell 0 0, growx, wmin 0");
       }
 
+      {
+        final JButton btnPlay = new SquareIconButton(IconManager.FILE_OPEN_INV);
+        btnPlay.setFocusable(false);
+        btnPlay.addActionListener(e -> {
+
+          try {
+            TmmUIHelper.openFile(tvShowToScrape.getPathNIO());
+          }
+          catch (Exception ex) {
+            LOGGER.error("open file", ex);
+            MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, tvShowToScrape.getPathNIO(), "message.erroropenfile",
+                new String[] { ":", ex.getLocalizedMessage() }));
+          }
+        });
+        panelPath.add(btnPlay, "cell 1 0");
+      }
       setTopIformationPanel(panelPath);
     }
 
