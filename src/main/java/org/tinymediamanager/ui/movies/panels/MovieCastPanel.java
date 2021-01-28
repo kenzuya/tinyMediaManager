@@ -86,7 +86,7 @@ public class MovieCastPanel extends JPanel {
           lblActorThumb.setActor(selectionModel.getSelectedMovie(), actor);
         }
         else {
-          lblActorThumb.setImageUrl("");
+          lblActorThumb.clearImage();
         }
       }
     });
