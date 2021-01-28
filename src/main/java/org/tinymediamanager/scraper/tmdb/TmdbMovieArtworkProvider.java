@@ -26,13 +26,14 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSetArtworkProvider;
 
 /**
  * the class {@link TmdbMovieArtworkProvider} is used to provide artwork for movies
  *
  * @author Manuel Laggner
  */
-public class TmdbMovieArtworkProvider extends TmdbMetadataProvider implements IMovieArtworkProvider {
+public class TmdbMovieArtworkProvider extends TmdbMetadataProvider implements IMovieArtworkProvider, IMovieSetArtworkProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TmdbMovieArtworkProvider.class);
 
   @Override

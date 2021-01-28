@@ -37,7 +37,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSetArtworkProvider;
 
 /**
  * The Class MovieMissingArtworkDownloadTask. Used to find and download missing for the given movies
@@ -107,17 +107,19 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
 
         // scrape providers till one artwork has been found
         for (MediaScraper scraper : movieList.getDefaultArtworkScrapers()) {
-          IMovieArtworkProvider artworkProvider = (IMovieArtworkProvider) scraper.getMediaProvider();
-          try {
-            artwork.addAll(artworkProvider.getArtwork(options));
-          }
-          catch (MissingIdException ignored) {
-            // no need to log a missing ID here
-          }
-          catch (ScrapeException e) {
-            LOGGER.error("getArtwork", e);
-            MessageManager.instance.pushMessage(
-                new Message(MessageLevel.ERROR, movieSet, "message.scrape.subtitlefailed", new String[] { ":", e.getLocalizedMessage() }));
+          if (scraper.getMediaProvider() instanceof IMovieSetArtworkProvider) {
+            try {
+              IMovieSetArtworkProvider artworkProvider = (IMovieSetArtworkProvider) scraper.getMediaProvider();
+              artwork.addAll(artworkProvider.getArtwork(options));
+            }
+            catch (MissingIdException ignored) {
+              // no need to log a missing ID here
+            }
+            catch (ScrapeException e) {
+              LOGGER.error("getArtwork", e);
+              MessageManager.instance.pushMessage(
+                  new Message(MessageLevel.ERROR, movieSet, "message.scrape.moviesetartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
+            }
           }
         }
 

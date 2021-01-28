@@ -123,7 +123,7 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
             catch (ScrapeException e) {
               LOGGER.error("getArtwork", e);
               MessageManager.instance.pushMessage(
-                  new Message(MessageLevel.ERROR, movie, "message.scrape.subtitlefailed", new String[] { ":", e.getLocalizedMessage() }));
+                  new Message(MessageLevel.ERROR, movie, "message.scrape.moviesetartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
             }
           }
 
