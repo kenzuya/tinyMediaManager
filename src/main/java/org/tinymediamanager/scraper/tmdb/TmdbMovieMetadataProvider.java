@@ -118,6 +118,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
   @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 
@@ -250,8 +251,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
   @Override
   public List<MediaSearchResult> search(MovieSetSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
     // lazy initialization of the api
     initAPI();
+
     List<MediaSearchResult> movieSetsFound = new ArrayList<>();
 
     String searchString = "";
@@ -293,8 +296,9 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     return movieSetsFound;
   }
 
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 
@@ -371,8 +375,9 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSetSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSetSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 

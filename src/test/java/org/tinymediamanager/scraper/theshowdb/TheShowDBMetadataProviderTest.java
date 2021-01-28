@@ -8,7 +8,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -20,7 +19,6 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 public class TheShowDBMetadataProviderTest extends BasicTest {
 
   TheShowDBTvShowMetadataProvider mp;
-
 
   @Before
   public void setUp() {
@@ -37,7 +35,6 @@ public class TheShowDBMetadataProviderTest extends BasicTest {
     options.setLanguage(MediaLanguages.en);
     options.setSearchQuery("Lost");
 
-
     List<MediaSearchResult> result = new ArrayList<>(mp.search(options));
     assertThat(result).isNotNull();
     assertThat(result).hasSizeGreaterThan(5);
@@ -49,7 +46,7 @@ public class TheShowDBMetadataProviderTest extends BasicTest {
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.en);
-    options.setId("theshowdb","602648");
+    options.setId("theshowdb", "602648");
     MediaMetadata result;
 
     result = mp.getMetadata(options);

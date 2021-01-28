@@ -800,14 +800,14 @@ public class MovieSetEditorDialog extends TmmDialog {
                 break;
               }
             }
+            catch (MissingIdException ex) {
+              LOGGER.warn("missing id for scrape");
+              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "scraper.error.missingid"));
+            }
             catch (ScrapeException ex) {
               LOGGER.error("getMetadata", ex);
               MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "message.scrape.metadatamoviesetfailed",
                   new String[] { ":", ex.getLocalizedMessage() }));
-            }
-            catch (MissingIdException ex) {
-              LOGGER.warn("missing id for scrape");
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "scraper.error.missingid"));
             }
           }
         }

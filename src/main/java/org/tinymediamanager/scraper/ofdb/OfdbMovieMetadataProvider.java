@@ -32,11 +32,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -59,11 +59,6 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
     return "movie";
   }
 
-  @Override
-  public boolean isActive() {
-    return true;
-  }
-
   /*
    * <meta property="og:title" content="Bourne Vermaächtnis, Das (2012)" /> <meta property="og:type" content="movie" /> <meta property="og:url"
    * content="http://www.ofdb.de/film/226745,Das-Bourne-Vermächtnis" /> <meta property="og:image" content="http://img.ofdb.de/film/226/226745.jpg" />
@@ -71,23 +66,17 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
    * src="http://www.ofdb.de/jscripts/vn/immer_oben.js" type="text/javascript"></script>
    */
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
 
     // we have 3 entry points here
     // a) getMetadata has been called with an ofdbId
     // b) getMetadata has been called with an imdbId
     // c) getMetadata has been called from a previous search
-
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(getId());
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
     String detailUrl = "";
 
@@ -95,7 +84,12 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
     String id = options.getIdAsString(getId());
 
     if (StringUtils.isNotBlank(id)) {
-      detailUrl = apiKey + "/view.php?page=film&fid=" + id;
+      try {
+        detailUrl = getApiKey() + "/view.php?page=film&fid=" + id;
+      }
+      catch (Exception e) {
+        throw new ScrapeException(e);
+      }
     }
 
     // case b)
@@ -240,8 +234,8 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
     LOGGER.trace("parse plot");
     el = doc.getElementsByAttributeValueMatching("href", "plot\\/\\d+,");
     if (!el.isEmpty()) {
-      String plotUrl = apiKey + "/" + el.first().attr("href");
       try {
+        String plotUrl = getApiKey() + "/" + el.first().attr("href");
         Document plot = UrlUtil.parseDocumentFromUrl(plotUrl);
 
         Elements block = plot.getElementsByClass("Blocksatz"); // first
@@ -259,11 +253,10 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
       }
     }
 
-    String movieDetail = apiKey + "/view.php?page=film_detail&fid=" + ofdbId;
-    LOGGER.trace("parse movie detail: {}", movieDetail);
-
     doc = null;
     try {
+      String movieDetail = getApiKey() + "/view.php?page=film_detail&fid=" + ofdbId;
+      LOGGER.trace("parse movie detail: {}", movieDetail);
       doc = UrlUtil.parseDocumentFromUrl(movieDetail);
     }
     catch (InterruptedException | InterruptedIOException e) {
@@ -275,12 +268,12 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
     }
 
     if (doc != null) {
-      parseCast(apiKey, doc.getElementsContainingOwnText("Regie"), Person.Type.DIRECTOR, md);
-      parseCast(apiKey, doc.getElementsContainingOwnText("Darsteller"), Person.Type.ACTOR, md);
-      parseCast(apiKey, doc.getElementsContainingOwnText("Stimme/Sprecher"), Person.Type.ACTOR, md);
-      parseCast(apiKey, doc.getElementsContainingOwnText("Synchronstimme (deutsch)"), Person.Type.ACTOR, md);
-      parseCast(apiKey, doc.getElementsContainingOwnText("Drehbuchautor(in)"), Person.Type.WRITER, md);
-      parseCast(apiKey, doc.getElementsContainingOwnText("Produzent(in)"), Person.Type.PRODUCER, md);
+      parseCast(doc.getElementsContainingOwnText("Regie"), Person.Type.DIRECTOR, md);
+      parseCast(doc.getElementsContainingOwnText("Darsteller"), Person.Type.ACTOR, md);
+      parseCast(doc.getElementsContainingOwnText("Stimme/Sprecher"), Person.Type.ACTOR, md);
+      parseCast(doc.getElementsContainingOwnText("Synchronstimme (deutsch)"), Person.Type.ACTOR, md);
+      parseCast(doc.getElementsContainingOwnText("Drehbuchautor(in)"), Person.Type.WRITER, md);
+      parseCast(doc.getElementsContainingOwnText("Produzent(in)"), Person.Type.PRODUCER, md);
     }
 
     return md;
@@ -290,14 +283,8 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
 
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(getId());
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
@@ -316,7 +303,7 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
         imdb = options.getImdbId();
         LOGGER.debug("search with imdbId: {}", imdb);
 
-        Document doc = UrlUtil.parseDocumentFromUrl(apiKey + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + imdb);
+        Document doc = UrlUtil.parseDocumentFromUrl(getApiKey() + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + imdb);
 
         // only look for movie links
         filme = doc.getElementsByAttributeValueMatching("href", "film\\/\\d+,");
@@ -335,7 +322,7 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
     // 2. search for search string
     if ((filme == null || filme.isEmpty()) && StringUtils.isNotBlank(options.getSearchQuery())) {
       try {
-        String searchString = apiKey + "/view.php?page=suchergebnis&Kat=All&SText="
+        String searchString = getApiKey() + "/view.php?page=suchergebnis&Kat=All&SText="
             + URLEncoder.encode(cleanSearch(searchQuery), StandardCharsets.UTF_8);
         LOGGER.debug("search for everything: {}", searchQuery);
 
@@ -387,8 +374,8 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
           LOGGER.trace("could not parse year: {}", e.getMessage());
         }
 
-        sr.setUrl(apiKey + "/" + StrgUtils.substr(a.toString(), "href=\\\"(.*?)\\\""));
-        sr.setPosterUrl(apiKey + "/images" + StrgUtils.substr(a.toString(), "images(.*?)\\&quot"));
+        sr.setUrl(getApiKey() + "/" + StrgUtils.substr(a.toString(), "href=\\\"(.*?)\\\""));
+        sr.setPosterUrl(getApiKey() + "/images" + StrgUtils.substr(a.toString(), "images(.*?)\\&quot"));
 
         // check if it has at least a title and url
         if (StringUtils.isBlank(sr.getTitle()) || StringUtils.isBlank(sr.getUrl())) {
@@ -449,7 +436,7 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
   // find the header
   // go up until TR table row
   // get next TR for casts entries
-  private void parseCast(String baseUrl, Elements el, Person.Type type, MediaMetadata md) {
+  private void parseCast(Elements el, Person.Type type, MediaMetadata md) {
     if (el != null && !el.isEmpty()) {
       Element castEl = null;
       for (Element element : el) {
@@ -484,7 +471,7 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
               try {
                 String imgurl = URLDecoder.decode(StrgUtils.substr(act, "images%2Fperson%2F(.*?)&amp;size"), "UTF-8");
                 if (!imgurl.isEmpty()) {
-                  imgurl = baseUrl + "/images/person/" + imgurl;
+                  imgurl = getApiKey() + "/images/person/" + imgurl;
                 }
                 cm.setThumbUrl(imgurl);
               }
@@ -494,7 +481,7 @@ public class OfdbMovieMetadataProvider extends OfdbMetadataProvider implements I
               // profile path
               Element profileAnchor = a.getElementsByAttributeValueStarting("href", "view.php?page=person").first();
               if (profileAnchor != null) {
-                cm.setProfileUrl(baseUrl + profileAnchor.attr("href"));
+                cm.setProfileUrl(getApiKey() + profileAnchor.attr("href"));
               }
             }
             String arole = StrgUtils.substr(act, "\\.\\.\\. (.*?)</font>").replaceAll("<[^>]*>", "");

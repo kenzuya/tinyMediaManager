@@ -293,7 +293,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private String searchTerm;
+    private final String searchTerm;
 
     public SearchTask(String searchTerm) {
       this.searchTerm = searchTerm;

@@ -23,12 +23,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.tinymediamanager.license.License;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -41,7 +42,7 @@ import com.uwetrottmann.trakt5.enums.Type;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
-abstract class TraktMetadataProvider {
+abstract class TraktMetadataProvider implements IMediaProvider {
   static final String             ID = "trakt";
 
   private final MediaProviderInfo providerInfo;
@@ -75,48 +76,52 @@ abstract class TraktMetadataProvider {
   }
 
   public boolean isActive() {
-    return api != null && StringUtils.isNotBlank(api.apiKey());
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 
   protected abstract Logger getLogger();
 
   // thread safe initialization of the API
   protected synchronized void initAPI() throws ScrapeException {
-    String tmmApiKey;
-    String apiKey;
-    try {
-      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
-
-    // check if the API should change from current key to user key
-    if (StringUtils.isNotBlank(userApiKey) && api != null && !userApiKey.equals(api.apiKey())) {
-      api = null;
-      apiKey = userApiKey;
-    }
-
-    // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && api != null && !tmmApiKey.equals(api.apiKey())) {
-      api = null;
-      apiKey = tmmApiKey;
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     // create a new instance of the trakt api
     if (api == null) {
-      api = new TraktV2(apiKey) {
-        // tell the trakt api to use our OkHttp client
+      try {
+        api = new TraktV2(getApiKey()) {
+          // tell the trakt api to use our OkHttp client
 
-        @Override
-        protected synchronized OkHttpClient okHttpClient() {
-          OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
-          builder.addInterceptor(new TraktV2Interceptor(this));
-          return builder.build();
-        }
-      };
+          @Override
+          protected synchronized OkHttpClient okHttpClient() {
+            OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
+            builder.addInterceptor(new TraktV2Interceptor(this));
+            return builder.build();
+          }
+        };
+      }
+      catch (Exception e) {
+        getLogger().error("could not initialize the API: {}", e.getMessage());
+        // force re-initialization the next time this will be called
+        api = null;
+        throw new ScrapeException(e);
+      }
+    }
+
+    if (api != null) {
+      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+
+      // check if the API should change from current key to user key
+      if (StringUtils.isNotBlank(userApiKey)) {
+        api.apiKey(userApiKey);
+      }
+
+      // check if the API should change from current key to tmm key
+      if (StringUtils.isBlank(userApiKey)) {
+        api.apiKey(getApiKey());
+      }
     }
   }
 
@@ -146,12 +151,15 @@ abstract class TraktMetadataProvider {
       case MOVIE:
         type = Type.MOVIE;
         break;
+
       case TV_SHOW:
         type = Type.SHOW;
         break;
+
       case TV_EPISODE:
         type = Type.EPISODE;
         break;
+
       default:
     }
 

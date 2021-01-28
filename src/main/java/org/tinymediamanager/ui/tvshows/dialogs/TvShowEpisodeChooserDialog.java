@@ -251,14 +251,14 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
         }
         table.adjustColumnPreferredWidths(5);
       }
+      catch (MissingIdException e) {
+        LOGGER.warn("missing id for scrape");
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "scraper.error.missingid"));
+      }
       catch (ScrapeException e) {
         LOGGER.error("searchMovieFallback", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, episode, "message.scrape.episodelistfailed", new String[] { ":", e.getLocalizedMessage() }));
-      }
-      catch (MissingIdException e) {
-        LOGGER.warn("missing id for scrape");
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "scraper.error.missingid"));
       }
       return null;
     }

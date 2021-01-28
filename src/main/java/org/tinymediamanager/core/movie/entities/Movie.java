@@ -880,13 +880,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
               }
             }
           }
+          catch (MissingIdException | NothingFoundException e) {
+            LOGGER.debug("could not get movie set meta data: {}", e.getMessage());
+          }
           catch (ScrapeException e) {
             LOGGER.error("getMovieSet", e);
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, this, "message.scrape.metadatamoviesetfailed",
                 new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException | NothingFoundException e) {
-            LOGGER.debug("could not get movie set meta data: {}", e.getMessage());
           }
         }
 

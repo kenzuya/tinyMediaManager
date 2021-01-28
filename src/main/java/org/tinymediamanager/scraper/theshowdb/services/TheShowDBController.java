@@ -25,7 +25,7 @@ import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.theshowdb.entities.Episode;
 import org.tinymediamanager.scraper.theshowdb.entities.Episodes;
 import org.tinymediamanager.scraper.theshowdb.entities.Season;
-import org.tinymediamanager.scraper.theshowdb.entities.Show;
+import org.tinymediamanager.scraper.theshowdb.entities.Shows;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
@@ -33,14 +33,16 @@ import com.google.gson.internal.bind.DateTypeAdapter;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.tinymediamanager.scraper.theshowdb.entities.Shows;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TheShowDBController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TheShowDBController.class);
-  Retrofit                    retrofit;
+
+  private final Retrofit      retrofit;
+
+  private String              apiKey;
 
   /**
    * setting up the retrofit object with further debugging options if needed
@@ -56,6 +58,10 @@ public class TheShowDBController {
       builder.addInterceptor(logging);
     }
     retrofit = buildRetrofitInstance(builder.build());
+  }
+
+  public void setApiKey(String apiKey) {
+    this.apiKey = apiKey;
   }
 
   private GsonBuilder getGsonBuilder() {
@@ -81,8 +87,10 @@ public class TheShowDBController {
    * @return a new retrofit object.
    */
   private Retrofit buildRetrofitInstance(OkHttpClient client) {
-    return new Retrofit.Builder().client(client).baseUrl("https://www.theshowdb.com/api/json/v1/")
-        .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create())).build();
+    return new Retrofit.Builder().client(client)
+        .baseUrl("https://www.theshowdb.com/api/json/v1/")
+        .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create()))
+        .build();
   }
 
   /**
@@ -94,32 +102,32 @@ public class TheShowDBController {
     return retrofit.create(TheShowDBService.class);
   }
 
-  public Shows getShowByName(String apiKey, String query) throws IOException {
+  public Shows getShowByName(String query) throws IOException {
     return getService().searchShowByName(apiKey, query).execute().body();
   }
 
-  public List<Season> getAllSeasonsByShowId(String apikey, String id) throws IOException {
-    return getService().listAllSeasonsByShowId(apikey, id).execute().body();
+  public List<Season> getAllSeasonsByShowId(String id) throws IOException {
+    return getService().listAllSeasonsByShowId(apiKey, id).execute().body();
   }
 
-  public List<Episode> getAllEpisodesBySeasonId(String apikey, String id) throws IOException {
-    return getService().listAllEpisodesBySeasonId(apikey, id).execute().body();
+  public List<Episode> getAllEpisodesBySeasonId(String id) throws IOException {
+    return getService().listAllEpisodesBySeasonId(apiKey, id).execute().body();
   }
 
-  public Episodes getAllEpisodesByShowId(String apikey, String id) throws IOException {
-    return getService().listAllEpisodesByShowId(apikey, id).execute().body();
+  public Episodes getAllEpisodesByShowId(String id) throws IOException {
+    return getService().listAllEpisodesByShowId(apiKey, id).execute().body();
   }
 
-  public Shows getShowDetailsByShowId(String apikey, String id) throws IOException {
-    return getService().lookupShowDetailsByShowId(apikey, id).execute().body();
+  public Shows getShowDetailsByShowId(String id) throws IOException {
+    return getService().lookupShowDetailsByShowId(apiKey, id).execute().body();
   }
 
-  public Season getSeasonDetailsBySeasonId(String apikey, String id) throws IOException {
-    return getService().lookupSeasonDetailsBySeasonId(apikey, id).execute().body();
+  public Season getSeasonDetailsBySeasonId(String id) throws IOException {
+    return getService().lookupSeasonDetailsBySeasonId(apiKey, id).execute().body();
   }
 
-  public Episode getEpisodeDetailsByEpisodeId(String apikey, String id) throws IOException {
-    return getService().lookupEpisodeDetailsByEpisodeId(apikey, id).execute().body();
+  public Episode getEpisodeDetailsByEpisodeId(String id) throws IOException {
+    return getService().lookupEpisodeDetailsByEpisodeId(apiKey, id).execute().body();
   }
 
 }

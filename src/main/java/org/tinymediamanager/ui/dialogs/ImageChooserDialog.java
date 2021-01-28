@@ -989,12 +989,11 @@ public class ImageChooserDialog extends TmmDialog {
             service.submit(callable);
           }
         }
-
-        catch (ScrapeException e) {
-          LOGGER.error("getArtwork", e);
-        }
         catch (MissingIdException e) {
           LOGGER.debug("could not fetch artwork: {}", e.getIds());
+        }
+        catch (ScrapeException e) {
+          LOGGER.error("getArtwork", e);
         }
         catch (Exception e) {
           if (e instanceof InterruptedException || e instanceof InterruptedIOException) { // NOSONAR

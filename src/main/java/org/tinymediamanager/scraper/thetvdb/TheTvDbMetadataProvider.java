@@ -21,11 +21,12 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.tinymediamanager.license.License;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 
 import com.uwetrottmann.thetvdb.TheTvdb;
 import com.uwetrottmann.thetvdb.entities.Episode;
@@ -43,7 +44,7 @@ import retrofit2.Response;
  *
  * @author Manuel Laggner
  */
-abstract class TheTvDbMetadataProvider {
+abstract class TheTvDbMetadataProvider implements IMediaProvider {
   private static final String     ID                = "tvdb";
 
   protected static final String   ARTWORK_URL       = "https://artworks.thetvdb.com/banners/";
@@ -79,36 +80,18 @@ abstract class TheTvDbMetadataProvider {
   }
 
   public boolean isActive() {
-    return tvdb != null && StringUtils.isNotBlank(tvdb.apiKey());
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
   }
 
   protected synchronized void initAPI() throws ScrapeException {
-    String tmmApiKey;
-    String apiKey;
-    try {
-      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
-
-    // check if the API should change from current key to user key
-    if (StringUtils.isNotBlank(userApiKey) && tvdb != null && !userApiKey.equals(tvdb.apiKey())) {
-      tvdb = null;
-      apiKey = userApiKey;
-    }
-
-    // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && tvdb != null && !tmmApiKey.equals(tvdb.apiKey())) {
-      tvdb = null;
-      apiKey = tmmApiKey;
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     if (tvdb == null) {
       try {
-        tvdb = new TheTvdb(apiKey) {
+        tvdb = new TheTvdb(getApiKey()) {
           // tell the tvdb api to use our OkHttp client
           private OkHttpClient okHttpClient;
 
@@ -139,6 +122,20 @@ abstract class TheTvDbMetadataProvider {
         // force re-initialization the next time this will be called
         tvdb = null;
         throw new ScrapeException(e);
+      }
+    }
+
+    if (tvdb != null) {
+      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+
+      // check if the API should change from current key to user key
+      if (StringUtils.isNotBlank(userApiKey)) {
+        tvdb.apiKey(userApiKey);
+      }
+
+      // check if the API should change from current key to tmm key
+      if (StringUtils.isBlank(userApiKey)) {
+        tvdb.apiKey(getApiKey());
       }
     }
   }

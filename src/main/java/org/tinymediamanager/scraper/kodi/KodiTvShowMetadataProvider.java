@@ -22,6 +22,7 @@ import java.util.SortedSet;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -31,7 +32,6 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
@@ -57,11 +57,16 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
   @Override
   public boolean isActive() {
-    return true;
+    return isFeatureEnabled();
   }
 
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     SortedSet<MediaSearchResult> results = _search(options);
     if (results.isEmpty() && options.getSearchYear() > 0) {
       // nothing found, try w/o year
@@ -74,12 +79,22 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
   @Override
   public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     LOGGER.debug("getMetadata(): {}", options);
     return _getMetadata(options);
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     MediaMetadata md = new MediaMetadata(scraper.getProviderInfo().getId());
 
     // get episode number and season number
@@ -292,7 +307,12 @@ public class KodiTvShowMetadataProvider extends AbstractKodiMetadataProvider imp
 
   @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
-    LOGGER.trace("******* BEGIN ARTWORK XML FOR {} ***********", options.getArtworkType());
+    LOGGER.trace("getArtwork(): {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     List<MediaArtwork> mas = new ArrayList<>();
     // scrape again to get Kodi XML (thank god we have a mem cachedUrl)
     try {

@@ -29,13 +29,12 @@ import static org.tinymediamanager.scraper.imdb.ImdbParser.USE_TMDB_FOR_TV_SHOWS
 import java.util.List;
 import java.util.SortedSet;
 
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
@@ -74,27 +73,42 @@ public class ImdbTvShowMetadataProvider extends ImdbMetadataProvider implements 
   }
 
   @Override
-  public boolean isActive() {
-    return true;
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return (new ImdbTvShowParser(this, executor)).getTvShowMetadata(options);
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    return (new ImdbTvShowParser(getProviderInfo().getConfig(), executor)).getTvShowMetadata(options);
-  }
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
 
-  @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    return (new ImdbTvShowParser(getProviderInfo().getConfig(), executor)).getEpisodeMetadata(options);
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return (new ImdbTvShowParser(this, executor)).getEpisodeMetadata(options);
   }
 
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
-    return (new ImdbTvShowParser(getProviderInfo().getConfig(), executor)).search(options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return (new ImdbTvShowParser(this, executor)).search(options);
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    return new ImdbTvShowParser(getProviderInfo().getConfig(), executor).getEpisodeList(options);
+  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return new ImdbTvShowParser(this, executor).getEpisodeList(options);
   }
 }

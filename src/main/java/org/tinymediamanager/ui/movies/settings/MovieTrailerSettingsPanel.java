@@ -19,6 +19,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ItemListener;
@@ -36,6 +37,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -73,27 +75,26 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieTrailerSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -1607146878528487625L;
+  private static final long          serialVersionUID = -1607146878528487625L;
   /**
    * @wbp.nls.resourceBundle messages
    */
 
+  private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final ItemListener         checkBoxListener;
 
-  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
-  private final List<ScraperInTable>  scrapers         = ObservableCollections.observableList(new ArrayList<>());
-  private final ItemListener          checkBoxListener;
-
-  private TmmTable                    tableScraperInTable;
-  private JTextPane                   tpScraperDescription;
-  private JComboBox<TrailerSources>   cbTrailerSource;
-  private JComboBox<TrailerQuality>   cbTrailerQuality;
-  private JCheckBox                   checkBox;
-  private JCheckBox                   chckbxAutomaticTrailerDownload;
-  private JPanel                      panelScraperOptions;
-  private JCheckBox                   cbTrailerFilename1;
-  private JCheckBox                   cbTrailerFilename2;
-  private JCheckBox                   cbTrailerFilename3;
-  private JLabel                      lblAutomaticTrailerDownloadHint;
+  private TmmTable                   tableScraperInTable;
+  private JTextPane                  tpScraperDescription;
+  private JComboBox<TrailerSources>  cbTrailerSource;
+  private JComboBox<TrailerQuality>  cbTrailerQuality;
+  private JCheckBox                  checkBox;
+  private JCheckBox                  chckbxAutomaticTrailerDownload;
+  private JPanel                     panelScraperOptions;
+  private JCheckBox                  cbTrailerFilename1;
+  private JCheckBox                  cbTrailerFilename2;
+  private JCheckBox                  cbTrailerFilename3;
+  private JLabel                     lblAutomaticTrailerDownloadHint;
 
   MovieTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -131,19 +132,20 @@ class MovieTrailerSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableScraperInTable, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraperInTable, 5);
 
-    tableScraperInTable.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        ScraperInTable changedScraper = scrapers.get(row);
-        if (changedScraper.getActive()) {
-          settings.addMovieTrailerScraper(changedScraper.getScraperId());
-        }
-        else {
-          settings.removeMovieTrailerScraper(changedScraper.getScraperId());
-        }
-      }
-    });
+    tableScraperInTable.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            ScraperInTable changedScraper = scrapers.get(row);
+            if (changedScraper.getActive()) {
+              settings.addMovieTrailerScraper(changedScraper.getScraperId());
+            }
+            else {
+              settings.removeMovieTrailerScraper(changedScraper.getScraperId());
+            }
+          }
+        });
 
     // implement selection listener to load settings
     tableScraperInTable.getSelectionModel().addListSelectionListener(e -> {
@@ -235,7 +237,15 @@ class MovieTrailerSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#trailer"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraperInTable = new TmmTable();
+        tableScraperInTable = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = scrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraperInTable.setRowHeight(29);
         tableScraperInTable.setShowGrid(true);
         panelScraper.add(tableScraperInTable, "cell 1 0,grow");
@@ -296,7 +306,8 @@ class MovieTrailerSettingsPanel extends JPanel {
         JLabel lblTrailerFileNaming = new JLabel(TmmResourceBundle.getString("Settings.trailerFileNaming"));
         panelTrailerFilenames.add(lblTrailerFileNaming, "cell 0 0");
 
-        cbTrailerFilename1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        cbTrailerFilename1 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelTrailerFilenames.add(cbTrailerFilename1, "cell 1 0");
 
         cbTrailerFilename2 = new JCheckBox("movie-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
@@ -313,14 +324,20 @@ class MovieTrailerSettingsPanel extends JPanel {
         tableScraperInTable);
     //
     BeanProperty<ScraperInTable, Boolean> ScraperInTableBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(ScraperInTableBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> ScraperInTableBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setEditable(false)
         .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> ScraperInTableBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)
+    jTableBinding.addColumnBinding(ScraperInTableBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("metatag.name"))
+        .setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding.bind();

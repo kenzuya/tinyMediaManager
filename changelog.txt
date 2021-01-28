@@ -1,5 +1,16 @@
 Version 4.1
 =======================
++ License changes - Now there is a Free and PRO version of tinyMediaManager. In the Free version there is no more limitation of loaded movies/TV shows or API calls.
+  The Free version includes:
+    - base functionality of tinyMediaManager (update data sources, scrape, rename, edit, export, command line interface, ...)
+    - TMDB scraper
+
+  The PRO version includes also:
+    - all other scrapers (IMDB, OMDB, Universal, Kodi, ...)
+    - trailer download
+    - subtitle download
+    - Trakt.tv integration
+
 + BIG scraper rework:
   We split up all scrapers into individual sub-scrapers for every scope (meta data, artwork, trailer, subtitle).
   This offers new options to configure them:

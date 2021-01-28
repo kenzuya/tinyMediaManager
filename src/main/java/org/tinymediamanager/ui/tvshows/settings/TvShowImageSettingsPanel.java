@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -37,6 +38,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -73,26 +75,24 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowImageSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 4999827736720726395L;
+  private static final long          serialVersionUID = 4999827736720726395L;
 
-  
+  private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable> artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
+  private final ItemListener         checkBoxListener;
 
-  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
-  private final List<ScraperInTable>  artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
-  private final ItemListener          checkBoxListener;
-
-  private TmmTable                    tableScraper;
-  private JTextPane                   tpScraperDescription;
-  private JPanel                      panelScraperOptions;
-  private JCheckBox                   cbActorImages;
-  private JSpinner                    spDownloadCountExtrafanart;
-  private JCheckBox                   chckbxEnableExtrafanart;
-  private JComboBox<MediaLanguages>   cbScraperLanguage;
-  private JComboBox                   cbImagePosterSize;
-  private JComboBox                   cbImageFanartSize;
-  private JCheckBox                   chckbxSpecialSeason;
-  private JCheckBox                   chckbxExtraFanart1;
-  private JCheckBox                   chckbxExtraFanart2;
+  private TmmTable                   tableScraper;
+  private JTextPane                  tpScraperDescription;
+  private JPanel                     panelScraperOptions;
+  private JCheckBox                  cbActorImages;
+  private JSpinner                   spDownloadCountExtrafanart;
+  private JCheckBox                  chckbxEnableExtrafanart;
+  private JComboBox<MediaLanguages>  cbScraperLanguage;
+  private JComboBox                  cbImagePosterSize;
+  private JComboBox                  cbImageFanartSize;
+  private JCheckBox                  chckbxSpecialSeason;
+  private JCheckBox                  chckbxExtraFanart1;
+  private JCheckBox                  chckbxExtraFanart2;
 
   /**
    * Instantiates a new Tv show image scraper settings panel.
@@ -134,19 +134,20 @@ class TvShowImageSettingsPanel extends JPanel {
     tpScraperDescription.setEditorKit(new HTMLEditorKit());
     ((HTMLDocument) tpScraperDescription.getDocument()).getStyleSheet().addRule(bodyRule);
 
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        ScraperInTable changedScraper = artworkScrapers.get(row);
-        if (changedScraper.getActive()) {
-          settings.addTvShowArtworkScraper(changedScraper.getScraperId());
-        }
-        else {
-          settings.removeTvShowArtworkScraper(changedScraper.getScraperId());
-        }
-      }
-    });
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            ScraperInTable changedScraper = artworkScrapers.get(row);
+            if (changedScraper.getActive()) {
+              settings.addTvShowArtworkScraper(changedScraper.getScraperId());
+            }
+            else {
+              settings.removeTvShowArtworkScraper(changedScraper.getScraperId());
+            }
+          }
+        });
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
       int index = tableScraper.convertRowIndexToModel(tableScraper.getSelectedRow());
@@ -234,7 +235,15 @@ class TvShowImageSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#artwork-scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraper = new TmmTable();
+        tableScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = artworkScrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraper.setRowHeight(29);
         tableScraper.setShowGrid(true);
         panelScraper.add(tableScraper, "cell 1 0,grow");
@@ -316,14 +325,20 @@ class TvShowImageSettingsPanel extends JPanel {
         artworkScrapers, tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> artworkScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setEditable(false)
         .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("metatag.name"))
+        .setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding_1.bind();

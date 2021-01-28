@@ -60,7 +60,12 @@ public class TmdbTvShowArtworkProvider extends TmdbMetadataProvider implements I
   }
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+    LOGGER.debug("getArtwork(): {}", options);
+
+    // lazy initialization of the api
+    initAPI();
+
     if (options.getMediaType() != MediaType.TV_SHOW && options.getMediaType() != MediaType.TV_EPISODE) {
       return Collections.emptyList();
     }
@@ -85,9 +90,6 @@ public class TmdbTvShowArtworkProvider extends TmdbMetadataProvider implements I
       }
     }
 
-    LOGGER.debug("getArtwork(): {}", options);
-    // lazy initialization of the api
-    initAPI();
     return new TmdbArtworkProvider(api, artworkBaseUrl).getArtwork(options);
   }
 }

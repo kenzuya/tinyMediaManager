@@ -61,7 +61,6 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
 public class MovieScrapeTask extends TmmThreadPool {
   private static final Logger              LOGGER = LoggerFactory.getLogger(MovieScrapeTask.class);
 
-
   private List<Movie>                      moviesToScrape;
   private boolean                          doSearch;
   private MovieSearchAndScrapeOptions      searchAndScrapeOptions;
@@ -79,6 +78,11 @@ public class MovieScrapeTask extends TmmThreadPool {
 
   @Override
   protected void doInBackground() {
+    MediaScraper mediaMetadataScraper = searchAndScrapeOptions.getMetadataScraper();
+    if (mediaMetadataScraper.isEnabled()) {
+      return;
+    }
+
     initThreadPool(3, "scrape");
     start();
 
@@ -197,14 +201,14 @@ public class MovieScrapeTask extends TmmThreadPool {
             try {
               md = ((IMovieMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
             }
+            catch (MissingIdException e) {
+              LOGGER.warn("missing id for scrape");
+              MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, movie, "scraper.error.missingid"));
+            }
             catch (ScrapeException e) {
               LOGGER.error("searchMovieFallback", e);
               MessageManager.instance.pushMessage(
                   new Message(MessageLevel.ERROR, movie, "message.scrape.metadatamoviefailed", new String[] { ":", e.getLocalizedMessage() }));
-            }
-            catch (MissingIdException e) {
-              LOGGER.warn("missing id for scrape");
-              MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, movie, "scraper.error.missingid"));
             }
 
             if (ScraperMetadataConfig.containsAnyMetadata(scraperMetadataConfig) || ScraperMetadataConfig.containsAnyCast(scraperMetadataConfig)) {
@@ -291,12 +295,13 @@ public class MovieScrapeTask extends TmmThreadPool {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException ignored) {
+          // no need to log here
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, movie, "message.scrape.movieartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException ignored) {
         }
       }
 
@@ -317,13 +322,13 @@ public class MovieScrapeTask extends TmmThreadPool {
           IMovieTrailerProvider trailerProvider = (IMovieTrailerProvider) trailerScraper.getMediaProvider();
           trailers.addAll(trailerProvider.getTrailers(options));
         }
+        catch (MissingIdException e) {
+          LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getTrailers", e);
           MessageManager.instance
               .pushMessage(new Message(MessageLevel.ERROR, movie, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException e) {
-          LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 

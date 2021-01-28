@@ -29,14 +29,21 @@ import org.tinymediamanager.core.entities.MediaTrailer;
  */
 public abstract class TrailerDownloadTask extends DownloadTask {
 
-
-  private final MediaTrailer          mediaTrailer;
+  private final MediaTrailer mediaTrailer;
 
   protected TrailerDownloadTask(MediaTrailer trailer) {
     super(TmmResourceBundle.getString("trailer.download") + " - " + trailer.getName(), trailer.getUrl());
     this.mediaTrailer = trailer;
 
     setTaskDescription(trailer.getName());
+  }
+
+  @Override
+  protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+    super.doInBackground();
   }
 
   @Override

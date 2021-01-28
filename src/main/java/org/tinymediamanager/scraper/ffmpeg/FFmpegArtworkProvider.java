@@ -31,6 +31,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.thirdparty.FFmpeg;
 
 /**
@@ -38,7 +39,7 @@ import org.tinymediamanager.thirdparty.FFmpeg;
  *
  * @author Manuel Laggner
  */
-abstract class FFmpegArtworkProvider {
+abstract class FFmpegArtworkProvider implements IMediaProvider {
   static final String             ID = "ffmpeg";
 
   private final MediaProviderInfo providerInfo;
@@ -69,10 +70,11 @@ abstract class FFmpegArtworkProvider {
   }
 
   public boolean isActive() {
-    return StringUtils.isNotBlank(Globals.settings.getMediaFramework());
+    return isFeatureEnabled() && StringUtils.isNotBlank(Globals.settings.getMediaFramework());
   }
 
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+
     // FFmpeg must be specified in the settings
     if (StringUtils.isBlank(Globals.settings.getMediaFramework())) {
       throw new MissingIdException("FFmpeg");

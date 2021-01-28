@@ -127,13 +127,13 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
                 }
               }
             }
+            catch (MissingIdException | NothingFoundException e) {
+              LOGGER.debug("could not fetch movie set data: {}", e.getMessage());
+            }
             catch (ScrapeException e) {
               LOGGER.error("getMovieSet", e);
               MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, movie, "message.scrape.metadatamoviesetfailed",
                   new String[] { ":", e.getLocalizedMessage() }));
-            }
-            catch (MissingIdException | NothingFoundException e) {
-              LOGGER.debug("could not fetch movie set data: {}", e.getMessage());
             }
           }
 
@@ -151,13 +151,13 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
           }
         }
       }
+      catch (MissingIdException | NothingFoundException e) {
+        LOGGER.debug("could not fetch movie data: {}", e.getMessage());
+      }
       catch (ScrapeException e) {
         LOGGER.error("getMovieSet", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, movie, "message.scrape.metadatamoviesetfailed", new String[] { ":", e.getLocalizedMessage() }));
-      }
-      catch (MissingIdException | NothingFoundException e) {
-        LOGGER.debug("could not fetch movie data: {}", e.getMessage());
       }
     }
   }

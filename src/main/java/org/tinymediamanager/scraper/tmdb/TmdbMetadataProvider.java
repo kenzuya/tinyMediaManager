@@ -21,12 +21,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.tmdb2.Tmdb;
@@ -43,7 +44,7 @@ import okhttp3.OkHttpClient;
  *
  * @author Manuel Laggner
  */
-abstract class TmdbMetadataProvider {
+abstract class TmdbMetadataProvider implements IMediaProvider {
   static final String             ID = "tmdb";
 
   // Use primary translations, not just our internal MediaLanguages (we need the country!)
@@ -77,35 +78,21 @@ abstract class TmdbMetadataProvider {
         TmdbMetadataProvider.class.getResource("/org/tinymediamanager/scraper/themoviedb_org.svg"));
   }
 
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+  }
+
   // thread safe initialization of the API
   protected synchronized void initAPI() throws ScrapeException {
-    String tmmApiKey;
-    String apiKey;
-    try {
-      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
-
-    // check if the API should change from current key to user key
-    if (StringUtils.isNotBlank(userApiKey) && api != null && !userApiKey.equals(api.apiKey())) {
-      api = null;
-      apiKey = userApiKey;
-    }
-
-    // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && api != null && !tmmApiKey.equals(api.apiKey())) {
-      api = null;
-      apiKey = tmmApiKey;
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     // create a new instance of the tmdb api
     if (api == null) {
       try {
-        api = new Tmdb(apiKey) {
+        api = new Tmdb(getApiKey()) {
           // tell the tmdb api to use our OkHttp client
 
           @Override
@@ -132,14 +119,24 @@ abstract class TmdbMetadataProvider {
         throw new ScrapeException(e);
       }
     }
+
+    if (api != null) {
+      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+
+      // check if the API should change from current key to user key
+      if (StringUtils.isNotBlank(userApiKey)) {
+        api.apiKey(userApiKey);
+      }
+
+      // check if the API should change from current key to tmm key
+      if (StringUtils.isBlank(userApiKey)) {
+        api.apiKey(getApiKey());
+      }
+    }
   }
 
   public MediaProviderInfo getProviderInfo() {
     return providerInfo;
-  }
-
-  public boolean isActive() {
-    return api != null && configuration != null; // configuration is set in the first call
   }
 
   protected abstract Logger getLogger();
@@ -227,119 +224,157 @@ abstract class TmdbMetadataProvider {
       case 10759:
         g = MediaGenres.ACTION;
         break;
+
       case 12:
         g = MediaGenres.ADVENTURE;
         break;
+
       case 16:
         g = MediaGenres.ANIMATION;
         break;
+
       case 35:
         g = MediaGenres.COMEDY;
         break;
+
       case 80:
         g = MediaGenres.CRIME;
         break;
+
       case 105:
         g = MediaGenres.DISASTER;
         break;
+
       case 99:
         g = MediaGenres.DOCUMENTARY;
         break;
+
       case 18:
         g = MediaGenres.DRAMA;
         break;
+
       case 82:
         g = MediaGenres.EASTERN;
         break;
+
       case 2916:
         g = MediaGenres.EROTIC;
         break;
+
       case 10751:
         g = MediaGenres.FAMILY;
         break;
+
       case 10750:
         g = MediaGenres.FAN_FILM;
         break;
+
       case 14:
         g = MediaGenres.FANTASY;
         break;
+
       case 10753:
         g = MediaGenres.FILM_NOIR;
         break;
+
       case 10769:
         g = MediaGenres.FOREIGN;
         break;
+
       case 36:
         g = MediaGenres.HISTORY;
         break;
+
       case 10595:
         g = MediaGenres.HOLIDAY;
         break;
+
       case 27:
         g = MediaGenres.HORROR;
         break;
+
       case 10756:
         g = MediaGenres.INDIE;
         break;
+
       case 10402:
         g = MediaGenres.MUSIC;
         break;
+
       case 22:
         g = MediaGenres.MUSICAL;
         break;
+
       case 9648:
         g = MediaGenres.MYSTERY;
         break;
+
       case 10754:
         g = MediaGenres.NEO_NOIR;
         break;
+
       case 10763:
         g = MediaGenres.NEWS;
         break;
+
       case 10764:
         g = MediaGenres.REALITY_TV;
         break;
+
       case 1115:
         g = MediaGenres.ROAD_MOVIE;
         break;
+
       case 10749:
         g = MediaGenres.ROMANCE;
         break;
+
       case 878:
       case 10765:
         g = MediaGenres.SCIENCE_FICTION;
         break;
+
       case 10755:
         g = MediaGenres.SHORT;
         break;
+
       case 10766:
         g = MediaGenres.SOAP;
         break;
+
       case 9805:
         g = MediaGenres.SPORT;
         break;
+
       case 10758:
         g = MediaGenres.SPORTING_EVENT;
         break;
+
       case 10757:
         g = MediaGenres.SPORTS_FILM;
         break;
+
       case 10748:
         g = MediaGenres.SUSPENSE;
         break;
+
       case 10767:
         g = MediaGenres.TALK_SHOW;
         break;
+
       case 10770:
         g = MediaGenres.TV_MOVIE;
         break;
+
       case 53:
         g = MediaGenres.THRILLER;
         break;
+
       case 10752:
       case 10768:
         g = MediaGenres.WAR;
         break;
+
       case 37:
         g = MediaGenres.WESTERN;
         break;

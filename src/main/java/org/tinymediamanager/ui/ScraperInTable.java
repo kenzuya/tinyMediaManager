@@ -43,6 +43,7 @@ public class ScraperInTable extends AbstractModelObject {
   protected MediaScraper                scraper;
   protected ImageIcon                   scraperLogo;
   protected boolean                     active;
+  protected boolean                     enabled;
 
   public ScraperInTable(MediaScraper scraper) {
     this.scraper = scraper;
@@ -53,6 +54,7 @@ public class ScraperInTable extends AbstractModelObject {
     else {
       scraperLogo = getIcon(scraper.getMediaProvider().getProviderInfo().getProviderLogo());
     }
+    enabled = scraper.isEnabled();
   }
 
   protected ImageIcon getIcon(URL url) {
@@ -84,12 +86,19 @@ public class ScraperInTable extends AbstractModelObject {
   }
 
   public String getScraperName() {
+    String scraperName;
     if (StringUtils.isNotBlank(scraper.getVersion())) {
-      return scraper.getName() + " - " + scraper.getVersion();
+      scraperName = scraper.getName() + " - " + scraper.getVersion();
     }
     else {
-      return scraper.getName();
+      scraperName = scraper.getName();
     }
+
+    if (!enabled) {
+      scraperName = "*PRO* " + scraperName;
+    }
+
+    return scraperName;
   }
 
   public String getScraperDescription() {
@@ -113,8 +122,12 @@ public class ScraperInTable extends AbstractModelObject {
     return scraperLogo;
   }
 
-  public Boolean getActive() {
+  public boolean getActive() {
     return active;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
   }
 
   public void setActive(Boolean newValue) {

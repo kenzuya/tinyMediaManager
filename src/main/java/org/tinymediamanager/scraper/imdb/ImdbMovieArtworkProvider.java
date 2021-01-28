@@ -18,10 +18,10 @@ package org.tinymediamanager.scraper.imdb;
 import java.util.Collections;
 import java.util.List;
 
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 
@@ -38,18 +38,18 @@ public class ImdbMovieArtworkProvider extends ImdbMetadataProvider implements IM
   }
 
   @Override
-  public boolean isActive() {
-    return true;
-  }
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
 
-  @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     if (options.getMediaType() != MediaType.MOVIE) {
       return Collections.emptyList();
     }
 
     if (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.POSTER) {
-      return (new ImdbMovieParser(getProviderInfo().getConfig(), executor)).getMovieArtwork(options);
+      return (new ImdbMovieParser(this, executor)).getMovieArtwork(options);
     }
 
     return Collections.emptyList();

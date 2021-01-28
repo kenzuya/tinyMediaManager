@@ -111,13 +111,13 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
           try {
             artwork.addAll(artworkProvider.getArtwork(options));
           }
+          catch (MissingIdException ignored) {
+            // no need to log a missing ID here
+          }
           catch (ScrapeException e) {
             LOGGER.error("getArtwork", e);
             MessageManager.instance.pushMessage(
                 new Message(MessageLevel.ERROR, movieSet, "message.scrape.subtitlefailed", new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
-            // no need to log a missing ID here
           }
         }
 

@@ -25,18 +25,18 @@ public class SeasonEntity {
 
   @SerializedName("Title")
   @Expose
-  public String             title;
+  public String              title;
   @SerializedName("Season")
   @Expose
-  public String             season;
+  public String              season;
   @SerializedName("totalSeasons")
   @Expose
-  public String             totalSeasons;
+  public String              totalSeasons;
   @SerializedName("Episodes")
   @Expose
   public List<EpisodeEntity> episodes = null;
   @SerializedName("Response")
   @Expose
-  public String             response;
+  public String              response;
 
 }

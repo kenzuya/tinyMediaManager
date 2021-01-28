@@ -65,11 +65,6 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(60, 10);
 
   @Override
-  public boolean isActive() {
-    return StringUtils.isNotBlank(getApiKey());
-  }
-
-  @Override
   protected String getSubId() {
     return "tvshow";
   }
@@ -78,15 +73,11 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getMetadata() - TvShow: {}", options.getSearchQuery());
 
+    initAPI();
+
     MediaMetadata metadata = new MediaMetadata(getId());
-    String apiKey = getApiKey();
     DateFormat format = new SimpleDateFormat("d MMMM yyyy", Locale.ENGLISH);
     MediaEntity result;
-
-    if (StringUtils.isBlank(apiKey)) {
-      LOGGER.warn("no API key found");
-      return metadata;
-    }
 
     String imdbId = getImdbId(options);
 
@@ -95,7 +86,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     }
 
     try {
-      result = controller.getScrapeDataById(apiKey, imdbId, "series", true);
+      result = controller.getScrapeDataById(imdbId, "series", true);
     }
     catch (IOException e) {
       LOGGER.error("error searching: {}", e.getMessage());
@@ -308,6 +299,9 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
 
   @Override
   public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+    LOGGER.debug("getMetadata() - episode: {}", options.getSearchQuery());
+
+    initAPI();
 
     DateFormat format = new SimpleDateFormat("d MMMM yyyy", Locale.ENGLISH);
     String imdbID = "";
@@ -340,7 +334,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     MediaEntity mediaEntity = null;
 
     try {
-      mediaEntity = controller.getScrapeDataById(getApiKey(), imdbID, "episode", true);
+      mediaEntity = controller.getScrapeDataById(imdbID, "episode", true);
     }
     catch (IOException e) {
       LOGGER.error("error searching: {}", e.getMessage());
@@ -526,18 +520,14 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options.getSearchQuery());
+
+    initAPI();
+
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
-
-    String apiKey = getApiKey();
-
-    if (StringUtils.isBlank(apiKey)) {
-      LOGGER.warn("no API key found");
-      return mediaResult;
-    }
 
     MediaSearch resultList = null;
     try {
-      resultList = controller.getMovieSearchInfo(apiKey, options.getSearchQuery(), "series", null);
+      resultList = controller.getMovieSearchInfo(options.getSearchQuery(), "series", null);
     }
     catch (InterruptedIOException e) {
       // do not swallow these Exceptions
@@ -584,6 +574,9 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
 
   @Override
   public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+    LOGGER.debug("getEpisodeList(): {}", options.getSearchQuery());
+
+    initAPI();
 
     String imdbId = getImdbId(options);
 
@@ -608,7 +601,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
 
     MediaEntity tvShowResult = null;
     try {
-      tvShowResult = controller.getScrapeDataById(getApiKey(), imdbId, "series", true);
+      tvShowResult = controller.getScrapeDataById(imdbId, "series", true);
     }
     catch (InterruptedIOException e) {
       // do not swallow these Exceptions
@@ -636,7 +629,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
 
       SeasonEntity seasonEntity;
       try {
-        seasonEntity = controller.getSeasonById(getApiKey(), imdbId, "series", i);
+        seasonEntity = controller.getSeasonById(imdbId, "series", i);
       }
       catch (IOException e) {
         LOGGER.error("error scraping season {} information: {}", i, e.getMessage());

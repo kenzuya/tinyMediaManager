@@ -20,13 +20,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.tinymediamanager.license.TmmFeature;
 
 /**
  * The class TmmTask. The main class representing tasks in tmm
  * 
  * @author Manuel Laggner
  */
-public abstract class TmmTask implements Runnable, TmmTaskHandle {
+public abstract class TmmTask implements Runnable, TmmTaskHandle, TmmFeature {
   private final Set<TmmTaskListener> listeners = new CopyOnWriteArraySet<>();
   private final TaskType             type;
   private final long                 uniqueId;
@@ -116,6 +117,11 @@ public abstract class TmmTask implements Runnable, TmmTaskHandle {
 
   @Override
   public final void run() {
+    // is this task active at all?
+    if (!isFeatureEnabled()) {
+      return;
+    }
+
     // the task has been cancelled before it is being executed
     if (cancel) {
       return;

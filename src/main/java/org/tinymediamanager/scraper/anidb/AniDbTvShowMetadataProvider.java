@@ -42,12 +42,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
@@ -107,27 +107,15 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
 
   @Override
   public boolean isActive() {
-    try {
-      String apiKey = License.getInstance().getApiKey(getId());
-      return StringUtils.isNotBlank(apiKey);
-    }
-    catch (Exception e) {
-      return false;
-    }
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(getId());
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
@@ -141,12 +129,12 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
     }
 
     // call API
-    // http://api.anidb.net:9001/httpapi?request=anime&client=tinymediamanager&clientver=2&protover=1&aid=4242
+    // http://api.anidb.net:9001/httpapi?request=anime&apikey&aid=4242
     Document doc;
 
     try {
       trackConnections();
-      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1, TimeUnit.DAYS);
+      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + getApiKey() + "aid=" + id, 1, TimeUnit.DAYS);
       try (InputStream is = url.getInputStream()) {
         doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
       }
@@ -224,6 +212,11 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
   @Override
   public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getMetadata(): {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     MediaMetadata md = null;
 
     // get episode number and season number
@@ -452,8 +445,12 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
   }
 
   @Override
-  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) {
+  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
 
     synchronized (AniDbTvShowMetadataProvider.class) {
       // first run: build up the anime name list
@@ -500,19 +497,14 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     List<MediaMetadata> episodes = new ArrayList<>();
     String language = options.getLanguage().getLanguage();
-
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(getId());
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
     // do we have an id from the options?
     String id = options.getIdAsString(providerInfo.getId());
@@ -525,7 +517,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
 
     try {
       trackConnections();
-      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + apiKey + "aid=" + id, 1, TimeUnit.DAYS);
+      Url url = new OnDiskCachedUrl("http://api.anidb.net:9001/httpapi?request=anime&" + getApiKey() + "aid=" + id, 1, TimeUnit.DAYS);
       try (InputStream is = url.getInputStream()) {
         doc = Jsoup.parse(is, UrlUtil.UTF_8, "", Parser.xmlParser());
       }
@@ -644,7 +636,12 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
   }
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     List<MediaArtwork> artwork = new ArrayList<>();
     String id = "";
 

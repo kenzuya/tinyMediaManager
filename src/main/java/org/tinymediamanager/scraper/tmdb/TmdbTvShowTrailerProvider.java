@@ -24,7 +24,6 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 
@@ -57,13 +56,13 @@ public class TmdbTvShowTrailerProvider extends TmdbMetadataProvider implements I
   }
 
   @Override
-  public List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException {
+    // lazy initialization of the api
+    initAPI();
+
     if (options.getMediaType() != MediaType.TV_SHOW) {
       return Collections.emptyList();
     }
-
-    // lazy initialization of the api
-    initAPI();
 
     return new TmdbTrailerProvider(api).getTrailers(options);
   }

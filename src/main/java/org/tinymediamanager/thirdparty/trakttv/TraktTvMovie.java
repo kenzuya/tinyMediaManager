@@ -21,7 +21,6 @@ import static org.tinymediamanager.thirdparty.trakttv.TraktTv.getHdr;
 import static org.tinymediamanager.thirdparty.trakttv.TraktTv.getMediaType;
 import static org.tinymediamanager.thirdparty.trakttv.TraktTv.getResolution;
 import static org.tinymediamanager.thirdparty.trakttv.TraktTv.printStatus;
-import static org.tinymediamanager.thirdparty.trakttv.TraktTv.refreshAccessToken;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,10 +56,12 @@ import retrofit2.Response;
 class TraktTvMovie {
   private static final Logger LOGGER = LoggerFactory.getLogger(TraktTvMovie.class);
 
+  private final TraktTv       traktTv;
   private final TraktV2       api;
 
-  TraktTvMovie(TraktV2 api) {
-    this.api = api;
+  TraktTvMovie(TraktTv traktTv) {
+    this.traktTv = traktTv;
+    this.api = traktTv.getApi();
   }
 
   /**
@@ -81,7 +82,7 @@ class TraktTvMovie {
       Response<List<BaseMovie>> response = api.sync().collectionMovies(Extended.METADATA).execute();
       if (!response.isSuccessful() && response.code() == 401) {
         // try to re-auth
-        refreshAccessToken();
+        traktTv.refreshAccessToken();
         response = api.sync().collectionMovies(Extended.METADATA).execute();
       }
       if (!response.isSuccessful()) {
@@ -202,7 +203,7 @@ class TraktTvMovie {
       Response<List<BaseMovie>> traktWatchedResponse = api.sync().watchedMovies(null).execute();
       if (!traktWatchedResponse.isSuccessful() && traktWatchedResponse.code() == 401) {
         // try to re-auth
-        refreshAccessToken();
+        traktTv.refreshAccessToken();
         traktWatchedResponse = api.sync().watchedMovies(null).execute();
       }
       if (!traktWatchedResponse.isSuccessful()) {
@@ -323,7 +324,7 @@ class TraktTvMovie {
       Response<List<BaseMovie>> traktCollectionResponse = api.sync().collectionMovies(null).execute();
       if (!traktCollectionResponse.isSuccessful() && traktCollectionResponse.code() == 401) {
         // try to re-auth
-        refreshAccessToken();
+        traktTv.refreshAccessToken();
         traktCollectionResponse = api.sync().collectionMovies(null).execute();
       }
       if (!traktCollectionResponse.isSuccessful()) {
@@ -336,7 +337,7 @@ class TraktTvMovie {
       Response<List<BaseMovie>> traktWatchedResponse = api.sync().watchedMovies(null).execute();
       if (!traktWatchedResponse.isSuccessful() && traktWatchedResponse.code() == 401) {
         // try to re-auth
-        refreshAccessToken();
+        traktTv.refreshAccessToken();
         traktWatchedResponse = api.sync().watchedMovies(null).execute();
       }
       if (!traktWatchedResponse.isSuccessful()) {

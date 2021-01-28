@@ -13,32 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.tinymediamanager.thirdparty.yt;
 
-package org.tinymediamanager.scraper.exceptions;
+import org.tinymediamanager.license.TmmFeature;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
+
+import com.github.kiulian.downloader.YoutubeDownloader;
 
 /**
- * the class {@link MissingIdException} indicates that there was no matching ID for the scrape
- *
+ * the class {@link YTDownloader} is used to pass the YT download over our HTTP client
+ * 
  * @author Manuel Laggner
- * @since 3.0
  */
-public class MissingIdException extends ScrapeException {
-  private static final long serialVersionUID = 1682582702692312793L;
-
-  private final String[]    ids;
-
-  /**
-   * the following ids are supported with this scraper, but no one has been given
-   * 
-   * @param ids
-   *          an array of supported ids
-   */
-  public MissingIdException(String... ids) {
-    super();
-    this.ids = ids;
-  }
-
-  public String[] getIds() {
-    return ids;
+public class YTDownloader extends YoutubeDownloader implements TmmFeature {
+  public YTDownloader() throws ScrapeException {
+    super(new YTParser());
   }
 }

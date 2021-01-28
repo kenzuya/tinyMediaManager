@@ -57,13 +57,10 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(60, 10);
 
   @Override
-  public boolean isActive() {
-    return StringUtils.isNotBlank(getApiKey());
-  }
-
-  @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() TvShow: {}", options);
+
+    initAPI();
 
     String showId = options.getIdAsString("theshowdb");
     MediaMetadata md = new MediaMetadata(getId());
@@ -74,7 +71,7 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     }
 
     try {
-      shows = controller.getShowDetailsByShowId(getApiKey(), showId);
+      shows = controller.getShowDetailsByShowId(showId);
     }
     catch (InterruptedIOException e) {
       // do not swallow these Exceptions
@@ -134,7 +131,10 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
+    LOGGER.debug("getMetadata() Episode: {}", options);
+
+    initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
 
@@ -164,8 +164,9 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
 
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
-
     LOGGER.debug("search(): {}", options);
+
+    initAPI();
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
     Shows searchResult;
@@ -175,15 +176,8 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       throw new ScrapeException(new HttpException(401, "Unauthorized"));
     }
 
-    if (!options.getLanguage().getLanguage().equalsIgnoreCase("EN")) {
-      LOGGER.info("Scraper only supports Language EN");
-      return results;
-    }
-
-    LOGGER.info("========= BEGIN TheShowDB Scraper Search for TvShow: {} ", options.getSearchQuery());
-
     try {
-      searchResult = controller.getShowByName(getApiKey(), options.getSearchQuery());
+      searchResult = controller.getShowByName(options.getSearchQuery());
     }
     catch (Exception e) {
       LOGGER.error("error searching: {} ", e.getMessage());
@@ -191,7 +185,7 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     }
 
     if (searchResult == null) {
-      LOGGER.warn("no result from TheShowDB.com");
+      LOGGER.debug("no result from TheShowDB.com");
       return results;
     }
 
@@ -216,8 +210,10 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getEpisodeList(): {}", options);
+
+    initAPI();
 
     // Get TvShow ID From the options
     String tvShowId = options.getIdAsString("theshowdb");
@@ -237,7 +233,7 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
 
     Episodes episodes = null;
     try {
-      episodes = controller.getAllEpisodesByShowId(getApiKey(), tvShowId);
+      episodes = controller.getAllEpisodesByShowId(tvShowId);
     }
     catch (InterruptedIOException e) {
       // do not swallow these Exceptions

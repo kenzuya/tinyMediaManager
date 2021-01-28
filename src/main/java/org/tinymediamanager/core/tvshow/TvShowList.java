@@ -48,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
@@ -284,7 +285,8 @@ public class TvShowList extends AbstractModelObject {
    */
   void exchangeDatasource(String oldDatasource, String newDatasource) {
     Path oldPath = Paths.get(oldDatasource);
-    List<TvShow> tvShowsToChange = tvShowList.stream().filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource())))
+    List<TvShow> tvShowsToChange = tvShowList.stream()
+        .filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource())))
         .collect(Collectors.toList());
     List<MediaFile> imagesToCache = new ArrayList<>();
 
@@ -581,8 +583,8 @@ public class TvShowList extends AbstractModelObject {
 
   public MediaScraper getDefaultMediaScraper() {
     MediaScraper scraper = MediaScraper.getMediaScraperById(TvShowModuleManager.SETTINGS.getScraper(), ScraperType.TV_SHOW);
-    if (scraper == null) {
-      scraper = MediaScraper.getMediaScraperById(Constants.TVDB, ScraperType.TV_SHOW);
+    if (scraper == null || !scraper.isEnabled()) {
+      scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.TV_SHOW);
     }
     return scraper;
   }
@@ -636,7 +638,8 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified artwork scrapers
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
-    return getArtworkScrapers(TvShowModuleManager.SETTINGS.getArtworkScrapers());
+    List<MediaScraper> defaultScrapers = getArtworkScrapers(TvShowModuleManager.SETTINGS.getArtworkScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -673,16 +676,14 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper,
       MediaLanguages language) {
+
+    if (mediaScraper == null || !mediaScraper.isEnabled()) {
+      return Collections.emptyList();
+    }
+
     Set<MediaSearchResult> results = new TreeSet<>();
     try {
-      ITvShowMetadataProvider provider;
-
-      if (mediaScraper == null) {
-        provider = (ITvShowMetadataProvider) getDefaultMediaScraper().getMediaProvider();
-      }
-      else {
-        provider = (ITvShowMetadataProvider) mediaScraper.getMediaProvider();
-      }
+      ITvShowMetadataProvider provider = (ITvShowMetadataProvider) mediaScraper.getMediaProvider();
 
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchQuery(searchTerm);
@@ -727,9 +728,15 @@ public class TvShowList extends AbstractModelObject {
       // }
     }
     catch (ScrapeException e) {
-      LOGGER.error("searchTvShow", e);
-      MessageManager.instance
-          .pushMessage(new Message(MessageLevel.ERROR, this, "message.tvshow.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+      if (e.getCause() instanceof FeatureNotEnabledException) {
+        LOGGER.info("this feature is not enabled - '{}'", e.getMessage());
+        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, this, "message.profeature", new String[] { e.getMessage() }));
+      }
+      else {
+        LOGGER.error("searchTvShow", e);
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, this, "message.tvshow.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+      }
     }
 
     return new ArrayList<>(results);
@@ -1089,7 +1096,8 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified subtitle scrapers
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
-    return getSubtitleScrapers(TvShowModuleManager.SETTINGS.getSubtitleScrapers());
+    List<MediaScraper> defaultScrapers = getSubtitleScrapers(TvShowModuleManager.SETTINGS.getSubtitleScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -1098,7 +1106,8 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified trailer scrapers
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
-    return getTrailerScrapers(TvShowModuleManager.SETTINGS.getTrailerScrapers());
+    List<MediaScraper> defaultScrapers = getTrailerScrapers(TvShowModuleManager.SETTINGS.getTrailerScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**

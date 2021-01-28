@@ -134,7 +134,7 @@ public class ToolbarPanel extends JPanel {
     JButton btnInfo = new ToolbarButton(IconManager.TOOLBAR_ABOUT, IconManager.TOOLBAR_ABOUT_HOVER, infoPopupMenu);
     panelCenter.add(btnInfo, "cell 10 0,alignx center,aligny bottom");
 
-    btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UNLOCK, IconManager.TOOLBAR_UNLOCK_HOVER);
+    btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UPGRADE, IconManager.TOOLBAR_UPGRADE);
     Action unlockAction = new UnlockAction();
     btnUnlock.setAction(unlockAction);
     panelCenter.add(btnUnlock, "cell 11 0, alignx center,aligny bottom, gap 10lp");
@@ -160,8 +160,8 @@ public class ToolbarPanel extends JPanel {
     ToolbarMenu menuHelp = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.help"), infoPopupMenu);
     panelCenter.add(menuHelp, "cell 10 1,alignx center, wmin 0");
 
-    lblUnlock = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.unlock"), unlockAction);
-    lblUnlock.setToolTipText(TmmResourceBundle.getString("Toolbar.unlock.desc"));
+    lblUnlock = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.upgrade"), unlockAction);
+    lblUnlock.setToolTipText(TmmResourceBundle.getString("Toolbar.upgrade.desc"));
     panelCenter.add(lblUnlock, "cell 11 1,alignx center, gap 10lp, wmin 0");
 
     License.getInstance().addEventListener(this::showHideUnlock);

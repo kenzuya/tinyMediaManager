@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -68,19 +70,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieSubtitleSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -1607146878528487625L;
-
-  
+  private static final long          serialVersionUID = -1607146878528487625L;
 
   private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
   private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
-  private TmmTable                    tableScraper;
-  private JTextPane                   tpScraperDescription;
-  private JPanel                      panelScraperOptions;
-  private JComboBox                   cbScraperLanguage;
-  private JComboBox<LanguageStyle>    cbSubtitleLanguageStyle;
-  private JCheckBox                   chckbxSuppressLanguageTag;
+  private TmmTable                   tableScraper;
+  private JTextPane                  tpScraperDescription;
+  private JPanel                     panelScraperOptions;
+  private JComboBox                  cbScraperLanguage;
+  private JComboBox<LanguageStyle>   cbSubtitleLanguageStyle;
+  private JCheckBox                  chckbxSuppressLanguageTag;
 
   MovieSubtitleSettingsPanel() {
     // UI init
@@ -118,19 +118,20 @@ class MovieSubtitleSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        ScraperInTable changedScraper = scrapers.get(row);
-        if (changedScraper.getActive()) {
-          settings.addMovieSubtitleScraper(changedScraper.getScraperId());
-        }
-        else {
-          settings.removeMovieSubtitleScraper(changedScraper.getScraperId());
-        }
-      }
-    });
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            ScraperInTable changedScraper = scrapers.get(row);
+            if (changedScraper.getActive()) {
+              settings.addMovieSubtitleScraper(changedScraper.getScraperId());
+            }
+            else {
+              settings.removeMovieSubtitleScraper(changedScraper.getScraperId());
+            }
+          }
+        });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -163,7 +164,15 @@ class MovieSubtitleSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#subtitles"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraper = new TmmTable();
+        tableScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = scrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraper.setRowHeight(29);
         tableScraper.setShowGrid(true);
         panelScraper.add(tableScraper, "cell 1 0,grow");
@@ -216,14 +225,20 @@ class MovieSubtitleSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> subtitleScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setEditable(false)
         .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("metatag.name"))
+        .setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding.bind();

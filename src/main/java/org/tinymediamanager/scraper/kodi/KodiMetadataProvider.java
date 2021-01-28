@@ -50,7 +50,7 @@ public class KodiMetadataProvider implements IKodiMetadataProvider {
 
   @Override
   public boolean isActive() {
-    return true;
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 
   /**

@@ -29,7 +29,8 @@ import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
-import org.tinymediamanager.license.License;
+import org.tinymediamanager.license.TmmFeature;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -56,33 +57,36 @@ import retrofit2.Response;
  * 
  */
 
-public class TraktTv {
-  private static final Logger  LOGGER = LoggerFactory.getLogger(TraktTv.class);
-  private static final TraktV2 API    = createTraktApi();
-  private static TraktTv       instance;
+public class TraktTv implements TmmFeature {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TraktTv.class);
+  private static TraktTv      instance;
 
-  private static TraktV2 createTraktApi() {
-    String clientId;
-    String clientSecret;
-    try {
-      clientId = License.getInstance().getApiKey("trakt");
-      clientSecret = License.getInstance().getApiKey("trakt.secret");
-    }
-    catch (Exception e) {
-      clientId = "";
-      clientSecret = "";
-    }
+  private TraktV2             api;
 
-    return new TraktV2(clientId, clientSecret, "urn:ietf:wg:oauth:2.0:oob") {
-      // tell the trakt.tv api to use our OkHttp client
+  // thread safe initialization of the API
+  protected synchronized void initAPI() throws ScrapeException {
+    // create a new instance of the trakt api
+    if (api == null) {
+      try {
+        String[] keys = getApiKeys();
+        api = new TraktV2(keys[0], keys[1], "urn:ietf:wg:oauth:2.0:oob") {
+          // tell the trakt api to use our OkHttp client
 
-      @Override
-      protected synchronized OkHttpClient okHttpClient() {
-        OkHttpClient.Builder builder = TmmHttpClient.newBuilder();
-        builder.addInterceptor(new TraktV2Interceptor(this));
-        return builder.build();
+          @Override
+          protected synchronized OkHttpClient okHttpClient() {
+            OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
+            builder.addInterceptor(new TraktV2Interceptor(this));
+            return builder.build();
+          }
+        };
       }
-    };
+      catch (Exception e) {
+        LOGGER.error("could not initialize the API: {}", e.getMessage());
+        // force re-initialization the next time this will be called
+        api = null;
+        throw new ScrapeException(e);
+      }
+    }
   }
 
   public static synchronized TraktTv getInstance() {
@@ -95,9 +99,9 @@ public class TraktTv {
   private TraktTv() {
   }
 
-  public static Map<String, String> authenticateViaPin(String pin) throws IOException {
+  public Map<String, String> authenticateViaPin(String pin) throws IOException {
     Map<String, String> result = new HashMap<>();
-    Response<AccessToken> response = API.exchangeCodeForAccessToken(pin);
+    Response<AccessToken> response = api.exchangeCodeForAccessToken(pin);
 
     if (response.isSuccessful() && response.body() != null) {
       // get tokens
@@ -115,19 +119,19 @@ public class TraktTv {
   /**
    * get a new accessToken with the refreshToken
    */
-  public static void refreshAccessToken() throws IOException {
+  public void refreshAccessToken() throws IOException {
     if (StringUtils.isBlank(Globals.settings.getTraktRefreshToken())) {
       throw new IOException("no trakt.tv refresh token found");
     }
 
-    Response<AccessToken> response = API.refreshToken(Globals.settings.getTraktRefreshToken())
+    Response<AccessToken> response = api.refreshToken(Globals.settings.getTraktRefreshToken())
         .refreshAccessToken(Globals.settings.getTraktRefreshToken());
 
     if (response.isSuccessful() && response.body() != null) {
       if (StringUtils.isNoneBlank(response.body().access_token, response.body().refresh_token)) {
         Globals.settings.setTraktAccessToken(response.body().access_token);
         Globals.settings.setTraktRefreshToken(response.body().refresh_token);
-        API.accessToken(Globals.settings.getTraktAccessToken());
+        api.accessToken(Globals.settings.getTraktAccessToken());
       }
     }
     else {
@@ -141,12 +145,21 @@ public class TraktTv {
    * @return true/false if trakt could be called
    */
   private boolean isEnabled() {
+    if (!isFeatureEnabled()) {
+      return false;
+    }
+
     if (StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
       // everything seems fine; also set the access token
-      API.accessToken(Globals.settings.getTraktAccessToken());
+      api.accessToken(Globals.settings.getTraktAccessToken());
       return true;
     }
+
     return false;
+  }
+
+  TraktV2 getApi() {
+    return api;
   }
 
   // @formatter:off
@@ -162,12 +175,14 @@ public class TraktTv {
    * Syncs Trakt.tv collection (specified movies)<br>
    * Gets all Trakt movies from collection, matches them to ours, and sends ONLY the new ones back to Trakt
    */
-  public void syncTraktMovieCollection(List<Movie> moviesInTmm) {
+  public void syncTraktMovieCollection(List<Movie> moviesInTmm) throws ScrapeException {
     if (!isEnabled()) {
       return;
     }
 
-    new TraktTvMovie(API).syncTraktMovieCollection(moviesInTmm);
+    initAPI();
+
+    new TraktTvMovie(this).syncTraktMovieCollection(moviesInTmm);
   }
 
   /**
@@ -175,24 +190,28 @@ public class TraktTv {
    * Gets all watched movies from Trakt, and sets the "watched" flag on TMM movies.<br>
    * Then update the remaining TMM movies on Trakt as 'seen'.
    */
-  public void syncTraktMovieWatched(List<Movie> moviesInTmm) {
+  public void syncTraktMovieWatched(List<Movie> moviesInTmm) throws ScrapeException {
     if (!isEnabled()) {
       return;
     }
 
-    new TraktTvMovie(API).syncTraktMovieWatched(moviesInTmm);
+    initAPI();
+
+    new TraktTvMovie(this).syncTraktMovieWatched(moviesInTmm);
   }
 
   /**
    * clears the whole Trakt.tv movie collection. Gets all Trakt.tv movies from your collection and removes them from the collection and the watched
    * state; a little helper to initialize the collection
    */
-  void clearTraktMovies() {
+  void clearTraktMovies() throws Exception {
     if (!isEnabled()) {
       return;
     }
 
-    new TraktTvMovie(API).clearTraktMovies();
+    initAPI();
+
+    new TraktTvMovie(this).clearTraktMovies();
   }
 
   // @formatter:off
@@ -208,32 +227,38 @@ public class TraktTv {
    * Syncs Trakt.tv collection (gets all IDs & dates, and adds all TMM shows to Trakt)<br>
    * Do not send diffs, since this is too complicated currently :|
    */
-  public void syncTraktTvShowCollection(List<TvShow> tvShowsInTmm) {
+  public void syncTraktTvShowCollection(List<TvShow> tvShowsInTmm) throws Exception {
     if (!isEnabled()) {
       return;
     }
 
-    new TraktTvTvShow(API).syncTraktTvShowCollection(tvShowsInTmm);
+    initAPI();
+
+    new TraktTvTvShow(this).syncTraktTvShowCollection(tvShowsInTmm);
   }
 
-  public void syncTraktTvShowWatched(List<TvShow> tvShowsInTmm) {
+  public void syncTraktTvShowWatched(List<TvShow> tvShowsInTmm) throws Exception {
     if (!isEnabled()) {
       return;
     }
 
-    new TraktTvTvShow(API).syncTraktTvShowWatched(tvShowsInTmm);
+    initAPI();
+
+    new TraktTvTvShow(this).syncTraktTvShowWatched(tvShowsInTmm);
   }
 
   /**
    * clears the whole Trakt.tv movie collection. Gets all Trakt.tv movies from your collection and removes them from the collection and the watched
    * state; a little helper to initialize the collection
    */
-  public void clearTraktTvShows() {
+  public void clearTraktTvShows() throws Exception {
     if (!isEnabled()) {
       return;
     }
 
-    new TraktTvTvShow(API).clearTraktTvShows();
+    initAPI();
+
+    new TraktTvTvShow(this).clearTraktTvShows();
   }
 
   // @formatter:off

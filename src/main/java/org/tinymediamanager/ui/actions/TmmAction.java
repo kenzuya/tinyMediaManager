@@ -22,24 +22,52 @@ import javax.swing.AbstractAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.license.TmmFeature;
 
 /**
  * The class TmmAction is an abstract action-wrapper to provide base logging
  */
-public abstract class TmmAction extends AbstractAction {
+public abstract class TmmAction extends AbstractAction implements TmmFeature {
   private static final Logger LOGGER = LoggerFactory.getLogger(TmmAction.class);
 
   @Override
-  public void actionPerformed(ActionEvent e) {
-    LOGGER.debug("action fired: " + this.getClass().getSimpleName());
-    processAction(e);
+  public final void actionPerformed(ActionEvent e) {
+    LOGGER.debug("action fired: {}", this.getClass().getSimpleName());
+
+    if (isEnabled()) {
+      processAction(e);
+    }
+  }
+
+  @Override
+  public final Object getValue(String key) {
+    switch (key) {
+      case "enabled":
+        return isEnabled();
+
+      case NAME:
+      case SHORT_DESCRIPTION:
+        Object value = super.getValue(key);
+        if (value != null && !isEnabled()) {
+          return "*PRO* " + value.toString();
+        }
+        return value;
+
+      default:
+        return super.getValue(key);
+    }
+  }
+
+  @Override
+  public final boolean isEnabled() {
+    return isFeatureEnabled();
   }
 
   /**
    * the inheriting class should process the action in this method rather than actionPerformed()
    * 
    * @param e
-   *          the ActionEvent fromactionPerformed
+   *          the ActionEvent from actionPerformed
    */
-  abstract protected void processAction(ActionEvent e);
+  protected abstract void processAction(ActionEvent e);
 }

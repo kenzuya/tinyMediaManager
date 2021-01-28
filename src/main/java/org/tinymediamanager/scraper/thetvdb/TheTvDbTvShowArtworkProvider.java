@@ -82,7 +82,7 @@ public class TheTvDbTvShowArtworkProvider extends TheTvDbMetadataProvider implem
   }
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     // lazy initialization of the api
     initAPI();
 

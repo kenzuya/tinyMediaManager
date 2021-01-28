@@ -20,13 +20,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaTrailer;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -50,22 +49,11 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
   }
 
   @Override
-  public boolean isActive() {
-    return true;
-  }
-
-  @Override
-  public List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getTrailers(): {}", options);
 
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(getId());
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     List<MediaTrailer> trailers = new ArrayList<>();
@@ -108,12 +96,9 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
      * <a href= "http://de.clip-1.filmtrailer.com/9507_39003_a_5.mp4?log_var=72|491100001-1|-" >mp4</a><br>&raquo; <a href=
      * "http://de.clip-1.filmtrailer.com/9507_39003_a_5.webm?log_var=72|491100001-1|-" >webm</a><br>'; } }
      */
-    String searchString = apiKey + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + options.getImdbId();
-    String url = "";
     try {
       // search with IMDB
-      url = searchString;
-      Document doc = UrlUtil.parseDocumentFromUrl(searchString);
+      Document doc = UrlUtil.parseDocumentFromUrl(getApiKey() + "/view.php?page=suchergebnis&Kat=IMDb&SText=" + options.getImdbId());
 
       Elements filme = doc.getElementsByAttributeValueMatching("href", "film\\/\\d+,");
       if (filme == null || filme.isEmpty()) {
@@ -123,8 +108,7 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
       LOGGER.debug("found {} search results", filme.size()); // hopefully only one
 
       LOGGER.debug("get (trailer) details page");
-      url = apiKey + "/" + StrgUtils.substr(filme.first().toString(), "href=\\\"(.*?)\\\"");
-      doc = UrlUtil.parseDocumentFromUrl(url);
+      doc = UrlUtil.parseDocumentFromUrl(getApiKey() + "/" + StrgUtils.substr(filme.first().toString(), "href=\\\"(.*?)\\\""));
 
       // OLD STYLE
       // <b>Trailer 1</b><br><i>(xxlarge)</i><br><br>&raquo; 640px<br><br>Download:<br>&raquo; <a href=
@@ -246,13 +230,6 @@ public class OfdbMovieTrailerProvider extends OfdbMetadataProvider implements IM
       }
     }
     catch (Exception e) {
-      if (StringUtils.isNotBlank(url)) {
-        LOGGER.error("Error parsing {} - {}", url, e.getMessage());
-      }
-      else {
-        LOGGER.error("Error parsing {} - {}", searchString, e.getMessage());
-      }
-
       throw new ScrapeException(e);
     }
     return trailers;

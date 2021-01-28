@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
@@ -29,6 +28,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.fanarttv.entities.Image;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 
 /**
@@ -36,7 +36,7 @@ import org.tinymediamanager.scraper.util.ListUtils;
  *
  * @author Manuel Laggner
  */
-abstract class FanartTvMetadataProvider {
+abstract class FanartTvMetadataProvider implements IMediaProvider {
   static final String             ID  = "fanarttv";
 
   private final MediaProviderInfo providerInfo;
@@ -78,12 +78,9 @@ abstract class FanartTvMetadataProvider {
       }
     }
 
-    // API key check
+    // set API key check
     try {
-      String apiKey = License.getInstance().getApiKey(ID);
-      if (!apiKey.equals(api.getApiKey())) {
-        api.setApiKey(apiKey);
-      }
+      api.setApiKey(getApiKey());
     }
     catch (Exception e) {
       throw new ScrapeException(e);
@@ -101,7 +98,7 @@ abstract class FanartTvMetadataProvider {
   }
 
   public boolean isActive() {
-    return api != null && StringUtils.isNotBlank(api.getApiKey());
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 
   abstract Logger getLogger();

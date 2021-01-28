@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -254,7 +255,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
           kodiRPCMenu.setEnabled(false);
         }
 
-        if (StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
           traktMenu.setEnabled(true);
         }
         else {
@@ -324,8 +325,11 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieSyncCollectionTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));

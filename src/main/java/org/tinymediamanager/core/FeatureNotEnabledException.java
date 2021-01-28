@@ -13,32 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.tinymediamanager.core;
 
-package org.tinymediamanager.scraper.exceptions;
+import org.tinymediamanager.license.TmmFeature;
 
 /**
- * the class {@link MissingIdException} indicates that there was no matching ID for the scrape
- *
+ * this exception is used to indicate that the feature is not enabled
+ * 
  * @author Manuel Laggner
- * @since 3.0
  */
-public class MissingIdException extends ScrapeException {
-  private static final long serialVersionUID = 1682582702692312793L;
+public class FeatureNotEnabledException extends Exception {
 
-  private final String[]    ids;
-
-  /**
-   * the following ids are supported with this scraper, but no one has been given
-   * 
-   * @param ids
-   *          an array of supported ids
-   */
-  public MissingIdException(String... ids) {
-    super();
-    this.ids = ids;
+  public FeatureNotEnabledException(TmmFeature feature) {
+    super(feature.getFeatureName());
   }
 
-  public String[] getIds() {
-    return ids;
-  }
 }

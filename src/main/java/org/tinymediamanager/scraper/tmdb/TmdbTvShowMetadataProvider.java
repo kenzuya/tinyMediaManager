@@ -118,6 +118,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 
@@ -245,7 +246,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getEpisodeList(): {} ", options);
 
     // lazy initialization of the api
@@ -327,8 +328,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 
@@ -519,8 +521,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 

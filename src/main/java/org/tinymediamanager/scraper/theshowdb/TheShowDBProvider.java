@@ -15,21 +15,24 @@
  */
 package org.tinymediamanager.scraper.theshowdb;
 
+import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.theshowdb.services.TheShowDBController;
 
 /**
  * The Class @{@link TheShowDBProvider} is a metadata provider for the website theshowdb.com
  */
-abstract class TheShowDBProvider {
+abstract class TheShowDBProvider implements IMediaProvider {
 
-  private static final String     ID = "theshowdb";
-  private final MediaProviderInfo providerInfo;
-  protected TheShowDBController   controller;
+  private static final String       ID = "theshowdb";
+  protected final MediaProviderInfo providerInfo;
+  protected TheShowDBController     controller;
 
   TheShowDBProvider() {
     providerInfo = createMediaProviderInfo();
-    controller = new TheShowDBController(false);
   }
 
   protected abstract String getSubId();
@@ -49,15 +52,34 @@ abstract class TheShowDBProvider {
     return info;
   }
 
-  /**
-   * @return the entered API Key
-   */
-  protected String getApiKey() {
-    return providerInfo.getConfig().getValue("apiKey");
+  @Override
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(getProviderInfo().getConfig().getValue("apiKey"));
   }
 
-  protected MediaProviderInfo getMediaProviderInfo() {
-    return createMediaProviderInfo();
-  }
+  // thread safe initialization of the API
+  protected synchronized void initAPI() throws ScrapeException {
 
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    // create a new instance of the omdb api
+    if (controller == null) {
+      controller = new TheShowDBController(false);
+    }
+
+    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    if (StringUtils.isNotBlank(userApiKey)) {
+      controller.setApiKey(userApiKey);
+    }
+    else {
+      try {
+        controller.setApiKey(getApiKey());
+      }
+      catch (Exception e) {
+        throw new ScrapeException(e);
+      }
+    }
+  }
 }

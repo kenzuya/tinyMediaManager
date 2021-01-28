@@ -320,12 +320,12 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
           options.setLanguage(language);
           searchResults.addAll(subtitleProvider.search(options));
         }
+        catch (MissingIdException ignored) {
+          LOGGER.debug("missing id for scraper {}", scraper.getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getSubtitles", e);
           message = e.getMessage();
-        }
-        catch (MissingIdException ignored) {
-          LOGGER.debug("missing id for scraper {}", scraper.getId());
         }
       }
 

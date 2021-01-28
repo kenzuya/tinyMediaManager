@@ -145,13 +145,13 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
           try {
             artwork.addAll(artworkProvider.getArtwork(options));
           }
+          catch (MissingIdException ignored) {
+            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
+          }
           catch (ScrapeException e) {
             LOGGER.error("getArtwork", e);
             MessageManager.instance.pushMessage(
                 new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
-            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
           }
         }
 
@@ -209,13 +209,13 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
               break;
             }
           }
+          catch (MissingIdException ignored) {
+            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
+          }
           catch (ScrapeException e) {
             LOGGER.error("getArtwork", e);
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "message.scrape.tvshowartworkfailed",
                 new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
-            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
           }
         }
 

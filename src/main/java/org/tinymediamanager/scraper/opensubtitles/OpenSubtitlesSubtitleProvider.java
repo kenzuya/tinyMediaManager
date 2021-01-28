@@ -34,11 +34,12 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.tinymediamanager.license.License;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.opensubtitles.model.Info;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.Similarity;
@@ -48,7 +49,7 @@ import org.tinymediamanager.scraper.util.Similarity;
  *
  * @author Myron Boyle, Manuel Laggner
  */
-abstract class OpenSubtitlesSubtitleProvider {
+abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
   public static final String       ID              = "opensubtitles";
 
   private static final String      SERVICE         = "http://api.opensubtitles.org/xml-rpc";
@@ -94,10 +95,15 @@ abstract class OpenSubtitlesSubtitleProvider {
   }
 
   public boolean isActive() {
-    return client != null && StringUtils.isNotBlank(client.getUserAgent());
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 
   private synchronized void initAPI() throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     if (client == null) {
       try {
         client = new TmmXmlRpcClient(new URL(SERVICE));
@@ -110,7 +116,7 @@ abstract class OpenSubtitlesSubtitleProvider {
 
     // API key check
     try {
-      client.setUserAgent(License.getInstance().getApiKey(providerInfo.getId()));
+      client.setUserAgent(getApiKey());
     }
     catch (Exception e) {
       throw new ScrapeException(e);
@@ -359,8 +365,7 @@ abstract class OpenSubtitlesSubtitleProvider {
       try {
         OpenSubtitlesConnectionCounter.trackConnections();
 
-        Map<String, Object> response = (Map<String, Object>) client.call("LogIn", username, password, "",
-            License.getInstance().getApiKey(providerInfo.getId()));
+        Map<String, Object> response = (Map<String, Object>) client.call("LogIn", username, password, "", getApiKey());
         sessionToken = (String) response.get("token");
         getLogger().debug("Login OK");
       }

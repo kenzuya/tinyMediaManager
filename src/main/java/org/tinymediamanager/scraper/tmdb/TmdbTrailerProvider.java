@@ -60,7 +60,7 @@ class TmdbTrailerProvider {
    * @throws MissingIdException
    *           indicates that there was no usable id to scrape
    */
-  List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getTrailers(): {}", options);
     List<MediaTrailer> trailers = new ArrayList<>();
 

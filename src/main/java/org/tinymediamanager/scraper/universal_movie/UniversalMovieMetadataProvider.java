@@ -35,6 +35,7 @@ import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -77,7 +78,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
 
   @Override
   public boolean isActive() {
-    return true;
+    return isFeatureEnabled();
   }
 
   public static void addProvider(IMovieMetadataProvider provider) {
@@ -134,6 +135,10 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
 
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(providerInfo.getConfig().getValue(SEARCH));
@@ -156,8 +161,12 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws NothingFoundException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() - {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
 

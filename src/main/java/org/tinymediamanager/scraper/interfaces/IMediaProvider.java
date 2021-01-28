@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.scraper.interfaces;
 
+import org.tinymediamanager.license.TmmFeature;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 
 /**
@@ -24,7 +25,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
  * @author Manuel Laggner
  * @since 1.0
  */
-public interface IMediaProvider {
+public interface IMediaProvider extends TmmFeature {
   /**
    * Gets a general information about the metadata provider
    * 

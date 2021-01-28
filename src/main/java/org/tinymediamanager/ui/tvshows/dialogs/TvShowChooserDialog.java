@@ -218,7 +218,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       {
         cbScraper = new MediaScraperComboBox(tvShowList.getAvailableMediaScrapers());
         MediaScraper defaultScraper = tvShowList.getDefaultMediaScraper();
-        cbScraper.setSelectedItem(defaultScraper);
+        if (defaultScraper != null && defaultScraper.isEnabled()) {
+          cbScraper.setSelectedItem(defaultScraper);
+        }
         cbScraper.setAction(new ChangeScraperAction());
         panelSearchField.add(cbScraper, "cell 1 0,growx");
       }

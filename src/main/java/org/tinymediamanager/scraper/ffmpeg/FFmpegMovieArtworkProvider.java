@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.ffmpeg;
 import java.util.Collections;
 import java.util.List;
 
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -54,8 +55,12 @@ public class FFmpegMovieArtworkProvider extends FFmpegArtworkProvider implements
 
   @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    // only allow ALL, THUMB and BACKGROUD per se
 
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    // only allow ALL, THUMB and BACKGROUD per se
     switch (options.getArtworkType()) {
       case ALL:
         // if ALL is selected and all are deselected -> return an empty list

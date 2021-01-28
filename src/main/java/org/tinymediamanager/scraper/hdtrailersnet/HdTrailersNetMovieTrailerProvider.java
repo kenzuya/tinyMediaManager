@@ -26,8 +26,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaTrailer;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.TrailerSearchAndScrapeOptions;
@@ -65,21 +65,15 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
 
   @Override
   public boolean isActive() {
-    return true;
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 
   @Override
-  public List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaTrailer> getTrailers(TrailerSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getTrailers() - {}", options);
 
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(getId());
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     List<MediaTrailer> trailers = new ArrayList<>();
@@ -92,12 +86,11 @@ public class HdTrailersNetMovieTrailerProvider implements IMovieTrailerProvider 
 
     String ot = md.getOriginalTitle();
 
-    // best guess
-    String search = apiKey + ot.replaceAll("[^a-zA-Z0-9]", "-").replace("--", "-").toLowerCase(Locale.ROOT) + "/";
-
-    LOGGER.debug("Guessed HD-Trailers Url: {}", search);
-
     try {
+      // best guess
+      String search = getApiKey() + ot.replaceAll("[^a-zA-Z0-9]", "-").replace("--", "-").toLowerCase(Locale.ROOT) + "/";
+      LOGGER.debug("Guessed HD-Trailers Url: {}", search);
+
       Document doc = UrlUtil.parseDocumentFromUrl(search);
       Elements tr = doc.getElementsByAttributeValue("itemprop", "trailer");
       /*

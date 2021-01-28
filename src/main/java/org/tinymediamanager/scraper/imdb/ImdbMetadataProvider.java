@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 
 /**
  * The public ImdbMetadataProvider() {
@@ -27,7 +28,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
  *
  * @author Manuel Laggner
  */
-abstract class ImdbMetadataProvider {
+abstract class ImdbMetadataProvider implements IMediaProvider {
   static final String             ID        = "imdb";
 
   static final String             CAT_TITLE = "&s=tt";
@@ -56,5 +57,10 @@ abstract class ImdbMetadataProvider {
 
   public MediaProviderInfo getProviderInfo() {
     return providerInfo;
+  }
+
+  @Override
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 }

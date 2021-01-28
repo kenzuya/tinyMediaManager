@@ -15,25 +15,26 @@
  */
 package org.tinymediamanager.scraper.theshowdb.services;
 
+import java.util.List;
+
 import org.tinymediamanager.scraper.theshowdb.entities.Episode;
 import org.tinymediamanager.scraper.theshowdb.entities.Episodes;
 import org.tinymediamanager.scraper.theshowdb.entities.Season;
 import org.tinymediamanager.scraper.theshowdb.entities.Show;
 import org.tinymediamanager.scraper.theshowdb.entities.Shows;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-import java.util.List;
-
 public interface TheShowDBService {
 
-  //Search
+  // Search
   @GET("{apikey}/search_show.php")
   Call<Shows> searchShowByName(@Path("apikey") String apikey, @Query("s") String query);
 
-  //List
+  // List
   @GET("{apikey}/list_seasons.php")
   Call<List<Season>> listAllSeasonsByShowId(@Path("apikey") String apikey, @Query("id") String id);
 
@@ -43,7 +44,7 @@ public interface TheShowDBService {
   @GET("{apikey}/list_all_show_episodes.php")
   Call<Episodes> listAllEpisodesByShowId(@Path("apikey") String apiKey, @Query("id") String id);
 
-  //Lookup
+  // Lookup
   @GET("{apikey}/lookup_show.php")
   Call<Shows> lookupShowDetailsByShowId(@Path("apikey") String apikey, @Query("id") String id);
 

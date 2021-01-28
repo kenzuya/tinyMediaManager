@@ -40,16 +40,23 @@ import org.tinymediamanager.core.entities.MediaFile;
  * @author Manuel Laggner
  */
 public class SubtitleDownloadTask extends DownloadTask {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(SubtitleDownloadTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SubtitleDownloadTask.class);
 
-
-  private final MediaEntity           mediaEntity;
-  private final Path                  destinationFile;
+  private final MediaEntity   mediaEntity;
+  private final Path          destinationFile;
 
   public SubtitleDownloadTask(String url, Path destinationFile, MediaEntity mediaEntity) {
     super(TmmResourceBundle.getString("subtitle.downloading"), url);
     this.mediaEntity = mediaEntity;
     this.destinationFile = destinationFile;
+  }
+
+  @Override
+  protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+    super.doInBackground();
   }
 
   @Override

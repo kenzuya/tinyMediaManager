@@ -117,13 +117,13 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
             try {
               artwork.addAll(artworkProvider.getArtwork(options));
             }
+            catch (MissingIdException e) {
+              LOGGER.debug("missing ID for scraper {}", artworkProvider.getProviderInfo().getId());
+            }
             catch (ScrapeException e) {
               LOGGER.error("getArtwork", e);
               MessageManager.instance.pushMessage(
                   new Message(MessageLevel.ERROR, movie, "message.scrape.subtitlefailed", new String[] { ":", e.getLocalizedMessage() }));
-            }
-            catch (MissingIdException e) {
-              LOGGER.debug("missing ID for scraper {}", artworkProvider.getProviderInfo().getId());
             }
           }
 

@@ -22,7 +22,7 @@ package org.tinymediamanager.scraper.exceptions;
  * @author Manuel Laggner
  * @since 3.0
  */
-public class NothingFoundException extends Exception {
+public class NothingFoundException extends ScrapeException {
   private static final long serialVersionUID = 2861692682692312793L;
 
   /**

@@ -44,7 +44,6 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
  */
 public class TvShowTrailerDownloadTask extends TmmTask {
   private static final Logger             LOGGER       = LoggerFactory.getLogger(TvShowTrailerDownloadTask.class);
-  
 
   private final TvShow                    tvShow;
   private final List<TvShowTrailerNaming> trailernames = new ArrayList<>();
@@ -64,6 +63,10 @@ public class TvShowTrailerDownloadTask extends TmmTask {
 
   @Override
   protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+
     Set<MediaTrailer> trailers = new LinkedHashSet<>();
 
     // prepare the list of desired trailers

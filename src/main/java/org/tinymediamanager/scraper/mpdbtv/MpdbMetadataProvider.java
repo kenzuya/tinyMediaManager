@@ -19,14 +19,20 @@ import java.util.Base64;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.license.License;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.scraper.mpdbtv.services.Controller;
 
-abstract class MpdbMetadataProvider {
+abstract class MpdbMetadataProvider implements IMediaProvider {
 
   static final String             ID     = "mpdbtv";
   static final String             FORMAT = "json";
+
   private final MediaProviderInfo providerInfo;
+
+  protected Controller            controller;
 
   MpdbMetadataProvider() {
     providerInfo = createMediaProviderInfo();
@@ -46,6 +52,34 @@ abstract class MpdbMetadataProvider {
     return info;
   }
 
+  public boolean isActive() {
+    return isFeatureEnabled() && StringUtils.isNoneBlank(getAboKey(), getUserName()) && isApiKeyAvailable(null);
+  }
+
+  public MediaProviderInfo getProviderInfo() {
+    return providerInfo;
+  }
+
+  // thread safe initialization of the API
+  protected synchronized void initAPI() throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    // create a new instance of the omdb api
+    if (controller == null) {
+      controller = new Controller(false);
+    }
+
+    try {
+      controller.setApiKey(getApiKey());
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+  }
+
   String getAboKey() {
     return providerInfo.getConfig().getValue("aboKey");
   }
@@ -54,19 +88,11 @@ abstract class MpdbMetadataProvider {
     return providerInfo.getConfig().getValue("username");
   }
 
-  public boolean isActive() {
-    return StringUtils.isNoneBlank(getAboKey(), getUserName());
-  }
-
-  public MediaProviderInfo getProviderInfo() {
-    return providerInfo;
-  }
-
   String getEncodedUserName() {
     return Base64.getUrlEncoder().encodeToString(getUserName().getBytes());
   }
 
   String getSubscriptionKey() throws Exception {
-    return DigestUtils.sha1Hex(getUserName() + License.getInstance().getApiKey(ID) + getAboKey());
+    return DigestUtils.sha1Hex(getUserName() + getApiKey() + getAboKey());
   }
 }

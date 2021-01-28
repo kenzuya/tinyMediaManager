@@ -913,11 +913,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         LOGGER.info("=====================================================");
         metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
       }
-      catch (ScrapeException e) {
-        LOGGER.error("getMetadata", e);
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, TvShowEpisodeEditorDialog.this.episodeToEdit,
-            "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
-      }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");
         MessageManager.instance
@@ -925,6 +920,11 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       }
       catch (NothingFoundException ignored) {
         LOGGER.debug("nothing found");
+      }
+      catch (ScrapeException e) {
+        LOGGER.error("getMetadata", e);
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, TvShowEpisodeEditorDialog.this.episodeToEdit,
+            "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
       }
 
       setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

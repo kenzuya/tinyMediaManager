@@ -43,9 +43,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class Controller {
   private static final Logger LOGGER   = LoggerFactory.getLogger(Controller.class);
   private Retrofit            retrofit = null;
+  private String              apiKey;
 
   public Controller() {
     this(false);
+  }
+
+  public void setApiKey(String apiKey) {
+    this.apiKey = apiKey;
   }
 
   /**
@@ -100,7 +105,7 @@ public class Controller {
    * @throws IOException
    *           any exception that could occur
    */
-  public MediaSearch getMovieSearchInfo(String apiKey, String searchTerm, String type, String year) throws IOException {
+  public MediaSearch getMovieSearchInfo(String searchTerm, String type, String year) throws IOException {
     return getService().mediaSearch(apiKey, searchTerm, type, year).execute().body();
   }
 
@@ -117,7 +122,7 @@ public class Controller {
    * @throws IOException
    *           any exception that could occur
    */
-  public MediaEntity getScrapeDataById(String apiKey, String id, String type, boolean full) throws IOException {
+  public MediaEntity getScrapeDataById(String id, String type, boolean full) throws IOException {
     String plotStyle = "short";
     if (full) {
       plotStyle = "full";
@@ -125,11 +130,11 @@ public class Controller {
     return getService().movieScrapeById(apiKey, id, type, null, plotStyle,true).execute().body();
   }
 
-  public SeasonEntity getSeasonById(String apiKey, String id, String type, int season) throws IOException {
+  public SeasonEntity getSeasonById(String id, String type, int season) throws IOException {
     return getService().seasonScrapeById(apiKey, id, type, season).execute().body();
   }
 
-  public MediaEntity getEpisodeById(String apiKey, String id, String type, int season, int episode) throws IOException {
+  public MediaEntity getEpisodeById(String id, String type, int season, int episode) throws IOException {
     return getService().episodeScrapeById(apiKey, id, type, season, episode).execute().body();
   }
 
