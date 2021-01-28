@@ -244,10 +244,6 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
    * Updates nodes sorting and filtering for the specified parent and its children
    */
   public void updateSortingAndFiltering(E parent) {
-    if (!hasActiveFilters()) {
-      return;
-    }
-
     // Saving tree state to restore it right after children update
     TmmTreeState treeState = null;
     if (this.tree != null) {
