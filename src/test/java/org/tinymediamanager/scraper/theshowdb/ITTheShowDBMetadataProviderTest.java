@@ -16,7 +16,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 
-public class TheShowDBMetadataProviderTest extends BasicTest {
+public class ITTheShowDBMetadataProviderTest extends BasicTest {
 
   TheShowDBTvShowMetadataProvider mp;
 

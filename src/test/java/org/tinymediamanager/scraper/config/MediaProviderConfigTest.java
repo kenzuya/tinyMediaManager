@@ -74,7 +74,7 @@ public class MediaProviderConfigTest {
     mpi.getConfig().setValue("languageInt", "unknown"); // not possible
     assertEqual("5", mpi.getConfig().getValue("languageInt")); // value not in rage, should stay at last known
 
-    assertEqual(null, mpi.getConfig().getValueAsBool("languageInt")); // not a bool value
+    assertEqual(false, mpi.getConfig().getValueAsBool("languageInt")); // not a bool value
     assertEqual(true, mpi.getConfig().getValueAsBool("useTmdbForMovies"));
     assertEqual("This is some encrypted text", mpi.getConfig().getValue("encrypted"));
 
@@ -96,7 +96,7 @@ public class MediaProviderConfigTest {
 
     mpi.getConfig().setValue("asdfasdfasdfasdf", true);
     assertEqual("", mpi.getConfig().getValue("invalid"));
-    assertEqual(null, mpi.getConfig().getValueAsBool("invalid"));
+    assertEqual(false, mpi.getConfig().getValueAsBool("invalid"));
     assertEqual("", mpi.getConfig().getValue("invalidInt"));
   }
 
@@ -120,7 +120,7 @@ public class MediaProviderConfigTest {
     MediaProviderInfo mpi = new MediaProviderInfo("config", "config", "name", "description");
     mpi.getConfig().loadFromDir("target");
     assertEqual("", mpi.getConfig().getValue("asdfasdfasdfasdf"));
-    assertEqual(null, mpi.getConfig().getValueAsBool("sdfgsdfgsdfg"));
+    assertEqual(false, mpi.getConfig().getValueAsBool("sdfgsdfgsdfg"));
   }
 
   @Test
