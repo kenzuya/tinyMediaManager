@@ -728,9 +728,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
       Map<String, MediaRating> newRatings = new HashMap<>();
+
+      if (matchFound) {
+        // only update new ratings, but let the old ones survive
+        newRatings.putAll(getRatings());
+      }
+
       for (MediaRating mediaRating : metadata.getRatings()) {
         newRatings.put(mediaRating.getId(), mediaRating);
       }
+
       setRatings(newRatings);
     }
 

@@ -458,6 +458,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
   /**
    * get the user rating
+   * 
    * @return user rating object
    */
   public MediaRating getUserRating() {
@@ -936,9 +937,16 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (config.contains(TvShowScraperMetadataConfig.RATING)) {
       Map<String, MediaRating> newRatings = new HashMap<>();
+
+      if (matchFound) {
+        // only update new ratings, but let the old ones survive
+        newRatings.putAll(getRatings());
+      }
+
       for (MediaRating mediaRating : metadata.getRatings()) {
         newRatings.put(mediaRating.getId(), mediaRating);
       }
+
       setRatings(newRatings);
     }
 
