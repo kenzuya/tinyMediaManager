@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -288,7 +287,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // build image cache on import
-      if (MovieModuleManager.SETTINGS.isBuildImageCacheOnImport()) {
+      if (Globals.settings.isImageCache() && MovieModuleManager.SETTINGS.isBuildImageCacheOnImport()) {
         for (Movie movie : movieList.getMovies()) {
           if (!dsAsPath.equals(Paths.get(movie.getDataSource()))) {
             // check only movies matching datasource
@@ -325,16 +324,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         continue;
       }
 
-      // check the size - if the size of the data source is 0 we assume that this is unmounted
-      long dsSize;
-      try {
-        dsSize = FileUtils.sizeOfDirectory(dsAsPath.toFile());
-      }
-      catch (Exception e) {
-        dsSize = 0;
-      }
+      List<Path> rootList = listFilesAndDirs(dsAsPath);
 
-      if (dsSize == 0) {
+      // when there is _nothing_ found in the ds root, it might be offline - skip further processing
+      // not in Windows since that won't happen there
+      if (rootList.isEmpty() && !SystemUtils.IS_OS_WINDOWS) {
         // error - continue with next datasource
         MessageManager.instance
             .pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.unavailable", new String[] { ds }));
