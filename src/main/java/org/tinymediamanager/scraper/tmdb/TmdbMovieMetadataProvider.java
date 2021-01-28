@@ -154,7 +154,8 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     if (tmdbId != 0) {
       LOGGER.debug("found TMDB ID {} - getting direct", tmdbId);
       try {
-        Response<Movie> httpResponse = api.moviesService().summary(tmdbId, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS))
+        Response<Movie> httpResponse = api.moviesService()
+            .summary(tmdbId, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS))
             .execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
@@ -334,8 +335,11 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
 
     if (movie == null && tmdbId > 0) {
       try {
-        Response<Movie> httpResponse = api.moviesService().summary(tmdbId, language, new AppendToResponse(AppendToResponseItem.CREDITS,
-            AppendToResponseItem.KEYWORDS, AppendToResponseItem.RELEASE_DATES, AppendToResponseItem.TRANSLATIONS)).execute();
+        Response<Movie> httpResponse = api.moviesService()
+            .summary(tmdbId, language,
+                new AppendToResponse(AppendToResponseItem.CREDITS, AppendToResponseItem.KEYWORDS, AppendToResponseItem.RELEASE_DATES,
+                    AppendToResponseItem.TRANSLATIONS))
+            .execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
         }
@@ -762,17 +766,14 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
         if (countryCode == null || countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0) {
           // Any release from the desired country will do
           for (ReleaseDate countryReleaseDate : ListUtils.nullSafe(countries.release_dates)) {
-            // do not use any empty certifications
-            if (StringUtils.isEmpty(countryReleaseDate.certification)) {
-              continue;
-            }
-
             if (md.getReleaseDate() == null
                 || (countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
               md.setReleaseDate(countryReleaseDate.release_date);
             }
-
-            md.addCertification(MediaCertification.getCertification(countries.iso_3166_1, countryReleaseDate.certification));
+            // do not use any empty certifications
+            if (StringUtils.isNotBlank(countryReleaseDate.certification)) {
+              md.addCertification(MediaCertification.getCertification(countries.iso_3166_1, countryReleaseDate.certification));
+            }
           }
         }
       }

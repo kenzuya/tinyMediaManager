@@ -407,7 +407,7 @@ public class MediaMetadata {
    *          the certification
    */
   public void addCertification(MediaCertification certification) {
-    if (certification != null) {
+    if (certification != null && !certifications.contains(certification)) {
       certifications.add(certification);
     }
   }
