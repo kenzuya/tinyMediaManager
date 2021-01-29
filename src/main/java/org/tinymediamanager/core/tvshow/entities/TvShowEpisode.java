@@ -29,6 +29,7 @@ import static org.tinymediamanager.core.Constants.EPISODE;
 import static org.tinymediamanager.core.Constants.FIRST_AIRED;
 import static org.tinymediamanager.core.Constants.FIRST_AIRED_AS_STRING;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
+import static org.tinymediamanager.core.Constants.IMDB;
 import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.SEASON_BANNER;
@@ -36,6 +37,8 @@ import static org.tinymediamanager.core.Constants.SEASON_POSTER;
 import static org.tinymediamanager.core.Constants.SEASON_THUMB;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
+import static org.tinymediamanager.core.Constants.TMDB;
+import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.TVDB;
 import static org.tinymediamanager.core.Constants.TV_SHOW;
 import static org.tinymediamanager.core.Constants.WATCHED;
@@ -515,6 +518,30 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       firePropertyChange(SEASON, oldValue, newValue);
     }
     firePropertyChange(AIRED_SEASON, oldValue, newValue);
+  }
+  /**
+   * get the Trakt ID
+   * @return the Trakt ID
+   */
+  public String getTraktTvId() {
+    return this.getIdAsString(TRAKT);
+  }
+
+  /**
+   * get the IMDB ID
+   * @return IMDB ID
+   */
+  public String getImdbId() {
+    return this.getIdAsString(IMDB);
+  }
+
+
+  /**
+   * Get the TMDB ID
+   * @return the TMDB ID
+   */
+  public String getTmdbId() {
+    return this.getIdAsString(TMDB);
   }
 
   public int getAiredSeason() {

@@ -33,6 +33,9 @@ Version 4.1
 + added OMDB TV Show scraping
 + added more Columns for Movie Sets
 + added period (year of movies in collection) for Movie Sets
++ added clickable ID Links to the Episode Detail Panel
++ added button in tv show scrape/search window for opening TVShow folder
++ added original title column for tvshows / episodes
 + reworked visualization of ratings
 + added original title column for tvshows / episodes
 x rewritten Trakt.tv integration to be more flexible and ready for multiple versions of the same movie/episode #1031 #1081
