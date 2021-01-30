@@ -472,6 +472,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
           MediaMetadata md = model.getMetadata();
 
+          // check if there is at leat a title in the metadata -> otherwise take the title from the search result
+          if (StringUtils.isBlank(md.getTitle())) {
+            md.setTitle(model.getTitle());
+          }
+
           // did the user want to choose the images?
           if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {
             md.clearMediaArt();
