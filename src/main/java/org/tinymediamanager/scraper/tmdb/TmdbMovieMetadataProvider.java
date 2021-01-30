@@ -763,11 +763,12 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
       CountryCode countryCode = options.getCertificationCountry();
 
       for (ReleaseDatesResult countries : ListUtils.nullSafe(movie.release_dates.results)) {
-        if (countryCode == null || countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0) {
+        if (countryCode == null
+            || (StringUtils.isNotBlank(countries.iso_3166_1) && countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0)) {
           // Any release from the desired country will do
           for (ReleaseDate countryReleaseDate : ListUtils.nullSafe(countries.release_dates)) {
-            if (md.getReleaseDate() == null
-                || (countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
+            if (md.getReleaseDate() == null || (MetadataUtil.unboxInteger(countryReleaseDate.type) > 1 && countryReleaseDate.release_date != null
+                && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
               md.setReleaseDate(countryReleaseDate.release_date);
             }
             // do not use any empty certifications
