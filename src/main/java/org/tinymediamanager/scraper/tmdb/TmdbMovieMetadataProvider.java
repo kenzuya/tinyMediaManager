@@ -767,8 +767,9 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
             || (StringUtils.isNotBlank(countries.iso_3166_1) && countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0)) {
           // Any release from the desired country will do
           for (ReleaseDate countryReleaseDate : ListUtils.nullSafe(countries.release_dates)) {
-            if (md.getReleaseDate() == null || (MetadataUtil.unboxInteger(countryReleaseDate.type) > 1 && countryReleaseDate.release_date != null
-                && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
+            // 1... premiere -> ignore this
+            if (MetadataUtil.unboxInteger(countryReleaseDate.type) > 1 && (md.getReleaseDate() == null
+                || countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
               md.setReleaseDate(countryReleaseDate.release_date);
             }
             // do not use any empty certifications
