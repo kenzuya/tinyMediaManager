@@ -98,7 +98,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
     // set up scrapers
     MediaScraper mediaMetadataScraper = scrapeOptions.getMetadataScraper();
 
-    if (mediaMetadataScraper.isEnabled()) {
+    if (!mediaMetadataScraper.isEnabled()) {
       return;
     }
 

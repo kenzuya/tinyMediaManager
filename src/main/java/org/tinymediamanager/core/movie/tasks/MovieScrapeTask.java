@@ -79,7 +79,7 @@ public class MovieScrapeTask extends TmmThreadPool {
   @Override
   protected void doInBackground() {
     MediaScraper mediaMetadataScraper = searchAndScrapeOptions.getMetadataScraper();
-    if (mediaMetadataScraper.isEnabled()) {
+    if (!mediaMetadataScraper.isEnabled()) {
       return;
     }
 
