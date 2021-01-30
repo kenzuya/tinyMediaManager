@@ -41,6 +41,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1316,19 +1317,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * @return list of matching MFs
    */
   private List<MediaFile> getMediaFiles(List<MediaFile> mfs, MediaFileType... types) {
-    List<MediaFile> mf = new ArrayList<>();
-    for (MediaFile mediaFile : mfs) {
-      boolean match = false;
-      for (MediaFileType type : types) {
-        if (mediaFile.getType().equals(type)) {
-          match = true;
-        }
-      }
-      if (match) {
-        mf.add(new MediaFile(mediaFile));
-      }
-    }
-    return mf;
+    List<MediaFileType> mediaFileTypes = Arrays.asList(types);
+    return mfs.stream().filter(mf -> mediaFileTypes.contains(mf.getType())).collect(Collectors.toList());
   }
 
   @Override
