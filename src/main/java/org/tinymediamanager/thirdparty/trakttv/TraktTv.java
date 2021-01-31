@@ -99,7 +99,9 @@ public class TraktTv implements TmmFeature {
   private TraktTv() {
   }
 
-  public Map<String, String> authenticateViaPin(String pin) throws IOException {
+  public Map<String, String> authenticateViaPin(String pin) throws Exception {
+    initAPI();
+
     Map<String, String> result = new HashMap<>();
     Response<AccessToken> response = api.exchangeCodeForAccessToken(pin);
 
@@ -119,10 +121,12 @@ public class TraktTv implements TmmFeature {
   /**
    * get a new accessToken with the refreshToken
    */
-  public void refreshAccessToken() throws IOException {
+  public void refreshAccessToken() throws Exception {
     if (StringUtils.isBlank(Globals.settings.getTraktRefreshToken())) {
       throw new IOException("no trakt.tv refresh token found");
     }
+
+    initAPI();
 
     Response<AccessToken> response = api.refreshToken(Globals.settings.getTraktRefreshToken())
         .refreshAccessToken(Globals.settings.getTraktRefreshToken());
@@ -135,7 +139,7 @@ public class TraktTv implements TmmFeature {
       }
     }
     else {
-      throw new IOException("could not get trakt.tv refresh token (HTTP " + response.code() + ")");
+      throw new IOException("could not get trakt.tv refresh token (HTTP " + response.code() + " - " + response.message() + ")");
     }
   }
 

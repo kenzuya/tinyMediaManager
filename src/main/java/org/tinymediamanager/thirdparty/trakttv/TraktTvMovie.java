@@ -86,7 +86,7 @@ class TraktTvMovie {
         response = api.sync().collectionMovies(Extended.METADATA).execute();
       }
       if (!response.isSuccessful()) {
-        LOGGER.error("failed syncing trakt: {}", response.message());
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
         return;
       }
       traktMovies = response.body();
@@ -173,7 +173,7 @@ class TraktTvMovie {
       SyncItems items = new SyncItems().movies(movies);
       Response<SyncResponse> response = api.sync().addItemsToCollection(items).execute();
       if (!response.isSuccessful()) {
-        LOGGER.error("failed syncing Trakt.tv: {}", response.message());
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
         return;
       }
       LOGGER.debug("Trakt add-to-library status:");
@@ -207,7 +207,7 @@ class TraktTvMovie {
         traktWatchedResponse = api.sync().watchedMovies(null).execute();
       }
       if (!traktWatchedResponse.isSuccessful()) {
-        LOGGER.error("failed syncing trakt.tv: {}", traktWatchedResponse.message());
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktWatchedResponse.code(), traktWatchedResponse.message());
         return;
       }
       traktMovies = traktWatchedResponse.body();
@@ -298,7 +298,7 @@ class TraktTvMovie {
       SyncItems items = new SyncItems().movies(movies);
       Response<SyncResponse> response = api.sync().addItemsToWatchedHistory(items).execute();
       if (!response.isSuccessful()) {
-        LOGGER.error("failed syncing trakt: {}", response.message());
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
         return;
       }
       LOGGER.debug("Trakt mark-as-watched status:");
@@ -328,7 +328,7 @@ class TraktTvMovie {
         traktCollectionResponse = api.sync().collectionMovies(null).execute();
       }
       if (!traktCollectionResponse.isSuccessful()) {
-        LOGGER.error("failed syncing trakt: {}", traktCollectionResponse.message());
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktCollectionResponse.code(), traktCollectionResponse.message());
         return;
       }
       traktCollection = traktCollectionResponse.body();
@@ -341,7 +341,7 @@ class TraktTvMovie {
         traktWatchedResponse = api.sync().watchedMovies(null).execute();
       }
       if (!traktWatchedResponse.isSuccessful()) {
-        LOGGER.error("failed syncing trakt: {}", traktWatchedResponse.message());
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktWatchedResponse.code(), traktWatchedResponse.message());
         return;
       }
       traktWatched = traktWatchedResponse.body();
@@ -367,7 +367,7 @@ class TraktTvMovie {
         SyncItems items = new SyncItems().movies(moviesToRemove);
         Response<SyncResponse> response = api.sync().deleteItemsFromCollection(items).execute();
         if (!response.isSuccessful()) {
-          LOGGER.error("failed syncing trakt: {}", response.message());
+          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
           return;
         }
         LOGGER.info("removed {} movies from your trakt.tv collection", moviesToRemove.size());
@@ -391,7 +391,7 @@ class TraktTvMovie {
         SyncItems items = new SyncItems().movies(moviesToRemove);
         Response<SyncResponse> response = api.sync().deleteItemsFromWatchedHistory(items).execute();
         if (!response.isSuccessful()) {
-          LOGGER.error("failed syncing trakt: {}", response.message());
+          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
           return;
         }
         LOGGER.info("removed {} movies from your trakt.tv watched", moviesToRemove.size());
