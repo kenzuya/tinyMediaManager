@@ -20,6 +20,7 @@ import static java.util.Locale.ROOT;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,6 +36,7 @@ import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.scraper.kodi.KodiMovieMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
@@ -102,7 +104,11 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
       JLabel lblMetadataScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"));
       panelCenter.add(lblMetadataScraperT, "cell 0 1,alignx right");
 
-      cbMetadataScraper = new MediaScraperComboBox(MovieList.getInstance().getAvailableMediaScrapers());
+      cbMetadataScraper = new MediaScraperComboBox(MovieList.getInstance()
+          .getAvailableMediaScrapers()
+          .stream()
+          .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiMovieMetadataProvider))
+          .collect(Collectors.toList()));
       panelCenter.add(cbMetadataScraper, "cell 1 1,growx");
       cbMetadataScraper.setSelectedItem(defaultScraper);
 

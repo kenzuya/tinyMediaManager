@@ -38,6 +38,7 @@ import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
@@ -93,7 +94,11 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
       JLabel lblMetadataScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"));
       panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
 
-      cbMetadataScraper = new MediaScraperComboBox(TvShowList.getInstance().getAvailableMediaScrapers());
+      cbMetadataScraper = new MediaScraperComboBox(TvShowList.getInstance()
+          .getAvailableMediaScrapers()
+          .stream()
+          .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
+          .collect(Collectors.toList()));
       panelContent.add(cbMetadataScraper, "cell 1 1,growx");
     }
 
