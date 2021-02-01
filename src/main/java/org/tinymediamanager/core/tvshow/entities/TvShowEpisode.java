@@ -63,8 +63,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.FilenameUtils;
@@ -510,7 +508,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the Trakt ID
-   * 
+   *
    * @return the Trakt ID
    */
   public String getTraktTvId() {
@@ -519,7 +517,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the IMDB ID
-   * 
+   *
    * @return IMDB ID
    */
   public String getImdbId() {
@@ -528,7 +526,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * Get the TMDB ID
-   * 
+   *
    * @return the TMDB ID
    */
   public String getTmdbId() {
