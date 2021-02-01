@@ -43,21 +43,12 @@ import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
 
 import java.nio.file.Path;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.FilenameUtils;
@@ -1542,6 +1533,11 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return getMainVideoFile().getAspectRatio();
   }
 
+  public String getMediaInfoAspectRatioAsString() {
+    DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
+    return df.format(getMainVideoFile().getAspectRatio()).replaceAll("\\.", "");
+  }
+
   @Override
   public String getMediaInfoAudioCodec() {
     return getMainVideoFile().getAudioCodec();
@@ -1606,6 +1602,14 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @Override
   public String getVideoHDRFormat() {
     return getMainVideoFile().getHdrFormat();
+  }
+
+  public Boolean isVideoInHDR() {
+    return StringUtils.isNotEmpty(getMainVideoFile().getHdrFormat());
+  }
+
+  public String getVideoHDR() {
+    return isVideoInHDR() ? "HDR" : "";
   }
 
   @Override

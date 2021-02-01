@@ -21,6 +21,7 @@ import java.util.Date;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -231,6 +232,28 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * aspect ratio (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.aspectratio"), "aspectratio", this::getAspectRatio, Float.class);
+    col.setHeaderIcon(IconManager.ASPECT_RATIO);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("1.78") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    col.setColumnComparator(floatComparator);
+    addColumn(col);
+
+    /*
+     * HDR (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.hdr"), "hdr", this::isHDR, ImageIcon.class);
+    col.setHeaderIcon(IconManager.HDR);
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    col.setColumnComparator(imageComparator);
+    addColumn(col);
+
+    /*
      * new indicator
      */
     col = new Column(TmmResourceBundle.getString("movieextendedsearch.newepisodes"), "new", this::getNewIcon, ImageIcon.class);
@@ -426,6 +449,23 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       return (int) (size / (1000.0 * 1000.0)) + " M";
     }
     return "";
+  }
+
+  private Float getAspectRatio(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode) {
+      return ((TvShowEpisode) userObject).getMediaInfoAspectRatio();
+    }
+    return null;
+  }
+
+  private ImageIcon isHDR(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode) {
+      TvShowEpisode episode = ((TvShowEpisode) userObject);
+      return getCheckIcon(StringUtils.isNotEmpty(episode.getVideoHDRFormat()));
+    }
+    return null;
   }
 
   private ImageIcon hasNfo(TmmTreeNode node) {
