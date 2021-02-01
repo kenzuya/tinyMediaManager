@@ -114,6 +114,7 @@ public class MovieSetScrapeTask extends TmmThreadPool {
         List<MovieSet.MovieSetMovie> movieSetMovies = createMovieSetMovies(metadata);
         if (!movieSetMovies.isEmpty()) {
           movieSet.setDummyMovies(movieSetMovies);
+          movieSet.saveToDb();
         }
       }
       catch (Exception e) {
@@ -125,7 +126,7 @@ public class MovieSetScrapeTask extends TmmThreadPool {
     private List<MediaArtwork> getArtwork(MovieSet movieSet, MediaMetadata metadata, List<MediaScraper> artworkScrapers) {
       List<MediaArtwork> artwork = new ArrayList<>();
 
-      ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
+      ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE_SET);
       options.setDataFromOtherOptions(scrapeOptions);
       options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
       options.setMetadata(metadata);
@@ -140,12 +141,13 @@ public class MovieSetScrapeTask extends TmmThreadPool {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException ignored) {
+          // nothing to do
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(Message.MessageLevel.ERROR, movieSet, "message.scrape.movieartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException ignored) {
         }
       }
 

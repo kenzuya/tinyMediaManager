@@ -693,7 +693,7 @@ public class ImageLabel extends JComponent {
         else {
           url = new Url(imageUrl);
         }
-        byte[] bytes = url.getBytesWithRetry(5);
+        byte[] bytes = url.getBytesWithRetry(2);
         clearImageData();
         setImageBytes(bytes);
         recreateScaledImageIfNeeded(0, 0, newSize.width, newSize.height);

@@ -24,8 +24,6 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.tvmaze.entities.Cast;
@@ -48,13 +46,16 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   }
 
   @Override
-  public boolean isActive() {
-    return false;
+  protected Logger getLogger() {
+    return LOGGER;
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() TvShow: {}", options);
+
+    initAPI();
+
     String mazeId = (String) options.getIds().get("tvmaze");
     tvMazeId = Integer.parseInt(mazeId);
     MediaMetadata md = new MediaMetadata(getId());
@@ -65,7 +66,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     // all the information :)
 
     // get show information
-    LOGGER.info("========= BEGIN TVMAZE Scraping");
+    LOGGER.debug("========= BEGIN TVMAZE Scraping");
     try {
       show = controller.getMainInformation(tvMazeId);
     }
@@ -74,7 +75,6 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     }
 
     if (show != null) {
-
       md.setId(MediaMetadata.IMDB, show.tvShowIds.imdb);
       md.setId(MediaMetadata.TVDB, show.tvShowIds.thetvdb);
       md.setId("tvrage", show.tvShowIds.tvrage);
@@ -135,8 +135,10 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() TvShowEpisode: {}", options);
+
+    initAPI();
 
     MediaMetadata md = new MediaMetadata(getId());
     MediaArtwork ma;
@@ -211,6 +213,9 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
+    initAPI();
+
     SortedSet<MediaSearchResult> searchResults = new TreeSet<>();
 
     List<Shows> searchResult;
@@ -270,7 +275,9 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
+    initAPI();
+
     List<MediaMetadata> list = new ArrayList<>();
 
     // get the correct information

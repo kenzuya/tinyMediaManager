@@ -35,6 +35,7 @@ import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -42,7 +43,6 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
@@ -81,7 +81,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
 
   @Override
   public boolean isActive() {
-    return true;
+    return isFeatureEnabled();
   }
 
   public static void addProvider(ITvShowMetadataProvider provider) {
@@ -141,6 +141,10 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   @Override
   public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
@@ -352,8 +356,12 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() - {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
@@ -420,8 +428,12 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() - {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
 
     MediaMetadata md = new MediaMetadata(providerInfo.getId());
 
@@ -501,8 +513,12 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   }
 
   @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getEpisodeList() - {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
 
     List<MediaMetadata> episodeList = new ArrayList<>();
 

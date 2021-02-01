@@ -141,7 +141,7 @@ public class TraktMovieMetadataProvider extends TraktMetadataProvider implements
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
 
     // lazy initialization of the api

@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -86,6 +87,7 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
       }
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     // update show + all EPs
     for (Object obj : shows) {
       MediaEntity me = (MediaEntity) obj;
@@ -96,6 +98,6 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
       MediaEntity me = (MediaEntity) obj;
       KodiRPC.getInstance().refreshFromNfo(me);
     }
-
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

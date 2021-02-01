@@ -54,8 +54,6 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -675729644848101096L;
 
-
-
   private final TvShowSettings         settings         = TvShowModuleManager.SETTINGS;
   private final ItemListener           checkBoxListener;
 
@@ -89,6 +87,7 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxTvShowSeasonCheckBanner;
   private JCheckBox                    chckbxTvShowSeasonCheckThumb;
   private JCheckBox                    chckbxTvShowEpisodeCheckThumb;
+  private JCheckBox                    chckbxMetadataFromMediainfo;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -335,30 +334,33 @@ class TvShowSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
+
+      chckbxMetadataFromMediainfo = new JCheckBox(TmmResourceBundle.getString("Settings.usemediainfometadata"));
+      panelMisc.add(chckbxMetadataFromMediainfo, "cell 1 0 2 1");
       {
         chckbxExtractArtworkFromVsmeta = new JCheckBox(TmmResourceBundle.getString("Settings.extractartworkfromvsmeta"));
-        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 0 2 1");
+        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 1 2 1");
 
         chckbxImageCache = new JCheckBox(TmmResourceBundle.getString("Settings.imagecacheimport"));
-        panelMisc.add(chckbxImageCache, "cell 1 1 2 1");
+        panelMisc.add(chckbxImageCache, "cell 1 2 2 1");
 
         JLabel lblBuildImageCacheHint = new JLabel(IconManager.HINT);
         lblBuildImageCacheHint.setToolTipText(TmmResourceBundle.getString("Settings.imagecacheimporthint"));
-        panelMisc.add(lblBuildImageCacheHint, "cell 1 1");
+        panelMisc.add(lblBuildImageCacheHint, "cell 1 2 2 1");
 
         JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelMisc.add(lblCheckImages, "cell 1 2 2 1");
+        panelMisc.add(lblCheckImages, "cell 1 3 2 1");
 
         {
           JPanel panelCheckImages = new JPanel();
           panelCheckImages.setLayout(new MigLayout("hidemode 1, insets 0", "[][][][]", ""));
-          panelMisc.add(panelCheckImages, "cell 2 3");
+          panelMisc.add(panelCheckImages, "cell 2 4");
 
           JLabel lblTvShowCheckImages = new TmmLabel(TmmResourceBundle.getString("metatag.tvshow"));
           panelCheckImages.add(lblTvShowCheckImages, "cell 0 0");
@@ -499,5 +501,10 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1,
         chckbxTvShowTableTooltips, jCheckBoxBeanProperty);
     autoBinding_2.bind();
+    //
+    Property tvShowSettingsBeanProperty_9 = BeanProperty.create("useMediainfoMetadata");
+    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_9,
+        chckbxMetadataFromMediainfo, jCheckBoxBeanProperty);
+    autoBinding_12.bind();
   }
 }

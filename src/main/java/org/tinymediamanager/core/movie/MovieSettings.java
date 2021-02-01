@@ -214,6 +214,7 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                includeExternalAudioStreams            = false;
   private boolean                                syncTrakt                              = false;
   private boolean                                extractArtworkFromVsmeta               = false;
+  private boolean                                useMediainfoMetadata                   = false;
 
   private boolean                                title                                  = true;
   private boolean                                sortableTitle                          = false;
@@ -1055,6 +1056,16 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = this.extractArtworkFromVsmeta;
     this.extractArtworkFromVsmeta = newValue;
     firePropertyChange("extractArtworkFromVsmeta", oldValue, newValue);
+  }
+
+  public boolean isUseMediainfoMetadata() {
+    return useMediainfoMetadata;
+  }
+
+  public void setUseMediainfoMetadata(boolean newValue) {
+    boolean oldValue = this.useMediainfoMetadata;
+    this.useMediainfoMetadata = newValue;
+    firePropertyChange("useMediainfoMetadata", oldValue, newValue);
   }
 
   public void setTitle(boolean newValue) {

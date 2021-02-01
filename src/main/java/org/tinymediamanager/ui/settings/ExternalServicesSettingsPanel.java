@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.trakttv.TraktTv;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -42,19 +43,19 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class ExternalServicesSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 7266564870819511988L;
+  private static final long serialVersionUID = 7266564870819511988L;
 
-  
-  private JButton                     btnGetTraktPin;
-  private JButton                     btnTestTraktConnection;
-  private JLabel                      lblTraktStatus;
+  private JButton           btnGetTraktPin;
+  private JButton           btnTestTraktConnection;
+  private JLabel            lblTraktStatus;
 
   ExternalServicesSettingsPanel() {
     // UI init
     initComponents();
 
     // data init
-    if (StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
+    if (License.getInstance().isValidLicense()
+        && StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
       lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.good"));
     }
     else {
@@ -62,9 +63,10 @@ class ExternalServicesSettingsPanel extends JPanel {
     }
 
     btnGetTraktPin.addActionListener(e -> getTraktPin());
+    btnGetTraktPin.setEnabled(License.getInstance().isValidLicense());
     btnTestTraktConnection.addActionListener(e -> {
       try {
-        TraktTv.refreshAccessToken();
+        TraktTv.getInstance().refreshAccessToken();
         JOptionPane.showMessageDialog(MainWindow.getFrame(), TmmResourceBundle.getString("Settings.trakt.testconnection.good"),
             TmmResourceBundle.getString("Settings.trakt.testconnection"), JOptionPane.INFORMATION_MESSAGE);
       }
@@ -73,6 +75,7 @@ class ExternalServicesSettingsPanel extends JPanel {
             TmmResourceBundle.getString("Settings.trakt.testconnection"), JOptionPane.ERROR_MESSAGE);
       }
     });
+    btnTestTraktConnection.setEnabled(License.getInstance().isValidLicense());
   }
 
   private void getTraktPin() {
@@ -93,7 +96,7 @@ class ExternalServicesSettingsPanel extends JPanel {
     String accessToken = "";
     String refreshToken = "";
     try {
-      Map<String, String> tokens = TraktTv.authenticateViaPin(pin);
+      Map<String, String> tokens = TraktTv.getInstance().authenticateViaPin(pin);
       accessToken = tokens.get("accessToken") == null ? "" : tokens.get("accessToken");
       refreshToken = tokens.get("refreshToken") == null ? "" : tokens.get("refreshToken");
     }
@@ -120,6 +123,11 @@ class ExternalServicesSettingsPanel extends JPanel {
       panelTrakt.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
 
       JLabel lblTraktT = new TmmLabel(TmmResourceBundle.getString("Settings.trakt"), H3);
+
+      if (!License.getInstance().isValidLicense()) {
+        lblTraktT.setText("*PRO* " + lblTraktT.getText());
+      }
+
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelTrakt, lblTraktT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#trakttv"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");

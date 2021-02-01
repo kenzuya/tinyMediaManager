@@ -45,7 +45,6 @@ import org.tinymediamanager.core.threading.TmmTask;
 public class MovieTrailerDownloadTask extends TmmTask {
   private static final Logger            LOGGER       = LoggerFactory.getLogger(MovieTrailerDownloadTask.class);
 
-
   private final Movie                    movie;
   private final List<MovieTrailerNaming> trailernames = new ArrayList<>();
   private final TrailerQuality           desiredQuality;
@@ -71,6 +70,10 @@ public class MovieTrailerDownloadTask extends TmmTask {
 
   @Override
   protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+
     Set<MediaTrailer> trailers = new LinkedHashSet<>();
 
     // prepare the list of desired trailers

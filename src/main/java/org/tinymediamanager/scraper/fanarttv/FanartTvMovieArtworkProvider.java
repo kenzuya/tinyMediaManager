@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -32,6 +33,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSetArtworkProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import retrofit2.Response;
@@ -41,7 +43,7 @@ import retrofit2.Response;
  *
  * @author Manuel Laggner
  */
-public class FanartTvMovieArtworkProvider extends FanartTvMetadataProvider implements IMovieArtworkProvider {
+public class FanartTvMovieArtworkProvider extends FanartTvMetadataProvider implements IMovieArtworkProvider, IMovieSetArtworkProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(FanartTvMovieArtworkProvider.class);
 
   @Override
@@ -56,7 +58,12 @@ public class FanartTvMovieArtworkProvider extends FanartTvMetadataProvider imple
 
   // http://webservice.fanart.tv/v3/movies/559
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     if (options.getMediaType() != MediaType.MOVIE && options.getMediaType() != MediaType.MOVIE_SET) {
       return Collections.emptyList();
     }

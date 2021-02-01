@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -67,6 +68,7 @@ public class TvShowDeleteAction extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Object obj : selectedObjects) {
       // delete a whole TV show
       if (obj instanceof TvShow) {
@@ -87,5 +89,6 @@ public class TvShowDeleteAction extends TmmAction {
         tvShowEpisode.getTvShow().deleteEpisode(tvShowEpisode);
       }
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

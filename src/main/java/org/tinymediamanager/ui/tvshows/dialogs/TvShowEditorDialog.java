@@ -44,28 +44,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.AbstractAction;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JLayer;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SpinnerDateModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.fourthline.cling.support.avtransport.callback.Play;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -79,6 +61,8 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -98,6 +82,7 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.TableSpinnerEditor;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
@@ -1041,6 +1026,9 @@ public class TvShowEditorDialog extends TmmDialog {
         JButton btnRemoveTrailer = new SquareIconButton(new RemoveTrailerAction());
         trailerPanel.add(btnRemoveTrailer, "cell 0 10,alignx right,aligny top");
 
+        JButton btnPlayTrailer = new SquareIconButton(new PlayTrailerAction());
+        trailerPanel.add(btnPlayTrailer, "cell 0 10,alignx right,aligny top" );
+
         JScrollPane scrollPaneTrailer = new JScrollPane();
         trailerPanel.add(scrollPaneTrailer, "cell 1 10 7 1,grow");
         tableTrailer = new TmmTable();
@@ -1970,6 +1958,39 @@ public class TvShowEditorDialog extends TmmDialog {
       if (row > -1) {
         row = tableTrailer.convertRowIndexToModel(row);
         trailers.remove(row);
+      }
+    }
+  }
+
+  /**
+   * Play the selected Trailer
+   */
+  private class PlayTrailerAction extends AbstractAction {
+
+    public PlayTrailerAction() {
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("trailer.play"));
+      putValue(SMALL_ICON, IconManager.PLAY_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int row = tableTrailer.getSelectedRow();
+      if (row > -1) {
+        row = tableTrailer.convertRowIndexToModel(row);
+        MediaTrailer selectedTrailer = trailers.get(row);
+
+        String url = selectedTrailer.getUrl();
+        try {
+          TmmUIHelper.browseUrl(url);
+        }
+        catch (Exception ex) {
+          MessageManager.instance
+                  .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", ex.getLocalizedMessage() }));
+        }
+      }
+      else {
+        // Now Row selected
+        JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       }
     }
   }

@@ -22,8 +22,6 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 
 /**
@@ -42,12 +40,8 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    * @return the metadata
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
-   * @throws MissingIdException
-   *           indicates that there was no usable id to scrape
-   * @throws NothingFoundException
-   *           indicated that nothing has been found
    */
-  MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
+  MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException;
 
   /**
    * Gets the metadata for the given episode
@@ -57,12 +51,8 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    * @return the metadata
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
-   * @throws MissingIdException
-   *           indicates that there was no usable id to scrape
-   * @throws NothingFoundException
-   *           indicated that nothing has been found
    */
-  MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
+  MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException;
 
   /**
    * Search for a TV show
@@ -83,8 +73,6 @@ public interface ITvShowMetadataProvider extends IMediaProvider {
    * @return a list of episodes
    * @throws ScrapeException
    *           any exception which can be thrown while scraping
-   * @throws MissingIdException
-   *           indicates that there was no usable id to scrape
    */
-  List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException;
+  List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException;
 }

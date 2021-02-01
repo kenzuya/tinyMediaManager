@@ -21,19 +21,14 @@ import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.SEASON_POSTER;
 import static org.tinymediamanager.core.Constants.THUMB;
 
-import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -64,9 +59,12 @@ import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
+import org.tinymediamanager.ui.tvshows.TvShowEpisodeOtherIdsConverter;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
+import org.tinymediamanager.ui.tvshows.TvShowOtherIdsConverter;
+import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 
 /**
  * The Class TvShowEpisodeInformationPanel.
@@ -76,8 +74,6 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowEpisodeInformationPanel extends JPanel {
   private static final Logger                LOGGER                = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
   private static final long                  serialVersionUID      = 2032708149757390567L;
-
-  
 
   private final TvShowSettings               settings              = TvShowModuleManager.SETTINGS;
   private final TvShowEpisodeSelectionModel  tvShowEpisodeSelectionModel;
@@ -103,6 +99,11 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private JTextArea                          taTags;
   private LinkLabel                          lblPath;
   private JLabel                             lblNote;
+  private LinkLabel                          lblTraktTvId;
+  private LinkLabel                          lblTvdbId;
+  private LinkLabel                          lblImdbId;
+  private LinkLabel                          lblTmdbId;
+  private JTextArea                          taOtherIds;
 
   /**
    * Instantiates a new tv show information panel.
@@ -175,6 +176,71 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         }
       }
     });
+
+    // Trakt.tv
+    lblTraktTvId.addActionListener(arg0 -> {
+
+      int tvShowId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTvShow().getTraktId();
+      int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getSeason();
+      int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getEpisode();
+
+      String url = "https://trakt.tv/shows/" + tvShowId + "/seasons/" + seasonId + "/episodes/" + episodeId;
+      try {
+        TmmUIHelper.browseUrl(url);
+      }
+      catch (Exception e) {
+        LOGGER.error("browse to trakt.tv episode", e);
+        MessageManager.instance
+            .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
+      }
+    });
+
+    // Imdb
+    lblImdbId.addActionListener(arg0 -> {
+      String url = "https://www.imdb.com/title/" + lblImdbId.getText();
+      try {
+        TmmUIHelper.browseUrl(url);
+      }
+      catch (Exception e) {
+        LOGGER.error("browse to imdbid", e);
+        MessageManager.instance
+            .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
+      }
+    });
+
+    // TheTvDB
+    lblTvdbId.addActionListener(arg0 -> {
+      String showId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTvShow().getTvdbId();
+      String url = "https://thetvdb.com/?tab=series&id=" + showId + "&tab=episode&id=" + lblTvdbId.getText();
+      try {
+        TmmUIHelper.browseUrl(url);
+      }
+      catch (Exception e) {
+        LOGGER.error("browse to thetvdb", e);
+        MessageManager.instance
+            .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
+      }
+    });
+
+    // TMDB
+    lblTmdbId.addActionListener(arg0 -> {
+
+      int tvShowId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getTvShow().getTmdbId();
+      int seasonId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getSeason();
+      int episodeId = tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getEpisode();
+
+      String url = "https://www.themoviedb.org/tv/" + tvShowId + "/season/" + seasonId + "/episode/" + episodeId;
+
+      try {
+        TmmUIHelper.browseUrl(url);
+      }
+      catch (Exception e) {
+        LOGGER.error("browse to TMDB", e);
+        MessageManager.instance
+            .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
+      }
+    });
+
   }
 
   private void initComponents() {
@@ -260,6 +326,41 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
           lblAired = new JLabel("");
           panelTopDetails.add(lblAired, "cell 2 2");
+        }
+        {
+          JLabel lblImdbIdT = new TmmLabel("IMDB ID");
+          panelTopDetails.add(lblImdbIdT, "cell 3 0");
+
+          lblImdbId = new LinkLabel();
+          panelTopDetails.add(lblImdbId, "cell 4 0");
+        }
+        {
+          JLabel lblTvdbIdT = new TmmLabel("TheTVDB ID");
+          panelTopDetails.add(lblTvdbIdT, "cell 3 1");
+
+          lblTvdbId = new LinkLabel();
+          panelTopDetails.add(lblTvdbId, "cell 4 1");
+        }
+        {
+          JLabel lblTraktTvIdT = new TmmLabel("Trakt.tv ID");
+          panelTopDetails.add(lblTraktTvIdT, "cell 3 2");
+
+          lblTraktTvId = new LinkLabel();
+          panelTopDetails.add(lblTraktTvId, "cell 4 2");
+        }
+        {
+          JLabel lblTmdbIdT = new TmmLabel("TMDB ID");
+          panelTopDetails.add(lblTmdbIdT, "cell 3 3");
+
+          lblTmdbId = new LinkLabel();
+          panelTopDetails.add(lblTmdbId, "cell 4 3");
+        }
+        {
+          JLabel lblOtherIdsT = new TmmLabel(TmmResourceBundle.getString("metatag.otherids"));
+          panelTopDetails.add(lblOtherIdsT, "cell 3 4");
+
+          taOtherIds = new ReadOnlyTextArea();
+          panelTopDetails.add(taOtherIds, "cell 4 4 2 1,growx,wmin 0");
         }
       }
       {
@@ -434,5 +535,36 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     AutoBinding<TvShowEpisodeSelectionModel, String, JLabel, String> autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ,
         tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_12, lblNote, jLabelBeanProperty);
     autoBinding_14.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShowEpisode.traktTvId");
+    BeanProperty<LinkLabel, String> linkLabelBeanProperty_2 = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowSelectionModelBeanProperty_13, lblTraktTvId, linkLabelBeanProperty_2);
+    autoBinding_15.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_14 = BeanProperty.create("selectedTvShowEpisode.imdbId");
+    BeanProperty<LinkLabel, String> linkLabelBeanProperty_3 = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_16 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowSelectionModelBeanProperty_14, lblImdbId, linkLabelBeanProperty_3);
+    autoBinding_16.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_15 = BeanProperty.create("selectedTvShowEpisode.tvdbId");
+    BeanProperty<LinkLabel, String> linkLabelBeanProperty_4 = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowSelectionModelBeanProperty_15, lblTvdbId, linkLabelBeanProperty_4);
+    autoBinding_17.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, String> tvShowSelectionModelBeanProperty_16 = BeanProperty.create("selectedTvShowEpisode.tmdbId");
+    BeanProperty<LinkLabel, String> linkLabelBeanProperty_5 = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowSelectionModelBeanProperty_16, lblTmdbId, linkLabelBeanProperty_5);
+    autoBinding_18.bind();
+    //
+    BeanProperty<TvShowEpisodeSelectionModel, Map<String, Object>> tvShowEpisodeSelectionModelBeanProperty_17 = BeanProperty
+        .create("selectedTvShowEpisode.ids");
+    AutoBinding<TvShowEpisodeSelectionModel, Map<String, Object>, JTextArea, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_17, taOtherIds, jTextAreaBeanProperty);
+    autoBinding_19.setConverter(new TvShowEpisodeOtherIdsConverter());
+    autoBinding_19.bind();
   }
 }

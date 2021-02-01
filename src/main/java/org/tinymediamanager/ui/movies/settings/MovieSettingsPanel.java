@@ -82,6 +82,7 @@ public class MovieSettingsPanel extends JPanel {
   private AutocompleteComboBox<String> cbRating;
   private JCheckBox                    chckbxIncludeExternalAudioStreams;
   private JCheckBox                    chckbxMovieTableTooltips;
+  private JCheckBox                    chckbxUseMediainfoMetadata;
 
   private JList                        listRatings;
   private JButton                      btnAddRating;
@@ -399,36 +400,39 @@ public class MovieSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#misc-settings"));
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
+
+      chckbxUseMediainfoMetadata = new JCheckBox(TmmResourceBundle.getString("Settings.usemediainfometadata"));
+      panelMisc.add(chckbxUseMediainfoMetadata, "cell 1 0 2 1");
       {
         chckbxExtractArtworkFromVsmeta = new JCheckBox(TmmResourceBundle.getString("Settings.extractartworkfromvsmeta"));
-        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 0 2 1");
+        panelMisc.add(chckbxExtractArtworkFromVsmeta, "cell 1 1 2 1");
 
         chckbxBuildImageCache = new JCheckBox(TmmResourceBundle.getString("Settings.imagecacheimport"));
-        panelMisc.add(chckbxBuildImageCache, "cell 1 1 2 1");
+        panelMisc.add(chckbxBuildImageCache, "cell 1 2 2 1");
 
         JLabel lblBuildImageCacheHint = new JLabel(IconManager.HINT);
         lblBuildImageCacheHint.setToolTipText(TmmResourceBundle.getString("Settings.imagecacheimporthint"));
-        panelMisc.add(lblBuildImageCacheHint, "cell 1 1 2 1");
+        panelMisc.add(lblBuildImageCacheHint, "cell 1 2 2 1");
 
         chckbxRuntimeFromMi = new JCheckBox(TmmResourceBundle.getString("Settings.runtimefrommediafile"));
-        panelMisc.add(chckbxRuntimeFromMi, "cell 1 2 2 1");
+        panelMisc.add(chckbxRuntimeFromMi, "cell 1 3 2 1");
 
         chckbxIncludeExternalAudioStreams = new JCheckBox(TmmResourceBundle.getString("Settings.includeexternalstreamsinnfo"));
-        panelMisc.add(chckbxIncludeExternalAudioStreams, "cell 1 3 2 1");
+        panelMisc.add(chckbxIncludeExternalAudioStreams, "cell 1 4 2 1");
       }
       {
         JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelMisc.add(lblCheckImages, "cell 1 4 2 1");
+        panelMisc.add(lblCheckImages, "cell 1 5 2 1");
 
         JPanel panelCheckImages = new JPanel();
         panelCheckImages.setLayout(new MigLayout("hidemode 1, insets 0", "", ""));
-        panelMisc.add(panelCheckImages, "cell 2 5");
+        panelMisc.add(panelCheckImages, "cell 2 6");
 
         chckbxCheckPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
         panelCheckImages.add(chckbxCheckPoster, "cell 0 0");
@@ -556,5 +560,15 @@ public class MovieSettingsPanel extends JPanel {
     Property movieSettingsBeanProperty = BeanProperty.create("ratingSources");
     JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, listRatings);
     jListBinding.bind();
+    //
+    Property movieSettingsBeanProperty_5 = BeanProperty.create("showMovieTableTooltips");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_5, chckbxMovieTableTooltips,
+        jCheckBoxBeanProperty);
+    autoBinding.bind();
+    //
+    Property movieSettingsBeanProperty_6 = BeanProperty.create("useMediainfoMetadata");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_6,
+        chckbxUseMediainfoMetadata, jCheckBoxBeanProperty);
+    autoBinding_5.bind();
   }
 }

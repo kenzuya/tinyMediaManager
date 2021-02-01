@@ -42,6 +42,7 @@ public class Controller {
 
   private static final Logger LOGGER   = LoggerFactory.getLogger(Controller.class);
   Retrofit retrofit;
+  private String              apiKey = null;
 
   /**
    * setting up the retrofit object with further debugging options if needed
@@ -57,6 +58,10 @@ public class Controller {
       builder.addInterceptor(logging);
     }
     retrofit = buildRetrofitInstance(builder.build());
+  }
+
+  public void setApiKey(String apiKey) {
+    this.apiKey = apiKey;
   }
 
   private GsonBuilder getGsonBuilder() {
@@ -82,7 +87,7 @@ public class Controller {
    * @return a new retrofit object.
    */
   private Retrofit buildRetrofitInstance(OkHttpClient client) {
-    return new Retrofit.Builder().client(client).baseUrl(" https://api.tvmaze.com")
+    return new Retrofit.Builder().client(client).baseUrl(apiKey)
             .addConverterFactory(GsonConverterFactory.create(getGsonBuilder().create())).build();
   }
 

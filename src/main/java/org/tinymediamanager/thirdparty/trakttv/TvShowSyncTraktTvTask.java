@@ -18,6 +18,8 @@ package org.tinymediamanager.thirdparty.trakttv;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -28,11 +30,11 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  * @author Manuel Laggner
  */
 public class TvShowSyncTraktTvTask extends TmmTask {
-  
+  private static final Logger LOGGER         = LoggerFactory.getLogger(TvShowSyncTraktTvTask.class);
 
-  private boolean                     syncCollection = false;
-  private boolean                     syncWatched    = false;
-  private final List<TvShow>          tvShows        = new ArrayList<>();
+  private boolean             syncCollection = false;
+  private boolean             syncWatched    = false;
+  private final List<TvShow>  tvShows        = new ArrayList<>();
 
   public TvShowSyncTraktTvTask(List<TvShow> tvShows) {
     super(TmmResourceBundle.getString("trakt.sync"), 0, TaskType.BACKGROUND_TASK);
@@ -49,16 +51,30 @@ public class TvShowSyncTraktTvTask extends TmmTask {
 
   @Override
   protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+
     TraktTv traktTV = TraktTv.getInstance();
 
     if (syncCollection) {
       publishState(TmmResourceBundle.getString("trakt.sync.tvshow"), 0);
-      traktTV.syncTraktTvShowCollection(tvShows);
+      try {
+        traktTV.syncTraktTvShowCollection(tvShows);
+      }
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
+      }
     }
 
     if (syncWatched) {
       publishState(TmmResourceBundle.getString("trakt.sync.tvshowwatched"), 0);
-      traktTV.syncTraktTvShowWatched(tvShows);
+      try {
+        traktTV.syncTraktTvShowWatched(tvShows);
+      }
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
+      }
     }
   }
 }

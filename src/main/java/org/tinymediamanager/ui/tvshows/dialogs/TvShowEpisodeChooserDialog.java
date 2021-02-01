@@ -38,7 +38,6 @@ import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -211,7 +210,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     SearchTask task = new SearchTask();
     task.execute();
 
-    lblPath.setText(episode.getPathNIO().resolve(episode.getMediaFiles(MediaFileType.VIDEO).get(0).getFilename()).toString());
+    lblPath.setText(episode.getPathNIO().resolve(episode.getMainVideoFile().getFilename()).toString());
   }
 
   @Override
@@ -252,14 +251,14 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
         }
         table.adjustColumnPreferredWidths(5);
       }
+      catch (MissingIdException e) {
+        LOGGER.warn("missing id for scrape");
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "scraper.error.missingid"));
+      }
       catch (ScrapeException e) {
         LOGGER.error("searchMovieFallback", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, episode, "message.scrape.episodelistfailed", new String[] { ":", e.getLocalizedMessage() }));
-      }
-      catch (MissingIdException e) {
-        LOGGER.warn("missing id for scrape");
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "scraper.error.missingid"));
       }
       return null;
     }

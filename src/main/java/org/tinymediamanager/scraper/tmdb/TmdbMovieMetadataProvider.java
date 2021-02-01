@@ -118,6 +118,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
   @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 
@@ -153,7 +154,8 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     if (tmdbId != 0) {
       LOGGER.debug("found TMDB ID {} - getting direct", tmdbId);
       try {
-        Response<Movie> httpResponse = api.moviesService().summary(tmdbId, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS))
+        Response<Movie> httpResponse = api.moviesService()
+            .summary(tmdbId, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS))
             .execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
@@ -250,8 +252,10 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
   @Override
   public List<MediaSearchResult> search(MovieSetSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
     // lazy initialization of the api
     initAPI();
+
     List<MediaSearchResult> movieSetsFound = new ArrayList<>();
 
     String searchString = "";
@@ -293,8 +297,9 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     return movieSetsFound;
   }
 
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 
@@ -330,8 +335,11 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
 
     if (movie == null && tmdbId > 0) {
       try {
-        Response<Movie> httpResponse = api.moviesService().summary(tmdbId, language, new AppendToResponse(AppendToResponseItem.CREDITS,
-            AppendToResponseItem.KEYWORDS, AppendToResponseItem.RELEASE_DATES, AppendToResponseItem.TRANSLATIONS)).execute();
+        Response<Movie> httpResponse = api.moviesService()
+            .summary(tmdbId, language,
+                new AppendToResponse(AppendToResponseItem.CREDITS, AppendToResponseItem.KEYWORDS, AppendToResponseItem.RELEASE_DATES,
+                    AppendToResponseItem.TRANSLATIONS))
+            .execute();
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
         }
@@ -371,8 +379,9 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSetSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSetSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", options);
+
     // lazy initialization of the api
     initAPI();
 
@@ -754,20 +763,19 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
       CountryCode countryCode = options.getCertificationCountry();
 
       for (ReleaseDatesResult countries : ListUtils.nullSafe(movie.release_dates.results)) {
-        if (countryCode == null || countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0) {
+        if (countryCode == null
+            || (StringUtils.isNotBlank(countries.iso_3166_1) && countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0)) {
           // Any release from the desired country will do
           for (ReleaseDate countryReleaseDate : ListUtils.nullSafe(countries.release_dates)) {
-            // do not use any empty certifications
-            if (StringUtils.isEmpty(countryReleaseDate.certification)) {
-              continue;
-            }
-
-            if (md.getReleaseDate() == null
-                || (countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
+            // 1... premiere -> ignore this
+            if (MetadataUtil.unboxInteger(countryReleaseDate.type) > 1 && (md.getReleaseDate() == null
+                || countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
               md.setReleaseDate(countryReleaseDate.release_date);
             }
-
-            md.addCertification(MediaCertification.getCertification(countries.iso_3166_1, countryReleaseDate.certification));
+            // do not use any empty certifications
+            if (StringUtils.isNotBlank(countryReleaseDate.certification)) {
+              md.addCertification(MediaCertification.getCertification(countries.iso_3166_1, countryReleaseDate.certification));
+            }
           }
         }
       }

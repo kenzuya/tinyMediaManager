@@ -224,17 +224,17 @@ public class TvShowChooserModel extends AbstractModelObject {
       setScraped(true);
 
     }
-    catch (ScrapeException e) {
-      LOGGER.error("getMetadata", e);
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "message.scrape.metadatatvshowfailed",
-          new String[] { ":", e.getLocalizedMessage() }));
-    }
     catch (MissingIdException e) {
       LOGGER.warn("missing id for scrape");
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "scraper.error.missingid"));
     }
     catch (NothingFoundException ignored) {
       LOGGER.debug("nothing found");
+    }
+    catch (ScrapeException e) {
+      LOGGER.error("getMetadata", e);
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "message.scrape.metadatatvshowfailed",
+          new String[] { ":", e.getLocalizedMessage() }));
     }
   }
 
@@ -267,14 +267,14 @@ public class TvShowChooserModel extends AbstractModelObject {
         episodes.add(ep);
       }
     }
+    catch (MissingIdException e) {
+      LOGGER.warn("missing id for scrape");
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "scraper.error.missingid"));
+    }
     catch (ScrapeException e) {
       LOGGER.error("getEpisodeList", e);
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "message.scrape.episodelistfailed",
           new String[] { ":", e.getLocalizedMessage() }));
-    }
-    catch (MissingIdException e) {
-      LOGGER.warn("missing id for scrape");
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "scraper.error.missingid"));
     }
     return episodes;
   }
@@ -338,13 +338,13 @@ public class TvShowChooserModel extends AbstractModelObject {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException e) {
+          LOGGER.debug("no id found for scraper {}", artworkScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, tvShowToScrape, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException e) {
-          LOGGER.debug("no id found for scraper {}", artworkScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 
@@ -361,7 +361,7 @@ public class TvShowChooserModel extends AbstractModelObject {
   }
 
   private class TrailerScrapeTask extends TmmTask {
-    private TvShow tvShowtoScrape;
+    private final TvShow tvShowtoScrape;
 
     public TrailerScrapeTask(TvShow tvShow) {
       super(TmmResourceBundle.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
@@ -387,13 +387,13 @@ public class TvShowChooserModel extends AbstractModelObject {
           ITvShowTrailerProvider trailerProvider = (ITvShowTrailerProvider) trailerScraper.getMediaProvider();
           trailer.addAll(trailerProvider.getTrailers(options));
         }
+        catch (MissingIdException ignored) {
+          LOGGER.debug("no id found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getTrailers {}", e.getMessage());
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, "TvShowChooser", "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException ignored) {
-          LOGGER.debug("no id found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 

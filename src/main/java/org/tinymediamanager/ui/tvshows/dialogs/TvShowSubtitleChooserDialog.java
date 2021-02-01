@@ -322,12 +322,12 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
           options.setEpisode(episode);
           searchResults.addAll(subtitleProvider.search(options));
         }
+        catch (MissingIdException ignored) {
+          LOGGER.debug("no id found for scraper {}", scraper.getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getSubtitles", e);
           MessageDialog.showExceptionWindow(e);
-        }
-        catch (MissingIdException ignored) {
-          LOGGER.debug("no id found for scraper {}", scraper.getId());
         }
       }
 

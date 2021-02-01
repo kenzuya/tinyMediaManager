@@ -390,6 +390,10 @@ public class Url {
         LOGGER.warn("problem fetching the url: {}", e.getMessage());
         exception = e;
       }
+      if (getStatusCode() == 403 || getStatusCode() == 404) {
+        // not found OR access denied -> do not try more often
+        return null;
+      }
       if (is != null || (getStatusCode() > 0 && getStatusCode() < 500)) {
         // we either got a response or a permanent failure
         return is;

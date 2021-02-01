@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.panels;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -27,6 +28,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +41,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.util.UrlUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -63,17 +66,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TrailerPanel extends JPanel {
-  private static final long           serialVersionUID = 2506465845096043845L;
+  private static final long       serialVersionUID = 2506465845096043845L;
   /**
    * @wbp.nls.resourceBundle messages
    */
-  
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
 
-  private MovieSelectionModel         movieSelectionModel;
-  private TvShowSelectionModel        tvShowSelectionModel;
-  private TmmTable                    table;
-  private EventList<MediaTrailer>     trailerEventList;
+  private static final Logger     LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
+
+  private MovieSelectionModel     movieSelectionModel;
+  private TvShowSelectionModel    tvShowSelectionModel;
+  private TmmTable                table;
+  private EventList<MediaTrailer> trailerEventList;
 
   /**
    * Instantiates a new movie details panel.
@@ -162,7 +165,21 @@ public class TrailerPanel extends JPanel {
   private void createLayout() {
     trailerEventList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaTrailer.class));
     setLayout(new MigLayout("", "[400lp,grow]", "[250lp,grow]"));
-    table = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(trailerEventList), new TrailerTableFormat()));
+    table = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(trailerEventList), new TrailerTableFormat())) {
+      boolean downloadEnabled = License.getInstance().isValidLicense();
+
+      @Override
+      public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+        if (column == 0 && !downloadEnabled) {
+          comp.setEnabled(false);
+        }
+        else {
+          comp.setEnabled(true);
+        }
+        return comp;
+      }
+    };
     table.setSelectionModel(new NullSelectionModel());
 
     JScrollPane scrollPane = new JScrollPane();
@@ -249,7 +266,7 @@ public class TrailerPanel extends JPanel {
       int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
 
       // click on the download button
-      if (col == 0) {
+      if (col == 0 && License.getInstance().isValidLicense()) {
         row = table.convertRowIndexToModel(row);
         MediaTrailer trailer = trailerEventList.get(row);
 

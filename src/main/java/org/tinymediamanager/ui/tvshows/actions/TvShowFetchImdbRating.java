@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import static org.tinymediamanager.core.Constants.IMDB;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -69,6 +70,7 @@ public class TvShowFetchImdbRating extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (TvShow tvShow : selectedTvShows) {
       MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
       if (rating != null) {
@@ -86,5 +88,6 @@ public class TvShowFetchImdbRating extends TmmAction {
         episode.writeNFO();
       }
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

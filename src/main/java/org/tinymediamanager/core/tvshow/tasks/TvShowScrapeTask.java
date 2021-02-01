@@ -95,6 +95,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
 
   @Override
   protected void doInBackground() {
+    // set up scrapers
+    MediaScraper mediaMetadataScraper = scrapeOptions.getMetadataScraper();
+
+    if (!mediaMetadataScraper.isEnabled()) {
+      return;
+    }
+
     LOGGER.debug("start scraping tv shows...");
     start();
 
@@ -218,14 +225,14 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 episodes.add(ep);
               }
             }
+            catch (MissingIdException e) {
+              LOGGER.warn("missing id for scrape");
+              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "scraper.error.missingid"));
+            }
             catch (ScrapeException e) {
               LOGGER.error("searchMovieFallback", e);
               MessageManager.instance.pushMessage(
                   new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.episodelistfailed", new String[] { ":", e.getLocalizedMessage() }));
-            }
-            catch (MissingIdException e) {
-              LOGGER.warn("missing id for scrape");
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "scraper.error.missingid"));
             }
             tvShow.setDummyEpisodes(episodes);
             tvShow.saveToDb();
@@ -262,17 +269,17 @@ public class TvShowScrapeTask extends TmmThreadPool {
               TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow)));
             }
           }
-          catch (ScrapeException e) {
-            LOGGER.error("getTvShowMetadata", e);
-            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.metadatatvshowfailed",
-                new String[] { ":", e.getLocalizedMessage() }));
-          }
           catch (MissingIdException e) {
             LOGGER.warn("missing id for scrape");
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "scraper.error.missingid"));
           }
           catch (NothingFoundException e) {
             LOGGER.debug("nothing found");
+          }
+          catch (ScrapeException e) {
+            LOGGER.error("getTvShowMetadata", e);
+            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.metadatatvshowfailed",
+                new String[] { ":", e.getLocalizedMessage() }));
           }
         }
       }
@@ -309,13 +316,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException ignored) {
+          LOGGER.debug("no id avaiable for scraper {}", artworkScraper.getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException ignored) {
-          LOGGER.debug("no id avaiable for scraper {}", artworkScraper.getId());
         }
       }
       return artwork;
@@ -339,13 +346,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
           ITvShowTrailerProvider trailerProvider = (ITvShowTrailerProvider) trailerScraper.getMediaProvider();
           trailers.addAll(trailerProvider.getTrailers(options));
         }
+        catch (MissingIdException e) {
+          LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getTrailers", e);
           MessageManager.instance
               .pushMessage(new Message(MessageLevel.ERROR, tvShow, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException e) {
-          LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 

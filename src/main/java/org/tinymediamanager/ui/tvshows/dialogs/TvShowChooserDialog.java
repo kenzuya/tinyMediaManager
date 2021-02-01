@@ -90,10 +90,12 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
@@ -175,13 +177,29 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     {
       final JPanel panelPath = new JPanel();
-      panelPath.setLayout(new MigLayout("", "[grow]", "[]"));
+      panelPath.setLayout(new MigLayout("", "[grow][]", "[]"));
       {
         lblPath = new JLabel("");
         TmmFontHelper.changeFont(lblPath, 1.16667, Font.BOLD);
         panelPath.add(lblPath, "cell 0 0, growx, wmin 0");
       }
 
+      {
+        final JButton btnPlay = new SquareIconButton(IconManager.FILE_OPEN_INV);
+        btnPlay.setFocusable(false);
+        btnPlay.addActionListener(e -> {
+
+          try {
+            TmmUIHelper.openFile(tvShowToScrape.getPathNIO());
+          }
+          catch (Exception ex) {
+            LOGGER.error("open file", ex);
+            MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, tvShowToScrape.getPathNIO(), "message.erroropenfile",
+                new String[] { ":", ex.getLocalizedMessage() }));
+          }
+        });
+        panelPath.add(btnPlay, "cell 1 0");
+      }
       setTopIformationPanel(panelPath);
     }
 
@@ -200,7 +218,9 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       {
         cbScraper = new MediaScraperComboBox(tvShowList.getAvailableMediaScrapers());
         MediaScraper defaultScraper = tvShowList.getDefaultMediaScraper();
-        cbScraper.setSelectedItem(defaultScraper);
+        if (defaultScraper != null && defaultScraper.isEnabled()) {
+          cbScraper.setSelectedItem(defaultScraper);
+        }
         cbScraper.setAction(new ChangeScraperAction());
         panelSearchField.add(cbScraper, "cell 1 0,growx");
       }
@@ -451,6 +471,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = cbEpisodeScraperConfig.getSelectedItems();
 
           MediaMetadata md = model.getMetadata();
+
+          // check if there is at leat a title in the metadata -> otherwise take the title from the search result
+          if (StringUtils.isBlank(md.getTitle())) {
+            md.setTitle(model.getTitle());
+          }
 
           // did the user want to choose the images?
           if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {

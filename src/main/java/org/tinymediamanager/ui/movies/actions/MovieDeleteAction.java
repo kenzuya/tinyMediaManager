@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -66,6 +67,8 @@ public class MovieDeleteAction extends TmmAction {
     }
 
     // remove selected movies
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     MovieList.getInstance().deleteMovies(selectedMovies);
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

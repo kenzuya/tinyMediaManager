@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.license.License;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.omdb.service.Controller;
 
 /**
@@ -30,7 +31,7 @@ import org.tinymediamanager.scraper.omdb.service.Controller;
  *
  * @author Wolfgang Janes
  */
-abstract class OmdbMetadataProvider  {
+abstract class OmdbMetadataProvider implements IMediaProvider {
   private static final String     ID = "omdbapi";
 
   private final MediaProviderInfo providerInfo;
@@ -39,7 +40,6 @@ abstract class OmdbMetadataProvider  {
 
   OmdbMetadataProvider() {
     providerInfo = createMediaProviderInfo();
-    controller = new Controller(false);
   }
 
   /**
@@ -64,17 +64,33 @@ abstract class OmdbMetadataProvider  {
     return providerInfo;
   }
 
-  protected String getApiKey() {
-    String apiKey = providerInfo.getConfig().getValue("apiKey");
-    if (StringUtils.isNotBlank(apiKey)) {
-      return apiKey;
+  @Override
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
+  }
+
+  // thread safe initialization of the API
+  protected synchronized void initAPI() throws ScrapeException {
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
-    try {
-      return License.getInstance().getApiKey(ID);
+    // create a new instance of the omdb api
+    if (controller == null) {
+      controller = new Controller(false);
     }
-    catch (Exception e) {
-      return "";
+
+    String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    if (StringUtils.isNotBlank(userApiKey)) {
+      controller.setApiKey(userApiKey);
+    }
+    else {
+      try {
+        controller.setApiKey(getApiKey());
+      }
+      catch (Exception e) {
+        throw new ScrapeException(e);
+      }
     }
   }
 
@@ -107,7 +123,4 @@ abstract class OmdbMetadataProvider  {
   void setVerbose(boolean verbose) {
     controller = new Controller(verbose);
   }
-
-
-
 }

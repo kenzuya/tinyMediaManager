@@ -36,6 +36,8 @@ public class ArtworkSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
   protected ArtworkSearchAndScrapeOptions(ArtworkSearchAndScrapeOptions original) {
     super(original);
     this.artworkType = original.artworkType;
+    this.fanartSize = original.fanartSize;
+    this.posterSize = original.posterSize;
   }
 
   /**

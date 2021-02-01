@@ -71,6 +71,20 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
     }
   }
 
+  @Override
+  public List<MediaScraper> getSelectedItems() {
+    List<MediaScraper> selectedItems = new ArrayList<>();
+
+    // filter our inactive items
+    for (MediaScraper scraper : super.getSelectedItems()) {
+      if (scraper.getMediaProvider().isActive()) {
+        selectedItems.add(scraper);
+      }
+    }
+
+    return selectedItems;
+  }
+
   private class MediaScraperCheckBoxRenderer extends CheckBoxRenderer {
     private final JPanel    panel        = new JPanel();
     private final JCheckBox checkBox     = new JCheckBox();
@@ -133,10 +147,32 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
 
           label.setIcon(logo);
           label.setIconTextGap(maxIconWidth + 4 - currentWidth); // 4 = default iconTextGap
+
+          if (!scraper.isActive()) {
+            checkBox.setFocusable(false);
+            checkBox.setEnabled(false);
+            checkBox.setSelected(false);
+            label.setFocusable(false);
+            label.setEnabled(false);
+            if (!scraper.isEnabled()) {
+              label.setText("*PRO* " + label.getText());
+            }
+          }
+          else {
+            checkBox.setFocusable(true);
+            checkBox.setEnabled(true);
+            label.setFocusable(true);
+            label.setEnabled(true);
+          }
         }
         else {
           label.setIcon(null);
           label.setIconTextGap(4); // 4 = default iconTextGap
+
+          checkBox.setFocusable(true);
+          checkBox.setEnabled(true);
+          label.setFocusable(true);
+          label.setEnabled(true);
         }
 
         return panel;

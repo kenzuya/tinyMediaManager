@@ -29,12 +29,11 @@ import static org.tinymediamanager.scraper.imdb.ImdbParser.USE_TMDB_FOR_MOVIES;
 
 import java.util.SortedSet;
 
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
@@ -74,17 +73,22 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
   }
 
   @Override
-  public boolean isActive() {
-    return true;
-  }
-
-  @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
-    return (new ImdbMovieParser(getProviderInfo().getConfig(), executor)).search(options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return (new ImdbMovieParser(this, executor)).search(options);
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    return (new ImdbMovieParser(getProviderInfo().getConfig(), executor)).getMovieMetadata(options);
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    return (new ImdbMovieParser(this, executor)).getMovieMetadata(options);
   }
 }

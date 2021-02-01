@@ -29,6 +29,7 @@ import static org.tinymediamanager.core.Constants.EPISODE;
 import static org.tinymediamanager.core.Constants.FIRST_AIRED;
 import static org.tinymediamanager.core.Constants.FIRST_AIRED_AS_STRING;
 import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
+import static org.tinymediamanager.core.Constants.IMDB;
 import static org.tinymediamanager.core.Constants.MEDIA_SOURCE;
 import static org.tinymediamanager.core.Constants.SEASON;
 import static org.tinymediamanager.core.Constants.SEASON_BANNER;
@@ -36,6 +37,8 @@ import static org.tinymediamanager.core.Constants.SEASON_POSTER;
 import static org.tinymediamanager.core.Constants.SEASON_THUMB;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
+import static org.tinymediamanager.core.Constants.TMDB;
+import static org.tinymediamanager.core.Constants.TRAKT;
 import static org.tinymediamanager.core.Constants.TVDB;
 import static org.tinymediamanager.core.Constants.TV_SHOW;
 import static org.tinymediamanager.core.Constants.WATCHED;
@@ -507,6 +510,30 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
     firePropertyChange(AIRED_SEASON, oldValue, newValue);
   }
+  /**
+   * get the Trakt ID
+   * @return the Trakt ID
+   */
+  public String getTraktTvId() {
+    return this.getIdAsString(TRAKT);
+  }
+
+  /**
+   * get the IMDB ID
+   * @return IMDB ID
+   */
+  public String getImdbId() {
+    return this.getIdAsString(IMDB);
+  }
+
+
+  /**
+   * Get the TMDB ID
+   * @return the TMDB ID
+   */
+  public String getTmdbId() {
+    return this.getIdAsString(TMDB);
+  }
 
   public int getAiredSeason() {
     return this.season;
@@ -719,9 +746,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
       Map<String, MediaRating> newRatings = new HashMap<>();
+
+      if (matchFound) {
+        // only update new ratings, but let the old ones survive
+        newRatings.putAll(getRatings());
+      }
+
       for (MediaRating mediaRating : metadata.getRatings()) {
         newRatings.put(mediaRating.getId(), mediaRating);
       }
+
       setRatings(newRatings);
     }
 
@@ -1265,7 +1299,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && !isScraped() && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.SETTINGS.isUseMediainfoMetadata() && !isScraped()
+        && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       if (episode == -1) {

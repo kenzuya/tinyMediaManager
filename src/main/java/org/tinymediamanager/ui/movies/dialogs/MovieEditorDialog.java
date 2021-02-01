@@ -43,27 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.AbstractAction;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JLayer;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SpinnerDateModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -413,7 +393,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblPoster.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), POSTER,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), POSTER,
                 movieList.getDefaultArtworkScrapers(), lblPoster, MediaType.MOVIE);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
@@ -551,7 +531,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblFanart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), BACKGROUND,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), BACKGROUND,
                 movieList.getDefaultArtworkScrapers(), lblFanart, MediaType.MOVIE);
 
             dialog.bindExtraFanarts(extrafanarts);
@@ -910,7 +890,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblLogo.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), LOGO,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), LOGO,
                 movieList.getDefaultArtworkScrapers(), lblLogo, MediaType.MOVIE);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
@@ -947,7 +927,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblKeyart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), KEYART,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), KEYART,
                 movieList.getDefaultArtworkScrapers(), lblKeyart, MediaType.MOVIE);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
@@ -982,7 +962,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblClearlogo.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), CLEARLOGO,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARLOGO,
                 movieList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.MOVIE);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
@@ -1018,7 +998,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblBanner.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), BANNER,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), BANNER,
                 movieList.getDefaultArtworkScrapers(), lblBanner, MediaType.MOVIE);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
@@ -1053,7 +1033,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblClearart.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), CLEARART,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARART,
                 movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
@@ -1090,8 +1070,10 @@ public class MovieEditorDialog extends TmmDialog {
         lblThumb.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), THUMB,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), THUMB,
                 movieList.getDefaultArtworkScrapers(), lblThumb, MediaType.MOVIE);
+
+            dialog.bindExtraThumbs(extrathumbs);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
@@ -1125,7 +1107,7 @@ public class MovieEditorDialog extends TmmDialog {
         lblDisc.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, new HashMap<>(movieToEdit.getIds()), DISC,
+            ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), DISC,
                 movieList.getDefaultArtworkScrapers(), lblDisc, MediaType.MOVIE);
 
             if (Globals.settings.isImageChooserUseEntityFolder()) {
@@ -1224,6 +1206,9 @@ public class MovieEditorDialog extends TmmDialog {
         JButton btnRemoveTrailer = new SquareIconButton(new RemoveTrailerAction());
         artworkAndTrailerPanel.add(btnRemoveTrailer, "cell 0 10,alignx right,aligny top");
 
+        JButton btnPlayTrailer = new SquareIconButton(new PlayTrailerAction());
+        artworkAndTrailerPanel.add(btnPlayTrailer, "cell 0 10,alignx right,aligny top");
+
         JScrollPane scrollPaneTrailer = new JScrollPane();
         artworkAndTrailerPanel.add(scrollPaneTrailer, "cell 1 10 7 1,grow");
         tableTrailer = new TmmTable();
@@ -1260,6 +1245,12 @@ public class MovieEditorDialog extends TmmDialog {
       JButton okButton = new JButton(new ChangeMovieAction());
       addDefaultButton(okButton);
     }
+  }
+
+  private Map<String, Object> createIdsForImageChooser() {
+    Map<String, Object> newIds = new HashMap<>(movieToEdit.getIds());
+    newIds.put("mediaFile", movieToEdit.getMainFile());
+    return newIds;
   }
 
   private void updateArtworkUrl(ImageLabel imageLabel, JTextField textField) {
@@ -1417,6 +1408,7 @@ public class MovieEditorDialog extends TmmDialog {
           movieToEdit.removeFromMovieSet();
           movieToEdit.setMovieSet(movieSet);
           movieSet.insertMovie(movieToEdit);
+          movieSet.saveToDb();
         }
       }
 
@@ -1746,6 +1738,40 @@ public class MovieEditorDialog extends TmmDialog {
       if (row > -1) {
         row = tableTrailer.convertRowIndexToModel(row);
         trailers.remove(row);
+      }
+    }
+  }
+
+  /**
+   * Play the selected Trailer
+   */
+  private class PlayTrailerAction extends AbstractAction {
+
+    public PlayTrailerAction() {
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("trailer.play"));
+      putValue(SMALL_ICON, IconManager.PLAY_INV);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int row = tableTrailer.getSelectedRow();
+      if (row > -1) {
+        row = tableTrailer.convertRowIndexToModel(row);
+        MediaTrailer selectedTrailer = trailers.get(row);
+
+        String url = selectedTrailer.getUrl();
+        try {
+          TmmUIHelper.browseUrl(url);
+        }
+        catch (Exception ex) {
+          LOGGER.error(ex.getMessage());
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", ex.getLocalizedMessage() }));
+        }
+      }
+      else {
+        // Now Row selected
+        JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       }
     }
   }

@@ -23,12 +23,14 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
+import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -60,12 +62,11 @@ public class MovieSetScrapeMissingMoviesAction extends TmmAction {
       return;
     }
 
-    for (MovieSet movieSet : selectedMovieSets) {
-      MovieSetArtworkHelper.cleanupArtwork(movieSet);
-    }
-
     MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
     options.loadDefaults();
+
+    // we must use the tmdb scraper here
+    options.setMetadataScraper(MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE_SET));
 
     TmmThreadPool scrapeTask = new MovieSetScrapeTask(selectedMovieSets, options, new ArrayList<>());
     TmmTaskManager.getInstance().addMainTask(scrapeTask);

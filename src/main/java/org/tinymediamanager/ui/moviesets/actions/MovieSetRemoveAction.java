@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.moviesets.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
@@ -55,9 +56,10 @@ public class MovieSetRemoveAction extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (MovieSet movieSet : selectedMovieSets) {
       MovieList.getInstance().removeMovieSet(movieSet);
     }
-
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

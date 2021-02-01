@@ -22,16 +22,16 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.dialogs.UnlockDialog;
 
 /**
- * The class SettingsAction. To display the settings dialog
+ * The class UnlockAction. To display the unlock dialog
  * 
  * @author Manuel Laggner
  */
 public class UnlockAction extends TmmAction {
-  private static final long           serialVersionUID = 8930602755330446751L;
-
+  private static final long serialVersionUID = 8930602755330446751L;
 
   public UnlockAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.license.register"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Toolbar.upgrade.desc"));
   }
 
   @Override

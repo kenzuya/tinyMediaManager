@@ -65,21 +65,12 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
   }
 
   @Override
-  public boolean isActive() {
-    return StringUtils.isNotBlank(getApiKey());
-  }
-
-  @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions query) throws ScrapeException, MissingIdException, NothingFoundException {
     LOGGER.debug("getMetadata(): {}", query);
 
-    MediaMetadata metadata = new MediaMetadata(getId());
+    initAPI();
 
-    String apiKey = getApiKey();
-    if (StringUtils.isBlank(apiKey)) {
-      LOGGER.warn("no API key found");
-      return metadata;
-    }
+    MediaMetadata metadata = new MediaMetadata(getId());
 
     // id from the options
     String imdbId = query.getImdbId();
@@ -105,7 +96,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
 
     MediaEntity result = null;
     try {
-      result = controller.getScrapeDataById(apiKey, imdbId, "movie", true);
+      result = controller.getScrapeDataById(imdbId, "movie", true);
     }
     catch (Exception e) {
       LOGGER.error("error searching: {}", e.getMessage());
@@ -272,7 +263,11 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     // get the imdb rating from the imdb dataset too (and probably replace an
     // outdated rating from omdb)
     if (metadata.getId(MediaMetadata.IMDB) instanceof String) {
-      org.tinymediamanager.core.entities.MediaRating omdbRating = metadata.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
+      org.tinymediamanager.core.entities.MediaRating omdbRating = metadata.getRatings()
+          .stream()
+          .filter(rating -> MediaMetadata.IMDB.equals(rating.getId()))
+          .findFirst()
+          .orElse(null);
       org.tinymediamanager.core.entities.MediaRating imdbRating = RatingUtil.getImdbRating((String) metadata.getId(MediaMetadata.IMDB));
       if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
         metadata.getRatings().remove(omdbRating);
@@ -293,18 +288,14 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
   @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions query) throws ScrapeException {
     LOGGER.debug("search(): {}", query);
+
+    initAPI();
+
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
-
-    String apiKey = getApiKey();
-
-    if (StringUtils.isBlank(apiKey)) {
-      LOGGER.warn("no API key found");
-      return mediaResult;
-    }
 
     MediaSearch resultList;
     try {
-      resultList = controller.getMovieSearchInfo(apiKey, query.getSearchQuery(), "movie", null);
+      resultList = controller.getMovieSearchInfo(query.getSearchQuery(), "movie", null);
     }
     catch (Exception e) {
       LOGGER.error("error searching: {}", e.getMessage());

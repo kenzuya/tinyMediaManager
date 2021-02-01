@@ -23,11 +23,11 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -81,7 +81,7 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
 
   @Override
   public boolean isActive() {
-    return api != null && StringUtils.isNotBlank(api.getApiKey());
+    return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
   }
 
   // thread safe initialization of the API
@@ -96,29 +96,31 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
       }
     }
 
-    String tmmApiKey;
-    try {
-      tmmApiKey = License.getInstance().getApiKey(ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
-
     String userApiKey = providerInfo.getConfig().getValue("apiKey");
 
     // check if the API should change from current key to user key
-    if (StringUtils.isNotBlank(userApiKey) && !userApiKey.equals(api.getApiKey())) {
+    if (StringUtils.isNotBlank(userApiKey)) {
       api.setApiKey(userApiKey);
     }
 
     // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && !api.getApiKey().equals(tmmApiKey)) {
-      api.setApiKey(tmmApiKey);
+    if (StringUtils.isBlank(userApiKey)) {
+      try {
+        api.setApiKey(getApiKey());
+      }
+      catch (Exception e) {
+        throw new ScrapeException(e);
+      }
     }
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     // lazy loading of the api
     initAPI();
 
@@ -244,6 +246,11 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
 
   @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     // lazy loading of the api
     initAPI();
 

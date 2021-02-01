@@ -34,7 +34,6 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -51,7 +50,6 @@ import org.tinymediamanager.scraper.mpdbtv.entities.Release;
 import org.tinymediamanager.scraper.mpdbtv.entities.SearchEntity;
 import org.tinymediamanager.scraper.mpdbtv.entities.Studio;
 import org.tinymediamanager.scraper.mpdbtv.entities.Trailer;
-import org.tinymediamanager.scraper.mpdbtv.services.Controller;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
@@ -63,11 +61,9 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
   private static final Logger     LOGGER = LoggerFactory.getLogger(MpdbMovieMetadataProvider.class);
 
   private final MediaProviderInfo providerInfo;
-  private final Controller        controller;
 
   public MpdbMovieMetadataProvider() {
     providerInfo = createMediaProviderInfo();
-    controller = new Controller(false);
   }
 
   @Override
@@ -78,6 +74,8 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
   @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("search(): {}", options);
+
+    initAPI();
 
     SortedSet<MediaSearchResult> results = new TreeSet<>();
     List<SearchEntity> searchResult;
@@ -99,8 +97,8 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
     LOGGER.info("========= BEGIN MPDB.tv Scraper Search for Movie: {} ", options.getSearchQuery());
 
     try {
-      searchResult = controller.getSearchInformation(License.getInstance().getApiKey(ID), getEncodedUserName(), getSubscriptionKey(),
-          options.getSearchQuery(), options.getLanguage().toLocale(), true, FORMAT);
+      searchResult = controller.getSearchInformation(getEncodedUserName(), getSubscriptionKey(), options.getSearchQuery(),
+          options.getLanguage().toLocale(), true, FORMAT);
     }
     catch (Exception e) {
       LOGGER.error("error searching: {} ", e.getMessage());
@@ -143,6 +141,8 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions mediaScrapeOptions) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", mediaScrapeOptions);
 
+    initAPI();
+
     MediaMetadata metadata = new MediaMetadata(providerInfo.getId());
     MovieEntity scrapeResult;
 
@@ -153,7 +153,7 @@ public class MpdbMovieMetadataProvider extends MpdbMetadataProvider implements I
 
     LOGGER.info("========= BEGIN MPDB.tv scraping");
     try {
-      scrapeResult = controller.getScrapeInformation(License.getInstance().getApiKey(ID), getEncodedUserName(), getSubscriptionKey(),
+      scrapeResult = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(),
           mediaScrapeOptions.getIdAsString(providerInfo.getId()), mediaScrapeOptions.getLanguage().toLocale(), null, FORMAT);
     }
     catch (Exception e) {

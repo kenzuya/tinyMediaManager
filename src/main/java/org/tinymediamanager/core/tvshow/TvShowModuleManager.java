@@ -93,7 +93,7 @@ public class TvShowModuleManager implements ITmmModule {
     // configure database
     Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), TV_SHOW_DB);
     try {
-      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(4096).open();
+      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
     }
     catch (Exception e) {
       // look if the file is locked by another process (rethrow rather than delete the db file)
@@ -107,7 +107,7 @@ public class TvShowModuleManager implements ITmmModule {
       try {
         Utils.deleteFileSafely(Paths.get(TV_SHOW_DB + ".corrupted"));
         Utils.moveFileSafe(databaseFile, Paths.get(TV_SHOW_DB + ".corrupted"));
-        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(4096).open();
+        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
 
         // inform user that the DB could not be loaded
         startupMessages.add(TmmResourceBundle.getString("tvshow.loaddb.failed"));

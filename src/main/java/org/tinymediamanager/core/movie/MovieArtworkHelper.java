@@ -1275,7 +1275,6 @@ public class MovieArtworkHelper {
    *          the movie to create a thumb for
    */
   public static void createThumbWithFfmpeg(Movie movie) throws Exception {
-
     if (movie.isDisc()) {
       throw new UnsupportedOperationException("This cannot be done for disc images");
     }
@@ -1291,6 +1290,15 @@ public class MovieArtworkHelper {
     Path tempFile = Paths.get(Utils.getTempFolder(), "ffmpeg-still." + System.currentTimeMillis() + ".jpg");
 
     FFmpeg.createStill(mf.getFileAsPath(), tempFile, seconds);
+
+    // give the filesystem a bit to write the file
+    try {
+      Thread.sleep(150);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return;
+    }
 
     if (tempFile.toFile().exists()) {
       movie.removeAllMediaFiles(MediaFileType.getMediaFileType(MediaArtworkType.THUMB));

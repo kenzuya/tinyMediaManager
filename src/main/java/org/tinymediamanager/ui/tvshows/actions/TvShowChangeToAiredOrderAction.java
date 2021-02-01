@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,7 @@ public class TvShowChangeToAiredOrderAction extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (TvShowEpisode episode : selectedEpisodes) {
       if (episode.isDvdOrder()) {
         episode.setDvdOrder(false);
@@ -84,5 +86,6 @@ public class TvShowChangeToAiredOrderAction extends TmmAction {
         episode.saveToDb();
       }
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

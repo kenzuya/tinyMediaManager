@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -52,10 +53,12 @@ public class TvShowToggleWatchedFlagAction extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (TvShowEpisode episode : selectedEpisodes) {
       episode.setWatched(!episode.isWatched());
       episode.writeNFO();
       episode.saveToDb();
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

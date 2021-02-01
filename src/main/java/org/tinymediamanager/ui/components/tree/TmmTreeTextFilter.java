@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -38,11 +39,10 @@ import org.tinymediamanager.ui.components.EnhancedTextField;
  * @param <E>
  */
 public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField implements ITmmTreeFilter<E> {
-  private static final long           serialVersionUID = 8492300503787395800L;
-  
+  private static final long serialVersionUID = 8492300503787395800L;
 
-  protected String                    filterText       = "";
-  protected Pattern                   filterPattern;
+  protected String          filterText       = "";
+  protected Pattern         filterPattern;
 
   public TmmTreeTextFilter() {
     super(TmmResourceBundle.getString("tmm.searchfield"), IconManager.SEARCH_GREY);
@@ -96,8 +96,13 @@ public class TmmTreeTextFilter<E extends TmmTreeNode> extends EnhancedTextField 
       private void updateFilter() {
         String oldValue = filterText;
         filterText = getText();
-        filterPattern = Pattern.compile("(?i)" + filterText);
-        firePropertyChange(ITmmTreeFilter.TREE_FILTER_CHANGED, oldValue, filterText);
+        try {
+          filterPattern = Pattern.compile("(?i)" + filterText);
+          firePropertyChange(ITmmTreeFilter.TREE_FILTER_CHANGED, oldValue, filterText);
+        }
+        catch (PatternSyntaxException e) {
+          filterPattern = null;
+        }
       }
     });
   }

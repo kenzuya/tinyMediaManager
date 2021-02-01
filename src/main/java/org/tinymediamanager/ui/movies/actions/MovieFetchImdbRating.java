@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -55,6 +56,7 @@ public class MovieFetchImdbRating extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Movie movie : movies) {
       MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
       if (rating != null) {
@@ -62,7 +64,7 @@ public class MovieFetchImdbRating extends TmmAction {
         movie.saveToDb();
         movie.writeNFO();
       }
-
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

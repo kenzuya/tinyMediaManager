@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.ofdb;
 
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
@@ -23,7 +24,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  *
  * @author Myron Boyle (myron0815@gmx.net)
  */
-abstract class OfdbMetadataProvider {
+abstract class OfdbMetadataProvider implements IMediaProvider {
   static final String             ID = "ofdb";
 
   private final MediaProviderInfo providerInfo;
@@ -38,6 +39,11 @@ abstract class OfdbMetadataProvider {
    * @return the sub id
    */
   protected abstract String getSubId();
+
+  @Override
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(null);
+  }
 
   private MediaProviderInfo createMediaProviderInfo() {
     return new MediaProviderInfo(ID, getSubId(), "Online Filmdatenbank (OFDb.de)",

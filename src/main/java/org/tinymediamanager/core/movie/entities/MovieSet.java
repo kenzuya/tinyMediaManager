@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -49,6 +50,7 @@ import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -103,6 +105,14 @@ public class MovieSet extends MediaEntity {
       if (movie != null && movie.getMovieSet() == this) {
         movies.add(movie);
       }
+    }
+
+    movies.sort(MOVIE_SET_COMPARATOR);
+
+    // rebuild the ID table the same way
+    movieIds.clear();
+    for (Movie movie : movies) {
+      movieIds.add(movie.getDbId());
     }
 
     // set the movie set reference in the dummy movies
@@ -211,38 +221,6 @@ public class MovieSet extends MediaEntity {
   }
 
   /**
-   * Adds the movie to the end of the list
-   * 
-   * @param movie
-   *          the movie
-   */
-  public void addMovie(Movie movie) {
-    if (movie instanceof MovieSetMovie) {
-      return;
-    }
-
-    synchronized (movies) {
-      if (movies.contains(movie)) {
-        return;
-      }
-      movies.add(movie);
-      movieIds.add(movie.getDbId());
-
-      // update artwork
-      MovieSetArtworkHelper.updateArtwork(this);
-
-      saveToDb();
-    }
-
-    // write images
-    MovieSetArtworkHelper.writeImagesToMovieFolder(this, Collections.singletonList(movie));
-
-    firePropertyChange(Constants.ADDED_MOVIE, null, movie);
-    firePropertyChange("movies", null, movies);
-    firePropertyChange(Constants.WATCHED, null, movies);
-  }
-
-  /**
    * Inserts the movie into the right position of the list
    * 
    * @param movie
@@ -270,16 +248,12 @@ public class MovieSet extends MediaEntity {
 
       // update artwork
       MovieSetArtworkHelper.updateArtwork(this);
-
-      saveToDb();
     }
 
     // write images
     MovieSetArtworkHelper.writeImagesToMovieFolder(this, Collections.singletonList(movie));
 
     firePropertyChange(Constants.ADDED_MOVIE, null, movie);
-    firePropertyChange("movies", null, movies);
-    firePropertyChange(Constants.WATCHED, null, movies);
   }
 
   /**
@@ -314,8 +288,6 @@ public class MovieSet extends MediaEntity {
     }
 
     firePropertyChange(Constants.REMOVED_MOVIE, null, movie);
-    firePropertyChange("movies", null, movies);
-    firePropertyChange(Constants.WATCHED, null, movies);
   }
 
   public List<Movie> getMovies() {
@@ -334,7 +306,7 @@ public class MovieSet extends MediaEntity {
     List<Movie> moviesForDisplay = new ArrayList<>(getMovies());
 
     // now mix in all missing movies
-    if (MovieModuleManager.SETTINGS.isDisplayMovieSetMissingMovies()) {
+    if (MovieModuleManager.SETTINGS.isDisplayMovieSetMissingMovies() && ListUtils.isNotEmpty(dummyMovies)) {
       for (MovieSetMovie movieSetMovie : dummyMovies) {
         boolean found = false;
 
@@ -357,21 +329,6 @@ public class MovieSet extends MediaEntity {
     }
 
     return moviesForDisplay;
-  }
-
-  /**
-   * Sort movies inside this movie set by using either the sort title, release date or year.
-   */
-  public void sortMovies() {
-    synchronized (movies) {
-      movies.sort(MOVIE_SET_COMPARATOR);
-      // rebuild the ID table the same way
-      movieIds.clear();
-      for (Movie movie : movies) {
-        movieIds.add(movie.getDbId());
-      }
-    }
-    firePropertyChange("movies", null, movies);
   }
 
   /**
@@ -402,7 +359,6 @@ public class MovieSet extends MediaEntity {
     }
 
     firePropertyChange("removedAllMovies", oldValue, movies);
-    firePropertyChange("movies", null, movies);
   }
 
   /**
@@ -435,7 +391,7 @@ public class MovieSet extends MediaEntity {
    */
   public Boolean getHasImages() {
     for (MediaArtworkType type : MovieModuleManager.SETTINGS.getCheckImagesMovieSet()) {
-      if (StringUtils.isEmpty(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
+      if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
         return false;
       }
     }
@@ -585,26 +541,27 @@ public class MovieSet extends MediaEntity {
    * helper classses
    *******************************************************************************/
   private static class MovieInMovieSetComparator implements Comparator<Movie> {
+    private static final Comparator<Date> DATE_COMPARATOR = Comparator.nullsLast(Date::compareTo);
+
     @Override
     public int compare(Movie o1, Movie o2) {
       if (o1 == null || o2 == null) {
         return 0;
       }
 
-      // sort with release date if available
-      if (o1.getReleaseDate() != null && o2.getReleaseDate() != null) {
-        return o1.getReleaseDate().compareTo(o2.getReleaseDate());
+      // sort with year if available
+      int result = 0;
+      if (o1.getYear() > 0 && o2.getYear() > 0) {
+        result = o1.getYear() - o2.getYear();
+      }
+      if (result != 0) {
+        return result;
       }
 
-      // sort with year if available
-      if (o1.getYear() > 0 && o2.getYear() > 0) {
-        try {
-          int year1 = o1.getYear();
-          int year2 = o2.getYear();
-          return year1 - year2;
-        }
-        catch (Exception ignored) {
-        }
+      // sort with release date if available
+      result = DATE_COMPARATOR.compare(o1.getReleaseDate(), o2.getReleaseDate());
+      if (result != 0) {
+        return result;
       }
 
       // fallback: sort via title

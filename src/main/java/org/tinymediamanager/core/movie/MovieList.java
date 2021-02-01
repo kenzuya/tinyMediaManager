@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -66,9 +67,6 @@ import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
-import org.tinymediamanager.license.License;
-import org.tinymediamanager.license.MovieEventList;
-import org.tinymediamanager.license.SizeLimitExceededException;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -81,6 +79,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
+import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -121,7 +120,7 @@ public class MovieList extends AbstractModelObject {
    */
   private MovieList() {
     // create all lists
-    movieList = new ObservableElementList<>(new MovieEventList<>(), GlazedLists.beanConnector(Movie.class));
+    movieList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Movie.class));
     movieSetList = new ObservableCopyOnWriteArrayList<>();
 
     yearsInMovies = new CopyOnWriteArrayList<>();
@@ -186,12 +185,6 @@ public class MovieList extends AbstractModelObject {
     };
 
     movieSettings = MovieModuleManager.SETTINGS;
-
-    License.getInstance().addEventListener(() -> {
-      firePropertyChange("movieCount", 0, movieList.size());
-      firePropertyChange("movieSetCount", 0, movieSetList.size());
-      firePropertyChange("movieInMovieSetCount", 0, getMovieInMovieSetCount());
-    });
   }
 
   /**
@@ -418,10 +411,6 @@ public class MovieList extends AbstractModelObject {
         // for performance reasons we add movies directly
         movieList.add(movie);
       }
-      catch (SizeLimitExceededException e) {
-        LOGGER.debug("size limit exceeded - ignoring DB entry");
-        break;
-      }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
         LOGGER.info("dropping corrupt movie: {}", json);
@@ -598,17 +587,15 @@ public class MovieList extends AbstractModelObject {
    */
   public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper,
       MediaLanguages language) {
+
+    if (mediaScraper == null || !mediaScraper.isEnabled()) {
+      return Collections.emptyList();
+    }
+
     Set<MediaSearchResult> sr = new TreeSet<>();
     try {
-      IMovieMetadataProvider provider;
-      if (mediaScraper == null) {
-        provider = (IMovieMetadataProvider) getDefaultMediaScraper().getMediaProvider();
-      }
-      else {
-        provider = (IMovieMetadataProvider) mediaScraper.getMediaProvider();
-      }
+      IMovieMetadataProvider provider = (IMovieMetadataProvider) mediaScraper.getMediaProvider();
 
-      boolean idFound = false;
       // set what we have, so the provider could chose from all :)
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(language);
@@ -663,9 +650,15 @@ public class MovieList extends AbstractModelObject {
       }
     }
     catch (ScrapeException e) {
-      LOGGER.error("searchMovie", e);
-      MessageManager.instance
-          .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+      if (e.getCause() instanceof FeatureNotEnabledException) {
+        LOGGER.info("this feature is not enabled - '{}'", e.getMessage());
+        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, this, "message.profeature", new String[] { e.getMessage() }));
+      }
+      else {
+        LOGGER.error("searchMovie", e);
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+      }
     }
 
     return new ArrayList<>(sr);
@@ -679,7 +672,7 @@ public class MovieList extends AbstractModelObject {
 
   public MediaScraper getDefaultMediaScraper() {
     MediaScraper scraper = MediaScraper.getMediaScraperById(movieSettings.getMovieScraper(), ScraperType.MOVIE);
-    if (scraper == null) {
+    if (scraper == null || !scraper.isEnabled()) {
       scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.MOVIE);
     }
     return scraper;
@@ -730,7 +723,8 @@ public class MovieList extends AbstractModelObject {
    * @return the specified artwork scrapers
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
-    return getArtworkScrapers(movieSettings.getArtworkScrapers());
+    List<MediaScraper> defaultScrapers = getArtworkScrapers(movieSettings.getArtworkScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -751,7 +745,8 @@ public class MovieList extends AbstractModelObject {
    * @return the specified trailer scrapers
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
-    return getTrailerScrapers(movieSettings.getTrailerScrapers());
+    List<MediaScraper> defaultScrapers = getTrailerScrapers(movieSettings.getTrailerScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -794,7 +789,8 @@ public class MovieList extends AbstractModelObject {
    * @return the specified subtitle scrapers
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
-    return getSubtitleScrapers(movieSettings.getSubtitleScrapers());
+    List<MediaScraper> defaultScrapers = getSubtitleScrapers(movieSettings.getSubtitleScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -1262,19 +1258,6 @@ public class MovieList extends AbstractModelObject {
     }
 
     return movieSet;
-  }
-
-  /**
-   * Sort movies in movie set.
-   * 
-   * @param movieSet
-   *          the movie set
-   */
-  public void sortMoviesInMovieSet(MovieSet movieSet) {
-    if (movieSet.getMovies().size() > 1) {
-      movieSet.sortMovies();
-    }
-    firePropertyChange("sortedMovieSets", null, movieSetList);
   }
 
   /**

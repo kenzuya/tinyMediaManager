@@ -48,7 +48,6 @@ import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
@@ -56,11 +55,10 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -95,19 +93,21 @@ public abstract class ImdbParser {
   static final String                 LOCAL_RELEASE_DATE       = "localReleaseDate";
   static final String                 MAX_KEYWORD_COUNT        = "maxKeywordCount";
 
+  protected final IMediaProvider      metadataProvider;
   protected final MediaType           type;
   protected final MediaProviderConfig config;
   protected final ExecutorService     executor;
 
-  protected ImdbParser(MediaType type, MediaProviderConfig config, ExecutorService executor) {
+  protected ImdbParser(IMediaProvider mediaProvider, MediaType type, ExecutorService executor) {
+    this.metadataProvider = mediaProvider;
     this.type = type;
-    this.config = config;
+    this.config = mediaProvider.getProviderInfo().getConfig();
     this.executor = executor;
   }
 
   protected abstract Logger getLogger();
 
-  protected abstract MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
+  protected abstract MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException;
 
   /**
    * should we include movie results
@@ -282,6 +282,15 @@ public abstract class ImdbParser {
     return null;
   }
 
+  protected String constructUrl(String... parts) throws ScrapeException {
+    try {
+      return metadataProvider.getApiKey() + String.join("", parts);
+    }
+    catch (Exception e) {
+      throw new ScrapeException(e);
+    }
+  }
+
   protected SortedSet<MediaSearchResult> search(MediaSearchAndScrapeOptions options) throws ScrapeException {
     getLogger().debug("search(): {}", options);
     SortedSet<MediaSearchResult> result = new TreeSet<>();
@@ -290,7 +299,7 @@ public abstract class ImdbParser {
     String apiKey;
 
     try {
-      apiKey = License.getInstance().getApiKey(ImdbMetadataProvider.ID);
+      apiKey = metadataProvider.getApiKey();
     }
     catch (Exception e) {
       throw new ScrapeException(e);
@@ -328,20 +337,12 @@ public abstract class ImdbParser {
 
     searchTerm = MetadataUtil.removeNonSearchCharacters(searchTerm);
 
-    StringBuilder sb = new StringBuilder(apiKey);
-    sb.append("find?q=");
-    // search site was everytime in UTF-8
-    sb.append(URLEncoder.encode(searchTerm, StandardCharsets.UTF_8));
-
-    // we need to search for all - otherwise we do not find TV movies
-    sb.append(CAT_TITLE);
-
-    getLogger().debug("========= BEGIN IMDB Scraper Search for: {}", sb);
+    getLogger().debug("========= BEGIN IMDB Scraper Search for: {}", searchTerm);
     Document doc = null;
 
     Url url;
     try {
-      url = new InMemoryCachedUrl(sb.toString());
+      url = new InMemoryCachedUrl(constructUrl("find?q=", URLEncoder.encode(searchTerm, StandardCharsets.UTF_8), CAT_TITLE));
       url.addHeader("Accept-Language", getAcceptLanguage(language, country));
     }
     catch (Exception e) {

@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.actions;
 
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,11 +85,13 @@ public class MovieDeleteMediainfoXmlAction extends TmmAction {
       }
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Movie movie : selectedMovies) {
       movie.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
         Utils.deleteFileSafely(mediaFile.getFileAsPath());
         movie.removeFromMediaFiles(mediaFile);
       });
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

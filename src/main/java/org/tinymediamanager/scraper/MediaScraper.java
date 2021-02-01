@@ -115,6 +115,20 @@ public class MediaScraper {
     this.type = type;
   }
 
+  public boolean isActive() {
+    if (mediaProvider == null) {
+      return false;
+    }
+    return mediaProvider.isActive();
+  }
+
+  public boolean isEnabled() {
+    if (mediaProvider == null) {
+      return false;
+    }
+    return mediaProvider.isFeatureEnabled();
+  }
+
   public IMediaProvider getMediaProvider() {
     return this.mediaProvider;
   }

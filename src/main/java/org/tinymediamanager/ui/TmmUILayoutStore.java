@@ -157,7 +157,7 @@ public class TmmUILayoutStore implements AWTEventListener {
         frame.setBounds(rect);
 
         // was the main window maximized?
-        if (properties.getPropertyAsBoolean("mainWindowMaximized")) {
+        if (Boolean.TRUE.equals(properties.getPropertyAsBoolean("mainWindowMaximized"))) {
           frame.setExtendedState(frame.getExtendedState() | MAXIMIZED_BOTH);
           frame.validate();
         }
@@ -233,8 +233,16 @@ public class TmmUILayoutStore implements AWTEventListener {
 
     // settings for main window
     if ("mainWindow".equals(frame.getName()) && frame instanceof MainWindow) {
-      addParam("mainWindowMaximized", (frame.getExtendedState() & MAXIMIZED_BOTH) == MAXIMIZED_BOTH);
-      storeWindowBounds("mainWindow", frame.getBounds());
+
+      // if the frame is maximized, we simply take the screen coordinates
+      if ((frame.getExtendedState() & MAXIMIZED_BOTH) == MAXIMIZED_BOTH) {
+        storeWindowBounds("mainWindow", frame.getGraphicsConfiguration().getBounds());
+        addParam("mainWindowMaximized", true);
+      }
+      else {
+        storeWindowBounds("mainWindow", frame.getBounds());
+        addParam("mainWindowMaximized", false);
+      }
     }
 
     saveChildren(frame);

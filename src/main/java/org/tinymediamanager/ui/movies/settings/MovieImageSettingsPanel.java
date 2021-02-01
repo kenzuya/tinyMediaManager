@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -69,20 +71,18 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieImageSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 7312645402037806284L;
-
-
+  private static final long          serialVersionUID = 7312645402037806284L;
 
   private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
   private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
-  private JComboBox                   cbImagePosterSize;
-  private JComboBox                   cbImageFanartSize;
-  private TmmTable                    tableScraper;
-  private JTextPane                   tpScraperDescription;
-  private JPanel                      panelScraperOptions;
-  private JComboBox<MediaLanguages>   cbScraperLanguage;
-  private JCheckBox                   chckbxPreferLanguage;
+  private JComboBox                  cbImagePosterSize;
+  private JComboBox                  cbImageFanartSize;
+  private TmmTable                   tableScraper;
+  private JTextPane                  tpScraperDescription;
+  private JPanel                     panelScraperOptions;
+  private JComboBox<MediaLanguages>  cbScraperLanguage;
+  private JCheckBox                  chckbxPreferLanguage;
 
   /**
    * Instantiates a new movie image settings panel.
@@ -98,7 +98,7 @@ class MovieImageSettingsPanel extends JPanel {
     int counter = 0;
     for (MediaScraper scraper : MovieList.getInstance().getAvailableArtworkScrapers()) {
       ScraperInTable artworkScraper = new ScraperInTable(scraper);
-      if (enabledArtworkProviders.contains(artworkScraper.getScraperId())) {
+      if (scraper.isEnabled() && enabledArtworkProviders.contains(artworkScraper.getScraperId())) {
         artworkScraper.setActive(true);
         if (selectedIndex < 0) {
           selectedIndex = counter;
@@ -114,19 +114,20 @@ class MovieImageSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        ScraperInTable changedScraper = scrapers.get(row);
-        if (changedScraper.getActive()) {
-          settings.addMovieArtworkScraper(changedScraper.getScraperId());
-        }
-        else {
-          settings.removeMovieArtworkScraper(changedScraper.getScraperId());
-        }
-      }
-    });
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            ScraperInTable changedScraper = scrapers.get(row);
+            if (changedScraper.getActive() && changedScraper.isEnabled()) {
+              settings.addMovieArtworkScraper(changedScraper.getScraperId());
+            }
+            else {
+              settings.removeMovieArtworkScraper(changedScraper.getScraperId());
+            }
+          }
+        });
 
     // implement selection checkBoxListener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -168,7 +169,15 @@ class MovieImageSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#images-1"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraper = new TmmTable();
+        tableScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = scrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraper.setRowHeight(29);
         tableScraper.setShowGrid(true);
         panelScraper.add(tableScraper, "cell 1 0,grow");
@@ -239,14 +248,20 @@ class MovieImageSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> artworkScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(artworkScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(artworkScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(artworkScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+    jTableBinding.addColumnBinding(artworkScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setEditable(false)
         .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(artworkScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)
+    jTableBinding.addColumnBinding(artworkScraperBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("metatag.name"))
+        .setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding.bind();

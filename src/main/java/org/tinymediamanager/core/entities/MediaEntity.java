@@ -525,7 +525,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void setRating(MediaRating mediaRating) {
-    if (mediaRating != null && StringUtils.isNotBlank(mediaRating.getId())) {
+    if (mediaRating != null && StringUtils.isNotBlank(mediaRating.getId()) && mediaRating.getRating() >= 0) {
       ratings.put(mediaRating.getId(), mediaRating);
       firePropertyChange(RATING, null, mediaRating);
     }

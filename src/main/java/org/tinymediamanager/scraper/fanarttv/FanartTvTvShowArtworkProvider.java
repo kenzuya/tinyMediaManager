@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -56,7 +57,12 @@ public class FanartTvTvShowArtworkProvider extends FanartTvMetadataProvider impl
   // http://webservice.fanart.tv/v3/tv/79349
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     if (options.getMediaType() != MediaType.TV_SHOW && options.getMediaType() != MediaType.TV_EPISODE) {
       return Collections.emptyList();
     }

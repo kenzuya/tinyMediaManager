@@ -293,7 +293,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private String searchTerm;
+    private final String searchTerm;
 
     public SearchTask(String searchTerm) {
       this.searchTerm = searchTerm;
@@ -404,7 +404,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
               movie.setMovieSet(movieSetToScrape);
               movie.writeNFO();
               movie.saveToDb();
-              movieSetToScrape.addMovie(movie);
+              movieSetToScrape.insertMovie(movie);
             }
 
             // and finally save assignments

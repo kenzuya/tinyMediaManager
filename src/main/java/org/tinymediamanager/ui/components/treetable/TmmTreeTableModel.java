@@ -16,9 +16,9 @@
 package org.tinymediamanager.ui.components.treetable;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.AbstractLayoutCache;
@@ -223,8 +223,8 @@ public class TmmTreeTableModel implements ITmmTreeTableModel {
       column.setHeaderValue(headerIcon);
     }
 
-    if (column.getHeaderRenderer() instanceof DefaultTableCellRenderer) {
-      ((DefaultTableCellRenderer) column.getHeaderRenderer()).setToolTipText(tmmTableFormat.getColumnName(columnIndex));
+    if (column.getHeaderRenderer() instanceof JComponent) {
+      ((JComponent) column.getHeaderRenderer()).setToolTipText(tmmTableFormat.getColumnName(columnIndex));
     }
 
     column.setResizable(tmmTableFormat.getColumnResizeable(columnIndex));

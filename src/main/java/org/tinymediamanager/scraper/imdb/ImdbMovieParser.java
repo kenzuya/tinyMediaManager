@@ -31,19 +31,18 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ScraperType;
-import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 import org.tinymediamanager.scraper.util.MetadataUtil;
@@ -54,10 +53,10 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * @author Manuel Laggner
  */
 public class ImdbMovieParser extends ImdbParser {
-  private static final Logger  LOGGER                  = LoggerFactory.getLogger(ImdbMovieParser.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ImdbMovieParser.class);
 
-  ImdbMovieParser(MediaProviderConfig config, ExecutorService executor) {
-    super(MediaType.MOVIE, config, executor);
+  ImdbMovieParser(IMediaProvider mediaProvider, ExecutorService executor) {
+    super(mediaProvider, MediaType.MOVIE, executor);
   }
 
   @Override
@@ -71,22 +70,12 @@ public class ImdbMovieParser extends ImdbParser {
   }
 
   @Override
-  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException {
     return getMovieMetadata((MovieSearchAndScrapeOptions) options);
   }
 
-  MediaMetadata getMovieMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  MediaMetadata getMovieMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
-
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(ImdbMetadataProvider.ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
     // check if there is a md in the result
     if (options.getMetadata() != null && ImdbMetadataProvider.ID.equals(options.getMetadata().getProviderId())) {
@@ -123,27 +112,27 @@ public class ImdbMovieParser extends ImdbParser {
     ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
 
     // worker for imdb request (/reference)
-    String url = apiKey + "title/" + imdbId + "/reference";
-    Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, "/reference"), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = compSvcImdb.submit(worker);
 
     // worker for imdb request (/plotsummary) (from chosen site)
     Future<Document> futurePlotsummary;
-    url = apiKey + "title/" + imdbId + "/plotsummary";
-    worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    worker = new ImdbWorker(constructUrl("title/", imdbId, "/plotsummary"), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     futurePlotsummary = compSvcImdb.submit(worker);
 
     // worker for imdb request (/releaseinfo)
     Future<Document> futureReleaseinfo;
-    url = apiKey + "title/" + imdbId + "/releaseinfo";
-    worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    worker = new ImdbWorker(constructUrl("title/", imdbId, "/releaseinfo"), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     futureReleaseinfo = compSvcImdb.submit(worker);
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
-      url = apiKey + "title/" + imdbId + "/keywords";
-      worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+      worker = new ImdbWorker(constructUrl("title/", imdbId, "/keywords"), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2());
       futureKeywords = compSvcImdb.submit(worker);
     }
 
@@ -307,7 +296,7 @@ public class ImdbMovieParser extends ImdbParser {
     return md;
   }
 
-  public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     String imdbId = "";
 
     // imdbid from scraper option

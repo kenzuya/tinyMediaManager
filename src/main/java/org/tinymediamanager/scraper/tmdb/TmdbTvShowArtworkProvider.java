@@ -17,10 +17,13 @@ package org.tinymediamanager.scraper.tmdb;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -57,14 +60,36 @@ public class TmdbTvShowArtworkProvider extends TmdbMetadataProvider implements I
   }
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+    LOGGER.debug("getArtwork(): {}", options);
+
+    // lazy initialization of the api
+    initAPI();
+
     if (options.getMediaType() != MediaType.TV_SHOW && options.getMediaType() != MediaType.TV_EPISODE) {
       return Collections.emptyList();
     }
+    if (options.getMediaType() == MediaType.TV_EPISODE) {
+      try {
+        // episode artwork has to be scraped via the meta data scraper
+        TvShowEpisodeSearchAndScrapeOptions episodeSearchAndScrapeOptions = new TvShowEpisodeSearchAndScrapeOptions();
+        episodeSearchAndScrapeOptions.setDataFromOtherOptions(options);
+        if (options.getIds().get("tvShowIds") instanceof Map) {
+          Map<String, Object> tvShowIds = (Map<String, Object>) options.getIds().get("tvShowIds");
+          episodeSearchAndScrapeOptions.setTvShowIds(tvShowIds);
+        }
+        MediaMetadata md = new TmdbTvShowMetadataProvider().getMetadata(episodeSearchAndScrapeOptions);
+        return md.getMediaArt();
+      }
+      catch (MissingIdException e) {
+        // no valid ID given - just do nothing
+        return Collections.emptyList();
+      }
+      catch (Exception e) {
+        throw new ScrapeException(e);
+      }
+    }
 
-    LOGGER.debug("getArtwork(): {}", options);
-    // lazy initialization of the api
-    initAPI();
     return new TmdbArtworkProvider(api, artworkBaseUrl).getArtwork(options);
   }
 }

@@ -33,22 +33,22 @@ public class ITTraktTvTest {
   }
 
   @Test
-  public void syncTraktMovieCollection() {
+  public void syncTraktMovieCollection() throws Exception {
     t.syncTraktMovieCollection(MovieList.getInstance().getMovies());
   }
 
   @Test
-  public void syncTraktMovieWatched() {
+  public void syncTraktMovieWatched() throws Exception {
     t.syncTraktMovieWatched(MovieList.getInstance().getMovies());
   }
 
   @Test
-  public void syncTraktTvShowCollection() {
+  public void syncTraktTvShowCollection() throws Exception {
     t.syncTraktTvShowCollection(TvShowList.getInstance().getTvShows());
   }
 
   @Test
-  public void syncTraktTvShowWatched() {
+  public void syncTraktTvShowWatched() throws Exception {
     t.syncTraktTvShowWatched(TvShowList.getInstance().getTvShows());
   }
 
@@ -68,12 +68,12 @@ public class ITTraktTvTest {
   // }
 
   @Test
-  public void clearTvShows() {
+  public void clearTvShows() throws Exception {
     t.clearTraktTvShows();
   }
 
   @Test
-  public void clearMovies() {
+  public void clearMovies() throws Exception {
     t.clearTraktMovies();
   }
 }

@@ -21,7 +21,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.slf4j.Logger;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.tvmaze.service.Controller;
 
 /**
@@ -29,19 +33,21 @@ import org.tinymediamanager.scraper.tvmaze.service.Controller;
  *
  * @author Wolfgang Janes
  */
-abstract class TvMazeMetadataProvider {
+abstract class TvMazeMetadataProvider implements IMediaProvider {
 
-  public static final String      ID = "tvmaze";
+  public static final String        ID = "tvmaze";
 
   protected final MediaProviderInfo providerInfo;
-  protected final Controller      controller;
+  protected Controller              controller;
 
   TvMazeMetadataProvider() {
     providerInfo = createMediaProviderInfo();
-    controller = new Controller(false);
+
   }
 
   protected abstract String getSubId();
+
+  protected abstract Logger getLogger();
 
   protected MediaProviderInfo createMediaProviderInfo() {
     MediaProviderInfo providerInfo = new MediaProviderInfo(ID, getSubId(), "tvmaze.com",
@@ -50,6 +56,31 @@ abstract class TvMazeMetadataProvider {
 
     providerInfo.getConfig().load();
     return providerInfo;
+  }
+
+  @Override
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(null);
+  }
+
+  protected synchronized void initAPI() throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    if (controller == null) {
+      try {
+        controller = new Controller(false);
+        controller.setApiKey(getApiKey());
+      }
+      catch (Exception e) {
+        getLogger().error("could not initialize the API: {}", e.getMessage());
+        // force re-initialization the next time this will be called
+        controller = null;
+        throw new ScrapeException(e);
+      }
+    }
   }
 
   /**
@@ -65,5 +96,4 @@ abstract class TvMazeMetadataProvider {
     cal.setTime(year);
     return cal.get(Calendar.YEAR);
   }
-
 }

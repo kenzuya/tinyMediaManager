@@ -34,8 +34,7 @@ public class MovieScraper extends ScraperInTable implements Comparable<MovieScra
   }
 
   private boolean isKodiScraper() {
-    return scraper.getName()
-        .startsWith("Kodi");
+    return scraper.getName().startsWith("Kodi");
   }
 
   public Boolean getDefaultScraper() {
@@ -43,9 +42,11 @@ public class MovieScraper extends ScraperInTable implements Comparable<MovieScra
   }
 
   public void setDefaultScraper(Boolean newValue) {
-    Boolean oldValue = this.defaultScraper;
-    this.defaultScraper = newValue;
-    firePropertyChange("defaultScraper", oldValue, newValue);
+    if (isEnabled()) {
+      Boolean oldValue = this.defaultScraper;
+      this.defaultScraper = newValue;
+      firePropertyChange("defaultScraper", oldValue, newValue);
+    }
   }
 
   public MediaScraper getMediaScraper() {
@@ -62,9 +63,6 @@ public class MovieScraper extends ScraperInTable implements Comparable<MovieScra
       return -1;
     }
 
-    return scraper.getName()
-        .toLowerCase(Locale.ROOT)
-        .compareTo(o.scraper.getName()
-            .toLowerCase(Locale.ROOT));
+    return scraper.getName().toLowerCase(Locale.ROOT).compareTo(o.scraper.getName().toLowerCase(Locale.ROOT));
   }
 }

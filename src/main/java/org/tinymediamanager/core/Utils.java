@@ -143,7 +143,17 @@ public class Utils {
       String temp = System.getProperty("java.io.tmpdir");
       Path tempFolder = Paths.get(temp);
       if (Files.exists(tempFolder) && Files.isWritable(tempFolder)) {
-        Utils.tempFolder = temp;
+        // create a subfolder for tmm
+        tempFolder = Paths.get(temp, "tmm");
+        if (!Files.exists(tempFolder)) {
+          Files.createDirectories(tempFolder);
+        }
+        if (Files.exists(tempFolder) && Files.isWritable(tempFolder)) {
+          Utils.tempFolder = tempFolder.toAbsolutePath().toString();
+        }
+        else {
+          Utils.tempFolder = temp;
+        }
       }
       else {
         Utils.tempFolder = "tmp";
@@ -1845,6 +1855,19 @@ public class Utils {
     }
     catch (ArchiveException e) {
       throw new IOException("Could not extract archive", e);
+    }
+  }
+
+  public static void clearTempFolder() {
+    String tmpdir = System.getProperty("java.io.tmpdir");
+
+    if (StringUtils.isNotBlank(tmpdir) && !tmpdir.equals(tempFolder)) {
+      try {
+        deleteDirectoryRecursive(Paths.get(tempFolder));
+      }
+      catch (Exception ignored) {
+        // just ignore
+      }
     }
   }
 }

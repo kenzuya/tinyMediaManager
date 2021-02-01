@@ -244,10 +244,6 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
    * Updates nodes sorting and filtering for the specified parent and its children
    */
   public void updateSortingAndFiltering(E parent) {
-    if (!hasActiveFilters()) {
-      return;
-    }
-
     // Saving tree state to restore it right after children update
     TmmTreeState treeState = null;
     if (this.tree != null) {
@@ -381,7 +377,6 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
       }
       catch (Exception e) {
         // sometimes if the underlying is actively updated, an IllegalArgumentException can be thrown here, so just catch it
-        LOGGER.debug("could not sort the tree with the comparator '{}' - {}", comparator, e.getMessage());
       }
     }
 

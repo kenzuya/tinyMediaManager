@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
@@ -58,7 +57,9 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
   }
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+
+    initAPI();
 
     MovieEntity scrapeResult;
     List<MediaArtwork> ma = new ArrayList<>();
@@ -79,7 +80,7 @@ public class MpdbMovieArtworkMetadataProvider extends MpdbMetadataProvider imple
 
     LOGGER.info("========= BEGIN MPDB.tv artwork scraping");
     try {
-      scrapeResult = controller.getScrapeInformation(License.getInstance().getApiKey(ID), getEncodedUserName(), getSubscriptionKey(), id,
+      scrapeResult = controller.getScrapeInformation(getEncodedUserName(), getSubscriptionKey(), id,
           options.getLanguage().toLocale(), null, FORMAT);
     }
     catch (Exception e) {

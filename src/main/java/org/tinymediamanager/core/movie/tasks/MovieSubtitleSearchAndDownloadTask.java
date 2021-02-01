@@ -52,12 +52,11 @@ import org.tinymediamanager.scraper.interfaces.IMovieSubtitleProvider;
  * @author Manuel Laggner
  */
 public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(MovieSubtitleSearchAndDownloadTask.class);
+  private static final Logger      LOGGER = LoggerFactory.getLogger(MovieSubtitleSearchAndDownloadTask.class);
 
-
-  private final List<Movie>           movies;
-  private final List<MediaScraper>    subtitleScrapers;
-  private final MediaLanguages        language;
+  private final List<Movie>        movies;
+  private final List<MediaScraper> subtitleScrapers;
+  private final MediaLanguages     language;
 
   public MovieSubtitleSearchAndDownloadTask(List<Movie> movies, MediaLanguages language) {
     super(TmmResourceBundle.getString("movie.download.subtitles"));
@@ -83,6 +82,10 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
 
   @Override
   protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+
     initThreadPool(3, "searchAndDownloadSubtitles");
     start();
 
@@ -148,12 +151,13 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
 
             TmmTaskManager.getInstance().addDownloadTask(new SubtitleDownloadTask(firstResult.getUrl(), movie.getPathNIO().resolve(filename), movie));
           }
+          catch (MissingIdException ignored) {
+            // no need to log here
+          }
           catch (ScrapeException e) {
             LOGGER.error("getSubtitles", e);
             MessageManager.instance
                 .pushMessage(new Message(MessageLevel.ERROR, movie, "message.scrape.subtitlefailed", new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
           }
         }
       }

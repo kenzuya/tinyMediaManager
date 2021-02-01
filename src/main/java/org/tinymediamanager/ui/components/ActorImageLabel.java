@@ -141,9 +141,6 @@ public class ActorImageLabel extends ImageLabel {
       if (imagePath != null) {
         setImagePath(imagePath.toString());
       }
-      else if (StringUtils.isNotBlank(actor.getThumbUrl())) {
-        setImageUrl(actor.getThumbUrl());
-      }
       else {
         clearImage();
       }

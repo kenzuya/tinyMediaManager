@@ -780,9 +780,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     if (config.contains(MovieScraperMetadataConfig.RATING)) {
       Map<String, MediaRating> newRatings = new HashMap<>();
+
+      if (matchFound) {
+        // only update new ratings, but let the old ones survive
+        newRatings.putAll(getRatings());
+      }
+
       for (MediaRating mediaRating : metadata.getRatings()) {
         newRatings.put(mediaRating.getId(), mediaRating);
       }
+
       setRatings(newRatings);
     }
 
@@ -879,13 +886,13 @@ public class Movie extends MediaEntity implements IMediaInformation {
               }
             }
           }
+          catch (MissingIdException | NothingFoundException e) {
+            LOGGER.debug("could not get movie set meta data: {}", e.getMessage());
+          }
           catch (ScrapeException e) {
             LOGGER.error("getMovieSet", e);
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, this, "message.scrape.metadatamoviesetfailed",
                 new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException | NothingFoundException e) {
-            LOGGER.debug("could not get movie set meta data: {}", e.getMessage());
           }
         }
 
@@ -1385,7 +1392,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     if (mediaRating == null) {
-      mediaRating = super.getRating();
+      mediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     return mediaRating;
@@ -2561,7 +2568,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && !isScraped() && !mediaFile.getExtraData().isEmpty()) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && MovieModuleManager.SETTINGS.isUseMediainfoMetadata() && !isScraped()
+        && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
       String title = mediaFile.getExtraData().get("title");

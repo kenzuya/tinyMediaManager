@@ -45,8 +45,8 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.scraper.http.StreamingUrl;
+import org.tinymediamanager.thirdparty.yt.YTDownloader;
 
-import com.github.kiulian.downloader.YoutubeDownloader;
 import com.github.kiulian.downloader.model.Extension;
 import com.github.kiulian.downloader.model.YoutubeVideo;
 import com.github.kiulian.downloader.model.formats.AudioFormat;
@@ -64,21 +64,19 @@ import com.github.kiulian.downloader.model.quality.VideoQuality;
 public abstract class YTDownloadTask extends TmmTask {
 
   private static final Logger  LOGGER                      = LoggerFactory.getLogger(YTDownloadTask.class);
-  private static final char[]         ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"',
-      ':' };
+  private static final char[]  ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':' };
 
-
-  private final MediaTrailer          mediaTrailer;
-  private final TrailerQuality        desiredQuality;
+  private final MediaTrailer   mediaTrailer;
+  private final TrailerQuality desiredQuality;
 
   private YoutubeVideo         video;
 
   /* helpers for calculating the download speed */
-  private long                        timestamp1                  = System.nanoTime();
-  private long                        length;
-  private long                        bytesDone                   = 0;
-  private long                        bytesDonePrevious           = 0;
-  private double                      speed                       = 0;
+  private long                 timestamp1                  = System.nanoTime();
+  private long                 length;
+  private long                 bytesDone                   = 0;
+  private long                 bytesDonePrevious           = 0;
+  private double               speed                       = 0;
 
   public YTDownloadTask(MediaTrailer mediaTrailer, TrailerQuality desiredQuality) {
     super(TmmResourceBundle.getString("trailer.download") + " - " + mediaTrailer.getName(), 100, TaskType.BACKGROUND_TASK);
@@ -104,6 +102,10 @@ public abstract class YTDownloadTask extends TmmTask {
 
   @Override
   protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+
     try {
       String id = "";
       // get the youtube id
@@ -116,7 +118,7 @@ public abstract class YTDownloadTask extends TmmTask {
         return;
       }
 
-      YoutubeDownloader downloader = new YoutubeDownloader();
+      YTDownloader downloader = new YTDownloader();
       video = downloader.getVideo(id);
 
       // search for a combined audio-video stream

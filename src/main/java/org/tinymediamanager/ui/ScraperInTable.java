@@ -29,7 +29,6 @@ import javax.swing.JPanel;
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.ImageUtils;
-import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
@@ -44,6 +43,7 @@ public class ScraperInTable extends AbstractModelObject {
   protected MediaScraper                scraper;
   protected ImageIcon                   scraperLogo;
   protected boolean                     active;
+  protected boolean                     enabled;
 
   public ScraperInTable(MediaScraper scraper) {
     this.scraper = scraper;
@@ -54,6 +54,7 @@ public class ScraperInTable extends AbstractModelObject {
     else {
       scraperLogo = getIcon(scraper.getMediaProvider().getProviderInfo().getProviderLogo());
     }
+    enabled = scraper.isEnabled();
   }
 
   protected ImageIcon getIcon(URL url) {
@@ -85,19 +86,26 @@ public class ScraperInTable extends AbstractModelObject {
   }
 
   public String getScraperName() {
+    String scraperName;
     if (StringUtils.isNotBlank(scraper.getVersion())) {
-      return scraper.getName() + " - " + scraper.getVersion();
+      scraperName = scraper.getName() + " - " + scraper.getVersion();
     }
     else {
-      return scraper.getName();
+      scraperName = scraper.getName();
     }
+
+    if (!enabled) {
+      scraperName = "*PRO* " + scraperName;
+    }
+
+    return scraperName;
   }
 
   public String getScraperDescription() {
     // first try to get the localized version
     String description = null;
     try {
-      description = TmmResourceBundle.getString("scraper." + scraper.getId() + ".hint");
+      description = BUNDLE.getString("scraper." + scraper.getId() + ".hint");
     }
     catch (Exception ignored) {
     }
@@ -114,8 +122,12 @@ public class ScraperInTable extends AbstractModelObject {
     return scraperLogo;
   }
 
-  public Boolean getActive() {
+  public boolean getActive() {
     return active;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
   }
 
   public void setActive(Boolean newValue) {

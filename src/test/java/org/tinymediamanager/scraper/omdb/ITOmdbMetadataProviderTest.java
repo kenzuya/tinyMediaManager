@@ -8,7 +8,6 @@ import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
 import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -27,7 +26,6 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.omdb.entities.SeasonEntity;
 
 /**
  * @author Wolfgang Janes
@@ -204,9 +202,11 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
 
     try {
       mediaMetadataList = mp.getEpisodeList(options);
-    } catch (MissingIdException e) {
+    }
+    catch (MissingIdException e) {
       e.printStackTrace();
-    } catch (ScrapeException e) {
+    }
+    catch (ScrapeException e) {
       e.printStackTrace();
     }
 

@@ -67,6 +67,8 @@ public class FFmpeg {
     cmdList.add(videoFile.toAbsolutePath().toString());
     cmdList.add("-frames:v");
     cmdList.add("1");
+    cmdList.add("-q:v");
+    cmdList.add("2");
     cmdList.add(stillFile.toAbsolutePath().toString());
 
     return cmdList.toArray(new String[0]);

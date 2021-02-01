@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -36,12 +37,11 @@ import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
 import org.tinymediamanager.ui.movies.actions.MovieAssignMovieSetAction;
-import org.tinymediamanager.ui.movies.actions.MovieBatchEditAction;
+import org.tinymediamanager.ui.movies.actions.MovieBulkEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieChangeDatasourceAction;
 import org.tinymediamanager.ui.movies.actions.MovieCleanUpFilesAction;
 import org.tinymediamanager.ui.movies.actions.MovieClearImageCacheAction;
 import org.tinymediamanager.ui.movies.actions.MovieCreateOfflineAction;
-import org.tinymediamanager.ui.movies.actions.MovieCreateThumbAction;
 import org.tinymediamanager.ui.movies.actions.MovieDeleteAction;
 import org.tinymediamanager.ui.movies.actions.MovieDeleteMediainfoXmlAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
@@ -193,7 +193,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieEditAction.class));
-    popupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
+    popupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
     JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
@@ -201,7 +201,6 @@ public class MovieUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(MovieCreateThumbAction.class));
     popupMenu.add(enhancedEditMenu);
 
     popupMenu.addSeparator();
@@ -256,7 +255,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
           kodiRPCMenu.setEnabled(false);
         }
 
-        if (StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
           traktMenu.setEnabled(true);
         }
         else {
@@ -314,7 +313,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     // edit popup menu
     editPopupMenu = new JPopupMenu();
     editPopupMenu.add(createAndRegisterAction(MovieEditAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
@@ -326,8 +325,11 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieSyncCollectionTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));

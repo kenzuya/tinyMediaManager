@@ -19,6 +19,7 @@ import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.POSTER;
+import static org.tinymediamanager.core.Constants.RATING;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -26,6 +27,8 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -52,6 +55,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -60,15 +64,14 @@ import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
-import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.movies.MovieOtherIdsConverter;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
+import org.tinymediamanager.ui.panels.RatingPanel;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -78,47 +81,43 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieInformationPanel extends JPanel {
-  private static final Logger                LOGGER                = LoggerFactory.getLogger(MovieInformationPanel.class);
-  private static final long                  serialVersionUID      = -8527284262749511617L;
+  private static final Logger        LOGGER           = LoggerFactory.getLogger(MovieInformationPanel.class);
+  private static final long          serialVersionUID = -8527284262749511617L;
 
-  
-
-  private final MovieSelectionModel          movieSelectionModel;
-  private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
+  private final MovieSelectionModel  movieSelectionModel;
 
   /** UI components */
-  private StarRater                          starRater;
-  private JLabel                             lblMovieName;
-  private JLabel                             lblRating;
-  private JLabel                             lblTagline;
-  private JLabel                             lblYear;
-  private LinkLabel                          lblImdbid;
-  private JLabel                             lblRunningTime;
-  private LinkLabel                          lblTmdbid;
-  private JTextArea                          taGenres;
-  private JTextArea                          taPlot;
-  private ImageLabel                         lblMoviePoster;
-  private JLabel                             lblPosterSize;
-  private ImageLabel                         lblMovieFanart;
-  private JLabel                             lblFanartSize;
-  private JLabel                             lblCertification;
-  private JTextArea                          taOtherIds;
-  private MediaInformationLogosPanel         panelLogos;
-  private JLabel                             lblOriginalTitle;
-  private JButton                            btnPlay;
-  private JScrollPane                        scrollPane;
-  private JTextArea                          taProduction;
-  private JTextArea                          taTags;
-  private JLabel                             lblEdition;
-  private LinkLabel                          lblMoviePath;
-  private JLabel                             lblMovieSet;
-  private JLabel                             lblSpokenLanguages;
-  private JLabel                             lblCountry;
-  private JLabel                             lblReleaseDate;
-  private JTextArea                          taNote;
-  private JLabel                             lblCertificationLogo;
-  private LinkLabel                          lblTraktTvId;
-  private JLabel                             lblShowlink;
+  private RatingPanel                ratingPanel;
+  private JLabel                     lblMovieName;
+  private JLabel                     lblTagline;
+  private JLabel                     lblYear;
+  private LinkLabel                  lblImdbid;
+  private JLabel                     lblRunningTime;
+  private LinkLabel                  lblTmdbid;
+  private JTextArea                  taGenres;
+  private JTextArea                  taPlot;
+  private ImageLabel                 lblMoviePoster;
+  private JLabel                     lblPosterSize;
+  private ImageLabel                 lblMovieFanart;
+  private JLabel                     lblFanartSize;
+  private JLabel                     lblCertification;
+  private JTextArea                  taOtherIds;
+  private MediaInformationLogosPanel panelLogos;
+  private JLabel                     lblOriginalTitle;
+  private JButton                    btnPlay;
+  private JScrollPane                scrollPane;
+  private JTextArea                  taProduction;
+  private JTextArea                  taTags;
+  private JLabel                     lblEdition;
+  private LinkLabel                  lblMoviePath;
+  private JLabel                     lblMovieSet;
+  private JLabel                     lblSpokenLanguages;
+  private JLabel                     lblCountry;
+  private JLabel                     lblReleaseDate;
+  private JTextArea                  taNote;
+  private JLabel                     lblCertificationLogo;
+  private LinkLabel                  lblTraktTvId;
+  private JLabel                     lblShowlink;
 
   /**
    * Instantiates a new movie information panel.
@@ -216,6 +215,9 @@ public class MovieInformationPanel extends JPanel {
 
       if ("selectedMovie".equals(property)) {
         SwingUtilities.invokeLater(() -> scrollPane.getVerticalScrollBar().setValue(0));
+      }
+
+      if ("selectedMovie".equals(property) || RATING.equals(property)) {
         setRating(movie);
       }
     };
@@ -396,12 +398,8 @@ public class MovieInformationPanel extends JPanel {
       }
 
       {
-        starRater = new StarRater(10, 1);
-        panelRight.add(starRater, "flowx,cell 0 2,aligny center");
-        starRater.setEnabled(false);
-
-        lblRating = new JLabel("");
-        panelRight.add(lblRating, "cell 0 2,aligny center");
+        ratingPanel = new RatingPanel();
+        panelRight.add(ratingPanel, "flowx,cell 0 2,aligny center");
       }
 
       {
@@ -511,16 +509,13 @@ public class MovieInformationPanel extends JPanel {
   }
 
   private void setRating(Movie movie) {
-    MediaRating rating = movie.getRating();
+    Map<String, MediaRating> ratings = new HashMap<>(movie.getRatings());
+    MediaRating customRating = movie.getRating();
+    if (customRating != MediaMetadata.EMPTY_RATING) {
+      ratings.put("custom", customRating);
+    }
 
-    if (rating == null) {
-      starRater.setRating(0);
-      lblRating.setText("");
-    }
-    else {
-      starRater.setRating(rating.getRatingNormalized());
-      lblRating.setText(ratingRatingConverter.convertForward(rating));
-    }
+    ratingPanel.setRatings(ratings);
   }
 
   protected void initDataBindings() {

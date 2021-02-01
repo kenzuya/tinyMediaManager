@@ -22,6 +22,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.IconManager;
@@ -44,6 +45,11 @@ public class TvShowDownloadActorImagesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
+    if (!TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.downloadactorimages.activate"));
+      return;
+    }
+
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
     List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
 

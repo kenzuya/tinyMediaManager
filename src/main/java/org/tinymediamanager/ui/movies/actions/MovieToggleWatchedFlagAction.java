@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -53,10 +54,12 @@ public class MovieToggleWatchedFlagAction extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Movie movie : selectedMovies) {
       movie.setWatched(!movie.isWatched());
       movie.writeNFO();
       movie.saveToDb();
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

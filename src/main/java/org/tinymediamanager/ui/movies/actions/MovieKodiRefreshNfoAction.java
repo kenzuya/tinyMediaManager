@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,8 @@ public class MovieKodiRefreshNfoAction extends TmmAction {
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     KodiRPC.getInstance().refreshFromNfo(movies);
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

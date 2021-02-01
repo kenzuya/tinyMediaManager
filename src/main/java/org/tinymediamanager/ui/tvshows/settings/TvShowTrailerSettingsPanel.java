@@ -20,6 +20,7 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ItemListener;
@@ -37,6 +38,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -118,19 +120,20 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     TableColumnResizer.setMaxWidthForColumn(tableTrailerScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableTrailerScraper, 5);
 
-    tableTrailerScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        ScraperInTable changedScraper = scrapers.get(row);
-        if (changedScraper.getActive()) {
-          settings.addTvShowTrailerScraper(changedScraper.getScraperId());
-        }
-        else {
-          settings.removeTvShowTrailerScraper(changedScraper.getScraperId());
-        }
-      }
-    });
+    tableTrailerScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            ScraperInTable changedScraper = scrapers.get(row);
+            if (changedScraper.getActive()) {
+              settings.addTvShowTrailerScraper(changedScraper.getScraperId());
+            }
+            else {
+              settings.removeTvShowTrailerScraper(changedScraper.getScraperId());
+            }
+          }
+        });
 
     // implement selection listener to load settings
     tableTrailerScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -204,7 +207,15 @@ public class TvShowTrailerSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#trailer"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableTrailerScraper = new TmmTable();
+        tableTrailerScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = scrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableTrailerScraper.setRowHeight(29);
         tableTrailerScraper.setShowGrid(true);
         panelScraper.add(tableTrailerScraper, "cell 1 0,grow");
@@ -276,15 +287,20 @@ public class TvShowTrailerSettingsPanel extends JPanel {
         .createJTableBinding(AutoBinding.UpdateStrategy.READ_WRITE, scrapers, tableTrailerScraper);
     //
     BeanProperty<ScraperInTable, Boolean> trailerScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty).setColumnName(TmmResourceBundle.getString("Settings.active"))
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
         .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> trailerScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1).setColumnName(TmmResourceBundle.getString("mediafiletype.logo")).setEditable(false)
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setEditable(false)
         .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> trailerScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(trailerScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false)
+    jTableBinding.addColumnBinding(trailerScraperBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("metatag.name"))
+        .setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding.bind();

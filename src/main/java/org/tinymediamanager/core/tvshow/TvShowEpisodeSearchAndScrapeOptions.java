@@ -75,6 +75,11 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
    */
   public void setTvShowIds(final Map<String, Object> tvShowIds) {
     this.tvShowIds.clear();
+
+    if (tvShowIds == null) {
+      return;
+    }
+
     this.tvShowIds.putAll(tvShowIds);
   }
 

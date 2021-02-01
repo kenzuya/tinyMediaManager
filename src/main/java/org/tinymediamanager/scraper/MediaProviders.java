@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.scraper.anidb.AniDbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvMovieArtworkProvider;
 import org.tinymediamanager.scraper.fanarttv.FanartTvTvShowArtworkProvider;
+import org.tinymediamanager.scraper.ffmpeg.FFmpegMovieArtworkProvider;
+import org.tinymediamanager.scraper.ffmpeg.FFmpegTvShowArtworkProvider;
 import org.tinymediamanager.scraper.hdtrailersnet.HdTrailersNetMovieTrailerProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMovieArtworkProvider;
 import org.tinymediamanager.scraper.imdb.ImdbMovieMetadataProvider;
@@ -112,6 +114,7 @@ public class MediaProviders {
     loadProvider(FanartTvMovieArtworkProvider.class);
     loadProvider(ImdbMovieArtworkProvider.class);
     loadProvider(MpdbMovieArtworkMetadataProvider.class);
+    loadProvider(FFmpegMovieArtworkProvider.class);
 
     /////////////////////////////////////////////
     // MOVIE TRAILER
@@ -135,6 +138,7 @@ public class MediaProviders {
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
     loadProvider(OmdbTvShowMetadataProvider.class);
+    // loadProvider(TheShowDBTvShowMetadataProvider.class);
     // register all compatible scrapers in the universal scraper
     MEDIA_PROVIDERS.forEach((key, value) -> {
       for (IMediaProvider mediaProvider : ListUtils.nullSafe(value)) {
@@ -154,6 +158,7 @@ public class MediaProviders {
     loadProvider(FanartTvTvShowArtworkProvider.class);
     loadProvider(TmdbTvShowArtworkProvider.class);
     loadProvider(ImdbTvShowArtworkProvider.class);
+    loadProvider(FFmpegTvShowArtworkProvider.class);
 
     /////////////////////////////////////////////
     // TV SHOW TRAILER

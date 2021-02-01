@@ -199,15 +199,15 @@ public class MovieSetChooserModel extends AbstractModelObject {
         try {
           info = ((IMovieSetMetadataProvider) scraper.getMediaProvider()).getMetadata(options);
         }
+        catch (MissingIdException e) {
+          LOGGER.warn("missing id for scrape");
+          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "scraper.error.missingid"));
+          return;
+        }
         catch (ScrapeException e) {
           LOGGER.error("getMetadata", e);
           MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "message.scrape.metadatamoviesetfailed",
               new String[] { ":", e.getLocalizedMessage() }));
-          return;
-        }
-        catch (MissingIdException e) {
-          LOGGER.warn("missing id for scrape");
-          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "scraper.error.missingid"));
           return;
         }
 
@@ -321,13 +321,13 @@ public class MovieSetChooserModel extends AbstractModelObject {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException e) {
+          LOGGER.debug("could not get artwork: {}", e.getMessage());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, movieSetToScrape, "message.scrape.movieartworkfailed",
               new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException e) {
-          LOGGER.debug("could not get artwork: {}", e.getMessage());
         }
       }
 

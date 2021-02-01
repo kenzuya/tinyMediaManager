@@ -72,6 +72,12 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
 
   @Override
   public void doInBackground() {
+    MediaScraper mediaScraper = scrapeOptions.getMetadataScraper();
+
+    if (!mediaScraper.isEnabled()) {
+      return;
+    }
+
     for (TvShowEpisode episode : episodes) {
       // only scrape if at least one ID is available
       if (episode.getTvShow().getIds().isEmpty()) {
@@ -82,7 +88,6 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions(scrapeOptions);
       options.setTvShowIds(episode.getTvShow().getIds());
 
-      MediaScraper mediaScraper = scrapeOptions.getMetadataScraper();
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());
       md.setReleaseDate(episode.getFirstAired());
       options.setMetadata(md);
@@ -109,17 +114,17 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
           episode.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
         }
       }
-      catch (ScrapeException e) {
-        LOGGER.error("searchMovieFallback", e);
-        MessageManager.instance.pushMessage(
-            new Message(Message.MessageLevel.ERROR, episode, "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
-      }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");
         MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "scraper.error.missingid"));
       }
       catch (NothingFoundException ignored) {
         LOGGER.debug("nothing found");
+      }
+      catch (ScrapeException e) {
+        LOGGER.error("searchMovieFallback", e);
+        MessageManager.instance.pushMessage(
+            new Message(Message.MessageLevel.ERROR, episode, "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
       }
     }
 

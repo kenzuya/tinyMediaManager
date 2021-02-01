@@ -24,16 +24,16 @@ import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSetArtworkProvider;
 
 /**
  * the class {@link TmdbMovieArtworkProvider} is used to provide artwork for movies
  *
  * @author Manuel Laggner
  */
-public class TmdbMovieArtworkProvider extends TmdbMetadataProvider implements IMovieArtworkProvider {
+public class TmdbMovieArtworkProvider extends TmdbMetadataProvider implements IMovieArtworkProvider, IMovieSetArtworkProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(TmdbMovieArtworkProvider.class);
 
   @Override
@@ -57,14 +57,15 @@ public class TmdbMovieArtworkProvider extends TmdbMetadataProvider implements IM
   }
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
+    LOGGER.debug("getArtwork(): {}", options);
+    // lazy initialization of the api
+    initAPI();
+
     if (options.getMediaType() != MediaType.MOVIE_SET && options.getMediaType() != MediaType.MOVIE) {
       return Collections.emptyList();
     }
 
-    LOGGER.debug("getArtwork(): {}", options);
-    // lazy initialization of the api
-    initAPI();
     return new TmdbArtworkProvider(api, artworkBaseUrl).getArtwork(options);
   }
 }

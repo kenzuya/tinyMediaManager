@@ -109,7 +109,7 @@ public class TvShowEpisodeCastPanel extends JPanel {
           lblActorImage.setActor(selectionModel.getSelectedTvShowEpisode().getTvShow(), actor);
         }
         else {
-          lblActorImage.setImageUrl("");
+          lblActorImage.clearImage();
         }
       }
     });

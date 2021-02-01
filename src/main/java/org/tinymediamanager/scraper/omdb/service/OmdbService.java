@@ -31,13 +31,13 @@ public interface OmdbService {
 
   @GET("/")
   Call<MediaEntity> movieScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("y") String year,
-                                    @Query("plot") String plot, @Query("tomatoes") boolean useTomatoRating);
+      @Query("plot") String plot, @Query("tomatoes") boolean useTomatoRating);
 
   @GET("/")
   Call<SeasonEntity> seasonScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("Season") int season);
 
   @GET("/")
   Call<MediaEntity> episodeScrapeById(@Query("apikey") String apikey, @Query("i") String id, @Query("type") String type, @Query("Season") int season,
-                                      @Query("Episode") int episode);
+      @Query("Episode") int episode);
 
 }

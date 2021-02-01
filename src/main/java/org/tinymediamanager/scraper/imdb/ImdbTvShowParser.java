@@ -43,14 +43,12 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ScraperType;
-import org.tinymediamanager.scraper.config.MediaProviderConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
@@ -58,6 +56,7 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.InMemoryCachedUrl;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
@@ -70,11 +69,11 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * @author Manuel Laggner
  */
 public class ImdbTvShowParser extends ImdbParser {
-  private static final Logger                                LOGGER                  = LoggerFactory.getLogger(ImdbTvShowParser.class);
-  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP  = new CacheMap<>(60, 10);
+  private static final Logger                                LOGGER                 = LoggerFactory.getLogger(ImdbTvShowParser.class);
+  private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(60, 10);
 
-  ImdbTvShowParser(MediaProviderConfig config, ExecutorService executor) {
-    super(MediaType.TV_SHOW, config, executor);
+  ImdbTvShowParser(IMediaProvider metadataProvider, ExecutorService executor) {
+    super(metadataProvider, MediaType.TV_SHOW, executor);
   }
 
   @Override
@@ -88,7 +87,7 @@ public class ImdbTvShowParser extends ImdbParser {
   }
 
   @Override
-  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException {
     switch (options.getMediaType()) {
       case TV_SHOW:
         return getTvShowMetadata((TvShowSearchAndScrapeOptions) options);
@@ -101,14 +100,14 @@ public class ImdbTvShowParser extends ImdbParser {
     }
   }
 
-  MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  MediaMetadata getTvShowMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
 
     // API key check
     String apiKey;
 
     try {
-      apiKey = License.getInstance().getApiKey(ImdbMetadataProvider.ID);
+      apiKey = metadataProvider.getApiKey();
     }
     catch (Exception e) {
       throw new ScrapeException(e);
@@ -247,18 +246,8 @@ public class ImdbTvShowParser extends ImdbParser {
     return md;
   }
 
-  MediaMetadata getEpisodeMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  MediaMetadata getEpisodeMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getEpisodeMetadata(): {}", options);
-
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(ImdbMetadataProvider.ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
     MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
     String showId = "" + options.getTvShowIds().get(MediaMetadata.IMDB);
@@ -329,15 +318,15 @@ public class ImdbTvShowParser extends ImdbParser {
       if (MetadataUtil.isValidImdbId(episodeId)) {
         ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
-        String url = apiKey + "title/" + episodeId + "/reference";
-        Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+        Callable<Document> worker = new ImdbWorker(constructUrl("title/", episodeId, "/reference"), options.getLanguage().getLanguage(),
+            options.getCertificationCountry().getAlpha2());
         Future<Document> futureReference = compSvcImdb.submit(worker);
 
         // worker for imdb keywords (/keywords)
         Future<Document> futureKeywords = null;
         if (isScrapeKeywordsPage()) {
-          url = apiKey + "title/" + episodeId + "/keywords";
-          worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+          worker = new ImdbWorker(constructUrl("title/", episodeId, "/keywords"), options.getLanguage().getLanguage(),
+              options.getCertificationCountry().getAlpha2());
           futureKeywords = compSvcImdb.submit(worker);
         }
 
@@ -484,18 +473,8 @@ public class ImdbTvShowParser extends ImdbParser {
     return md;
   }
 
-  List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getEpisodeList(): {}", options);
-
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(ImdbMetadataProvider.ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
 
     // parse the episodes from the ratings overview page (e.g.
     // http://www.imdb.com/title/tt0491738/episodes )
@@ -519,7 +498,7 @@ public class ImdbTvShowParser extends ImdbParser {
     Document doc;
     Url url;
     try {
-      url = new InMemoryCachedUrl(apiKey + "/title/" + imdbId + "/episodes?season=1");
+      url = new InMemoryCachedUrl(constructUrl("/title/", imdbId, "/episodes?season=1"));
       url.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
     }
     catch (Exception e) {
@@ -568,7 +547,7 @@ public class ImdbTvShowParser extends ImdbParser {
 
       Url seasonUrl;
       try {
-        seasonUrl = new InMemoryCachedUrl(apiKey + "/title/" + imdbId + "/epdate?season=" + season);
+        seasonUrl = new InMemoryCachedUrl(constructUrl("/title/", imdbId, "/epdate?season=" + season));
         seasonUrl.addHeader("Accept-Language", getAcceptLanguage(options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2()));
       }
       catch (Exception e) {
@@ -717,7 +696,7 @@ public class ImdbTvShowParser extends ImdbParser {
     return true;
   }
 
-  public List<MediaArtwork> getTvShowArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  public List<MediaArtwork> getTvShowArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     String imdbId = "";
 
     // imdbid from scraper option
