@@ -65,6 +65,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setSearchYear(2016);
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
 
@@ -94,6 +95,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Inglorious Basterds");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
 
@@ -124,6 +126,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Asterix der Gallier");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       results = new ArrayList<>(mp.search(options));
 
@@ -452,6 +455,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt0472033");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -490,6 +494,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt0114746");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       md = mp.getMetadata(options);
 
@@ -526,6 +531,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt1217209");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.GB);
+      options.setReleaseDateCountry("GB");
 
       md = mp.getMetadata(options);
 
@@ -558,6 +564,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt1217209");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       md = mp.getMetadata(options);
 
@@ -584,6 +591,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt1396557");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -616,6 +624,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setTmdbId(20352);
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 

@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -331,6 +332,11 @@ public class UpgradeTasks {
         for (TvShowEpisode episode : tvShow.getEpisodes()) {
           removeInvalidRating(episode);
         }
+      }
+
+      // release date country
+      if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getReleaseDateCountry())) {
+        MovieModuleManager.SETTINGS.setReleaseDateCountry(Locale.getDefault().getCountry());
       }
     }
   }

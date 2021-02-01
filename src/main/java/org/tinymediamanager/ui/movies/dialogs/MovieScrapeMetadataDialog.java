@@ -173,6 +173,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
   public MovieSearchAndScrapeOptions getMovieSearchAndScrapeOptions() {
     MovieSearchAndScrapeOptions movieSearchAndScrapeConfig = new MovieSearchAndScrapeOptions();
     movieSearchAndScrapeConfig.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+    movieSearchAndScrapeConfig.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
 
     // language
     movieSearchAndScrapeConfig.setLanguage((MediaLanguages) cbLanguage.getSelectedItem());

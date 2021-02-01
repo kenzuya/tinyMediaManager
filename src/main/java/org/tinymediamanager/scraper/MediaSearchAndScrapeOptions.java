@@ -67,7 +67,7 @@ public abstract class MediaSearchAndScrapeOptions {
    *          the original to copy
    */
   protected MediaSearchAndScrapeOptions(MediaSearchAndScrapeOptions original) {
-    this.type = original.type;
+    this(original.type);
     setDataFromOtherOptions(original);
   }
 

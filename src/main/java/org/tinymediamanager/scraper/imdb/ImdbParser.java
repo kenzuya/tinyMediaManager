@@ -91,6 +91,7 @@ public abstract class ImdbParser {
   static final String                 SCRAPE_UNCREDITED_ACTORS = "scrapeUncreditedActors";
   static final String                 SCRAPE_LANGUAGE_NAMES    = "scrapeLanguageNames";
   static final String                 LOCAL_RELEASE_DATE       = "localReleaseDate";
+  static final String                 INCLUDE_PREMIERE_DATE    = "includePremiereDate";
   static final String                 MAX_KEYWORD_COUNT        = "maxKeywordCount";
 
   protected final IMediaProvider      metadataProvider;

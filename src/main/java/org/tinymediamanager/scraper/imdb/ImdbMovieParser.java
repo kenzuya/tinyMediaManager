@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.imdb;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -23,6 +24,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
@@ -182,7 +185,7 @@ public class ImdbMovieParser extends ImdbParser {
         parseReleaseinfoPageAKAs(releaseinfoDoc, options, md);
 
         // did we get a release date?
-        if (md.getReleaseDate() == null || config.getValueAsBool(LOCAL_RELEASE_DATE)) {
+        if (md.getReleaseDate() == null || Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE))) {
           // get the date from the releaseinfo page
           parseReleaseinfoPage(releaseinfoDoc, options, md);
         }
@@ -294,6 +297,96 @@ public class ImdbMovieParser extends ImdbParser {
     }
 
     return md;
+  }
+
+  protected void parseReleaseinfoPage(Document doc, MovieSearchAndScrapeOptions options, MediaMetadata md) {
+    Date releaseDate = null;
+    Pattern pattern = Pattern.compile("/calendar/\\?region=(.{2})");
+
+    String releaseDateCountry = options.getReleaseDateCountry();
+
+    Element tableReleaseDates = doc.getElementById("release_dates");
+    if (StringUtils.isNotBlank(releaseDateCountry)) {
+      if (tableReleaseDates != null) {
+        Elements rows = tableReleaseDates.getElementsByTag("tr");
+        // first round: check the release date for the first one with the requested country
+        for (Element row : rows) {
+          // check if we want premiere dates
+          if (row.text().contains("(premiere)") && Boolean.FALSE.equals(config.getValueAsBool(INCLUDE_PREMIERE_DATE))) {
+            continue;
+          }
+
+          // get the anchor
+          Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
+          if (anchor != null) {
+            Matcher matcher = pattern.matcher(anchor.attr("href"));
+            if (matcher.find()) {
+              String country = matcher.group(1);
+
+              Element column = row.getElementsByClass("release_date").first();
+              if (column != null) {
+                Date parsedDate = parseDate(column.text());
+                // do not overwrite any parsed date with a null value!
+                if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
+                  releaseDate = parsedDate;
+
+                  // abort the loop if we have found a valid date in our desired language
+                  if (releaseDateCountry.equalsIgnoreCase(country)) {
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // new way; iterating over class name items
+      if (releaseDate == null) {
+        Elements rows = doc.getElementsByClass("release-date-item");
+        for (Element row : rows) {
+          // check if we want premiere dates
+          if (row.text().contains("(premiere)") && Boolean.FALSE.equals(config.getValueAsBool(INCLUDE_PREMIERE_DATE))) {
+            continue;
+          }
+
+          Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
+          if (anchor != null) {
+            Matcher matcher = pattern.matcher(anchor.attr("href"));
+            // continue if we either do not have found any date yet or the country matches
+            if (matcher.find()) {
+              String country = matcher.group(1);
+
+              Element column = row.getElementsByClass("release-date-item__date").first();
+              if (column != null) {
+                Date parsedDate = parseDate(column.text());
+                // do not overwrite any parsed date with a null value!
+                if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
+                  releaseDate = parsedDate;
+
+                  // abort the loop if we have found a valid date in our desired language
+                  if (releaseDateCountry.equalsIgnoreCase(country)) {
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // no matching local release date found; take the first one
+    if (releaseDate == null && tableReleaseDates != null) {
+      Element column = tableReleaseDates.getElementsByClass("release_date").first();
+      if (column != null) {
+        releaseDate = parseDate(column.text());
+      }
+    }
+
+    if (releaseDate != null) {
+      md.setReleaseDate(releaseDate);
+    }
   }
 
   public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {

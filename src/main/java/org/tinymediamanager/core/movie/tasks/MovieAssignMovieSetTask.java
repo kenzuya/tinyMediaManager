@@ -90,6 +90,7 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
         MovieSearchAndScrapeOptions movieOptions = new MovieSearchAndScrapeOptions();
         movieOptions.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
         movieOptions.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+        movieOptions.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
 
         for (Entry<String, Object> entry : movie.getIds().entrySet()) {
           movieOptions.setId(entry.getKey(), entry.getValue().toString());

@@ -995,11 +995,13 @@ public enum CountryCode {
   private final String name;
   private final String alpha3;
   private final int    numeric;
+  private final Locale locale;
 
   private CountryCode(String name, String alpha3, int numeric) {
     this.name = name;
     this.alpha3 = alpha3;
     this.numeric = numeric;
+    this.locale = new Locale("", name());
   }
 
   /**
@@ -1106,6 +1108,6 @@ public enum CountryCode {
 
   @Override
   public String toString() {
-    return getName();
+    return name() + " - " + locale.getDisplayCountry();
   }
 }

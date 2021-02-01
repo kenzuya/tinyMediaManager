@@ -54,6 +54,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Harry Potter");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -74,6 +75,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -101,6 +103,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -129,6 +132,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Recrutas da Pesada"); // O Pelotão Chanfrado
       options.setLanguage(MediaLanguages.pt_BR);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -162,6 +166,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setId(mp.getProviderInfo().getId(), "63");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -186,6 +191,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setId(mp.getProviderInfo().getId(), "671");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -215,6 +221,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       options.setId(mp.getProviderInfo().getId(), "62177");
 
@@ -242,6 +249,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.pt_BR);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       options.setId(mp.getProviderInfo().getId(), "10890");
 

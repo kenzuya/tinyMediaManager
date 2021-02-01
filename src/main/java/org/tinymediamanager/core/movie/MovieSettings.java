@@ -178,6 +178,7 @@ public class MovieSettings extends AbstractSettings {
   private String                                 movieScraper                           = Constants.TMDB;
   private MediaLanguages                         scraperLanguage                        = MediaLanguages.en;
   private CountryCode                            certificationCountry                   = CountryCode.US;
+  private String                                 releaseDateCountry                     = "";
   private double                                 scraperThreshold                       = 0.75;
   private boolean                                scraperFallback                        = false;
   private final List<MovieScraperMetadataConfig> scraperMetadataConfig                  = new ArrayList<>();
@@ -371,6 +372,7 @@ public class MovieSettings extends AbstractSettings {
     CountryCode cc = CountryCode.getByCode(defaultLang.toUpperCase(Locale.ROOT));
     if (cc != null) {
       setCertificationCountry(cc);
+      setReleaseDateCountry(Locale.getDefault().getCountry());
     }
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
@@ -996,6 +998,16 @@ public class MovieSettings extends AbstractSettings {
     CountryCode oldValue = this.certificationCountry;
     certificationCountry = newValue;
     firePropertyChange("certificationCountry", oldValue, newValue);
+  }
+
+  public String getReleaseDateCountry() {
+    return releaseDateCountry;
+  }
+
+  public void setReleaseDateCountry(String newValue) {
+    String oldValue = this.releaseDateCountry;
+    this.releaseDateCountry = newValue;
+    firePropertyChange("releaseDateCountry", oldValue, newValue);
   }
 
   public double getScraperThreshold() {
