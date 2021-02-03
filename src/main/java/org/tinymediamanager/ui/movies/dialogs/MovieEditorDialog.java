@@ -43,7 +43,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JLayer;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -287,7 +308,7 @@ public class MovieEditorDialog extends TmmDialog {
       tfProductionCompanies.setText(movieToEdit.getProductionCompany());
       tfSpokenLanguages.setText(movieToEdit.getSpokenLanguages());
       tfCountry.setText(movieToEdit.getCountry());
-      spRating.setModel(new SpinnerNumberModel(userMediaRating.getRating(), 0.0, 10.0, 0.1));
+      spRating.setModel(new SpinnerNumberModel(userMediaRating.getRating(), 0.0, 10.0, 1));
       tfNote.setText(movieToEdit.getNote());
 
       for (Person origCast : movieToEdit.getActors()) {
@@ -1433,8 +1454,9 @@ public class MovieEditorDialog extends TmmDialog {
       // if configured - sync with trakt.tv
       if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
         MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(Collections.singletonList(movieToEdit));
-        task.setSyncCollection(true);
-        task.setSyncWatched(true);
+        task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
+        task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
+        task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
 
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }

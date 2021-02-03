@@ -539,8 +539,9 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           // if configured - sync with trakt.tv
           if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
             MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(Collections.singletonList(movieToScrape));
-            task.setSyncCollection(true);
-            task.setSyncWatched(true);
+            task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
+            task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
+            task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
 
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }

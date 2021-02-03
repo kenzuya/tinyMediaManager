@@ -16,34 +16,46 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
+
+import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
- * The class {@link TvShowSyncWatchedTraktTvAction}. To synchronize the watched state of your TV show library with trakt.tv
+ * The class {@link TvShowSyncSelectedRatingTraktTvAction}. To synchronize selected TV shows with trakt.tv (collection)
  * 
  * @author Manuel Laggner
  */
-public class TvShowSyncWatchedTraktTvAction extends TmmAction {
+public class TvShowSyncSelectedRatingTraktTvAction extends TmmAction {
   private static final long           serialVersionUID = 6640292090443882545L;
-  
 
-  public TvShowSyncWatchedTraktTvAction() {
-    putValue(NAME, TmmResourceBundle.getString("tvshow.synctraktwatched"));
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.synctraktwatched.desc"));
-    putValue(SMALL_ICON, IconManager.WATCHED_MENU);
-    putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
+
+  public TvShowSyncSelectedRatingTraktTvAction() {
+    putValue(NAME, TmmResourceBundle.getString("tvshow.synctrakt.selected.rating"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.synctrakt.selected.rating.desc"));
+    putValue(SMALL_ICON, IconManager.RATING_BLUE);
+    putValue(LARGE_ICON_KEY, IconManager.RATING_BLUE);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(TvShowList.getInstance().getTvShows());
-    task.setSyncWatched(true);
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
+
+    if (selectedTvShows.isEmpty()) {
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
+      return;
+    }
+
+    TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(selectedTvShows);
+    task.setSyncRating(true);
 
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }

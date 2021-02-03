@@ -21,8 +21,9 @@ Version 4.1
   ATTENTION: since almost everything changed in the scraper setup, you may need to re-set the scraper options after the update
 
 + added TVmaze scraper
++ creation of still/thumb creation via FFmpeg #1017
++ enhanced Trakt.tv sync (added personal rating sync, reworked settings & actions)
 + added missing movies in movie set #1111
-+ feature for still/thumb creation via FFmpeg #1017
 + added an option to suppress tooltips in the main tables #1128
 + added a function to migrate existing movies/TV shows to a new data source #1044
 + remember last used scraper for each entry - for scraping new episodes the same scraper will be taken into account as for the TV show

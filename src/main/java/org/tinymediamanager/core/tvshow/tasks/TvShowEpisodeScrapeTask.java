@@ -134,8 +134,9 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         tvShows.add(episode.getTvShow());
       }
       TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows));
-      task.setSyncCollection(true);
-      task.setSyncWatched(true);
+      task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
+      task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
+      task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
 
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }

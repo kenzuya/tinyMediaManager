@@ -214,6 +214,9 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                runtimeFromMediaInfo                   = false;
   private boolean                                includeExternalAudioStreams            = false;
   private boolean                                syncTrakt                              = false;
+  private boolean                                syncTraktCollection                    = true;
+  private boolean                                syncTraktWatched                       = true;
+  private boolean                                syncTraktRating                        = true;
   private boolean                                extractArtworkFromVsmeta               = false;
   private boolean                                useMediainfoMetadata                   = false;
 
@@ -1232,6 +1235,36 @@ public class MovieSettings extends AbstractSettings {
 
   public boolean getSyncTrakt() {
     return syncTrakt;
+  }
+
+  public void setSyncTraktCollection(boolean newValue) {
+    boolean oldValue = this.syncTraktCollection;
+    this.syncTraktCollection = newValue;
+    firePropertyChange("syncTraktCollection", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktCollection() {
+    return syncTraktCollection;
+  }
+
+  public void setSyncTraktWatched(boolean newValue) {
+    boolean oldValue = this.syncTraktWatched;
+    this.syncTraktWatched = newValue;
+    firePropertyChange("syncTraktWatched", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktWatched() {
+    return syncTraktWatched;
+  }
+
+  public void setSyncTraktRating(boolean newValue) {
+    boolean oldValue = this.syncTraktRating;
+    this.syncTraktRating = newValue;
+    firePropertyChange("syncTraktRating", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktRating() {
+    return syncTraktRating;
   }
 
   public List<String> getRatingSources() {

@@ -34,17 +34,22 @@ import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
 import com.uwetrottmann.trakt5.entities.BaseMovie;
 import com.uwetrottmann.trakt5.entities.Metadata;
 import com.uwetrottmann.trakt5.entities.MovieIds;
+import com.uwetrottmann.trakt5.entities.RatedMovie;
 import com.uwetrottmann.trakt5.entities.SyncItems;
 import com.uwetrottmann.trakt5.entities.SyncMovie;
 import com.uwetrottmann.trakt5.entities.SyncResponse;
 import com.uwetrottmann.trakt5.enums.Extended;
+import com.uwetrottmann.trakt5.enums.Rating;
+import com.uwetrottmann.trakt5.enums.RatingsFilter;
 
 import retrofit2.Response;
 
@@ -152,7 +157,7 @@ class TraktTvMovie {
     int nosync = 0;
     for (Movie tmmMovie : tmmMovies) {
       if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
-        movies.add(toSyncMovie(tmmMovie, false));
+        movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.COLLECTION));
       }
       else {
         // do not add to Trakt if we do not have at least one ID
@@ -277,7 +282,7 @@ class TraktTvMovie {
     int nosync = 0;
     for (Movie tmmMovie : tmmWatchedMovies) {
       if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
-        movies.add(toSyncMovie(tmmMovie, true));
+        movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.WATCHED));
       }
       else {
         // do not add to Trakt if we do not have at least one ID
@@ -302,6 +307,141 @@ class TraktTvMovie {
         return;
       }
       LOGGER.debug("Trakt mark-as-watched status:");
+      printStatus(response.body());
+    }
+    catch (Exception e) {
+      LOGGER.error("failed syncing trakt: {}", e.getMessage());
+    }
+  }
+
+  /**
+   * Syncs Trakt.tv "personal rating"<br>
+   * Gets all movies from Trakt, set the personal rating for movies without existing personal rating and send back new/changed items<br>
+   */
+  void syncTraktMovieRating(List<Movie> moviesInTmm) {
+    // create a local copy of the list
+    List<Movie> tmmMovies = new ArrayList<>(moviesInTmm);
+
+    // *****************************************************************************
+    // 1) get all Trakt movies and update our movies without a personal rating
+    // *****************************************************************************
+    List<RatedMovie> traktMovies;
+    try {
+      // Extended.DEFAULT adds url, poster, fanart, banner, genres
+      // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
+      Response<List<RatedMovie>> traktRatingResponse = api.sync().ratingsMovies(RatingsFilter.ALL, null).execute();
+      if (!traktRatingResponse.isSuccessful() && traktRatingResponse.code() == 401) {
+        // try to re-auth
+        traktTv.refreshAccessToken();
+        traktRatingResponse = api.sync().ratingsMovies(null, null).execute();
+      }
+      if (!traktRatingResponse.isSuccessful()) {
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", traktRatingResponse.code(), traktRatingResponse.message());
+        return;
+      }
+      traktMovies = traktRatingResponse.body();
+    }
+    catch (Exception e) {
+      LOGGER.error("failed syncing trakt.tv: {}", e.getMessage());
+      return;
+    }
+
+    LOGGER.info("You have {} rated movies in your Trakt.tv collection", traktMovies.size());
+
+    // loop over all watched movies on trakt
+    for (RatedMovie traktRated : traktMovies) {
+      if (traktRated.movie == null || traktRated.rating == null) {
+        continue;
+      }
+
+      List<Movie> matchingTmmMovies = getTmmMoviesForTraktMovie(tmmMovies, traktRated.movie);
+
+      for (Movie tmmMovie : matchingTmmMovies) {
+        // update missing IDs (we get them for free :)
+        boolean dirty = updateIDs(tmmMovie, traktRated.movie);
+
+        MediaRating userRating = tmmMovie.getUserRating();
+        if (userRating == MediaMetadata.EMPTY_RATING) {
+          tmmMovie.setRating(new MediaRating(MediaRating.USER, traktRated.rating.value, 1, 10));
+          dirty = true;
+        }
+
+        if (dirty) {
+          tmmMovie.writeNFO();
+          tmmMovie.saveToDb();
+        }
+      }
+    }
+
+    // *****************************************************************************
+    // 2) user the user rating of tmm movies on Trakt.tv (only if the value differs)
+    // *****************************************************************************
+    // Now get all TMM user rated movies...
+    List<Movie> tmmRatedMovies = moviesInTmm.stream()
+        .filter(movie -> movie.getUserRating() != MediaMetadata.EMPTY_RATING)
+        .collect(Collectors.toList());
+    LOGGER.info("You have now {} movies with user rating in your TMM database", tmmRatedMovies.size());
+
+    // ...and subtract movies with the same rating on Trakt
+    for (RatedMovie traktRated : traktMovies) {
+      if (traktRated.rating == null) {
+        continue;
+      }
+
+      List<Movie> tmmMoviesForTraktMovie = getTmmMoviesForTraktMovie(tmmMovies, traktRated.movie);
+
+      // since we can have this movie multiple times in tmm with different ratings, we look if there is at least one trakt rating matching the tmm
+      // rating
+      boolean matchFound = false;
+
+      for (Movie movie : tmmMoviesForTraktMovie) {
+        if (Math.round(movie.getUserRating().getRating()) == traktRated.rating.value) {
+          matchFound = true;
+          break;
+        }
+      }
+
+      // match found -> do not sync
+      if (matchFound) {
+        tmmRatedMovies.removeAll(tmmMoviesForTraktMovie);
+      }
+    }
+
+    if (tmmRatedMovies.isEmpty()) {
+      LOGGER.debug("no movie ratings for Trakt.tv sync found.");
+      return;
+    }
+
+    LOGGER.debug("prepare {} movies for Trakt.tv sync", tmmRatedMovies.size());
+    List<SyncMovie> movies = new ArrayList<>();
+    int nosync = 0;
+    for (Movie tmmMovie : tmmRatedMovies) {
+      if (tmmMovie.getIdAsInt(Constants.TRAKT) > 0 || MetadataUtil.isValidImdbId(tmmMovie.getImdbId()) || tmmMovie.getTmdbId() > 0) {
+        movies.add(toSyncMovie(tmmMovie, TraktTv.SyncType.RATING));
+      }
+      else {
+        // do not add to Trakt if we do not have at least one ID
+        nosync++;
+      }
+    }
+    if (nosync > 0) {
+      LOGGER.debug("skipping {} movies, because they have not been scraped yet!", nosync);
+    }
+
+    if (movies.isEmpty()) {
+      LOGGER.debug("no new movie ratings for Trakt.tv sync found.");
+      return;
+    }
+
+    try {
+      LOGGER.info("Syncing {} movie ratings to Trakt.tv collection", movies.size());
+      SyncItems items = new SyncItems().movies(movies);
+      Response<SyncResponse> response = api.sync().addRatings(items).execute();
+      if (!response.isSuccessful()) {
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
+        return;
+      }
+      LOGGER.debug("Trakt personal-rating status:");
       printStatus(response.body());
     }
     catch (Exception e) {
@@ -484,7 +624,7 @@ class TraktTvMovie {
     return dirty;
   }
 
-  private SyncMovie toSyncMovie(Movie tmmMovie, boolean watched) {
+  private SyncMovie toSyncMovie(Movie tmmMovie, TraktTv.SyncType syncType) {
     boolean hasId = false;
     SyncMovie movie = null;
 
@@ -509,18 +649,29 @@ class TraktTvMovie {
     // we have to decide what we send; trakt behaves differently when sending data to sync collection and sync history.
     movie = new SyncMovie();
     movie.id(ids);
-    if (watched) {
-      // sync history
-      if (tmmMovie.isWatched() && tmmMovie.getLastWatched() == null) {
-        // watched in tmm and not in trakt -> sync
-        OffsetDateTime watchedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault());
-        movie.watchedAt(watchedAt);
-      }
-    }
-    else {
-      // sync collection
-      OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneId.systemDefault());
-      movie.collectedAt(collectedAt);
+
+    switch (syncType) {
+      case COLLECTION:
+        // sync collection
+        movie.collectedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmMovie.getDateAdded()), ZoneId.systemDefault()));
+        break;
+
+      case WATCHED:
+        // sync history
+        if (tmmMovie.isWatched()) {
+          // watched in tmm and not in trakt -> sync
+          movie.watchedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault()));
+        }
+        break;
+
+      case RATING:
+        // sync rating
+        MediaRating userRating = tmmMovie.getUserRating();
+        if (userRating != MediaMetadata.EMPTY_RATING) {
+          movie.rating = Rating.fromValue(Math.round(userRating.getRating()));
+          movie.ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault()));
+        }
+        break;
     }
 
     // also sync mediainfo

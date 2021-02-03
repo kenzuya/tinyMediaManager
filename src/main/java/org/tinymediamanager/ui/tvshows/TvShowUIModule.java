@@ -73,12 +73,11 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowSelectedScrapeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSingleScrapeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSubtitleDownloadAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSubtitleSearchAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowSyncCollectionTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedCollectionTraktTvAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedRatingTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncTraktTvAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowSyncWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowToggleWatchedFlagAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateDatasourcesAction;
@@ -179,7 +178,8 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     tvShowEpisodeDetailPanel.add(TmmResourceBundle.getString("metatag.details"), new TvShowEpisodeInformationPanel(tvShowEpisodeSelectionModel));
     tvShowEpisodeDetailPanel.add(TmmResourceBundle.getString("metatag.cast"), new TvShowEpisodeCastPanel(tvShowEpisodeSelectionModel));
-    tvShowEpisodeDetailPanel.add(TmmResourceBundle.getString("metatag.mediafiles"), new TvShowEpisodeMediaInformationPanel(tvShowEpisodeSelectionModel));
+    tvShowEpisodeDetailPanel.add(TmmResourceBundle.getString("metatag.mediafiles"),
+        new TvShowEpisodeMediaInformationPanel(tvShowEpisodeSelectionModel));
     dataPanel.add(tvShowEpisodeDetailPanel, "tvShowEpisode");
 
     // glass pane for searching/filtering
@@ -299,13 +299,12 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
-    traktMenu.add(createAndRegisterAction(TvShowSyncCollectionTraktTvAction.class));
-    traktMenu.add(createAndRegisterAction(TvShowSyncWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncTraktTvAction.class));
     traktMenu.addSeparator();
+    traktMenu.add(createAndRegisterAction(TvShowSyncSelectedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedCollectionTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedWatchedTraktTvAction.class));
-    traktMenu.add(createAndRegisterAction(TvShowSyncSelectedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(TvShowSyncSelectedRatingTraktTvAction.class));
     popupMenu.add(traktMenu);
     JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickTvShows();
     popupMenu.add(kodiRPCMenu);
@@ -404,12 +403,11 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
 
     editPopupMenu.addSeparator();
-    editPopupMenu.add(createAndRegisterAction(TvShowSyncCollectionTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowSyncWatchedTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowSyncTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedCollectionTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedWatchedTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedRatingTraktTvAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));

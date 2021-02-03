@@ -38,9 +38,11 @@ import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
@@ -49,6 +51,8 @@ import com.uwetrottmann.trakt5.entities.BaseEpisode;
 import com.uwetrottmann.trakt5.entities.BaseSeason;
 import com.uwetrottmann.trakt5.entities.BaseShow;
 import com.uwetrottmann.trakt5.entities.Metadata;
+import com.uwetrottmann.trakt5.entities.RatedEpisode;
+import com.uwetrottmann.trakt5.entities.RatedShow;
 import com.uwetrottmann.trakt5.entities.Show;
 import com.uwetrottmann.trakt5.entities.ShowIds;
 import com.uwetrottmann.trakt5.entities.SyncEpisode;
@@ -57,6 +61,8 @@ import com.uwetrottmann.trakt5.entities.SyncResponse;
 import com.uwetrottmann.trakt5.entities.SyncSeason;
 import com.uwetrottmann.trakt5.entities.SyncShow;
 import com.uwetrottmann.trakt5.enums.Extended;
+import com.uwetrottmann.trakt5.enums.Rating;
+import com.uwetrottmann.trakt5.enums.RatingsFilter;
 
 import retrofit2.Response;
 
@@ -169,7 +175,7 @@ class TraktTvTvShow {
     LOGGER.info("Adding {} TvShows to Trakt.tv collection", tvShows.size());
     // send show per show; sending all together may result too often in a timeout
     for (TvShow tvShow : tvShows) {
-      SyncShow show = toSyncShow(tvShow, false, episodesInTrakt);
+      SyncShow show = toSyncShow(tvShow, false, traktShows);
       if (show == null) {
         continue;
       }
@@ -281,7 +287,7 @@ class TraktTvTvShow {
     // send show per show; sending all together may result too often in a timeout
     for (TvShow show : tvShows) {
       // get items to sync
-      SyncShow sync = toSyncShow(show, true, new HashSet<>());
+      SyncShow sync = toSyncShow(show, true, traktShows);
       if (sync == null) {
         continue;
       }
@@ -293,7 +299,142 @@ class TraktTvTvShow {
           LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
           return;
         }
-        LOGGER.debug("Trakt add-to-library status: {}", show.getTitle());
+        LOGGER.debug("Trakt add-to-watched status: {}", show.getTitle());
+        printStatus(response.body());
+      }
+      catch (Exception e) {
+        LOGGER.error("failed syncing trakt: {}", e.getMessage());
+        return;
+      }
+    }
+  }
+
+  void syncTraktTvShowRating(List<TvShow> tvShowsInTmm) {
+    // create a local copy of the list
+    List<TvShow> tvShows = new ArrayList<>(tvShowsInTmm);
+
+    // *****************************************************************************
+    // 1) get all Trakt shows/episodes and update our movies without a personal rating
+    // *****************************************************************************
+    List<RatedShow> traktShows;
+    try {
+      // Extended.DEFAULT adds url, poster, fanart, banner, genres
+      // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
+      Response<List<RatedShow>> response = api.sync().ratingsShows(RatingsFilter.ALL, null).execute();
+      if (!response.isSuccessful() && response.code() == 401) {
+        // try to re-auth
+        traktTv.refreshAccessToken();
+        response = api.sync().ratingsShows(RatingsFilter.ALL, null).execute();
+      }
+      if (!response.isSuccessful()) {
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
+        return;
+      }
+      traktShows = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.error("failed syncing trakt: {}", e.getMessage());
+      return;
+    }
+
+    List<RatedEpisode> traktEpisodes;
+    try {
+      // Extended.DEFAULT adds url, poster, fanart, banner, genres
+      // Extended.MAX adds certs, runtime, and other stuff (useful for scraper!)
+      Response<List<RatedEpisode>> response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null).execute();
+      if (!response.isSuccessful() && response.code() == 401) {
+        // try to re-auth
+        traktTv.refreshAccessToken();
+        response = api.sync().ratingsEpisodes(RatingsFilter.ALL, null).execute();
+      }
+      if (!response.isSuccessful()) {
+        LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
+        return;
+      }
+      traktEpisodes = response.body();
+    }
+    catch (Exception e) {
+      LOGGER.error("failed syncing trakt: {}", e.getMessage());
+      return;
+    }
+
+    LOGGER.info("You have {} rated movies in your Trakt.tv collection", traktShows.size());
+    LOGGER.info("You have {} rated episodes in your Trakt.tv collection", traktEpisodes.size());
+
+    for (RatedShow traktShow : traktShows) {
+      if (traktShow.show == null || traktShow.rating == null) {
+        continue;
+      }
+
+      List<TvShow> matchingTmmTvShows = getTmmTvShowForTraktShow(tvShows, traktShow.show);
+
+      for (TvShow tmmShow : matchingTmmTvShows) {
+        // update show IDs from trakt
+        boolean dirty = updateIDs(tmmShow, traktShow.show);
+
+        MediaRating userRating = tmmShow.getUserRating();
+        if (userRating == MediaMetadata.EMPTY_RATING) {
+          tmmShow.setRating(new MediaRating(MediaRating.USER, traktShow.rating.value, 1, 10));
+          dirty = true;
+        }
+
+        if (dirty) {
+          tmmShow.writeNFO();
+          tmmShow.saveToDb();
+        }
+      }
+    }
+
+    for (RatedEpisode traktEpisode : traktEpisodes) {
+      if (traktEpisode.show == null || traktEpisode.episode == null || traktEpisode.rating == null) {
+        continue;
+      }
+
+      List<TvShow> matchingTmmTvShows = getTmmTvShowForTraktShow(tvShows, traktEpisode.show);
+
+      for (TvShow tmmShow : matchingTmmTvShows) {
+        List<TvShowEpisode> matchingEpisodes = tmmShow.getEpisode(MetadataUtil.unboxInteger(traktEpisode.episode.number, -1),
+            MetadataUtil.unboxInteger(traktEpisode.episode.season, -1));
+
+        for (TvShowEpisode tmmEpisode : matchingEpisodes) {
+          // update show IDs from trakt
+          boolean dirty = false;
+
+          MediaRating userRating = tmmEpisode.getUserRating();
+          if (userRating == MediaMetadata.EMPTY_RATING) {
+            tmmEpisode.setRating(new MediaRating(MediaRating.USER, traktEpisode.rating.value, 1, 10));
+            dirty = true;
+          }
+
+          if (dirty) {
+            tmmEpisode.writeNFO();
+            tmmEpisode.saveToDb();
+          }
+        }
+      }
+    }
+
+    // *****************************************************************************
+    // 2) add all our shows/episodes rating to Trakt.tv
+    // not rated shows are not returned in the API even there are rated episodes
+    // *****************************************************************************
+    LOGGER.info("Adding up to {} TvShows as watched on Trakt.tv", tvShows.size());
+    // send show per show; sending all together may result too often in a timeout
+    for (TvShow show : tvShows) {
+      // get items to sync
+      SyncShow sync = toSyncShow(show, traktShows, traktEpisodes);
+      if (sync == null) {
+        continue;
+      }
+
+      try {
+        SyncItems items = new SyncItems().shows(sync);
+        Response<SyncResponse> response = api.sync().addRatings(items).execute();
+        if (!response.isSuccessful()) {
+          LOGGER.error("failed syncing trakt.tv: HTTP {} - '{}'", response.code(), response.message());
+          return;
+        }
+        LOGGER.debug("Trakt add-ratings status: {}", show.getTitle());
         printStatus(response.body());
       }
       catch (Exception e) {
@@ -465,7 +606,7 @@ class TraktTvTvShow {
     return dirty;
   }
 
-  private SyncShow toSyncShow(TvShow tmmShow, boolean watched, Set<TvShowEpisode> episodesInTrakt) {
+  private SyncShow toSyncShow(TvShow tmmShow, boolean watched, List<BaseShow> showsInTrakt) {
     boolean hasId = false;
 
     ShowIds ids = new ShowIds();
@@ -498,16 +639,14 @@ class TraktTvTvShow {
       return null;
     }
 
+    // search for all seasons/episodes of this show
     List<SyncSeason> syncSeasons = new ArrayList<>();
-    boolean foundS = false;
     for (TvShowSeason tmmSeason : tmmShow.getSeasons()) {
-      boolean foundEP = false;
-
-      // since there can be multiple versions of the same episode, we force to take the first one for trakt sync AND combine all watched states vir
+      // since there can be multiple versions of the same episode, we force to take the first one for trakt sync AND combine all watched states via
       // logical OR
       Map<String, SyncEpisode> syncEpisodeMap = new HashMap<>();
       for (TvShowEpisode tmmEp : tmmSeason.getEpisodes()) {
-        if (tmmEp.getEpisode() < 0) {
+        if (tmmEp.getEpisode() < 0 || tmmEp.getSeason() < 0) {
           continue;
         }
 
@@ -517,34 +656,175 @@ class TraktTvTvShow {
         // sync collection and sync history.
         if (watched) {
           // sync history
-          if (!syncEpisodeMap.containsKey(episodeTag) && tmmEp.isWatched() && tmmEp.getLastWatched() == null) {
+          if (!syncEpisodeMap.containsKey(episodeTag) && tmmEp.isWatched()) {
             // watched in tmm and not in trakt -> sync
             OffsetDateTime watchedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault());
             syncEpisodeMap.put(episodeTag, toSyncEpisode(tmmEp).watchedAt(watchedAt));
-
-            foundEP = true;
           }
         }
         else {
           // sync collection
-          if (!episodesInTrakt.contains(tmmEp) && !syncEpisodeMap.containsKey(episodeTag)) {
+          if (!syncEpisodeMap.containsKey(episodeTag)) {
             OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmEp.getDateAdded()), ZoneId.systemDefault());
             syncEpisodeMap.put(episodeTag, toSyncEpisode(tmmEp).collectedAt(collectedAt));
-            foundEP = true;
           }
         }
       }
-      if (foundEP) {
-        // do not send empty seasons
-        foundS = true;
-        syncSeasons.add(new SyncSeason().number(tmmSeason.getSeason()).episodes(new ArrayList<>(syncEpisodeMap.values())));
+
+      // add all episodes to the season
+      syncSeasons.add(new SyncSeason().number(tmmSeason.getSeason()).episodes(new ArrayList<>(syncEpisodeMap.values())));
+    }
+
+    if (syncSeasons.isEmpty()) {
+      return null;
+    }
+
+    // now do a match with the existing data to send a delta
+
+    // 1. search for the show
+    BaseShow showInTrakt = null;
+
+    for (BaseShow show : showsInTrakt) {
+      if (matches(tmmShow, show.show)) {
+        showInTrakt = show;
+        break;
       }
     }
 
-    if (foundS) {
-      // we have at least one season/episode, so add it
+    if (showInTrakt == null) {
+      // not yet in trakt.tv -> full sync possible
       OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmShow.getDateAdded()), ZoneId.systemDefault());
       return new SyncShow().id(ids).collectedAt(collectedAt).seasons(syncSeasons);
+    }
+    else {
+      // show already in trakt.tv -> delta sync
+      List<SyncSeason> syncSeasonsDelta = new ArrayList<>();
+      for (SyncSeason syncSeason : syncSeasons) {
+        List<SyncEpisode> syncEpisodesDelta = new ArrayList<>();
+        for (SyncEpisode syncEpisode : ListUtils.nullSafe(syncSeason.episodes)) {
+          if (!containsEpisode(showInTrakt, syncEpisode)) {
+            syncEpisodesDelta.add(syncEpisode);
+          }
+        }
+
+        if (!syncEpisodesDelta.isEmpty()) {
+          syncSeasonsDelta.add(new SyncSeason().episodes(syncEpisodesDelta));
+        }
+      }
+
+      if (!syncSeasonsDelta.isEmpty()) {
+        return new SyncShow().id(ids).seasons(syncSeasons);
+      }
+    }
+
+    // if nothing added, do NOT send an empty show (to add all)
+    return null;
+  }
+
+  private boolean containsEpisode(BaseShow show, SyncEpisode syncEpisode) {
+    int seasonNumber = MetadataUtil.unboxInteger(syncEpisode.season);
+    int episodeNumber = MetadataUtil.unboxInteger(syncEpisode.number);
+
+    for (BaseSeason season : ListUtils.nullSafe(show.seasons)) {
+      if (seasonNumber == MetadataUtil.unboxInteger(season.number, -1)) {
+        for (BaseEpisode episode : ListUtils.nullSafe(season.episodes)) {
+          if (episodeNumber == MetadataUtil.unboxInteger(episode.number, -1)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private SyncShow toSyncShow(TvShow tmmShow, List<RatedShow> showsInTrakt, List<RatedEpisode> episodesInTrakt) {
+    boolean hasId = false;
+
+    ShowIds ids = new ShowIds();
+    if (MetadataUtil.isValidImdbId(tmmShow.getImdbId())) {
+      ids.imdb = tmmShow.getImdbId();
+      hasId = true;
+    }
+
+    if (tmmShow.getTmdbId() > 0) {
+      ids.tmdb = tmmShow.getTmdbId();
+      hasId = true;
+    }
+
+    if (tmmShow.getIdAsInt(Constants.TVDB) > 0) {
+      ids.tvdb = tmmShow.getIdAsInt(Constants.TVDB);
+      hasId = true;
+    }
+
+    if (tmmShow.getIdAsInt(Constants.TRAKT) > 0) {
+      ids.trakt = tmmShow.getIdAsInt(Constants.TRAKT);
+      hasId = true;
+    }
+
+    if (tmmShow.getIdAsInt("tvrage") > 0) {
+      ids.tvrage = tmmShow.getIdAsInt("tvrage");
+      hasId = true;
+    }
+
+    if (!hasId) {
+      return null;
+    }
+
+    // search for all seasons/episodes of this show
+    List<SyncSeason> syncSeasons = new ArrayList<>();
+    for (TvShowSeason tmmSeason : tmmShow.getSeasons()) {
+      // since there can be multiple versions of the same episode, we force to take the first one for trakt sync AND combine all watched states via
+      // logical OR
+      Map<String, SyncEpisode> syncEpisodeMap = new HashMap<>();
+      for (TvShowEpisode tmmEp : tmmSeason.getEpisodes()) {
+        if (tmmEp.getEpisode() < 0 || tmmEp.getSeason() < 0) {
+          continue;
+        }
+
+        String episodeTag = "S" + tmmEp.getSeason() + "E" + tmmEp.getEpisode();
+
+        MediaRating userRating = tmmEp.getUserRating();
+        if (!syncEpisodeMap.containsKey(episodeTag) && userRating != MediaMetadata.EMPTY_RATING) {
+          // rated in tmm
+          syncEpisodeMap.put(episodeTag, toSyncEpisode(tmmEp).rating(Rating.fromValue(Math.round(userRating.getRating())))
+              .ratedAt(OffsetDateTime.ofInstant(DateTimeUtils.toInstant(new Date()), ZoneId.systemDefault())));
+        }
+      }
+
+      // add all episodes to the season
+      syncSeasons.add(new SyncSeason().number(tmmSeason.getSeason()).episodes(new ArrayList<>(syncEpisodeMap.values())));
+    }
+
+    // now do a match with the existing data to send a delta
+    Map<String, RatedEpisode> episodesForShow = new HashMap<>();
+    for (RatedEpisode ratedEpisode : episodesInTrakt) {
+      if (ratedEpisode.episode != null && matches(tmmShow, ratedEpisode.show)) {
+        String key = "S" + ratedEpisode.episode.season + "E" + ratedEpisode.episode.number;
+        episodesForShow.put(key, ratedEpisode);
+      }
+    }
+
+    // show already in trakt.tv -> delta sync
+    List<SyncSeason> syncSeasonsDelta = new ArrayList<>();
+    for (SyncSeason syncSeason : syncSeasons) {
+      List<SyncEpisode> syncEpisodesDelta = new ArrayList<>();
+      for (SyncEpisode syncEpisode : ListUtils.nullSafe(syncSeason.episodes)) {
+        String key = "S" + syncEpisode.season + "E" + syncEpisode.number;
+        RatedEpisode ratedEpisode = episodesForShow.get(key);
+
+        if (ratedEpisode == null || ratedEpisode.rating == null || ratedEpisode.rating.value != syncEpisode.rating.value) {
+          syncEpisodesDelta.add(syncEpisode);
+        }
+      }
+
+      if (!syncEpisodesDelta.isEmpty()) {
+        syncSeasonsDelta.add(new SyncSeason().episodes(syncEpisodesDelta));
+      }
+    }
+
+    if (!syncSeasonsDelta.isEmpty()) {
+      return new SyncShow().id(ids).seasons(syncSeasons);
     }
 
     // if nothing added, do NOT send an empty show (to add all)
@@ -567,6 +847,7 @@ class TraktTvTvShow {
   private SyncEpisode toSyncEpisode(TvShowEpisode episode) {
     SyncEpisode syncEpisode = new SyncEpisode();
     syncEpisode.number(episode.getEpisode());
+    syncEpisode.season(episode.getSeason());
 
     // also sync mediainfo
     syncEpisode.mediaType(getMediaType(episode.getMediaInfoSource()));

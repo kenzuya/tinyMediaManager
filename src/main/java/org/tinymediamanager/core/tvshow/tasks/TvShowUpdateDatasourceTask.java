@@ -73,6 +73,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.VSMeta;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
  * The Class TvShowUpdateDataSourcesTask.
@@ -347,6 +348,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         waitForCompletionOrCancel();
+      }
+
+      if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
+        TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(TvShowList.getInstance().getTvShows());
+        task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
+        task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
+        task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+
+        TmmTaskManager.getInstance().addUnnamedTask(task);
       }
 
       stopWatch.stop();
