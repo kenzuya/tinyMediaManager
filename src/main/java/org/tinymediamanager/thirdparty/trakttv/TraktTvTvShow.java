@@ -172,7 +172,7 @@ class TraktTvTvShow {
     // *****************************************************************************
     // 2) add all our shows to Trakt collection (we have the physical file)
     // *****************************************************************************
-    LOGGER.info("Adding {} TvShows to Trakt.tv collection", tvShows.size());
+    LOGGER.debug("Adding up to {} TV shows to Trakt.tv collection", tvShows.size());
     // send show per show; sending all together may result too often in a timeout
     for (TvShow tvShow : tvShows) {
       SyncShow show = toSyncShow(tvShow, false, traktShows);
@@ -230,17 +230,6 @@ class TraktTvTvShow {
         // update show IDs from trakt
         boolean dirty = updateIDs(tmmShow, traktShow.show);
 
-        // update watched date from trakt (show)
-        if (traktShow.last_watched_at != null) {
-          Date lastWatchedAt = DateTimeUtils.toDate(traktShow.last_watched_at.toInstant());
-          if (!lastWatchedAt.equals(tmmShow.getLastWatched())) {
-            // always set from trakt, if not matched (Trakt = master)
-            LOGGER.trace("Marking TvShow '{}' as watched on {} (was {})", tmmShow.getTitle(), lastWatchedAt, tmmShow.getLastWatched());
-            tmmShow.setLastWatched(lastWatchedAt);
-            // dirty = true; // we do not write date to NFO. But just mark for syncing back...
-          }
-        }
-
         // update collection date from trakt (episodes)
         for (BaseSeason bs : ListUtils.nullSafe(traktShow.seasons)) {
           for (BaseEpisode be : ListUtils.nullSafe(bs.episodes)) {
@@ -283,7 +272,7 @@ class TraktTvTvShow {
     // *****************************************************************************
     // 2) add all our shows to Trakt watched
     // *****************************************************************************
-    LOGGER.info("Adding up to {} TvShows as watched on Trakt.tv", tvShows.size());
+    LOGGER.debug("Adding up to {} TV shows as watched on Trakt.tv", tvShows.size());
     // send show per show; sending all together may result too often in a timeout
     for (TvShow show : tvShows) {
       // get items to sync
@@ -314,7 +303,7 @@ class TraktTvTvShow {
     List<TvShow> tvShows = new ArrayList<>(tvShowsInTmm);
 
     // *****************************************************************************
-    // 1) get all Trakt shows/episodes and update our movies without a personal rating
+    // 1) get all Trakt shows/episodes and update our items without a personal rating
     // *****************************************************************************
     List<RatedShow> traktShows;
     try {
@@ -358,7 +347,7 @@ class TraktTvTvShow {
       return;
     }
 
-    LOGGER.info("You have {} rated movies in your Trakt.tv collection", traktShows.size());
+    LOGGER.info("You have {} rated TV shows in your Trakt.tv collection", traktShows.size());
     LOGGER.info("You have {} rated episodes in your Trakt.tv collection", traktEpisodes.size());
 
     for (RatedShow traktShow : traktShows) {
@@ -418,7 +407,7 @@ class TraktTvTvShow {
     // 2) add all our shows/episodes rating to Trakt.tv
     // not rated shows are not returned in the API even there are rated episodes
     // *****************************************************************************
-    LOGGER.info("Adding up to {} TvShows as watched on Trakt.tv", tvShows.size());
+    LOGGER.debug("Adding up to {} TV shows with personal rating on Trakt.tv", tvShows.size());
     // send show per show; sending all together may result too often in a timeout
     for (TvShow show : tvShows) {
       // get items to sync
@@ -445,8 +434,8 @@ class TraktTvTvShow {
   }
 
   /**
-   * clears the whole Trakt.tv movie collection. Gets all Trakt.tv movies from your collection and removes them from the collection and the watched
-   * state; a little helper to initialize the collection
+   * clears the whole Trakt.tv TV show collection. Gets all Trakt.tv TV shows from your collection and removes them from the collection and the
+   * watched state; a little helper to initialize the collection
    */
   void clearTraktTvShows() {
     // *****************************************************************************
@@ -551,7 +540,7 @@ class TraktTvTvShow {
       return true;
     }
 
-    if (StringUtils.isNotEmpty(ids.imdb) && ids.imdb.equals(tmmShow.getImdbId())) {
+    if (StringUtils.isNotBlank(ids.imdb) && ids.imdb.equals(tmmShow.getImdbId())) {
       return true;
     }
 
@@ -582,7 +571,7 @@ class TraktTvTvShow {
 
     ShowIds ids = traktShow.ids;
 
-    if (tmmShow.getIdAsString(Constants.IMDB).isEmpty() && !StringUtils.isEmpty(ids.imdb)) {
+    if (StringUtils.isBlank(tmmShow.getIdAsString(Constants.IMDB)) && !StringUtils.isBlank(ids.imdb)) {
       tmmShow.setId(Constants.IMDB, ids.imdb);
       dirty = true;
     }
@@ -642,6 +631,10 @@ class TraktTvTvShow {
     // search for all seasons/episodes of this show
     List<SyncSeason> syncSeasons = new ArrayList<>();
     for (TvShowSeason tmmSeason : tmmShow.getSeasons()) {
+      if (tmmSeason.getSeason() < 0) {
+        continue;
+      }
+
       // since there can be multiple versions of the same episode, we force to take the first one for trakt sync AND combine all watched states via
       // logical OR
       Map<String, SyncEpisode> syncEpisodeMap = new HashMap<>();
@@ -671,8 +664,10 @@ class TraktTvTvShow {
         }
       }
 
-      // add all episodes to the season
-      syncSeasons.add(new SyncSeason().number(tmmSeason.getSeason()).episodes(new ArrayList<>(syncEpisodeMap.values())));
+      if (!syncEpisodeMap.isEmpty()) {
+        // add all episodes to the season
+        syncSeasons.add(new SyncSeason().number(tmmSeason.getSeason()).episodes(new ArrayList<>(syncEpisodeMap.values())));
+      }
     }
 
     if (syncSeasons.isEmpty()) {
@@ -693,8 +688,7 @@ class TraktTvTvShow {
 
     if (showInTrakt == null) {
       // not yet in trakt.tv -> full sync possible
-      OffsetDateTime collectedAt = OffsetDateTime.ofInstant(DateTimeUtils.toInstant(tmmShow.getDateAdded()), ZoneId.systemDefault());
-      return new SyncShow().id(ids).collectedAt(collectedAt).seasons(syncSeasons);
+      return new SyncShow().id(ids).seasons(syncSeasons);
     }
     else {
       // show already in trakt.tv -> delta sync
@@ -713,7 +707,7 @@ class TraktTvTvShow {
       }
 
       if (!syncSeasonsDelta.isEmpty()) {
-        return new SyncShow().id(ids).seasons(syncSeasons);
+        return new SyncShow().id(ids).seasons(syncSeasonsDelta);
       }
     }
 
