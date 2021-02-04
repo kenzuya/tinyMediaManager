@@ -195,6 +195,7 @@ public class MovieSettings extends AbstractSettings {
   private int                                    imageExtraFanartCount                  = 5;
   private String                                 movieSetArtworkFolder                  = "";
   private boolean                                scrapeBestImage                        = true;
+  private boolean                                scrapeBestImageMovieSet                = true;
   private MediaLanguages                         imageScraperLanguage                   = MediaLanguages.en;
   private boolean                                imageLanguagePriority                  = true;
   private boolean                                writeActorImages                       = false;
@@ -887,6 +888,16 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = this.scrapeBestImage;
     this.scrapeBestImage = newValue;
     firePropertyChange("scrapeBestImage", oldValue, newValue);
+  }
+
+  public boolean isScrapeBestImageMovieSet() {
+    return scrapeBestImageMovieSet;
+  }
+
+  public void setScrapeBestImageMovieSet(boolean newValue) {
+    boolean oldValue = this.scrapeBestImageMovieSet;
+    this.scrapeBestImageMovieSet = newValue;
+    firePropertyChange("scrapeBestImageMovieSet", oldValue, newValue);
   }
 
   public void addMovieTrailerScraper(String newValue) {

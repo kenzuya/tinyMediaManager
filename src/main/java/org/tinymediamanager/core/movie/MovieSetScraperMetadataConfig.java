@@ -39,14 +39,11 @@ public enum MovieSetScraperMetadataConfig implements ScraperMetadataConfig {
   THUMB(Type.ARTWORK),
   LOGO(Type.ARTWORK),
   CLEARLOGO(Type.ARTWORK),
-  DISCART(Type.ARTWORK, "mediafiletype.disc"),
-  KEYART(Type.ARTWORK);
+  DISCART(Type.ARTWORK, "mediafiletype.disc");
 
-
-
-  private Type                        type;
-  private String                      description;
-  private String                      tooltip;
+  private final Type   type;
+  private final String description;
+  private final String tooltip;
 
   MovieSetScraperMetadataConfig(Type type) {
     this(type, null, null);

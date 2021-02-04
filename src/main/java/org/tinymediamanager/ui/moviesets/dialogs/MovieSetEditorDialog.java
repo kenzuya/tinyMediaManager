@@ -318,6 +318,7 @@ public class MovieSetEditorDialog extends TmmDialog {
                   movieList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
+              updateArtworkUrl(lblClearlogo, tfClearLogo);
             }
           });
           lblClearlogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

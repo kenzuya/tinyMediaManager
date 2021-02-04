@@ -24,6 +24,9 @@ import javax.swing.JOptionPane;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -35,7 +38,6 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Manuel Laggner
  */
 public class MovieSetCleanupArtworkAction extends TmmAction {
-
 
   public MovieSetCleanupArtworkAction() {
     putValue(NAME, TmmResourceBundle.getString("movieset.cleanupartwork"));
@@ -53,8 +55,22 @@ public class MovieSetCleanupArtworkAction extends TmmAction {
       return;
     }
 
-    for (MovieSet movieSet : selectedMovieSets) {
-      MovieSetArtworkHelper.cleanupArtwork(movieSet);
-    }
+    TmmTaskManager.getInstance()
+        .addUnnamedTask(
+            new TmmTask(TmmResourceBundle.getString("movieset.cleanupartwork"), selectedMovieSets.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+
+              @Override
+              protected void doInBackground() {
+                int i = 0;
+                for (MovieSet movieSet : selectedMovieSets) {
+                  MovieSetArtworkHelper.cleanupArtwork(movieSet);
+                  publishState(++i);
+                  if (cancel) {
+                    break;
+                  }
+                }
+
+              }
+            });
   }
 }

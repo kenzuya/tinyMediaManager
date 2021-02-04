@@ -40,6 +40,7 @@ Version 4.1
 + reworked visualization of ratings
 + added original title column for tvshows / episodes
 + added possibility to play the trailer url in the editor (Movie and TvShow)
++ added option to manual choose artwork in the movie set chooser (as for movies)
 x separated country setting for certifications and release date
 x rewritten Trakt.tv integration to be more flexible and ready for multiple versions of the same movie/episode #1031 #1081
 x exchanged native file dialogs with tiny file dialogs
