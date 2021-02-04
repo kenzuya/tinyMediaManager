@@ -1360,7 +1360,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     // re-write NFO since we might have new mediainfo data
-    if (mediaFile.getType() == MediaFileType.VIDEO) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && getHasNfoFile()) {
       writeNFO();
     }
   }
