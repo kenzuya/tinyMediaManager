@@ -436,39 +436,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    */
   @Override
   public MediaRating getRating() {
-    MediaRating mediaRating = null;
-
-    // the user rating
-    if (TvShowModuleManager.SETTINGS.getPreferPersonalRating()) {
-      mediaRating = ratings.get(MediaRating.USER);
-    }
-
-    // the default rating
-    if (mediaRating == null) {
-      mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
-    }
-
-    // then the default one (either NFO or DEFAULT)
-    if (mediaRating == null) {
-      mediaRating = super.getRating();
-    }
-
-    return mediaRating;
-  }
-
-  /**
-   * get the user rating
-   * 
-   * @return user rating object
-   */
-  public MediaRating getUserRating() {
-    MediaRating mediaRating;
-
-    mediaRating = ratings.get(MediaRating.USER);
+    MediaRating mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
 
     if (mediaRating == null) {
       mediaRating = MediaMetadata.EMPTY_RATING;
     }
+
     return mediaRating;
   }
 

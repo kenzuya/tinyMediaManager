@@ -92,10 +92,42 @@ public class RatingPanel extends JPanel {
       add(new RatingContainer(rating));
     }
 
+    // 6. tvdb rating
+    rating = ratings.get(MediaMetadata.TVDB);
+    if (rating != null) {
+      addedRatings.add(rating);
+      add(new RatingContainer(rating));
+    }
+
+    // 7. trakt.tv rating
+    rating = ratings.get(MediaMetadata.TRAKT_TV);
+    if (rating != null) {
+      addedRatings.add(rating);
+      add(new RatingContainer(rating));
+    }
+
     // 6. the custom rating (if it has not been added yet)
     rating = ratings.get("custom");
     if (rating != null && !addedRatings.contains(rating)) {
+      addedRatings.add(rating);
       add(new RatingContainer(rating));
+    }
+
+    // 7. last but not least NFO/Default if none has been added yet
+    if (addedRatings.isEmpty()) {
+      rating = ratings.get(MediaRating.DEFAULT);
+      if (rating == null) {
+        ratings.get(MediaRating.NFO);
+      }
+      if (rating != null) {
+        addedRatings.add(rating);
+        add(new RatingContainer(rating));
+      }
+    }
+
+    // 8. no one added yet? just add the empty rating logo
+    if (addedRatings.isEmpty()) {
+      add(new RatingContainer(MediaMetadata.EMPTY_RATING));
     }
 
     invalidate();
@@ -132,10 +164,25 @@ public class RatingPanel extends JPanel {
           text = new JLabel(String.format("%.0f", rating.getRating()));
           break;
 
+        case MediaMetadata.TVDB:
+          logo = new JLabel(IconManager.RATING_THETVDB);
+          text = new JLabel(String.format("%.1f", rating.getRating()));
+          break;
+
+        case MediaMetadata.TRAKT_TV:
+          logo = new JLabel(IconManager.RATING_TRAKTTV);
+          text = new JLabel(String.format("%.1f", rating.getRating()));
+          break;
+
         case MediaRating.DEFAULT:
         case MediaRating.NFO:
           logo = new JLabel(IconManager.RATING_NEUTRAL);
           text = new JLabel(String.format("%.1f", rating.getRating()));
+          break;
+
+        case "": // empty rating
+          logo = new JLabel(IconManager.RATING_EMTPY);
+          text = new JLabel("?");
           break;
       }
 
@@ -176,6 +223,22 @@ public class RatingPanel extends JPanel {
         case "metascore":
           tooltipText += "Metascore: ";
           break;
+
+        case MediaMetadata.TVDB:
+          tooltipText += "TheTVDB: ";
+          break;
+
+        case MediaMetadata.TRAKT_TV:
+          tooltipText += "Trakt.tv: ";
+          break;
+
+        case "": // empty rating
+          tooltipText += TmmResourceBundle.getString("rating.empty");
+          break;
+      }
+
+      if (rating == MediaMetadata.EMPTY_RATING) {
+        return tooltipText;
       }
 
       if (rating.getVotes() > 1) {

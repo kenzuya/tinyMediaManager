@@ -28,6 +28,7 @@ import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Box;
@@ -54,6 +55,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -61,12 +63,12 @@ import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
+import org.tinymediamanager.ui.panels.RatingPanel;
 import org.tinymediamanager.ui.tvshows.TvShowOtherIdsConverter;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 
@@ -78,43 +80,41 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowInformationPanel extends JPanel {
-  private static final long           serialVersionUID = 1911808562993073590L;
+  private static final long                  serialVersionUID      = 1911808562993073590L;
 
+  private static final Logger                LOGGER                = LoggerFactory.getLogger(TvShowInformationPanel.class);
 
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowInformationPanel.class);
-
-  private final TvShowSelectionModel  tvShowSelectionModel;
+  private final TvShowSelectionModel         tvShowSelectionModel;
   private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
 
-  private JTextArea                   taGenres;
-  private JLabel                      lblCertification;
-  private LinkLabel                   lblThetvdbId;
-  private LinkLabel                   lblImdbId;
-  private LinkLabel                   lblTmdbId;
-  private LinkLabel                   lblPath;
-  private JLabel                      lblPremiered;
-  private JTextArea                   taStudio;
-  private JLabel                      lblStatus;
-  private JLabel                      lblYear;
-  private JTextArea                   taTags;
-  private JTextArea                   taOtherIds;
-  private JLabel                      lblCountry;
-  private JLabel                      lblRuntime;
-  private JTextArea                   taNote;
-  private StarRater                   panelRatingStars;
-  private JLabel                      lblTvShowName;
-  private JLabel                      lblRating;
-  private ImageLabel                  lblTvShowBackground;
-  private JLabel                      lblFanartSize;
-  private ImageLabel                  lblTvShowPoster;
-  private JLabel                      lblPosterSize;
-  private ImageLabel                  lblTvShowBanner;
-  private JLabel                      lblBannerSize;
-  private JTextArea                   taOverview;
-  private MediaInformationLogosPanel  panelLogos;
-  private JLabel                      lblOriginalTitle;
-  private JScrollPane                 scrollPane;
-  private JLabel                      lblCertificationLogo;
+  private JTextArea                          taGenres;
+  private JLabel                             lblCertification;
+  private LinkLabel                          lblThetvdbId;
+  private LinkLabel                          lblImdbId;
+  private LinkLabel                          lblTmdbId;
+  private LinkLabel                          lblPath;
+  private JLabel                             lblPremiered;
+  private JTextArea                          taStudio;
+  private JLabel                             lblStatus;
+  private JLabel                             lblYear;
+  private JTextArea                          taTags;
+  private JTextArea                          taOtherIds;
+  private JLabel                             lblCountry;
+  private JLabel                             lblRuntime;
+  private JTextArea                          taNote;
+  private JLabel                             lblTvShowName;
+  private ImageLabel                         lblTvShowBackground;
+  private JLabel                             lblFanartSize;
+  private ImageLabel                         lblTvShowPoster;
+  private JLabel                             lblPosterSize;
+  private ImageLabel                         lblTvShowBanner;
+  private JLabel                             lblBannerSize;
+  private JTextArea                          taOverview;
+  private MediaInformationLogosPanel         panelLogos;
+  private JLabel                             lblOriginalTitle;
+  private JScrollPane                        scrollPane;
+  private JLabel                             lblCertificationLogo;
+  private RatingPanel                        ratingPanel;
 
   /**
    * Instantiates a new tv show information panel.
@@ -380,12 +380,8 @@ public class TvShowInformationPanel extends JPanel {
         panelRight.add(new JSeparator(), "cell 0 1,growx");
       }
       {
-        panelRatingStars = new StarRater(10, 1);
-        panelRight.add(panelRatingStars, "flowx,cell 0 2,aligny center");
-        panelRatingStars.setEnabled(false);
-
-        lblRating = new JLabel("");
-        panelRight.add(lblRating, "cell 0 2,aligny center");
+        ratingPanel = new RatingPanel();
+        panelRight.add(ratingPanel, "flowx,cell 0 2,aligny center");
       }
       {
         JSeparator sepLogos = new JSeparator();
@@ -476,16 +472,13 @@ public class TvShowInformationPanel extends JPanel {
   }
 
   private void setRating(TvShow tvShow) {
-    MediaRating rating = tvShow.getRating();
+    Map<String, MediaRating> ratings = new HashMap<>(tvShow.getRatings());
+    MediaRating customRating = tvShow.getRating();
+    if (customRating != MediaMetadata.EMPTY_RATING) {
+      ratings.put("custom", customRating);
+    }
 
-    if (rating == null) {
-      panelRatingStars.setRating(0);
-      lblRating.setText("");
-    }
-    else {
-      panelRatingStars.setRating(rating.getRatingNormalized());
-      lblRating.setText(ratingRatingConverter.convertForward(rating));
-    }
+    ratingPanel.setRatings(ratings);
   }
 
   protected void initDataBindings() {
