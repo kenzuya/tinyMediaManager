@@ -152,7 +152,7 @@ deploy:PRE-RELEASE:
     paths:
       - build/
       - dist/
-    expire_in: 1 month
+    expire_in: never
 
 deploy:RELEASE:
   stage: deploy
