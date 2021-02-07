@@ -117,7 +117,7 @@ public class RatingPanel extends JPanel {
     if (addedRatings.isEmpty()) {
       rating = ratings.get(MediaRating.DEFAULT);
       if (rating == null) {
-        ratings.get(MediaRating.NFO);
+        rating = ratings.get(MediaRating.NFO);
       }
       if (rating != null) {
         addedRatings.add(rating);
