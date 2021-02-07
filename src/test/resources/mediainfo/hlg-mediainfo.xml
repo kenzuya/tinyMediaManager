@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2012 - 2020 Manuel Laggner
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<MediaInfo
+        xmlns="https://mediaarea.net/mediainfo"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+        version="2.0">
+    <creatingLibrary version="20.09" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="/home/manuel/Downloads/LG Cymatic Jazz 4K Demo.ts">
+        <track type="General">
+            <ID>1049</ID>
+            <VideoCount>1</VideoCount>
+            <AudioCount>1</AudioCount>
+            <FileExtension>ts</FileExtension>
+            <Format>MPEG-TS</Format>
+            <FileSize>774133052</FileSize>
+            <Duration>297.432307444</Duration>
+            <OverallBitRate_Mode>VBR</OverallBitRate_Mode>
+            <OverallBitRate>20821736</OverallBitRate>
+            <FrameRate>59.940</FrameRate>
+            <FrameCount>3692076</FrameCount>
+            <File_Modified_Date>UTC 2017-06-11 13:54:22</File_Modified_Date>
+            <File_Modified_Date_Local>2017-06-11 15:54:22</File_Modified_Date_Local>
+            <extra>
+                <OverallBitRate_Precision_Min>20821701</OverallBitRate_Precision_Min>
+                <OverallBitRate_Precision_Max>20821771</OverallBitRate_Precision_Max>
+            </extra>
+        </track>
+        <track type="Video">
+            <StreamOrder>0-0</StreamOrder>
+            <ID>33</ID>
+            <MenuID>301</MenuID>
+            <Format>HEVC</Format>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5.1</Format_Level>
+            <Format_Tier>Main</Format_Tier>
+            <CodecID>36</CodecID>
+            <Duration>61596.191</Duration>
+            <Width>3840</Width>
+            <Height>2160</Height>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>2160</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <FrameRate>59.940</FrameRate>
+            <FrameCount>3692076</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_Position>Type 2</ChromaSubsampling_Position>
+            <BitDepth>10</BitDepth>
+            <Delay>61298.775700000</Delay>
+            <Encoded_Library>ATEME Titan File 3.7.7 (4.7.7.1)</Encoded_Library>
+            <Encoded_Library_Name>ATEME Titan File</Encoded_Library_Name>
+            <Encoded_Library_Version>3.7.7 (4.7.7.1)</Encoded_Library_Version>
+            <colour_description_present>Yes</colour_description_present>
+            <colour_description_present_Source>Stream</colour_description_present_Source>
+            <colour_range>Limited</colour_range>
+            <colour_range_Source>Stream</colour_range_Source>
+            <colour_primaries>BT.2020</colour_primaries>
+            <colour_primaries_Source>Stream</colour_primaries_Source>
+            <transfer_characteristics>HLG / BT.2020 (10-bit)</transfer_characteristics>
+            <transfer_characteristics_Source>Stream</transfer_characteristics_Source>
+            <matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
+            <matrix_coefficients_Source>Stream</matrix_coefficients_Source>
+            <extra>
+                <SEI_rbsp_stop_one_bit>Missing</SEI_rbsp_stop_one_bit>
+            </extra>
+        </track>
+        <track type="Audio">
+            <StreamOrder>0-1</StreamOrder>
+            <ID>36</ID>
+            <MenuID>301</MenuID>
+            <Format>AAC</Format>
+            <Format_Version>4</Format_Version>
+            <Format_AdditionalFeatures>LC</Format_AdditionalFeatures>
+            <MuxingMode>ADTS</MuxingMode>
+            <CodecID>15-2</CodecID>
+            <Duration>297.378</Duration>
+            <BitRate_Mode>VBR</BitRate_Mode>
+            <Channels>2</Channels>
+            <ChannelPositions>Front: L R</ChannelPositions>
+            <ChannelLayout>L R</ChannelLayout>
+            <SamplesPerFrame>1024</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingCount>14274144</SamplingCount>
+            <FrameRate>46.875</FrameRate>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Delay>61298.740755556</Delay>
+            <Delay_Source>Container</Delay_Source>
+        </track>
+    </media>
+</MediaInfo>

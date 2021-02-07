@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -40,16 +42,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.util.nfd.NativeFileDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.thirdparty.TinyFileDialogs;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
@@ -88,34 +89,13 @@ public class TmmUIHelper {
       }
     }
     else {
-      // try to open with NFD
+      // try to open with tinyfiledialogs
       try {
-
-        PointerBuffer outPath = MemoryUtil.memAllocPointer(1);
-
         // check if the initialPath is accessible
         if (StringUtils.isBlank(initialPath) || !Files.exists(Paths.get(initialPath))) {
           initialPath = System.getProperty("user.home");
         }
-
-        try {
-          int result = NativeFileDialog.NFD_PickFolder(initialPath, outPath);
-          if (result == NativeFileDialog.NFD_OKAY) {
-            Path path = Paths.get(outPath.getStringUTF8());
-            NativeFileDialog.nNFD_Free(outPath.get(0));
-            return path;
-          }
-          else if (result == NativeFileDialog.NFD_CANCEL) {
-            return null;
-          }
-          else {
-            LOGGER.warn("NFD result was ERROR for path {}; trying JFileChooser", initialPath);
-          }
-        }
-        finally {
-          MemoryUtil.memFree(outPath);
-        }
-
+        return new TinyFileDialogs().chooseDirectory(title, Paths.get(initialPath));
       }
       catch (Exception | Error e) {
         LOGGER.error("could not call nfd - {}", e.getMessage());
@@ -202,35 +182,25 @@ public class TmmUIHelper {
       }
     }
     else {
-      // try to open with NFD
       try {
-        PointerBuffer outPath = MemoryUtil.memAllocPointer(1);
-
         // check if the initialPath is accessible
         if (StringUtils.isBlank(initialPath) || !Files.exists(Paths.get(initialPath))) {
           initialPath = System.getProperty("user.home");
         }
 
-        try {
-          String filterList = null;
-          if (filter != null) {
-            filterList = String.join(",", filter.getExtensions());
-            filterList = filterList.replaceAll("\\.", "");
+        String[] filterList = null;
+        String filterDescription = null;
+
+        if (filter != null) {
+          List<String> extensions = new ArrayList<>();
+          filterDescription = filter.getDescription();
+          for (String extension : filter.getExtensions()) {
+            extensions.add("*" + extension);
           }
-          int result = NativeFileDialog.NFD_OpenDialog(filterList, initialPath, outPath);
-          if (result == NativeFileDialog.NFD_OKAY) {
-            Path path = Paths.get(outPath.getStringUTF8());
-            NativeFileDialog.nNFD_Free(outPath.get(0));
-            return path;
-          }
-          else {
-            return null;
-          }
-        }
-        finally {
-          MemoryUtil.memFree(outPath);
+          filterList = extensions.toArray(new String[0]);
         }
 
+        return new TinyFileDialogs().openFile(title, Paths.get(initialPath), filterList, filterDescription);
       }
       catch (Exception | Error e) {
         LOGGER.error("could not call nfd - {}", e.getMessage());
@@ -239,6 +209,18 @@ public class TmmUIHelper {
 
     // open JFileChooser
     return openJFileChooser(JFileChooser.FILES_ONLY, title, initialPath, true, null, filter);
+  }
+
+  public static Path selectApplication(String title, String initialPath) {
+    if (SystemUtils.IS_OS_MAC) {
+      return selectDirectory(title, initialPath);
+    }
+    else if (SystemUtils.IS_OS_WINDOWS) {
+      return selectFile(title, initialPath, new FileNameExtensionFilter(TmmResourceBundle.getString("tmm.executables"), ".exe"));
+    }
+    else {
+      return selectFile(title, initialPath, null);
+    }
   }
 
   private static Path openFileDialog(String title, String initialPath, int mode, String filename) throws Exception, Error {
@@ -276,33 +258,19 @@ public class TmmUIHelper {
     else {
       // try to open with NFD
       try {
-        PointerBuffer outPath = MemoryUtil.memAllocPointer(1);
+        String[] filterList = null;
+        String filterDescription = null;
 
-        // check if the initialPath is accessible
-        if (StringUtils.isBlank(initialPath) || !Files.exists(Paths.get(initialPath))) {
-          initialPath = System.getProperty("user.home");
+        if (filter != null) {
+          List<String> extensions = new ArrayList<>();
+          filterDescription = filter.getDescription();
+          for (String extension : filter.getExtensions()) {
+            extensions.add("*" + extension);
+          }
+          filterList = extensions.toArray(new String[0]);
         }
 
-        try {
-          String filterList = null;
-          if (filter != null) {
-            filterList = String.join(",", filter.getExtensions());
-            filterList = filterList.replaceAll("\\.", "");
-          }
-          int result = NativeFileDialog.NFD_SaveDialog(filterList, initialPath, outPath);
-          if (result == NativeFileDialog.NFD_OKAY) {
-            Path path = Paths.get(outPath.getStringUTF8());
-            NativeFileDialog.nNFD_Free(outPath.get(0));
-            return path;
-          }
-          else {
-            return null;
-          }
-        }
-        finally {
-          MemoryUtil.memFree(outPath);
-        }
-
+        return new TinyFileDialogs().saveFile(title, Paths.get(initialPath, filename), filterList, filterDescription);
       }
       catch (Exception | Error e) {
         LOGGER.error("could not call nfd - {}", e.getMessage());
@@ -501,9 +469,9 @@ public class TmmUIHelper {
   /**
    * Reads from an InputStream and writes the contents directly to an OutputStream
    */
-  private static class StreamRedirectThread implements Runnable {
-    private InputStream  in;
-    private OutputStream out;
+  public static class StreamRedirectThread implements Runnable {
+    private final InputStream  in;
+    private final OutputStream out;
 
     public StreamRedirectThread(InputStream in, OutputStream out) {
       super();
@@ -568,7 +536,7 @@ public class TmmUIHelper {
     }
   }
 
-  public static void checkForUpdate() {
+  public static void checkForUpdate(int delayInSeconds, boolean showNoUpdateFoundMessage) {
     Runnable runnable = () -> {
       try {
         UpdateCheck updateCheck = new UpdateCheck();
@@ -591,9 +559,9 @@ public class TmmUIHelper {
             }
             else {
               // do the update without changelog popup
-              Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-              int answer = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.update.message"), BUNDLE.getString("tmm.update.title"),
-                  JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+              Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+              int answer = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.update.message"),
+                  TmmResourceBundle.getString("tmm.update.title"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
               if (answer == JOptionPane.YES_OPTION) {
                 LOGGER.info("Updating...");
 
@@ -602,7 +570,13 @@ public class TmmUIHelper {
               }
             }
           });
-
+        }
+        else {
+          // no update found
+          if (showNoUpdateFoundMessage) {
+            JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.update.notfound"), TmmResourceBundle.getString("tmm.update.title"),
+                JOptionPane.INFORMATION_MESSAGE);
+          }
         }
       }
       catch (Exception e) {
@@ -610,16 +584,21 @@ public class TmmUIHelper {
       }
     };
 
-    // update task start a few secs after GUI...
-    Timer timer = new Timer(5000, e -> runnable.run());
-    timer.setRepeats(false);
-    timer.start();
+    if (delayInSeconds > 0) {
+      // update task start a few secs after GUI...
+      Timer timer = new Timer(delayInSeconds * 1000, e -> runnable.run());
+      timer.setRepeats(false);
+      timer.start();
+    }
+    else {
+      runnable.run();
+    }
   }
 
   public static void restartWarningAfterV4Upgrade() {
-    Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.upgrade.finished.desc"), BUNDLE.getString("tmm.upgrade.finished"),
-        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+    Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+    int confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.upgrade.finished.desc"),
+        TmmResourceBundle.getString("tmm.upgrade.finished"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (confirm == JOptionPane.YES_OPTION) {
       MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
     }

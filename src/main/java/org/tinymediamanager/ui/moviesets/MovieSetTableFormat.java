@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,16 @@
 package org.tinymediamanager.ui.moviesets;
 
 import java.awt.FontMetrics;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.ResourceBundle;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -31,6 +35,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.treetable.TmmTreeTableFormat;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
+import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
 
 /**
  * The class MovieSetTableFormat is used to define the columns for the movie set tree table
@@ -38,7 +43,6 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   public MovieSetTableFormat() {
     FontMetrics fontMetrics = getFontMetrics();
@@ -84,11 +88,12 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Comparator<String> videoFormatComparator = new VideoFormatComparator();
     Comparator<String> fileSizeComparator = new FileSizeComparator();
     Comparator<ImageIcon> imageComparator = new ImageComparator();
+    Comparator<String> stringComparator = new StringComparator();
 
     /*
      * movie count
      */
-    Column col = new Column(BUNDLE.getString("movieset.moviecount"), "seasons", this::getMovieCount, String.class);
+    Column col = new Column(TmmResourceBundle.getString("movieset.moviecount"), "seasons", this::getMovieCount, String.class);
     col.setHeaderIcon(IconManager.COUNT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f));
@@ -96,9 +101,39 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * year
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
+    col.setColumnComparator(integerComparator);
+    col.setColumnResizeable(false);
+    // col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * file name (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", this::getVideoFilename, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setColumnTooltip(this::getVideoFilename);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * folder name (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.path"), "path", this::getMoviePath, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setColumnResizeable(true);
+    col.setColumnTooltip(this::getMoviePath);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * rating
      */
-    col = new Column(BUNDLE.getString("metatag.rating"), "rating", this::getRating, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", this::getRating, String.class);
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -108,9 +143,57 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * user rating
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", this::getUserRating, String.class);
+    col.setColumnComparator(floatComparator);
+    col.setHeaderIcon(IconManager.RATING);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * votes (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, String.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.VOTES);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("1000000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * runtime (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [min]", "runtime", this::getRuntime, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.MINUTES));
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("200") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * runtime HH:MM (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.runtime") + " [hh:mm]", "runtime2", this::getRuntime, Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.RUNTIME);
+    col.setCellRenderer(new RuntimeTableCellRenderer(RuntimeTableCellRenderer.FORMAT.HOURS_MINUTES));
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("4:00") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * video format
      */
-    col = new Column(BUNDLE.getString("metatag.format"), "format", this::getFormat, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.format"), "format", this::getMediaInfoVideoFormat, String.class);
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
@@ -118,9 +201,39 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * video codec (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", this::getMediaInfoVideoCodec, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setHeaderIcon(IconManager.VIDEO_CODEC);
+    col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * video bitrate (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getMediaInfoVideoBitrate, String.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.VIDEO_BITRATE);
+    col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * audio codec and channels(hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.audio"), "audio", this::getAudioInformation, String.class);
+    col.setColumnComparator(stringComparator);
+    col.setHeaderIcon(IconManager.AUDIO);
+    col.setMinWidth((int) (fontMetrics.stringWidth("DTS 7ch") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * main video file size
      */
-    col = new Column(BUNDLE.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -131,7 +244,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * NFO
      */
-    col = new Column(BUNDLE.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
@@ -140,7 +253,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * images
      */
-    col = new Column(BUNDLE.getString("tmm.images"), "images", this::hasImages, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.images"), "images", this::hasImages, ImageIcon.class);
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
@@ -149,7 +262,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * watched
      */
-    col = new Column(BUNDLE.getString("metatag.watched"), "watched", this::isWatched, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("metatag.watched"), "watched", this::isWatched, ImageIcon.class);
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
@@ -159,7 +272,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   @Override
   public String getColumnName(int i) {
     if (i == NODE_COLUMN) {
-      return BUNDLE.getString("metatag.title");
+      return TmmResourceBundle.getString("metatag.title");
     }
     else {
       return super.getColumnName(i);
@@ -188,17 +301,12 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private String getFormat(TmmTreeNode node) {
-    Object userObject = node.getUserObject();
-    if (userObject instanceof Movie) {
-      return ((Movie) userObject).getMediaInfoVideoFormat();
-    }
-    return null;
-  }
-
   private String getFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof Movie) {
+    if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       long size = 0;
       for (MediaFile mf : ((Movie) userObject).getMediaFiles(MediaFileType.VIDEO)) {
         size += mf.getFilesize();
@@ -211,7 +319,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private ImageIcon hasNfo(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof Movie) {
+    if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       return getCheckIcon(((Movie) userObject).getHasNfoFile());
     }
     return null;
@@ -222,7 +333,10 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     if (userObject instanceof MovieSet) {
       return getCheckIcon(((MovieSet) userObject).getHasImages());
     }
-    if (userObject instanceof Movie) {
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       return getCheckIcon(((Movie) userObject).getHasImages());
     }
     return null;
@@ -233,9 +347,183 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     if (userObject instanceof MovieSet) {
       return getCheckIcon(((MovieSet) userObject).isWatched());
     }
-    if (userObject instanceof Movie) {
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
       return getCheckIcon(((Movie) userObject).isWatched());
     }
+    return null;
+  }
+
+  private Integer getRuntime(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof Movie) {
+      int runtime = ((Movie) userObject).getRuntime();
+
+      if (runtime > 0) {
+        return runtime;
+      }
+    }
+
+    return null;
+  }
+
+  private String getYear(TmmTreeNode node) {
+    Object userobject = node.getUserObject();
+    List<Integer> years = new ArrayList<>();
+
+    if (userobject instanceof MovieSet) {
+      List<Movie> movies = ((MovieSet) userobject).getMovies();
+      for (Movie movie : movies) {
+        years.add(movie.getYear());
+      }
+
+      Collections.sort(years);
+      if (!years.isEmpty() && years.size() >= 2) {
+        if (years.get(0).equals(years.get(years.size() - 1))) {
+          return String.valueOf(years.get(0));
+        }
+        else {
+          return years.get(0) + " - " + (years.get(years.size() - 1));
+        }
+      }
+      else if (years.size() == 1) {
+        return String.valueOf(years.get(0));
+      }
+    }
+
+    if (userobject instanceof Movie) {
+      int year = ((Movie) userobject).getYear();
+
+      if (year > 0) {
+        return String.valueOf(year);
+      }
+    }
+
+    return null;
+  }
+
+  private String getMediaInfoVideoFormat(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      String videoFormat = ((Movie) userObject).getMediaInfoVideoFormat();
+      return videoFormat;
+    }
+
+    return null;
+  }
+
+  private String getMediaInfoVideoCodec(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      String videoCodec = ((Movie) userObject).getMediaInfoVideoCodec();
+      return videoCodec;
+    }
+
+    return null;
+  }
+
+  private String getMediaInfoVideoBitrate(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      return String.valueOf(((Movie) userObject).getMediaInfoVideoBitrate());
+    }
+
+    return null;
+  }
+
+  private String getUserRating(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      MediaRating mediaRating = ((MediaEntity) userObject).getUserRating();
+      if (mediaRating != null && mediaRating.getRating() > 0) {
+        return String.valueOf(mediaRating.getRating());
+      }
+    }
+
+    return null;
+  }
+
+  private String getVotes(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      return String.valueOf(((MediaEntity) userObject).getRating().getVotes());
+    }
+
+    return null;
+  }
+
+  private String getAudioInformation(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      List<MediaFile> videos = ((MediaEntity) userObject).getMediaFiles(MediaFileType.VIDEO);
+      if (!videos.isEmpty()) {
+        MediaFile mediaFile = videos.get(0);
+        if (StringUtils.isNotBlank(mediaFile.getAudioCodec())) {
+          return mediaFile.getAudioCodec() + " " + mediaFile.getAudioChannels();
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private String getMoviePath(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      return ((MediaEntity) userObject).getPathNIO().toString();
+    }
+
+    return null;
+  }
+
+  private String getVideoFilename(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet || userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+
+    if (userObject instanceof Movie) {
+      return ((Movie) userObject).getMainVideoFile().getFilename();
+    }
+
     return null;
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,11 +54,13 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
+import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
@@ -88,18 +90,24 @@ import com.floreysoft.jmte.token.Token;
  * @author Myron Boyle
  */
 public class TvShowRenamer {
-  private static final Logger             LOGGER         = LoggerFactory.getLogger(TvShowRenamer.class);
-  private static final TvShowSettings     SETTINGS       = TvShowModuleManager.SETTINGS;
+  private static final Logger              LOGGER         = LoggerFactory.getLogger(TvShowRenamer.class);
+  private static final TvShowSettings      SETTINGS       = TvShowModuleManager.SETTINGS;
+  private static final Map<String, String> TOKEN_MAP      = createTokenMap();
 
-  private static final String[]           seasonNumbers  = { "seasonNr", "seasonNr2", "seasonNrDvd", "seasonNrDvd2" };
-  private static final String[]           episodeNumbers = { "episodeNr", "episodeNr2", "episodeNrDvd", "episodeNrDvd2" };
-  private static final String[]           episodeTitles  = { "title", "titleSortable" };
-  private static final String[]           showTitles     = { "showTitle", "showTitleSortable" };
+  private static final String[]            seasonNumbers  = { "seasonNr", "seasonNr2", "seasonNrDvd", "seasonNrDvd2", "episode.season",
+      "episode.dvdSeason" };
+  private static final String[]            episodeNumbers = { "episodeNr", "episodeNr2", "episodeNrDvd", "episodeNrDvd2", "episode.episode",
+      "episode.dvdEpisode" };
+  private static final String[]            episodeTitles  = { "title", "originalTitle", "titleSortable", "episode.title", "episode.originalTitle",
+      "episode.titleSortable" };
+  private static final String[]            episodeAired   = { "airedDate", "episode.firstAired" };
 
-  private static final Pattern            epDelimiter    = Pattern.compile("(\\s?(folge|episode|[epx]+)\\s?)\\$\\{.*?\\}", Pattern.CASE_INSENSITIVE);
-  private static final Pattern            seDelimiter    = Pattern.compile("((staffel|season|s)\\s?)\\$\\{.*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern             epDelimiter    = Pattern.compile("(\\s?(folge|episode|[epx]+)\\s?)\\$\\{.*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern             seDelimiter    = Pattern.compile("((staffel|season|s)\\s?)\\$\\{.*?\\}", Pattern.CASE_INSENSITIVE);
 
-  public static final Map<String, String> TOKEN_MAP      = createTokenMap();
+  private TvShowRenamer() {
+    throw new IllegalAccessError();
+  }
 
   /**
    * initialize the token map for the renamer
@@ -161,36 +169,12 @@ public class TvShowRenamer {
   }
 
   /**
-   * morph the given template to the JMTE template
-   *
-   * @param template
-   *          the given template
-   * @return the JMTE compatible template
+   * get the token map in an unmodifiable variant
+   * 
+   * @return the token map
    */
-  static String morphTemplate(String template) {
-    String morphedTemplate = template;
-    // replace normal template entries
-    for (Map.Entry<String, String> entry : TOKEN_MAP.entrySet()) {
-      Pattern pattern = Pattern.compile("\\$\\{" + entry.getKey() + "([^a-zA-Z0-9])", Pattern.CASE_INSENSITIVE);
-      Matcher matcher = pattern.matcher(morphedTemplate);
-      while (matcher.find()) {
-        morphedTemplate = morphedTemplate.replace(matcher.group(), "${" + entry.getValue() + matcher.group(1));
-      }
-    }
-
-    // replace conditional template entries
-    for (Map.Entry<String, String> entry : TOKEN_MAP.entrySet()) {
-      Pattern pattern = Pattern.compile("\\$\\{(.*?)," + entry.getKey() + "([^a-zA-Z0-9])", Pattern.CASE_INSENSITIVE);
-      Matcher matcher = pattern.matcher(morphedTemplate);
-      while (matcher.find()) {
-        morphedTemplate = morphedTemplate.replace(matcher.group(), "${" + matcher.group(1) + "," + entry.getValue() + matcher.group(2));
-      }
-    }
-
-    // last but not least escape single backslashes
-    morphedTemplate = morphedTemplate.replace("\\", "\\\\");
-
-    return morphedTemplate;
+  public static Map<String, String> getTokenMap() {
+    return Collections.unmodifiableMap(TOKEN_MAP);
   }
 
   /**
@@ -677,6 +661,9 @@ public class TvShowRenamer {
       renameEpisodeAsDisc(episode);
       return;
     }
+
+    // make sure we have actual stacking markers
+    episode.reEvaluateStacking();
 
     // all the good & needed mediafiles
     List<MediaFile> needed = new ArrayList<>();
@@ -1381,6 +1368,8 @@ public class TvShowRenamer {
       engine.registerNamedRenderer(new TvShowNamedFirstCharacterRenderer());
       engine.registerNamedRenderer(new NamedArrayRenderer());
       engine.registerNamedRenderer(new NamedFilesizeRenderer());
+      engine.registerNamedRenderer(new NamedReplacementRenderer());
+
       engine.setModelAdaptor(new TvShowRenamerModelAdaptor());
       Map<String, Object> root = new HashMap<>();
       if (episode != null) {
@@ -1388,7 +1377,7 @@ public class TvShowRenamer {
         root.put("season", episode.getTvShowSeason());
       }
       root.put("tvShow", show);
-      return engine.transform(morphTemplate(token), root);
+      return engine.transform(JmteUtils.morphTemplate(token, TOKEN_MAP), root);
     }
     catch (Exception e) {
       LOGGER.warn("unable to process token: {}", token);
@@ -1477,7 +1466,7 @@ public class TvShowRenamer {
         }
         else {
           // no season info found? search for the token itself
-          Pattern pattern = Pattern.compile("\\$\\{" + seasonToken + ".*?\\}");
+          Pattern pattern = Pattern.compile("\\$\\{" + Pattern.quote(seasonToken) + ".*?\\}");
           matcher = pattern.matcher(newDestination);
           if (matcher.find()) {
             seasonPart = matcher.group(0);
@@ -1495,7 +1484,7 @@ public class TvShowRenamer {
         }
         else {
           // no episode info found? search for the token itself
-          Pattern pattern = Pattern.compile("\\$\\{" + episodeToken + ".*?\\}");
+          Pattern pattern = Pattern.compile("\\$\\{" + Pattern.quote(episodeToken) + ".*?\\}");
           matcher = pattern.matcher(newDestination);
           if (matcher.find()) {
             episodePart = matcher.group(0);
@@ -1514,7 +1503,7 @@ public class TvShowRenamer {
       }
 
       // replace original pattern, with our combined
-      if (!loopNumbers.isEmpty()) {
+      if (StringUtils.isNotBlank(loopNumbers)) {
         newDestination = newDestination.replace(loopNumbers, episodeParts.toString());
       }
 
@@ -1524,28 +1513,60 @@ public class TvShowRenamer {
       String loopTitles = "";
       String titleToken = getTokenFromTemplate(template, episodeTitles);
       if (StringUtils.isNotBlank(titleToken)) {
-        Pattern pattern = Pattern.compile("\\$\\{" + titleToken + ".*?\\}", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\$\\{" + Pattern.quote(titleToken) + ".*?\\}", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(template);
         if (matcher.find()) {
           loopTitles += matcher.group(0);
         }
       }
+
       loopTitles = loopTitles.trim();
 
       // foreach episode, replace and append pattern:
-      episodeParts = new StringBuilder();
-      for (TvShowEpisode episode : episodes) {
-        String episodePart = getTokenValue(episode.getTvShow(), episode, loopTitles);
-
-        // separate multiple titles via -
-        if (StringUtils.isNotBlank(episodeParts.toString())) {
-          episodeParts.append(" -");
-        }
-        episodeParts.append(" ").append(episodePart);
-      }
-      // replace original pattern, with our combined
       if (StringUtils.isNotBlank(loopTitles)) {
+        episodeParts = new StringBuilder();
+        for (TvShowEpisode episode : episodes) {
+          String episodePart = getTokenValue(episode.getTvShow(), episode, loopTitles);
+
+          // separate multiple titles via -
+          if (StringUtils.isNotBlank(episodeParts.toString())) {
+            episodeParts.append(" -");
+          }
+          episodeParts.append(" ").append(episodePart);
+        }
+
         newDestination = newDestination.replace(loopTitles, episodeParts.toString());
+      }
+
+      // *******************
+      // LOOP 3 - aired
+      // *******************
+      String loopAired = "";
+      String airedToken = getTokenFromTemplate(template, episodeAired);
+      if (StringUtils.isNotBlank(airedToken)) {
+        Pattern pattern = Pattern.compile("\\$\\{" + Pattern.quote(airedToken) + ".*?\\}", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(template);
+        if (matcher.find()) {
+          loopAired += matcher.group(0);
+        }
+      }
+
+      loopAired = loopAired.trim();
+
+      // foreach episode, replace and append pattern:
+      if (StringUtils.isNotBlank(loopAired)) {
+        episodeParts = new StringBuilder();
+        for (TvShowEpisode episode : episodes) {
+          String episodePart = getTokenValue(episode.getTvShow(), episode, loopAired);
+
+          // separate multiple titles via -
+          if (StringUtils.isNotBlank(episodeParts.toString())) {
+            episodeParts.append(" -");
+          }
+          episodeParts.append(" ").append(episodePart);
+        }
+
+        newDestination = newDestination.replace(loopAired, episodeParts.toString());
       }
 
       newDestination = getTokenValue(firstEp.getTvShow(), firstEp, newDestination);
@@ -1727,13 +1748,13 @@ public class TvShowRenamer {
   }
 
   private static boolean containsToken(String template, String token) {
-    Pattern pattern = Pattern.compile("\\$\\{" + token + "[\\};]");
+    Pattern pattern = Pattern.compile("\\$\\{" + token + "[\\[\\};]");
     Matcher matcher = pattern.matcher(template);
     return matcher.find();
   }
 
   private static String getArtworkExtension(MediaFile mf) {
-    String ext = mf.getExtension().replaceAll("jpeg", "jpg"); // we only have one constant and only write jpg
+    String ext = mf.getExtension().replace("jpeg", "jpg"); // we only have one constant and only write jpg
     if (ext.equalsIgnoreCase("tbn")) {
       String cont = mf.getContainerFormat();
       if (cont.equalsIgnoreCase("PNG")) {
@@ -1766,7 +1787,7 @@ public class TvShowRenamer {
         return true;
       }
       else {
-        LOGGER.error("Could not move MF '" + oldFilename + "' to '" + newFilename + "'");
+        LOGGER.error("Could not move MF '{}' to '{}'", oldFilename, newFilename);
         return false; // rename failed
       }
     }
@@ -1837,11 +1858,11 @@ public class TvShowRenamer {
     String result = source;
 
     if ("-".equals(TvShowModuleManager.SETTINGS.getRenamerColonReplacement())) {
-      result = result.replaceAll(": ", " - "); // nicer
-      result = result.replaceAll(":", "-"); // nicer
+      result = result.replace(": ", " - "); // nicer
+      result = result.replace(":", "-"); // nicer
     }
     else {
-      result = result.replaceAll(":", TvShowModuleManager.SETTINGS.getRenamerColonReplacement());
+      result = result.replace(":", TvShowModuleManager.SETTINGS.getRenamerColonReplacement());
     }
 
     return result.replaceAll("([\":<>|?*])", "");

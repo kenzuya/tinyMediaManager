@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -62,9 +62,9 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @author Manuel Laggner
  */
 public class MovieChooserModel extends AbstractModelObject {
-  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieChooserModel.class);
-  public static final MovieChooserModel emptyResult = new MovieChooserModel();
+
+  private static final Logger           LOGGER           = LoggerFactory.getLogger(MovieChooserModel.class);
+  public static final MovieChooserModel emptyResult      = new MovieChooserModel();
 
   private final Movie                   movieToScrape;
   private MediaScraper                  metadataProvider = null;
@@ -83,7 +83,7 @@ public class MovieChooserModel extends AbstractModelObject {
   private String                        combinedName     = "";
   private String                        posterUrl        = "";
   private String                        tagline          = "";
-  private List<Person>                  castMembers      = new ArrayList<>();
+  private final List<Person>            castMembers      = new ArrayList<>();
   private boolean                       scraped          = false;
 
   public MovieChooserModel(Movie movie, MediaScraper metadataProvider, List<MediaScraper> artworkScrapers, List<MediaScraper> trailerScrapers,
@@ -108,7 +108,7 @@ public class MovieChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private MovieChooserModel() {
-    setTitle(BUNDLE.getString("chooser.nothingfound"));
+    setTitle(TmmResourceBundle.getString("chooser.nothingfound"));
     movieToScrape = null;
     combinedName = title;
   }
@@ -193,6 +193,14 @@ public class MovieChooserModel extends AbstractModelObject {
     return combinedName;
   }
 
+  public MediaScraper getMetadataProvider() {
+    return metadataProvider;
+  }
+
+  public MediaLanguages getLanguage() {
+    return language;
+  }
+
   /**
    * Scrape meta data.
    */
@@ -205,6 +213,7 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setSearchResult(result);
       options.setLanguage(language);
       options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+      options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");
@@ -215,15 +224,15 @@ public class MovieChooserModel extends AbstractModelObject {
       try {
         metadata = ((IMovieMetadataProvider) metadataProvider.getMediaProvider()).getMetadata(options);
       }
+      catch (MissingIdException e) {
+        LOGGER.warn("missing id for scrape");
+        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "MovieChooser", "scraper.error.missingid"));
+        return;
+      }
       catch (ScrapeException e) {
         LOGGER.error("searchMovieFallback", e);
         MessageManager.instance.pushMessage(
             new Message(MessageLevel.ERROR, "MovieChooser", "message.scrape.metadatamoviefailed", new String[] { ":", e.getLocalizedMessage() }));
-        return;
-      }
-      catch (MissingIdException e) {
-        LOGGER.warn("missing id for scrape");
-        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "MovieChooser", "scraper.error.missingid"));
         return;
       }
 
@@ -325,7 +334,7 @@ public class MovieChooserModel extends AbstractModelObject {
     private List<MovieScraperMetadataConfig> config;
 
     public ArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config) {
-      super(BUNDLE.getString("message.scrape.artwork") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.artwork") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieToScrape = movie;
       this.config = config;
     }
@@ -342,6 +351,7 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setArtworkType(MediaArtworkType.ALL);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
+      options.setId("mediaFile", movieToScrape.getMainFile());
       options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
       options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
@@ -352,13 +362,13 @@ public class MovieChooserModel extends AbstractModelObject {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException e) {
+          LOGGER.debug("no id found for scraper {}", artworkScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, movieToScrape, "message.scrape.movieartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException e) {
-          LOGGER.debug("no id found for scraper {}", artworkScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 
@@ -379,7 +389,7 @@ public class MovieChooserModel extends AbstractModelObject {
     private Movie movieToScrape;
 
     public TrailerScrapeTask(Movie movie) {
-      super(BUNDLE.getString("message.scrape.trailer") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.trailer") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieToScrape = movie;
     }
 
@@ -402,13 +412,13 @@ public class MovieChooserModel extends AbstractModelObject {
           IMovieTrailerProvider trailerProvider = (IMovieTrailerProvider) trailerScraper.getMediaProvider();
           trailer.addAll(trailerProvider.getTrailers(options));
         }
+        catch (MissingIdException ignored) {
+          LOGGER.debug("no id found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getTrailers {}", e.getMessage());
           MessageManager.instance.pushMessage(
-                  new Message(MessageLevel.ERROR, "MovieChooser", "message.scrape.trailerfailed", new String[]{":", e.getLocalizedMessage()}));
-        }
-        catch (MissingIdException ignored) {
-          LOGGER.debug("no id found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+              new Message(MessageLevel.ERROR, "MovieChooser", "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
         }
       }
 

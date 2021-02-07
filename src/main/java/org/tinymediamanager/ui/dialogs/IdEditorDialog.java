@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.ui.components.MediaIdTable;
@@ -70,14 +71,14 @@ public class IdEditorDialog extends TmmDialog {
       getContentPane().add(panelContent, BorderLayout.CENTER);
       panelContent.setLayout(new MigLayout("", "[][100lp:n,grow]", "[][]"));
       {
-        JLabel lblProviderIdT = new JLabel(BUNDLE.getString("metatag.id.source"));
+        JLabel lblProviderIdT = new JLabel(TmmResourceBundle.getString("metatag.id.source"));
         panelContent.add(lblProviderIdT, "cell 0 0,alignx trailing");
 
         cbProviderId = new AutocompleteComboBox(providerIds);
         panelContent.add(cbProviderId, "cell 1 0,growx");
       }
       {
-        JLabel lblIdT = new JLabel(BUNDLE.getString("metatag.id"));
+        JLabel lblIdT = new JLabel(TmmResourceBundle.getString("metatag.id"));
         panelContent.add(lblIdT, "cell 0 1,alignx trailing");
 
         tfId = new JTextField();
@@ -87,14 +88,14 @@ public class IdEditorDialog extends TmmDialog {
     }
     {
       {
-        JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+        JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
         btnCancel.addActionListener(e -> setVisible(false));
         addButton(btnCancel);
 
-        JButton btnOk = new JButton(BUNDLE.getString("Button.save"));
+        JButton btnOk = new JButton(TmmResourceBundle.getString("Button.save"));
         btnOk.addActionListener(e -> {
           if (StringUtils.isAnyBlank(tfId.getText(), (String) cbProviderId.getSelectedItem())) {
-            JOptionPane.showMessageDialog(IdEditorDialog.this, BUNDLE.getString("id.empty"));
+            JOptionPane.showMessageDialog(IdEditorDialog.this, TmmResourceBundle.getString("id.empty"));
             return;
           }
 

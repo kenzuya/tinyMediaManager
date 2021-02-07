@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@ package org.tinymediamanager.cli;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ExportTemplate;
@@ -44,6 +47,8 @@ import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowSubtitleSearchAndDownloadTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
+import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.util.ListUtils;
 
@@ -209,21 +214,39 @@ class TvShowCommand implements Runnable {
     }
 
     if (!episodesToScrape.isEmpty()) {
-      TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
-      options.loadDefaults();
+      // re-group the episodes. If there is a "last used" scraper set for the show also take this into account for the episode
+      Map<TvShow, List<TvShowEpisode>> newEpisodes = new HashMap<>();
+      for (TvShowEpisode episode : episodesToScrape) {
+        List<TvShowEpisode> episodes = newEpisodes.computeIfAbsent(episode.getTvShow(), k -> new ArrayList<>());
+        episodes.add(episode);
+      }
 
-      List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.SETTINGS.getEpisodeScraperMetadataConfig();
+      // scrape new episodes
+      for (Map.Entry<TvShow, List<TvShowEpisode>> entry : newEpisodes.entrySet()) {
+        TvShow tvShow = entry.getKey();
 
-      Runnable task = new TvShowEpisodeScrapeTask(episodesToScrape, options, episodeScraperMetadataConfig);
-      task.run(); // blocking
+        TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
+        options.loadDefaults();
 
-      // wait for other tmm threads (artwork download et all)
-      while (TmmTaskManager.getInstance().poolRunning()) {
-        try {
-          Thread.sleep(2000);
+        // so for the known ones, we can directly start scraping
+        if (StringUtils.isNoneBlank(tvShow.getLastScraperId(), tvShow.getLastScrapeLanguage())) {
+          options.setMetadataScraper(MediaScraper.getMediaScraperById(tvShow.getLastScraperId(), ScraperType.TV_SHOW));
+          options.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
         }
-        catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
+
+        List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.SETTINGS.getEpisodeScraperMetadataConfig();
+
+        Runnable task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig);
+        task.run(); // blocking
+
+        // wait for other tmm threads (artwork download et all)
+        while (TmmTaskManager.getInstance().poolRunning()) {
+          try {
+            Thread.sleep(2000);
+          }
+          catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
         }
       }
     }

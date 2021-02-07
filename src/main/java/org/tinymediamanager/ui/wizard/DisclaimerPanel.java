@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.wizard;
 
 import java.awt.Font;
-import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -25,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
@@ -38,8 +38,8 @@ import net.miginfocom.swing.MigLayout;
  */
 class DisclaimerPanel extends JPanel {
   private static final long            serialVersionUID = -4743134514329815273L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle  BUNDLE           = ResourceBundle.getBundle("messages");
+
+
 
   private final TinyMediaManagerWizard wizard;
 
@@ -56,7 +56,7 @@ class DisclaimerPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[400lp:400lp,grow]", "[][150lp:200lp,grow][]"));
     {
-      JLabel lblDisclaimer = new JLabel(BUNDLE.getString("wizard.disclaimer"));
+      JLabel lblDisclaimer = new JLabel(TmmResourceBundle.getString("wizard.disclaimer"));
       TmmFontHelper.changeFont(lblDisclaimer, 1.3333, Font.BOLD);
       add(lblDisclaimer, "cell 0 0,growx");
     }
@@ -65,11 +65,11 @@ class DisclaimerPanel extends JPanel {
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
       add(scrollPane, "cell 0 1,grow");
 
-      JTextArea taDisclaimer = new ReadOnlyTextArea(BUNDLE.getString("wizard.disclaimer.long"));
+      JTextArea taDisclaimer = new ReadOnlyTextArea(TmmResourceBundle.getString("wizard.disclaimer.long"));
       scrollPane.setViewportView(taDisclaimer);
     }
 
-    chckbxAccept = new JCheckBox(BUNDLE.getString("wizard.disclaimer.accept"));
+    chckbxAccept = new JCheckBox(TmmResourceBundle.getString("wizard.disclaimer.accept"));
     chckbxAccept.addActionListener(l -> {
       if (chckbxAccept.isSelected()) {
         wizard.getBtnNext().setEnabled(true);

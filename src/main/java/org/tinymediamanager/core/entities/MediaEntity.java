@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.PRODUCTION_COMPANY;
 import static org.tinymediamanager.core.Constants.RATING;
 import static org.tinymediamanager.core.Constants.SCRAPED;
+import static org.tinymediamanager.core.Constants.TAGS;
+import static org.tinymediamanager.core.Constants.TAGS_AS_STRING;
 import static org.tinymediamanager.core.Constants.THUMB;
 import static org.tinymediamanager.core.Constants.TITLE;
 import static org.tinymediamanager.core.Constants.YEAR;
@@ -46,16 +48,21 @@ import java.awt.Dimension;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -69,13 +76,16 @@ import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
  * The Class MediaEntity. The base class for all entities
@@ -83,49 +93,55 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Manuel Laggner
  */
 public abstract class MediaEntity extends AbstractModelObject {
-  private static final Logger          LOGGER            = LoggerFactory.getLogger(MediaEntity.class);
+  private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
   /** The id for the database. */
-  protected UUID                       dbId              = UUID.randomUUID();
+  protected UUID                       dbId               = UUID.randomUUID();
 
   @JsonProperty
-  protected String                     dataSource        = "";
+  protected String                     dataSource         = "";
 
   /** The ids to store the ID from several metadataproviders. */
   @JsonProperty
-  protected Map<String, Object>        ids               = new ConcurrentHashMap<>(0);
+  protected Map<String, Object>        ids                = new ConcurrentHashMap<>(0);
 
   @JsonProperty
-  protected String                     title             = "";
+  protected String                     title              = "";
   @JsonProperty
-  protected String                     originalTitle     = "";
+  protected String                     originalTitle      = "";
   @JsonProperty
-  protected int                        year              = 0;
+  protected int                        year               = 0;
   @JsonProperty
-  protected String                     plot              = "";
+  protected String                     plot               = "";
   @JsonProperty
-  protected String                     path              = "";
+  protected String                     path               = "";
   @JsonProperty
-  protected Date                       dateAdded         = new Date();
+  protected Date                       dateAdded          = new Date();
   @JsonProperty
-  protected String                     productionCompany = "";
+  protected String                     productionCompany  = "";
   @JsonProperty
-  protected boolean                    scraped           = false;
+  protected boolean                    scraped            = false;
   @JsonProperty
-  protected String                     note              = "";
+  protected String                     note               = "";
 
   @JsonProperty
-  protected Map<String, MediaRating>   ratings           = new ConcurrentHashMap<>(0);
+  protected Map<String, MediaRating>   ratings            = new ConcurrentHashMap<>(0);
   @JsonProperty
-  private List<MediaFile>              mediaFiles        = new ArrayList<>();
+  private final List<MediaFile>        mediaFiles         = new ArrayList<>();
   @JsonProperty
-  protected Map<MediaFileType, String> artworkUrlMap     = new HashMap<>();
-
-  protected boolean                    newlyAdded        = false;
-  protected boolean                    duplicate         = false;
-  protected ReadWriteLock              readWriteLock     = new ReentrantReadWriteLock();
+  protected final List<String>         tags               = new CopyOnWriteArrayList<>();
+  @JsonProperty
+  protected Map<MediaFileType, String> artworkUrlMap      = new EnumMap<>(MediaFileType.class);
 
   @JsonProperty
-  protected String                     originalFilename  = "";
+  protected String                     originalFilename   = "";
+  @JsonProperty
+  protected String                     lastScraperId      = "";
+  @JsonProperty
+  protected String                     lastScrapeLanguage = "";
+
+  protected boolean                    newlyAdded         = false;
+  protected boolean                    duplicate          = false;
+  protected ReadWriteLock              readWriteLock      = new ReentrantReadWriteLock();
 
   public MediaEntity() {
   }
@@ -171,16 +187,20 @@ public abstract class MediaEntity extends AbstractModelObject {
     setPlot(StringUtils.isEmpty(plot) || force ? other.plot : plot);
     setProductionCompany(StringUtils.isEmpty(productionCompany) || force ? other.productionCompany : productionCompany);
     setOriginalFilename(StringUtils.isEmpty(originalFilename) || force ? other.originalFilename : originalFilename);
+    setLastScraperId(StringUtils.isEmpty(lastScraperId) || force ? other.lastScraperId : lastScraperId);
+    setLastScrapeLanguage(StringUtils.isEmpty(lastScrapeLanguage) || force ? other.lastScrapeLanguage : lastScrapeLanguage);
 
     // when force is set, clear the lists/maps and add all other values
     if (force) {
       ids.clear();
       ratings.clear();
+      tags.clear();
 
       artworkUrlMap.clear();
     }
 
     setRatings(other.ratings);
+    setTags(other.tags);
 
     for (String key : other.getIds().keySet()) {
       if (!ids.containsKey(key)) {
@@ -199,6 +219,9 @@ public abstract class MediaEntity extends AbstractModelObject {
    */
   public void initializeAfterLoading() {
     sortMediaFiles();
+
+    // remove empty tag and null values
+    Utils.removeEmptyStringsFromList(tags);
   }
 
   protected void sortMediaFiles() {
@@ -365,28 +388,17 @@ public abstract class MediaEntity extends AbstractModelObject {
    * 
    * @return the main (preferred) rating
    */
-  public MediaRating getRating() {
+  public abstract MediaRating getRating();
+
+  public MediaRating getUserRating() {
     MediaRating mediaRating = ratings.get(MediaRating.USER);
 
-    // then the default one (either NFO or DEFAULT)
-    if (mediaRating == null) {
-      mediaRating = ratings.get(MediaRating.NFO);
-    }
-    if (mediaRating == null) {
-      mediaRating = ratings.get(MediaRating.DEFAULT);
-    }
-
-    // is there any rating?
-    if (mediaRating == null && !ratings.isEmpty()) {
-      mediaRating = ratings.values().iterator().next();
-    }
-
-    // last but not least a non null value
     if (mediaRating == null) {
       mediaRating = MediaMetadata.EMPTY_RATING;
     }
 
     return mediaRating;
+
   }
 
   public int getYear() {
@@ -491,7 +503,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void setRating(MediaRating mediaRating) {
-    if (mediaRating != null && StringUtils.isNotBlank(mediaRating.getId())) {
+    if (mediaRating != null && StringUtils.isNotBlank(mediaRating.getId()) && mediaRating.getRating() >= 0) {
       ratings.put(mediaRating.getId(), mediaRating);
       firePropertyChange(RATING, null, mediaRating);
     }
@@ -524,6 +536,7 @@ public abstract class MediaEntity extends AbstractModelObject {
           artworkUrlMap.put(type, url);
         }
         break;
+
       default:
         return;
     }
@@ -677,6 +690,26 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public String getNote() {
     return this.note;
+  }
+
+  public String getLastScraperId() {
+    return lastScraperId;
+  }
+
+  public void setLastScraperId(String newValue) {
+    String oldValue = lastScraperId;
+    lastScraperId = newValue;
+    firePropertyChange("lastScraperId", oldValue, newValue);
+  }
+
+  public String getLastScrapeLanguage() {
+    return lastScrapeLanguage;
+  }
+
+  public void setLastScrapeLanguage(String newValue) {
+    String oldValue = lastScrapeLanguage;
+    lastScrapeLanguage = newValue;
+    firePropertyChange("lastScrapeLanguage", oldValue, newValue);
   }
 
   public void setDuplicate() {
@@ -1131,13 +1164,18 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public void cacheImages() {
     // re-build the image cache afterwards in an own thread
-    if (Settings.getInstance().isImageCache()) {
-      List<MediaFile> imageFiles = getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
-      if (!imageFiles.isEmpty()) {
-        ImageCacheTask task = new ImageCacheTask(imageFiles);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
-      }
+    List<MediaFile> imageFiles = getImagesToCache();
+    if (!imageFiles.isEmpty()) {
+      ImageCacheTask task = new ImageCacheTask(imageFiles);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
     }
+  }
+
+  public List<MediaFile> getImagesToCache() {
+    if (!Settings.getInstance().isImageCache()) {
+      return Collections.emptyList();
+    }
+    return getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList());
   }
 
   public void gatherMediaFileInformation(boolean force) {
@@ -1165,15 +1203,104 @@ public abstract class MediaEntity extends AbstractModelObject {
     firePropertyChange(NEWLY_ADDED, oldValue, newValue);
   }
 
+  /**
+   * Adds the given {@link Collection} the to tags.
+   *
+   * @param newTags
+   *          the new tags
+   */
+  public void addToTags(Collection<String> newTags) {
+    Set<String> newItems = new LinkedHashSet<>();
+
+    // do not accept duplicates or empty tags
+    for (String tag : ListUtils.nullSafe(newTags)) {
+      if (StringUtils.isBlank(tag) || tags.contains(tag)) {
+        continue;
+      }
+      newItems.add(tag);
+    }
+
+    if (newItems.isEmpty()) {
+      return;
+    }
+
+    tags.addAll(newItems);
+    firePropertyChange(TAGS, null, tags);
+    firePropertyChange(TAGS_AS_STRING, null, tags);
+  }
+
+  /**
+   * Removes the from tags.
+   *
+   * @param removeTag
+   *          the remove tag
+   */
+  public void removeFromTags(String removeTag) {
+    if (tags.remove(removeTag)) {
+      firePropertyChange(TAGS, null, removeTag);
+      firePropertyChange(TAGS_AS_STRING, null, removeTag);
+    }
+  }
+
+  /**
+   * Sets the tags.
+   *
+   * @param newTags
+   *          the new tags
+   */
+  @JsonSetter
+  public void setTags(List<String> newTags) {
+    // two way sync of tags
+    ListUtils.mergeLists(tags, newTags);
+    Utils.removeEmptyStringsFromList(tags);
+
+    firePropertyChange(TAGS, null, newTags);
+    firePropertyChange(TAGS_AS_STRING, null, newTags);
+  }
+
+  /**
+   * Gets the tag as string.
+   *
+   * @return the tag as string
+   */
+  public String getTagsAsString() {
+    StringBuilder sb = new StringBuilder();
+    for (String tag : tags) {
+      if (!StringUtils.isEmpty(sb)) {
+        sb.append(", ");
+      }
+      sb.append(tag);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Gets the tags.
+   *
+   * @return the tags
+   */
+  public List<String> getTags() {
+    return this.tags;
+  }
+
+  /**
+   * Remove all Tags from List
+   */
+  public void removeAllTags() {
+    tags.clear();
+    firePropertyChange(TAGS, null, tags);
+    firePropertyChange(TAGS_AS_STRING, null, tags);
+  }
+
   public void callbackForGatheredMediainformation(MediaFile mediaFile) {
     // empty - to be used in subclasses
   }
 
-  abstract public void saveToDb();
+  public abstract void saveToDb();
 
-  abstract public void deleteFromDb();
+  public abstract void deleteFromDb();
 
-  abstract public void callbackForWrittenArtwork(MediaArtworkType type);
+  public abstract void callbackForWrittenArtwork(MediaArtworkType type);
 
-  abstract protected Comparator<MediaFile> getMediaFileComparator();
+  protected abstract Comparator<MediaFile> getMediaFileComparator();
 }

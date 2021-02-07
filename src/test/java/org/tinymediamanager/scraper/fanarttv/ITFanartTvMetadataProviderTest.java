@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class ITFanartTvMetadataProviderTest extends BasicTest {
      * Test movie artwork
      */
     try {
-      artworkProvider = new FanartTvMetadataProvider();
+      artworkProvider = new FanartTvMovieArtworkProvider();
 
       ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
       options.setTmdbId(19995);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.ui.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -35,6 +34,7 @@ import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.ui.IconManager;
@@ -53,8 +53,8 @@ import net.miginfocom.swing.MigLayout;
  */
 class SortTitleSettingsPanel extends JPanel {
   private static final long           serialVersionUID = 1857926059556024932L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+
 
   private Settings                    settings         = Settings.getInstance();
 
@@ -93,12 +93,12 @@ class SortTitleSettingsPanel extends JPanel {
     {
       JPanel panelSorttitle = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][100lp][][grow]", "[]"));
 
-      JLabel lblSorttitleT = new TmmLabel(BUNDLE.getString("Settings.sorting"), H3);
+      JLabel lblSorttitleT = new TmmLabel(TmmResourceBundle.getString("Settings.sorting"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelSorttitle, lblSorttitleT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#title-sorting"));
       add(collapsiblePanel, "cell 0 0,growx, wmin 0");
       {
-        JTextArea tpSortingHint = new ReadOnlyTextArea(BUNDLE.getString("Settings.sorting.info")); // $NON-NLS-1$
+        JTextArea tpSortingHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.sorting.info")); // $NON-NLS-1$
         panelSorttitle.add(tpSortingHint, "cell 1 0 3 1,growx");
 
         JScrollPane scrollPane = new JScrollPane();
@@ -108,14 +108,14 @@ class SortTitleSettingsPanel extends JPanel {
         scrollPane.setViewportView(listSortPrefixes);
 
         btnRemoveSortPrefix = new SquareIconButton(IconManager.REMOVE_INV);
-        btnRemoveSortPrefix.setToolTipText(BUNDLE.getString("Button.remove"));
+        btnRemoveSortPrefix.setToolTipText(TmmResourceBundle.getString("Button.remove"));
         panelSorttitle.add(btnRemoveSortPrefix, "cell 2 1,aligny bottom, growx");
 
         tfSortPrefix = new JTextField();
         panelSorttitle.add(tfSortPrefix, "cell 1 2,growx");
 
         btnAddSortPrefix = new SquareIconButton(IconManager.ADD_INV);
-        btnAddSortPrefix.setToolTipText(BUNDLE.getString("Button.add"));
+        btnAddSortPrefix.setToolTipText(TmmResourceBundle.getString("Button.add"));
         panelSorttitle.add(btnAddSortPrefix, "cell 2 2, growx");
       }
     }

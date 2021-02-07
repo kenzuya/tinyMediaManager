@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package org.tinymediamanager.ui.tvshows;
 import java.awt.FontMetrics;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -44,7 +44,7 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   public TvShowTableFormat() {
     FontMetrics fontMetrics = getFontMetrics();
@@ -94,9 +94,17 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Comparator<String> fileSizeComparator = new FileSizeComparator();
 
     /*
+     * Original Title
+     */
+    Column col = new Column(TmmResourceBundle.getString("metatag.originaltitle"), "originalTitle", this::getOriginialTitle, String.class);
+    col.setDefaultHidden(true);
+    col.setColumnComparator(stringComparator);
+    addColumn(col);
+
+    /*
      * year
      */
-    Column col = new Column(BUNDLE.getString("metatag.year"), "year", this::getYear, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.year"), "year", this::getYear, String.class);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("2000") * 1.3f + 10));
     col.setColumnComparator(integerComparator);
@@ -105,7 +113,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * season count
      */
-    col = new Column(BUNDLE.getString("metatag.seasons"), "seasons", this::getSeasons, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.seasons"), "seasons", this::getSeasons, String.class);
     col.setHeaderIcon(IconManager.SEASONS);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -116,7 +124,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * episode count
      */
-    col = new Column(BUNDLE.getString("metatag.episodes"), "episodes", this::getEpisodes, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.episodes"), "episodes", this::getEpisodes, String.class);
     col.setHeaderIcon(IconManager.EPISODES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -127,7 +135,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * rating
      */
-    col = new Column(BUNDLE.getString("metatag.rating"), "rating", this::getRating, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", this::getRating, String.class);
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -136,9 +144,21 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+     * user rating
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", this::getUserRating, String.class);
+    col.setHeaderIcon(IconManager.RATING);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
+    col.setColumnComparator(floatComparator);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * aired
      */
-    col = new Column(BUNDLE.getString("metatag.aired"), "aired", this::getAiredDate, Date.class);
+    col = new Column(TmmResourceBundle.getString("metatag.aired"), "aired", this::getAiredDate, Date.class);
     col.setHeaderIcon(IconManager.DATE_AIRED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);
@@ -154,7 +174,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * date added (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.dateadded"), "dateAdded", this::getDateAdded, Date.class);
+    col = new Column(TmmResourceBundle.getString("metatag.dateadded"), "dateAdded", this::getDateAdded, Date.class);
     col.setHeaderIcon(IconManager.DATE_ADDED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);
@@ -171,7 +191,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * file creation date (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.filecreationdate"), "fileCreationDate", this::getFileCreationDate, Date.class);
+    col = new Column(TmmResourceBundle.getString("metatag.filecreationdate"), "fileCreationDate", this::getFileCreationDate, Date.class);
     col.setHeaderIcon(IconManager.DATE_CREATED);
     col.setCellRenderer(new DateTableCellRenderer());
     col.setColumnResizeable(false);
@@ -188,7 +208,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * video format (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.format"), "format", this::getFormat, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.format"), "format", this::getFormat, String.class);
     col.setHeaderIcon(IconManager.VIDEO_FORMAT);
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1080p") * 1.2f));
@@ -199,7 +219,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * video codec (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.videocodec"), "videoCodec", this::getVideoCodec, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", this::getVideoCodec, String.class);
     col.setHeaderIcon(IconManager.VIDEO_CODEC);
     col.setMinWidth((int) (fontMetrics.stringWidth("MPEG-2") * 1.2f + 10));
     col.setDefaultHidden(true);
@@ -209,7 +229,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * main video file size (hidden per default)
      */
-    col = new Column(BUNDLE.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
     col.setHeaderIcon(IconManager.FILE_SIZE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -221,7 +241,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * new indicator
      */
-    col = new Column(BUNDLE.getString("movieextendedsearch.newepisodes"), "new", this::getNewIcon, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("movieextendedsearch.newepisodes"), "new", this::getNewIcon, ImageIcon.class);
     col.setHeaderIcon(IconManager.NEW);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
@@ -230,7 +250,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * NFO
      */
-    col = new Column(BUNDLE.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
     col.setColumnTooltip(this::hasNfoTooltip);
@@ -240,7 +260,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * images
      */
-    col = new Column(BUNDLE.getString("tmm.images"), "images", this::hasImages, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.images"), "images", this::hasImages, ImageIcon.class);
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
     col.setColumnTooltip(this::hasImageTooltip);
@@ -250,7 +270,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * subtitles
      */
-    col = new Column(BUNDLE.getString("tmm.subtitles"), "subtitles", this::hasSubtitles, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.subtitles"), "subtitles", this::hasSubtitles, ImageIcon.class);
     col.setHeaderIcon(IconManager.SUBTITLES);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
@@ -259,7 +279,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * watched
      */
-    col = new Column(BUNDLE.getString("metatag.watched"), "watched", this::isWatched, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("metatag.watched"), "watched", this::isWatched, ImageIcon.class);
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
@@ -269,7 +289,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   @Override
   public String getColumnName(int i) {
     if (i == NODE_COLUMN) {
-      return BUNDLE.getString("metatag.title");
+      return TmmResourceBundle.getString("metatag.title");
     }
     else {
       return super.getColumnName(i);
@@ -330,6 +350,17 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow || userObject instanceof TvShowEpisode) {
       MediaRating mediaRating = ((MediaEntity) userObject).getRating();
+      if (mediaRating != null && mediaRating.getRating() > 0) {
+        return String.valueOf(mediaRating.getRating());
+      }
+    }
+    return "";
+  }
+
+  private String getUserRating(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow || userObject instanceof TvShowEpisode) {
+      MediaRating mediaRating = ((MediaEntity) userObject).getUserRating();
       if (mediaRating != null && mediaRating.getRating() > 0) {
         return String.valueOf(mediaRating.getRating());
       }
@@ -475,28 +506,48 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasNfoTooltip(TmmTreeNode node) {
+    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+      return null;
+    }
+
     if (node.getUserObject() instanceof TvShow) {
       ImageIcon nfoIcon = hasNfo(node);
       if (nfoIcon == IconManager.TABLE_PROBLEM) {
-        return BUNDLE.getString("tvshow.tree.nfo.problem");
+        return TmmResourceBundle.getString("tvshow.tree.nfo.problem");
       }
     }
     return null;
   }
 
   private String hasImageTooltip(TmmTreeNode node) {
+    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+      return null;
+    }
+
     if (node.getUserObject() instanceof TvShow) {
       ImageIcon nfoIcon = hasImages(node);
       if (nfoIcon == IconManager.TABLE_PROBLEM) {
-        return BUNDLE.getString("tvshow.tree.tvshow.image.problem");
+        return TmmResourceBundle.getString("tvshow.tree.tvshow.image.problem");
       }
     }
     else if (node.getUserObject() instanceof TvShowSeason) {
       ImageIcon nfoIcon = hasImages(node);
       if (nfoIcon == IconManager.TABLE_PROBLEM) {
-        return BUNDLE.getString("tvshow.tree.season.image.problem");
+        return TmmResourceBundle.getString("tvshow.tree.season.image.problem");
       }
     }
     return null;
   }
+
+  private String getOriginialTitle(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow) {
+      return ((TvShow) userObject).getOriginalTitle();
+    }
+    else if (userObject instanceof TvShowEpisode) {
+      return ((TvShowEpisode) userObject).getOriginalTitle();
+    }
+    return null;
+  }
+
 }

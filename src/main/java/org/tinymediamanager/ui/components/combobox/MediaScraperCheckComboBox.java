@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import javax.swing.UIManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
@@ -68,6 +69,20 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
     if (imageCache != null) {
       imageCache.clear();
     }
+  }
+
+  @Override
+  public List<MediaScraper> getSelectedItems() {
+    List<MediaScraper> selectedItems = new ArrayList<>();
+
+    // filter our inactive items
+    for (MediaScraper scraper : super.getSelectedItems()) {
+      if (scraper.getMediaProvider().isActive()) {
+        selectedItems.add(scraper);
+      }
+    }
+
+    return selectedItems;
   }
 
   private class MediaScraperCheckBoxRenderer extends CheckBoxRenderer {
@@ -132,10 +147,32 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
 
           label.setIcon(logo);
           label.setIconTextGap(maxIconWidth + 4 - currentWidth); // 4 = default iconTextGap
+
+          if (!scraper.isActive()) {
+            checkBox.setFocusable(false);
+            checkBox.setEnabled(false);
+            checkBox.setSelected(false);
+            label.setFocusable(false);
+            label.setEnabled(false);
+            if (!scraper.isEnabled()) {
+              label.setText("*PRO* " + label.getText());
+            }
+          }
+          else {
+            checkBox.setFocusable(true);
+            checkBox.setEnabled(true);
+            label.setFocusable(true);
+            label.setEnabled(true);
+          }
         }
         else {
           label.setIcon(null);
           label.setIconTextGap(4); // 4 = default iconTextGap
+
+          checkBox.setFocusable(true);
+          checkBox.setEnabled(true);
+          label.setFocusable(true);
+          label.setEnabled(true);
         }
 
         return panel;
@@ -145,7 +182,7 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
       List<MediaScraper> objs = getSelectedItems();
       List<String> strs = new ArrayList<>();
       if (objs.isEmpty()) {
-        str = BUNDLE.getString("ComboBox.select.mediascraper");
+        str = TmmResourceBundle.getString("ComboBox.select.mediascraper");
       }
       else {
         for (Object obj : objs) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.scraper.interfaces;
 
+import org.tinymediamanager.license.TmmFeature;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 
 /**
@@ -24,7 +25,7 @@ import org.tinymediamanager.scraper.MediaProviderInfo;
  * @author Manuel Laggner
  * @since 1.0
  */
-public interface IMediaProvider {
+public interface IMediaProvider extends TmmFeature {
   /**
    * Gets a general information about the metadata provider
    * 
@@ -37,5 +38,14 @@ public interface IMediaProvider {
    * 
    * @return the scraper id
    */
-  String getId();
+  default String getId() {
+    return getProviderInfo().getId();
+  }
+
+  /**
+   * indicates whether this scraper is active or not (private and valid API key OR public to be active)
+   * 
+   * @return true/false
+   */
+  boolean isActive();
 }

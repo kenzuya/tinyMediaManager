@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractSettings.UIFilters;
+import org.tinymediamanager.core.TmmResourceBundle;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -45,7 +46,7 @@ public class FilterSaveDialog extends TmmDialog {
   private String                  savedPreset = "";
 
   public FilterSaveDialog(JDialog owner, Set<UIFilters> filter, Map<String, List<UIFilters>> existingFilters) {
-    super(owner, BUNDLE.getString("filter.savepreset"), "filter.save");
+    super(owner, TmmResourceBundle.getString("filter.savepreset"), "filter.save");
 
     {
       JPanel panelContent = new JPanel();
@@ -55,7 +56,7 @@ public class FilterSaveDialog extends TmmDialog {
 
       ButtonGroup buttonGroup = new ButtonGroup();
 
-      rdbtnNewPreset = new JRadioButton(BUNDLE.getString("filter.savenew"));
+      rdbtnNewPreset = new JRadioButton(TmmResourceBundle.getString("filter.savenew"));
       buttonGroup.add(rdbtnNewPreset);
       rdbtnNewPreset.setSelected(true);
       panelContent.add(rdbtnNewPreset, "cell 0 0");
@@ -64,7 +65,7 @@ public class FilterSaveDialog extends TmmDialog {
       panelContent.add(tfPresetName, "cell 1 0,growx");
       tfPresetName.setColumns(10);
 
-      rdbtnOverwritePreset = new JRadioButton(BUNDLE.getString("filter.overwrite"));
+      rdbtnOverwritePreset = new JRadioButton(TmmResourceBundle.getString("filter.overwrite"));
       buttonGroup.add(rdbtnOverwritePreset);
       panelContent.add(rdbtnOverwritePreset, "cell 0 1");
 
@@ -81,17 +82,17 @@ public class FilterSaveDialog extends TmmDialog {
     }
     // button panel
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.addActionListener(e -> setVisible(false));
       addButton(btnCancel);
 
-      JButton btnSave = new JButton(BUNDLE.getString("Button.save"));
+      JButton btnSave = new JButton(TmmResourceBundle.getString("Button.save"));
       btnSave.addActionListener(e -> {
         if (rdbtnOverwritePreset.isSelected()) {
           String name = (String) cbPresets.getSelectedItem();
 
           if (StringUtils.isBlank(name)) {
-            JOptionPane.showMessageDialog(FilterSaveDialog.this, BUNDLE.getString("filter.emptyname"));
+            JOptionPane.showMessageDialog(FilterSaveDialog.this, TmmResourceBundle.getString("filter.emptyname"));
             return;
           }
 
@@ -100,7 +101,7 @@ public class FilterSaveDialog extends TmmDialog {
         }
         else {
           if (StringUtils.isBlank(tfPresetName.getText())) {
-            JOptionPane.showMessageDialog(FilterSaveDialog.this, BUNDLE.getString("filter.emptyname"));
+            JOptionPane.showMessageDialog(FilterSaveDialog.this, TmmResourceBundle.getString("filter.emptyname"));
             return;
           }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import javax.swing.JLabel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -47,7 +48,7 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
   public MovieAspectRatioFilter() {
     super();
     checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
-    others = BUNDLE.getString("filter.others");
+    others = TmmResourceBundle.getString("filter.others");
 
     setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90, RATIO_2_20, RATIO_2_35, RATIO_2_40,
         others);
@@ -135,7 +136,7 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.aspect"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.aspect"));
   }
 
   @Override

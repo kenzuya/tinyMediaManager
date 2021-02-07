@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.movies.panels;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -22,14 +23,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeListener;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,13 +37,16 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.util.UrlUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.table.NullSelectionModel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
@@ -64,17 +66,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TrailerPanel extends JPanel {
-  private static final long           serialVersionUID = 2506465845096043845L;
+  private static final long       serialVersionUID = 2506465845096043845L;
   /**
    * @wbp.nls.resourceBundle messages
    */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
 
-  private MovieSelectionModel         movieSelectionModel;
-  private TvShowSelectionModel        tvShowSelectionModel;
-  private TmmTable                    table;
-  private EventList<MediaTrailer>     trailerEventList;
+  private static final Logger     LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
+
+  private MovieSelectionModel     movieSelectionModel;
+  private TvShowSelectionModel    tvShowSelectionModel;
+  private TmmTable                table;
+  private EventList<MediaTrailer> trailerEventList;
 
   /**
    * Instantiates a new movie details panel.
@@ -163,7 +165,21 @@ public class TrailerPanel extends JPanel {
   private void createLayout() {
     trailerEventList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(MediaTrailer.class));
     setLayout(new MigLayout("", "[400lp,grow]", "[250lp,grow]"));
-    table = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(trailerEventList), new TrailerTableFormat()));
+    table = new TmmTable(new TmmTableModel<>(GlazedListsSwing.swingThreadProxyList(trailerEventList), new TrailerTableFormat())) {
+      boolean downloadEnabled = License.getInstance().isValidLicense();
+
+      @Override
+      public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+        if (column == 0 && !downloadEnabled) {
+          comp.setEnabled(false);
+        }
+        else {
+          comp.setEnabled(true);
+        }
+        return comp;
+      }
+    };
     table.setSelectionModel(new NullSelectionModel());
 
     JScrollPane scrollPane = new JScrollPane();
@@ -200,21 +216,21 @@ public class TrailerPanel extends JPanel {
       /*
        * nfo
        */
-      col = new Column(BUNDLE.getString("metatag.nfo"), "nfo", MediaTrailer::getInNfo, Boolean.class);
+      col = new Column(TmmResourceBundle.getString("metatag.nfo"), "nfo", MediaTrailer::getInNfo, Boolean.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * name
        */
-      col = new Column(BUNDLE.getString("metatag.name"), "name", MediaTrailer::getName, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.name"), "name", MediaTrailer::getName, String.class);
       col.setColumnTooltip(MediaTrailer::getName);
       addColumn(col);
 
       /*
        * source
        */
-      col = new Column(BUNDLE.getString("metatag.source"), "source", MediaTrailer::getProvider, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.source"), "source", MediaTrailer::getProvider, String.class);
       col.setColumnTooltip(MediaTrailer::getProvider);
       col.setColumnResizeable(false);
       addColumn(col);
@@ -222,14 +238,14 @@ public class TrailerPanel extends JPanel {
       /*
        * quality
        */
-      col = new Column(BUNDLE.getString("metatag.quality"), "quality", MediaTrailer::getQuality, String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.quality"), "quality", MediaTrailer::getQuality, String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
       /*
        * format
        */
-      col = new Column(BUNDLE.getString("metatag.format"), "format", trailer -> {
+      col = new Column(TmmResourceBundle.getString("metatag.format"), "format", trailer -> {
         String ext = UrlUtil.getExtension(trailer.getUrl()).toLowerCase(Locale.ROOT);
         if (!Globals.settings.getVideoFileType().contains("." + ext)) {
           // .php redirection scripts et all
@@ -250,7 +266,7 @@ public class TrailerPanel extends JPanel {
       int col = table.columnAtPoint(new Point(e.getX(), e.getY()));
 
       // click on the download button
-      if (col == 0) {
+      if (col == 0 && License.getInstance().isValidLicense()) {
         row = table.convertRowIndexToModel(row);
         MediaTrailer trailer = trailerEventList.get(row);
 
@@ -321,110 +337,6 @@ public class TrailerPanel extends JPanel {
 
     @Override
     public void mouseDragged(MouseEvent arg0) {
-    }
-  }
-
-  private static class NullSelectionModel extends DefaultListSelectionModel {
-    private static final long serialVersionUID = -1956483331520197616L;
-
-    @Override
-    public boolean isSelectionEmpty() {
-      return true;
-    }
-
-    @Override
-    public boolean isSelectedIndex(int index) {
-      return false;
-    }
-
-    @Override
-    public int getMinSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public int getMaxSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public int getLeadSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public int getAnchorSelectionIndex() {
-      return -1;
-    }
-
-    @Override
-    public void setSelectionInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void setLeadSelectionIndex(int index) {
-      // nothing to do
-    }
-
-    @Override
-    public void setAnchorSelectionIndex(int index) {
-      // nothing to do
-    }
-
-    @Override
-    public void addSelectionInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void insertIndexInterval(int index, int length, boolean before) {
-      // nothing to do
-    }
-
-    @Override
-    public void clearSelection() {
-      // nothing to do
-    }
-
-    @Override
-    public void removeSelectionInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void removeIndexInterval(int index0, int index1) {
-      // nothing to do
-    }
-
-    @Override
-    public void setSelectionMode(int selectionMode) {
-      // nothing to do
-    }
-
-    @Override
-    public int getSelectionMode() {
-      return SINGLE_SELECTION;
-    }
-
-    @Override
-    public void addListSelectionListener(ListSelectionListener lsl) {
-      // nothing to do
-    }
-
-    @Override
-    public void removeListSelectionListener(ListSelectionListener lsl) {
-      // nothing to do
-    }
-
-    @Override
-    public void setValueIsAdjusting(boolean valueIsAdjusting) {
-      // nothing to do
-    }
-
-    @Override
-    public boolean getValueIsAdjusting() {
-      return false;
     }
   }
 }

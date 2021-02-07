@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.util.Enumeration;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 
 import javax.swing.AbstractAction;
@@ -40,6 +39,7 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.EqualsLayout;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
@@ -58,8 +58,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class SettingsDialog extends TmmDialog {
   private static final long             serialVersionUID = 2435834806519338339L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle   BUNDLE           = ResourceBundle.getBundle("messages");
+
+
   private static JDialog                instance;
 
   private final TmmSettingsDataProvider dataProvider;
@@ -80,7 +80,7 @@ public class SettingsDialog extends TmmDialog {
   }
 
   private SettingsDialog() {
-    super(BUNDLE.getString("tmm.settings"), "settings");
+    super(TmmResourceBundle.getString("tmm.settings"), "settings");
 
     dataProvider = new TmmSettingsDataProvider();
 
@@ -184,7 +184,7 @@ public class SettingsDialog extends TmmDialog {
       panelButtons.setBorder(new EmptyBorder(4, 4, 4, 4));
       southPanel.add(panelButtons, "cell 1 1,alignx left,aligny top");
 
-      JButton okButton = new JButton(BUNDLE.getString("Button.close"));
+      JButton okButton = new JButton(TmmResourceBundle.getString("Button.close"));
       panelButtons.add(okButton);
       okButton.setAction(new CloseAction());
       getRootPane().setDefaultButton(okButton);
@@ -195,7 +195,7 @@ public class SettingsDialog extends TmmDialog {
     private static final long serialVersionUID = 2386371884117941373L;
 
     CloseAction() {
-      putValue(NAME, BUNDLE.getString("Button.close"));
+      putValue(NAME, TmmResourceBundle.getString("Button.close"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }

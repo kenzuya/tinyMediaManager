@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.core.tvshow.tasks;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -39,7 +39,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
  * The Class TvShowEpisodeScrapeTask.
@@ -47,7 +47,7 @@ import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeScrapeTask extends TmmTask {
-  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
+
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowEpisodeScrapeTask.class);
 
   private final List<TvShowEpisode>                      episodes;
@@ -64,7 +64,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
    */
   public TvShowEpisodeScrapeTask(List<TvShowEpisode> episodes, TvShowEpisodeSearchAndScrapeOptions options,
       List<TvShowEpisodeScraperMetadataConfig> config) {
-    super(BUNDLE.getString("tvshow.scraping"), episodes.size(), TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("tvshow.scraping"), episodes.size(), TaskType.BACKGROUND_TASK);
     this.episodes = episodes;
     this.scrapeOptions = options;
     this.config = config;
@@ -72,6 +72,12 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
 
   @Override
   public void doInBackground() {
+    MediaScraper mediaScraper = scrapeOptions.getMetadataScraper();
+
+    if (!mediaScraper.isEnabled()) {
+      return;
+    }
+
     for (TvShowEpisode episode : episodes) {
       // only scrape if at least one ID is available
       if (episode.getTvShow().getIds().isEmpty()) {
@@ -82,7 +88,6 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions(scrapeOptions);
       options.setTvShowIds(episode.getTvShow().getIds());
 
-      MediaScraper mediaScraper = scrapeOptions.getMetadataScraper();
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());
       md.setReleaseDate(episode.getFirstAired());
       options.setMetadata(md);
@@ -105,12 +110,9 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         MediaMetadata metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
         if (StringUtils.isNotBlank(metadata.getTitle())) {
           episode.setMetadata(metadata, config);
+          episode.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
+          episode.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
         }
-      }
-      catch (ScrapeException e) {
-        LOGGER.error("searchMovieFallback", e);
-        MessageManager.instance.pushMessage(
-            new Message(Message.MessageLevel.ERROR, episode, "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
       }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");
@@ -119,6 +121,11 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       catch (NothingFoundException ignored) {
         LOGGER.debug("nothing found");
       }
+      catch (ScrapeException e) {
+        LOGGER.error("searchMovieFallback", e);
+        MessageManager.instance.pushMessage(
+            new Message(Message.MessageLevel.ERROR, episode, "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
+      }
     }
 
     if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
@@ -126,7 +133,11 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       for (TvShowEpisode episode : episodes) {
         tvShows.add(episode.getTvShow());
       }
-      TmmTask task = new SyncTraktTvTask(null, new ArrayList<>(tvShows));
+      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows));
+      task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
+      task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
+      task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
   }

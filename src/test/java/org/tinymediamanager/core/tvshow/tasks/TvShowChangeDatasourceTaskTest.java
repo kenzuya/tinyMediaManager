@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public class TvShowChangeDatasourceTaskTest extends BasicTest {
     assertThat(mf.getFileAsPath()).isEqualTo(Paths.get(destinationFolder + "/Futurama (1999)/poster.jpg").toAbsolutePath());
 
     // VIDEO
-    episode = tvShow.getEpisode(1, 1);
+    episode = tvShow.getEpisode(1, 1).get(0);
     mf = episode.getMainVideoFile();
     assertThat(mf.getFileAsPath())
         .isEqualTo(Paths.get(destinationFolder + "/Futurama (1999)/Season 1/Futurama - S01E01 - Space Pilot 3000.avi").toAbsolutePath());

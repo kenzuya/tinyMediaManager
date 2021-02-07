@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.tinymediamanager.core;
 
-import java.util.ResourceBundle;
-
 import org.tinymediamanager.scraper.util.LanguageUtils;
 
 /**
@@ -31,12 +29,12 @@ public enum LanguageStyle {
   LANG_EN,
   LANG_LOCALIZED;
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   @Override
   public String toString() {
     try {
-      return BUNDLE.getString("Settings.renamer.language." + name());
+      return TmmResourceBundle.getString("Settings.renamer.language." + name());
     }
     catch (Exception e) {
       return name();

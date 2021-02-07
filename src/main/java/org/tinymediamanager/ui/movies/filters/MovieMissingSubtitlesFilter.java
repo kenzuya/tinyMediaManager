@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.filters;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -49,7 +50,7 @@ public class MovieMissingSubtitlesFilter extends AbstractMovieUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.missingsubtitles"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.missingsubtitles"));
   }
 
   @Override

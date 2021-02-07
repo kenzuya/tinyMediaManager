@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.license.SizeLimitExceededException;
 
 /**
  * The Class TmmThreadPool.
@@ -99,48 +96,37 @@ public abstract class TmmThreadPool extends TmmTask {
    * Wait for completion or cancel.
    */
   protected void waitForCompletionOrCancel() {
-    boolean limitExceeded = false;
 
     pool.shutdown();
-    while (!limitExceeded && !cancel && !pool.isTerminated() && progressDone < workUnits) {
+    while (true) {
       try {
-        final Future<Object> future = service.take();
-        progressDone++;
-        callback(future.get());
+        final Future<Object> future = service.poll(500, TimeUnit.MILLISECONDS);
+        if (cancel) {
+          pool.shutdownNow();
+          break;
+        }
+
+        if (future != null) {
+          progressDone++;
+          callback(future.get());
+        }
+        else if (pool.isTerminated()) {
+          // no result got and the pool is terminated -> we're finished
+          break;
+        }
       }
       catch (InterruptedException e) {
         LOGGER.error("ThreadPool {} interrupted!", poolname);
         Thread.currentThread().interrupt();
       }
       catch (ExecutionException e) {
-        if (e.getCause() instanceof SizeLimitExceededException) {
-          // tmm free size limit is exceeded; just soft-cancel
-          limitExceeded = true;
-        }
-        else {
-          LOGGER.error("ThreadPool {}: Error getting result! - {}", poolname, e.getMessage());
-        }
+        LOGGER.error("ThreadPool {}: Error getting result! - {}", poolname, e.getMessage());
       }
     }
 
-    if (cancel || limitExceeded) {
-      try {
-        LOGGER.info("Abort queue (discarding {} tasks", workUnits - progressDone);
-        pool.getQueue().clear();
-        pool.awaitTermination(3, TimeUnit.SECONDS);
-
-        // shutdown now can cause a inconsistency because it will call Thread.interrupt which can cause a (sub)thread to crash
-        pool.shutdown();
-      }
-      catch (InterruptedException e) {
-        LOGGER.error("ThreadPool {} interrupted in shutdown! - {}", poolname, e.getMessage());
-        Thread.currentThread().interrupt();
-      }
-    }
-
-    if (limitExceeded) {
-      LOGGER.warn("size limit exceeded - aborting");
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "Toolbar.update", "message.sizelimitexceeded"));
+    if (cancel) {
+      LOGGER.info("Abort queue (discarding {} tasks", workUnits - progressDone);
+      pool.shutdownNow();
     }
   }
 

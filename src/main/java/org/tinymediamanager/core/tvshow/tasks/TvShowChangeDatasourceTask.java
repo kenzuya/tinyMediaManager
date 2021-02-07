@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -38,13 +38,13 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  */
 public class TvShowChangeDatasourceTask extends TmmThreadPool {
   private static final Logger         LOGGER          = LoggerFactory.getLogger(TvShowChangeDatasourceTask.class);
-  private static final ResourceBundle BUNDLE          = ResourceBundle.getBundle("messages");
+
 
   private final String                datasource;
   private final List<TvShow>          tvShowsToChange = new ArrayList<>();
 
   public TvShowChangeDatasourceTask(List<TvShow> tvShowsToChange, String datasource) {
-    super(BUNDLE.getString("tvshow.changedatasource"));
+    super(TmmResourceBundle.getString("tvshow.changedatasource"));
     this.tvShowsToChange.addAll(tvShowsToChange);
     this.datasource = datasource;
   }

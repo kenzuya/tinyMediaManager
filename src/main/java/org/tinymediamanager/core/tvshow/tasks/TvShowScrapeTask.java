@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@ package org.tinymediamanager.core.tvshow.tasks;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +28,10 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -55,7 +57,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
 /**
  * The class TvShowScrapeTask. This starts scraping of TV shows
@@ -64,7 +66,6 @@ import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
  */
 public class TvShowScrapeTask extends TmmThreadPool {
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
-  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<TvShow>                             tvShowsToScrape;
   private final boolean                                  doSearch;
@@ -84,7 +85,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
    */
   public TvShowScrapeTask(List<TvShow> tvShowsToScrape, boolean doSearch, TvShowSearchAndScrapeOptions options,
       List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
-    super(BUNDLE.getString("tvshow.scraping"));
+    super(TmmResourceBundle.getString("tvshow.scraping"));
     this.tvShowsToScrape = tvShowsToScrape;
     this.doSearch = doSearch;
     this.scrapeOptions = options;
@@ -94,6 +95,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
 
   @Override
   protected void doInBackground() {
+    // set up scrapers
+    MediaScraper mediaMetadataScraper = scrapeOptions.getMetadataScraper();
+
+    if (!mediaMetadataScraper.isEnabled()) {
+      return;
+    }
+
     LOGGER.debug("start scraping tv shows...");
     start();
 
@@ -105,7 +113,11 @@ public class TvShowScrapeTask extends TmmThreadPool {
     waitForCompletionOrCancel();
 
     if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
-      TmmTask task = new SyncTraktTvTask(null, tvShowsToScrape);
+      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(tvShowsToScrape);
+      task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
+      task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
+      task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
 
@@ -113,8 +125,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
   }
 
   private class Worker implements Runnable {
-    private TvShowList tvShowList = TvShowList.getInstance();
-    private TvShow     tvShow;
+    private final TvShowList tvShowList = TvShowList.getInstance();
+    private final TvShow     tvShow;
 
     private Worker(TvShow tvShow) {
       this.tvShow = tvShow;
@@ -184,6 +196,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
               LOGGER.info("=====================================================");
               md = ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
               tvShow.setMetadata(md, tvShowScraperMetadataConfig);
+              tvShow.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
+              tvShow.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
             }
 
             // always add all episode data (for missing episodes and episode list)
@@ -202,17 +216,24 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 ep.setDirectors(me.getCastMembers(Person.Type.DIRECTOR));
                 ep.setWriters(me.getCastMembers(Person.Type.WRITER));
 
+                Map<String, MediaRating> newRatings = new HashMap<>();
+
+                for (MediaRating mediaRating : me.getRatings()) {
+                  newRatings.put(mediaRating.getId(), mediaRating);
+                }
+                ep.setRatings(newRatings);
+
                 episodes.add(ep);
               }
+            }
+            catch (MissingIdException e) {
+              LOGGER.warn("missing id for scrape");
+              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "scraper.error.missingid"));
             }
             catch (ScrapeException e) {
               LOGGER.error("searchMovieFallback", e);
               MessageManager.instance.pushMessage(
                   new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.episodelistfailed", new String[] { ":", e.getLocalizedMessage() }));
-            }
-            catch (MissingIdException e) {
-              LOGGER.warn("missing id for scrape");
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "scraper.error.missingid"));
             }
             tvShow.setDummyEpisodes(episodes);
             tvShow.saveToDb();
@@ -249,17 +270,17 @@ public class TvShowScrapeTask extends TmmThreadPool {
               TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow)));
             }
           }
-          catch (ScrapeException e) {
-            LOGGER.error("getTvShowMetadata", e);
-            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.metadatatvshowfailed",
-                new String[] { ":", e.getLocalizedMessage() }));
-          }
           catch (MissingIdException e) {
             LOGGER.warn("missing id for scrape");
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "scraper.error.missingid"));
           }
           catch (NothingFoundException e) {
             LOGGER.debug("nothing found");
+          }
+          catch (ScrapeException e) {
+            LOGGER.error("getTvShowMetadata", e);
+            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.metadatatvshowfailed",
+                new String[] { ":", e.getLocalizedMessage() }));
           }
         }
       }
@@ -296,13 +317,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException ignored) {
+          LOGGER.debug("no id avaiable for scraper {}", artworkScraper.getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException ignored) {
-          LOGGER.debug("no id avaiable for scraper {}", artworkScraper.getId());
         }
       }
       return artwork;
@@ -326,13 +347,13 @@ public class TvShowScrapeTask extends TmmThreadPool {
           ITvShowTrailerProvider trailerProvider = (ITvShowTrailerProvider) trailerScraper.getMediaProvider();
           trailers.addAll(trailerProvider.getTrailers(options));
         }
+        catch (MissingIdException e) {
+          LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getTrailers", e);
           MessageManager.instance
               .pushMessage(new Message(MessageLevel.ERROR, tvShow, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException e) {
-          LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.components.combobox;
 import static javax.swing.SwingConstants.HORIZONTAL;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,6 +46,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.WrapLayout;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -119,6 +121,11 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     decorator = TmmCheckComboBoxFilterDecorator.decorate(this, userFilter);
   }
 
+  @Override
+  public void doLayout() {
+    super.doLayout();
+  }
+
   /**
    * set new items to the CheckComboBox
    *
@@ -140,11 +147,11 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
     checkComboBoxItems.add(nullItem);
 
-    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectall"));
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectall"));
     checkComboBoxItem.setSelected(false);
     checkComboBoxItems.add(checkComboBoxItem);
 
-    checkComboBoxItem = new TmmCheckComboBoxItem<>(BUNDLE.getString("Button.selectnone"));
+    checkComboBoxItem = new TmmCheckComboBoxItem<>(TmmResourceBundle.getString("Button.selectnone"));
     checkComboBoxItem.setSelected(true);
     checkComboBoxItems.add(checkComboBoxItem);
 
@@ -393,11 +400,13 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
       }
 
       list.setToolTipText(null);
-      return defaultRenderer.getListCellRendererComponent(list, BUNDLE.getString("ComboBox.select"), index, isSelected, cellHasFocus);
+      return defaultRenderer.getListCellRendererComponent(list, TmmResourceBundle.getString("ComboBox.select"), index, isSelected, cellHasFocus);
     }
   }
 
   protected class CheckBoxEditor extends JPanel implements ComboBoxEditor {
+    private Dimension cachedLayoutSize;
+
     public CheckBoxEditor() {
       super();
 
@@ -412,12 +421,23 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     }
 
     @Override
+    public void doLayout() {
+      super.doLayout();
+
+      // re-layout on height change
+      if (cachedLayoutSize == null || cachedLayoutSize.height != getMinimumSize().height) {
+        firePropertyChange("border", false, true); // trigger re-layout via the property border
+        cachedLayoutSize = getMinimumSize();
+      }
+    }
+
+    @Override
     public void setItem(Object anObject) {
       removeAll();
 
       List<E> objs = getSelectedItems();
       if (objs.isEmpty()) {
-        add(new JLabel(BUNDLE.getString("ComboBox.select")));
+        add(new JLabel(TmmResourceBundle.getString("ComboBox.select")));
       }
       else {
         for (E obj : objs) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -28,6 +27,7 @@ import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -59,7 +59,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @author Manuel Laggner
  */
 public class TvShowChooserModel extends AbstractModelObject {
-  private static final ResourceBundle    BUNDLE          = ResourceBundle.getBundle("messages");
+
   private static final Logger            LOGGER          = LoggerFactory.getLogger(TvShowChooserModel.class);
   public static final TvShowChooserModel emptyResult     = new TvShowChooserModel();
 
@@ -106,7 +106,7 @@ public class TvShowChooserModel extends AbstractModelObject {
    * create the empty search result.
    */
   private TvShowChooserModel() {
-    setTitle(BUNDLE.getString("chooser.nothingfound"));
+    setTitle(TmmResourceBundle.getString("chooser.nothingfound"));
     combinedName = title;
   }
 
@@ -224,17 +224,17 @@ public class TvShowChooserModel extends AbstractModelObject {
       setScraped(true);
 
     }
-    catch (ScrapeException e) {
-      LOGGER.error("getMetadata", e);
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "message.scrape.metadatatvshowfailed",
-          new String[] { ":", e.getLocalizedMessage() }));
-    }
     catch (MissingIdException e) {
       LOGGER.warn("missing id for scrape");
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "scraper.error.missingid"));
     }
     catch (NothingFoundException ignored) {
       LOGGER.debug("nothing found");
+    }
+    catch (ScrapeException e) {
+      LOGGER.error("getMetadata", e);
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "message.scrape.metadatatvshowfailed",
+          new String[] { ":", e.getLocalizedMessage() }));
     }
   }
 
@@ -267,14 +267,14 @@ public class TvShowChooserModel extends AbstractModelObject {
         episodes.add(ep);
       }
     }
+    catch (MissingIdException e) {
+      LOGGER.warn("missing id for scrape");
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "scraper.error.missingid"));
+    }
     catch (ScrapeException e) {
       LOGGER.error("getEpisodeList", e);
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "message.scrape.episodelistfailed",
           new String[] { ":", e.getLocalizedMessage() }));
-    }
-    catch (MissingIdException e) {
-      LOGGER.warn("missing id for scrape");
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "TvShowChooser", "scraper.error.missingid"));
     }
     return episodes;
   }
@@ -306,7 +306,7 @@ public class TvShowChooserModel extends AbstractModelObject {
     private List<TvShowScraperMetadataConfig> config;
 
     public ArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config) {
-      super(BUNDLE.getString("message.scrape.artwork") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.artwork") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowToScrape = tvShow;
       this.config = config;
     }
@@ -338,13 +338,13 @@ public class TvShowChooserModel extends AbstractModelObject {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException e) {
+          LOGGER.debug("no id found for scraper {}", artworkScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, tvShowToScrape, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException e) {
-          LOGGER.debug("no id found for scraper {}", artworkScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 
@@ -361,10 +361,10 @@ public class TvShowChooserModel extends AbstractModelObject {
   }
 
   private class TrailerScrapeTask extends TmmTask {
-    private TvShow tvShowtoScrape;
+    private final TvShow tvShowtoScrape;
 
     public TrailerScrapeTask(TvShow tvShow) {
-      super(BUNDLE.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
+      super(TmmResourceBundle.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowtoScrape = tvShow;
     }
 
@@ -387,13 +387,13 @@ public class TvShowChooserModel extends AbstractModelObject {
           ITvShowTrailerProvider trailerProvider = (ITvShowTrailerProvider) trailerScraper.getMediaProvider();
           trailer.addAll(trailerProvider.getTrailers(options));
         }
+        catch (MissingIdException ignored) {
+          LOGGER.debug("no id found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+        }
         catch (ScrapeException e) {
           LOGGER.error("getTrailers {}", e.getMessage());
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, "TvShowChooser", "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException ignored) {
-          LOGGER.debug("no id found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
         }
       }
 

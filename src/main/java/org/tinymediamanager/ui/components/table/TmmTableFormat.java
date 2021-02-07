@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,12 +70,12 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   }
 
   @Override
-  public Class getColumnClass(int i) {
+  public Class<? extends Object> getColumnClass(int i) {
     return columns.get(i).columnClass;
   }
 
   @Override
-  public Comparator getColumnComparator(int i) {
+  public Comparator<?> getColumnComparator(int i) {
     return columns.get(i).columnComparator;
   }
 
@@ -134,7 +134,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     private String              columnIdentifier;
     private Function<E, ?>      columnValue;
     private Function<E, String> columnTooltip    = null;
-    private Class               columnClass;
+    private Class<?>            columnClass;
     private Comparator<?>       columnComparator = null;
     private TableCellRenderer   cellRenderer     = null;
     private ImageIcon           headerIcon       = null;
@@ -143,7 +143,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
     private int                 maxWidth         = 0;
     private boolean             defaultHidden    = false;
 
-    public Column(String title, String identifier, Function<E, ?> value, Class clazz) {
+    public Column(String title, String identifier, Function<E, ?> value, Class<?> clazz) {
       columnTitle = title;
       columnIdentifier = identifier;
       columnValue = value;
@@ -151,7 +151,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       minWidth = (int) (Globals.settings.getFontSize() * 2.3);
     }
 
-    public void setColumnComparator(Comparator comparator) {
+    public void setColumnComparator(Comparator<?> comparator) {
       columnComparator = comparator;
     }
 
@@ -279,12 +279,15 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
 
     private int getImageValue(ImageIcon imageIcon) {
       if (imageIcon == IconManager.TABLE_OK) {
-        return 4;
+        return 8;
       }
       else if (imageIcon == IconManager.TABLE_PROBLEM) {
-        return 2;
+        return 4;
       }
       else if (imageIcon == IconManager.TABLE_NOT_OK) {
+        return 2;
+      }
+      else if (imageIcon != null) {
         return 1;
       }
       else {

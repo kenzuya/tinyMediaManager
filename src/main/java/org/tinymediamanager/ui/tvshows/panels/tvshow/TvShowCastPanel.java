@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ import static org.tinymediamanager.core.Constants.ACTORS;
 
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
-import java.util.ResourceBundle;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
@@ -47,8 +47,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TvShowCastPanel extends JPanel {
   private static final long           serialVersionUID = 2374973082749248956L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+
 
   private final TvShowSelectionModel  selectionModel;
   private EventList<Person>           actorEventList   = null;
@@ -103,7 +103,7 @@ public class TvShowCastPanel extends JPanel {
           lblActorImage.setActor(selectionModel.getSelectedTvShow(), actor);
         }
         else {
-          lblActorImage.setImageUrl("");
+          lblActorImage.clearImage();
         }
       }
     });
@@ -112,7 +112,7 @@ public class TvShowCastPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[][400lp,grow][150lp,grow]", "[200lp,grow][grow]"));
     {
-      JLabel lblActorsT = new TmmLabel(BUNDLE.getString("metatag.actors"));
+      JLabel lblActorsT = new TmmLabel(TmmResourceBundle.getString("metatag.actors"));
       TmmFontHelper.changeFont(lblActorsT, Font.BOLD);
       add(lblActorsT, "cell 0 0,aligny top");
 

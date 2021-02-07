@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.tinymediamanager.core.tasks;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 
 /**
@@ -28,15 +28,22 @@ import org.tinymediamanager.core.entities.MediaTrailer;
  * @author Manuel Laggner
  */
 public abstract class TrailerDownloadTask extends DownloadTask {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
-  private final MediaTrailer          mediaTrailer;
+  private final MediaTrailer mediaTrailer;
 
   protected TrailerDownloadTask(MediaTrailer trailer) {
-    super(BUNDLE.getString("trailer.download") + " - " + trailer.getName(), trailer.getUrl());
+    super(TmmResourceBundle.getString("trailer.download") + " - " + trailer.getName(), trailer.getUrl());
     this.mediaTrailer = trailer;
 
     setTaskDescription(trailer.getName());
+  }
+
+  @Override
+  protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+    super.doInBackground();
   }
 
   @Override

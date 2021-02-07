@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -389,6 +389,10 @@ public class Url {
       catch (Exception e) {
         LOGGER.warn("problem fetching the url: {}", e.getMessage());
         exception = e;
+      }
+      if (getStatusCode() == 403 || getStatusCode() == 404) {
+        // not found OR access denied -> do not try more often
+        return null;
       }
       if (is != null || (getStatusCode() > 0 && getStatusCode() < 500)) {
         // we either got a response or a permanent failure

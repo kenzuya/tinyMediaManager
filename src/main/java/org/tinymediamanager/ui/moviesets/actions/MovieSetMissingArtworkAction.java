@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.tinymediamanager.ui.moviesets.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.tasks.MovieSetMissingArtworkDownloadTask;
@@ -37,10 +37,10 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * @author Wolfgang Janes
  */
 public class MovieSetMissingArtworkAction extends TmmAction {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   public MovieSetMissingArtworkAction() {
-    putValue(NAME, BUNDLE.getString("movieset.downloadmissingartwork"));
+    putValue(NAME, TmmResourceBundle.getString("movieset.downloadmissingartwork"));
     putValue(SMALL_ICON, IconManager.IMAGE);
     putValue(LARGE_ICON_KEY, IconManager.IMAGE);
   }
@@ -50,7 +50,7 @@ public class MovieSetMissingArtworkAction extends TmmAction {
     List<MovieSet> selectedMovieSets = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets());
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 

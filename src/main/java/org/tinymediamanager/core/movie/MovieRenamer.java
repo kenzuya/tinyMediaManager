@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
@@ -49,10 +48,12 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
+import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
@@ -87,17 +88,17 @@ import com.floreysoft.jmte.token.Token;
  * @author Manuel Laggner / Myron Boyle
  */
 public class MovieRenamer {
-  private static final Logger             LOGGER                      = LoggerFactory.getLogger(MovieRenamer.class);
-  private static final List<String>       KNOWN_IMAGE_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "bmp", "tbn", "gif");
+  private static final Logger              LOGGER                      = LoggerFactory.getLogger(MovieRenamer.class);
+  private static final List<String>        KNOWN_IMAGE_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "bmp", "tbn", "gif");
 
   // to not use posix here
-  private static final Pattern            TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
-  private static final Pattern            YEAR_ID_PATTERN             = Pattern.compile("\\$\\{.*?(year|imdb|tmdb).*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern             TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
+  private static final Pattern             YEAR_ID_PATTERN             = Pattern.compile("\\$\\{.*?(year|imdb|tmdb).*?\\}", Pattern.CASE_INSENSITIVE);
 
-  public static final Map<String, String> TOKEN_MAP                   = createTokenMap();
+  private static final Map<String, String> TOKEN_MAP                   = createTokenMap();
 
   private MovieRenamer() {
-    // hide public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -155,37 +156,8 @@ public class MovieRenamer {
     return tokenMap;
   }
 
-  /**
-   * morph the given template to the JMTE template
-   *
-   * @param template
-   *          the given template
-   * @return the JMTE compatible template
-   */
-  static String morphTemplate(String template) {
-    String morphedTemplate = template;
-    // replace normal template entries
-    for (Map.Entry<String, String> entry : TOKEN_MAP.entrySet()) {
-      Pattern pattern = Pattern.compile("\\$\\{" + entry.getKey() + "([^a-zA-Z0-9])", Pattern.CASE_INSENSITIVE);
-      Matcher matcher = pattern.matcher(morphedTemplate);
-      while (matcher.find()) {
-        morphedTemplate = morphedTemplate.replace(matcher.group(), "${" + entry.getValue() + matcher.group(1));
-      }
-    }
-
-    // replace conditional template entries
-    for (Map.Entry<String, String> entry : TOKEN_MAP.entrySet()) {
-      Pattern pattern = Pattern.compile("\\$\\{(.*?)," + entry.getKey() + "([^a-zA-Z0-9])", Pattern.CASE_INSENSITIVE);
-      Matcher matcher = pattern.matcher(morphedTemplate);
-      while (matcher.find()) {
-        morphedTemplate = morphedTemplate.replace(matcher.group(), "${" + matcher.group(1) + "," + entry.getValue() + matcher.group(2));
-      }
-    }
-
-    // last but not least escape single backslashes
-    morphedTemplate = morphedTemplate.replace("\\", "\\\\");
-
-    return morphedTemplate;
+  public static Map<String, String> getTokenMap() {
+    return Collections.unmodifiableMap(TOKEN_MAP);
   }
 
   private static void renameSubtitles(Movie m) {
@@ -470,6 +442,9 @@ public class MovieRenamer {
       // set it to current for file renaming
       newPathname = movie.getPathNIO().toString();
     }
+
+    // make sure we have actual stacking markers
+    movie.reEvaluateStacking();
 
     // ######################################################################
     // ## mark ALL existing and known files for cleanup (clone!!)
@@ -859,21 +834,21 @@ public class MovieRenamer {
         }
         break;
 
+      case DOUBLE_EXT:
       case VSMETA:
-        MediaFile meta = new MediaFile(mf);
+        MediaFile doubleExt = new MediaFile(mf);
         if (movie.isDisc()) {
-          // hmm.. no vsmeta created? keep 1:1 (although this will be never called)
-          meta.setFile(newMovieDir.resolve(meta.getFilename()));
-          newFiles.add(meta);
+          // keep 1:1
+          doubleExt.setFile(newMovieDir.resolve(doubleExt.getFilename()));
         }
         else {
           newFilename += getStackingString(mf);
           // HACK: get video extension from "old" name, eg video.avi.vsmeta
           String videoExt = FilenameUtils.getExtension(FilenameUtils.getBaseName(mf.getFilename()));
-          newFilename += "." + videoExt + ".vsmeta";
-          meta.setFile(newMovieDir.resolve(newFilename));
-          newFiles.add(meta);
+          newFilename += "." + videoExt + "." + FilenameUtils.getExtension(mf.getFilename());
+          doubleExt.setFile(newMovieDir.resolve(newFilename));
         }
+        newFiles.add(doubleExt);
         break;
 
       case SUBTITLE:
@@ -1172,37 +1147,7 @@ public class MovieRenamer {
   }
 
   /**
-   * replaces an optional variable, eg "{ Year $Y }"<br>
-   * if we have a year, "Year 2013" will be returned<br>
-   * if $Y replacement was empty, the complete optional tag will be empty.
-   * 
-   * @param s
-   *          the string to replace the optional variable for
-   * @param movie
-   *          the movie holding all needed meta data
-   * @param forFilename
-   *          do the logic for file or for folder names?
-   * @return the resulting string
-   */
-  private static String replaceOptionalVariable(String s, Movie movie, boolean forFilename) {
-    Pattern regex = Pattern.compile("\\$.{1}");
-    Matcher mat = regex.matcher(s);
-    if (mat.find()) {
-      String rep = createDestination(mat.group(), movie, forFilename);
-      if (rep.isEmpty()) {
-        return "";
-      }
-      else {
-        return s.replace(mat.group(), rep);
-      }
-    }
-    else {
-      return "";
-    }
-  }
-
-  /**
-   * gets the token value (${x}) from specified movie object
+   * gets the token value (${x}) from specified movie object with all renamer related replacements!
    * 
    * @param movie
    *          our movie
@@ -1212,15 +1157,7 @@ public class MovieRenamer {
    */
   public static String getTokenValue(Movie movie, String token) {
     try {
-      Engine engine = Engine.createEngine();
-      engine.registerRenderer(Number.class, new ZeroNumberRenderer());
-      engine.registerNamedRenderer(new NamedDateRenderer());
-      engine.registerNamedRenderer(new NamedUpperCaseRenderer());
-      engine.registerNamedRenderer(new NamedLowerCaseRenderer());
-      engine.registerNamedRenderer(new NamedTitleCaseRenderer());
-      engine.registerNamedRenderer(new MovieNamedFirstCharacterRenderer());
-      engine.registerNamedRenderer(new NamedArrayRenderer());
-      engine.registerNamedRenderer(new NamedFilesizeRenderer());
+      Engine engine = createEngine();
       engine.setModelAdaptor(new MovieRenamerModelAdaptor());
       Map<String, Object> root = new HashMap<>();
       root.put("movie", movie);
@@ -1231,12 +1168,32 @@ public class MovieRenamer {
         root.put("movieSet", movie.getMovieSet());
       }
 
-      return engine.transform(morphTemplate(token), root);
+      return engine.transform(JmteUtils.morphTemplate(token, TOKEN_MAP), root);
     }
     catch (Exception e) {
       LOGGER.warn("unable to process token: {}", token);
       return token;
     }
+  }
+
+  /**
+   * create the {@link Engine} to be used with JMTE
+   * 
+   * @return the pre-created Engine
+   */
+  public static Engine createEngine() {
+    Engine engine = Engine.createEngine();
+    engine.registerRenderer(Number.class, new ZeroNumberRenderer());
+    engine.registerNamedRenderer(new NamedDateRenderer());
+    engine.registerNamedRenderer(new NamedUpperCaseRenderer());
+    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
+    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
+    engine.registerNamedRenderer(new MovieNamedFirstCharacterRenderer());
+    engine.registerNamedRenderer(new NamedArrayRenderer());
+    engine.registerNamedRenderer(new NamedFilesizeRenderer());
+    engine.registerNamedRenderer(new NamedReplacementRenderer());
+
+    return engine;
   }
 
   /**

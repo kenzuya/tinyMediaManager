@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -32,8 +33,8 @@ import org.tinymediamanager.ui.components.TmmLabel;
  */
 public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
   private enum WatchedFlag {
-    WATCHED(BUNDLE.getString("metatag.watched")),
-    NOT_WATCHED(BUNDLE.getString("metatag.notwatched"));
+    WATCHED(TmmResourceBundle.getString("metatag.watched")),
+    NOT_WATCHED(TmmResourceBundle.getString("metatag.notwatched"));
 
     private String title;
 
@@ -82,7 +83,7 @@ public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.watched"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.watched"));
   }
 
   @Override

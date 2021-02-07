@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,14 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -38,13 +39,13 @@ import org.tinymediamanager.ui.movies.dialogs.MovieDownloadSubtitleDialog;
  */
 public class MovieSubtitleDownloadAction extends TmmAction {
   private static final long           serialVersionUID = -6002932119900795735L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public MovieSubtitleDownloadAction() {
-    putValue(NAME, BUNDLE.getString("movie.download.subtitle"));
+    putValue(NAME, TmmResourceBundle.getString("movie.download.subtitle"));
     putValue(SMALL_ICON, IconManager.SUBTITLE);
     putValue(LARGE_ICON_KEY, IconManager.SUBTITLE);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.download.subtitle"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.download.subtitle"));
   }
 
   @Override
@@ -52,19 +53,20 @@ public class MovieSubtitleDownloadAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    MovieDownloadSubtitleDialog dialog = new MovieDownloadSubtitleDialog(BUNDLE.getString("movie.download.subtitle"));
+    MovieDownloadSubtitleDialog dialog = new MovieDownloadSubtitleDialog(TmmResourceBundle.getString("movie.download.subtitle"));
     dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
 
     // do we want to scrape?
     if (dialog.shouldStartDownload()) {
-      MovieSubtitleSearchAndDownloadTask task = new MovieSubtitleSearchAndDownloadTask(selectedMovies, dialog.getSubtitleScrapers(),
-          dialog.getLanguage());
-      TmmTaskManager.getInstance().addMainTask(task);
+      for (MediaLanguages language : dialog.getLanguages()) {
+        MovieSubtitleSearchAndDownloadTask task = new MovieSubtitleSearchAndDownloadTask(selectedMovies, dialog.getSubtitleScrapers(), language);
+        TmmTaskManager.getInstance().addMainTask(task);
+      }
     }
   }
 }

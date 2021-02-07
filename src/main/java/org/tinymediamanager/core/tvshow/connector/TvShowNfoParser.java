@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1463,17 +1463,14 @@ public class TvShowNfoParser {
     show.setCertification(certification);
     show.setStatus(status);
 
+    List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();
     for (Person actor : actors) {
-      show.addActor(morphPerson(org.tinymediamanager.core.entities.Person.Type.ACTOR, actor));
+      newActors.add(morphPerson(org.tinymediamanager.core.entities.Person.Type.ACTOR, actor));
     }
+    show.setActors(newActors);
 
-    for (MediaGenres genre : genres) {
-      show.addGenre(genre);
-    }
-
-    for (String tag : tags) {
-      show.addToTags(tag);
-    }
+    show.addToGenres(genres);
+    show.addToTags(tags);
 
     show.setNote(userNote);
 

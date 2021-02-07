@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,14 @@
  */
 package org.tinymediamanager.ui.moviesets.dialogs;
 
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
@@ -49,10 +57,10 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -76,7 +84,6 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
-import org.tinymediamanager.ui.dialogs.ImageChooserDialog.ImageType;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -137,36 +144,23 @@ public class MovieSetEditorDialog extends TmmDialog {
    *          the queue size
    */
   public MovieSetEditorDialog(MovieSet movieSet, int queueIndex, int queueSize) {
-    super(BUNDLE.getString("movieset.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "movieSetEditor");
+    super(TmmResourceBundle.getString("movieset.edit") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "movieSetEditor");
 
     movieSetToEdit = movieSet;
+    artworkScrapers.addAll(movieList.getDefaultArtworkScrapers());
     this.queueIndex = queueIndex;
     this.queueSize = queueSize;
-
-    try {
-      List<String> enabledScrapers = new ArrayList<>();
-      if (MovieModuleManager.SETTINGS.getArtworkScrapers().contains(Constants.TMDB)) {
-        enabledScrapers.add(Constants.TMDB);
-      }
-      if (MovieModuleManager.SETTINGS.getArtworkScrapers().contains(Constants.FANART_TV)) {
-        enabledScrapers.add(Constants.FANART_TV);
-      }
-      artworkScrapers.addAll(movieList.getArtworkScrapers(enabledScrapers));
-    }
-    catch (Exception e2) {
-      LOGGER.warn("error getting IMediaArtworkProvider - {}", e2.getMessage());
-    }
 
     {
       JTabbedPane tabbedPane = new TmmTabbedPane();
       getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
       JPanel panelContent = new JPanel();
-      tabbedPane.addTab(BUNDLE.getString("metatag.details"), panelContent);
+      tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), panelContent);
       panelContent
           .setLayout(new MigLayout("", "[][400lp,grow 200][150lp:200lp,grow 50]", "[][][150lp:25%:40%,grow][20lp:n][pref!][][50lp:20%:30%,grow]"));
 
-      JLabel lblName = new TmmLabel(BUNDLE.getString("movieset.title"));
+      JLabel lblName = new TmmLabel(TmmResourceBundle.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");
 
       tfName = new JTextField();
@@ -178,20 +172,20 @@ public class MovieSetEditorDialog extends TmmDialog {
       lblPoster.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.POSTER, artworkScrapers, lblPoster,
-              null, null, MediaType.MOVIE_SET);
+          ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), POSTER, artworkScrapers, lblPoster,
+              MediaType.MOVIE_SET);
           dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
           updateArtworkUrl(lblPoster, tfPoster);
         }
       });
-      panelContent.add(new TmmLabel(BUNDLE.getString("mediafiletype.poster")), "cell 2 0");
+      panelContent.add(new TmmLabel(TmmResourceBundle.getString("mediafiletype.poster")), "cell 2 0");
 
       LinkLabel lblPosterSize = new LinkLabel();
       panelContent.add(lblPosterSize, "cell 2 0");
 
       JButton btnDeletePoster = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-      btnDeletePoster.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+      btnDeletePoster.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
       btnDeletePoster.addActionListener(e -> {
         lblPoster.clearImage();
         tfPoster.setText("");
@@ -201,14 +195,14 @@ public class MovieSetEditorDialog extends TmmDialog {
       panelContent.add(lblPoster, "cell 2 1 1 4,grow");
       lblPoster.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblPosterSize, lblPoster, MediaFileType.POSTER));
 
-      JLabel lblTmdbid = new TmmLabel(BUNDLE.getString("metatag.tmdb"));
+      JLabel lblTmdbid = new TmmLabel(TmmResourceBundle.getString("metatag.tmdb"));
       panelContent.add(lblTmdbid, "cell 0 1,alignx right");
 
       tfTmdbId = new JTextField();
       panelContent.add(tfTmdbId, "flowx,cell 1 1,aligny center");
       tfTmdbId.setColumns(10);
 
-      JLabel lblOverview = new TmmLabel(BUNDLE.getString("metatag.plot"));
+      JLabel lblOverview = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
       panelContent.add(lblOverview, "cell 0 2,alignx right,aligny top");
 
       JScrollPane scrollPaneOverview = new NoBorderScrollPane();
@@ -218,7 +212,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       tpOverview.setForeground(UIManager.getColor("TextField.foreground"));
       scrollPaneOverview.setViewportView(tpOverview);
 
-      JLabel lblMovies = new TmmLabel(BUNDLE.getString("tmm.movies"));
+      JLabel lblMovies = new TmmLabel(TmmResourceBundle.getString("tmm.movies"));
       panelContent.add(lblMovies, "flowy,cell 0 4,alignx right,aligny top");
 
       JScrollPane scrollPaneMovies = new JScrollPane();
@@ -232,19 +226,19 @@ public class MovieSetEditorDialog extends TmmDialog {
       lblFanart.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.FANART, artworkScrapers, lblFanart,
-              null, null, MediaType.MOVIE_SET);
+          ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), BACKGROUND, artworkScrapers, lblFanart,
+              MediaType.MOVIE_SET);
           dialog.setLocationRelativeTo(MainWindow.getInstance());
           dialog.setVisible(true);
           updateArtworkUrl(lblFanart, tfFanart);
         }
       });
-      panelContent.add(new TmmLabel(BUNDLE.getString("mediafiletype.fanart")), "cell 2 5");
+      panelContent.add(new TmmLabel(TmmResourceBundle.getString("mediafiletype.fanart")), "cell 2 5");
 
       LinkLabel lblFanartSize = new LinkLabel();
       panelContent.add(lblFanartSize, "cell 2 5");
       JButton btnDeleteFanart = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-      btnDeleteFanart.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+      btnDeleteFanart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
       btnDeleteFanart.addActionListener(e -> {
         lblFanart.clearImage();
         tfFanart.setText("");
@@ -267,18 +261,18 @@ public class MovieSetEditorDialog extends TmmDialog {
        */
       {
         JPanel artworkPanel = new JPanel();
-        tabbedPane.addTab(BUNDLE.getString("metatag.extraartwork"), null, artworkPanel, null);
+        tabbedPane.addTab(TmmResourceBundle.getString("metatag.extraartwork"), null, artworkPanel, null);
         artworkPanel.setLayout(new MigLayout("", "[200lp:300lp,grow][20lp:n][200lp:300lp,grow][20lp:n][100lp:200lp,grow]",
             "[][100lp:125lp,grow][20lp:n][][100lp:125lp,grow][20lp:n][][100lp:150lp,grow]"));
         {
-          JLabel lblLogoT = new TmmLabel(BUNDLE.getString("mediafiletype.logo"));
+          JLabel lblLogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.logo"));
           artworkPanel.add(lblLogoT, "cell 0 0");
 
           LinkLabel lblLogoSize = new LinkLabel();
           artworkPanel.add(lblLogoSize, "cell 0 0");
 
           JButton btnDeleteLogo = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-          btnDeleteLogo.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+          btnDeleteLogo.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
           btnDeleteLogo.addActionListener(e -> {
             lblLogo.clearImage();
             tfLogo.setText("");
@@ -289,8 +283,8 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblLogo.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.LOGO,
-                  movieList.getDefaultArtworkScrapers(), lblLogo, null, null, MediaType.MOVIE_SET);
+              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), LOGO, movieList.getDefaultArtworkScrapers(),
+                  lblLogo, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblLogo, tfLogo);
@@ -302,14 +296,14 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblLogo.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblLogoSize, lblLogo, MediaFileType.LOGO));
         }
         {
-          final JLabel lblClearlogoT = new TmmLabel(BUNDLE.getString("mediafiletype.clearlogo"));
+          final JLabel lblClearlogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearlogo"));
           artworkPanel.add(lblClearlogoT, "cell 2 0");
 
           LinkLabel lblClearlogoSize = new LinkLabel();
           artworkPanel.add(lblClearlogoSize, "cell 2 0");
 
           JButton btnDeleteClearLogo = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-          btnDeleteClearLogo.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+          btnDeleteClearLogo.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
           btnDeleteClearLogo.addActionListener(e -> {
             lblClearlogo.clearImage();
             tfClearLogo.setText("");
@@ -320,10 +314,11 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblClearlogo.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.CLEARLOGO,
-                  movieList.getDefaultArtworkScrapers(), lblClearlogo, null, null, MediaType.MOVIE_SET);
+              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), CLEARLOGO,
+                  movieList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
+              updateArtworkUrl(lblClearlogo, tfClearLogo);
             }
           });
           lblClearlogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -332,14 +327,14 @@ public class MovieSetEditorDialog extends TmmDialog {
               e -> setImageSizeAndCreateLink(lblClearlogoSize, lblClearlogo, MediaFileType.CLEARLOGO));
         }
         {
-          JLabel lblBannerT = new TmmLabel(BUNDLE.getString("mediafiletype.banner"));
+          JLabel lblBannerT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.banner"));
           artworkPanel.add(lblBannerT, "cell 0 3");
 
           LinkLabel lblBannerSize = new LinkLabel();
           artworkPanel.add(lblBannerSize, "cell 0 3");
 
           JButton btnDeleteBanner = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-          btnDeleteBanner.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+          btnDeleteBanner.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
           btnDeleteBanner.addActionListener(e -> {
             lblBanner.clearImage();
             tfBanner.setText("");
@@ -350,8 +345,8 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblBanner.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.BANNER,
-                  movieList.getDefaultArtworkScrapers(), lblBanner, null, null, MediaType.MOVIE_SET);
+              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), BANNER,
+                  movieList.getDefaultArtworkScrapers(), lblBanner, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblBanner, tfBanner);
@@ -362,14 +357,14 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblBanner.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblBannerSize, lblBanner, MediaFileType.BANNER));
         }
         {
-          JLabel lblClearartT = new TmmLabel(BUNDLE.getString("mediafiletype.clearart"));
+          JLabel lblClearartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
           artworkPanel.add(lblClearartT, "cell 0 6");
 
           LinkLabel lblClearartSize = new LinkLabel();
           artworkPanel.add(lblClearartSize, "cell 0 6");
 
           JButton btnDeleteClearart = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-          btnDeleteClearart.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+          btnDeleteClearart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
           btnDeleteClearart.addActionListener(e -> {
             lblClearart.clearImage();
             tfClearArt.setText("");
@@ -380,8 +375,8 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblClearart.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.CLEARART,
-                  movieList.getDefaultArtworkScrapers(), lblClearart, null, null, MediaType.MOVIE_SET);
+              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), CLEARART,
+                  movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblClearart, tfClearArt);
@@ -400,7 +395,7 @@ public class MovieSetEditorDialog extends TmmDialog {
           artworkPanel.add(lblThumbSize, "cell 2 6");
 
           JButton btnDeleteThumb = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-          btnDeleteThumb.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+          btnDeleteThumb.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
           btnDeleteThumb.addActionListener(e -> {
             lblThumb.clearImage();
             tfThumb.setText("");
@@ -411,8 +406,8 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblThumb.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.THUMB,
-                  movieList.getDefaultArtworkScrapers(), lblThumb, null, null, MediaType.MOVIE_SET);
+              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), THUMB,
+                  movieList.getDefaultArtworkScrapers(), lblThumb, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblThumb, tfThumb);
@@ -430,7 +425,7 @@ public class MovieSetEditorDialog extends TmmDialog {
           artworkPanel.add(lblDiscSize, "cell 4 6");
 
           JButton btnDeleteDisc = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-          btnDeleteDisc.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+          btnDeleteDisc.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
           btnDeleteDisc.addActionListener(e -> {
             lblDisc.clearImage();
             tfDisc.setText("");
@@ -441,8 +436,8 @@ public class MovieSetEditorDialog extends TmmDialog {
           lblDisc.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), ImageType.DISC,
-                  movieList.getDefaultArtworkScrapers(), lblDisc, null, null, MediaType.MOVIE_SET);
+              ImageChooserDialog dialog = new ImageChooserDialog(MovieSetEditorDialog.this, extractIds(), DISC, movieList.getDefaultArtworkScrapers(),
+                  lblDisc, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
               updateArtworkUrl(lblDisc, tfDisc);
@@ -459,59 +454,59 @@ public class MovieSetEditorDialog extends TmmDialog {
        */
       {
         JPanel artworkAndTrailerPanel = new JPanel();
-        tabbedPane.addTab(BUNDLE.getString("edit.artwork"), null, artworkAndTrailerPanel, null);
+        tabbedPane.addTab(TmmResourceBundle.getString("edit.artwork"), null, artworkAndTrailerPanel, null);
         artworkAndTrailerPanel.setLayout(new MigLayout("", "[][grow]", "[][][][][][][][]"));
         {
-          JLabel lblPosterT = new TmmLabel(BUNDLE.getString("mediafiletype.poster"));
+          JLabel lblPosterT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.poster"));
           artworkAndTrailerPanel.add(lblPosterT, "cell 0 0,alignx right");
         }
         {
           tfPoster = new JTextField();
           artworkAndTrailerPanel.add(tfPoster, "cell 1 0,growx");
 
-          JLabel lblFanartT = new TmmLabel(BUNDLE.getString("mediafiletype.fanart"));
+          JLabel lblFanartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.fanart"));
           artworkAndTrailerPanel.add(lblFanartT, "cell 0 1,alignx right");
 
           tfFanart = new JTextField();
           artworkAndTrailerPanel.add(tfFanart, "cell 1 1,growx");
         }
         {
-          JLabel lblLogoT = new TmmLabel(BUNDLE.getString("mediafiletype.logo"));
+          JLabel lblLogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.logo"));
           artworkAndTrailerPanel.add(lblLogoT, "cell 0 2,alignx right");
 
           tfLogo = new JTextField();
           artworkAndTrailerPanel.add(tfLogo, "cell 1 2,growx");
         }
         {
-          JLabel lblClearLogoT = new TmmLabel(BUNDLE.getString("mediafiletype.clearlogo"));
+          JLabel lblClearLogoT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearlogo"));
           artworkAndTrailerPanel.add(lblClearLogoT, "cell 0 3,alignx right");
 
           tfClearLogo = new JTextField();
           artworkAndTrailerPanel.add(tfClearLogo, "cell 1 3,growx");
         }
         {
-          JLabel lblBannerT = new TmmLabel(BUNDLE.getString("mediafiletype.banner"));
+          JLabel lblBannerT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.banner"));
           artworkAndTrailerPanel.add(lblBannerT, "cell 0 4,alignx right");
 
           tfBanner = new JTextField();
           artworkAndTrailerPanel.add(tfBanner, "cell 1 4,growx");
         }
         {
-          JLabel lblClearArtT = new TmmLabel(BUNDLE.getString("mediafiletype.clearart"));
+          JLabel lblClearArtT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
           artworkAndTrailerPanel.add(lblClearArtT, "cell 0 5,alignx right");
 
           tfClearArt = new JTextField();
           artworkAndTrailerPanel.add(tfClearArt, "cell 1 5,growx");
         }
         {
-          JLabel lblThumbT = new TmmLabel(BUNDLE.getString("mediafiletype.thumb"));
+          JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
           artworkAndTrailerPanel.add(lblThumbT, "cell 0 6,alignx right");
 
           tfThumb = new JTextField();
           artworkAndTrailerPanel.add(tfThumb, "cell 1 6,growx");
         }
         {
-          JLabel lblDiscT = new TmmLabel(BUNDLE.getString("mediafiletype.disc"));
+          JLabel lblDiscT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.disc"));
           artworkAndTrailerPanel.add(lblDiscT, "cell 0 7,alignx trailing");
 
           tfDisc = new JTextField();
@@ -568,11 +563,11 @@ public class MovieSetEditorDialog extends TmmDialog {
 
     // adjust table columns
     // name column
-    tableMovies.getTableHeader().getColumnModel().getColumn(0).setHeaderValue(BUNDLE.getString("metatag.name"));
+    tableMovies.getTableHeader().getColumnModel().getColumn(0).setHeaderValue(TmmResourceBundle.getString("metatag.name"));
 
     // year column
     int width = (int) (tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth("2000") * 1.3f + 10);
-    int titleWidth = tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth(BUNDLE.getString("metatag.year"));
+    int titleWidth = tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth(TmmResourceBundle.getString("metatag.year"));
     if (titleWidth > width) {
       width = titleWidth;
     }
@@ -580,14 +575,14 @@ public class MovieSetEditorDialog extends TmmDialog {
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setMinWidth(width);
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setMaxWidth((int) (width * 1.1f));
     tableMovies.getTableHeader().getColumnModel().getColumn(1).setResizable(false);
-    tableMovies.getTableHeader().getColumnModel().getColumn(1).setHeaderValue(BUNDLE.getString("metatag.year"));
+    tableMovies.getTableHeader().getColumnModel().getColumn(1).setHeaderValue(TmmResourceBundle.getString("metatag.year"));
 
     // watched column
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setPreferredWidth(70);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setMinWidth(70);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setMaxWidth(85);
     tableMovies.getTableHeader().getColumnModel().getColumn(2).setResizable(false);
-    tableMovies.getTableHeader().getColumnModel().getColumn(2).setHeaderValue(BUNDLE.getString("metatag.watched"));
+    tableMovies.getTableHeader().getColumnModel().getColumn(2).setHeaderValue(TmmResourceBundle.getString("metatag.watched"));
   }
 
   private Map<String, Object> extractIds() {
@@ -624,7 +619,7 @@ public class MovieSetEditorDialog extends TmmDialog {
 
     RemoveMovieAction() {
       putValue(LARGE_ICON_KEY, IconManager.REMOVE_INV);
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.movie.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.movie.remove"));
     }
 
     @Override
@@ -646,8 +641,8 @@ public class MovieSetEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -7322270015667230646L;
 
     OkAction() {
-      putValue(NAME, BUNDLE.getString("Button.save"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("Button.save"));
+      putValue(NAME, TmmResourceBundle.getString("Button.save"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.save"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }
@@ -691,8 +686,6 @@ public class MovieSetEditorDialog extends TmmDialog {
         movieSetToEdit.removeMovie(movie, true);
       }
 
-      MovieList.getInstance().sortMoviesInMovieSet(movieSetToEdit);
-
       // and rewrite NFO
       for (Movie movie : moviesInSet) {
         movie.writeNFO();
@@ -734,8 +727,8 @@ public class MovieSetEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -6214112833170817002L;
 
     CancelAction() {
-      putValue(NAME, BUNDLE.getString("Button.cancel"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("edit.discard"));
+      putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
       putValue(LARGE_ICON_KEY, IconManager.CANCEL_INV);
     }
@@ -750,8 +743,8 @@ public class MovieSetEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 1215596133205394653L;
 
     AbortAction() {
-      putValue(NAME, BUNDLE.getString("Button.abortqueue"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("Button.abortqueue"));
+      putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.abortqueue"));
       putValue(SMALL_ICON, IconManager.STOP_INV);
       putValue(LARGE_ICON_KEY, IconManager.STOP_INV);
     }
@@ -767,7 +760,7 @@ public class MovieSetEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -1652218154720642310L;
 
     public NavigateBackAction() {
-      putValue(NAME, BUNDLE.getString("Button.back"));
+      putValue(NAME, TmmResourceBundle.getString("Button.back"));
       putValue(SMALL_ICON, IconManager.BACK_INV);
     }
 
@@ -782,8 +775,8 @@ public class MovieSetEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -8980803676368394987L;
 
     SearchIdAction() {
-      putValue(NAME, BUNDLE.getString("movieset.tmdb.find"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.tmdb.desc"));
+      putValue(NAME, TmmResourceBundle.getString("movieset.tmdb.find"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.tmdb.desc"));
     }
 
     @Override
@@ -800,6 +793,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             options.setImdbId(movie.getImdbId());
             options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
             options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+            options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
 
             try {
               MediaMetadata md = mp.getMetadata(options);
@@ -808,20 +802,20 @@ public class MovieSetEditorDialog extends TmmDialog {
                 break;
               }
             }
+            catch (MissingIdException ex) {
+              LOGGER.warn("missing id for scrape");
+              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "scraper.error.missingid"));
+            }
             catch (ScrapeException ex) {
               LOGGER.error("getMetadata", ex);
               MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "message.scrape.metadatamoviesetfailed",
                   new String[] { ":", ex.getLocalizedMessage() }));
             }
-            catch (MissingIdException ex) {
-              LOGGER.warn("missing id for scrape");
-              MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "MovieSetChooser", "scraper.error.missingid"));
-            }
           }
         }
       }
       catch (Exception ex) {
-        JOptionPane.showMessageDialog(null, BUNDLE.getString("movieset.tmdb.error"));
+        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("movieset.tmdb.error"));
       }
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.SwingPropertyChangeSupport;
 import javax.swing.text.JTextComponent;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.components.TriStateCheckBox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,7 +62,7 @@ public abstract class AbstractTmmUIFilter<E> implements ITmmUIFilter<E> {
 
   public AbstractTmmUIFilter() {
     this.checkBox = new TriStateCheckBox();
-    this.checkBox.setToolTipText(BUNDLE.getString("filter.hint"));
+    this.checkBox.setToolTipText(TmmResourceBundle.getString("filter.hint"));
     this.label = createLabel();
     this.filterComponent = createFilterComponent();
 

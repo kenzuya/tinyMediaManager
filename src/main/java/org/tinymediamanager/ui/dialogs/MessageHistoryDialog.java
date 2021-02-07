@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
 import java.awt.BorderLayout;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.tinymediamanager.core.Message;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIMessageCollector;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
@@ -44,11 +47,12 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
   private static final long           serialVersionUID = -5054005564554148578L;
 
   private static MessageHistoryDialog instance;
-  private Map<Message, JPanel>        messageMap;
-  private JPanel                      messagesPanel;
+
+  private final Map<Message, JPanel>  messageMap;
+  private final JPanel                messagesPanel;
 
   private MessageHistoryDialog() {
-    super(MainWindow.getInstance(), BUNDLE.getString("summarywindow.title"), "messageSummary");
+    super(MainWindow.getInstance(), TmmResourceBundle.getString("summarywindow.title"), "messageSummary");
 
     setModal(false);
     setModalityType(ModalityType.MODELESS);
@@ -63,13 +67,13 @@ public class MessageHistoryDialog extends TmmDialog implements ListEventListener
     messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.PAGE_AXIS));
 
     JScrollPane scrollPane = new NoBorderScrollPane();
-    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scrollPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
     scrollPane.setViewportView(messagesPanel);
     scrollPane.getVerticalScrollBar().setUnitIncrement(16);
     panelContent.setLayout(new MigLayout("", "[300lp:600lp,grow]", "[200lp:400lp,grow]"));
     panelContent.add(scrollPane, "cell 0 0,grow, wmin 0");
 
-    JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+    JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
     btnClose.addActionListener(arg0 -> setVisible(false));
     addDefaultButton(btnClose);
 

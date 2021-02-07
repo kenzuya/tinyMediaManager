@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import static org.tinymediamanager.scraper.entities.MediaType.TV_SHOW;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -52,7 +52,6 @@ import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
  */
 public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowMissingArtworkDownloadTask.class);
-  private static final ResourceBundle                    BUNDLE = ResourceBundle.getBundle("messages");
 
   private final List<TvShow>                             tvShows;
   private final List<TvShowEpisode>                      episodes;
@@ -62,7 +61,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
 
   public TvShowMissingArtworkDownloadTask(List<TvShow> tvShows, List<TvShowEpisode> episodes, TvShowSearchAndScrapeOptions scrapeOptions,
       List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
-    super(BUNDLE.getString("task.missingartwork"));
+    super(TmmResourceBundle.getString("task.missingartwork"));
     this.tvShows = new ArrayList<>(tvShows);
     this.episodes = new ArrayList<>(episodes);
     this.scrapeOptions = scrapeOptions;
@@ -146,13 +145,13 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
           try {
             artwork.addAll(artworkProvider.getArtwork(options));
           }
+          catch (MissingIdException ignored) {
+            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
+          }
           catch (ScrapeException e) {
             LOGGER.error("getArtwork", e);
             MessageManager.instance.pushMessage(
                 new Message(Message.MessageLevel.ERROR, tvShow, "message.scrape.tvshowartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
-            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
           }
         }
 
@@ -170,9 +169,8 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
   }
 
   private static class TvShowEpisodeWorker implements Runnable {
-    private TvShowList                  tvShowList = TvShowList.getInstance();
-    private TvShowEpisode               episode;
-    private MediaSearchAndScrapeOptions scrapeOptions;
+    private final TvShowEpisode               episode;
+    private final MediaSearchAndScrapeOptions scrapeOptions;
 
     private TvShowEpisodeWorker(TvShowEpisode episode, MediaSearchAndScrapeOptions scrapeOptions) {
       this.episode = episode;
@@ -189,10 +187,9 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
         options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+        options.setId("tvShowIds", episode.getTvShow().getIds());
+        options.setId("mediaFile", episode.getMainFile());
 
-        for (Map.Entry<String, Object> entry : episode.getTvShow().getIds().entrySet()) {
-          options.setId(entry.getKey(), entry.getValue().toString());
-        }
         if (episode.isDvdOrder()) {
           options.setId(MediaMetadata.SEASON_NR_DVD, String.valueOf(episode.getDvdSeason()));
           options.setId(MediaMetadata.EPISODE_NR_DVD, String.valueOf(episode.getDvdEpisode()));
@@ -212,13 +209,13 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
               break;
             }
           }
+          catch (MissingIdException ignored) {
+            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
+          }
           catch (ScrapeException e) {
             LOGGER.error("getArtwork", e);
             MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, episode, "message.scrape.tvshowartworkfailed",
                 new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
-            LOGGER.debug("no id found for scraper {}", artworkProvider.getProviderInfo());
           }
         }
 

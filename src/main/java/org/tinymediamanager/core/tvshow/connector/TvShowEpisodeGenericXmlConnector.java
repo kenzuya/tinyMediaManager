@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -514,11 +514,9 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addPlaycount(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element playcount = document.createElement("playcount");
-    if (episode.isWatched() && parser != null && parser.playcount > 0) {
-      playcount.setTextContent(Integer.toString(parser.playcount));
-    }
-    else if (episode.isWatched()) {
-      playcount.setTextContent("1");
+    if (episode.isWatched()) {
+      int playCountFromNFO = parser != null ? parser.playcount : 0;
+      playcount.setTextContent(Integer.toString(Math.max(Math.max(episode.getPlaycount(), playCountFromNFO), 1)));
     }
     root.appendChild(playcount);
   }

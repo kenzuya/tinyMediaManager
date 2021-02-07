@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 package org.tinymediamanager.ui.tvshows;
 
 import java.util.Date;
-import java.util.ResourceBundle;
 
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 
@@ -29,7 +29,7 @@ import org.tinymediamanager.scraper.MediaScraper;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeChooserModel extends AbstractModelObject {
-  private static final ResourceBundle           BUNDLE      = ResourceBundle.getBundle("messages");
+
   public static final TvShowEpisodeChooserModel emptyResult = new TvShowEpisodeChooserModel();
 
   private MediaScraper                          mediaScraper;
@@ -52,7 +52,7 @@ public class TvShowEpisodeChooserModel extends AbstractModelObject {
   }
 
   private TvShowEpisodeChooserModel() {
-    setTitle(BUNDLE.getString("chooser.nothingfound"));
+    setTitle(TmmResourceBundle.getString("chooser.nothingfound"));
   }
 
   public void setTitle(String title) {

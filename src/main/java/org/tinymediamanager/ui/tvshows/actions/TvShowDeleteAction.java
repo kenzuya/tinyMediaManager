@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -41,12 +42,12 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowDeleteAction extends TmmAction {
   private static final long           serialVersionUID = -2355545751433709417L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowDeleteAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.delete"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.delete"));
     putValue(SMALL_ICON, IconManager.DELETE_FOREVER);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.delete.hint"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.delete.hint"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
@@ -55,18 +56,19 @@ public class TvShowDeleteAction extends TmmAction {
     List<Object> selectedObjects = TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects();
 
     // display warning and ask the user again
-    Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), BUNDLE.getString("tvshow.delete.desc"),
-        BUNDLE.getString("tvshow.delete"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+    Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tvshow.delete.desc"),
+        TmmResourceBundle.getString("tvshow.delete"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (answer != JOptionPane.YES_OPTION) {
       return;
     }
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Object obj : selectedObjects) {
       // delete a whole TV show
       if (obj instanceof TvShow) {
@@ -87,5 +89,6 @@ public class TvShowDeleteAction extends TmmAction {
         tvShowEpisode.getTvShow().deleteEpisode(tvShowEpisode);
       }
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

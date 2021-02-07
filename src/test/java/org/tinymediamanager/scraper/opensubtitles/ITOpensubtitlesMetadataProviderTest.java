@@ -18,7 +18,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -54,7 +53,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
   @Test
   public void testSearchByMovieHash() {
     try {
-      OpensubtitlesMetadataProvider os = new OpensubtitlesMetadataProvider();
+      OpenSubtitlesSubtitleProvider os = new OpenSubtitlesMovieSubtitleProvider();
 
       File parentDir = new File("");
       File[] subDirs = parentDir.listFiles();
@@ -95,7 +94,7 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
   @Test
   public void testSearchByTitle() {
     try {
-      OpensubtitlesMetadataProvider mp = new OpensubtitlesMetadataProvider();
+      OpenSubtitlesSubtitleProvider mp = new OpenSubtitlesMovieSubtitleProvider();
       SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
       options.setSearchQuery("The Matrix");
       options.setLanguage(MediaLanguages.de);
@@ -115,10 +114,10 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
     try {
       TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE));
 
-      String userAgent = License.getInstance().getApiKey("opensubtitles");
-      client.setUserAgent(userAgent);
+      client.setUserAgent(new OpenSubtitlesMovieSubtitleProvider().getApiKey());
 
-      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[] { "", "", "", userAgent });
+      Map<String, Object> result = (Map<String, Object>) client.call("LogIn",
+          new Object[] { "", "", "", new OpenSubtitlesMovieSubtitleProvider().getApiKey() });
       assertThat(result).isNotEmpty();
       assertThat((String) result.get("token")).isNotEmpty();
     }
@@ -135,10 +134,10 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
       // login
       TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE));
 
-      String userAgent = License.getInstance().getApiKey("opensubtitles");
-      client.setUserAgent(userAgent);
+      client.setUserAgent(new OpenSubtitlesMovieSubtitleProvider().getApiKey());
 
-      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[] { "", "", "", userAgent });
+      Map<String, Object> result = (Map<String, Object>) client.call("LogIn",
+          new Object[] { "", "", "", new OpenSubtitlesMovieSubtitleProvider().getApiKey() });
       assertThat(result).isNotEmpty();
       assertThat((String) result.get("token")).isNotEmpty();
       String token = (String) result.get("token");
@@ -249,10 +248,10 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
       // login
       TmmXmlRpcClient client = new TmmXmlRpcClient(new URL(SERVICE));
 
-      String userAgent = License.getInstance().getApiKey("opensubtitles");
-      client.setUserAgent(userAgent);
+      client.setUserAgent(new OpenSubtitlesMovieSubtitleProvider().getApiKey());
 
-      Map<String, Object> result = (Map<String, Object>) client.call("LogIn", new Object[] { "", "", "", userAgent });
+      Map<String, Object> result = (Map<String, Object>) client.call("LogIn",
+          new Object[] { "", "", "", new OpenSubtitlesMovieSubtitleProvider().getApiKey() });
       assertThat(result).isNotEmpty();
       assertThat((String) result.get("token")).isNotEmpty();
       String token = (String) result.get("token");

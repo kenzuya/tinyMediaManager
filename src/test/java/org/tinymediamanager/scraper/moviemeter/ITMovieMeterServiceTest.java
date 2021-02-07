@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
 import org.tinymediamanager.scraper.moviemeter.services.FilmService;
 import org.tinymediamanager.scraper.moviemeter.services.SearchService;
@@ -40,7 +39,7 @@ public class ITMovieMeterServiceTest extends BasicTest {
   @Test
   public void testFilmService() throws Exception {
     MovieMeter movieMeter = new MovieMeter();
-    movieMeter.setApiKey(License.getInstance().getApiKey("moviemeter"));
+    movieMeter.setApiKey(new MovieMeterMovieMetadataProvider().getApiKey());
 
     try {
       FilmService filmService = movieMeter.getFilmService();
@@ -67,7 +66,7 @@ public class ITMovieMeterServiceTest extends BasicTest {
   @Test
   public void testSearchService() throws Exception {
     MovieMeter movieMeter = new MovieMeter();
-    movieMeter.setApiKey(License.getInstance().getApiKey("moviemeter"));
+    movieMeter.setApiKey(new MovieMeterMovieMetadataProvider().getApiKey());
 
     try {
       SearchService searchService = movieMeter.getSearchService();

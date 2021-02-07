@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.core.tvshow.tasks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,21 +28,22 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaScraper;
-import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.ISubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowSubtitleProvider;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
 
 /**
@@ -52,30 +52,23 @@ import org.tinymediamanager.scraper.util.MediaIdUtil;
  * @author Manuel Laggner
  */
 public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowSubtitleSearchAndDownloadTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  private static final Logger       LOGGER = LoggerFactory.getLogger(TvShowSubtitleSearchAndDownloadTask.class);
 
-  private final List<TvShowEpisode>   episodes;
-  private final List<MediaScraper>    subtitleScrapers;
-  private final MediaLanguages        language;
+  private final List<TvShowEpisode> episodes;
+  private final List<MediaScraper>  subtitleScrapers;
+  private final MediaLanguages      language;
 
   public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, MediaLanguages language) {
-    super(BUNDLE.getString("tvshow.download.subtitles"));
+    super(TmmResourceBundle.getString("tvshow.download.subtitles"));
     this.episodes = episodes;
     this.language = language;
 
     // get scrapers
-    this.subtitleScrapers = new ArrayList<>();
-    for (String scraperId : TvShowModuleManager.SETTINGS.getSubtitleScrapers()) {
-      MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.SUBTITLE);
-      if (scraper != null) {
-        subtitleScrapers.add(scraper);
-      }
-    }
+    this.subtitleScrapers = new ArrayList<>(TvShowList.getInstance().getDefaultSubtitleScrapers());
   }
 
   public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, List<MediaScraper> subtitleScrapers, MediaLanguages language) {
-    super(BUNDLE.getString("tvshow.download.subtitles"));
+    super(TmmResourceBundle.getString("tvshow.download.subtitles"));
     this.episodes = episodes;
     this.subtitleScrapers = subtitleScrapers;
     this.language = language;
@@ -105,7 +98,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private class Worker implements Runnable {
-    private TvShowEpisode episode;
+    private final TvShowEpisode episode;
 
     Worker(TvShowEpisode episode) {
       this.episode = episode;
@@ -115,10 +108,14 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
     public void run() {
       try {
         for (MediaScraper scraper : subtitleScrapers) {
+          if (!scraper.isEnabled()) {
+            continue;
+          }
+
           try {
             MediaFile mf = episode.getMediaFiles(MediaFileType.VIDEO).get(0);
 
-            ISubtitleProvider subtitleProvider = (ISubtitleProvider) scraper.getMediaProvider();
+            ITvShowSubtitleProvider subtitleProvider = (ITvShowSubtitleProvider) scraper.getMediaProvider();
             SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.TV_EPISODE);
             options.setFile(mf.getFileAsPath().toFile());
             options.setLanguage(language);
@@ -157,12 +154,12 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
             TmmTaskManager.getInstance()
                 .addDownloadTask(new SubtitleDownloadTask(firstResult.getUrl(), episode.getPathNIO().resolve(filename), episode));
           }
+          catch (MissingIdException ignored) {
+          }
           catch (ScrapeException e) {
             LOGGER.error("getSubtitles", e);
             MessageManager.instance.pushMessage(
                 new Message(MessageLevel.ERROR, episode, "message.scrape.subtitlefailed", new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
           }
         }
       }

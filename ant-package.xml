@@ -49,6 +49,8 @@
         <copy file="AppBundler/restart.jar" todir="${build.dir}"/>
         <copy file="LICENSE" todir="${build.dir}"/>
         <copy file="AppBundler/splashscreen.png" todir="${build.dir}"/>
+        <copy file="AppBundler/splashscreen@150pct.png" todir="${build.dir}"/>
+        <copy file="AppBundler/splashscreen@200pct.png" todir="${build.dir}"/>
         <copy file="AppBundler/env.txt" todir="${build.dir}"/>
         <copy file="AppBundler/tmm.png" todir="${build.dir}"/>
         <copy file="target/${tmmName}-${tmmVersion}.jar" tofile="${build.dir}/tmm.jar"/>
@@ -173,8 +175,8 @@
         <!-- ARM (raspberry, ...) distributable -->
         <!-- ===================================================== -->
         <copy file="target/launcher/arm/tinyMediaManager"
-              tofile="${dist.dir}/arm/tinyMediaManager"/>
-        <chmod file="${dist.dir}/arm/tinyMediaManager" perm="ugo+rx"/>
+              tofile="${dist.dir}/arm/tinyMediaManager-arm"/>
+        <chmod file="${dist.dir}/arm/tinyMediaManager-arm" perm="ugo+rx"/>
         <copy todir="${dist.dir}/arm">
             <fileset dir="${build.dir}">
                 <include name="**/*"/>
@@ -192,10 +194,10 @@
         <copy file="${dist.dir}/win/tinyMediaManager.exe" todir="${build.dir}"/>
         <copy file="${dist.dir}/win/tinyMediaManagerCMD.exe" todir="${build.dir}"/>
         <copy file="${dist.dir}/linux/tinyMediaManager" todir="${build.dir}"/>
+        <copy file="${dist.dir}/arm/tinyMediaManager-arm" todir="${build.dir}"/>
         <copy file="AppBundler/dist-linux/tinyMediaManager.sh" todir="${build.dir}"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/tinyMediaManager"
               todir="${build.dir}/macOS/MacOS"/>
-        <copy file="${dist.dir}/arm/tinyMediaManager" tofile="${build.dir}/tinyMediaManager-arm"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/MacOS/JavaApplicationStub"
               todir="${build.dir}/macOS/MacOS"/>
         <copy file="${dist.dir}/mac/tinyMediaManager.app/Contents/Info.plist" todir="${build.dir}/macOS/"/>
@@ -255,7 +257,7 @@
         <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
         <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
         <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_arm.tar.gz">
-            <tarfileset dir="${dist.dir}/arm" excludes="tinyMediaManager"/>
+            <tarfileset dir="${dist.dir}/arm" excludes="tinyMediaManager-arm"/>
             <tarfileset filemode="755" dir="${dist.dir}/arm" includes="tinyMediaManager-arm"/>
         </tar>
 

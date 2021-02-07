@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,11 +98,21 @@ public class TmmModelAdaptor extends DefaultModelAdaptor {
             String[] interval = arrayIndex.split(",");
             int start = Integer.parseInt(interval[0]);
             int end = start + Integer.parseInt(interval[1]);
-            return array.toString().substring(start, end);
+            if (array.toString().length() > start) {
+              return array.toString().substring(start, Math.min(end, array.toString().length()));
+            }
+            else {
+              return array.toString();
+            }
           }
           else {
             int index = Integer.parseInt(arrayIndex);
-            return array.toString().substring(index, index + 1);
+            if (array.toString().length() > index) {
+              return array.toString().substring(index, index + 1);
+            }
+            else {
+              return array.toString();
+            }
           }
         }
         if (array != ERROR_STRING) {

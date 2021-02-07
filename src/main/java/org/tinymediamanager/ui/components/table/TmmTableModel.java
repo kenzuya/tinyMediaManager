@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import javax.swing.table.TableColumn;
 
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.DefaultEventTableModel;
-import ca.odell.glazedlists.swing.GlazedListsSwing;
 
 /**
  * The class TmmTableModel is used as a template for our table models
@@ -30,15 +29,11 @@ import ca.odell.glazedlists.swing.GlazedListsSwing;
  * @author Manuel laggner
  */
 public class TmmTableModel<E> extends DefaultEventTableModel<E> {
-  private TmmTableFormat<? super E> tmmTableFormat;
+  private final TmmTableFormat<? super E> tmmTableFormat;
 
   public TmmTableModel(EventList<E> source, TmmTableFormat<? super E> tableFormat) {
     super(source, tableFormat);
     tmmTableFormat = tableFormat;
-  }
-
-  public void setManyToOneTableModelEventAdapter() {
-    setEventAdapter(GlazedListsSwing.<E> manyToOneEventAdapterFactory().create(this));
   }
 
   /**
@@ -80,13 +75,12 @@ public class TmmTableModel<E> extends DefaultEventTableModel<E> {
   public String getTooltipAt(int row, int column) {
     this.source.getReadWriteLock().readLock().lock();
 
-    String tooltip = null;
+    String tooltip;
     try {
-      tooltip = tmmTableFormat.getColumnTooltip((E) this.source.get(row), column);
+      tooltip = tmmTableFormat.getColumnTooltip(this.source.get(row), column);
     }
     catch (Exception e) {
-      // IOOB when -1; dunno how i managed this
-      return "";
+      return null;
     }
     finally {
       this.source.getReadWriteLock().readLock().unlock();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public abstract class TmmDialog extends JDialog {
   private static final long             serialVersionUID = 1L;
-  /** @wbp.nls.resourceBundle messages */
+
   protected static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
 
   protected BindingGroup                bindingGroup     = null;

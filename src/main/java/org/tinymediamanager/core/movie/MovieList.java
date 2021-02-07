@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import static org.tinymediamanager.core.Constants.DECADE;
 import static org.tinymediamanager.core.Constants.GENRE;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
-import static org.tinymediamanager.core.Constants.TAG;
+import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.YEAR;
 
 import java.beans.PropertyChangeListener;
@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -49,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -62,10 +64,9 @@ import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
-import org.tinymediamanager.license.License;
-import org.tinymediamanager.license.MovieEventList;
-import org.tinymediamanager.license.SizeLimitExceededException;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -78,6 +79,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
+import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 
@@ -118,7 +120,7 @@ public class MovieList extends AbstractModelObject {
    */
   private MovieList() {
     // create all lists
-    movieList = new ObservableElementList<>(new MovieEventList<>(), GlazedLists.beanConnector(Movie.class));
+    movieList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Movie.class));
     movieSetList = new ObservableCopyOnWriteArrayList<>();
 
     yearsInMovies = new CopyOnWriteArrayList<>();
@@ -155,7 +157,7 @@ public class MovieList extends AbstractModelObject {
             updateGenres(Collections.singletonList(movie));
             break;
 
-          case TAG:
+          case TAGS:
             updateTags(Collections.singletonList(movie));
             break;
 
@@ -183,12 +185,6 @@ public class MovieList extends AbstractModelObject {
     };
 
     movieSettings = MovieModuleManager.SETTINGS;
-
-    License.getInstance().addEventListener(() -> {
-      firePropertyChange("movieCount", 0, movieList.size());
-      firePropertyChange("movieSetCount", 0, movieSetList.size());
-      firePropertyChange("movieInMovieSetCount", 0, getMovieInMovieSetCount());
-    });
   }
 
   /**
@@ -224,23 +220,51 @@ public class MovieList extends AbstractModelObject {
   /**
    * Removes the datasource.
    * 
-   * @param path
+   * @param datasource
    *          the path
    */
-  public void removeDatasource(String path) {
-    if (StringUtils.isEmpty(path)) {
+  void removeDatasource(String datasource) {
+    if (StringUtils.isEmpty(datasource)) {
       return;
     }
 
     List<Movie> moviesToRemove = new ArrayList<>();
+    Path path = Paths.get(datasource);
     for (int i = movieList.size() - 1; i >= 0; i--) {
       Movie movie = movieList.get(i);
-      if (Paths.get(path).equals(Paths.get(movie.getDataSource()))) {
+      if (path.equals(Paths.get(movie.getDataSource()))) {
         moviesToRemove.add(movie);
       }
     }
 
     removeMovies(moviesToRemove);
+  }
+
+  /**
+   * exchanges the given datasource in the entities/database with a new one
+   */
+  void exchangeDatasource(String oldDatasource, String newDatasource) {
+    Path oldPath = Paths.get(oldDatasource);
+    List<Movie> moviesToChange = movieList.stream().filter(movie -> oldPath.equals(Paths.get(movie.getDataSource()))).collect(Collectors.toList());
+    List<MediaFile> imagesToCache = new ArrayList<>();
+
+    for (Movie movie : moviesToChange) {
+      Path oldMoviePath = movie.getPathNIO();
+      Path newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+
+      movie.setDataSource(newDatasource);
+      movie.setPath(newMoviePath.toAbsolutePath().toString());
+      movie.updateMediaFilePath(oldMoviePath, newMoviePath);
+      movie.saveToDb(); // since we moved already, save it
+
+      // re-build the image cache afterwards in an own thread
+      imagesToCache.addAll(movie.getImagesToCache());
+    }
+
+    if (!imagesToCache.isEmpty()) {
+      ImageCacheTask task = new ImageCacheTask(imagesToCache);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
+    }
   }
 
   /**
@@ -386,10 +410,6 @@ public class MovieList extends AbstractModelObject {
 
         // for performance reasons we add movies directly
         movieList.add(movie);
-      }
-      catch (SizeLimitExceededException e) {
-        LOGGER.debug("size limit exceeded - ignoring DB entry");
-        break;
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding movie json string: {}", e.getMessage());
@@ -567,17 +587,15 @@ public class MovieList extends AbstractModelObject {
    */
   public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper,
       MediaLanguages language) {
+
+    if (mediaScraper == null || !mediaScraper.isEnabled()) {
+      return Collections.emptyList();
+    }
+
     Set<MediaSearchResult> sr = new TreeSet<>();
     try {
-      IMovieMetadataProvider provider;
-      if (mediaScraper == null) {
-        provider = (IMovieMetadataProvider) getDefaultMediaScraper().getMediaProvider();
-      }
-      else {
-        provider = (IMovieMetadataProvider) mediaScraper.getMediaProvider();
-      }
+      IMovieMetadataProvider provider = (IMovieMetadataProvider) mediaScraper.getMediaProvider();
 
-      boolean idFound = false;
       // set what we have, so the provider could chose from all :)
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(language);
@@ -608,7 +626,7 @@ public class MovieList extends AbstractModelObject {
       if (sr.isEmpty() && movieSettings.isScraperFallback()) {
         for (MediaScraper ms : getAvailableMediaScrapers()) {
           if (provider.getProviderInfo().equals(ms.getMediaProvider().getProviderInfo())
-              || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi")) {
+              || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi") || !ms.getMediaProvider().isActive()) {
             continue;
           }
           LOGGER.info("no result yet - trying alternate scraper: {}", ms.getName());
@@ -632,9 +650,15 @@ public class MovieList extends AbstractModelObject {
       }
     }
     catch (ScrapeException e) {
-      LOGGER.error("searchMovie", e);
-      MessageManager.instance
-          .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+      if (e.getCause() instanceof FeatureNotEnabledException) {
+        LOGGER.info("this feature is not enabled - '{}'", e.getMessage());
+        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, this, "message.profeature", new String[] { e.getMessage() }));
+      }
+      else {
+        LOGGER.error("searchMovie", e);
+        MessageManager.instance
+            .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+      }
     }
 
     return new ArrayList<>(sr);
@@ -648,7 +672,7 @@ public class MovieList extends AbstractModelObject {
 
   public MediaScraper getDefaultMediaScraper() {
     MediaScraper scraper = MediaScraper.getMediaScraperById(movieSettings.getMovieScraper(), ScraperType.MOVIE);
-    if (scraper == null) {
+    if (scraper == null || !scraper.isEnabled()) {
       scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.MOVIE);
     }
     return scraper;
@@ -699,7 +723,8 @@ public class MovieList extends AbstractModelObject {
    * @return the specified artwork scrapers
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
-    return getArtworkScrapers(movieSettings.getArtworkScrapers());
+    List<MediaScraper> defaultScrapers = getArtworkScrapers(movieSettings.getArtworkScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -720,7 +745,8 @@ public class MovieList extends AbstractModelObject {
    * @return the specified trailer scrapers
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
-    return getTrailerScrapers(movieSettings.getTrailerScrapers());
+    List<MediaScraper> defaultScrapers = getTrailerScrapers(movieSettings.getTrailerScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -752,7 +778,7 @@ public class MovieList extends AbstractModelObject {
    * @return the subtitle scrapers
    */
   public List<MediaScraper> getAvailableSubtitleScrapers() {
-    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.SUBTITLE);
+    List<MediaScraper> availableScrapers = MediaScraper.getMediaScrapers(ScraperType.MOVIE_SUBTITLE);
     availableScrapers.sort(new MovieMediaScraperComparator());
     return availableScrapers;
   }
@@ -763,7 +789,8 @@ public class MovieList extends AbstractModelObject {
    * @return the specified subtitle scrapers
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
-    return getSubtitleScrapers(movieSettings.getSubtitleScrapers());
+    List<MediaScraper> defaultScrapers = getSubtitleScrapers(movieSettings.getSubtitleScrapers());
+    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
   }
 
   /**
@@ -780,7 +807,7 @@ public class MovieList extends AbstractModelObject {
       if (StringUtils.isBlank(providerId)) {
         continue;
       }
-      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.SUBTITLE);
+      MediaScraper subtitleScraper = MediaScraper.getMediaScraperById(providerId, ScraperType.MOVIE_SUBTITLE);
       if (subtitleScraper != null) {
         subtitleScrapers.add(subtitleScraper);
       }
@@ -844,11 +871,11 @@ public class MovieList extends AbstractModelObject {
     }
   }
 
-
   /**
    * Update decades in movies
    *
-   * @param movies all movies to update
+   * @param movies
+   *          all movies to update
    */
   private void updateDecades(Collection<Movie> movies) {
     Set<String> decades = new HashSet<>();
@@ -885,7 +912,7 @@ public class MovieList extends AbstractModelObject {
     movies.forEach(movie -> tags.addAll(movie.getTags()));
 
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(tagsInMovies, tags)) {
-      firePropertyChange(TAG, null, tagsInMovies);
+      firePropertyChange(TAGS, null, tagsInMovies);
     }
   }
 
@@ -906,12 +933,12 @@ public class MovieList extends AbstractModelObject {
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
 
-    //get Subtitle language from video files and subtitle files
+    // get Subtitle language from video files and subtitle files
     for (Movie movie : movies) {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
         // subtitle language
-        if(!mf.getSubtitleLanguagesList().isEmpty()) {
-          for( String lang : mf.getSubtitleLanguagesList()) {
+        if (!mf.getSubtitleLanguagesList().isEmpty()) {
+          for (String lang : mf.getSubtitleLanguagesList()) {
             subtitleLanguages.add(lang);
           }
         }
@@ -958,7 +985,7 @@ public class MovieList extends AbstractModelObject {
           }
         }
 
-        //HDR Format
+        // HDR Format
         if (!mf.getHdrFormat().isEmpty()) {
           hdrFormat.add(mf.getHdrFormat());
         }
@@ -997,12 +1024,12 @@ public class MovieList extends AbstractModelObject {
 
     // audio languages
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioLanguagesInMovies, audioLanguages)) {
-      firePropertyChange(Constants.AUDIO_LANGUAGES,null,audioLanguagesInMovies);
+      firePropertyChange(Constants.AUDIO_LANGUAGES, null, audioLanguagesInMovies);
     }
 
     // subtitle languages
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(subtitleLanguagesInMovies, subtitleLanguages)) {
-      firePropertyChange(Constants.SUBTITLE_LANGUAGES,null,subtitleLanguagesInMovies);
+      firePropertyChange(Constants.SUBTITLE_LANGUAGES, null, subtitleLanguagesInMovies);
     }
 
     // HDR Format
@@ -1035,11 +1062,10 @@ public class MovieList extends AbstractModelObject {
     return yearsInMovies;
   }
 
-
   /**
    * get a {@link Set} of all decades in movies
    *
-   * @return  a {@link Set} of all decades
+   * @return a {@link Set} of all decades
    */
   public Collection<String> getDecadeInMovies() {
     return decadeInMovies;
@@ -1232,19 +1258,6 @@ public class MovieList extends AbstractModelObject {
     }
 
     return movieSet;
-  }
-
-  /**
-   * Sort movies in movie set.
-   * 
-   * @param movieSet
-   *          the movie set
-   */
-  public void sortMoviesInMovieSet(MovieSet movieSet) {
-    if (movieSet.getMovies().size() > 1) {
-      movieSet.sortMovies();
-    }
-    firePropertyChange("sortedMovieSets", null, movieSetList);
   }
 
   /**

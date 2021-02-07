@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,11 @@ public class MovieScraper extends ScraperInTable implements Comparable<MovieScra
   }
 
   public void setDefaultScraper(Boolean newValue) {
-    Boolean oldValue = this.defaultScraper;
-    this.defaultScraper = newValue;
-    firePropertyChange("defaultScraper", oldValue, newValue);
+    if (isEnabled()) {
+      Boolean oldValue = this.defaultScraper;
+      this.defaultScraper = newValue;
+      firePropertyChange("defaultScraper", oldValue, newValue);
+    }
   }
 
   public MediaScraper getMediaScraper() {
@@ -56,9 +58,11 @@ public class MovieScraper extends ScraperInTable implements Comparable<MovieScra
     if (isKodiScraper() && !o.isKodiScraper()) {
       return 1;
     }
+
     if (!isKodiScraper() && o.isKodiScraper()) {
       return -1;
     }
+
     return scraper.getName().toLowerCase(Locale.ROOT).compareTo(o.scraper.getName().toLowerCase(Locale.ROOT));
   }
 }

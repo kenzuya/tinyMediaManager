@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,10 +113,10 @@ public class MediaProviderConfigObject {
   }
 
   public Boolean getValueAsBool() {
-    Boolean bool = null;
+    Boolean bool = Boolean.FALSE;
     if (type != ConfigType.BOOL) {
       LOGGER.trace("This is not a boolean '{}={}' - returning NULL ", key, value);
-      return null;
+      return bool;
     }
     if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) { // always false when unparseable :/
       bool = Boolean.valueOf(value);

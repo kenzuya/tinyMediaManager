@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.SortedSet;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -29,7 +30,6 @@ import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
@@ -49,13 +49,28 @@ public class KodiMovieMetadataProvider extends AbstractKodiMetadataProvider impl
   }
 
   @Override
+  public boolean isActive() {
+    return isFeatureEnabled();
+  }
+
+  @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     return _search(options);
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    LOGGER.debug("Kodi: getMetadata(): {}", options);
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
+    LOGGER.debug("getMetadata(): {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     if (options.getSearchResult() == null || !scraper.getProviderInfo().getId().equals(options.getSearchResult().getProviderId())) {
       throw new MissingIdException("scraping with Kodi scrapers only with a prior result possible");
     }
@@ -69,13 +84,13 @@ public class KodiMovieMetadataProvider extends AbstractKodiMetadataProvider impl
       return;
     }
 
-    LOGGER.debug("******* BEGIN XML ***********");
-    LOGGER.debug(xmlDetails);
-    LOGGER.debug("******* END XML ***********");
+    LOGGER.trace("******* BEGIN XML ***********");
+    LOGGER.trace(xmlDetails);
+    LOGGER.trace("******* END XML ***********");
 
     Document xml = parseXmlString(xmlDetails);
     addMetadata(md, xml.getDocumentElement());
-    LOGGER.debug("MetaData: {}", md);
+    LOGGER.trace("MetaData: {}", md);
   }
 
   @Override
@@ -90,7 +105,12 @@ public class KodiMovieMetadataProvider extends AbstractKodiMetadataProvider impl
 
   @Override
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
-    LOGGER.debug("******* BEGIN ARTWORK XML FOR {} ***********", options.getArtworkType());
+    LOGGER.debug("getArtwork(): {}", options);
+
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
     List<MediaArtwork> mas = new ArrayList<>();
     // scrape again to get Kodi XML (thank god we have a mem cachedUrl)
     try {

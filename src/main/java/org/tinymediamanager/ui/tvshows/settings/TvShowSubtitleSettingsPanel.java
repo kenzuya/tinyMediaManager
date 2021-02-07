@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package org.tinymediamanager.ui.tvshows.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -33,6 +33,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -44,6 +45,7 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -67,17 +69,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowSubtitleSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -1607146878528487625L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long          serialVersionUID = -1607146878528487625L;
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
-  private List<ScraperInTable>        scrapers         = ObservableCollections.observableList(new ArrayList<>());
-  private TmmTable                    tableScraper;
-  private JTextPane                   tpScraperDescription;
-  private JPanel                      panelScraperOptions;
-  private JComboBox                   cbScraperLanguage;
-  private JComboBox<LanguageStyle>    cbLanguageStyle;
+  private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+
+  private TmmTable                   tableScraper;
+  private JTextPane                  tpScraperDescription;
+  private JPanel                     panelScraperOptions;
+  private JComboBox                  cbScraperLanguage;
+  private JComboBox<LanguageStyle>   cbLanguageStyle;
 
   TvShowSubtitleSettingsPanel() {
     // UI init
@@ -103,22 +104,23 @@ class TvShowSubtitleSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        ScraperInTable changedScraper = scrapers.get(row);
-        if (changedScraper.getActive()) {
-          settings.addTvShowSubtitleScraper(changedScraper.getScraperId());
-        }
-        else {
-          settings.removeTvShowSubtitleScraper(changedScraper.getScraperId());
-        }
-      }
-    });
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            ScraperInTable changedScraper = scrapers.get(row);
+            if (changedScraper.getActive()) {
+              settings.addTvShowSubtitleScraper(changedScraper.getScraperId());
+            }
+            else {
+              settings.removeTvShowSubtitleScraper(changedScraper.getScraperId());
+            }
+          }
+        });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -155,12 +157,20 @@ class TvShowSubtitleSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.subtitle"), H3);
+      JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper.subtitle"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#subtitles"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraper = new TmmTable();
+        tableScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = scrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraper.setRowHeight(29);
         tableScraper.setShowGrid(true);
         panelScraper.add(tableScraper, "cell 1 0,grow");
@@ -183,20 +193,20 @@ class TvShowSubtitleSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
 
-      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
+      JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options-3"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
-        JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage"));
+        JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0");
 
-        JLabel lblLanguageStyle = new JLabel(BUNDLE.getString("Settings.renamer.language"));
+        JLabel lblLanguageStyle = new JLabel(TmmResourceBundle.getString("Settings.renamer.language"));
         panelOptions.add(lblLanguageStyle, "cell 1 1 2 1");
 
         cbLanguageStyle = new JComboBox(LanguageStyle.values());
@@ -210,13 +220,20 @@ class TvShowSubtitleSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> subtitleScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("metatag.name"))
+        .setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding.bind();

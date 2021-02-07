@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,16 @@ import static org.tinymediamanager.scraper.MediaMetadata.TVDB;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
-import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
-import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
-import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaSearchResult;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.TmmHttpClient;
-import org.tinymediamanager.scraper.interfaces.IMovieImdbMetadataProvider;
-import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
-import org.tinymediamanager.scraper.interfaces.ITvShowImdbMetadataProvider;
-import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.uwetrottmann.trakt5.TraktV2;
@@ -53,76 +42,87 @@ import com.uwetrottmann.trakt5.enums.Type;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
 
-public class TraktMetadataProvider
-    implements IMovieMetadataProvider, ITvShowMetadataProvider, IMovieImdbMetadataProvider, ITvShowImdbMetadataProvider {
-  public static final String     ID            = "trakt";
+abstract class TraktMetadataProvider implements IMediaProvider {
+  static final String             ID = "trakt";
 
-  private static final Logger    LOGGER        = LoggerFactory.getLogger(TraktMetadataProvider.class);
+  private final MediaProviderInfo providerInfo;
 
-  static final MediaProviderInfo PROVIDER_INFO = createMediaProviderInfo();
+  protected TraktV2               api;
 
-  private static TraktV2         api;
+  TraktMetadataProvider() {
+    providerInfo = createMediaProviderInfo();
+  }
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "Trakt.tv",
+  /**
+   * get the sub id of this scraper (for dedicated storage)
+   *
+   * @return the sub id
+   */
+  protected abstract String getSubId();
+
+  protected MediaProviderInfo createMediaProviderInfo() {
+    MediaProviderInfo info = new MediaProviderInfo(ID, getSubId(), "Trakt.tv",
         "<html><h3>Trakt.tv</h3><br />Trakt.tv is a platform that does many things, but primarily keeps track of TV shows and movies you watch. It also provides meta data for movies and TV shows<br /><br />Available languages: EN</html>",
         TraktMetadataProvider.class.getResource("/org/tinymediamanager/scraper/trakt_tv.svg"));
 
-    providerInfo.getConfig().addText("clientId", "", true);
-    providerInfo.getConfig().load();
+    info.getConfig().addText("clientId", "", true);
+    info.getConfig().load();
 
+    return info;
+  }
+
+  public MediaProviderInfo getProviderInfo() {
     return providerInfo;
   }
 
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(null);
+  }
+
+  protected abstract Logger getLogger();
+
   // thread safe initialization of the API
-  private static synchronized void initAPI() throws ScrapeException {
-    String tmmApiKey;
-    String apiKey;
-    try {
-      apiKey = tmmApiKey = License.getInstance().getApiKey(ID);
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
+  protected synchronized void initAPI() throws ScrapeException {
 
-    String userApiKey = PROVIDER_INFO.getConfig().getValue("apiKey");
-
-    // check if the API should change from current key to user key
-    if (StringUtils.isNotBlank(userApiKey) && api != null && !userApiKey.equals(api.apiKey())) {
-      api = null;
-      apiKey = userApiKey;
-    }
-
-    // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey) && api != null && !tmmApiKey.equals(api.apiKey())) {
-      api = null;
-      apiKey = tmmApiKey;
+    if (!isActive()) {
+      throw new ScrapeException(new FeatureNotEnabledException(this));
     }
 
     // create a new instance of the trakt api
     if (api == null) {
-      api = new TraktV2(apiKey) {
-        // tell the trakt api to use our OkHttp client
+      try {
+        api = new TraktV2(getApiKey()) {
+          // tell the trakt api to use our OkHttp client
 
-        @Override
-        protected synchronized OkHttpClient okHttpClient() {
-          OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
-          builder.addInterceptor(new TraktV2Interceptor(this));
-          return builder.build();
-        }
-      };
+          @Override
+          protected synchronized OkHttpClient okHttpClient() {
+            OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true);
+            builder.addInterceptor(new TraktV2Interceptor(this));
+            return builder.build();
+          }
+        };
+      }
+      catch (Exception e) {
+        getLogger().error("could not initialize the API: {}", e.getMessage());
+        // force re-initialization the next time this will be called
+        api = null;
+        throw new ScrapeException(e);
+      }
     }
-  }
 
-  // ProviderInfo
-  @Override
-  public MediaProviderInfo getProviderInfo() {
-    return PROVIDER_INFO;
-  }
+    if (api != null) {
+      String userApiKey = providerInfo.getConfig().getValue("apiKey");
 
-  @Override
-  public String getId() {
-    return ID;
+      // check if the API should change from current key to user key
+      if (StringUtils.isNotBlank(userApiKey)) {
+        api.apiKey(userApiKey);
+      }
+
+      // check if the API should change from current key to tmm key
+      if (StringUtils.isBlank(userApiKey)) {
+        api.apiKey(getApiKey());
+      }
+    }
   }
 
   /**
@@ -140,7 +140,7 @@ public class TraktMetadataProvider
     if (MetadataUtil.isValidImdbId(options.getSearchQuery())) {
       imdbId = options.getSearchQuery();
     }
-    String traktId = options.getIdAsString(PROVIDER_INFO.getId());
+    String traktId = options.getIdAsString(providerInfo.getId());
     String tmdbId = options.getIdAsString(TMDB);
     String tvdbId = options.getIdAsString(TVDB);
     String tvrageId = options.getIdAsString("tvrage");
@@ -151,12 +151,15 @@ public class TraktMetadataProvider
       case MOVIE:
         type = Type.MOVIE;
         break;
+
       case TV_SHOW:
         type = Type.SHOW;
         break;
+
       case TV_EPISODE:
         type = Type.EPISODE;
         break;
+
       default:
     }
 
@@ -181,74 +184,21 @@ public class TraktMetadataProvider
     initAPI();
 
     if (results.isEmpty() && value != null) {
-      LOGGER.debug("found {} id {} - direct lookup", id, value);
+      getLogger().debug("found {} id {} - direct lookup", id, value);
       try {
         Response<List<SearchResult>> response = api.search().idLookup(id, value, type, Extended.FULL, 1, 25).execute();
         if (!response.isSuccessful()) {
-          LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+          getLogger().warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
           return results;
         }
         results = response.body();
-        LOGGER.debug("Found {} result with ID lookup", results.size());
+        getLogger().debug("Found {} result with ID lookup", results.size());
       }
       catch (Exception e) {
-        LOGGER.warn("request was NOT successful: {}", e.getMessage());
+        getLogger().warn("request was NOT successful: {}", e.getMessage());
       }
     }
     return results;
   }
 
-  @Override
-  public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
-    LOGGER.debug("search() - {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktMovieMetadataProvider(api).search(options);
-  }
-
-  @Override
-  public SortedSet<MediaSearchResult> search(TvShowSearchAndScrapeOptions options) throws ScrapeException {
-    LOGGER.debug("search() - {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktTVShowMetadataProvider(api).search(options);
-  }
-
-  @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    LOGGER.debug("getMetadata(): {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktMovieMetadataProvider(api).scrape(options);
-  }
-
-  @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    LOGGER.debug("getMetadata(): {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktTVShowMetadataProvider(api).getTvShowMetadata(options);
-  }
-
-  @Override
-  public MediaMetadata getMetadata(TvShowEpisodeSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    LOGGER.debug("getMetadata(): {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktTVShowMetadataProvider(api).getEpisodeMetadata(options);
-  }
-
-  @Override
-  public List<MediaMetadata> getEpisodeList(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    LOGGER.debug("getEpisodeList(): {}", options);
-
-    // lazy initialization of the api
-    initAPI();
-    return new TraktTVShowMetadataProvider(api).getEpisodeList(options);
-  }
 }

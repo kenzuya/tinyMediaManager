@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ class OpenSubtitlesConnectionCounter {
     // hide constructor for utility classes
   }
 
-  public static synchronized void trackConnections() throws InterruptedException {
+  static synchronized void trackConnections() throws InterruptedException {
     long currentTime = System.currentTimeMillis();
     if (COUNTER.count() == COUNTER.maxSize()) {
       long oldestConnection = COUNTER.getTailItem();

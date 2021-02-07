@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -37,6 +38,7 @@ import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
@@ -81,7 +83,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("hidemode 3", "[][600lp:800lp,grow]", "[][][][][shrink 0][200lp:n, grow]"));
 
-    JLabel lblLanguageT = new TmmLabel(BUNDLE.getString("metatag.language"));
+    JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
     panelContent.add(lblLanguageT, "cell 0 0,alignx trailing");
 
     cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
@@ -89,21 +91,25 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     panelContent.add(cbLanguage, "cell 1 0,growx");
 
     if (!artworkOnly) {
-      JLabel lblMetadataScraperT = new TmmLabel(BUNDLE.getString("scraper.metadata"));
+      JLabel lblMetadataScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"));
       panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
 
-      cbMetadataScraper = new MediaScraperComboBox(TvShowList.getInstance().getAvailableMediaScrapers());
+      cbMetadataScraper = new MediaScraperComboBox(TvShowList.getInstance()
+          .getAvailableMediaScrapers()
+          .stream()
+          .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
+          .collect(Collectors.toList()));
       panelContent.add(cbMetadataScraper, "cell 1 1,growx");
     }
 
-    JLabel lblArtworkScraper = new TmmLabel(BUNDLE.getString("scraper.artwork"));
+    JLabel lblArtworkScraper = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
     panelContent.add(lblArtworkScraper, "cell 0 2,alignx trailing");
 
     cbArtworkScraper = new MediaScraperCheckComboBox(TvShowList.getInstance().getAvailableArtworkScrapers());
     panelContent.add(cbArtworkScraper, "cell 1 2,growx");
 
     if (!artworkOnly) {
-      JLabel lblTrailerScraper = new TmmLabel(BUNDLE.getString("scraper.trailer"));
+      JLabel lblTrailerScraper = new TmmLabel(TmmResourceBundle.getString("scraper.trailer"));
       panelContent.add(lblTrailerScraper, "cell 0 3,alignx right");
 
       cbTrailerScraper = new MediaScraperCheckComboBox(TvShowList.getInstance().getAvailableTrailerScrapers());
@@ -117,11 +123,11 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     panelContent.add(panelScraperConfig, "cell 0 5 2 1,grow");
     panelScraperConfig.setLayout(new MigLayout("hidemode 3", "[][300lp:500lp,grow]", "[][][]"));
     {
-      JLabel lblScrapeFollowingItems = new TmmLabel(BUNDLE.getString("chooser.scrape"));
+      JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("chooser.scrape"));
       panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0 2 1");
     }
     if (tvShowMetadata) {
-      JLabel lblTvShowsT = new TmmLabel(BUNDLE.getString("metatag.tvshows"));
+      JLabel lblTvShowsT = new TmmLabel(TmmResourceBundle.getString("metatag.tvshows"));
       panelScraperConfig.add(lblTvShowsT, "cell 0 1,alignx trailing");
 
       if (artworkOnly) {
@@ -137,7 +143,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
       panelScraperConfig.add(cbTvShowScraperConfig, "cell 1 1,grow, wmin 0");
     }
 
-    JLabel lblEpisodesT = new TmmLabel(BUNDLE.getString("metatag.episodes"));
+    JLabel lblEpisodesT = new TmmLabel(TmmResourceBundle.getString("metatag.episodes"));
     panelScraperConfig.add(lblEpisodesT, "cell 0 2,alignx trailing");
 
     if (artworkOnly) {
@@ -154,7 +160,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     panelScraperConfig.add(cbEpisodeScraperConfig, "cell 1 2,grow, wmin 0");
 
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(e -> {
         startScrape = false;
@@ -162,7 +168,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
       });
       addButton(btnCancel);
 
-      JButton btnStart = new JButton(BUNDLE.getString("scraper.start"));
+      JButton btnStart = new JButton(TmmResourceBundle.getString("scraper.start"));
       btnStart.setIcon(IconManager.APPLY_INV);
       btnStart.addActionListener(e -> {
         startScrape = true;

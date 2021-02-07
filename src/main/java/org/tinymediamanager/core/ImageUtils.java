@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,10 @@ import org.tinymediamanager.thirdparty.ImageLoader;
 public class ImageUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(ImageUtils.class);
 
+  private ImageUtils() {
+    throw new IllegalAccessError();
+  }
+
   /**
    * Scale image to fit in the given width.
    *
@@ -77,7 +81,7 @@ public class ImageUtils {
 
     // BufferedImage scaledImage = Scaling.scale(originalImage, size.x, size.y);
     BufferedImage scaledImage = Scalr.resize(originalImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size.x, size.y, Scalr.OP_ANTIALIAS);
-    originalImage = null;
+    originalImage.flush();
 
     ImageWriter imgWrtr = null;
     ImageWriteParam imgWrtrPrm = null;
@@ -111,7 +115,7 @@ public class ImageUtils {
     IIOImage outputImage = new IIOImage(scaledImage, null, null);
     imgWrtr.write(null, outputImage, imgWrtrPrm);
     imgWrtr.dispose();
-    scaledImage = null;
+    scaledImage.flush();
 
     byte[] bytes = baos.toByteArray();
 
@@ -148,7 +152,7 @@ public class ImageUtils {
 
     // BufferedImage scaledImage = Scaling.scale(originalImage, size.x, size.y);
     BufferedImage scaledImage = Scalr.resize(originalImage, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC, size.x, size.y, Scalr.OP_ANTIALIAS);
-    originalImage = null;
+    originalImage.flush();
 
     ImageWriter imgWrtr = null;
     ImageWriteParam imgWrtrPrm = null;
@@ -182,7 +186,7 @@ public class ImageUtils {
     IIOImage outputImage = new IIOImage(scaledImage, null, null);
     imgWrtr.write(null, outputImage, imgWrtrPrm);
     imgWrtr.dispose();
-    scaledImage = null;
+    scaledImage.flush();
 
     byte[] bytes = baos.toByteArray();
 

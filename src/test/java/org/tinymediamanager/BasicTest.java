@@ -2,6 +2,7 @@ package org.tinymediamanager;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -141,7 +142,7 @@ public class BasicTest {
     MediaTrailer trailer = new MediaTrailer();
     trailer.setUrl("https://trailer");
     trailer.setInNfo(true);
-    movie.addTrailer(trailer);
+    movie.addToTrailer(Collections.singletonList(trailer));
 
     MovieSet movieSet = new MovieSet();
     movieSet.setTitle(title + " Collection");
@@ -178,24 +179,21 @@ public class BasicTest {
     movie.addToMediaFiles(mf);
 
     movie.setWatched(true);
-    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
-    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
-    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
-    movie.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
-    movie.addWriter(new Person(Person.Type.WRITER, "Ted Elliott", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "Terry Rossio", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "Ron Clements", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "John Jusker", "Writer"));
-    movie.addDirector(new Person(Person.Type.DIRECTOR, "Ron Clements", "Director"));
-    movie.addWriter(new Person(Person.Type.DIRECTOR, "John Jusker", "Director"));
-    movie.addToTags("Disney");
-    movie.addToTags("Oriental");
+    movie.addToGenres(Arrays.asList(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)],
+        MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)],
+        MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)],
+        MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]));
+    movie
+        .addToWriters(Arrays.asList(new Person(Person.Type.WRITER, "Ted Elliott", "Writer"), new Person(Person.Type.WRITER, "Terry Rossio", "Writer"),
+            new Person(Person.Type.WRITER, "Ron Clements", "Writer"), new Person(Person.Type.WRITER, "John Jusker", "Writer"),
+            new Person(Person.Type.DIRECTOR, "Ron Clements", "Director"), new Person(Person.Type.DIRECTOR, "John Jusker", "Director")));
+    movie.addToTags(Arrays.asList("Disney", "Oriental"));
 
-    movie.addActor(new Person(Person.Type.ACTOR, "Scott Weinger", "Aladdin 'Al' (voice)"));
-    movie.addActor(new Person(Person.Type.ACTOR, "Robin Williams", "Genie (voice)"));
+    movie.addToActors(Arrays.asList(new Person(Person.Type.ACTOR, "Scott Weinger", "Aladdin 'Al' (voice)"),
+        new Person(Person.Type.ACTOR, "Robin Williams", "Genie (voice)")));
 
-    movie.addProducer(new Person(Person.Type.PRODUCER, "Ron Clements", "Producer"));
-    movie.addProducer(new Person(Person.Type.PRODUCER, "Donald W. Ernst", "Producer"));
+    movie.addToProducers(
+        Arrays.asList(new Person(Person.Type.PRODUCER, "Ron Clements", "Producer"), new Person(Person.Type.PRODUCER, "Donald W. Ernst", "Producer")));
 
     movie.setSpokenLanguages("en");
     movie.setMediaSource(MediaSource.values()[new Random().nextInt(MediaSource.values().length)]);
@@ -215,10 +213,10 @@ public class BasicTest {
     tvShow.setYear(1950 + ThreadLocalRandom.current().nextInt(20, 60));
     tvShow.setRating(new MediaRating(MediaRating.NFO, (float) ThreadLocalRandom.current().nextDouble(1.0d, 9.0d), 5987, 10));
     tvShow.setCertification(MediaCertification.US_TVPG);
-    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
-    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
-    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
-    tvShow.addGenre(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]);
+    tvShow.addToGenres(Arrays.asList(MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)],
+        MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)],
+        MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)],
+        MediaGenres.values()[new Random().nextInt(MediaGenres.values().length)]));
     tvShow.setTvdbId(String.valueOf(ThreadLocalRandom.current().nextInt(1000, 5000)));
     tvShow.setFirstAired(getRandomDate());
     tvShow.setProductionCompany("FOX (US)");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import javax.swing.JTextArea;
 
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.InMemoryAppender;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -34,7 +35,7 @@ public class FullLogDialog extends TmmDialog {
   private static final long serialVersionUID = -5054005564554148578L;
 
   public FullLogDialog() {
-    super(BUNDLE.getString("logwindow.title"), "fullLog");
+    super(TmmResourceBundle.getString("logwindow.title"), "fullLog");
     setBounds(5, 5, 1000, 590);
 
     JPanel panelContent = new JPanel();
@@ -53,7 +54,7 @@ public class FullLogDialog extends TmmDialog {
     taLogs.setText(processInMemoryLogs());
     taLogs.setCaretPosition(0);
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }

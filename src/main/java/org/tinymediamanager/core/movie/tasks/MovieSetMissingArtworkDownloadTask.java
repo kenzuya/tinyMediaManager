@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
@@ -38,7 +37,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSetArtworkProvider;
 
 /**
  * The Class MovieMissingArtworkDownloadTask. Used to find and download missing for the given movies
@@ -47,13 +46,12 @@ import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
  */
 public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
   private static final Logger            LOGGER = LoggerFactory.getLogger(MovieSetMissingArtworkDownloadTask.class);
-  private static final ResourceBundle    BUNDLE = ResourceBundle.getBundle("messages");
 
   private List<MovieSet>                 moviesToScrape;
   private MovieSetSearchAndScrapeOptions scrapeOptions;
 
   public MovieSetMissingArtworkDownloadTask(List<MovieSet> moviesToScrape, MovieSetSearchAndScrapeOptions scrapeOptions) {
-    super(BUNDLE.getString("task.missingartwork"));
+    super(TmmResourceBundle.getString("task.missingartwork"));
     this.moviesToScrape = moviesToScrape;
     this.scrapeOptions = scrapeOptions;
   }
@@ -87,7 +85,7 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private class Worker implements Runnable {
-    private MovieSet  movieSet;
+    private MovieSet movieSet;
 
     public Worker(MovieSet movieSet) {
       this.movieSet = movieSet;
@@ -102,26 +100,26 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
         ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE_SET);
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtworkType.ALL);
-        for (Map.Entry<String, Object> entry : movieSet.getIds().entrySet()) {
-          options.setId(entry.getKey(), entry.getValue().toString());
-        }
+        options.setIds(movieSet.getIds());
         options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
         options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
         options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
 
         // scrape providers till one artwork has been found
         for (MediaScraper scraper : movieList.getDefaultArtworkScrapers()) {
-          IMovieArtworkProvider artworkProvider = (IMovieArtworkProvider) scraper.getMediaProvider();
-          try {
-            artwork.addAll(artworkProvider.getArtwork(options));
-          }
-          catch (ScrapeException e) {
-            LOGGER.error("getArtwork", e);
-            MessageManager.instance.pushMessage(
-                new Message(MessageLevel.ERROR, movieSet, "message.scrape.subtitlefailed", new String[] { ":", e.getLocalizedMessage() }));
-          }
-          catch (MissingIdException ignored) {
-            // no need to log a missing ID here
+          if (scraper.getMediaProvider() instanceof IMovieSetArtworkProvider) {
+            try {
+              IMovieSetArtworkProvider artworkProvider = (IMovieSetArtworkProvider) scraper.getMediaProvider();
+              artwork.addAll(artworkProvider.getArtwork(options));
+            }
+            catch (MissingIdException ignored) {
+              // no need to log a missing ID here
+            }
+            catch (ScrapeException e) {
+              LOGGER.error("getArtwork", e);
+              MessageManager.instance.pushMessage(
+                  new Message(MessageLevel.ERROR, movieSet, "message.scrape.moviesetartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
+            }
           }
         }
 

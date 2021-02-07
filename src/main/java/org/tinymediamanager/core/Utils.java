@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -142,7 +143,17 @@ public class Utils {
       String temp = System.getProperty("java.io.tmpdir");
       Path tempFolder = Paths.get(temp);
       if (Files.exists(tempFolder) && Files.isWritable(tempFolder)) {
-        Utils.tempFolder = temp;
+        // create a subfolder for tmm
+        tempFolder = Paths.get(temp, "tmm");
+        if (!Files.exists(tempFolder)) {
+          Files.createDirectories(tempFolder);
+        }
+        if (Files.exists(tempFolder) && Files.isWritable(tempFolder)) {
+          Utils.tempFolder = tempFolder.toAbsolutePath().toString();
+        }
+        else {
+          Utils.tempFolder = temp;
+        }
       }
       else {
         Utils.tempFolder = "tmp";
@@ -547,8 +558,8 @@ public class Utils {
   }
 
   public static void removeEmptyStringsFromList(List<String> list) {
-    list.removeAll(Collections.singleton(null));
-    list.removeAll(Collections.singleton(""));
+    List<String> toFilter = list.stream().filter(StringUtils::isBlank).collect(Collectors.toList());
+    list.removeAll(toFilter);
   }
 
   /**
@@ -801,7 +812,7 @@ public class Utils {
         return false;
       }
       else {
-        LOGGER.info("Successfully moved file from {} to {}", srcFile, destFile);
+        LOGGER.debug("Successfully moved file from {} to {}", srcFile, destFile);
         return true;
       }
     }
@@ -1844,6 +1855,19 @@ public class Utils {
     }
     catch (ArchiveException e) {
       throw new IOException("Could not extract archive", e);
+    }
+  }
+
+  public static void clearTempFolder() {
+    String tmpdir = System.getProperty("java.io.tmpdir");
+
+    if (StringUtils.isNotBlank(tmpdir) && !tmpdir.equals(tempFolder)) {
+      try {
+        deleteDirectoryRecursive(Paths.get(tempFolder));
+      }
+      catch (Exception ignored) {
+        // just ignore
+      }
     }
   }
 }

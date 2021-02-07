@@ -103,6 +103,8 @@ public class ImageLoader {
       Graphics2D g = newImage.createGraphics();
       g.drawImage(bi, 0, 0, null);
       g.dispose();
+      bi.flush();
+
       return newImage;
     }
     try {
@@ -412,7 +414,7 @@ public class ImageLoader {
         }
         catch (OutOfMemoryError e) {
           // memory limit hit; give it another 500ms time to recover
-          LOGGER.warn("hit memory cap: {}", e.getMessage());
+          LOGGER.debug("hit memory cap: {}", e.getMessage());
           size = null;
           dest = null;
           try {

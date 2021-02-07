@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package org.tinymediamanager.ui.movies.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -34,6 +34,7 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -43,6 +44,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -66,21 +68,19 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -299825914193235308L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long        serialVersionUID = -299825914193235308L;
 
-  private MovieSettings               settings         = MovieModuleManager.SETTINGS;
-  private List<MovieScraper>          scrapers         = new ArrayList<>();
+  private final MovieSettings      settings         = MovieModuleManager.SETTINGS;
+  private final List<MovieScraper> scrapers         = new ArrayList<>();
 
   /**
    * UI Elements
    */
-  private JPanel                      panelScraperOptions;
-  private JScrollPane                 scrollPaneScraperDetails;
-  private JTextPane                   tpScraperDescription;
+  private JPanel                   panelScraperOptions;
+  private JScrollPane              scrollPaneScraperDetails;
+  private JTextPane                tpScraperDescription;
 
-  private TmmTable                    tableScraper;
+  private TmmTable                 tableScraper;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -123,26 +123,27 @@ class MovieScraperSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        MovieScraper changedScraper = scrapers.get(row);
-        // if flag default scraper was changed, change all other flags
-        if (changedScraper.getDefaultScraper()) {
-          settings.setMovieScraper(changedScraper.getScraperId());
-          for (MovieScraper scraper : scrapers) {
-            if (scraper != changedScraper) {
-              scraper.setDefaultScraper(Boolean.FALSE);
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            MovieScraper changedScraper = scrapers.get(row);
+            // if flag default scraper was changed, change all other flags
+            if (changedScraper.getDefaultScraper()) {
+              settings.setMovieScraper(changedScraper.getScraperId());
+              for (MovieScraper scraper : scrapers) {
+                if (scraper != changedScraper) {
+                  scraper.setDefaultScraper(Boolean.FALSE);
+                }
+              }
             }
           }
-        }
-      }
-    });
+        });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -168,12 +169,20 @@ class MovieScraperSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][150lp:600lp,grow]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.metadata"), H3);
+      JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/movies/settings#scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraper = new TmmTable();
+        tableScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            MovieScraper scraper = scrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraper.setRowHeight(29);
         tableScraper.setShowGrid(true);
         panelScraper.add(tableScraper, "cell 1 0,grow");
@@ -207,13 +216,18 @@ class MovieScraperSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<MovieScraper, Boolean> movieScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<MovieScraper, Icon> movieScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setColumnClass(Icon.class)
+        .setEditable(false);
     //
     BeanProperty<MovieScraper, String> movieScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(movieScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false);
+    jTableBinding.addColumnBinding(movieScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false);
     //
     jTableBinding.bind();
     //

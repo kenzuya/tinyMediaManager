@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -52,6 +51,7 @@ import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.ui.components.MainTabbedPane;
@@ -74,8 +74,8 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MainWindow extends JFrame {
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+
   private static final Logger         LOGGER           = LoggerFactory.getLogger(MainWindow.class);
   private static final long           serialVersionUID = 1L;
 
@@ -219,7 +219,7 @@ public class MainWindow extends JFrame {
 
     // inform user that MI could not be loaded
     if (Platform.isLinux() && StringUtils.isBlank(MediaInfo.version())) {
-      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, BUNDLE.getString("mediainfo.failed.linux")));
+      SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(MainWindow.this, TmmResourceBundle.getString("mediainfo.failed.linux")));
     }
 
     // inform user that something happened while loading the modules
@@ -248,8 +248,8 @@ public class MainWindow extends JFrame {
     int confirm = JOptionPane.YES_OPTION;
     // if there are some threads running, display exit confirmation
     if (TmmTaskManager.getInstance().poolRunning()) {
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      confirm = JOptionPane.showOptionDialog(null, BUNDLE.getString("tmm.exit.runningtasks"), BUNDLE.getString("tmm.exit.confirmation"),
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.exit.runningtasks"), TmmResourceBundle.getString("tmm.exit.confirmation"),
           JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null); // $NON-NLS-1$
     }
     if (confirm == JOptionPane.YES_OPTION) {

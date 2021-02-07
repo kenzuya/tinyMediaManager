@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,20 +43,20 @@ public class TmmCheckBoxIcon extends FlatCheckBoxIcon {
     // paint focused border
     if (FlatUIUtils.isPermanentFocusOwner(c) && focusWidth > 0) {
       g2.setColor(focusColor);
-      paintFocusBorder(g2);
+      paintFocusBorder(c, g2);
     }
 
     // paint border
     g2.setColor(FlatButtonUI.buttonStateColor(c, selected ? selectedBorderColor : borderColor, disabledBorderColor,
         selected && selectedFocusedBorderColor != null ? selectedFocusedBorderColor : focusedBorderColor, hoverBorderColor, null));
-    paintBorder(g2);
+    paintBorder(c, g2);
 
     // paint background
     g2.setColor(
         FlatUIUtils.deriveColor(FlatButtonUI.buttonStateColor(c, selected ? this.selectedBackground : this.background, this.disabledBackground,
             this.focusedBackground, selected && this.selectedHoverBackground != null ? this.selectedHoverBackground : this.hoverBackground,
             selected && this.selectedPressedBackground != null ? this.selectedPressedBackground : this.pressedBackground), this.background));
-    paintBackground(g2);
+    paintBackground(c, g2);
 
     g2.setColor(c.isEnabled() ? checkmarkColor : disabledCheckmarkColor);
     // paint tri-state
@@ -65,11 +65,11 @@ public class TmmCheckBoxIcon extends FlatCheckBoxIcon {
     }
     else if (selected) {
       // paint checkmark
-      paintCheckmark(g2);
+      paintCheckmark(c, g2);
     }
     else if (indeterminate) {
       // paint indeterminate
-      paintIndeterminate(g2);
+      paintIndeterminate(c, g2);
     }
   }
 

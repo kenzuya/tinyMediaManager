@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
@@ -42,11 +43,11 @@ import net.miginfocom.swing.MigLayout;
 public class MessageDialog extends TmmDialog {
   private static final long serialVersionUID = -9035402766767310658L;
 
-  private JLabel            lblImage;
-  private JTextPane         tpText;
-  private JTextPane         tpDescription;
-  private JScrollPane       scrollPane;
-  private JTextPane         textPane;
+  private final JLabel      lblImage;
+  private final JTextPane   tpText;
+  private final JTextPane   tpDescription;
+  private final JScrollPane scrollPane;
+  private final JTextPane   textPane;
 
   public MessageDialog(Window owner, String title) {
     super(owner, title, "messageDialog");
@@ -87,7 +88,7 @@ public class MessageDialog extends TmmDialog {
       }
     }
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }
@@ -116,12 +117,12 @@ public class MessageDialog extends TmmDialog {
   }
 
   public static void showExceptionWindow(Throwable ex) {
-    MessageDialog dialog = new MessageDialog(null, BUNDLE.getString("tmm.problemdetected"));
+    MessageDialog dialog = new MessageDialog(null, TmmResourceBundle.getString("tmm.problemdetected"));
 
     dialog.setImage(IconManager.ERROR);
     String msg = ex.getLocalizedMessage();
     dialog.setText(msg != null ? msg : "");
-    dialog.setDescription(BUNDLE.getString("tmm.uicrash"));
+    dialog.setDescription(TmmResourceBundle.getString("tmm.uicrash"));
     dialog.setDetails(stackStraceAsString(ex));
     dialog.setAlwaysOnTop(true);
     dialog.setVisible(true);

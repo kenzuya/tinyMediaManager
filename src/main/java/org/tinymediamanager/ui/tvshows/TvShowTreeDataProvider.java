@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -117,24 +118,32 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     };
 
     episodePropertyChangeListener = evt -> {
-      TvShowEpisode episode;
+      TvShowEpisode episode = (TvShowEpisode) evt.getSource();
 
       switch (evt.getPropertyName()) {
         // changed the season/episode nr of an episode
         case Constants.SEASON:
         case Constants.EPISODE:
           // simply remove it from the tree and readd it
-          episode = (TvShowEpisode) evt.getSource();
           removeTvShowEpisode(episode);
           addTvShowEpisode(episode);
+          updateDummyEpisodesForTvShow(episode.getTvShow());
           break;
 
         case Constants.TV_SHOW:
           // do not react on change of the TV show itself
           break;
 
+        case Constants.WATCHED:
+        case Constants.MEDIA_FILES:
+          // update the node itself, but also its parents
+          nodeChanged(episode);
+          nodeChanged(episode.getTvShowSeason());
+          nodeChanged(episode.getTvShow());
+          break;
+
         default:
-          nodeChanged(evt.getSource());
+          nodeChanged(episode);
           break;
       }
     };
@@ -151,6 +160,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
             removeDummyEpisodes();
           }
           break;
+
         case "displayMissingSpecials":
           if (TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
             addDummySpecials();
@@ -191,6 +201,26 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
         if (season.isDummy()) {
           removeTvShowSeason(season);
         }
+      }
+    }
+  }
+
+  /**
+   * update dummy episodes after changing S/E of existing episodes
+   */
+  private void updateDummyEpisodesForTvShow(TvShow tvShow) {
+    List<TvShowEpisode> dummyEpisodes = tvShow.getDummyEpisodes();
+    List<TvShowEpisode> episodesForDisplay = tvShow.getEpisodesForDisplay();
+
+    // iterate over all episodes for display and re-add/remove dummy episodes which needs an update
+    for (TvShowEpisode episode : dummyEpisodes) {
+      if (episodesForDisplay.contains(episode) && getNodeFromCache(episode) == null) {
+        // should be here, but isn't -> re-add
+        addTvShowEpisode(episode);
+      }
+      else if (!episodesForDisplay.contains(episode) && getNodeFromCache(episode) != null) {
+        // is here but shouldn't -> remove
+        removeTvShowEpisode(episode);
       }
     }
   }
@@ -411,7 +441,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     // okay, we've removed the episode; now check which seasons we have to remove too
     for (TvShowSeason season : episode.getTvShow().getSeasons()) {
-      if (season.getEpisodes().isEmpty()) {
+      if (season.getEpisodesForDisplay().isEmpty()) {
         removeTvShowSeason(season);
       }
     }
@@ -614,14 +644,14 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
         }
         else {
           if (season.getSeason() == -1) {
-            return BUNDLE.getString("tvshow.uncategorized");
+            return TmmResourceBundle.getString("tvshow.uncategorized");
           }
 
           if (season.getSeason() == 0) {
-            return BUNDLE.getString("metatag.specials");
+            return TmmResourceBundle.getString("metatag.specials");
           }
 
-          return BUNDLE.getString("metatag.season") + " " + season.getSeason();
+          return TmmResourceBundle.getString("metatag.season") + " " + season.getSeason();
         }
       }
 

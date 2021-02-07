@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieRenamerPreview;
@@ -76,7 +77,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
   private JLabel                                  lblFolderNew;
 
   public MovieRenamerPreviewDialog(final List<Movie> selectedMovies) {
-    super(BUNDLE.getString("movie.renamerpreview"), "movieRenamerPreview");
+    super(TmmResourceBundle.getString("movie.renamerpreview"), "movieRenamerPreview");
 
     oldMediaFileEventList = GlazedLists.eventList(new ArrayList<>());
     newMediaFileEventList = GlazedLists.eventList(new ArrayList<>());
@@ -126,21 +127,21 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
             panelDetails.add(lblTitle, "cell 0 0 3 1,growx");
           }
           {
-            JLabel lblDatasourceT = new TmmLabel(BUNDLE.getString("metatag.datasource"));
+            JLabel lblDatasourceT = new TmmLabel(TmmResourceBundle.getString("metatag.datasource"));
             panelDetails.add(lblDatasourceT, "cell 0 2");
 
             lblDatasource = new JLabel("");
             panelDetails.add(lblDatasource, "cell 2 2,growx,aligny center");
           }
           {
-            JLabel lblFolderOldT = new TmmLabel(BUNDLE.getString("renamer.oldfolder"));
+            JLabel lblFolderOldT = new TmmLabel(TmmResourceBundle.getString("renamer.oldfolder"));
             panelDetails.add(lblFolderOldT, "cell 0 4");
 
             lblFolderOld = new JLabel("");
             panelDetails.add(lblFolderOld, "cell 2 4,growx,aligny center");
           }
           {
-            JLabel lblFolderNewT = new TmmLabel(BUNDLE.getString("renamer.newfolder"));
+            JLabel lblFolderNewT = new TmmLabel(TmmResourceBundle.getString("renamer.newfolder"));
             panelDetails.add(lblFolderNewT, "cell 0 5");
 
             lblFolderNew = new JLabel("");
@@ -151,10 +152,10 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
             panelDetails.add(panelMediaFiles, "cell 0 7 3 1,grow");
             panelMediaFiles.setLayout(new MigLayout("", "[grow][grow]", "[15px][grow]"));
             {
-              JLabel lblOldfilesT = new TmmLabel(BUNDLE.getString("renamer.oldfiles"));
+              JLabel lblOldfilesT = new TmmLabel(TmmResourceBundle.getString("renamer.oldfiles"));
               panelMediaFiles.add(lblOldfilesT, "cell 0 0,alignx center");
 
-              JLabel lblNewfilesT = new TmmLabel(BUNDLE.getString("renamer.newfiles"));
+              JLabel lblNewfilesT = new TmmLabel(TmmResourceBundle.getString("renamer.newfiles"));
               panelMediaFiles.add(lblNewfilesT, "cell 1 0,alignx center");
             }
             {
@@ -178,8 +179,8 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       }
     }
     {
-      JButton btnRename = new JButton(BUNDLE.getString("Button.rename"));
-      btnRename.setToolTipText(BUNDLE.getString("movie.rename"));
+      JButton btnRename = new JButton(TmmResourceBundle.getString("Button.rename"));
+      btnRename.setToolTipText(TmmResourceBundle.getString("movie.rename"));
       btnRename.addActionListener(arg0 -> {
         List<Movie> selectedMovies1 = new ArrayList<>();
         List<MovieRenamerPreviewContainer> selectedResults = new ArrayList<>(resultSelectionModel.selectedResults);
@@ -194,7 +195,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       });
       addButton(btnRename);
 
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }
@@ -213,7 +214,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       /*
        * movie title
        */
-      Column col = new Column(BUNDLE.getString("metatag.movie"), "title", container -> container.getMovie().getTitleSortable(), String.class);
+      Column col = new Column(TmmResourceBundle.getString("metatag.movie"), "title", container -> container.getMovie().getTitleSortable(), String.class);
       col.setColumnTooltip(container -> container.getMovie().getTitleSortable());
       addColumn(col);
     }
@@ -230,7 +231,7 @@ public class MovieRenamerPreviewDialog extends TmmDialog {
       /*
        * filename
        */
-      col = new Column(BUNDLE.getString("metatag.filename"), "filename", container -> container.mediaFile.getFilename(), String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.filename"), "filename", container -> container.mediaFile.getFilename(), String.class);
       col.setColumnTooltip(container -> container.mediaFile.getFilename());
       addColumn(col);
     }

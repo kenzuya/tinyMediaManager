@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package org.tinymediamanager.ui.moviesets.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
@@ -34,16 +35,16 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  */
 public class MovieSetRemoveAction extends TmmAction {
   private static final long           serialVersionUID = -9030996266835702009L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   /**
    * Instantiates a new removes the movie set action.
    */
   public MovieSetRemoveAction() {
-    putValue(NAME, BUNDLE.getString("movieset.remove.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movieset.remove.desc"));
     putValue(LARGE_ICON_KEY, IconManager.DELETE);
     putValue(SMALL_ICON, IconManager.DELETE);
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movieset.remove.desc"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.remove.desc"));
   }
 
   @Override
@@ -51,13 +52,14 @@ public class MovieSetRemoveAction extends TmmAction {
     List<MovieSet> selectedMovieSets = MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovieSets();
 
     if (selectedMovieSets.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (MovieSet movieSet : selectedMovieSets) {
       MovieList.getInstance().removeMovieSet(movieSet);
     }
-
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

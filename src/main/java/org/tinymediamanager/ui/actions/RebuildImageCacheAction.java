@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package org.tinymediamanager.ui.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -39,17 +39,17 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  */
 public class RebuildImageCacheAction extends TmmAction {
   private static final long           serialVersionUID = -9178351750617647813L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public RebuildImageCacheAction() {
-    putValue(NAME, BUNDLE.getString("tmm.rebuildimagecache"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("tmm.rebuildimagecache"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.rebuildimagecache"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tmm.rebuildimagecache"));
   }
 
   @Override
   protected void processAction(ActionEvent e) {
     if (!Globals.settings.isImageCache()) {
-      JOptionPane.showMessageDialog(null, BUNDLE.getString("tmm.imagecache.notactivated"));
+      JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.imagecache.notactivated"));
       return;
     }
 

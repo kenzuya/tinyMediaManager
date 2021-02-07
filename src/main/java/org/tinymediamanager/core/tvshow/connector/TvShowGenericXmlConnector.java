@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package org.tinymediamanager.core.tvshow.connector;
 
-import static org.tinymediamanager.DateField.DATE_ADDED;
-import static org.tinymediamanager.DateField.FILE_CREATION_DATE;
-import static org.tinymediamanager.DateField.FILE_LAST_MODIFIED_DATE;
+import static org.tinymediamanager.core.DateField.DATE_ADDED;
+import static org.tinymediamanager.core.DateField.FILE_CREATION_DATE;
+import static org.tinymediamanager.core.DateField.FILE_LAST_MODIFIED_DATE;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -236,7 +237,7 @@ public class MovieToNfoConnectorTest extends BasicTest {
     MediaTrailer trailer = new MediaTrailer();
     trailer.setUrl("https://trailer");
     trailer.setInNfo(true);
-    movie.addTrailer(trailer);
+    movie.addToTrailer(Collections.singletonList(trailer));
 
     MovieSet movieSet = new MovieSet();
     movieSet.setTitle("Aladdin Collection");
@@ -266,29 +267,27 @@ public class MovieToNfoConnectorTest extends BasicTest {
     movie.addToMediaFiles(mf);
 
     movie.setWatched(true);
-    movie.addGenre(MediaGenres.ADVENTURE);
-    movie.addGenre(MediaGenres.FAMILY);
-    movie.addWriter(new Person(Person.Type.WRITER, "Ted Elliott", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "Terry Rossio", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "Ron Clements", "Writer"));
-    movie.addWriter(new Person(Person.Type.WRITER, "John Jusker", "Writer"));
-    movie.addDirector(new Person(Person.Type.DIRECTOR, "Ron Clements", "Director"));
-    movie.addWriter(new Person(Person.Type.DIRECTOR, "John Jusker", "Director"));
-    movie.addToTags("Disney");
-    movie.addToTags("Oriental");
+    movie.addToGenres(Arrays.asList(MediaGenres.ADVENTURE, MediaGenres.FAMILY));
+    movie
+        .addToWriters(Arrays.asList(new Person(Person.Type.WRITER, "Ted Elliott", "Writer"), new Person(Person.Type.WRITER, "Terry Rossio", "Writer"),
+            new Person(Person.Type.WRITER, "Ron Clements", "Writer"), new Person(Person.Type.WRITER, "John Jusker", "Writer"),
+            new Person(Person.Type.DIRECTOR, "Ron Clements", "Director"), new Person(Person.Type.DIRECTOR, "John Jusker", "Director")));
+    movie.addToTags(Arrays.asList("Disney", "Oriental"));
 
-    movie.addActor(new Person(Person.Type.ACTOR, "Scott Weinger", "Aladdin 'Al' (voice)",
-        "https://image.tmdb.org/t/p/w640/rlZpPoORiJzStzIuAyrPOlLhnaL.jpg", "https://www.themoviedb.org/person/15827"));
-    movie.addActor(new Person(Person.Type.ACTOR, "Robin Williams", "Genie (voice)"));
+    movie
+        .addToActors(
+            Arrays.asList(
+                new Person(Person.Type.ACTOR, "Scott Weinger", "Aladdin 'Al' (voice)",
+                    "https://image.tmdb.org/t/p/w640/rlZpPoORiJzStzIuAyrPOlLhnaL.jpg", "https://www.themoviedb.org/person/15827"),
+                new Person(Person.Type.ACTOR, "Robin Williams", "Genie (voice)")));
 
-    movie.addProducer(new Person(Person.Type.PRODUCER, "Ron Clements", "Producer"));
-    movie.addProducer(new Person(Person.Type.PRODUCER, "Donald W. Ernst", "Producer"));
+    movie.addToProducers(
+        Arrays.asList(new Person(Person.Type.PRODUCER, "Ron Clements", "Producer"), new Person(Person.Type.PRODUCER, "Donald W. Ernst", "Producer")));
 
     movie.setSpokenLanguages("de, fr, Englirsch");
     movie.setMediaSource(MediaSource.BLURAY);
     movie.setEdition(MovieEdition.DIRECTORS_CUT);
-    movie.addShowlink("Foo");
-    movie.addShowlink("Foo2");
+    movie.addShowlinks(Arrays.asList("Foo", "Foo2"));
     return movie;
   }
 

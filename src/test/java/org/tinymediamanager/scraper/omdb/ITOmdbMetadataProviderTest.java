@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -22,6 +23,9 @@ import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
+import org.tinymediamanager.scraper.exceptions.MissingIdException;
+import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 
 /**
  * @author Wolfgang Janes
@@ -39,13 +43,14 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
   @Test
   public void testProviderInfo() {
     try {
-      OmdbMetadataProvider mp = new OmdbMetadataProvider();
+      OmdbMovieMetadataProvider mp = new OmdbMovieMetadataProvider();
       MediaProviderInfo providerInfo = mp.getProviderInfo();
 
       assertNotNull(providerInfo.getDescription());
       assertNotNull(providerInfo.getId());
       assertNotNull(providerInfo.getName());
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }
@@ -55,7 +60,7 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
   @Test
   public void testSearch() {
     try {
-      OmdbMetadataProvider mp = new OmdbMetadataProvider();
+      IMovieMetadataProvider mp = new OmdbMovieMetadataProvider();
 
       // Matrix
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
@@ -80,7 +85,8 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
       assertThat(resultList.get(0).getMediaType()).isEqualTo(MediaType.MOVIE);
       assertThat(resultList.get(0).getPosterUrl()).isNotEmpty();
 
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }
@@ -90,13 +96,13 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
   @Test
   public void testScrapeById() {
     try {
-      OmdbMetadataProvider mp = new OmdbMetadataProvider();
+      IMovieMetadataProvider mp = new OmdbMovieMetadataProvider();
 
       MovieSearchAndScrapeOptions scrapeOptions = new MovieSearchAndScrapeOptions();
       scrapeOptions.setLanguage(MediaLanguages.en);
       scrapeOptions.setCertificationCountry(CountryCode.US);
 
-      MediaMetadata md = null;
+      MediaMetadata md;
 
       // Matrix
       scrapeOptions.setImdbId("tt0133093");
@@ -141,27 +147,70 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
       assertThat(md.getGenres()).contains(MediaGenres.ADVENTURE, MediaGenres.COMEDY);
       assertThat(md.getMediaArt(MediaArtwork.MediaArtworkType.POSTER)).isNotNull();
 
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       fail();
     }
 
   }
-  //
-  // @Test
-  // public void TestScrapeEpisodes() {
-  //
-  // MediaScrapeOptions episodeOptions = new MediaScrapeOptions(MediaType.TV_SHOW);
-  // episodeOptions.setId(mp.getProviderInfo().getId(), "tt0944947");
-  // try {
-  //
-  // episodeList = mp.getEpisodeList(episodeOptions);
-  // assertThat(episodeList.size()).isGreaterThan(0);
-  //
-  // }
-  // catch (Exception e) {
-  // e.printStackTrace();
-  // fail();
-  // }
-  // }
+
+  @Test
+  public void testScrapeShow() {
+
+    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+    OmdbTvShowMetadataProvider mp = new OmdbTvShowMetadataProvider();
+    MediaMetadata md;
+
+    options.setId(mp.getProviderInfo().getId(), "tt0944947");
+
+    try {
+
+      md = mp.getMetadata(options);
+
+      assertThat(md.getCertifications()).isNotEmpty();
+      assertThat(md.getTitle()).isEqualTo("Game of Thrones");
+      assertThat(md.getYear()).isEqualTo(Integer.valueOf(2011));
+      assertThat(md.getReleaseDate()).isNotNull();
+      assertThat(md.getRuntime()).isEqualTo(Integer.valueOf(57));
+      assertThat(md.getCastMembers(WRITER)).isNotNull();
+      assertThat(md.getCastMembers(WRITER).size()).isEqualTo(2);
+      assertThat(md.getCastMembers(ACTOR)).isNotNull();
+      assertThat(md.getCastMembers(ACTOR).size()).isEqualTo(4);
+      assertThat(md.getPlot()).isNotEmpty();
+      assertThat(md.getCountries()).contains("USA", "UK");
+      assertThat(md.getSpokenLanguages()).contains("English");
+      assertThat(md.getRatings()).hasSize(1);
+      assertThat(md.getGenres()).contains(MediaGenres.ACTION, MediaGenres.ADVENTURE, MediaGenres.DRAMA, MediaGenres.FANTASY, MediaGenres.ROMANCE);
+      assertThat(md.getMediaArt(MediaArtwork.MediaArtworkType.POSTER)).isNotNull();
+
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      fail();
+    }
+  }
+
+  @Test
+  public void testEpisodeList() {
+
+    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+    OmdbTvShowMetadataProvider mp = new OmdbTvShowMetadataProvider();
+    List<MediaMetadata> mediaMetadataList = new ArrayList<>();
+
+    options.setId(mp.getProviderInfo().getId(), "tt0944947");
+
+    try {
+      mediaMetadataList = mp.getEpisodeList(options);
+    }
+    catch (MissingIdException e) {
+      e.printStackTrace();
+    }
+    catch (ScrapeException e) {
+      e.printStackTrace();
+    }
+
+    assertThat(mediaMetadataList).isNotNull();
+
+  }
 }

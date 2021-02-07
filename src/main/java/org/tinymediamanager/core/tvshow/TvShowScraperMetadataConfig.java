@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.tinymediamanager.core.tvshow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
  * The enum TvShowScraperMetadataConfig is used to control which TV show fields should be set after scraping.
@@ -69,11 +69,9 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   // theme
   THEME(Type.THEME);
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
-
-  private final Type                  type;
-  private final String                description;
-  private final String                tooltip;
+  private final Type   type;
+  private final String description;
+  private final String tooltip;
 
   TvShowScraperMetadataConfig(Type type) {
     this(type, null, null);
@@ -99,10 +97,10 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
     if (StringUtils.isBlank(description)) {
       try {
         if (type == Type.ARTWORK || type == Type.THEME) {
-          return BUNDLE.getString("mediafiletype." + name().toLowerCase(Locale.ROOT));
+          return TmmResourceBundle.getString("mediafiletype." + name().toLowerCase(Locale.ROOT));
         }
         else {
-          return BUNDLE.getString("metatag." + name().toLowerCase(Locale.ROOT));
+          return TmmResourceBundle.getString("metatag." + name().toLowerCase(Locale.ROOT));
         }
       }
       catch (Exception ignored) {
@@ -111,7 +109,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
     }
     else {
       try {
-        return BUNDLE.getString(description);
+        return TmmResourceBundle.getString(description);
       }
       catch (Exception ignored) {
         // just not crash
@@ -126,7 +124,7 @@ public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
       return null;
     }
     try {
-      return BUNDLE.getString(tooltip);
+      return TmmResourceBundle.getString(tooltip);
     }
     catch (Exception ignored) {
       // just not crash

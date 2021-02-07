@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,64 +15,66 @@
  */
 package org.tinymediamanager.ui.movies.filters;
 
-import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.ui.components.TmmLabel;
-
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+
+import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.ui.components.TmmLabel;
 
 /**
  * this class is used for filtering movies by HDR Format
  *
  * @author Wolfgang Janes
  */
-public class MovieHDRFormatFilter extends AbstractCheckComboBoxMovieUIFilter<String>{
+public class MovieHDRFormatFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
 
-    private final MovieList movieList = MovieList.getInstance();
+  private final MovieList movieList = MovieList.getInstance();
 
-    public MovieHDRFormatFilter() {
+  public MovieHDRFormatFilter() {
 
-        super();
-        checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
-        buildHdrFormatArray();
-        movieList.addPropertyChangeListener(Constants.HDR_FORMAT, evt -> SwingUtilities.invokeLater(this::buildHdrFormatArray));
+    super();
+    checkComboBox.enableFilter((s, s2) -> String.valueOf(s).startsWith(s2.toLowerCase(Locale.ROOT)));
+    buildHdrFormatArray();
+    movieList.addPropertyChangeListener(Constants.HDR_FORMAT, evt -> SwingUtilities.invokeLater(this::buildHdrFormatArray));
 
-    }
+  }
 
-    @Override
-    protected JLabel createLabel() {
-        return new TmmLabel(BUNDLE.getString("metatag.hdrformat"));
-    }
+  @Override
+  protected JLabel createLabel() {
+    return new TmmLabel(BUNDLE.getString("metatag.hdrformat"));
+  }
 
-    @Override
-    public String getId() {
-        return "movieHdrFormat";
-    }
+  @Override
+  public String getId() {
+    return "movieHdrFormat";
+  }
 
-    @Override
-    public boolean accept(Movie movie) {
-        List<String> selectedItems = checkComboBox.getSelectedItems();
-        return selectedItems.contains(movie.getVideoHDRFormat()) ;
-    }
+  @Override
+  public boolean accept(Movie movie) {
+    List<String> selectedItems = checkComboBox.getSelectedItems();
+    return selectedItems.contains(movie.getVideoHDRFormat());
+  }
 
-    @Override
-    protected String parseTypeToString(String type) throws Exception {
-        return type;
-    }
+  @Override
+  protected String parseTypeToString(String type) throws Exception {
+    return type;
+  }
 
-    @Override
-    protected String parseStringToType(String string) throws Exception {
-        return string;
-    }
+  @Override
+  protected String parseStringToType(String string) throws Exception {
+    return string;
+  }
 
-    public void buildHdrFormatArray() {
-        List<String> hdrFormats = new ArrayList<>(movieList.getHDRFormatInMovies());
-        Collections.sort(hdrFormats);
-        setValues(hdrFormats);
-    }
+  public void buildHdrFormatArray() {
+    List<String> hdrFormats = new ArrayList<>(movieList.getHDRFormatInMovies());
+    Collections.sort(hdrFormats);
+    setValues(hdrFormats);
+  }
 }

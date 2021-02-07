@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class MediaProviderConfigTest {
   @Test
   public void getSettings() throws IOException {
 
-    MediaProviderInfo mpi = new MediaProviderInfo("config", "name", "description");
+    MediaProviderInfo mpi = new MediaProviderInfo("config", "sub", "name", "description");
 
     // define defaults
     mpi.getConfig().addBoolean("filterUnwantedCategories", false);
@@ -74,7 +74,7 @@ public class MediaProviderConfigTest {
     mpi.getConfig().setValue("languageInt", "unknown"); // not possible
     assertEqual("5", mpi.getConfig().getValue("languageInt")); // value not in rage, should stay at last known
 
-    assertEqual(null, mpi.getConfig().getValueAsBool("languageInt")); // not a bool value
+    assertEqual(false, mpi.getConfig().getValueAsBool("languageInt")); // not a bool value
     assertEqual(true, mpi.getConfig().getValueAsBool("useTmdbForMovies"));
     assertEqual("This is some encrypted text", mpi.getConfig().getValue("encrypted"));
 
@@ -85,7 +85,7 @@ public class MediaProviderConfigTest {
 
   @Test
   public void invalid() {
-    MediaProviderInfo mpi = new MediaProviderInfo("save", "name", "description");
+    MediaProviderInfo mpi = new MediaProviderInfo("save", "sub", "name", "description");
     mpi.getConfig().addBoolean("bool1", false);
     mpi.getConfig().addText("someInput", "none");
     mpi.getConfig().addSelect("language", new String[] { "aa", "bb", "cc", "dd", "ee" }, "dd");
@@ -96,36 +96,36 @@ public class MediaProviderConfigTest {
 
     mpi.getConfig().setValue("asdfasdfasdfasdf", true);
     assertEqual("", mpi.getConfig().getValue("invalid"));
-    assertEqual(null, mpi.getConfig().getValueAsBool("invalid"));
+    assertEqual(false, mpi.getConfig().getValueAsBool("invalid"));
     assertEqual("", mpi.getConfig().getValue("invalidInt"));
   }
 
   @Test
   public void emptySettingsLoadSave() {
-    MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "name", "description");
+    MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "sub", "name", "description");
     mpi.getConfig().load();
-    mpi.getConfig().save();
+    mpi.getConfig().saveToDir("target");
   }
 
   @Test
   public void unknownConfigLoadSave() {
-    MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "name", "description");
+    MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "sub", "name", "description");
     mpi.getConfig().addText("language", "de");
     mpi.getConfig().load();
-    mpi.getConfig().save();
+    mpi.getConfig().saveToDir("target");
   }
 
   @Test
   public void getUnknownValue() {
-    MediaProviderInfo mpi = new MediaProviderInfo("config", "name", "description");
+    MediaProviderInfo mpi = new MediaProviderInfo("config", "config", "name", "description");
     mpi.getConfig().loadFromDir("target");
     assertEqual("", mpi.getConfig().getValue("asdfasdfasdfasdf"));
-    assertEqual(null, mpi.getConfig().getValueAsBool("sdfgsdfgsdfg"));
+    assertEqual(false, mpi.getConfig().getValueAsBool("sdfgsdfgsdfg"));
   }
 
   @Test
   public void setNotAvailableConfig() {
-    MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "name", "description");
+    MediaProviderInfo mpi = new MediaProviderInfo("asdfasdf", "sub", "name", "description");
     mpi.getConfig().setValue("language", "de");
   }
 

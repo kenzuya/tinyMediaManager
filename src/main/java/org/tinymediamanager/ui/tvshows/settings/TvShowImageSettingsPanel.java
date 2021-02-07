@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package org.tinymediamanager.ui.tvshows.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -38,6 +38,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -48,6 +49,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -73,27 +75,24 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowImageSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 4999827736720726395L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long          serialVersionUID = 4999827736720726395L;
 
-  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
-  private final List<ScraperInTable>  artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
-  private final ItemListener          checkBoxListener;
+  private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable> artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
+  private final ItemListener         checkBoxListener;
 
-  private TmmTable                    tableScraper;
-  private JTextPane                   tpScraperDescription;
-  private JPanel                      panelScraperOptions;
-  private JCheckBox                   cbActorImages;
-  private JSpinner                    spDownloadCountExtrafanart;
-  private JCheckBox                   chckbxEnableExtrafanart;
-  private JComboBox<MediaLanguages>   cbScraperLanguage;
-  private JComboBox                   cbImagePosterSize;
-  private JComboBox                   cbImageFanartSize;
-  private JCheckBox                   chckbxSpecialSeason;
-  private JPanel                      panel;
-  private JCheckBox                   chckbxExtraFanart1;
-  private JCheckBox                   chckbxExtraFanart2;
+  private TmmTable                   tableScraper;
+  private JTextPane                  tpScraperDescription;
+  private JPanel                     panelScraperOptions;
+  private JCheckBox                  cbActorImages;
+  private JSpinner                   spDownloadCountExtrafanart;
+  private JCheckBox                  chckbxEnableExtrafanart;
+  private JComboBox<MediaLanguages>  cbScraperLanguage;
+  private JComboBox                  cbImagePosterSize;
+  private JComboBox                  cbImageFanartSize;
+  private JCheckBox                  chckbxSpecialSeason;
+  private JCheckBox                  chckbxExtraFanart1;
+  private JCheckBox                  chckbxExtraFanart2;
 
   /**
    * Instantiates a new Tv show image scraper settings panel.
@@ -129,25 +128,26 @@ class TvShowImageSettingsPanel extends JPanel {
         + color.getGreen() + "," + color.getBlue() + "); }";
 
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     tpScraperDescription.setEditorKit(new HTMLEditorKit());
     ((HTMLDocument) tpScraperDescription.getDocument()).getStyleSheet().addRule(bodyRule);
 
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        ScraperInTable changedScraper = artworkScrapers.get(row);
-        if (changedScraper.getActive()) {
-          settings.addTvShowArtworkScraper(changedScraper.getScraperId());
-        }
-        else {
-          settings.removeTvShowArtworkScraper(changedScraper.getScraperId());
-        }
-      }
-    });
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            ScraperInTable changedScraper = artworkScrapers.get(row);
+            if (changedScraper.getActive()) {
+              settings.addTvShowArtworkScraper(changedScraper.getScraperId());
+            }
+            else {
+              settings.removeTvShowArtworkScraper(changedScraper.getScraperId());
+            }
+          }
+        });
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
       int index = tableScraper.convertRowIndexToModel(tableScraper.getSelectedRow());
@@ -230,12 +230,20 @@ class TvShowImageSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][]"));
 
-      JLabel lblScraperT = new TmmLabel(BUNDLE.getString("scraper.artwork"), H3);
+      JLabel lblScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraperT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#artwork-scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraper = new TmmTable();
+        tableScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = artworkScrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraper.setRowHeight(29);
         tableScraper.setShowGrid(true);
         panelScraper.add(tableScraper, "cell 1 0,grow");
@@ -258,51 +266,51 @@ class TvShowImageSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp][grow]", "[][][][][][][grow][]")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][grow][]")); // 16lp ~ width of the
 
-      JLabel lblOptionsT = new TmmLabel(BUNDLE.getString("Settings.advancedoptions"), H3);
+      JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#advanced-options-1"));
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
       {
-        JLabel lblScraperLanguage = new JLabel(BUNDLE.getString("Settings.preferredLanguage"));
+        JLabel lblScraperLanguage = new JLabel(TmmResourceBundle.getString("Settings.preferredLanguage"));
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
-        JLabel lblImageTmdbPosterSize = new JLabel(BUNDLE.getString("image.poster.size"));
+        JLabel lblImageTmdbPosterSize = new JLabel(TmmResourceBundle.getString("image.poster.size"));
         panelOptions.add(lblImageTmdbPosterSize, "cell 1 1 2 1");
 
         cbImagePosterSize = new JComboBox(MediaArtwork.PosterSizes.values());
         panelOptions.add(cbImagePosterSize, "cell 1 1 2 1");
 
-        JLabel lblImageTmdbFanartSize = new JLabel(BUNDLE.getString("image.fanart.size"));
+        JLabel lblImageTmdbFanartSize = new JLabel(TmmResourceBundle.getString("image.fanart.size"));
         panelOptions.add(lblImageTmdbFanartSize, "cell 1 2 2 1");
 
         cbImageFanartSize = new JComboBox(MediaArtwork.FanartSizes.values());
         panelOptions.add(cbImageFanartSize, "cell 1 2 2 1");
 
-        cbActorImages = new JCheckBox(BUNDLE.getString("Settings.actor.download"));
+        cbActorImages = new JCheckBox(TmmResourceBundle.getString("Settings.actor.download"));
         panelOptions.add(cbActorImages, "cell 1 3 2 1");
 
-        chckbxSpecialSeason = new JCheckBox(BUNDLE.getString("tvshow.renamer.specialseason"));
+        chckbxSpecialSeason = new JCheckBox(TmmResourceBundle.getString("tvshow.renamer.specialseason"));
         panelOptions.add(chckbxSpecialSeason, "cell 1 4 2 1");
 
-        chckbxEnableExtrafanart = new JCheckBox(BUNDLE.getString("Settings.enable.extrafanart"));
+        chckbxEnableExtrafanart = new JCheckBox(TmmResourceBundle.getString("Settings.enable.extrafanart"));
         panelOptions.add(chckbxEnableExtrafanart, "cell 1 5 2 1");
 
-        panel = new JPanel();
+        JPanel panel = new JPanel();
         panelOptions.add(panel, "cell 2 6,growx");
         panel.setLayout(new MigLayout("insets 0", "[][20lp!][]", "[]"));
 
-        chckbxExtraFanart1 = new JCheckBox("fanartX." + BUNDLE.getString("Settings.artwork.extension"));
+        chckbxExtraFanart1 = new JCheckBox("fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtraFanart1, "cell 0 0");
 
-        chckbxExtraFanart2 = new JCheckBox("extrafanart/fanartX." + BUNDLE.getString("Settings.artwork.extension"));
+        chckbxExtraFanart2 = new JCheckBox("extrafanart/fanartX." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panel.add(chckbxExtraFanart2, "cell 2 0");
 
-        JLabel lblDownloadCount = new JLabel(BUNDLE.getString("Settings.amount.autodownload"));
+        JLabel lblDownloadCount = new JLabel(TmmResourceBundle.getString("Settings.amount.autodownload"));
         panelOptions.add(lblDownloadCount, "cell 2 7");
 
         spDownloadCountExtrafanart = new JSpinner();
@@ -317,13 +325,20 @@ class TvShowImageSettingsPanel extends JPanel {
         artworkScrapers, tableScraper);
     //
     BeanProperty<ScraperInTable, Boolean> artworkScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.active")).setColumnClass(Boolean.class);
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<ScraperInTable, Icon> artworkScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1).setEditable(false).setColumnClass(ImageIcon.class);
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setEditable(false)
+        .setColumnClass(ImageIcon.class);
     //
     BeanProperty<ScraperInTable, String> artworkScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false)
+    jTableBinding_1.addColumnBinding(artworkScraperBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("metatag.name"))
+        .setEditable(false)
         .setColumnClass(String.class);
     //
     jTableBinding_1.bind();

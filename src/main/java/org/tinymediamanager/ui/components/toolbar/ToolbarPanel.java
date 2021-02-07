@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.awt.event.KeyEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ResourceBundle;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -44,6 +43,7 @@ import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.license.License;
@@ -82,7 +82,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ToolbarPanel extends JPanel {
   private static final long           serialVersionUID = 7969400170662870244L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
   private ToolbarButton               btnSearch;
@@ -134,34 +134,34 @@ public class ToolbarPanel extends JPanel {
     JButton btnInfo = new ToolbarButton(IconManager.TOOLBAR_ABOUT, IconManager.TOOLBAR_ABOUT_HOVER, infoPopupMenu);
     panelCenter.add(btnInfo, "cell 10 0,alignx center,aligny bottom");
 
-    btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UNLOCK, IconManager.TOOLBAR_UNLOCK_HOVER);
+    btnUnlock = new ToolbarButton(IconManager.TOOLBAR_UPGRADE, IconManager.TOOLBAR_UPGRADE);
     Action unlockAction = new UnlockAction();
     btnUnlock.setAction(unlockAction);
     panelCenter.add(btnUnlock, "cell 11 0, alignx center,aligny bottom, gap 10lp");
 
-    menuUpdate = new ToolbarMenu(BUNDLE.getString("Toolbar.update"));
+    menuUpdate = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.update"));
     panelCenter.add(menuUpdate, "cell 2 1,alignx center, wmin 0");
 
-    menuSearch = new ToolbarMenu(BUNDLE.getString("Toolbar.search"));
+    menuSearch = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.search"));
     panelCenter.add(menuSearch, "cell 3 1,alignx center, wmin 0");
 
-    menuEdit = new ToolbarMenu(BUNDLE.getString("Toolbar.edit"));
+    menuEdit = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.edit"));
     panelCenter.add(menuEdit, "cell 4 1,alignx center, wmin 0");
 
-    menuRename = new ToolbarMenu(BUNDLE.getString("Toolbar.rename"));
+    menuRename = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.rename"));
     panelCenter.add(menuRename, "cell 5 1,alignx center, wmin 0");
 
-    JLabel lblSettings = new ToolbarLabel(BUNDLE.getString("Toolbar.settings"), settingsAction);
+    JLabel lblSettings = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.settings"), settingsAction);
     panelCenter.add(lblSettings, "cell 8 1,alignx center, wmin 0");
 
-    ToolbarMenu lblTools = new ToolbarMenu(BUNDLE.getString("Toolbar.tools"), toolsPopupMenu);
+    ToolbarMenu lblTools = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.tools"), toolsPopupMenu);
     panelCenter.add(lblTools, "cell 9 1,alignx center, wmin 0");
 
-    ToolbarMenu menuHelp = new ToolbarMenu(BUNDLE.getString("Toolbar.help"), infoPopupMenu);
+    ToolbarMenu menuHelp = new ToolbarMenu(TmmResourceBundle.getString("Toolbar.help"), infoPopupMenu);
     panelCenter.add(menuHelp, "cell 10 1,alignx center, wmin 0");
 
-    lblUnlock = new ToolbarLabel(BUNDLE.getString("Toolbar.unlock"), unlockAction);
-    lblUnlock.setToolTipText(BUNDLE.getString("Toolbar.unlock.desc"));
+    lblUnlock = new ToolbarLabel(TmmResourceBundle.getString("Toolbar.upgrade"), unlockAction);
+    lblUnlock.setToolTipText(TmmResourceBundle.getString("Toolbar.upgrade.desc"));
     panelCenter.add(lblUnlock, "cell 11 1,alignx center, gap 10lp, wmin 0");
 
     License.getInstance().addEventListener(this::showHideUnlock);
@@ -210,7 +210,7 @@ public class ToolbarPanel extends JPanel {
 
     menu.addSeparator();
 
-    JMenuItem tmmLogs = new JMenuItem(BUNDLE.getString("tmm.errorlogs"));
+    JMenuItem tmmLogs = new JMenuItem(TmmResourceBundle.getString("tmm.errorlogs"));
     menu.add(tmmLogs);
     tmmLogs.addActionListener(arg0 -> {
       JDialog logDialog = new LogDialog();
@@ -218,14 +218,14 @@ public class ToolbarPanel extends JPanel {
       logDialog.setVisible(true);
     });
 
-    JMenuItem tmmMessages = new JMenuItem(BUNDLE.getString("tmm.messages"));
+    JMenuItem tmmMessages = new JMenuItem(TmmResourceBundle.getString("tmm.messages"));
     tmmMessages.setMnemonic(KeyEvent.VK_L);
     menu.add(tmmMessages);
     tmmMessages.addActionListener(arg0 -> {
       JDialog messageDialog = MessageHistoryDialog.getInstance();
       messageDialog.setVisible(true);
     });
-    JMenuItem tmmFolder = new JMenuItem(BUNDLE.getString("tmm.gotoinstalldir"));
+    JMenuItem tmmFolder = new JMenuItem(TmmResourceBundle.getString("tmm.gotoinstalldir"));
     menu.add(tmmFolder);
     tmmFolder.addActionListener(arg0 -> {
       Path path = Paths.get(System.getProperty("user.dir"));
@@ -244,7 +244,7 @@ public class ToolbarPanel extends JPanel {
 
     menu.addSeparator();
 
-    final JMenu menuWakeOnLan = new JMenu(BUNDLE.getString("tmm.wakeonlan"));
+    final JMenu menuWakeOnLan = new JMenu(TmmResourceBundle.getString("tmm.wakeonlan"));
     menuWakeOnLan.setMnemonic(KeyEvent.VK_W);
     menuWakeOnLan.addMenuListener(new MenuListener() {
       @Override

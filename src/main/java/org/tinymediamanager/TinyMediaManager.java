@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -56,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.cli.TinyMediaManagerCLI;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -355,7 +355,7 @@ public class TinyMediaManager {
               // wizard will no more appear
               // the same goes for the scraping AFTER the wizard has been started.. in this way the update check is only being done at the next
               // startup
-              checkForUpdate();
+              checkForUpdate(5, false);
             }
 
             // show changelog
@@ -414,12 +414,10 @@ public class TinyMediaManager {
         catch (IllegalStateException e) {
           LOGGER.error("IllegalStateException", e);
           if (!GraphicsEnvironment.isHeadless() && e.getMessage().contains("file is locked")) {
-            // MessageDialog.showExceptionWindow(e);
-            ResourceBundle bundle = ResourceBundle.getBundle("messages");
-            MessageDialog dialog = new MessageDialog(null, bundle.getString("tmm.problemdetected"));
+            MessageDialog dialog = new MessageDialog(null, TmmResourceBundle.getString("tmm.problemdetected"));
             dialog.setImage(IconManager.ERROR);
-            dialog.setText(bundle.getString("tmm.nostart"));
-            dialog.setDescription(bundle.getString("tmm.nostart.instancerunning"));
+            dialog.setText(TmmResourceBundle.getString("tmm.nostart"));
+            dialog.setDescription(TmmResourceBundle.getString("tmm.nostart.instancerunning"));
             dialog.setResizable(true);
             dialog.pack();
             dialog.setLocationRelativeTo(MainWindow.getInstance());

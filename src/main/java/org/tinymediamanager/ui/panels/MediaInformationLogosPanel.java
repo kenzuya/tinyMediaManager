@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ public class MediaInformationLogosPanel extends JPanel {
     }
 
     try {
-      return new AspectRatioIcon(String.valueOf(aspectRatio));
+      return new AspectRatioIcon(String.format(Locale.US, "%.2f", aspectRatio));
     }
     catch (Exception ignored) {
       // ignore

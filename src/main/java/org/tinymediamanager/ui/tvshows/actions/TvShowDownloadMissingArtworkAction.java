@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -43,10 +43,10 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  */
 public class TvShowDownloadMissingArtworkAction extends TmmAction {
   private static final long           serialVersionUID = 6102632119900792735L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
 
   public TvShowDownloadMissingArtworkAction() {
-    putValue(NAME, BUNDLE.getString("tvshow.downloadmissingartwork"));
+    putValue(NAME, TmmResourceBundle.getString("tvshow.downloadmissingartwork"));
     putValue(SMALL_ICON, IconManager.IMAGE);
     putValue(LARGE_ICON_KEY, IconManager.IMAGE);
   }
@@ -58,11 +58,11 @@ public class TvShowDownloadMissingArtworkAction extends TmmAction {
     Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
 
     if (selectedObjects.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createArtworkScrapeDialog(BUNDLE.getString("tvshow.downloadmissingartwork"));
+    TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog.createArtworkScrapeDialog(TmmResourceBundle.getString("tvshow.downloadmissingartwork"));
     dialog.setVisible(true);
 
     if (!dialog.shouldStartScrape()) {

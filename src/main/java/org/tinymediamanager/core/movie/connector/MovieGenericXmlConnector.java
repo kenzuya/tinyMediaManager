@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -198,7 +199,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
           Utils.writeStringToFile(f, xml);
         }
         else {
-          getLogger().debug("NFO did not change - do not write it!");
+          getLogger().trace("NFO did not change - do not write it!");
         }
         MediaFile mf = new MediaFile(f);
         mf.gatherMediaInformation(true); // force to update filedate
@@ -262,7 +263,14 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
 
     // the default rating
     Map<String, MediaRating> ratings = movie.getRatings();
-    MediaRating mainMediaRating = ratings.get(MovieModuleManager.SETTINGS.getPreferredRating());
+
+    MediaRating mainMediaRating = null;
+    for (String ratingSource : MovieModuleManager.SETTINGS.getRatingSources()) {
+      mainMediaRating = ratings.get(ratingSource);
+      if (mainMediaRating != null) {
+        break;
+      }
+    }
 
     // is there any rating which is not the user rating?
     if (mainMediaRating == null) {
@@ -569,11 +577,9 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addPlaycount() {
     Element playcount = document.createElement("playcount");
-    if (movie.isWatched() && parser != null && parser.playcount > 0) {
-      playcount.setTextContent(Integer.toString(parser.playcount));
-    }
-    else if (movie.isWatched()) {
-      playcount.setTextContent("1");
+    if (movie.isWatched()) {
+      int playCountFromNFO = parser != null ? parser.playcount : 0;
+      playcount.setTextContent(Integer.toString(Math.max(Math.max(movie.getPlaycount(), playCountFromNFO), 1)));
     }
     root.appendChild(playcount);
   }
@@ -692,7 +698,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
 
     // prepare the languages to be printed in localized form
     List<String> translatedLanguages = new ArrayList<>();
-    for (String langu : MovieNfoParser.split(movie.getSpokenLanguages())) {
+    for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
       String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale(),
           langu.trim());
       translatedLanguages.add(translated);

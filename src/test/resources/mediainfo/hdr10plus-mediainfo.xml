@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2012 - 2020 Manuel Laggner
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<MediaInfo
+        xmlns="https://mediaarea.net/mediainfo"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://mediaarea.net/mediainfo https://mediaarea.net/mediainfo/mediainfo_2_0.xsd"
+        version="2.0">
+    <creatingLibrary version="20.09" url="https://mediaarea.net/MediaInfo">MediaInfoLib</creatingLibrary>
+    <media ref="/home/manuel/Downloads/ISS_4k_HDR10plus_ff.mp4">
+        <track type="General">
+            <VideoCount>1</VideoCount>
+            <AudioCount>1</AudioCount>
+            <FileExtension>mp4</FileExtension>
+            <Format>MPEG-4</Format>
+            <Format_Profile>Base Media</Format_Profile>
+            <CodecID>isom</CodecID>
+            <CodecID_Compatible>isom/iso2/mp41</CodecID_Compatible>
+            <FileSize>1726962727</FileSize>
+            <Duration>188.883</Duration>
+            <OverallBitRate>73144231</OverallBitRate>
+            <FrameRate>24.000</FrameRate>
+            <FrameCount>4535</FrameCount>
+            <StreamSize>128641</StreamSize>
+            <HeaderSize>36</HeaderSize>
+            <DataSize>1726834094</DataSize>
+            <FooterSize>128597</FooterSize>
+            <IsStreamable>No</IsStreamable>
+            <File_Modified_Date>UTC 2019-01-21 14:07:56</File_Modified_Date>
+            <File_Modified_Date_Local>2019-01-21 15:07:56</File_Modified_Date_Local>
+            <Encoded_Application>Lavf58.12.100</Encoded_Application>
+        </track>
+        <track type="Video">
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <Format>HEVC</Format>
+            <Format_Profile>Main 10</Format_Profile>
+            <Format_Level>5.1</Format_Level>
+            <Format_Tier>High</Format_Tier>
+            <HDR_Format>SMPTE ST 2094 App 4</HDR_Format>
+            <HDR_Format_Version>0</HDR_Format_Version>
+            <HDR_Format_Compatibility>HDR10</HDR_Format_Compatibility>
+            <CodecID>hev1</CodecID>
+            <Duration>188.835</Duration>
+            <BitRate>72917701</BitRate>
+            <Width>3840</Width>
+            <Height>2160</Height>
+            <Sampled_Width>3840</Sampled_Width>
+            <Sampled_Height>2160</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>1.778</DisplayAspectRatio>
+            <Rotation>0.000</Rotation>
+            <FrameRate>24.000</FrameRate>
+            <FrameCount>4535</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_Position>Type 2</ChromaSubsampling_Position>
+            <BitDepth>10</BitDepth>
+            <StreamSize>1722300902</StreamSize>
+            <colour_description_present>Yes</colour_description_present>
+            <colour_description_present_Source>Stream</colour_description_present_Source>
+            <colour_range>Limited</colour_range>
+            <colour_range_Source>Stream</colour_range_Source>
+            <colour_primaries>BT.2020</colour_primaries>
+            <colour_primaries_Source>Stream</colour_primaries_Source>
+            <transfer_characteristics>PQ</transfer_characteristics>
+            <transfer_characteristics_Source>Stream</transfer_characteristics_Source>
+            <matrix_coefficients>BT.2020 non-constant</matrix_coefficients>
+            <matrix_coefficients_Source>Stream</matrix_coefficients_Source>
+            <MasteringDisplay_ColorPrimaries>Display P3</MasteringDisplay_ColorPrimaries>
+            <MasteringDisplay_ColorPrimaries_Source>Stream</MasteringDisplay_ColorPrimaries_Source>
+            <MasteringDisplay_Luminance>min: 0.0001 cd/m2, max: 1000 cd/m2</MasteringDisplay_Luminance>
+            <MasteringDisplay_Luminance_Source>Stream</MasteringDisplay_Luminance_Source>
+            <MaxCLL>1000 cd/m2</MaxCLL>
+            <MaxCLL_Source>Stream</MaxCLL_Source>
+            <MaxFALL>400 cd/m2</MaxFALL>
+            <MaxFALL_Source>Stream</MaxFALL_Source>
+            <extra>
+                <CodecConfigurationBox>hvcC</CodecConfigurationBox>
+            </extra>
+        </track>
+        <track type="Audio">
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <Format>AC-3</Format>
+            <Format_Commercial_IfAny>Dolby Digital</Format_Commercial_IfAny>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <CodecID>ac-3</CodecID>
+            <Duration>188.883</Duration>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate>192000</BitRate>
+            <Channels>2</Channels>
+            <ChannelPositions>Front: L R</ChannelPositions>
+            <ChannelLayout>L R</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>44100</SamplingRate>
+            <SamplingCount>8329740</SamplingCount>
+            <FrameRate>28.711</FrameRate>
+            <FrameCount>5423</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <StreamSize>4533184</StreamSize>
+            <StreamSize_Proportion>0.00262</StreamSize_Proportion>
+            <ServiceKind>CM</ServiceKind>
+            <Default>Yes</Default>
+            <AlternateGroup>1</AlternateGroup>
+            <extra>
+                <bsid>8</bsid>
+                <dialnorm>-31</dialnorm>
+                <dsurmod>0</dsurmod>
+                <acmod>2</acmod>
+                <lfeon>0</lfeon>
+                <dialnorm_Average>-31</dialnorm_Average>
+                <dialnorm_Minimum>-31</dialnorm_Minimum>
+            </extra>
+        </track>
+    </media>
+</MediaInfo>

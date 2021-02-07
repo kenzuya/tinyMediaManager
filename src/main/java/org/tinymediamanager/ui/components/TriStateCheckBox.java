@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,13 @@ public class TriStateCheckBox extends JCheckBox implements ActionListener {
 
   protected void restoreMixedIcon() {
     setIcon(null);
+  }
+
+  @Override
+  public void setSelected(boolean b) {
+    // just remove any _old_ tri state icon
+    restoreMixedIcon();
+    super.setSelected(b);
   }
 
   /**
@@ -272,6 +279,7 @@ public class TriStateCheckBox extends JCheckBox implements ActionListener {
         internalSetSelected(!isSelected());
       }
       super.setSelected(b);
+      fireStateChanged();
     }
 
     void internalSetSelected(boolean b) {

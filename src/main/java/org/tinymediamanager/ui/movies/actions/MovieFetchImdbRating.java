@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,19 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.RatingUtil;
@@ -37,12 +38,12 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 
 public class MovieFetchImdbRating extends TmmAction {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieFetchImdbRating.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   public MovieFetchImdbRating() {
     putValue(LARGE_ICON_KEY, IconManager.RATING_BLUE);
     putValue(SMALL_ICON, IconManager.RATING_BLUE);
-    putValue(NAME, BUNDLE.getString("movie.refetchimdbrating"));
+    putValue(NAME, TmmResourceBundle.getString("movie.refetchimdbrating"));
     putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
   }
 
@@ -51,10 +52,11 @@ public class MovieFetchImdbRating extends TmmAction {
     List<Movie> movies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (movies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Movie movie : movies) {
       MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
       if (rating != null) {
@@ -62,7 +64,7 @@ public class MovieFetchImdbRating extends TmmAction {
         movie.saveToDb();
         movie.writeNFO();
       }
-
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

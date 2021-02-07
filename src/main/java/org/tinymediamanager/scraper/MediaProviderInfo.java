@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,30 +28,31 @@ import org.tinymediamanager.scraper.config.MediaProviderConfig;
  * @since 1.0
  */
 public class MediaProviderInfo {
-  private static final URL    EMPTY_LOGO  = MediaProviderInfo.class.getResource("emtpyLogo.png");
+  private static final URL          EMPTY_LOGO = MediaProviderInfo.class.getResource("emtpyLogo.png");
 
-  private String              id;
-  private String              name        = "";
-  private String              description = "";
-  private String              version     = "";
-  private URL                 providerLogo;
-  private MediaProviderConfig config;
+  private final String              id;
+  private final String              subId;
+  private final String              name;
+  private final String              description;
+  private final URL                 providerLogo;
+  private final MediaProviderConfig config;
+
+  private String                    version    = "";
 
   /**
-   * Instantiates a new provider info.
-   * 
+   * Instantiates a new provider info for a private scraper.
+   *
    * @param id
    *          the id of the provider
+   * @param subId
+   *          the subId of the provider (in most cases a dedicated part of the scraper)
    * @param name
    *          the name of the provider
    * @param description
    *          a description of the provider
    */
-  public MediaProviderInfo(String id, String name, String description) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.config = new MediaProviderConfig(this);
+  public MediaProviderInfo(String id, String subId, String name, String description) {
+    this(id, subId, name, description, null);
   }
 
   /**
@@ -59,6 +60,8 @@ public class MediaProviderInfo {
    *
    * @param id
    *          the id of the provider
+   * @param subId
+   *          the subId of the provider (in most cases a dedicated part of the scraper)
    * @param name
    *          the name of the provider
    * @param description
@@ -66,8 +69,9 @@ public class MediaProviderInfo {
    * @param providerLogo
    *          the URL to the (embedded) provider logo
    */
-  public MediaProviderInfo(String id, String name, String description, URL providerLogo) {
+  public MediaProviderInfo(String id, String subId, String name, String description, URL providerLogo) {
     this.id = id;
+    this.subId = subId;
     this.name = name;
     this.description = description;
     this.providerLogo = providerLogo;
@@ -78,24 +82,16 @@ public class MediaProviderInfo {
     return id;
   }
 
-  public void setId(String id) {
-    this.id = id;
+  public String getSubId() {
+    return subId;
   }
 
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
   public String getDescription() {
     return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 
   public URL getProviderLogo() {
@@ -105,10 +101,6 @@ public class MediaProviderInfo {
     else {
       return EMPTY_LOGO;
     }
-  }
-
-  public void setProviderLogo(URL providerLogo) {
-    this.providerLogo = providerLogo;
   }
 
   @Override

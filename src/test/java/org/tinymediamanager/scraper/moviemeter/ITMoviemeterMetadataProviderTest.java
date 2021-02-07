@@ -29,7 +29,7 @@ public class ITMoviemeterMetadataProviderTest extends BasicTest {
   @Test
   public void testSearch() {
     try {
-      IMovieMetadataProvider rt = new MovieMeterMetadataProvider();
+      IMovieMetadataProvider rt = new MovieMeterMovieMetadataProvider();
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchQuery("Avatar");
 
@@ -48,7 +48,7 @@ public class ITMoviemeterMetadataProviderTest extends BasicTest {
   @Test
   public void testScrape() throws Exception {
     try {
-      IMovieMetadataProvider rt = new MovieMeterMetadataProvider();
+      IMovieMetadataProvider rt = new MovieMeterMovieMetadataProvider();
 
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.nl);
@@ -62,7 +62,7 @@ public class ITMoviemeterMetadataProviderTest extends BasicTest {
       assertThat(md.getTitle()).isEqualTo("Avatar");
       assertThat(md.getYear()).isEqualTo(2009);
 
-      assertThat(md.getRatings().size()).isEqualTo(1);
+      assertThat(md.getRatings().size()).isGreaterThanOrEqualTo(1);
       MediaRating mediaRating = md.getRatings().get(0);
       assertThat(mediaRating.getId()).isNotEmpty();
       assertThat(mediaRating.getRating()).isGreaterThan(0);

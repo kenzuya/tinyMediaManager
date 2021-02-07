@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,21 @@ package org.tinymediamanager.ui.actions;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.dialogs.UnlockDialog;
 
 /**
- * The class SettingsAction. To display the settings dialog
+ * The class UnlockAction. To display the unlock dialog
  * 
  * @author Manuel Laggner
  */
 public class UnlockAction extends TmmAction {
-  private static final long           serialVersionUID = 8930602755330446751L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long serialVersionUID = 8930602755330446751L;
 
   public UnlockAction() {
-    putValue(NAME, BUNDLE.getString("tmm.license.register"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.license.register"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Toolbar.upgrade.desc"));
   }
 
   @Override

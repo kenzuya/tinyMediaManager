@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -34,6 +33,7 @@ import org.tinymediamanager.core.CustomNullStringSerializerProvider;
 import org.tinymediamanager.core.ITmmModule;
 import org.tinymediamanager.core.NullKeySerializer;
 import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -53,7 +53,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author Manuel Laggner
  */
 public class TvShowModuleManager implements ITmmModule {
-  private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages");
+
   public static final TvShowSettings  SETTINGS     = TvShowSettings.getInstance();
 
   private static final String         MODULE_TITLE = "TV show management";
@@ -93,7 +93,7 @@ public class TvShowModuleManager implements ITmmModule {
     // configure database
     Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), TV_SHOW_DB);
     try {
-      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(4096).open();
+      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
     }
     catch (Exception e) {
       // look if the file is locked by another process (rethrow rather than delete the db file)
@@ -107,10 +107,10 @@ public class TvShowModuleManager implements ITmmModule {
       try {
         Utils.deleteFileSafely(Paths.get(TV_SHOW_DB + ".corrupted"));
         Utils.moveFileSafe(databaseFile, Paths.get(TV_SHOW_DB + ".corrupted"));
-        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(4096).open();
+        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
 
         // inform user that the DB could not be loaded
-        startupMessages.add(BUNDLE.getString("tvshow.loaddb.failed"));
+        startupMessages.add(TmmResourceBundle.getString("tvshow.loaddb.failed"));
       }
       catch (Exception e1) {
         LOGGER.error("could not move old database file and create a new one: {}", e1.getMessage());

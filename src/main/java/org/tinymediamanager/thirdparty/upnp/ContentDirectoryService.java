@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.UUID;
 
 import javax.xml.transform.OutputKeys;
@@ -48,6 +47,7 @@ import org.fourthline.cling.support.model.item.Item;
 import org.fourthline.cling.support.model.item.Movie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.tvshow.TvShowList;
@@ -69,7 +69,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
   }
 
   private static final Logger         LOGGER = LoggerFactory.getLogger(ContentDirectoryService.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   @Override
   public BrowseResult browse(String objectID, BrowseFlag browseFlag, String filter, long firstResult, long maxResults, SortCriterion[] orderby)
@@ -111,10 +111,10 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
       StorageFolder uRoot = new StorageFolder(Upnp.ID_ROOT, "-1", "All", "", 0, 0L);
 
       // *********************************************
-      StorageFolder uMovies = new StorageFolder(Upnp.ID_MOVIES, uRoot, BUNDLE.getString("tmm.movies"), "", 0, 0L);
+      StorageFolder uMovies = new StorageFolder(Upnp.ID_MOVIES, uRoot, TmmResourceBundle.getString("tmm.movies"), "", 0, 0L);
 
       List<org.tinymediamanager.core.movie.entities.Movie> movies = MovieList.getInstance().getMovies();
-      StorageFolder grpTitles = new StorageFolder(uMovies.getId() + "/t", uMovies, BUNDLE.getString("metatag.title"), "",
+      StorageFolder grpTitles = new StorageFolder(uMovies.getId() + "/t", uMovies, TmmResourceBundle.getString("metatag.title"), "",
           MovieList.getInstance().getMovieCount(), 0L);
 
       // add movies to titles
@@ -128,7 +128,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
       uMovies.addContainer(grpTitles);
 
       Collection<MediaGenres> mgs = MovieList.getInstance().getUsedGenres();
-      GenreContainer grpGenres = new GenreContainer(uMovies.getId() + "/g", uMovies, BUNDLE.getString("metatag.genre"), "", mgs.size());
+      GenreContainer grpGenres = new GenreContainer(uMovies.getId() + "/g", uMovies, TmmResourceBundle.getString("metatag.genre"), "", mgs.size());
       for (MediaGenres mg : mgs) {
         GenreContainer gc = new GenreContainer(grpGenres.getId() + "/" + mg.getLocalizedName(), grpGenres, mg.getLocalizedName(), "", 0);
 
@@ -151,7 +151,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
       uRoot.addContainer(uMovies);
 
       // *********************************************
-      StorageFolder uTvShows = new StorageFolder(Upnp.ID_TVSHOWS, uRoot, BUNDLE.getString("tmm.tvshows"), "",
+      StorageFolder uTvShows = new StorageFolder(Upnp.ID_TVSHOWS, uRoot, TmmResourceBundle.getString("tmm.tvshows"), "",
           TvShowList.getInstance().getTvShowCount(), 0L);
 
       List<org.tinymediamanager.core.tvshow.entities.TvShow> tmmShows = TvShowList.getInstance().getTvShows();
@@ -199,7 +199,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
           else if (path[0].equals(Upnp.ID_TVSHOWS) && path.length == 4) {
             org.tinymediamanager.core.tvshow.entities.TvShow t = TvShowList.getInstance().lookupTvShow(UUID.fromString(path[1]));
             if (t != null) {
-              TvShowEpisode ep = t.getEpisode(getInt(path[2]), getInt(path[3]));
+              TvShowEpisode ep = t.getEpisode(getInt(path[2]), getInt(path[3])).stream().findFirst().orElse(null);
               if (ep != null) {
                 item = Metadata.getUpnpTvShowEpisode(t, ep, true);
               }

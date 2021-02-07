@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.core.movie.tasks;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.SwingUtilities;
 
@@ -28,6 +27,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.MovieList;
@@ -35,7 +35,6 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -51,7 +50,7 @@ import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
-import org.tinymediamanager.thirdparty.trakttv.SyncTraktTvTask;
+import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
 
 /**
@@ -60,8 +59,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieChooserDialog;
  * @author Manuel Laggner
  */
 public class MovieScrapeTask extends TmmThreadPool {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieScrapeTask.class);
-  private static final ResourceBundle      BUNDLE = ResourceBundle.getBundle("messages");
+  private static final Logger              LOGGER = LoggerFactory.getLogger(MovieScrapeTask.class);
 
   private List<Movie>                      moviesToScrape;
   private boolean                          doSearch;
@@ -71,7 +69,7 @@ public class MovieScrapeTask extends TmmThreadPool {
 
   public MovieScrapeTask(List<Movie> moviesToScrape, boolean doSearch, MovieSearchAndScrapeOptions options,
       List<MovieScraperMetadataConfig> metadataConfig) {
-    super(BUNDLE.getString("movie.scraping"));
+    super(TmmResourceBundle.getString("movie.scraping"));
     this.moviesToScrape = moviesToScrape;
     this.doSearch = doSearch;
     this.searchAndScrapeOptions = options;
@@ -80,6 +78,11 @@ public class MovieScrapeTask extends TmmThreadPool {
 
   @Override
   protected void doInBackground() {
+    MediaScraper mediaMetadataScraper = searchAndScrapeOptions.getMetadataScraper();
+    if (!mediaMetadataScraper.isEnabled()) {
+      return;
+    }
+
     initThreadPool(3, "scrape");
     start();
 
@@ -122,7 +125,11 @@ public class MovieScrapeTask extends TmmThreadPool {
     }
 
     if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
-      TmmTask task = new SyncTraktTvTask(moviesToScrape, null);
+      MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(moviesToScrape);
+      task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
+      task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
+      task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
+
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
 
@@ -139,8 +146,8 @@ public class MovieScrapeTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private class Worker implements Runnable {
-    private MovieList movieList;
-    private Movie     movie;
+    private MovieList   movieList;
+    private final Movie movie;
 
     public Worker(Movie movie) {
       this.movie = movie;
@@ -195,18 +202,20 @@ public class MovieScrapeTask extends TmmThreadPool {
             try {
               md = ((IMovieMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
             }
+            catch (MissingIdException e) {
+              LOGGER.warn("missing id for scrape");
+              MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, movie, "scraper.error.missingid"));
+            }
             catch (ScrapeException e) {
               LOGGER.error("searchMovieFallback", e);
               MessageManager.instance.pushMessage(
                   new Message(MessageLevel.ERROR, movie, "message.scrape.metadatamoviefailed", new String[] { ":", e.getLocalizedMessage() }));
             }
-            catch (MissingIdException e) {
-              LOGGER.warn("missing id for scrape");
-              MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, movie, "scraper.error.missingid"));
-            }
 
             if (ScraperMetadataConfig.containsAnyMetadata(scraperMetadataConfig) || ScraperMetadataConfig.containsAnyCast(scraperMetadataConfig)) {
               movie.setMetadata(md, scraperMetadataConfig);
+              movie.setLastScraperId(searchAndScrapeOptions.getMetadataScraper().getId());
+              movie.setLastScrapeLanguage(searchAndScrapeOptions.getLanguage().name());
             }
 
             // scrape artwork if wanted
@@ -276,6 +285,7 @@ public class MovieScrapeTask extends TmmThreadPool {
       options.setArtworkType(MediaArtworkType.ALL);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
+      options.setId("mediaFile", movie.getMainFile());
       options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
       options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
@@ -286,12 +296,13 @@ public class MovieScrapeTask extends TmmThreadPool {
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
         }
+        catch (MissingIdException ignored) {
+          // no need to log here
+        }
         catch (ScrapeException e) {
           LOGGER.error("getArtwork", e);
           MessageManager.instance.pushMessage(
               new Message(MessageLevel.ERROR, movie, "message.scrape.movieartworkfailed", new String[] { ":", e.getLocalizedMessage() }));
-        }
-        catch (MissingIdException ignored) {
         }
       }
 
@@ -312,13 +323,13 @@ public class MovieScrapeTask extends TmmThreadPool {
           IMovieTrailerProvider trailerProvider = (IMovieTrailerProvider) trailerScraper.getMediaProvider();
           trailers.addAll(trailerProvider.getTrailers(options));
         }
-        catch (ScrapeException e) {
-          LOGGER.error("getTrailers", e);
-          MessageManager.instance.pushMessage(
-                  new Message(MessageLevel.ERROR, movie, "message.scrape.trailerfailed", new String[]{":", e.getLocalizedMessage()}));
-        }
         catch (MissingIdException e) {
           LOGGER.debug("no usable ID found for scraper {}", trailerScraper.getMediaProvider().getProviderInfo().getId());
+        }
+        catch (ScrapeException e) {
+          LOGGER.error("getTrailers", e);
+          MessageManager.instance
+              .pushMessage(new Message(MessageLevel.ERROR, movie, "message.scrape.trailerfailed", new String[] { ":", e.getLocalizedMessage() }));
         }
       }
 

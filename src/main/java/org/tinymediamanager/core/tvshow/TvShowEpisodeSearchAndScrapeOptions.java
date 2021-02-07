@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,11 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
    */
   public void setTvShowIds(final Map<String, Object> tvShowIds) {
     this.tvShowIds.clear();
+
+    if (tvShowIds == null) {
+      return;
+    }
+
     this.tvShowIds.putAll(tvShowIds);
   }
 

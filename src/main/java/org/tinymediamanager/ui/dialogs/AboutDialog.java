@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -52,7 +53,7 @@ public class AboutDialog extends TmmDialog {
   private static final Logger LOGGER           = LoggerFactory.getLogger(AboutDialog.class);
 
   public AboutDialog() {
-    super(BUNDLE.getString("tmm.about"), "aboutDialog");
+    super(TmmResourceBundle.getString("tmm.about"), "aboutDialog");
 
     JPanel contentPanel = new JPanel();
     getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -72,11 +73,11 @@ public class AboutDialog extends TmmDialog {
       contentPanel.add(lblByManuel, "cell 2 2,alignx center");
     }
     {
-      JLabel lblVersion = new JLabel(BUNDLE.getString("tmm.version") + ": " + ReleaseInfo.getRealVersion());
+      JLabel lblVersion = new JLabel(TmmResourceBundle.getString("tmm.version") + ": " + ReleaseInfo.getRealVersion());
       contentPanel.add(lblVersion, "cell 2 4");
     }
     {
-      JLabel lblBuild = new JLabel(BUNDLE.getString("tmm.builddate") + ": " + ReleaseInfo.getRealBuildDate());
+      JLabel lblBuild = new JLabel(TmmResourceBundle.getString("tmm.builddate") + ": " + ReleaseInfo.getRealBuildDate());
       contentPanel.add(lblBuild, "cell 2 5");
     }
     {
@@ -86,14 +87,14 @@ public class AboutDialog extends TmmDialog {
 
       LocalDate validUntil = License.getInstance().validUntil();
       if (validUntil != null) {
-        lblLicense.setText(BUNDLE.getString("tmm.license.validuntil") + ": " + validUntil.toString());
+        lblLicense.setText(TmmResourceBundle.getString("tmm.license.validuntil") + ": " + validUntil.toString());
       }
       else {
-        lblLicense.setText(BUNDLE.getString("tmm.license.unregistered"));
+        lblLicense.setText(TmmResourceBundle.getString("tmm.license.unregistered"));
       }
     }
     {
-      JLabel lblHomepage = new TmmLabel(BUNDLE.getString("tmm.homepage"));
+      JLabel lblHomepage = new TmmLabel(TmmResourceBundle.getString("tmm.homepage"));
       contentPanel.add(lblHomepage, "cell 0 8,alignx right");
     }
     {
@@ -112,7 +113,7 @@ public class AboutDialog extends TmmDialog {
       contentPanel.add(lblHomepage, "cell 2 8");
     }
     {
-      JLabel lblThanksTo = new TmmLabel(BUNDLE.getString("tmm.thanksto"));
+      JLabel lblThanksTo = new TmmLabel(TmmResourceBundle.getString("tmm.thanksto"));
       contentPanel.add(lblThanksTo, "cell 0 10,alignx right");
     }
     {
@@ -147,7 +148,7 @@ public class AboutDialog extends TmmDialog {
     private static final long serialVersionUID = 4652946848116365706L;
 
     CloseAction() {
-      putValue(NAME, BUNDLE.getString("Button.close"));
+      putValue(NAME, TmmResourceBundle.getString("Button.close"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -35,7 +37,7 @@ import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
 import org.tinymediamanager.ui.movies.actions.MovieAssignMovieSetAction;
-import org.tinymediamanager.ui.movies.actions.MovieBatchEditAction;
+import org.tinymediamanager.ui.movies.actions.MovieBulkEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieChangeDatasourceAction;
 import org.tinymediamanager.ui.movies.actions.MovieCleanUpFilesAction;
 import org.tinymediamanager.ui.movies.actions.MovieClearImageCacheAction;
@@ -61,9 +63,11 @@ import org.tinymediamanager.ui.movies.actions.MovieSelectedScrapeMetadataAction;
 import org.tinymediamanager.ui.movies.actions.MovieSingleScrapeAction;
 import org.tinymediamanager.ui.movies.actions.MovieSubtitleDownloadAction;
 import org.tinymediamanager.ui.movies.actions.MovieSubtitleSearchAction;
+import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedCollectionTraktTvAction;
+import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedRatingTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedTraktTvAction;
+import org.tinymediamanager.ui.movies.actions.MovieSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieSyncTraktTvAction;
-import org.tinymediamanager.ui.movies.actions.MovieSyncWatchedTraktTvAction;
 import org.tinymediamanager.ui.movies.actions.MovieToggleWatchedFlagAction;
 import org.tinymediamanager.ui.movies.actions.MovieTrailerDownloadAction;
 import org.tinymediamanager.ui.movies.actions.MovieUnscrapedScrapeAction;
@@ -124,11 +128,11 @@ public class MovieUIModule extends AbstractTmmUIModule {
       }
     };
 
-    tabbedPane.add(BUNDLE.getString("metatag.details"), new MovieInformationPanel(selectionModel));
-    tabbedPane.add(BUNDLE.getString("metatag.cast"), new MovieCastPanel(selectionModel));
-    tabbedPane.add(BUNDLE.getString("metatag.mediafiles"), new MovieMediaInformationPanel(selectionModel));
-    tabbedPane.add(BUNDLE.getString("metatag.artwork"), new MovieArtworkPanel(selectionModel));
-    tabbedPane.add(BUNDLE.getString("metatag.trailer"), new TrailerPanel(selectionModel));
+    tabbedPane.add(TmmResourceBundle.getString("metatag.details"), new MovieInformationPanel(selectionModel));
+    tabbedPane.add(TmmResourceBundle.getString("metatag.cast"), new MovieCastPanel(selectionModel));
+    tabbedPane.add(TmmResourceBundle.getString("metatag.mediafiles"), new MovieMediaInformationPanel(selectionModel));
+    tabbedPane.add(TmmResourceBundle.getString("metatag.artwork"), new MovieArtworkPanel(selectionModel));
+    tabbedPane.add(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(selectionModel));
     dataPanel.add(tabbedPane);
 
     movieFilterDialog = new MovieFilterDialog(selectionModel);
@@ -179,7 +183,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
     popupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
 
-    JMenu mediainfoMenu = new JMenu(BUNDLE.getString("metatag.mediainformation"));
+    JMenu mediainfoMenu = new JMenu(TmmResourceBundle.getString("metatag.mediainformation"));
     mediainfoMenu.setIcon(IconManager.MENU);
     mediainfoMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));
     mediainfoMenu.add(createAndRegisterAction(MovieRebuildMediainfoXmlAction.class));
@@ -188,8 +192,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieEditAction.class));
-    popupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
-    JMenu enhancedEditMenu = new JMenu(BUNDLE.getString("edit.enhanced"));
+    popupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
+    JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbRating.class));
@@ -214,8 +218,11 @@ public class MovieUIModule extends AbstractTmmUIModule {
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
     traktMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
-    traktMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
+    traktMenu.addSeparator();
     traktMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSyncSelectedRatingTraktTvAction.class));
     popupMenu.add(traktMenu);
     JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickMovies();
     popupMenu.add(kodiRPCMenu);
@@ -246,7 +253,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
           kodiRPCMenu.setEnabled(false);
         }
 
-        if (StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
           traktMenu.setEnabled(true);
         }
         else {
@@ -304,7 +311,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     // edit popup menu
     editPopupMenu = new JPopupMenu();
     editPopupMenu.add(createAndRegisterAction(MovieEditAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieBatchEditAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieBulkEditAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
@@ -317,7 +324,9 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieSyncTraktTvAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedTraktTvAction.class));
-    editPopupMenu.add(createAndRegisterAction(MovieSyncWatchedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedCollectionTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieSyncSelectedRatingTraktTvAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
@@ -343,7 +352,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
   @Override
   public String getTabTitle() {
-    return BUNDLE.getString("tmm.movies");
+    return TmmResourceBundle.getString("tmm.movies");
   }
 
   @Override

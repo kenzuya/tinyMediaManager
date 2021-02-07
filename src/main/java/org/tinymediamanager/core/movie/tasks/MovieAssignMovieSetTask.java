@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -41,7 +41,6 @@ import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
-import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
 
 /**
  * The class MovieAssignMovieSetTask. A task to assign the movie set to the given movies
@@ -50,12 +49,12 @@ import org.tinymediamanager.scraper.tmdb.TmdbMetadataProvider;
  */
 public class MovieAssignMovieSetTask extends TmmThreadPool {
   private static final Logger         LOGGER = LoggerFactory.getLogger(MovieAssignMovieSetTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private List<Movie>                 moviesToScrape;
 
   public MovieAssignMovieSetTask(List<Movie> moviesToScrape) {
-    super(BUNDLE.getString("movie.assignmovieset"));
+    super(TmmResourceBundle.getString("movie.assignmovieset"));
     this.moviesToScrape = moviesToScrape;
   }
 
@@ -85,12 +84,13 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
         return;
       }
       try {
-        MediaScraper movieScraper = MediaScraper.getMediaScraperById(TmdbMetadataProvider.ID, ScraperType.MOVIE);
-        MediaScraper movieSetScraper = MediaScraper.getMediaScraperById(TmdbMetadataProvider.ID, ScraperType.MOVIE_SET);
+        MediaScraper movieScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE);
+        MediaScraper movieSetScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE_SET);
 
         MovieSearchAndScrapeOptions movieOptions = new MovieSearchAndScrapeOptions();
         movieOptions.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
         movieOptions.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+        movieOptions.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
 
         for (Entry<String, Object> entry : movie.getIds().entrySet()) {
           movieOptions.setId(entry.getKey(), entry.getValue().toString());
@@ -128,13 +128,13 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
                 }
               }
             }
+            catch (MissingIdException | NothingFoundException e) {
+              LOGGER.debug("could not fetch movie set data: {}", e.getMessage());
+            }
             catch (ScrapeException e) {
               LOGGER.error("getMovieSet", e);
               MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, movie, "message.scrape.metadatamoviesetfailed",
                   new String[] { ":", e.getLocalizedMessage() }));
-            }
-            catch (MissingIdException | NothingFoundException e) {
-              LOGGER.debug("could not fetch movie set data: {}", e.getMessage());
             }
           }
 
@@ -152,13 +152,13 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
           }
         }
       }
+      catch (MissingIdException | NothingFoundException e) {
+        LOGGER.debug("could not fetch movie data: {}", e.getMessage());
+      }
       catch (ScrapeException e) {
         LOGGER.error("getMovieSet", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, movie, "message.scrape.metadatamoviesetfailed", new String[] { ":", e.getLocalizedMessage() }));
-      }
-      catch (MissingIdException | NothingFoundException e) {
-        LOGGER.debug("could not fetch movie data: {}", e.getMessage());
       }
     }
   }

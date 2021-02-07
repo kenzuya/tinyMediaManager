@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -48,7 +49,7 @@ public class TvShowTagFilter extends AbstractCheckComboBoxTvShowUIFilter<String>
     comparator = new TmmTableFormat.StringComparator();
     buildAndInstallTagsArray();
     PropertyChangeListener propertyChangeListener = evt -> buildAndInstallTagsArray();
-    tvShowList.addPropertyChangeListener(Constants.TAG, propertyChangeListener);
+    tvShowList.addPropertyChangeListener(Constants.TAGS, propertyChangeListener);
   }
 
   @Override
@@ -99,7 +100,7 @@ public class TvShowTagFilter extends AbstractCheckComboBoxTvShowUIFilter<String>
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.tag"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.tag"));
   }
 
   private void buildAndInstallTagsArray() {

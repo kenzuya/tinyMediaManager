@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -29,7 +32,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -67,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageUtils;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -99,94 +102,37 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImageChooserDialog extends TmmDialog {
-  private static final long   serialVersionUID = 8193355920006275933L;
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
-  private static final String DIALOG_ID        = "imageChooser";
+  private static final long         serialVersionUID = 8193355920006275933L;
+  private static final Logger       LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
+  private static final String       DIALOG_ID        = "imageChooser";
 
-  public enum ImageType {
-    POSTER,
-    FANART,
-    BANNER,
-    SEASON_POSTER,
-    SEASON_BANNER,
-    SEASON_THUMB,
-    LOGO,
-    CLEARLOGO,
-    CLEARART,
-    CHARACTERART,
-    DISC,
-    THUMB,
-    KEYART
-  }
+  private final Map<String, Object> ids;
+  private final MediaArtworkType    type;
+  private final MediaType           mediaType;
+  private final ImageLabel          imageLabel;
+  private final List<MediaScraper>  artworkScrapers;
 
-  private Map<String, Object> ids;
-  private ImageType           type;
-  private MediaType           mediaType;
-  private ImageLabel          imageLabel;
-  private List<String>        extraThumbs;
-  private List<String>        extraFanarts;
-  private List<MediaScraper>  artworkScrapers;
+  private final ButtonGroup         buttonGroup      = new ButtonGroup();
+  private final List<JToggleButton> buttons          = new ArrayList<>();
 
-  private JProgressBar        progressBar;
-  private JLabel              lblProgressAction;
-  private JPanel              panelImages;
-  private JScrollPane         scrollPane;
-  private LockableViewPort    viewport;
-  private ButtonGroup         buttonGroup = new ButtonGroup();
-  private List<JToggleButton> buttons     = new ArrayList<>();
-  private JTextField          tfImageUrl;
+  private JProgressBar              progressBar;
+  private JLabel                    lblProgressAction;
+  private JPanel                    panelImages;
+  private LockableViewPort          viewport;
+  private JTextField                tfImageUrl;
 
-  private DownloadTask        task;
+  private String                    openFolderPath   = null;
+  private List<String>              extraThumbs      = null;
+  private List<String>              extraFanarts     = null;
+  private DownloadTask              task;
 
-  /**
-   * Instantiates a new image chooser dialog.
-   *
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param imageLabel
-   *          the image label
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public ImageChooserDialog(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      MediaType mediaType) {
-    this(ids, type, artworkScrapers, imageLabel, new ArrayList<>(), new ArrayList<>(), mediaType);
-  }
+  private JLabel                    labelThumbs;
+  private JButton                   btnMarkExtrathumbs;
+  private JButton                   btnUnMarkExtrathumbs;
 
-  /**
-   * Instantiates a new image chooser dialog with extrathumbs and extrafanart usage.
-   * 
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param imageLabel
-   *          the image label
-   * @param extraThumbs
-   *          the extra thumbs
-   * @param extraFanarts
-   *          the extra fanarts
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public ImageChooserDialog(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType) {
-    super("", DIALOG_ID);
-    this.imageLabel = imageLabel;
-    this.type = type;
-    this.mediaType = mediaType;
-    this.extraThumbs = extraThumbs;
-    this.extraFanarts = extraFanarts;
-    this.ids = ids;
-    this.artworkScrapers = artworkScrapers;
-    init();
-  }
+  private JLabel                    labelFanart;
+  private JButton                   btnMarkExtrafanart;
+  private JButton                   btnUnMarkExtrafanart;
 
   /**
    * Instantiates a new image chooser dialog.
@@ -204,39 +150,13 @@ public class ImageChooserDialog extends TmmDialog {
    * @param mediaType
    *          the media for for which artwork has to be chosen
    */
-  public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      MediaType mediaType) {
-    this(parent, ids, type, artworkScrapers, imageLabel, new ArrayList<>(), new ArrayList<>(), mediaType);
-  }
+  public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
+      ImageLabel imageLabel, MediaType mediaType) {
 
-  /**
-   * Instantiates a new image chooser dialog with extrathumbs and extrafanart usage.
-   *
-   * @param parent
-   *          the parent of this dialog
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param imageLabel
-   *          the image label
-   * @param extraThumbs
-   *          the extra thumbs
-   * @param extraFanarts
-   *          the extra fanarts
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public ImageChooserDialog(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, ImageLabel imageLabel,
-      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType) {
     super(parent, "", DIALOG_ID);
     this.imageLabel = imageLabel;
     this.type = type;
     this.mediaType = mediaType;
-    this.extraThumbs = extraThumbs;
-    this.extraFanarts = extraFanarts;
     this.ids = ids;
     this.artworkScrapers = artworkScrapers;
     init();
@@ -244,74 +164,74 @@ public class ImageChooserDialog extends TmmDialog {
 
   private void init() {
     switch (type) {
-      case FANART:
-        setTitle(BUNDLE.getString("image.choose.fanart"));
+      case BACKGROUND:
+        setTitle(TmmResourceBundle.getString("image.choose.fanart"));
         break;
 
       case POSTER:
-        setTitle(BUNDLE.getString("image.choose.poster"));
+        setTitle(TmmResourceBundle.getString("image.choose.poster"));
         break;
 
       case BANNER:
-        setTitle(BUNDLE.getString("image.choose.banner"));
+        setTitle(TmmResourceBundle.getString("image.choose.banner"));
         break;
 
       case SEASON_POSTER:
         Object season = ids.get("tvShowSeason");
         if (season != null) {
-          setTitle(BUNDLE.getString("image.choose.season") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+          setTitle(TmmResourceBundle.getString("image.choose.season") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
-          setTitle(BUNDLE.getString("image.choose.season"));
+          setTitle(TmmResourceBundle.getString("image.choose.season"));
         }
         break;
 
       case SEASON_BANNER:
         season = ids.get("tvShowSeason");
         if (season != null) {
-          setTitle(BUNDLE.getString("image.choose.season.banner") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+          setTitle(TmmResourceBundle.getString("image.choose.season.banner") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
-          setTitle(BUNDLE.getString("image.choose.season.banner"));
+          setTitle(TmmResourceBundle.getString("image.choose.season.banner"));
         }
         break;
 
       case SEASON_THUMB:
         season = ids.get("tvShowSeason");
         if (season != null) {
-          setTitle(BUNDLE.getString("image.choose.season.thumb") + " - " + BUNDLE.getString("metatag.season") + " " + season);
+          setTitle(TmmResourceBundle.getString("image.choose.season.thumb") + " - " + TmmResourceBundle.getString("metatag.season") + " " + season);
         }
         else {
-          setTitle(BUNDLE.getString("image.choose.season.thumb"));
+          setTitle(TmmResourceBundle.getString("image.choose.season.thumb"));
         }
         break;
 
       case CLEARART:
-        setTitle(BUNDLE.getString("image.choose.clearart"));
+        setTitle(TmmResourceBundle.getString("image.choose.clearart"));
         break;
 
       case DISC:
-        setTitle(BUNDLE.getString("image.choose.disc"));
+        setTitle(TmmResourceBundle.getString("image.choose.disc"));
         break;
 
       case LOGO:
-        setTitle(BUNDLE.getString("image.choose.logo"));
+        setTitle(TmmResourceBundle.getString("image.choose.logo"));
         break;
 
       case CLEARLOGO:
-        setTitle(BUNDLE.getString("image.choose.clearlogo"));
+        setTitle(TmmResourceBundle.getString("image.choose.clearlogo"));
         break;
 
       case CHARACTERART:
-        setTitle(BUNDLE.getString("image.choose.characterart"));
+        setTitle(TmmResourceBundle.getString("image.choose.characterart"));
         break;
 
       case THUMB:
-        setTitle(BUNDLE.getString("image.choose.thumb"));
+        setTitle(TmmResourceBundle.getString("image.choose.thumb"));
         break;
 
       case KEYART:
-        setTitle(BUNDLE.getString("image.choose.keyart"));
+        setTitle(TmmResourceBundle.getString("image.choose.keyart"));
         break;
     }
 
@@ -320,7 +240,7 @@ public class ImageChooserDialog extends TmmDialog {
     getContentPane().add(contentPanel, BorderLayout.CENTER);
     contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[500lp,grow][shrink 0][][][]"));
     {
-      scrollPane = new NoBorderScrollPane();
+      JScrollPane scrollPane = new NoBorderScrollPane();
       viewport = new LockableViewPort();
       scrollPane.setViewport(viewport);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -337,10 +257,10 @@ public class ImageChooserDialog extends TmmDialog {
       contentPanel.add(separator, "cell 0 1 2 1,growx");
     }
     {
-      tfImageUrl = new EnhancedTextField(BUNDLE.getString("image.inserturl"));
+      tfImageUrl = new EnhancedTextField(TmmResourceBundle.getString("image.inserturl"));
       contentPanel.add(tfImageUrl, "cell 0 2,growx");
       tfImageUrl.setColumns(10);
-      JButton btnAddImage = new JButton(BUNDLE.getString("image.downloadimage"));
+      JButton btnAddImage = new JButton(TmmResourceBundle.getString("image.downloadimage"));
       btnAddImage.addActionListener(e -> {
         if (StringUtils.isNotBlank(tfImageUrl.getText())) {
           downloadAndPreviewImage(tfImageUrl.getText());
@@ -351,13 +271,15 @@ public class ImageChooserDialog extends TmmDialog {
     }
 
     // add buttons to select/deselect all extrafanarts/extrathumbs
-    if (type == ImageType.FANART && extraThumbs != null) {
-      JLabel labelThumbs = new JLabel("Extrathumbs:");
-      contentPanel.add(labelThumbs, "flowx,cell 0 2");
+    if (type == BACKGROUND || type == THUMB) {
+      labelThumbs = new JLabel("Extrathumbs:");
+      contentPanel.add(labelThumbs, "flowx,cell 0 3");
+      labelThumbs.setVisible(false);
 
-      JButton btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
-      contentPanel.add(btnMarkExtrathumbs, "cell 0 2");
-      btnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.markall"));
+      btnMarkExtrathumbs = new SquareIconButton(IconManager.CHECK_ALL);
+      contentPanel.add(btnMarkExtrathumbs, "cell 0 3");
+      btnMarkExtrathumbs.setVisible(false);
+      btnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.markall"));
       btnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
           if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox) {
@@ -367,9 +289,10 @@ public class ImageChooserDialog extends TmmDialog {
         }
       });
 
-      JButton btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
-      contentPanel.add(btnUnMarkExtrathumbs, "cell 0 2");
-      btnUnMarkExtrathumbs.setToolTipText(BUNDLE.getString("image.extrathumbs.unmarkall"));
+      btnUnMarkExtrathumbs = new SquareIconButton(IconManager.CLEAR_ALL);
+      contentPanel.add(btnUnMarkExtrathumbs, "cell 0 3");
+      btnUnMarkExtrathumbs.setVisible(false);
+      btnUnMarkExtrathumbs.setToolTipText(TmmResourceBundle.getString("image.extrathumbs.unmarkall"));
       btnUnMarkExtrathumbs.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
           if (button.getClientProperty("MediaArtworkExtrathumb") instanceof JCheckBox) {
@@ -379,30 +302,33 @@ public class ImageChooserDialog extends TmmDialog {
         }
       });
     }
-    if (type == ImageType.FANART && extraFanarts != null) {
-      JLabel labelFanart = new JLabel("Extrafanart:");
-      contentPanel.add(labelFanart, "flowx,cell 0 3");
+    if (type == BACKGROUND) {
+      labelFanart = new JLabel("Extrafanart:");
+      contentPanel.add(labelFanart, "flowx,cell 0 4");
+      labelFanart.setVisible(false);
 
-      JButton btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
-      contentPanel.add(btnMarkExtrafanart, "cell 0 3");
-      btnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.markall"));
-
-      JButton btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
-      contentPanel.add(btnUnMarkExtrafanart, "cell 0 3");
-      btnUnMarkExtrafanart.setToolTipText(BUNDLE.getString("image.extrafanart.unmarkall"));
-      btnUnMarkExtrafanart.addActionListener(arg0 -> {
-        for (JToggleButton button : buttons) {
-          if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
-            JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
-            chkbx.setSelected(false);
-          }
-        }
-      });
+      btnMarkExtrafanart = new SquareIconButton(IconManager.CHECK_ALL);
+      contentPanel.add(btnMarkExtrafanart, "cell 0 4");
+      btnMarkExtrafanart.setVisible(false);
+      btnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.markall"));
       btnMarkExtrafanart.addActionListener(arg0 -> {
         for (JToggleButton button : buttons) {
           if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
             JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
             chkbx.setSelected(true);
+          }
+        }
+      });
+
+      btnUnMarkExtrafanart = new SquareIconButton(IconManager.CLEAR_ALL);
+      contentPanel.add(btnUnMarkExtrafanart, "cell 0 4");
+      btnUnMarkExtrafanart.setVisible(false);
+      btnUnMarkExtrafanart.setToolTipText(TmmResourceBundle.getString("image.extrafanart.unmarkall"));
+      btnUnMarkExtrafanart.addActionListener(arg0 -> {
+        for (JToggleButton button : buttons) {
+          if (button.getClientProperty("MediaArtworkExtrafanart") instanceof JCheckBox) {
+            JCheckBox chkbx = (JCheckBox) button.getClientProperty("MediaArtworkExtrafanart");
+            chkbx.setSelected(false);
           }
         }
       });
@@ -421,18 +347,18 @@ public class ImageChooserDialog extends TmmDialog {
       setBottomInformationPanel(infoPanel);
     }
     {
-      JButton cancelButton = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
       Action actionCancel = new CancelAction();
       cancelButton.setAction(actionCancel);
       cancelButton.setActionCommand("Cancel");
       addButton(cancelButton);
 
-      JButton btnAddFile = new JButton(BUNDLE.getString("Button.addfile"));
+      JButton btnAddFile = new JButton(TmmResourceBundle.getString("Button.addfile"));
       Action actionLocalFile = new LocalFileChooseAction();
       btnAddFile.setAction(actionLocalFile);
       addButton(btnAddFile);
 
-      JButton okButton = new JButton(BUNDLE.getString("Button.ok"));
+      JButton okButton = new JButton(TmmResourceBundle.getString("Button.ok"));
       Action actionOK = new OkAction();
       okButton.setAction(actionOK);
       okButton.setActionCommand("OK");
@@ -441,6 +367,48 @@ public class ImageChooserDialog extends TmmDialog {
 
     task = new DownloadTask(ids, artworkScrapers);
     task.execute();
+  }
+
+  public void bindExtraThumbs(List<String> extraThumbs) {
+    if (type != BACKGROUND && type != THUMB) {
+      return;
+    }
+
+    this.extraThumbs = extraThumbs;
+
+    if (extraThumbs != null) {
+      labelThumbs.setVisible(true);
+      btnMarkExtrathumbs.setVisible(true);
+      btnUnMarkExtrathumbs.setVisible(true);
+    }
+    else {
+      labelThumbs.setVisible(false);
+      btnMarkExtrathumbs.setVisible(false);
+      btnUnMarkExtrathumbs.setVisible(false);
+    }
+  }
+
+  public void bindExtraFanarts(List<String> extraFanarts) {
+    if (type != BACKGROUND) {
+      return;
+    }
+
+    this.extraFanarts = extraFanarts;
+
+    if (extraFanarts != null) {
+      labelFanart.setVisible(true);
+      btnMarkExtrafanart.setVisible(true);
+      btnUnMarkExtrafanart.setVisible(true);
+    }
+    else {
+      labelFanart.setVisible(false);
+      btnMarkExtrafanart.setVisible(false);
+      btnUnMarkExtrafanart.setVisible(false);
+    }
+  }
+
+  public void setOpenFolderPath(String openFolderPath) {
+    this.openFolderPath = openFolderPath;
   }
 
   private void startProgressBar(String description) {
@@ -462,7 +430,7 @@ public class ImageChooserDialog extends TmmDialog {
     GridBagLayout gbl = new GridBagLayout();
 
     switch (type) {
-      case FANART:
+      case BACKGROUND:
       case CLEARART:
       case THUMB:
       case DISC:
@@ -544,7 +512,7 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.gridwidth = 3;
     gbc.insets = new Insets(0, 5, 0, 5);
 
-    LinkLabel lblShowImage = new LinkLabel(BUNDLE.getString("image.showoriginal"));
+    LinkLabel lblShowImage = new LinkLabel(TmmResourceBundle.getString("image.showoriginal"));
     lblShowImage.addActionListener(e -> {
       ImagePreviewDialog dialog = new ImagePreviewDialog(artwork.getOriginalUrl());
       dialog.setVisible(true);
@@ -552,7 +520,7 @@ public class ImageChooserDialog extends TmmDialog {
     imagePanel.add(lblShowImage, gbc);
 
     // should we provide an option for extrathumbs
-    if (type == ImageType.FANART && extraThumbs != null) {
+    if (extraThumbs != null) {
       gbc = new GridBagConstraints();
       gbc.gridx = 1;
       gbc.gridy = row;
@@ -572,7 +540,7 @@ public class ImageChooserDialog extends TmmDialog {
     }
 
     // should we provide an option for extrafanart
-    if (type == ImageType.FANART && extraFanarts != null) {
+    if (extraFanarts != null) {
       gbc = new GridBagConstraints();
       gbc.gridx = 1;
       gbc.gridy = ++row;
@@ -606,39 +574,51 @@ public class ImageChooserDialog extends TmmDialog {
           case BANNER:
             art = new MediaArtwork("", MediaArtworkType.BANNER);
             break;
+
           case CLEARART:
             art = new MediaArtwork("", MediaArtworkType.CLEARART);
             break;
+
           case DISC:
             art = new MediaArtwork("", MediaArtworkType.DISC);
             break;
-          case FANART:
-            art = new MediaArtwork("", MediaArtworkType.BACKGROUND);
+
+          case BACKGROUND:
+            art = new MediaArtwork("", BACKGROUND);
             break;
+
           case LOGO:
             art = new MediaArtwork("", MediaArtworkType.LOGO);
             break;
+
           case CLEARLOGO:
             art = new MediaArtwork("", MediaArtworkType.CLEARLOGO);
             break;
+
           case CHARACTERART:
             art = new MediaArtwork("", MediaArtworkType.CHARACTERART);
             break;
+
           case POSTER:
             art = new MediaArtwork("", MediaArtworkType.POSTER);
             break;
+
           case SEASON_POSTER:
             art = new MediaArtwork("", MediaArtworkType.SEASON_POSTER);
             break;
+
           case SEASON_BANNER:
             art = new MediaArtwork("", MediaArtworkType.SEASON_BANNER);
             break;
+
           case SEASON_THUMB:
             art = new MediaArtwork("", MediaArtworkType.SEASON_THUMB);
             break;
+
           case THUMB:
             art = new MediaArtwork("", MediaArtworkType.THUMB);
             break;
+
           case KEYART:
             art = new MediaArtwork("", MediaArtworkType.KEYART);
             break;
@@ -655,6 +635,7 @@ public class ImageChooserDialog extends TmmDialog {
 
         SwingUtilities.invokeLater(() -> {
           addImage(bufferedImage, art);
+          bufferedImage.flush();
         });
         tfImageUrl.setText("");
       }
@@ -679,27 +660,12 @@ public class ImageChooserDialog extends TmmDialog {
    *          the artwork providers
    * @param mediaType
    *          the media for for which artwork has to be chosen
+   * @param defaultPath
+   *          the default path to open
    */
-  public static String chooseImage(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers,
-      MediaType mediaType) {
-    return chooseImage(parent, ids, type, artworkScrapers, null, null, mediaType);
-  }
-
-  /**
-   * call a new image chooser dialog without extrathumbs and extrafanart usage.<br />
-   * this method also checks if there are valid IDs for scraping
-   *
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public static String chooseImage(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, MediaType mediaType) {
-    return chooseImage(ids, type, artworkScrapers, null, null, mediaType);
+  public static String chooseImage(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
+      MediaType mediaType, String defaultPath) {
+    return chooseImage(parent, ids, type, artworkScrapers, null, null, mediaType, defaultPath);
   }
 
   /**
@@ -720,45 +686,22 @@ public class ImageChooserDialog extends TmmDialog {
    *          the extra fanarts
    * @param mediaType
    *          the media for for which artwork has to be chosen
+   * @param defaultPath
+   *          the default path to open
    */
-  public static String chooseImage(JDialog parent, final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers,
-      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType) {
+  public static String chooseImage(JDialog parent, final Map<String, Object> ids, MediaArtworkType type, List<MediaScraper> artworkScrapers,
+      List<String> extraThumbs, List<String> extraFanarts, MediaType mediaType, String defaultPath) {
     if (ids.isEmpty()) {
       return "";
     }
 
     ImageLabel lblImage = new ImageLabel();
-    ImageChooserDialog dialog = new ImageChooserDialog(parent, ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
-    dialog.setLocationRelativeTo(MainWindow.getInstance());
-    dialog.setVisible(true);
-    return lblImage.getImageUrl();
-  }
+    ImageChooserDialog dialog = new ImageChooserDialog(parent, ids, type, artworkScrapers, lblImage, mediaType);
 
-  /**
-   * call a new image chooser dialog with extrathumbs and extrafanart usage.<br />
-   * this method also checks if there are valid IDs for scraping
-   *
-   * @param ids
-   *          the ids
-   * @param type
-   *          the type
-   * @param artworkScrapers
-   *          the artwork providers
-   * @param extraThumbs
-   *          the extra thumbs
-   * @param extraFanarts
-   *          the extra fanarts
-   * @param mediaType
-   *          the media for for which artwork has to be chosen
-   */
-  public static String chooseImage(final Map<String, Object> ids, ImageType type, List<MediaScraper> artworkScrapers, List<String> extraThumbs,
-      List<String> extraFanarts, MediaType mediaType) {
-    if (ids.isEmpty()) {
-      return "";
-    }
+    dialog.bindExtraThumbs(extraThumbs);
+    dialog.bindExtraFanarts(extraFanarts);
+    dialog.setOpenFolderPath(defaultPath);
 
-    ImageLabel lblImage = new ImageLabel();
-    ImageChooserDialog dialog = new ImageChooserDialog(ids, type, artworkScrapers, lblImage, extraThumbs, extraFanarts, mediaType);
     dialog.setLocationRelativeTo(MainWindow.getInstance());
     dialog.setVisible(true);
     return lblImage.getImageUrl();
@@ -768,8 +711,8 @@ public class ImageChooserDialog extends TmmDialog {
     private static final long serialVersionUID = -1255049344169945137L;
 
     public OkAction() {
-      putValue(NAME, BUNDLE.getString("Button.ok"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("image.seteselected"));
+      putValue(NAME, TmmResourceBundle.getString("Button.ok"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.seteselected"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }
@@ -801,7 +744,7 @@ public class ImageChooserDialog extends TmmDialog {
 
       // nothing selected
       if (artwork == null) {
-        JOptionPane.showMessageDialog(null, BUNDLE.getString("image.noneselected"));
+        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("image.noneselected"));
         return;
       }
 
@@ -816,12 +759,12 @@ public class ImageChooserDialog extends TmmDialog {
       }
 
       // extrathumbs
-      if (type == ImageType.FANART && extraThumbs != null) {
+      if (extraThumbs != null) {
         processExtraThumbs();
       }
 
       // extrafanart
-      if (type == ImageType.FANART && extraFanarts != null) {
+      if (extraFanarts != null) {
         processExtraFanart();
       }
 
@@ -898,8 +841,8 @@ public class ImageChooserDialog extends TmmDialog {
     private static final long serialVersionUID = 403327079655572423L;
 
     public CancelAction() {
-      putValue(NAME, BUNDLE.getString("Button.cancel"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("Button.cancel"));
+      putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("Button.cancel"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
       putValue(LARGE_ICON_KEY, IconManager.CANCEL_INV);
     }
@@ -924,12 +867,12 @@ public class ImageChooserDialog extends TmmDialog {
     @Override
     public Void doInBackground() {
       if (ids.isEmpty()) {
-        JOptionPane.showMessageDialog(null, BUNDLE.getString("image.download.noid"));
+        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("image.download.noid"));
         return null;
       }
 
       SwingUtilities.invokeLater(() -> {
-        startProgressBar(BUNDLE.getString("image.download.progress"));
+        startProgressBar(TmmResourceBundle.getString("image.download.progress"));
       });
 
       if (artworkScrapers == null || artworkScrapers.isEmpty()) {
@@ -941,7 +884,7 @@ public class ImageChooserDialog extends TmmDialog {
       pool.allowCoreThreadTimeOut(true);
       ExecutorCompletionService<DownloadChunk> service = new ExecutorCompletionService<>(pool);
 
-      // get images from all artworkproviders
+      // get images from all artwork providers
       for (MediaScraper scraper : artworkScrapers) {
         try {
           IMediaArtworkProvider artworkProvider = (IMediaArtworkProvider) scraper.getMediaProvider();
@@ -952,7 +895,7 @@ public class ImageChooserDialog extends TmmDialog {
             options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
             options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
           }
-          else if (mediaType == MediaType.TV_SHOW) {
+          else if (mediaType == MediaType.TV_SHOW || mediaType == MediaType.TV_EPISODE) {
             options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
           }
           else {
@@ -963,8 +906,8 @@ public class ImageChooserDialog extends TmmDialog {
               options.setArtworkType(MediaArtworkType.POSTER);
               break;
 
-            case FANART:
-              options.setArtworkType(MediaArtworkType.BACKGROUND);
+            case BACKGROUND:
+              options.setArtworkType(BACKGROUND);
               break;
 
             case BANNER:
@@ -1013,12 +956,7 @@ public class ImageChooserDialog extends TmmDialog {
           }
 
           // populate ids
-          for (Entry<String, Object> entry : ids.entrySet()) {
-            Object v = entry.getValue();
-            if (v != null) {
-              options.setId(entry.getKey(), v.toString());
-            }
-          }
+          options.setIds(ids);
 
           // get the artwork
           List<MediaArtwork> artwork = artworkProvider.getArtwork(options);
@@ -1051,18 +989,17 @@ public class ImageChooserDialog extends TmmDialog {
             service.submit(callable);
           }
         }
-
-        catch (ScrapeException e) {
-          LOGGER.error("getArtwork", e);
-        }
         catch (MissingIdException e) {
           LOGGER.debug("could not fetch artwork: {}", e.getIds());
+        }
+        catch (ScrapeException e) {
+          LOGGER.error("getArtwork", e);
         }
         catch (Exception e) {
           if (e instanceof InterruptedException || e instanceof InterruptedIOException) { // NOSONAR
             // shutdown the pool
             pool.getQueue().clear();
-            pool.shutdown();
+            pool.shutdownNow();
 
             return null;
           }
@@ -1072,13 +1009,19 @@ public class ImageChooserDialog extends TmmDialog {
 
       // wait for all downloads to finish
       pool.shutdown();
-      while (!pool.isTerminated()) {
+      while (true) {
         try {
-          final Future<DownloadChunk> future = service.take();
-          DownloadChunk dc = future.get();
-          if (dc.image != null) {
-            publish(dc);
-            imagesFound = true;
+          final Future<DownloadChunk> future = service.poll(1, TimeUnit.SECONDS);
+          if (future != null) {
+            DownloadChunk dc = future.get();
+            if (dc.image != null) {
+              publish(dc);
+              imagesFound = true;
+            }
+          }
+          else if (pool.isTerminated()) {
+            // no result got and the pool is terminated -> we're finished
+            break;
           }
         }
         catch (InterruptedException e) { // NOSONAR
@@ -1102,7 +1045,7 @@ public class ImageChooserDialog extends TmmDialog {
     @Override
     public void done() {
       if (!imagesFound) {
-        JLabel lblNothingFound = new JLabel(BUNDLE.getString("image.download.nothingfound"));
+        JLabel lblNothingFound = new JLabel(TmmResourceBundle.getString("image.download.nothingfound"));
         TmmFontHelper.changeFont(lblNothingFound, 1.33);
         panelImages.add(lblNothingFound);
         panelImages.validate();
@@ -1121,16 +1064,23 @@ public class ImageChooserDialog extends TmmDialog {
     private static final long serialVersionUID = -1178325861474276709L;
 
     public LocalFileChooseAction() {
-      putValue(NAME, BUNDLE.getString("image.choose.file"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("image.choose.file"));
+      putValue(NAME, TmmResourceBundle.getString("image.choose.file"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("image.choose.file"));
       putValue(SMALL_ICON, IconManager.FILE_OPEN_INV);
       putValue(LARGE_ICON_KEY, IconManager.FILE_OPEN_INV);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      String path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
-      Path file = TmmUIHelper.selectFile(BUNDLE.getString("image.choose"), path,
+      String path;
+      if (StringUtils.isNotBlank(openFolderPath)) {
+        path = openFolderPath;
+      }
+      else {
+        path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
+      }
+
+      Path file = TmmUIHelper.selectFile(TmmResourceBundle.getString("image.choose"), path,
           new FileNameExtensionFilter("Image files", ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tbn"));
       if (file != null && Utils.isRegularFile(file)) {
         String fileName = file.toAbsolutePath().toString();

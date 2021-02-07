@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.tinymediamanager.ui.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ResourceBundle;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -34,11 +34,11 @@ import org.tinymediamanager.ui.TmmUIHelper;
  */
 public class HomepageAction extends TmmAction {
   private static final long           serialVersionUID = 2368251224786765161L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
   private static final Logger         LOGGER           = LoggerFactory.getLogger(HomepageAction.class);
 
   public HomepageAction() {
-    putValue(NAME, BUNDLE.getString("tmm.homepage.long"));
+    putValue(NAME, TmmResourceBundle.getString("tmm.homepage.long"));
   }
 
   @Override

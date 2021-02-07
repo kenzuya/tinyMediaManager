@@ -15,8 +15,24 @@
  */
 package org.tinymediamanager.updater;
 
-import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
+import com.threerings.getdown.data.Application;
+import com.threerings.getdown.data.EnvConfig;
+import com.threerings.getdown.data.Resource;
+import com.threerings.getdown.net.Downloader;
+import com.threerings.getdown.util.ProgressObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.tinymediamanager.TmmOsUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
+import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,27 +42,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.tinymediamanager.TmmOsUtils;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.threading.TmmTask;
-import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
-import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
-
-import com.threerings.getdown.data.Application;
-import com.threerings.getdown.data.EnvConfig;
-import com.threerings.getdown.data.Resource;
-import com.threerings.getdown.net.Downloader;
-import com.threerings.getdown.util.ProgressObserver;
+import static org.tinymediamanager.updater.getdown.TmmGetdownApplication.UPDATE_FOLDER;
 
 /**
  * UpdaterTasks checks if there's a new update for TMM
@@ -55,12 +53,12 @@ import com.threerings.getdown.util.ProgressObserver;
  */
 public class UpdaterTask extends TmmTask {
   private static final Logger         LOGGER = LoggerFactory.getLogger(UpdaterTask.class);
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   boolean                             downloadSucessful;
 
   public UpdaterTask() {
-    super(BUNDLE.getString("task.updater.prepare"), 100, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("task.updater.prepare"), 100, TaskType.BACKGROUND_TASK);
   }
 
   @Override
@@ -116,7 +114,7 @@ public class UpdaterTask extends TmmTask {
       app.verifyResources(progobs, alreadyValid, unpacked, toInstallResources, toDownload);
 
       if (!toDownload.isEmpty()) {
-        setTaskName(BUNDLE.getString("task.update"));
+        setTaskName(TmmResourceBundle.getString("task.update"));
         // we have resources to download, also note them as to-be-installed
         toInstallResources.addAll(toDownload);
 
@@ -136,8 +134,8 @@ public class UpdaterTask extends TmmTask {
         // all files downloaded -> popup to inform the user (if we're in a UI environment)
         if (!GraphicsEnvironment.isHeadless()) {
           SwingUtilities.invokeLater(() -> {
-            int decision = JOptionPane.showConfirmDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.updater.restart.desc"),
-                BUNDLE.getString("tmm.updater.restart"), JOptionPane.YES_NO_OPTION);
+            int decision = JOptionPane.showConfirmDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.updater.restart.desc"),
+                TmmResourceBundle.getString("tmm.updater.restart"), JOptionPane.YES_NO_OPTION);
             if (decision == JOptionPane.YES_OPTION) {
               MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.Utils;
@@ -44,7 +44,6 @@ import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
  */
 public class TvShowTrailerDownloadTask extends TmmTask {
   private static final Logger             LOGGER       = LoggerFactory.getLogger(TvShowTrailerDownloadTask.class);
-  private static final ResourceBundle     BUNDLE       = ResourceBundle.getBundle("messages");
 
   private final TvShow                    tvShow;
   private final List<TvShowTrailerNaming> trailernames = new ArrayList<>();
@@ -52,7 +51,7 @@ public class TvShowTrailerDownloadTask extends TmmTask {
   private final TrailerSources            desiredSource;
 
   public TvShowTrailerDownloadTask(TvShow tvShow) {
-    super(BUNDLE.getString("trailer.download") + " - " + tvShow.getTitle(), 100, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("trailer.download") + " - " + tvShow.getTitle(), 100, TaskType.BACKGROUND_TASK);
 
     this.tvShow = tvShow;
 
@@ -64,6 +63,10 @@ public class TvShowTrailerDownloadTask extends TmmTask {
 
   @Override
   protected void doInBackground() {
+    if (!isFeatureEnabled()) {
+      return;
+    }
+
     Set<MediaTrailer> trailers = new LinkedHashSet<>();
 
     // prepare the list of desired trailers

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Objects;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -120,7 +121,7 @@ public class TvShowMediaFilesFilter extends AbstractCheckComboBoxTvShowUIFilter<
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.mediatype"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.mediatype"));
   }
 
   @Override
@@ -153,7 +154,7 @@ public class TvShowMediaFilesFilter extends AbstractCheckComboBoxTvShowUIFilter<
     @Override
     public String toString() {
       try {
-        return BUNDLE.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT));
+        return TmmResourceBundle.getString("mediafiletype." + type.name().toLowerCase(Locale.ROOT));
       }
       catch (Exception e) {
         return type.toString();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
@@ -35,7 +35,7 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @since 1.0
  */
 public class MediaArtwork {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   /**
    * The different types of artwork we know
@@ -70,11 +70,11 @@ public class MediaArtwork {
    * @since 1.0
    */
   public enum PosterSizes {
-    XLARGE(BUNDLE.getString("Settings.image.xlarge") + ": ~2000x3000px", 16),
-    LARGE(BUNDLE.getString("Settings.image.large") + ": ~1000x1500px", 8),
-    BIG(BUNDLE.getString("Settings.image.big") + ": ~500x750px", 4),
-    MEDIUM(BUNDLE.getString("Settings.image.medium") + ": ~342x513px", 2),
-    SMALL(BUNDLE.getString("Settings.image.small") + ": ~185x277px", 1);
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge") + ": ~2000x3000px", 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large") + ": ~1000x1500px", 8),
+    BIG(TmmResourceBundle.getString("Settings.image.big") + ": ~500x750px", 4),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~342x513px", 2),
+    SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~185x277px", 1);
 
     private String text;
     private int    order;
@@ -101,10 +101,10 @@ public class MediaArtwork {
    * @since 1.0
    */
   public enum FanartSizes {
-    XLARGE(BUNDLE.getString("Settings.image.xlarge") + ": ~3840x2160px", 16),
-    LARGE(BUNDLE.getString("Settings.image.large") + ": ~1920x1080px", 8),
-    MEDIUM(BUNDLE.getString("Settings.image.medium") + ": ~1280x720px", 2),
-    SMALL(BUNDLE.getString("Settings.image.small") + ": ~300x168px", 1);
+    XLARGE(TmmResourceBundle.getString("Settings.image.xlarge") + ": ~3840x2160px", 16),
+    LARGE(TmmResourceBundle.getString("Settings.image.large") + ": ~1920x1080px", 8),
+    MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~1280x720px", 2),
+    SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~300x168px", 1);
 
     private String text;
     private int    order;

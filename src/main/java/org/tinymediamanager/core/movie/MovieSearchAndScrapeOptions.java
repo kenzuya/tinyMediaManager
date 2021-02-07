@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.tinymediamanager.scraper.entities.MediaType;
  * @author Manuel Laggner
  */
 public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
+  protected String releaseDateCountry = "";
+
   public MovieSearchAndScrapeOptions() {
     super(MediaType.MOVIE);
   }
@@ -35,7 +37,13 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
    *          the original to copy
    */
   public MovieSearchAndScrapeOptions(MovieSearchAndScrapeOptions original) {
-    super(original);
+    super(original.type);
+    setDataFromOtherOptions(original);
+  }
+
+  public void setDataFromOtherOptions(MovieSearchAndScrapeOptions original) {
+    super.setDataFromOtherOptions(original);
+    releaseDateCountry = original.releaseDateCountry;
   }
 
   /**
@@ -44,6 +52,7 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
   public void loadDefaults() {
     language = MovieModuleManager.SETTINGS.getScraperLanguage();
     certificationCountry = MovieModuleManager.SETTINGS.getCertificationCountry();
+    releaseDateCountry = MovieModuleManager.SETTINGS.getReleaseDateCountry();
 
     // metadata
     metadataScraper = MovieList.getInstance().getDefaultMediaScraper();
@@ -56,5 +65,13 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
 
     // subtitle
     subtitleScrapers.addAll(MovieList.getInstance().getDefaultSubtitleScrapers());
+  }
+
+  public String getReleaseDateCountry() {
+    return releaseDateCountry;
+  }
+
+  public void setReleaseDateCountry(String releaseDateCountry) {
+    this.releaseDateCountry = releaseDateCountry;
   }
 }

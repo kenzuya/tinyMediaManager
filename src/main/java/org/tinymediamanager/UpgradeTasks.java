@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +35,9 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -127,6 +132,130 @@ public class UpgradeTasks {
       Globals.settings.setIgnoreSSLProblems(true);
       Globals.settings.saveSettings();
     }
+
+    if (StrgUtils.compareVersion(v, "4.1") < 0) {
+      // copy most common scraper settings to the new filename
+
+      // Anidb
+      Path config = Paths.get("data/scraper_anidb.conf");
+      if (Files.exists(config)) {
+        // copy to the tvshow file
+        copyFileSilently(config, Paths.get("data/scraper_anidb_tvshow.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // Fanart.tv
+      config = Paths.get("data/scraper_fanarttv.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_fanarttv_movie_artwork.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_fanarttv_tvshow_artwork.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // hd-trailers.net
+      config = Paths.get("data/scraper_hd-trailers.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_hd-trailers_movie_trailer.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // imdb
+      config = Paths.get("data/scraper_imdb.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_imdb_movie.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_imdb_movie_artwork.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_imdb_tvshow.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_imdb_tvshow_artwork.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // moviemeter
+      config = Paths.get("data/scraper_moviemeter.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_moviemeter_movie.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // mpdbtv
+      config = Paths.get("data/scraper_mpdbtv.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_mpdbtv_movie.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_mpdbtv_movie_artwork.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // ofdb
+      config = Paths.get("data/scraper_ofdb.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_ofdb_movie.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_ofdb_movie_trailer.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // omdb
+      config = Paths.get("data/scraper_omdbapi.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_omdbapi_movie.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // opnsubtitles
+      config = Paths.get("data/scraper_opensubtitles.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_opensubtitles_movie_subtitle.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_opensubtitles_tvshow_subtitle.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // thetvdb
+      config = Paths.get("data/scraper_tvdb.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_tvdb_tvshow.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_tvdb_tvshow_artwork.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // tmdb
+      config = Paths.get("data/scraper_tmdb.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_tmdb_movie.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_tmdb_movie_artwork.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_tmdb_movie_trailer.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_tmdb_tvshow.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_tmdb_tvshow_artwork.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_tmdb_tvshow_trailer.conf"));
+        Utils.deleteFileSafely(config);
+      }
+
+      // trakt
+      config = Paths.get("data/scraper_trakt.conf");
+      if (Files.exists(config)) {
+        // copy to the movie_artwork/tvshow_artwork file
+        copyFileSilently(config, Paths.get("data/scraper_trakt_movie.conf"));
+        copyFileSilently(config, Paths.get("data/scraper_trakt_tvshow.conf"));
+        Utils.deleteFileSafely(config);
+      }
+    }
+  }
+
+  private static void copyFileSilently(Path source, Path destination) {
+    try {
+      FileUtils.copyFile(source.toFile(), destination.toFile());
+
+    }
+    catch (Exception e) {
+      // ignore
+    }
   }
 
   /**
@@ -190,6 +319,26 @@ public class UpgradeTasks {
         }
       }
     }
+
+    if (StrgUtils.compareVersion(v, "4.1") < 0) {
+      // remove invalid ratings
+      for (Movie movie : movieList.getMovies()) {
+        removeInvalidRating(movie);
+      }
+
+      for (TvShow tvShow : tvShowList.getTvShows()) {
+        removeInvalidRating(tvShow);
+
+        for (TvShowEpisode episode : tvShow.getEpisodes()) {
+          removeInvalidRating(episode);
+        }
+      }
+
+      // release date country
+      if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getReleaseDateCountry())) {
+        MovieModuleManager.SETTINGS.setReleaseDateCountry(Locale.getDefault().getCountry());
+      }
+    }
   }
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {
@@ -214,6 +363,22 @@ public class UpgradeTasks {
 
       default:
         return false;
+    }
+  }
+
+  private static void removeInvalidRating(MediaEntity entity) {
+    boolean dirty = false;
+
+    Map<String, MediaRating> ratings = new HashMap<>(entity.getRatings());
+    for (Map.Entry<String, MediaRating> entry : ratings.entrySet()) {
+      if (entry.getValue().getRating() < 0) {
+        entity.removeRating(entry.getKey());
+        dirty = true;
+      }
+    }
+
+    if (dirty) {
+      entity.saveToDb();
     }
   }
 

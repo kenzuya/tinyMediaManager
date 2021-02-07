@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,9 +99,11 @@ public class ImageLabel extends JComponent {
   protected MouseListener           lightboxListener       = null;
 
   private static TmmSvgIcon createNoImageIcon() {
+
     try {
       // create the icon
-      URI uri = IconManager.class.getResource("images/svg/image.svg").toURI();
+      URI uri = IconManager.class.getResource("images/svg/image.svg")
+          .toURI();
       return new TmmSvgIcon(uri);
     }
     catch (Exception e) {
@@ -126,6 +128,7 @@ public class ImageLabel extends JComponent {
     this.drawBorder = drawBorder;
     this.drawFullWidth = drawFullWidth;
     this.drawShadow = drawShadow;
+
     if (drawShadow) {
       this.shadowRenderer = new ShadowRenderer(8, 0.3f, Color.BLACK);
     }
@@ -145,6 +148,7 @@ public class ImageLabel extends JComponent {
     // check if this file is a gif
     GifDecoder decoder = new GifDecoder();
     int status = decoder.read(new ByteArrayInputStream(originalImageBytes));
+
     if (status == GifDecoder.STATUS_OK && decoder.getFrameCount() > 1) {
       // this is an animated gif
       animatedGif = new ImageIcon(originalImageBytes);
@@ -156,6 +160,7 @@ public class ImageLabel extends JComponent {
       // this is just a normal pic
       BufferedImage originalImage = ImageUtils.createImage(originalImageBytes);
       originalImageSize = new Dimension(originalImage.getWidth(), originalImage.getHeight());
+
       if (width < 1000 || height < 1000) {
         // scale fast
         scaledImage = Scalr.resize(originalImage, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, width, height, Scalr.OP_ANTIALIAS);
@@ -164,6 +169,7 @@ public class ImageLabel extends JComponent {
         // scale good
         scaledImage = Scalr.resize(originalImage, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, width, height, Scalr.OP_ANTIALIAS);
       }
+      originalImage.flush();
       animatedGif = null;
     }
   }
@@ -203,6 +209,7 @@ public class ImageLabel extends JComponent {
   public void clearImage() {
     imagePath = "";
     imageUrl = "";
+
     if (worker != null && !worker.isDone()) {
       worker.cancel(true);
     }
@@ -280,9 +287,11 @@ public class ImageLabel extends JComponent {
 
   @Override
   public Dimension getPreferredSize() {
+
     if (originalImageSize != EMPTY_SIZE) {
       int parentWidth = getParent().getWidth();
       int parentHeight = getParent().getHeight();
+
       if (scaleUpIfTooSmall || parentWidth < originalImageSize.width || parentHeight < originalImageSize.height) {
         // we maximize the image regardless of its size or if it is bigger than the parent
         return new Dimension(getParent().getWidth(),
@@ -306,6 +315,7 @@ public class ImageLabel extends JComponent {
   }
 
   private int getShadowSize() {
+
     if (drawShadow) {
       return SHADOW_SIZE;
     }
@@ -320,6 +330,7 @@ public class ImageLabel extends JComponent {
    */
   @Override
   public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
+
     if (!isShowing() || scaledImage != img) {
       return false;
     }
@@ -332,6 +343,7 @@ public class ImageLabel extends JComponent {
     super.paintComponent(g);
 
     Graphics2D g2d = (Graphics2D) g.create();
+
     try {
       g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
       g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_DEFAULT);
@@ -404,6 +416,7 @@ public class ImageLabel extends JComponent {
 
             // draw shadow
             drawImageAtScale1x(shadowImage, g2d, scaleHiDpi(g2d.getTransform(), shadowRectangle));
+            shadowImage.flush();
           }
 
           // draw image
@@ -411,6 +424,7 @@ public class ImageLabel extends JComponent {
         }
         else {
           Point size = null;
+
           if (drawFullWidth) {
             size = new Point(this.getMaxWidth(), this.getMaxWidth() * originalImageSize.height / originalImageSize.width);
           }
@@ -466,7 +480,8 @@ public class ImageLabel extends JComponent {
         // draw the _no image found_ icon
         if (NO_IMAGE != null) {
           BufferedImage tmp = new BufferedImage(hiDpi.width, hiDpi.height, BufferedImage.TYPE_INT_ARGB);
-          Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment().createGraphics(tmp);
+          Graphics2D g2 = GraphicsEnvironment.getLocalGraphicsEnvironment()
+              .createGraphics(tmp);
 
           try {
             FlatUIUtils.setRenderingHints(g2);
@@ -486,6 +501,7 @@ public class ImageLabel extends JComponent {
 
               // draw shadow
               drawImageAtScale1x(shadowImage, g2d, scaleHiDpi(g2d.getTransform(), shadowRectangle));
+              shadowImage.flush();
             }
 
             g2.drawImage(NO_IMAGE.getImage(), (hiDpi.width - NO_IMAGE.getIconWidth()) / 2, (hiDpi.height - NO_IMAGE.getIconHeight()) / 2, null);
@@ -496,6 +512,7 @@ public class ImageLabel extends JComponent {
 
           // draw image
           drawImageAtScale1x(tmp, g2d, hiDpi);
+          tmp.flush();
         }
       }
     }
@@ -505,6 +522,7 @@ public class ImageLabel extends JComponent {
   }
 
   private int getMaxWidth() {
+
     if (!scaleUpIfTooSmall && originalImageSize != null) {
       return Math.min(getWidth(), originalImageSize.width);
     }
@@ -512,6 +530,7 @@ public class ImageLabel extends JComponent {
   }
 
   private int getMaxHeight() {
+
     if (!scaleUpIfTooSmall && originalImageSize != null) {
       return Math.min(originalImageSize.height, getHeight());
     }
@@ -523,6 +542,7 @@ public class ImageLabel extends JComponent {
    * Graphics.fillRect().
    */
   private Rectangle scaleHiDpi(AffineTransform transform, Rectangle rectangle) {
+
     // no need to scale
     if (transform.getScaleX() == 1 && transform.getScaleY() == 1) {
       return new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
@@ -548,6 +568,7 @@ public class ImageLabel extends JComponent {
     AffineTransform transform = g2D.getTransform();
 
     try {
+
       // unscale to factor 1.0 and move origin (to whole numbers)
       if (transform.getScaleX() != 1 || transform.getScaleY() != 1) {
         g2D.setTransform(new AffineTransform(1, 0, 0, 1, 0, 0));
@@ -571,11 +592,13 @@ public class ImageLabel extends JComponent {
   }
 
   private void recreateScaledImageIfNeeded(int originalWidth, int originalHeight, int newWidth, int newHeight) {
+
     if (animatedGif != null) {
       scaledImage = animatedGif.getImage();
     }
     else if (originalWidth < 20 || originalHeight < 20 || (newWidth * 0.8f > originalWidth) || (originalWidth > newWidth * 1.2f)
         || (newHeight * 0.8f > originalHeight) || (originalHeight > newHeight * 1.2f)) {
+
       try {
         createScaledImage(originalImageBytes, newWidth, newHeight);
       }
@@ -591,6 +614,7 @@ public class ImageLabel extends JComponent {
 
   public void enableLightbox() {
     this.enabledLightbox = true;
+
     if (lightboxListener == null) {
       lightboxListener = new ImageLabelClickListener();
       addMouseListener(lightboxListener);
@@ -599,6 +623,7 @@ public class ImageLabel extends JComponent {
 
   public void disableLightbox() {
     this.enabledLightbox = false;
+
     if (lightboxListener != null) {
       removeMouseListener(lightboxListener);
       lightboxListener = null;
@@ -627,7 +652,7 @@ public class ImageLabel extends JComponent {
    * inner class for downloading online images
    */
   protected class ImageFetcher extends SwingWorker<Void, Void> {
-    private Dimension newSize;
+    private final Dimension newSize;
 
     public ImageFetcher(Dimension newSize) {
       this.newSize = newSize;
@@ -635,15 +660,40 @@ public class ImageLabel extends JComponent {
 
     @Override
     protected Void doInBackground() {
+
       try {
+
+        // if we want to use the cache, fetch this url via the image cache
+        if (preferCache) {
+          Path cachedFile = ImageCache.getCachedFile(imageUrl);
+
+          if (cachedFile != null && Files.exists(cachedFile)) {
+
+            try {
+              byte[] bytes = Files.readAllBytes(cachedFile);
+              clearImageData();
+              setImageBytes(bytes);
+              recreateScaledImageIfNeeded(0, 0, newSize.width, newSize.height);
+              return null;
+            }
+            catch (Exception e) {
+              // okay, we got an exception here - set the image path to empty to avoid an endless try-to-reload
+              ImageLabel.this.imagePath = "";
+              clearImageData();
+            }
+          }
+        }
+
+        // no image cache? just fetch it directly
         Url url;
+
         if (cacheUrl) {
           url = new InMemoryCachedUrl(imageUrl);
         }
         else {
           url = new Url(imageUrl);
         }
-        byte[] bytes = url.getBytesWithRetry(5);
+        byte[] bytes = url.getBytesWithRetry(2);
         clearImageData();
         setImageBytes(bytes);
         recreateScaledImageIfNeeded(0, 0, newSize.width, newSize.height);
@@ -658,6 +708,7 @@ public class ImageLabel extends JComponent {
 
     @Override
     protected void done() {
+
       if (isCancelled() || !ImageLabel.this.imageUrl.equals(imageUrl)) {
         ImageLabel.this.imageUrl = "";
         clearImageData();
@@ -677,8 +728,8 @@ public class ImageLabel extends JComponent {
    * inner class for loading local images
    */
   protected class ImageLoader extends SwingWorker<Void, Void> {
-    private String    imagePath;
-    private Dimension newSize;
+    private final String    imagePath;
+    private final Dimension newSize;
 
     public ImageLoader(String imagePath, Dimension newSize) {
       this.imagePath = imagePath;
@@ -706,6 +757,7 @@ public class ImageLabel extends JComponent {
       }
 
       if (file != null && Files.exists(file)) {
+
         try {
           byte[] bytes = Files.readAllBytes(file);
           clearImageData();
@@ -724,6 +776,7 @@ public class ImageLabel extends JComponent {
 
     @Override
     protected void done() {
+
       if (isCancelled() || !ImageLabel.this.imagePath.equals(imagePath)) {
         ImageLabel.this.imagePath = "";
         clearImageData();
@@ -745,8 +798,10 @@ public class ImageLabel extends JComponent {
   private class ImageLabelClickListener extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent arg0) {
+
       if (arg0.getClickCount() == 1 && scaledImage != null) {
-        MainWindow.getInstance().createLightbox(getImagePath(), getImageUrl());
+        MainWindow.getInstance()
+            .createLightbox(getImagePath(), getImageUrl());
       }
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.tinymediamanager.ui.movies.actions;
 
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
@@ -45,11 +46,11 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
 public class MovieDeleteMediainfoXmlAction extends TmmAction {
 
   private static final long           serialVersionUID = -2019243514238173721L;
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  
 
   public MovieDeleteMediainfoXmlAction() {
-    putValue(NAME, BUNDLE.getString("movie.deletemediainfoxml"));
-    putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.deletemediainfoxml"));
+    putValue(NAME, TmmResourceBundle.getString("movie.deletemediainfoxml"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.deletemediainfoxml"));
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(LARGE_ICON_KEY, IconManager.DELETE);
   }
@@ -59,19 +60,19 @@ public class MovieDeleteMediainfoXmlAction extends TmmAction {
     List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
     if (selectedMovies.isEmpty()) {
-      JOptionPane.showMessageDialog(MainWindow.getInstance(), BUNDLE.getString("tmm.nothingselected"));
+      JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
     // display warning and ask the user again
     if (!TmmProperties.getInstance().getPropertyAsBoolean("movie.hidedeletemediainfoxmlhint")) {
-      JCheckBox checkBox = new JCheckBox(BUNDLE.getString("tmm.donotshowagain"));
+      JCheckBox checkBox = new JCheckBox(TmmResourceBundle.getString("tmm.donotshowagain"));
       TmmFontHelper.changeFont(checkBox, L1);
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-      Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-      Object[] params = { BUNDLE.getString("movie.deletemediainfoxml.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, BUNDLE.getString("movie.deletemediainfoxml"),
+      Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+      Object[] params = { TmmResourceBundle.getString("movie.deletemediainfoxml.desc"), checkBox };
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("movie.deletemediainfoxml"),
           JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again
@@ -84,11 +85,13 @@ public class MovieDeleteMediainfoXmlAction extends TmmAction {
       }
     }
 
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (Movie movie : selectedMovies) {
       movie.getMediaFiles(MediaFileType.MEDIAINFO).forEach(mediaFile -> {
         Utils.deleteFileSafely(mediaFile.getFileAsPath());
         movie.removeFromMediaFiles(mediaFile);
       });
     }
+    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

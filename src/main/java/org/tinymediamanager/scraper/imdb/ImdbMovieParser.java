@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,16 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.CAT_TITLE;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.adoptArtworkToOptions;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.cleanString;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.executor;
-import static org.tinymediamanager.scraper.imdb.ImdbMetadataProvider.providerInfo;
-
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +34,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
@@ -60,19 +56,10 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
  * @author Manuel Laggner
  */
 public class ImdbMovieParser extends ImdbParser {
-  private static final Logger  LOGGER                  = LoggerFactory.getLogger(ImdbMovieParser.class);
-  private static final Pattern UNWANTED_SEARCH_RESULTS = Pattern.compile(".*\\((TV Series|TV Episode|Short|Video Game)\\).*");
+  private static final Logger LOGGER = LoggerFactory.getLogger(ImdbMovieParser.class);
 
-  ImdbMovieParser() {
-    super(MediaType.MOVIE);
-  }
-
-  @Override
-  protected Pattern getUnwantedSearchResultPattern() {
-    if (ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("filterUnwantedCategories")) {
-      return UNWANTED_SEARCH_RESULTS;
-    }
-    return null;
+  ImdbMovieParser(IMediaProvider mediaProvider, ExecutorService executor) {
+    super(mediaProvider, MediaType.MOVIE, executor);
   }
 
   @Override
@@ -81,30 +68,20 @@ public class ImdbMovieParser extends ImdbParser {
   }
 
   @Override
-  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    return getMovieMetadata((MovieSearchAndScrapeOptions) options);
+  protected boolean isIncludeMovieResults() {
+    return true;
   }
 
   @Override
-  protected String getSearchCategory() {
-    return CAT_TITLE;
+  protected MediaMetadata getMetadata(MediaSearchAndScrapeOptions options) throws ScrapeException {
+    return getMovieMetadata((MovieSearchAndScrapeOptions) options);
   }
 
-  MediaMetadata getMovieMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
-    MediaMetadata md = new MediaMetadata(providerInfo.getId());
-
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = License.getInstance().getApiKey(providerInfo.getId());
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
+  MediaMetadata getMovieMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
+    MediaMetadata md = new MediaMetadata(ImdbMetadataProvider.ID);
 
     // check if there is a md in the result
-    if (options.getMetadata() != null && providerInfo.getId().equals(options.getMetadata().getProviderId())) {
+    if (options.getMetadata() != null && ImdbMetadataProvider.ID.equals(options.getMetadata().getProviderId())) {
       LOGGER.debug("IMDB: got metadata from cache: {}", options.getMetadata());
       return options.getMetadata();
     }
@@ -123,7 +100,7 @@ public class ImdbMovieParser extends ImdbParser {
 
     // imdbid via tmdbid
     if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
-      imdbId = MediaIdUtil.getImdbIdViaTmdbId(options.getTmdbId());
+      imdbId = MediaIdUtil.getMovieImdbIdViaTmdbId(options.getTmdbId());
     }
 
     if (!MetadataUtil.isValidImdbId(imdbId)) {
@@ -132,33 +109,33 @@ public class ImdbMovieParser extends ImdbParser {
     }
 
     LOGGER.debug("IMDB: getMetadata(imdbId): {}", imdbId);
-    md.setId(providerInfo.getId(), imdbId);
+    md.setId(ImdbMetadataProvider.ID, imdbId);
 
     ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
     ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
 
     // worker for imdb request (/reference)
-    String url = apiKey + "title/" + imdbId + "/reference";
-    Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    Callable<Document> worker = new ImdbWorker(constructUrl("title/", imdbId, "/reference"), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     Future<Document> futureReference = compSvcImdb.submit(worker);
 
     // worker for imdb request (/plotsummary) (from chosen site)
     Future<Document> futurePlotsummary;
-    url = apiKey + "title/" + imdbId + "/plotsummary";
-    worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    worker = new ImdbWorker(constructUrl("title/", imdbId, "/plotsummary"), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     futurePlotsummary = compSvcImdb.submit(worker);
 
     // worker for imdb request (/releaseinfo)
     Future<Document> futureReleaseinfo;
-    url = apiKey + "title/" + imdbId + "/releaseinfo";
-    worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+    worker = new ImdbWorker(constructUrl("title/", imdbId, "/releaseinfo"), options.getLanguage().getLanguage(),
+        options.getCertificationCountry().getAlpha2());
     futureReleaseinfo = compSvcImdb.submit(worker);
 
     // worker for imdb keywords (/keywords)
     Future<Document> futureKeywords = null;
     if (isScrapeKeywordsPage()) {
-      url = apiKey + "title/" + imdbId + "/keywords";
-      worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
+      worker = new ImdbWorker(constructUrl("title/", imdbId, "/keywords"), options.getLanguage().getLanguage(),
+          options.getCertificationCountry().getAlpha2());
       futureKeywords = compSvcImdb.submit(worker);
     }
 
@@ -208,14 +185,14 @@ public class ImdbMovieParser extends ImdbParser {
         parseReleaseinfoPageAKAs(releaseinfoDoc, options, md);
 
         // did we get a release date?
-        if (md.getReleaseDate() == null || ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("localReleaseDate")) {
+        if (md.getReleaseDate() == null || Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE))) {
           // get the date from the releaseinfo page
           parseReleaseinfoPage(releaseinfoDoc, options, md);
         }
       }
 
       // if everything worked so far, we can set the given id
-      md.setId(providerInfo.getId(), imdbId);
+      md.setId(ImdbMetadataProvider.ID, imdbId);
     }
     catch (Exception e) {
       LOGGER.error("problem while scraping: {}", e.getMessage());
@@ -260,7 +237,7 @@ public class ImdbMovieParser extends ImdbParser {
             }
           }
 
-          if (ImdbMetadataProvider.providerInfo.getConfig().getValueAsBool("scrapeCollectionInfo")) {
+          if (Boolean.TRUE.equals(config.getValueAsBool("scrapeCollectionInfo"))) {
             md.setCollectionName(tmdbMd.getCollectionName());
           }
         }
@@ -276,7 +253,7 @@ public class ImdbMovieParser extends ImdbParser {
     }
 
     // populate id
-    md.setId(ImdbMetadataProvider.providerInfo.getId(), imdbId);
+    md.setId(ImdbMetadataProvider.ID, imdbId);
 
     return md;
   }
@@ -322,7 +299,97 @@ public class ImdbMovieParser extends ImdbParser {
     return md;
   }
 
-  public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
+  protected void parseReleaseinfoPage(Document doc, MovieSearchAndScrapeOptions options, MediaMetadata md) {
+    Date releaseDate = null;
+    Pattern pattern = Pattern.compile("/calendar/\\?region=(.{2})");
+
+    String releaseDateCountry = options.getReleaseDateCountry();
+
+    Element tableReleaseDates = doc.getElementById("release_dates");
+    if (StringUtils.isNotBlank(releaseDateCountry)) {
+      if (tableReleaseDates != null) {
+        Elements rows = tableReleaseDates.getElementsByTag("tr");
+        // first round: check the release date for the first one with the requested country
+        for (Element row : rows) {
+          // check if we want premiere dates
+          if (row.text().contains("(premiere)") && Boolean.FALSE.equals(config.getValueAsBool(INCLUDE_PREMIERE_DATE))) {
+            continue;
+          }
+
+          // get the anchor
+          Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
+          if (anchor != null) {
+            Matcher matcher = pattern.matcher(anchor.attr("href"));
+            if (matcher.find()) {
+              String country = matcher.group(1);
+
+              Element column = row.getElementsByClass("release_date").first();
+              if (column != null) {
+                Date parsedDate = parseDate(column.text());
+                // do not overwrite any parsed date with a null value!
+                if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
+                  releaseDate = parsedDate;
+
+                  // abort the loop if we have found a valid date in our desired language
+                  if (releaseDateCountry.equalsIgnoreCase(country)) {
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // new way; iterating over class name items
+      if (releaseDate == null) {
+        Elements rows = doc.getElementsByClass("release-date-item");
+        for (Element row : rows) {
+          // check if we want premiere dates
+          if (row.text().contains("(premiere)") && Boolean.FALSE.equals(config.getValueAsBool(INCLUDE_PREMIERE_DATE))) {
+            continue;
+          }
+
+          Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
+          if (anchor != null) {
+            Matcher matcher = pattern.matcher(anchor.attr("href"));
+            // continue if we either do not have found any date yet or the country matches
+            if (matcher.find()) {
+              String country = matcher.group(1);
+
+              Element column = row.getElementsByClass("release-date-item__date").first();
+              if (column != null) {
+                Date parsedDate = parseDate(column.text());
+                // do not overwrite any parsed date with a null value!
+                if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
+                  releaseDate = parsedDate;
+
+                  // abort the loop if we have found a valid date in our desired language
+                  if (releaseDateCountry.equalsIgnoreCase(country)) {
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // no matching local release date found; take the first one
+    if (releaseDate == null && tableReleaseDates != null) {
+      Element column = tableReleaseDates.getElementsByClass("release_date").first();
+      if (column != null) {
+        releaseDate = parseDate(column.text());
+      }
+    }
+
+    if (releaseDate != null) {
+      md.setReleaseDate(releaseDate);
+    }
+  }
+
+  public List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     String imdbId = "";
 
     // imdbid from scraper option
@@ -332,7 +399,7 @@ public class ImdbMovieParser extends ImdbParser {
 
     // imdbid via tmdbid
     if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
-      imdbId = MediaIdUtil.getImdbIdViaTmdbId(options.getTmdbId());
+      imdbId = MediaIdUtil.getMovieImdbIdViaTmdbId(options.getTmdbId());
     }
 
     if (!MetadataUtil.isValidImdbId(imdbId)) {
@@ -349,7 +416,7 @@ public class ImdbMovieParser extends ImdbParser {
 
       // adopt the url to the wanted size
       for (MediaArtwork artwork : artworks) {
-        if (providerInfo.getId().equals(artwork.getProviderId())) {
+        if (ImdbMetadataProvider.ID.equals(artwork.getProviderId())) {
           adoptArtworkToOptions(artwork, options);
         }
       }
@@ -364,7 +431,7 @@ public class ImdbMovieParser extends ImdbParser {
   }
 
   private static class TmdbMovieWorker implements Callable<MediaMetadata> {
-    private MovieSearchAndScrapeOptions options;
+    private final MovieSearchAndScrapeOptions options;
 
     TmdbMovieWorker(MovieSearchAndScrapeOptions options) {
       this.options = options;
@@ -373,14 +440,14 @@ public class ImdbMovieParser extends ImdbParser {
     @Override
     public MediaMetadata call() {
       try {
-        IMediaProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB);
+        IMovieMetadataProvider tmdb = MediaProviders.getProviderById(MediaMetadata.TMDB, IMovieMetadataProvider.class);
         if (tmdb == null) {
           return null;
         }
 
         MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions(this.options);
         options.setMetadataScraper(new MediaScraper(ScraperType.MOVIE, tmdb));
-        return ((IMovieMetadataProvider) tmdb).getMetadata(options);
+        return tmdb.getMetadata(options);
       }
       catch (Exception e) {
         return null;

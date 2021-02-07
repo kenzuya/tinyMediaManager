@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,12 @@ package org.tinymediamanager.scraper.exceptions;
  */
 public class ScrapeException extends Exception {
   private static final long serialVersionUID = 2860692702692312470L;
+
+  /**
+   * the package private constructor -> to be used in child classes
+   */
+  ScrapeException() {
+  }
 
   /**
    * the main constructor - just to wrap the source {@link Exception}

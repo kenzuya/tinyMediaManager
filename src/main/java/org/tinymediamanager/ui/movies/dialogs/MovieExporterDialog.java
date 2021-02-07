@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.MediaEntityExporter.TemplateType;
 import org.tinymediamanager.core.TmmProperties;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.MovieExporter;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -88,7 +89,7 @@ public class MovieExporterDialog extends TmmDialog {
    *          the movies to export
    */
   public MovieExporterDialog(List<Movie> moviesToExport) {
-    super(BUNDLE.getString("movie.export"), DIALOG_ID);
+    super(TmmResourceBundle.getString("movie.export"), DIALOG_ID);
     {
       JPanel panelContent = new JPanel();
       getContentPane().add(panelContent);
@@ -124,7 +125,7 @@ public class MovieExporterDialog extends TmmDialog {
       taDescription = new ReadOnlyTextArea();
       scrollPaneDescription.setViewportView(taDescription);
 
-      JLabel lblDetails = new TmmLabel(BUNDLE.getString("export.detail"));
+      JLabel lblDetails = new TmmLabel(TmmResourceBundle.getString("export.detail"));
       panelExporterDetails.add(lblDetails, "cell 0 2,growx,aligny center");
       splitPane.setDividerLocation(300);
 
@@ -132,10 +133,10 @@ public class MovieExporterDialog extends TmmDialog {
       panelContent.add(tfExportDir, "flowx,cell 0 1,growx");
       tfExportDir.setColumns(10);
 
-      JButton btnSetDestination = new JButton(BUNDLE.getString("export.setdestination"));
+      JButton btnSetDestination = new JButton(TmmResourceBundle.getString("export.setdestination"));
       panelContent.add(btnSetDestination, "cell 0 1");
       btnSetDestination.addActionListener(e -> {
-        Path file = TmmUIHelper.selectDirectory(BUNDLE.getString("export.selectdirectory"), tfExportDir.getText());
+        Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("export.selectdirectory"), tfExportDir.getText());
         if (file != null) {
           tfExportDir.setText(file.toAbsolutePath().toString());
           TmmProperties.getInstance().putProperty(DIALOG_ID + ".path", tfExportDir.getText());
@@ -145,7 +146,7 @@ public class MovieExporterDialog extends TmmDialog {
     }
 
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
       btnCancel.addActionListener(arg0 -> setVisible(false));
       addButton(btnCancel);
@@ -168,14 +169,14 @@ public class MovieExporterDialog extends TmmDialog {
           Path exportPath = Paths.get(tfExportDir.getText());
           if (!Files.exists(exportPath)) {
             // export dir does not exist
-            JOptionPane.showMessageDialog(MovieExporterDialog.this, BUNDLE.getString("export.foldernotfound"));
+            JOptionPane.showMessageDialog(MovieExporterDialog.this, TmmResourceBundle.getString("export.foldernotfound"));
             return;
           }
 
           try {
             if (!Utils.isFolderEmpty(exportPath)) {
-              Object[] options = { BUNDLE.getString("Button.yes"), BUNDLE.getString("Button.no") };
-              int decision = JOptionPane.showOptionDialog(MovieExporterDialog.this, BUNDLE.getString("export.foldernotempty"), "",
+              Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
+              int decision = JOptionPane.showOptionDialog(MovieExporterDialog.this, TmmResourceBundle.getString("export.foldernotempty"), "",
                   JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);// $NON-NLS-1$
               if (decision == JOptionPane.NO_OPTION) {
                 return;
@@ -190,7 +191,7 @@ public class MovieExporterDialog extends TmmDialog {
           try {
             TmmProperties.getInstance().putProperty(DIALOG_ID + ".template", selectedTemplate.getName());
             MovieExporter exporter = new MovieExporter(Paths.get(selectedTemplate.getPath()));
-            TmmTaskManager.getInstance().addMainTask(new ExportTask(BUNDLE.getString("movie.export"), exporter, movies, exportPath));
+            TmmTaskManager.getInstance().addMainTask(new ExportTask(TmmResourceBundle.getString("movie.export"), exporter, movies, exportPath));
           }
           catch (Exception e) {
             LOGGER.error("Error exporting movies: ", e);

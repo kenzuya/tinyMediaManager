@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
 
 public class ITFanartTvTest extends BasicTest {
@@ -35,7 +34,7 @@ public class ITFanartTvTest extends BasicTest {
   @Test
   public void testMovieService() throws Exception {
     FanartTv api = new FanartTv();
-    api.setApiKey(License.getInstance().getApiKey("fanarttv"));
+    api.setApiKey(new FanartTvMovieArtworkProvider().getApiKey());
 
     // Avatar; tmdb_id 19995
     try {
@@ -99,7 +98,7 @@ public class ITFanartTvTest extends BasicTest {
   @Test
   public void testTvShowService() throws Exception {
     FanartTv api = new FanartTv();
-    api.setApiKey(License.getInstance().getApiKey("fanarttv"));
+    api.setApiKey(new FanartTvMovieArtworkProvider().getApiKey());
 
     // Breaking Bad; tvdb_id 81189
     try {

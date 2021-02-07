@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.ui.IconManager;
 
@@ -51,21 +52,21 @@ public class WolDeviceDialog extends TmmDialog {
    * constructor for creating a device
    */
   public WolDeviceDialog() {
-    super(BUNDLE.getString("tmm.wakeonlandevice"), "wolDialog");
+    super(TmmResourceBundle.getString("tmm.wakeonlandevice"), "wolDialog");
 
     {
       JPanel panelContent = new JPanel();
       getContentPane().add(panelContent, BorderLayout.CENTER);
       panelContent.setLayout(new MigLayout("", "[][]", "[][]"));
 
-      JLabel lblDeviceName = new JLabel(BUNDLE.getString("Settings.devicename"));
+      JLabel lblDeviceName = new JLabel(TmmResourceBundle.getString("Settings.devicename"));
       panelContent.add(lblDeviceName, "cell 0 0,alignx right");
 
       tfName = new JTextField();
       tfName.setColumns(20);
       panelContent.add(tfName, "cell 1 0");
 
-      JLabel lblMacAddress = new JLabel(BUNDLE.getString("Settings.macaddress"));
+      JLabel lblMacAddress = new JLabel(TmmResourceBundle.getString("Settings.macaddress"));
       panelContent.add(lblMacAddress, "cell 0 1,alignx right");
 
       tfMacAddress = new JTextField();
@@ -73,11 +74,11 @@ public class WolDeviceDialog extends TmmDialog {
       panelContent.add(tfMacAddress, "cell 1 1");
     }
     {
-      JButton btnCancel = new JButton(BUNDLE.getString("Button.cancel"));
+      JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setAction(new CancelAction());
       addButton(btnCancel);
 
-      JButton btnSave = new JButton(BUNDLE.getString("Button.save"));
+      JButton btnSave = new JButton(TmmResourceBundle.getString("Button.save"));
       btnSave.setAction(new SaveAction());
       addDefaultButton(btnSave);
     }
@@ -93,7 +94,7 @@ public class WolDeviceDialog extends TmmDialog {
     private static final long serialVersionUID = 1740130137146252281L;
 
     SaveAction() {
-      putValue(NAME, BUNDLE.getString("Button.save"));
+      putValue(NAME, TmmResourceBundle.getString("Button.save"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
       putValue(LARGE_ICON_KEY, IconManager.APPLY_INV);
     }
@@ -102,7 +103,7 @@ public class WolDeviceDialog extends TmmDialog {
     public void actionPerformed(ActionEvent e) {
       // check whether both fields are filled
       if (StringUtils.isBlank(tfName.getText()) || StringUtils.isBlank(tfMacAddress.getText())) {
-        JOptionPane.showMessageDialog(null, BUNDLE.getString("message.missingitems"));
+        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.missingitems"));
         return;
       }
 
@@ -110,7 +111,7 @@ public class WolDeviceDialog extends TmmDialog {
       Pattern pattern = Pattern.compile("^([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})$");
       Matcher matcher = pattern.matcher(tfMacAddress.getText());
       if (!matcher.matches()) {
-        JOptionPane.showMessageDialog(null, BUNDLE.getString("message.invalidmac"));
+        JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.invalidmac"));
         return;
       }
 
@@ -131,7 +132,7 @@ public class WolDeviceDialog extends TmmDialog {
     private static final long serialVersionUID = -8416641526799936831L;
 
     CancelAction() {
-      putValue(NAME, BUNDLE.getString("Button.cancel"));
+      putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
       putValue(LARGE_ICON_KEY, IconManager.CANCEL_INV);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,79 +15,72 @@
  */
 package org.tinymediamanager.scraper.fanarttv;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.license.License;
-import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
-import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.FanartSizes;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
-import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.fanarttv.entities.Image;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
-import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
-import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
+import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
-
-import retrofit2.Response;
 
 /**
  * The Class FanartTvMetadataProvider. An artwork provider for the site fanart.tv
  *
  * @author Manuel Laggner
  */
-public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowArtworkProvider {
-  public static final String             ID           = "fanarttv";
-  private static final Logger            LOGGER       = LoggerFactory.getLogger(FanartTvMetadataProvider.class);
-  private static final MediaProviderInfo providerInfo = createMediaProviderInfo();
+abstract class FanartTvMetadataProvider implements IMediaProvider {
+  static final String             ID  = "fanarttv";
 
-  private static FanartTv                api          = null;
+  private final MediaProviderInfo providerInfo;
 
-  private static MediaProviderInfo createMediaProviderInfo() {
-    MediaProviderInfo providerInfo = new MediaProviderInfo(ID, "fanart.tv",
+  protected FanartTv              api = null;
+
+  FanartTvMetadataProvider() {
+    providerInfo = createMediaProviderInfo();
+  }
+
+  /**
+   * get the sub id of this scraper (for dedicated storage)
+   *
+   * @return the sub id
+   */
+  protected abstract String getSubId();
+
+  private MediaProviderInfo createMediaProviderInfo() {
+    MediaProviderInfo info = new MediaProviderInfo(ID, getSubId(), "fanart.tv",
         "<html><h3>Fanart.tv</h3><br />Fanart.tv provides a huge library of artwork for movies, TV shows and music. This service can be consumed with the API key tinyMediaManager offers, but if you want to have faster access to the artwork, you should become a VIP at fanart.tv (https://fanart.tv/vip/).</html>",
         FanartTvMetadataProvider.class.getResource("/org/tinymediamanager/scraper/fanart_tv.png"));
 
     // configure/load settings
-    providerInfo.getConfig().addText("clientKey", "", true);
-    providerInfo.getConfig().load();
+    info.getConfig().addText("clientKey", "", true);
+    info.getConfig().load();
 
-    return providerInfo;
-  }
-
-  public FanartTvMetadataProvider() {
+    return info;
   }
 
   // thread safe initialization of the API
-  private static synchronized void initAPI() throws ScrapeException {
+  protected synchronized void initAPI() throws ScrapeException {
     if (api == null) {
       try {
         api = new FanartTv();
       }
       catch (Exception e) {
-        LOGGER.error("FanartTvMetadataProvider", e);
+        getLogger().error("FanartTvMetadataProvider", e);
         throw new ScrapeException(e);
       }
     }
 
-    // API key check
+    // set API key check
     try {
-      String apiKey = License.getInstance().getApiKey(ID);
-      if (!apiKey.equals(api.getApiKey())) {
-        api.setApiKey(apiKey);
-      }
+      api.setApiKey(getApiKey());
     }
     catch (Exception e) {
       throw new ScrapeException(e);
@@ -100,191 +93,17 @@ public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowA
     }
   }
 
-  @Override
   public MediaProviderInfo getProviderInfo() {
     return providerInfo;
   }
 
-  @Override
-  public String getId() {
-    return ID;
+  public boolean isActive() {
+    return isFeatureEnabled() && isApiKeyAvailable(null);
   }
 
-  @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    LOGGER.debug("getArtwork() - {}", options);
+  abstract Logger getLogger();
 
-    // lazy initialization of the api
-    initAPI();
-
-    List<MediaArtwork> artwork;
-
-    switch (options.getMediaType()) {
-      case MOVIE:
-      case MOVIE_SET:
-        artwork = getMovieArtwork(options);
-        break;
-
-      case TV_SHOW:
-        artwork = getTvShowArtwork(options);
-        break;
-
-      default:
-        artwork = new ArrayList<>(1);
-    }
-
-    // buffer the artwork
-    MediaMetadata md = options.getMetadata();
-    if (md != null && !artwork.isEmpty()) {
-      md.addMediaArt(artwork);
-    }
-
-    return artwork;
-  }
-
-  // http://webservice.fanart.tv/v3/movies/559
-  private List<MediaArtwork> getMovieArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    MediaArtworkType artworkType = options.getArtworkType();
-    String language = null;
-    if (options.getLanguage() != null) {
-      language = options.getLanguage().getLanguage();
-      if (options.getLanguage().toLocale() != null && StringUtils.isNotBlank(options.getLanguage().toLocale().getCountry())) {
-        language += "-" + options.getLanguage().toLocale().getCountry();
-      }
-    }
-
-    List<MediaArtwork> returnArtwork = new ArrayList<>();
-
-    Response<Images> images = null;
-    String imdbId = options.getImdbId();
-    int tmdbId = options.getTmdbId();
-
-    // for movie sets we need another if
-    if (options.getMediaType() == MediaType.MOVIE_SET && options.getIdAsInt(MediaMetadata.TMDB_SET) > 0) {
-      tmdbId = options.getIdAsInt(MediaMetadata.TMDB_SET);
-    }
-
-    if (tmdbId == 0 && !MetadataUtil.isValidImdbId(imdbId)) {
-      throw new MissingIdException(MediaMetadata.IMDB, MediaMetadata.TMDB);
-    }
-
-    Exception savedException = null;
-
-    if (StringUtils.isNotBlank(imdbId)) {
-      try {
-        LOGGER.debug("getArtwork with IMDB id: {}", imdbId);
-        images = api.getMovieService().getMovieImages(imdbId).execute();
-      }
-      catch (Exception e) {
-        LOGGER.debug("failed to get artwork: {}", e.getMessage());
-        savedException = e;
-      }
-    }
-
-    if ((images == null || images.body() == null) && tmdbId != 0) {
-      try {
-        LOGGER.debug("getArtwork with TMDB id: {}", tmdbId);
-        images = api.getMovieService().getMovieImages(Integer.toString(tmdbId)).execute();
-      }
-      catch (Exception e) {
-        LOGGER.debug("failed to get artwork: {}", e.getMessage());
-        savedException = e;
-      }
-    }
-
-    // if there has been an exception and nothing has been found, throw this exception
-    if ((images == null || !images.isSuccessful()) && savedException != null) {
-      // if the thread has been interrupted, to no rethrow that exception
-      if (savedException instanceof InterruptedException || savedException instanceof InterruptedIOException) {
-        return returnArtwork;
-      }
-      throw new ScrapeException(savedException);
-    }
-
-    if (images == null) {
-      LOGGER.info("got no result");
-      return returnArtwork;
-    }
-    if (!images.isSuccessful()) {
-      String message = "";
-      try {
-        message = images.errorBody().string();
-      }
-      catch (IOException e) {
-        // ignore
-      }
-      LOGGER.warn("request was not successful: HTTP/{} - {}", images.code(), message);
-      return returnArtwork;
-    }
-
-    returnArtwork = getArtwork(images.body(), artworkType);
-    returnArtwork.sort(new MediaArtwork.MediaArtworkComparator(language));
-
-    return returnArtwork;
-  }
-
-  // http://webservice.fanart.tv/v3/tv/79349
-  private List<MediaArtwork> getTvShowArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-    MediaArtworkType artworkType = options.getArtworkType();
-    String language = null;
-    if (options.getLanguage() != null) {
-      language = options.getLanguage().getLanguage();
-      if (options.getLanguage().toLocale() != null && StringUtils.isNotBlank(options.getLanguage().toLocale().getCountry())) {
-        language += "-" + options.getLanguage().toLocale().getCountry();
-      }
-    }
-
-    List<MediaArtwork> returnArtwork = new ArrayList<>();
-
-    int tvdbId = options.getIdAsInt(MediaMetadata.TVDB);
-
-    // no ID found? try the old one
-    if (tvdbId == 0) {
-      tvdbId = options.getIdAsInt("tvdb");
-    }
-
-    if (tvdbId == 0) {
-      throw new MissingIdException(MediaMetadata.TVDB);
-    }
-
-    Response<Images> images = null;
-    try {
-      LOGGER.debug("getArtwork with TVDB id: {}", tvdbId);
-      images = api.getTvShowService().getTvShowImages(tvdbId).execute();
-    }
-    catch (Exception e) {
-      LOGGER.debug("failed to get artwork: {}", e.getMessage());
-      // if the thread has been interrupted, to no rethrow that exception
-      if (e instanceof InterruptedException || e instanceof InterruptedIOException) {
-        return returnArtwork;
-      }
-
-      throw new ScrapeException(e);
-    }
-
-    if (images == null) {
-      LOGGER.info("got no result");
-      return returnArtwork;
-    }
-    if (!images.isSuccessful()) {
-      String message = "";
-      try {
-        message = images.errorBody().string();
-      }
-      catch (IOException e) {
-        // ignore
-      }
-      LOGGER.warn("request was not successful: HTTP/{} - {}", images.code(), message);
-      return returnArtwork;
-    }
-
-    returnArtwork = getArtwork(images.body(), artworkType);
-    returnArtwork.sort(new MediaArtwork.MediaArtworkComparator(language));
-
-    return returnArtwork;
-  }
-
-  private List<MediaArtwork> getArtwork(Images images, MediaArtworkType artworkType) {
+  protected List<MediaArtwork> getArtwork(Images images, MediaArtworkType artworkType) {
     List<MediaArtwork> artworks = new ArrayList<>();
 
     switch (artworkType) {
@@ -390,7 +209,7 @@ public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowA
     return artworks;
   }
 
-  private List<MediaArtwork> prepareArtwork(List<Image> images, ImageType type) {
+  protected List<MediaArtwork> prepareArtwork(List<Image> images, ImageType type) {
     List<MediaArtwork> artworks = new ArrayList<>();
 
     for (Image image : ListUtils.nullSafe(images)) {
@@ -419,7 +238,7 @@ public class FanartTvMetadataProvider implements IMovieArtworkProvider, ITvShowA
           ma.setSeason(Integer.parseInt(image.season));
         }
         catch (Exception e) {
-          LOGGER.trace("could not parse int: {}", e.getMessage());
+          getLogger().trace("could not parse int: {}", e.getMessage());
         }
       }
       artworks.add(ma);

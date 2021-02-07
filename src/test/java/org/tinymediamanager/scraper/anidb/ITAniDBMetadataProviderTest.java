@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class ITAniDBMetadataProviderTest extends BasicTest {
 
   @Test
   public void testSearch() {
-    ITvShowMetadataProvider mp = new AniDBMetadataProvider();
+    ITvShowMetadataProvider mp = new AniDbTvShowMetadataProvider();
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery("Spider Riders");
@@ -67,7 +67,7 @@ public class ITAniDBMetadataProviderTest extends BasicTest {
 
   @Test
   public void testScrapeTvShow() {
-    ITvShowMetadataProvider mp = new AniDBMetadataProvider();
+    ITvShowMetadataProvider mp = new AniDbTvShowMetadataProvider();
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
@@ -111,7 +111,7 @@ public class ITAniDBMetadataProviderTest extends BasicTest {
 
   @Test
   public void testScrapeEpisode() {
-    ITvShowMetadataProvider mp = new AniDBMetadataProvider();
+    ITvShowMetadataProvider mp = new AniDbTvShowMetadataProvider();
     TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.en);
     options.setTvShowIds(Collections.singletonMap("anidb", "4242"));

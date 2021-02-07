@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,10 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
+import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
+import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
+import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.movie.entities.Movie;
 
@@ -85,10 +88,13 @@ public class MovieExporter extends MediaEntityExporter {
     engine.registerNamedRenderer(new NamedDateRenderer());
     engine.registerNamedRenderer(new NamedNumberRenderer());
     engine.registerNamedRenderer(new NamedUpperCaseRenderer());
+    engine.registerNamedRenderer(new NamedLowerCaseRenderer());
+    engine.registerNamedRenderer(new NamedTitleCaseRenderer());
     engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
     engine.registerNamedRenderer(new MovieFilenameRenderer());
     engine.registerNamedRenderer(new MovieArtworkCopyRenderer(exportDir));
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
+    engine.registerNamedRenderer(new NamedReplacementRenderer());
 
     // prepare export destination
     if (!Files.exists(exportDir)) {

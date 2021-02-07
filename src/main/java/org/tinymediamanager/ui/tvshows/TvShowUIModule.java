@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,12 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -71,9 +73,11 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowSelectedScrapeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSingleScrapeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSubtitleDownloadAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSubtitleSearchAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedCollectionTraktTvAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedRatingTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedTraktTvAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncTraktTvAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowSyncWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowToggleWatchedFlagAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateDatasourcesAction;
@@ -138,11 +142,11 @@ public class TvShowUIModule extends AbstractTmmUIModule {
       }
     };
 
-    tvShowDetailPanel.add(BUNDLE.getString("metatag.details"), new TvShowInformationPanel(tvShowSelectionModel));
-    tvShowDetailPanel.add(BUNDLE.getString("metatag.cast"), new TvShowCastPanel(tvShowSelectionModel));
-    tvShowDetailPanel.add(BUNDLE.getString("metatag.mediafiles"), new TvShowMediaInformationPanel(tvShowSelectionModel));
-    tvShowDetailPanel.add(BUNDLE.getString("metatag.artwork"), new TvShowArtworkPanel(tvShowSelectionModel));
-    tvShowDetailPanel.add(BUNDLE.getString("metatag.trailer"), new TrailerPanel(tvShowSelectionModel));
+    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.details"), new TvShowInformationPanel(tvShowSelectionModel));
+    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.cast"), new TvShowCastPanel(tvShowSelectionModel));
+    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.mediafiles"), new TvShowMediaInformationPanel(tvShowSelectionModel));
+    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.artwork"), new TvShowArtworkPanel(tvShowSelectionModel));
+    tvShowDetailPanel.add(TmmResourceBundle.getString("metatag.trailer"), new TrailerPanel(tvShowSelectionModel));
     dataPanel.add(tvShowDetailPanel, "tvShow");
 
     // panel for seasons
@@ -156,8 +160,8 @@ public class TvShowUIModule extends AbstractTmmUIModule {
         super.updateUI();
       }
     };
-    tvShowSeasonDetailPanel.add(BUNDLE.getString("metatag.details"), new TvShowSeasonInformationPanel(tvShowSeasonSelectionModel));
-    tvShowSeasonDetailPanel.add(BUNDLE.getString("metatag.mediafiles"), new TvShowSeasonMediaFilesPanel(tvShowSeasonSelectionModel));
+    tvShowSeasonDetailPanel.add(TmmResourceBundle.getString("metatag.details"), new TvShowSeasonInformationPanel(tvShowSeasonSelectionModel));
+    tvShowSeasonDetailPanel.add(TmmResourceBundle.getString("metatag.mediafiles"), new TvShowSeasonMediaFilesPanel(tvShowSeasonSelectionModel));
     dataPanel.add(tvShowSeasonDetailPanel, "tvShowSeason");
 
     // panel for episodes
@@ -172,9 +176,10 @@ public class TvShowUIModule extends AbstractTmmUIModule {
       }
     };
 
-    tvShowEpisodeDetailPanel.add(BUNDLE.getString("metatag.details"), new TvShowEpisodeInformationPanel(tvShowEpisodeSelectionModel));
-    tvShowEpisodeDetailPanel.add(BUNDLE.getString("metatag.cast"), new TvShowEpisodeCastPanel(tvShowEpisodeSelectionModel));
-    tvShowEpisodeDetailPanel.add(BUNDLE.getString("metatag.mediafiles"), new TvShowEpisodeMediaInformationPanel(tvShowEpisodeSelectionModel));
+    tvShowEpisodeDetailPanel.add(TmmResourceBundle.getString("metatag.details"), new TvShowEpisodeInformationPanel(tvShowEpisodeSelectionModel));
+    tvShowEpisodeDetailPanel.add(TmmResourceBundle.getString("metatag.cast"), new TvShowEpisodeCastPanel(tvShowEpisodeSelectionModel));
+    tvShowEpisodeDetailPanel.add(TmmResourceBundle.getString("metatag.mediafiles"),
+        new TvShowEpisodeMediaInformationPanel(tvShowEpisodeSelectionModel));
     dataPanel.add(tvShowEpisodeDetailPanel, "tvShowEpisode");
 
     // glass pane for searching/filtering
@@ -218,7 +223,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
   @Override
   public String getTabTitle() {
-    return BUNDLE.getString("tmm.tvshows");
+    return TmmResourceBundle.getString("tmm.tvshows");
   }
 
   @Override
@@ -257,7 +262,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(TvShowReadNfoAction.class));
     popupMenu.add(createAndRegisterAction(TvShowRewriteNfoAction.class));
 
-    JMenu mediainfoMenu = new JMenu(BUNDLE.getString("metatag.mediainformation"));
+    JMenu mediainfoMenu = new JMenu(TmmResourceBundle.getString("metatag.mediainformation"));
     mediainfoMenu.setIcon(IconManager.MENU);
     mediainfoMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));
     mediainfoMenu.add(createAndRegisterAction(TvShowRebuildMediainfoXmlAction.class));
@@ -268,7 +273,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.add(createAndRegisterAction(TvShowEditAction.class));
     popupMenu.add(createAndRegisterAction(TvShowBulkEditAction.class));
 
-    JMenu enhancedEditMenu = new JMenu(BUNDLE.getString("edit.enhanced"));
+    JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
     enhancedEditMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowFetchImdbRating.class));
@@ -295,8 +300,11 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     JMenu traktMenu = new JMenu("Trakt.tv");
     traktMenu.setIcon(IconManager.MENU);
     traktMenu.add(createAndRegisterAction(TvShowSyncTraktTvAction.class));
-    traktMenu.add(createAndRegisterAction(TvShowSyncWatchedTraktTvAction.class));
+    traktMenu.addSeparator();
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(TvShowSyncSelectedCollectionTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(TvShowSyncSelectedWatchedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(TvShowSyncSelectedRatingTraktTvAction.class));
     popupMenu.add(traktMenu);
     JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickTvShows();
     popupMenu.add(kodiRPCMenu);
@@ -327,7 +335,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
           kodiRPCMenu.setEnabled(false);
         }
 
-        if (StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
           traktMenu.setEnabled(true);
         }
         else {
@@ -393,6 +401,13 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
     editPopupMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
+
+    editPopupMenu.addSeparator();
+    editPopupMenu.add(createAndRegisterAction(TvShowSyncTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedCollectionTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedWatchedTraktTvAction.class));
+    editPopupMenu.add(createAndRegisterAction(TvShowSyncSelectedRatingTraktTvAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(TvShowMediaInformationAction.class));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.components;
 
 import java.awt.Toolkit;
-import java.util.ResourceBundle;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -24,14 +23,16 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.JTextComponent;
 
+import org.tinymediamanager.core.TmmResourceBundle;
+
 /**
  * The Class TextFieldPopupMenu.
  */
 public class TextFieldPopupMenu {
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+
 
   private static JMenuItem getCutMenuItem(final JPopupMenu menu) {
-    final JMenuItem mntmCut = new JMenuItem(BUNDLE.getString("menuitem.cut"));
+    final JMenuItem mntmCut = new JMenuItem(TmmResourceBundle.getString("menuitem.cut"));
     mntmCut.addActionListener(e -> {
       if (menu.getInvoker() instanceof JTextComponent) {
         ((JTextComponent) menu.getInvoker()).cut();
@@ -41,7 +42,7 @@ public class TextFieldPopupMenu {
   }
 
   private static JMenuItem getCopyMenuItem(final JPopupMenu menu) {
-    JMenuItem mntmCopy = new JMenuItem(BUNDLE.getString("menuitem.copy"));
+    JMenuItem mntmCopy = new JMenuItem(TmmResourceBundle.getString("menuitem.copy"));
     mntmCopy.addActionListener(e -> {
       if (menu.getInvoker() instanceof JTextComponent) {
         ((JTextComponent) menu.getInvoker()).copy();
@@ -51,7 +52,7 @@ public class TextFieldPopupMenu {
   }
 
   private static JMenuItem getPasteMenuItem(final JPopupMenu menu) {
-    JMenuItem mntmPaste = new JMenuItem(BUNDLE.getString("menuitem.paste"));
+    JMenuItem mntmPaste = new JMenuItem(TmmResourceBundle.getString("menuitem.paste"));
     mntmPaste.addActionListener(e -> {
       if (menu.getInvoker() instanceof JTextComponent) {
         ((JTextComponent) menu.getInvoker()).paste();

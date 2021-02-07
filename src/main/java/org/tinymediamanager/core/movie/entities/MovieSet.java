@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -48,6 +51,8 @@ import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -62,9 +67,12 @@ public class MovieSet extends MediaEntity {
   private static final Comparator<MediaFile> MEDIA_FILE_COMPARATOR = new MovieMediaFileComparator();
 
   @JsonProperty
-  private List<UUID>                         movieIds              = new ArrayList<>(0);
+  private final List<UUID>                   movieIds              = new ArrayList<>(0);
 
-  private List<Movie>                        movies                = new CopyOnWriteArrayList<>();
+  @JsonProperty
+  private final List<MovieSetMovie>          dummyMovies           = new CopyOnWriteArrayList<>();
+
+  private final List<Movie>                  movies                = new CopyOnWriteArrayList<>();
   private String                             titleSortable         = "";
 
   /**
@@ -98,6 +106,19 @@ public class MovieSet extends MediaEntity {
       if (movie != null && movie.getMovieSet() == this) {
         movies.add(movie);
       }
+    }
+
+    movies.sort(MOVIE_SET_COMPARATOR);
+
+    // rebuild the ID table the same way
+    movieIds.clear();
+    for (Movie movie : movies) {
+      movieIds.add(movie.getDbId());
+    }
+
+    // set the movie set reference in the dummy movies
+    for (MovieSetMovie movieSetMovie : dummyMovies) {
+      movieSetMovie.setMovieSet(this);
     }
   }
 
@@ -166,6 +187,7 @@ public class MovieSet extends MediaEntity {
    * @param type
    *          the {@link MediaFileType} for all {@link MediaFile}s to delete
    */
+  @Override
   public void deleteMediaFiles(MediaFileType type) {
     getMediaFiles(type).forEach(mediaFile -> {
       Utils.deleteFileSafely(mediaFile.getFile());
@@ -201,40 +223,16 @@ public class MovieSet extends MediaEntity {
   }
 
   /**
-   * Adds the movie to the end of the list
-   * 
-   * @param movie
-   *          the movie
-   */
-  public void addMovie(Movie movie) {
-    synchronized (movies) {
-      if (movies.contains(movie)) {
-        return;
-      }
-      movies.add(movie);
-      movieIds.add(movie.getDbId());
-
-      // update artwork
-      MovieSetArtworkHelper.updateArtwork(this);
-
-      saveToDb();
-    }
-
-    // write images
-    MovieSetArtworkHelper.writeImagesToMovieFolder(this, Collections.singletonList(movie));
-
-    firePropertyChange(Constants.ADDED_MOVIE, null, movie);
-    firePropertyChange("movies", null, movies);
-    firePropertyChange(Constants.WATCHED, null, movies);
-  }
-
-  /**
    * Inserts the movie into the right position of the list
    * 
    * @param movie
    *          the movie to insert into the movie set
    */
   public void insertMovie(Movie movie) {
+    if (movie instanceof MovieSetMovie) {
+      return;
+    }
+
     synchronized (movies) {
       if (movies.contains(movie)) {
         return;
@@ -252,16 +250,12 @@ public class MovieSet extends MediaEntity {
 
       // update artwork
       MovieSetArtworkHelper.updateArtwork(this);
-
-      saveToDb();
     }
 
     // write images
     MovieSetArtworkHelper.writeImagesToMovieFolder(this, Collections.singletonList(movie));
 
     firePropertyChange(Constants.ADDED_MOVIE, null, movie);
-    firePropertyChange("movies", null, movies);
-    firePropertyChange(Constants.WATCHED, null, movies);
   }
 
   /**
@@ -296,8 +290,6 @@ public class MovieSet extends MediaEntity {
     }
 
     firePropertyChange(Constants.REMOVED_MOVIE, null, movie);
-    firePropertyChange("movies", null, movies);
-    firePropertyChange(Constants.WATCHED, null, movies);
   }
 
   public List<Movie> getMovies() {
@@ -305,18 +297,40 @@ public class MovieSet extends MediaEntity {
   }
 
   /**
-   * Sort movies inside this movie set by using either the sort title, release date or year.
+   * build a list of <br>
+   * a) available movies along with<br>
+   * b) missing movies <br>
+   * for display in the movie set tree
+   *
+   * @return a list of _all_ movies
    */
-  public void sortMovies() {
-    synchronized (movies) {
-      movies.sort(MOVIE_SET_COMPARATOR);
-      // rebuild the ID table the same way
-      movieIds.clear();
-      for (Movie movie : movies) {
-        movieIds.add(movie.getDbId());
+  public List<Movie> getMoviesForDisplay() {
+    List<Movie> moviesForDisplay = new ArrayList<>(getMovies());
+
+    // now mix in all missing movies
+    if (MovieModuleManager.SETTINGS.isDisplayMovieSetMissingMovies() && ListUtils.isNotEmpty(dummyMovies)) {
+      for (MovieSetMovie movieSetMovie : dummyMovies) {
+        boolean found = false;
+
+        for (Movie movie : movies) {
+          if (movie.getTmdbId() > 0 && movie.getTmdbId() == movieSetMovie.getTmdbId()) {
+            found = true;
+            break;
+          }
+          if (MetadataUtil.isValidImdbId(movie.getImdbId()) && movie.getImdbId().equals(movieSetMovie.getImdbId())) {
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          moviesForDisplay.add(movieSetMovie);
+        }
       }
+      moviesForDisplay.sort(MOVIE_SET_COMPARATOR);
     }
-    firePropertyChange("movies", null, movies);
+
+    return moviesForDisplay;
   }
 
   /**
@@ -347,7 +361,6 @@ public class MovieSet extends MediaEntity {
     }
 
     firePropertyChange("removedAllMovies", oldValue, movies);
-    firePropertyChange("movies", null, movies);
   }
 
   /**
@@ -380,7 +393,7 @@ public class MovieSet extends MediaEntity {
    */
   public Boolean getHasImages() {
     for (MediaArtworkType type : MovieModuleManager.SETTINGS.getCheckImagesMovieSet()) {
-      if (StringUtils.isEmpty(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
+      if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
         return false;
       }
     }
@@ -515,34 +528,99 @@ public class MovieSet extends MediaEntity {
     saveToDb();
   }
 
+  public void setDummyMovies(List<MovieSetMovie> dummyMovies) {
+    this.dummyMovies.clear();
+    this.dummyMovies.addAll(dummyMovies);
+
+    firePropertyChange("dummyMovies", null, dummyMovies);
+  }
+
+  public List<MovieSetMovie> getDummyMovies() {
+    return dummyMovies;
+  }
+
+  @Override
+  public MediaRating getRating() {
+    return MediaMetadata.EMPTY_RATING;
+  }
+
   /*******************************************************************************
    * helper classses
    *******************************************************************************/
   private static class MovieInMovieSetComparator implements Comparator<Movie> {
+    private static final Comparator<Date> DATE_COMPARATOR = Comparator.nullsLast(Date::compareTo);
+
     @Override
     public int compare(Movie o1, Movie o2) {
       if (o1 == null || o2 == null) {
         return 0;
       }
 
-      // sort with release date if available
-      if (o1.getReleaseDate() != null && o2.getReleaseDate() != null) {
-        return o1.getReleaseDate().compareTo(o2.getReleaseDate());
+      // sort with year if available
+      int result = 0;
+      if (o1.getYear() > 0 && o2.getYear() > 0) {
+        result = o1.getYear() - o2.getYear();
+      }
+      if (result != 0) {
+        return result;
       }
 
-      // sort with year if available
-      if (o1.getYear() > 0 && o2.getYear() > 0) {
-        try {
-          int year1 = o1.getYear();
-          int year2 = o2.getYear();
-          return year1 - year2;
-        }
-        catch (Exception ignored) {
-        }
+      // sort with release date if available
+      result = DATE_COMPARATOR.compare(o1.getReleaseDate(), o2.getReleaseDate());
+      if (result != 0) {
+        return result;
       }
 
       // fallback: sort via title
       return o2.getTitleForUi().compareTo(o1.getTitleForUi());
+    }
+  }
+
+  /**
+   * the class {@link MovieSetMovie} is used to indicate that this is a missing movie in this movie set
+   */
+  public static class MovieSetMovie extends Movie {
+    @Override
+    public void writeNFO() {
+      // do nothing here
+    }
+
+    @Override
+    public void saveToDb() {
+      // do nothing here
+    }
+
+    @Override
+    public MediaFile getMainVideoFile() {
+      // per se no video file here
+      return new MediaFile();
+    }
+
+    @Override
+    public void writeActorImages() {
+      // do nothing here
+    }
+
+    @Override
+    public void rename() {
+      // do nothing here
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      return title.equals(((MovieSetMovie) o).getTitle());
+    }
+
+    @Override
+    public int hashCode() {
+      return new HashCodeBuilder().append(title).build();
     }
   }
 }

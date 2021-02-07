@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -43,10 +42,10 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.ITmmTabItem;
 import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
@@ -77,8 +76,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private static final long           serialVersionUID = -1681460428331929420L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+
+
 
   MovieSelectionModel                 selectionModel;
 
@@ -88,7 +87,6 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   private TmmTable                    movieTable;
   private JLabel                      lblMovieCountFiltered;
   private JLabel                      lblMovieCountTotal;
-  private JLabel                      lblLicenseHint;
   private JButton                     btnExtendedFilter;
 
   public MovieListPanel() {
@@ -142,8 +140,8 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     movieTable.configureScrollPane(scrollPane);
     add(scrollPane, "cell 0 1 2 1,grow");
 
-    btnExtendedFilter = new JButton(BUNDLE.getString("movieextendedsearch.filter"));
-    btnExtendedFilter.setToolTipText(BUNDLE.getString("movieextendedsearch.options"));
+    btnExtendedFilter = new JButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
+    btnExtendedFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
     btnExtendedFilter.addActionListener(e -> MovieUIModule.getInstance().setFilterDialogVisible(true));
     selectionModel.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
     add(btnExtendedFilter, "cell 1 0");
@@ -151,38 +149,22 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     JSeparator separator = new JSeparator();
     add(separator, "cell 0 2 2 1, growx");
 
-    JLabel lblMovieCount = new JLabel(BUNDLE.getString("tmm.movies") + ":");
+    JLabel lblMovieCount = new JLabel(TmmResourceBundle.getString("tmm.movies") + ":");
     add(lblMovieCount, "flowx,cell 0 3 2 1");
 
     lblMovieCountFiltered = new JLabel("");
     add(lblMovieCountFiltered, "cell 0 3 2 1");
 
-    JLabel lblMovieCountOf = new JLabel(BUNDLE.getString("tmm.of"));
+    JLabel lblMovieCountOf = new JLabel(TmmResourceBundle.getString("tmm.of"));
     add(lblMovieCountOf, "cell 0 3 2 1");
 
     lblMovieCountTotal = new JLabel("");
     add(lblMovieCountTotal, "cell 0 3 2 1");
 
-    lblLicenseHint = new JLabel(IconManager.WARN_INTENSIFIED);
-    lblLicenseHint.setToolTipText(BUNDLE.getString("tmm.license.hint1"));
-    add(lblLicenseHint, "cell 0 3 2 1");
-
     initDataBindings();
 
     // initialize filteredCount
     lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
-
-    License.getInstance().addEventListener(this::showHideLicenseHint);
-    showHideLicenseHint();
-  }
-
-  private void showHideLicenseHint() {
-    if (License.getInstance().isValidLicense()) {
-      lblLicenseHint.setVisible(false);
-    }
-    else {
-      lblLicenseHint.setVisible(true);
-    }
   }
 
   private void updateFilterIndicator() {

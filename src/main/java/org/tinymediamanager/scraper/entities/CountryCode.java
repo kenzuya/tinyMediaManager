@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -995,11 +995,13 @@ public enum CountryCode {
   private final String name;
   private final String alpha3;
   private final int    numeric;
+  private final Locale locale;
 
   private CountryCode(String name, String alpha3, int numeric) {
     this.name = name;
     this.alpha3 = alpha3;
     this.numeric = numeric;
+    this.locale = new Locale("", name());
   }
 
   /**
@@ -1106,6 +1108,6 @@ public enum CountryCode {
 
   @Override
   public String toString() {
-    return getName();
+    return name() + " - " + locale.getDisplayCountry();
   }
 }

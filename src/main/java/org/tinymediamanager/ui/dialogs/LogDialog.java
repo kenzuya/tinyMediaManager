@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import javax.swing.text.Document;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.TmmUILogAppender.LogOutput;
 import org.tinymediamanager.ui.TmmUILogCollector;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
@@ -46,7 +47,7 @@ public class LogDialog extends TmmDialog implements ActionListener {
   private final Timer         timerRefresh;
 
   public LogDialog() {
-    super(BUNDLE.getString("logwindow.title"), "log");
+    super(TmmResourceBundle.getString("logwindow.title"), "log");
     setBounds(5, 5, 1000, 590);
 
     timerRefresh = new Timer(REFRESH_PERIOD, this);
@@ -67,7 +68,7 @@ public class LogDialog extends TmmDialog implements ActionListener {
 
     taLogs.setText(TmmUILogCollector.instance.getLogOutput().getContent());
     {
-      JButton btnClose = new JButton(BUNDLE.getString("Button.close"));
+      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
       btnClose.addActionListener(arg0 -> setVisible(false));
       addDefaultButton(btnClose);
     }

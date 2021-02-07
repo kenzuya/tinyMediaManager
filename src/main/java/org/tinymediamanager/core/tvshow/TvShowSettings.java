@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.DateField;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
@@ -96,7 +96,6 @@ public class TvShowSettings extends AbstractSettings {
   private static final String                            BAD_WORD                               = "badWord";
   private static final String                            SKIP_FOLDER                            = "skipFolder";
   private static final String                            SUBTITLE_SCRAPERS                      = "subtitleScrapers";
-  private static final String                            UI_FILTERS                             = "uiFilters";
   private static final String                            NFO_FILENAME                           = "nfoFilename";
   private static final String                            POSTER_FILENAME                        = "posterFilename";
   private static final String                            FANART_FILENAME                        = "fanartFilename";
@@ -208,17 +207,20 @@ public class TvShowSettings extends AbstractSettings {
   // misc
   private boolean                                        buildImageCacheOnImport                = false;
   private boolean                                        syncTrakt                              = false;
+  private boolean                                        syncTraktCollection                    = true;
+  private boolean                                        syncTraktWatched                       = true;
+  private boolean                                        syncTraktRating                        = true;
   private boolean                                        dvdOrder                               = false;
   private boolean                                        preferPersonalRating                   = true;
   private String                                         preferredRating                        = "tvdb";
   private boolean                                        extractArtworkFromVsmeta               = false;
+  private boolean                                        useMediainfoMetadata                   = false;
 
   // ui
-  private boolean                                        storeUiFilters                         = false;
   private boolean                                        displayMissingEpisodes                 = false;
   private boolean                                        displayMissingSpecials                 = false;
   private boolean                                        capitalWordsinTitles                   = false;
-  private boolean                                        showLogosPanel                         = true;
+  private boolean                                        showTvShowTableTooltips                = true;
 
   public TvShowSettings() {
     super();
@@ -341,10 +343,10 @@ public class TvShowSettings extends AbstractSettings {
   @Override
   protected void writeDefaultSettings() {
     // activate default scrapers
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
       addTvShowSubtitleScraper(ms.getId());
     }
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TV_SHOW_ARTWORK)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK)) {
       addTvShowArtworkScraper(ms.getId());
     }
 
@@ -395,6 +397,15 @@ public class TvShowSettings extends AbstractSettings {
     tvShowDataSources.remove(path);
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
     firePropertyChange(Constants.DATA_SOURCE, null, tvShowDataSources);
+  }
+
+  public void exchangeTvShowDatasource(String oldDatasource, String newDatasource) {
+    int index = tvShowDataSources.indexOf(oldDatasource);
+    if (index > -1) {
+      tvShowDataSources.remove(oldDatasource);
+      tvShowDataSources.add(index, newDatasource);
+      TvShowList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+    }
   }
 
   public List<String> getTvShowDataSource() {
@@ -613,6 +624,16 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange("extractArtworkFromVsmeta", oldValue, newValue);
   }
 
+  public boolean isUseMediainfoMetadata() {
+    return useMediainfoMetadata;
+  }
+
+  public void setUseMediainfoMetadata(boolean newValue) {
+    boolean oldValue = this.useMediainfoMetadata;
+    this.useMediainfoMetadata = newValue;
+    firePropertyChange("useMediainfoMetadata", oldValue, newValue);
+  }
+
   public boolean isAsciiReplacement() {
     return asciiReplacement;
   }
@@ -721,6 +742,36 @@ public class TvShowSettings extends AbstractSettings {
 
   public boolean getSyncTrakt() {
     return syncTrakt;
+  }
+
+  public void setSyncTraktCollection(boolean newValue) {
+    boolean oldValue = this.syncTraktCollection;
+    this.syncTraktCollection = newValue;
+    firePropertyChange("syncTraktCollection", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktCollection() {
+    return syncTraktCollection;
+  }
+
+  public void setSyncTraktWatched(boolean newValue) {
+    boolean oldValue = this.syncTraktWatched;
+    this.syncTraktWatched = newValue;
+    firePropertyChange("syncTraktWatched", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktWatched() {
+    return syncTraktWatched;
+  }
+
+  public void setSyncTraktRating(boolean newValue) {
+    boolean oldValue = this.syncTraktRating;
+    this.syncTraktRating = newValue;
+    firePropertyChange("syncTraktRating", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktRating() {
+    return syncTraktRating;
   }
 
   public boolean isDvdOrder() {
@@ -1351,14 +1402,14 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
   }
 
-  public boolean isShowLogosPanel() {
-    return showLogosPanel;
+  public boolean isShowTvShowTableTooltips() {
+    return showTvShowTableTooltips;
   }
 
-  public void setShowLogosPanel(boolean newValue) {
-    boolean oldValue = showLogosPanel;
-    this.showLogosPanel = newValue;
-    firePropertyChange("showLogosPanel", oldValue, newValue);
+  public void setShowTvShowTableTooltips(boolean newValue) {
+    boolean oldValue = showTvShowTableTooltips;
+    showTvShowTableTooltips = newValue;
+    firePropertyChange("showTvShowTableTooltips", oldValue, newValue);
   }
 
   /*****************************************************************
@@ -1632,7 +1683,7 @@ public class TvShowSettings extends AbstractSettings {
   public void setDefaultScrapers() {
     // activate default scrapers
     artworkScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TV_SHOW_ARTWORK)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK)) {
       addTvShowArtworkScraper(ms.getId());
     }
 
@@ -1642,7 +1693,7 @@ public class TvShowSettings extends AbstractSettings {
     }
 
     subtitleScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.SUBTITLE)) {
+    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
       addTvShowSubtitleScraper(ms.getId());
     }
   }

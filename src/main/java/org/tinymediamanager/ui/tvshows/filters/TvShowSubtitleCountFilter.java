@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -79,7 +80,7 @@ public class TvShowSubtitleCountFilter extends AbstractCheckComboBoxTvShowUIFilt
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("metatag.subtitles"));
+    return new TmmLabel(TmmResourceBundle.getString("metatag.subtitles"));
   }
 
   @Override

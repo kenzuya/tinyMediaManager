@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package org.tinymediamanager.ui.tvshows.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -34,6 +34,7 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
@@ -44,10 +45,12 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
+import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
@@ -67,18 +70,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowScraperSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 4999827736720726395L;
-  /** @wbp.nls.resourceBundle messages */
-  private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages");
+  private static final long         serialVersionUID = 4999827736720726395L;
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
-  private List<TvShowScraper>         scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final TvShowSettings      settings         = TvShowModuleManager.SETTINGS;
+  private final List<TvShowScraper> scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
   /** UI components */
-  private TmmTable                    tableScraper;
-  private JTextPane                   tpScraperDescription;
-  private JScrollPane                 scrollPaneScraperDetails;
-  private JPanel                      panelScraperOptions;
+  private TmmTable                  tableScraper;
+  private JTextPane                 tpScraperDescription;
+  private JScrollPane               scrollPaneScraperDetails;
+  private JPanel                    panelScraperOptions;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -121,26 +122,27 @@ class TvShowScraperSettingsPanel extends JPanel {
     // adjust table columns
     // Checkbox and Logo shall have minimal width
     TableColumnResizer.setMaxWidthForColumn(tableScraper, 0, 2);
-    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 2);
+    TableColumnResizer.setMaxWidthForColumn(tableScraper, 1, 10);
     TableColumnResizer.adjustColumnPreferredWidths(tableScraper, 5);
 
     // implement listener to simulate button group
-    tableScraper.getModel().addTableModelListener(arg0 -> {
-      // click on the checkbox
-      if (arg0.getColumn() == 0) {
-        int row = arg0.getFirstRow();
-        TvShowScraper changedScraper = scrapers.get(row);
-        // if flag inNFO was changed, change all other trailers flags
-        if (changedScraper.getDefaultScraper()) {
-          settings.setScraper(changedScraper.getScraperId());
-          for (TvShowScraper scraper : scrapers) {
-            if (scraper != changedScraper) {
-              scraper.setDefaultScraper(Boolean.FALSE);
+    tableScraper.getModel()
+        .addTableModelListener(arg0 -> {
+          // click on the checkbox
+          if (arg0.getColumn() == 0) {
+            int row = arg0.getFirstRow();
+            TvShowScraper changedScraper = scrapers.get(row);
+            // if flag inNFO was changed, change all other trailers flags
+            if (changedScraper.getDefaultScraper()) {
+              settings.setScraper(changedScraper.getScraperId());
+              for (TvShowScraper scraper : scrapers) {
+                if (scraper != changedScraper) {
+                  scraper.setDefaultScraper(Boolean.FALSE);
+                }
+              }
             }
           }
-        }
-      }
-    });
+        });
 
     // implement selection listener to load settings
     tableScraper.getSelectionModel().addListSelectionListener(e -> {
@@ -166,12 +168,20 @@ class TvShowScraperSettingsPanel extends JPanel {
     {
       JPanel panelScraper = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][grow]", "[][shrink 0][200lp:600lp,grow]"));
 
-      JLabel lblScraper = new TmmLabel(BUNDLE.getString("scraper.metadata"), H3);
+      JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelScraper, lblScraper, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#scraper"));
       add(collapsiblePanel, "cell 0 0,wmin 0,grow");
       {
-        tableScraper = new TmmTable();
+        tableScraper = new TmmTable() {
+          @Override
+          public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            java.awt.Component comp = super.prepareRenderer(renderer, row, column);
+            ScraperInTable scraper = scrapers.get(row);
+            comp.setEnabled(scraper.isEnabled());
+            return comp;
+          }
+        };
         tableScraper.setRowHeight(29);
         tableScraper.setShowGrid(true);
         panelScraper.add(tableScraper, "cell 1 0,grow");
@@ -208,13 +218,18 @@ class TvShowScraperSettingsPanel extends JPanel {
         tableScraper);
     //
     BeanProperty<TvShowScraper, Boolean> tvShowScraperBeanProperty = BeanProperty.create("defaultScraper");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty).setColumnName(BUNDLE.getString("Settings.default")).setColumnClass(Boolean.class);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty)
+        .setColumnName(TmmResourceBundle.getString("Settings.active"))
+        .setColumnClass(Boolean.class);
     //
     BeanProperty<TvShowScraper, Icon> tvShowScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_1).setColumnClass(Icon.class).setEditable(false);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_1)
+        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
+        .setColumnClass(Icon.class)
+        .setEditable(false);
     //
     BeanProperty<TvShowScraper, String> tvShowScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_2).setColumnName(BUNDLE.getString("metatag.name")).setEditable(false);
+    jTableBinding.addColumnBinding(tvShowScraperBeanProperty_2).setColumnName(TmmResourceBundle.getString("metatag.name")).setEditable(false);
     //
     jTableBinding.bind();
     //

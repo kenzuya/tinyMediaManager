@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,31 +66,33 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
   public static final MediaGenres              HOLIDAY         = new MediaGenres("HOLIDAY", 19, "Holiday", new String[] { "Travel" });
   public static final MediaGenres              HORROR          = new MediaGenres("HORROR", 20, "Horror");
   public static final MediaGenres              INDIE           = new MediaGenres("INDIE", 21, "Indie", new String[] { "Special Interest" });
-  public static final MediaGenres              MUSIC           = new MediaGenres("MUSIC", 22, "Music");
-  public static final MediaGenres              MUSICAL         = new MediaGenres("MUSICAL", 23, "Musical");
-  public static final MediaGenres              MYSTERY         = new MediaGenres("MYSTERY", 24, "Mystery");
-  public static final MediaGenres              NEO_NOIR        = new MediaGenres("NEO_NOIR", 25, "Neo Noir");
-  public static final MediaGenres              NEWS            = new MediaGenres("NEWS", 26, "News");
-  public static final MediaGenres              REALITY_TV      = new MediaGenres("REALITY_TV", 27, "Reality TV", new String[] { "Reality" });
-  public static final MediaGenres              ROAD_MOVIE      = new MediaGenres("ROAD_MOVIE", 28, "Road Movie");
-  public static final MediaGenres              ROMANCE         = new MediaGenres("ROMANCE", 29, "Romance");
-  public static final MediaGenres              SCIENCE_FICTION = new MediaGenres("SCIENCE_FICTION", 30, "Science Fiction",
+  public static final MediaGenres              MINI_SERIES     = new MediaGenres("MINI_SERIES", 22, "Mini-Series");
+  public static final MediaGenres              MUSIC           = new MediaGenres("MUSIC", 23, "Music");
+  public static final MediaGenres              MUSICAL         = new MediaGenres("MUSICAL", 24, "Musical");
+  public static final MediaGenres              MYSTERY         = new MediaGenres("MYSTERY", 25, "Mystery");
+  public static final MediaGenres              NEO_NOIR        = new MediaGenres("NEO_NOIR", 26, "Neo Noir");
+  public static final MediaGenres              NEWS            = new MediaGenres("NEWS", 27, "News");
+  public static final MediaGenres              REALITY_TV      = new MediaGenres("REALITY_TV", 28, "Reality TV", new String[] { "Reality" });
+  public static final MediaGenres              ROAD_MOVIE      = new MediaGenres("ROAD_MOVIE", 29, "Road Movie");
+  public static final MediaGenres              ROMANCE         = new MediaGenres("ROMANCE", 30, "Romance");
+  public static final MediaGenres              SCIENCE_FICTION = new MediaGenres("SCIENCE_FICTION", 31, "Science Fiction",
       new String[] { "Sci-Fi", "Science-Fiction" });
-  public static final MediaGenres              SERIES          = new MediaGenres("SERIES", 31, "Series", new String[] { "Soap", "Mini-Series" });
-  public static final MediaGenres              SHORT           = new MediaGenres("SHORT", 32, "Short");
-  public static final MediaGenres              SILENT_MOVIE    = new MediaGenres("SILENT_MOVIE", 33, "Silent Movie");
-  public static final MediaGenres              SPORT           = new MediaGenres("SPORT", 34, "Sport");
-  public static final MediaGenres              SPORTING_EVENT  = new MediaGenres("SPORTING_EVENT", 35, "Sporting Event");
-  public static final MediaGenres              SPORTS_FILM     = new MediaGenres("SPORTS_FILM", 36, "Sports Film");
-  public static final MediaGenres              SUSPENSE        = new MediaGenres("SUSPENSE", 37, "Suspense");
-  public static final MediaGenres              TALK_SHOW       = new MediaGenres("TALK_SHOW", 38, "Talk Show");
-  public static final MediaGenres              TV_MOVIE        = new MediaGenres("TV_MOVIE", 39, "TV Movie");
-  public static final MediaGenres              THRILLER        = new MediaGenres("THRILLER", 40, "Thriller");
-  public static final MediaGenres              WAR             = new MediaGenres("WAR", 41, "War");
-  public static final MediaGenres              WESTERN         = new MediaGenres("WESTERN", 42, "Western");
+  public static final MediaGenres              SERIES          = new MediaGenres("SERIES", 32, "Series");
+  public static final MediaGenres              SHORT           = new MediaGenres("SHORT", 33, "Short");
+  public static final MediaGenres              SILENT_MOVIE    = new MediaGenres("SILENT_MOVIE", 34, "Silent Movie");
+  public static final MediaGenres              SOAP            = new MediaGenres("SOAP", 35, "Soap");
+  public static final MediaGenres              SPORT           = new MediaGenres("SPORT", 36, "Sport");
+  public static final MediaGenres              SPORTING_EVENT  = new MediaGenres("SPORTING_EVENT", 37, "Sporting Event");
+  public static final MediaGenres              SPORTS_FILM     = new MediaGenres("SPORTS_FILM", 38, "Sports Film");
+  public static final MediaGenres              SUSPENSE        = new MediaGenres("SUSPENSE", 39, "Suspense");
+  public static final MediaGenres              TALK_SHOW       = new MediaGenres("TALK_SHOW", 40, "Talk Show");
+  public static final MediaGenres              TV_MOVIE        = new MediaGenres("TV_MOVIE", 41, "TV Movie");
+  public static final MediaGenres              THRILLER        = new MediaGenres("THRILLER", 42, "Thriller");
+  public static final MediaGenres              WAR             = new MediaGenres("WAR", 43, "War");
+  public static final MediaGenres              WESTERN         = new MediaGenres("WESTERN", 44, "Western");
 
-  private String                               name;
-  private String[]                             alternateNames;
+  private final String                         name;
+  private final String[]                       alternateNames;
 
   /**
    * Instantiates a new genres.
@@ -313,7 +315,7 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
    * @param listener
    *          the new listener to be added
    */
-  public static void addListener(DynaEnumEventListener listener) {
+  public static void addListener(DynaEnumEventListener<?> listener) {
     addListener(MediaGenres.class, listener);
   }
 
@@ -323,7 +325,7 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
    * @param listener
    *          the listener to be removed
    */
-  public static void removeListener(DynaEnumEventListener listener) {
+  public static void removeListener(DynaEnumEventListener<?> listener) {
     removeListener(MediaGenres.class, listener);
   }
 }

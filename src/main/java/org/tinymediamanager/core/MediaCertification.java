@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.tinymediamanager.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.tinymediamanager.scraper.entities.CountryCode;
 
@@ -241,7 +240,7 @@ public enum MediaCertification {
     UNKNOWN(null, "unknown", new String[] { "unknown" });
   // @formatter:on
 
-  private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
+  
 
   private CountryCode                 country;
   private String                      name;
@@ -327,7 +326,7 @@ public enum MediaCertification {
   public String toString() {
     if (this == UNKNOWN) {
       try {
-        return BUNDLE.getString("MediaCertification." + name());
+        return TmmResourceBundle.getString("MediaCertification." + name());
       }
       catch (Exception ignored) {
         // fallback

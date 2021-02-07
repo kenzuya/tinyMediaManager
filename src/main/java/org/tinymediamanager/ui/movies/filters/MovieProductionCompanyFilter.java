@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import javax.swing.JLabel;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -59,6 +60,6 @@ public class MovieProductionCompanyFilter extends AbstractTextMovieUIFilter {
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movieextendedsearch.productioncompany"));
+    return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.productioncompany"));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.ui.tvshows.dialogs;
 
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 import static org.tinymediamanager.ui.TmmUIHelper.createLinkForImage;
 
 import java.awt.BorderLayout;
@@ -25,7 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
@@ -54,7 +55,6 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -64,13 +64,13 @@ import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
-import org.tinymediamanager.core.TmmProperties;
-import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
@@ -83,11 +83,14 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.FlatButton;
@@ -105,6 +108,7 @@ import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
 import org.tinymediamanager.ui.components.datepicker.DatePicker;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.IdEditorDialog;
+import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
@@ -184,7 +188,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
    *          the queue size
    */
   public TvShowEpisodeEditorDialog(TvShowEpisode episode, int queueIndex, int queueSize) {
-    super(BUNDLE.getString("tvshowepisode.edit") + "  < " + episode.getMainVideoFile().getFilename() + " >", DIALOG_ID);
+    super(TmmResourceBundle.getString("tvshowepisode.edit") + "  < " + episode.getMainVideoFile().getFilename() + " >", DIALOG_ID);
 
     // creation of lists
     guests = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(Person.class));
@@ -253,12 +257,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       JPanel detailsPanel = new JPanel();
-      tabbedPane.addTab(BUNDLE.getString("metatag.details"), detailsPanel);
+      tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), detailsPanel);
       detailsPanel.setLayout(new MigLayout("", "[][20lp:75lp,grow][50lp:75lp][][60lp:75lp][50lp:75lp][20lp:n][][25lp:n][200lp:250lp,grow]",
           "[][][][][][][100lp:125lp:30%,grow][][][][100lp:15%:20%,grow][pref:pref:pref][]"));
 
       {
-        JLabel lblTitle = new TmmLabel(BUNDLE.getString("metatag.title"));
+        JLabel lblTitle = new TmmLabel(TmmResourceBundle.getString("metatag.title"));
         detailsPanel.add(lblTitle, "cell 0 0,alignx right");
 
         tfTitle = new JTextField();
@@ -280,66 +284,66 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(btnPlay, "cell 1 0 7 1");
       }
       {
-        JLabel lblOriginalTitleT = new TmmLabel(BUNDLE.getString("metatag.originaltitle"));
+        JLabel lblOriginalTitleT = new TmmLabel(TmmResourceBundle.getString("metatag.originaltitle"));
         detailsPanel.add(lblOriginalTitleT, "cell 0 1,alignx trailing");
 
         tfOriginalTitle = new JTextField();
         detailsPanel.add(tfOriginalTitle, "cell 1 1 7 1,growx");
       }
       {
-        JLabel lblSeason = new TmmLabel(BUNDLE.getString("metatag.season"));
+        JLabel lblSeason = new TmmLabel(TmmResourceBundle.getString("metatag.season"));
         detailsPanel.add(lblSeason, "cell 0 2,alignx right");
 
         spSeason = new JSpinner();
         detailsPanel.add(spSeason, "cell 1 2,growx");
 
-        JLabel lblEpisode = new TmmLabel(BUNDLE.getString("metatag.episode"));
+        JLabel lblEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.episode"));
         detailsPanel.add(lblEpisode, "cell 3 2,alignx right");
 
         spEpisode = new JSpinner();
         detailsPanel.add(spEpisode, "cell 4 2,growx");
       }
       {
-        JLabel lblFirstAired = new TmmLabel(BUNDLE.getString("metatag.aired"));
+        JLabel lblFirstAired = new TmmLabel(TmmResourceBundle.getString("metatag.aired"));
         detailsPanel.add(lblFirstAired, "cell 0 3,alignx right");
       }
 
       dpFirstAired = new DatePicker(episodeToEdit.getFirstAired());
       detailsPanel.add(dpFirstAired, "cell 1 3 2 1,growx");
       {
-        JLabel lblDvdSeason = new TmmLabel(BUNDLE.getString("metatag.dvdseason"));
+        JLabel lblDvdSeason = new TmmLabel(TmmResourceBundle.getString("metatag.dvdseason"));
         detailsPanel.add(lblDvdSeason, "cell 0 4,alignx right,aligny center");
 
         spDvdSeason = new JSpinner();
         detailsPanel.add(spDvdSeason, "cell 1 4,growx");
 
-        JLabel lblDvdEpisode = new TmmLabel(BUNDLE.getString("metatag.dvdepisode"));
+        JLabel lblDvdEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.dvdepisode"));
         detailsPanel.add(lblDvdEpisode, "cell 3 4,alignx right");
 
         spDvdEpisode = new JSpinner();
         detailsPanel.add(spDvdEpisode, "cell 4 4,growx");
 
-        JLabel lblDvdOrder = new TmmLabel(BUNDLE.getString("metatag.dvdorder"));
+        JLabel lblDvdOrder = new TmmLabel(TmmResourceBundle.getString("metatag.dvdorder"));
         detailsPanel.add(lblDvdOrder, "flowx,cell 6 4 2 1");
 
         cbDvdOrder = new JCheckBox("");
         detailsPanel.add(cbDvdOrder, "cell 6 4 2 1");
       }
       {
-        JLabel lblDisplaySeason = new TmmLabel(BUNDLE.getString("metatag.displayseason"));
+        JLabel lblDisplaySeason = new TmmLabel(TmmResourceBundle.getString("metatag.displayseason"));
         detailsPanel.add(lblDisplaySeason, "cell 0 5,alignx right");
 
         spDisplaySeason = new JSpinner();
         detailsPanel.add(spDisplaySeason, "cell 1 5,growx");
 
-        JLabel lblDisplayEpisode = new TmmLabel(BUNDLE.getString("metatag.displayepisode"));
+        JLabel lblDisplayEpisode = new TmmLabel(TmmResourceBundle.getString("metatag.displayepisode"));
         detailsPanel.add(lblDisplayEpisode, "cell 3 5,alignx right");
 
         spDisplayEpisode = new JSpinner();
         detailsPanel.add(spDisplayEpisode, "cell 4 5,growx");
       }
       {
-        JLabel lblPlot = new TmmLabel(BUNDLE.getString("metatag.plot"));
+        JLabel lblPlot = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         detailsPanel.add(lblPlot, "cell 0 6,alignx right,aligny top");
 
         JScrollPane scrollPane = new JScrollPane();
@@ -351,13 +355,13 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         scrollPane.setViewportView(taPlot);
       }
       {
-        detailsPanel.add(new TmmLabel(BUNDLE.getString("mediafiletype.thumb")), "cell 9 0");
+        detailsPanel.add(new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb")), "cell 9 0");
 
         LinkLabel lblThumbSize = new LinkLabel();
         detailsPanel.add(lblThumbSize, "cell 9 0");
 
         JButton btnDeleteThumb = new FlatButton(SPACER, IconManager.DELETE_GRAY);
-        btnDeleteThumb.setToolTipText(BUNDLE.getString("Button.deleteartwork.desc"));
+        btnDeleteThumb.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
         btnDeleteThumb.addActionListener(e -> {
           lblThumb.clearImage();
           tfThumb.setText("");
@@ -369,15 +373,22 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         lblThumb.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            String path = TmmProperties.getInstance().getProperty(DIALOG_ID + ".path");
-            Path file = TmmUIHelper.selectFile(BUNDLE.getString("image.choose"), path,
-                new FileNameExtensionFilter("Image files", ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tbn"));
-            if (file != null && Utils.isRegularFile(file)) {
-              String fileName = file.toAbsolutePath().toString();
-              TmmProperties.getInstance().putProperty(DIALOG_ID + ".path", file.getParent().toString());
-              lblThumb.setImageUrl("file:/" + fileName);
-              tfThumb.setText(lblThumb.getImageUrl());
+            Map<String, Object> newIds = new HashMap<>(episodeToEdit.getIds());
+            newIds.put("seasonNr", spSeason.getValue());
+            newIds.put("episodeNr", spEpisode.getValue());
+            newIds.put("mediaFile", episodeToEdit.getMainFile());
+            newIds.put("tvShowIds", episodeToEdit.getTvShow().getIds());
+
+            ImageChooserDialog dialog = new ImageChooserDialog(TvShowEpisodeEditorDialog.this, newIds, THUMB, tvShowList.getDefaultArtworkScrapers(),
+                lblThumb, MediaType.TV_EPISODE);
+
+            if (Globals.settings.isImageChooserUseEntityFolder()) {
+              dialog.setOpenFolderPath(episodeToEdit.getPathNIO().toAbsolutePath().toString());
             }
+
+            dialog.setLocationRelativeTo(MainWindow.getInstance());
+            dialog.setVisible(true);
+            updateArtworkUrl(lblThumb, tfThumb);
           }
         });
         lblThumb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -385,14 +396,14 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         lblThumb.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, MediaFileType.THUMB));
       }
       {
-        JLabel lblRating = new TmmLabel(BUNDLE.getString("metatag.userrating"));
+        JLabel lblRating = new TmmLabel(TmmResourceBundle.getString("metatag.userrating"));
         detailsPanel.add(lblRating, "cell 0 9,alignx right");
 
         spRating = new JSpinner();
         detailsPanel.add(spRating, "cell 1 9,growx");
       }
       {
-        JLabel lblRatingsT = new TmmLabel(BUNDLE.getString("metatag.ratings"));
+        JLabel lblRatingsT = new TmmLabel(TmmResourceBundle.getString("metatag.ratings"));
         detailsPanel.add(lblRatingsT, "flowy,cell 0 10,alignx right,aligny top");
 
         JScrollPane scrollPaneRatings = new JScrollPane();
@@ -408,7 +419,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         detailsPanel.add(btnRemoveRating, "cell 0 10,alignx right,aligny top");
       }
       {
-        JLabel lblNoteT = new TmmLabel(BUNDLE.getString("metatag.note"));
+        JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
         detailsPanel.add(lblNoteT, "cell 0 12,alignx trailing");
 
         tfNote = new JTextField();
@@ -421,31 +432,31 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       JPanel details2Panel = new JPanel();
-      tabbedPane.addTab(BUNDLE.getString("metatag.details2"), details2Panel);
+      tabbedPane.addTab(TmmResourceBundle.getString("metatag.details2"), details2Panel);
       details2Panel.setLayout(new MigLayout("", "[][][20lp:50lp][][20lp:n][][300lp:300lp]", "[][][20lp:n][100lp:150lp,grow][][][][grow 200]"));
       {
-        JLabel lblDateAdded = new TmmLabel(BUNDLE.getString("metatag.dateadded"));
+        JLabel lblDateAdded = new TmmLabel(TmmResourceBundle.getString("metatag.dateadded"));
         details2Panel.add(lblDateAdded, "cell 0 0,alignx right");
 
         spDateAdded = new JSpinner(new SpinnerDateModel());
         details2Panel.add(spDateAdded, "cell 1 0,growx");
       }
       {
-        JLabel lblWatched = new TmmLabel(BUNDLE.getString("metatag.watched"));
+        JLabel lblWatched = new TmmLabel(TmmResourceBundle.getString("metatag.watched"));
         details2Panel.add(lblWatched, "flowx,cell 3 0,alignx right");
 
         chckbxWatched = new JCheckBox("");
         details2Panel.add(chckbxWatched, "cell 3 0");
       }
       {
-        JLabel lblMediasource = new TmmLabel(BUNDLE.getString("metatag.source"));
+        JLabel lblMediasource = new TmmLabel(TmmResourceBundle.getString("metatag.source"));
         details2Panel.add(lblMediasource, "cell 0 1,alignx right");
 
         cbMediaSource = new AutocompleteComboBox(MediaSource.values());
         details2Panel.add(cbMediaSource, "cell 1 1,growx");
       }
       {
-        JLabel lblTags = new TmmLabel(BUNDLE.getString("metatag.tags"));
+        JLabel lblTags = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
         details2Panel.add(lblTags, "flowy,cell 0 3,alignx right,aligny top");
 
         JScrollPane scrollPaneTags = new JScrollPane();
@@ -476,7 +487,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         cbTags.getActionMap().put(enterAction, new AddTagAction());
       }
       {
-        JLabel label = new TmmLabel(BUNDLE.getString("metatag.ids"));
+        JLabel label = new TmmLabel(TmmResourceBundle.getString("metatag.ids"));
         details2Panel.add(label, "flowy,cell 5 3,alignx right,aligny top");
 
         JScrollPane scrollPaneIds = new JScrollPane();
@@ -493,7 +504,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       }
 
       {
-        JLabel lblThumbT = new TmmLabel(BUNDLE.getString("mediafiletype.thumb"));
+        JLabel lblThumbT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
         details2Panel.add(lblThumbT, "cell 0 6,alignx right");
 
         tfThumb = new JTextField();
@@ -507,10 +518,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
      **********************************************************************************/
     {
       JPanel crewPanel = new JPanel();
-      tabbedPane.addTab(BUNDLE.getString("movie.edit.castandcrew"), null, crewPanel, null);
+      tabbedPane.addTab(TmmResourceBundle.getString("movie.edit.castandcrew"), null, crewPanel, null);
       crewPanel.setLayout(new MigLayout("", "[][150lp:300lp,grow][20lp:n][][150lp:300lp,grow]", "[100lp:250lp][20lp:n][100lp:200lp]"));
       {
-        JLabel lblGuests = new TmmLabel(BUNDLE.getString("metatag.guests"));
+        JLabel lblGuests = new TmmLabel(TmmResourceBundle.getString("metatag.guests"));
         crewPanel.add(lblGuests, "flowy,cell 0 0,alignx right,aligny top");
 
         tableGuests = new PersonTable(guests, true);
@@ -520,7 +531,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(scrollPane, "cell 1 0,grow");
       }
       {
-        JLabel lblDirectorsT = new TmmLabel(BUNDLE.getString("metatag.directors"));
+        JLabel lblDirectorsT = new TmmLabel(TmmResourceBundle.getString("metatag.directors"));
         crewPanel.add(lblDirectorsT, "flowy,cell 0 2,alignx right,aligny top");
 
         tableDirectors = new PersonTable(directors, true);
@@ -530,7 +541,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         crewPanel.add(scrollPane, "cell 1 2,grow");
       }
       {
-        JLabel lblWritersT = new TmmLabel(BUNDLE.getString("metatag.writers"));
+        JLabel lblWritersT = new TmmLabel(TmmResourceBundle.getString("metatag.writers"));
         crewPanel.add(lblWritersT, "flowy,cell 3 2,alignx right,aligny top");
 
         tableWriters = new PersonTable(writers, true);
@@ -594,7 +605,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
      *********************************************************************************/
     {
       mediaFilesPanel = new MediaFileEditorPanel(mediaFiles);
-      tabbedPane.addTab(BUNDLE.getString("metatag.mediafiles"), null, mediaFilesPanel, null); // $NON-NLS-1$
+      tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediafiles"), null, mediaFilesPanel, null); // $NON-NLS-1$
     }
 
     /**********************************************************************************
@@ -604,7 +615,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       JPanel scrapePanel = new JPanel();
       scrapePanel.setOpaque(false);
 
-      cbScraper = new MediaScraperComboBox(tvShowList.getAvailableMediaScrapers());
+      cbScraper = new MediaScraperComboBox(tvShowList.getAvailableMediaScrapers()
+          .stream()
+          .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
+          .collect(Collectors.toList()));
       MediaScraper defaultScraper = tvShowList.getDefaultMediaScraper();
       scrapePanel.setLayout(new MigLayout("", "[100lp:200lp][][][grow]", "[]"));
       cbScraper.setSelectedItem(defaultScraper);
@@ -636,6 +650,12 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     }
   }
 
+  private void updateArtworkUrl(ImageLabel imageLabel, JTextField textField) {
+    if (StringUtils.isNotBlank(imageLabel.getImageUrl())) {
+      textField.setText(imageLabel.getImageUrl());
+    }
+  }
+
   /**
    * Shows the dialog and returns whether the work on the queue should be continued.
    * 
@@ -650,7 +670,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -4799506776650330500L;
 
     ScrapeAction() {
-      putValue(NAME, BUNDLE.getString("Button.scrape"));
+      putValue(NAME, TmmResourceBundle.getString("Button.scrape"));
     }
 
     @Override
@@ -665,7 +685,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -4799506776650330500L;
 
     SearchAction() {
-      putValue(NAME, BUNDLE.getString("tvshowepisodechooser.search"));
+      putValue(NAME, TmmResourceBundle.getString("tvshowepisodechooser.search"));
       putValue(SMALL_ICON, IconManager.SEARCH_INV);
     }
 
@@ -676,7 +696,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       dialog.setLocationRelativeTo(TvShowEpisodeEditorDialog.this);
       dialog.setVisible(true);
       MediaMetadata metadata = dialog.getMetadata();
-      if (metadata != null && metadata.getSeasonNumber() > -1 && metadata.getEpisodeNumber() > 0) {
+      if (metadata != null && metadata.getSeasonNumber() > -1 && metadata.getEpisodeNumber() > -1) {
         tfTitle.setText(metadata.getTitle());
         tfOriginalTitle.setText(metadata.getOriginalTitle());
         taPlot.setText(metadata.getPlot());
@@ -722,8 +742,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -4799506776650330500L;
 
     ChangeEpisodeAction() {
-      putValue(NAME, BUNDLE.getString("Button.ok"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.change"));
+      putValue(NAME, TmmResourceBundle.getString("Button.ok"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.change"));
       putValue(SMALL_ICON, IconManager.APPLY_INV);
     }
 
@@ -845,8 +865,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -5581329896797961536L;
 
     DiscardAction() {
-      putValue(NAME, BUNDLE.getString("Button.cancel"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("edit.discard"));
+      putValue(NAME, TmmResourceBundle.getString("Button.cancel"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("edit.discard"));
       putValue(SMALL_ICON, IconManager.CANCEL_INV);
     }
 
@@ -860,8 +880,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -7652218354710642510L;
 
     AbortQueueAction() {
-      putValue(NAME, BUNDLE.getString("Button.abortqueue"));
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("tvshow.edit.abortqueue.desc"));
+      putValue(NAME, TmmResourceBundle.getString("Button.abortqueue"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.edit.abortqueue.desc"));
       putValue(SMALL_ICON, IconManager.STOP_INV);
     }
 
@@ -898,11 +918,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         LOGGER.info("=====================================================");
         metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
       }
-      catch (ScrapeException e) {
-        LOGGER.error("getMetadata", e);
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, TvShowEpisodeEditorDialog.this.episodeToEdit,
-            "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
-      }
       catch (MissingIdException e) {
         LOGGER.warn("missing id for scrape");
         MessageManager.instance
@@ -910,6 +925,11 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       }
       catch (NothingFoundException ignored) {
         LOGGER.debug("nothing found");
+      }
+      catch (ScrapeException e) {
+        LOGGER.error("getMetadata", e);
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, TvShowEpisodeEditorDialog.this.episodeToEdit,
+            "message.scrape.metadataepisodefailed", new String[] { ":", e.getLocalizedMessage() }));
       }
 
       setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -923,7 +943,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       // if nothing has been found -> open the search box
       if (metadata == null || StringUtils.isBlank(metadata.getTitle())) {
         // message
-        JOptionPane.showMessageDialog(TvShowEpisodeEditorDialog.this, BUNDLE.getString("message.scrape.tvshowepisodefailed"));
+        JOptionPane.showMessageDialog(TvShowEpisodeEditorDialog.this, TmmResourceBundle.getString("message.scrape.tvshowepisodefailed"));
       }
       else {
         tfTitle.setText(metadata.getTitle());
@@ -1021,7 +1041,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 2903255414533349267L;
 
     AddRatingAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("rating.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("rating.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
@@ -1032,7 +1052,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       rating.maxValue = 10;
       rating.votes = 1;
 
-      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), BUNDLE.getString("rating.add"), rating);
+      RatingEditorDialog dialog = new RatingEditorDialog(SwingUtilities.getWindowAncestor(tableRatings), TmmResourceBundle.getString("rating.add"),
+          rating);
       dialog.setVisible(true);
 
       if (StringUtils.isNotBlank(rating.key) && rating.value > 0 && rating.maxValue > 0 && rating.votes > 0) {
@@ -1045,7 +1066,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -7079821950827356996L;
 
     RemoveRatingAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("rating.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("rating.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
@@ -1063,7 +1084,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 5968029647764173330L;
 
     AddTagAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("tag.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
@@ -1115,7 +1136,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -4799506776650330500L;
 
     RemoveTagAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("tag.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tag.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
@@ -1132,7 +1153,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -6855661707692602266L;
 
     MoveTagUpAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.edit.movetagup"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movetagup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
     }
 
@@ -1150,7 +1171,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -1135108943010008069L;
 
     MoveTagDownAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.edit.movetagdown"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movetagdown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
     }
 
@@ -1168,14 +1189,14 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 2903255414553349267L;
 
     public AddIdAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("id.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
       MediaIdTable.MediaId mediaId = new MediaIdTable.MediaId();
-      IdEditorDialog dialog = new IdEditorDialog(SwingUtilities.getWindowAncestor(tableIds), BUNDLE.getString("id.add"), mediaId,
+      IdEditorDialog dialog = new IdEditorDialog(SwingUtilities.getWindowAncestor(tableIds), TmmResourceBundle.getString("id.add"), mediaId,
           ScraperType.TV_SHOW);
       dialog.setVisible(true);
 
@@ -1189,7 +1210,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -7079826950827356996L;
 
     public RemoveIdAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("id.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("id.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
@@ -1207,17 +1228,19 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -5879601617842300526L;
 
     AddGuestAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.guest.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.guest.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person actor = new Person(Person.Type.ACTOR, BUNDLE.getString("cast.actor.unknown"), BUNDLE.getString("cast.role.unknown"));
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableGuests), BUNDLE.getString("cast.guest.add"), actor);
+      Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"),
+          TmmResourceBundle.getString("cast.role.unknown"));
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableGuests), TmmResourceBundle.getString("cast.guest.add"),
+          actor);
       dialog.setVisible(true);
 
-      if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(BUNDLE.getString("cast.actor.unknown"))) {
+      if (StringUtils.isNotBlank(actor.getName()) && !actor.getName().equals(TmmResourceBundle.getString("cast.actor.unknown"))) {
         guests.add(0, actor);
       }
     }
@@ -1227,7 +1250,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 6970920169867315771L;
 
     RemoveGuestAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.guest.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.guest.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
@@ -1245,7 +1268,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 5775423424097844658L;
 
     MoveGuestUpAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.guest.moveup"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.guest.moveup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
     }
 
@@ -1263,7 +1286,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -6564146895819191932L;
 
     MoveGuestDownAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.guest.movedown"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.guest.movedown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
     }
 
@@ -1281,18 +1304,18 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -8929331442958057771L;
 
     AddDirectorAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.director.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.director.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person person = new Person(Person.Type.DIRECTOR, BUNDLE.getString("director.name.unknown"), "Director");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableDirectors), BUNDLE.getString("cast.director.add"),
-          person);
+      Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("director.name.unknown"), "Director");
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableDirectors),
+          TmmResourceBundle.getString("cast.director.add"), person);
       dialog.setVisible(true);
 
-      if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(BUNDLE.getString("director.name.unknown"))) {
+      if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("director.name.unknown"))) {
         directors.add(0, person);
       }
     }
@@ -1302,7 +1325,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -7079826920821356196L;
 
     RemoveDirectorAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.director.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.director.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
@@ -1320,7 +1343,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 5775423424097844658L;
 
     MoveDirectorUpAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.edit.movedirectorup"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movedirectorup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
     }
 
@@ -1338,7 +1361,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -6564146895819191932L;
 
     MoveDirectorDownAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.edit.movedirectordown"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movedirectordown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
     }
 
@@ -1356,17 +1379,18 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -8929331442958057771L;
 
     AddWriterAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.writer.add"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.writer.add"));
       putValue(SMALL_ICON, IconManager.ADD_INV);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      Person person = new Person(Person.Type.DIRECTOR, BUNDLE.getString("writer.name.unknown"), "Writer");
-      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableWriters), BUNDLE.getString("cast.writer.add"), person);
+      Person person = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("writer.name.unknown"), "Writer");
+      PersonEditorDialog dialog = new PersonEditorDialog(SwingUtilities.getWindowAncestor(tableWriters),
+          TmmResourceBundle.getString("cast.writer.add"), person);
       dialog.setVisible(true);
 
-      if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(BUNDLE.getString("writer.name.unknown"))) {
+      if (StringUtils.isNotBlank(person.getName()) && !person.getName().equals(TmmResourceBundle.getString("writer.name.unknown"))) {
         writers.add(0, person);
       }
     }
@@ -1376,7 +1400,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -7079826920821356196L;
 
     RemoveWriterAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("cast.writer.remove"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("cast.writer.remove"));
       putValue(SMALL_ICON, IconManager.REMOVE_INV);
     }
 
@@ -1394,7 +1418,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = 5775423424097844658L;
 
     MoveWriterUpAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.edit.movewriterup"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movewriterup"));
       putValue(SMALL_ICON, IconManager.ARROW_UP_INV);
     }
 
@@ -1412,7 +1436,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -6564146895819191932L;
 
     MoveWriterDownAction() {
-      putValue(SHORT_DESCRIPTION, BUNDLE.getString("movie.edit.movewriterdown"));
+      putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.edit.movewriterdown"));
       putValue(SMALL_ICON, IconManager.ARROW_DOWN_INV);
     }
 
@@ -1430,7 +1454,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     private static final long serialVersionUID = -1652218154720642310L;
 
     public NavigateBackAction() {
-      putValue(NAME, BUNDLE.getString("Button.back"));
+      putValue(NAME, TmmResourceBundle.getString("Button.back"));
       putValue(SMALL_ICON, IconManager.BACK_INV);
     }
 

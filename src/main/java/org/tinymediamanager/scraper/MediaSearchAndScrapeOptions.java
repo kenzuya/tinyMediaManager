@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public abstract class MediaSearchAndScrapeOptions {
    *          the original to copy
    */
   protected MediaSearchAndScrapeOptions(MediaSearchAndScrapeOptions original) {
-    this.type = original.type;
+    this(original.type);
     setDataFromOtherOptions(original);
   }
 
@@ -261,7 +261,7 @@ public abstract class MediaSearchAndScrapeOptions {
    * @param id
    *          the media id
    */
-  public void setId(String providerId, String id) {
+  public void setId(String providerId, Object id) {
     ids.put(providerId, id);
   }
 

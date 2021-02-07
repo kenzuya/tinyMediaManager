@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class LanguageUtils {
   // Map of all known English/UserLocalized String to base locale, key is LOWERCASE
-  public static final LinkedHashMap<String, Locale> KEY_TO_LOCALE_MAP;
-  public static final LinkedHashMap<String, Locale> KEY_TO_COUNTRY_LOCALE_MAP;
+  public static final Map<String, Locale>  KEY_TO_LOCALE_MAP;
+  public static final Map<String, Locale>  KEY_TO_COUNTRY_LOCALE_MAP;
 
   private static final Map<Locale, String>          ISO_639_2B_EXCEPTIONS;
 
@@ -47,7 +47,7 @@ public class LanguageUtils {
   }
 
   private LanguageUtils() {
-    // hide the public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   private static Map<Locale, String> createIso6392BExceptions() {
@@ -118,6 +118,9 @@ public class LanguageUtils {
         }
       }
     }
+
+    // also add "special" languages
+    langArray.put("zxx", new Locale("zxx"));
 
     // also sort in all language tags from available locales
     for (Locale locale : Locale.getAvailableLocales()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2020 Manuel Laggner
+ * Copyright 2012 - 2021 Manuel Laggner
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,6 +134,17 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
     return (int) (fm.getHeight() * 2f);
   }
 
+  @Override
+  public void setSelectedItem(Object item) {
+    if (item instanceof MediaScraper) {
+      MediaScraper mediaScraper = (MediaScraper) item;
+      if (!mediaScraper.getMediaProvider().isActive()) {
+        return;
+      }
+      super.setSelectedItem(item);
+    }
+  }
+
   class MediaScraperComboBoxRenderer extends JLabel implements ListCellRenderer<MediaScraper> {
     protected final ListCellRenderer defaultRenderer;
     private static final long        serialVersionUID = -4726883292397768525L;
@@ -184,6 +195,18 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
         setText(scraper.getMediaProvider().getProviderInfo().getName());
         setFont(list.getFont());
         setIconTextGap(maxWidth + 4 - currentWidth); // 4 = default iconTextGap
+
+        if (!scraper.isActive()) {
+          setFocusable(false);
+          setEnabled(false);
+          if (!scraper.isEnabled()) {
+            setText("*PRO* " + getText());
+          }
+        }
+        else {
+          setFocusable(true);
+          setEnabled(true);
+        }
 
         Dimension preferredSize = getPreferredSize();
         if (listWidth < preferredSize.width) {
