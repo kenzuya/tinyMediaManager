@@ -1431,16 +1431,23 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return true, if all episodes are watched
    */
   public boolean isWatched() {
+    boolean episodeFound = false;
     boolean watched = true;
 
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isWatched()) {
-        watched = false;
-        break;
+      if (!episode.isDummy()) {
+        episodeFound = true;
+        watched = watched && episode.isWatched();
       }
     }
 
-    return watched;
+    // at least 1 non-dummy found -> pass the collected watched state
+    if (episodeFound) {
+      return watched;
+    }
+
+    // only dummy episodes -> return false
+    return false;
   }
 
   /**
