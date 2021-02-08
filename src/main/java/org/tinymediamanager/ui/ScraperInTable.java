@@ -122,7 +122,7 @@ public class ScraperInTable extends AbstractModelObject {
     return scraperLogo;
   }
 
-  public boolean getActive() {
+  public Boolean getActive() {
     return active;
   }
 

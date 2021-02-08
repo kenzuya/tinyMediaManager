@@ -42,7 +42,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -73,7 +72,7 @@ class TvShowScraperSettingsPanel extends JPanel {
   private static final long         serialVersionUID = 4999827736720726395L;
 
   private final TvShowSettings      settings         = TvShowModuleManager.SETTINGS;
-  private final List<TvShowScraper> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<TvShowScraper> scrapers         = new ArrayList<>();
 
   /** UI components */
   private TmmTable                  tableScraper;
@@ -132,7 +131,6 @@ class TvShowScraperSettingsPanel extends JPanel {
           if (arg0.getColumn() == 0) {
             int row = arg0.getFirstRow();
             TvShowScraper changedScraper = scrapers.get(row);
-            // if flag inNFO was changed, change all other trailers flags
             if (changedScraper.getDefaultScraper()) {
               settings.setScraper(changedScraper.getScraperId());
               for (TvShowScraper scraper : scrapers) {

@@ -45,7 +45,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -81,7 +80,7 @@ class MovieTrailerSettingsPanel extends JPanel {
    */
 
   private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
-  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<ScraperInTable> scrapers         = new ArrayList<>();
   private final ItemListener         checkBoxListener;
 
   private TmmTable                   tableScraperInTable;
@@ -98,10 +97,6 @@ class MovieTrailerSettingsPanel extends JPanel {
 
   MovieTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
-
-    // UI init
-    initComponents();
-    initDataBindings();
 
     // implement checkBoxListener for preset events
     settings.addPropertyChangeListener(evt -> {
@@ -125,6 +120,10 @@ class MovieTrailerSettingsPanel extends JPanel {
       scrapers.add(ScraperInTable);
       counter++;
     }
+
+    // UI init
+    initComponents();
+    initDataBindings();
 
     // adjust table columns
     // Checkbox and Logo shall have minimal width

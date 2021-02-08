@@ -46,7 +46,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -78,7 +77,7 @@ class TvShowImageSettingsPanel extends JPanel {
   private static final long          serialVersionUID = 4999827736720726395L;
 
   private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
-  private final List<ScraperInTable> artworkScrapers  = ObservableCollections.observableList(new ArrayList<>());
+  private final List<ScraperInTable> artworkScrapers  = new ArrayList<>();
   private final ItemListener         checkBoxListener;
 
   private TmmTable                   tableScraper;
@@ -100,10 +99,6 @@ class TvShowImageSettingsPanel extends JPanel {
   TvShowImageSettingsPanel() {
     checkBoxListener = e -> checkChanges();
 
-    // UI init
-    initComponents();
-    initDataBindings();
-
     // data init
     List<String> enabledArtworkProviders = settings.getArtworkScrapers();
     int selectedIndex = -1;
@@ -119,6 +114,10 @@ class TvShowImageSettingsPanel extends JPanel {
       artworkScrapers.add(artworkScraper);
       counter++;
     }
+
+    // UI init
+    initComponents();
+    initDataBindings();
 
     // add a CSS rule to force body tags to use the default label font
     // instead of the value in javax.swing.text.html.default.csss
