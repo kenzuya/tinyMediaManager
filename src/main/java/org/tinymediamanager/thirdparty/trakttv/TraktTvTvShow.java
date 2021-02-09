@@ -685,7 +685,7 @@ class TraktTvTvShow {
       for (SyncSeason syncSeason : syncSeasons) {
         List<SyncEpisode> syncEpisodesDelta = new ArrayList<>();
         for (SyncEpisode syncEpisode : ListUtils.nullSafe(syncSeason.episodes)) {
-          if (!containsEpisode(showInTrakt, syncEpisode)) {
+          if (!containsEpisode(showInTrakt, syncEpisode, watched)) {
             syncEpisodesDelta.add(syncEpisode);
           }
         }
@@ -704,15 +704,22 @@ class TraktTvTvShow {
     return null;
   }
 
-  private boolean containsEpisode(BaseShow show, SyncEpisode syncEpisode) {
+  private boolean containsEpisode(BaseShow show, SyncEpisode syncEpisode, boolean watched) {
     int seasonNumber = MetadataUtil.unboxInteger(syncEpisode.season);
     int episodeNumber = MetadataUtil.unboxInteger(syncEpisode.number);
 
     for (BaseSeason season : ListUtils.nullSafe(show.seasons)) {
       if (seasonNumber == MetadataUtil.unboxInteger(season.number, -1)) {
         for (BaseEpisode episode : ListUtils.nullSafe(season.episodes)) {
-          if (episodeNumber == MetadataUtil.unboxInteger(episode.number, -1) && matchesMetadata(episode.metadata, syncEpisode)) {
-            return true;
+          if (episodeNumber == MetadataUtil.unboxInteger(episode.number, -1)) {
+            if (watched) {
+              // for watched sync we do not need any further check
+              return true;
+            }
+            else if (matchesMetadata(episode.metadata, syncEpisode)) {
+              // for collection sync we also check the metadata
+              return true;
+            }
           }
         }
       }
