@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.core.AbstractModelObject;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
 
@@ -167,6 +168,24 @@ public class Person extends AbstractModelObject {
     }
 
     return ids.get(key);
+  }
+
+  /**
+   * any ID as String or empty
+   *
+   * @return the ID-value as String or an empty string
+   */
+  public String getIdAsString(String key) {
+    return MetadataUtil.getIdAsString(ids, key);
+  }
+
+  /**
+   * any ID as int or 0
+   *
+   * @return the ID-value as int or an empty string
+   */
+  public int getIdAsInt(String key) {
+    return MetadataUtil.getIdAsInt(ids, key);
   }
 
   /**

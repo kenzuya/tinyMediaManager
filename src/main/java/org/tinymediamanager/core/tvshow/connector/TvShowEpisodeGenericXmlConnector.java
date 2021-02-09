@@ -50,6 +50,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -599,6 +600,22 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       Element profile = document.createElement("profile");
       profile.setTextContent(tvShowActor.getProfileUrl());
       actor.appendChild(profile);
+
+      // TMDB id
+      int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbid > 0) {
+        Element id = document.createElement("tmdbid");
+        id.setTextContent(String.valueOf(tmdbid));
+        actor.appendChild(id);
+      }
+
+      // IMDB id
+      String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
+      if (MetadataUtil.isValidImdbId(imdbid)) {
+        Element id = document.createElement("imdbid");
+        id.setTextContent(String.valueOf(tmdbid));
+        actor.appendChild(id);
+      }
 
       root.appendChild(actor);
     }

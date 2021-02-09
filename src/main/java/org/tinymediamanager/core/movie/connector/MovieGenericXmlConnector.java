@@ -53,6 +53,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -305,7 +306,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addUserrating() {
     // get main rating and calculate the rating value to a base of 10
-    Float rating10;
+    float rating10;
 
     MediaRating mediaRating = movie.getRating(MediaRating.USER);
 
@@ -662,6 +663,22 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       Element profile = document.createElement("profile");
       profile.setTextContent(movieActor.getProfileUrl());
       actor.appendChild(profile);
+
+      // TMDB id
+      int tmdbid = movieActor.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbid > 0) {
+        Element id = document.createElement("tmdbid");
+        id.setTextContent(String.valueOf(tmdbid));
+        actor.appendChild(id);
+      }
+
+      // IMDB id
+      String imdbid = movieActor.getIdAsString(MediaMetadata.IMDB);
+      if (MetadataUtil.isValidImdbId(imdbid)) {
+        Element id = document.createElement("imdbid");
+        id.setTextContent(String.valueOf(tmdbid));
+        actor.appendChild(id);
+      }
 
       root.appendChild(actor);
     }
