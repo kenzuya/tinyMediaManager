@@ -91,6 +91,7 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxTraktCollection;
   private JCheckBox                    chckbxTraktWatched;
   private JCheckBox                    chckbxTraktRating;
+  private JCheckBox                    chckbxSeasonArtworkFallback;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -275,7 +276,7 @@ class TvShowSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][]")); // 16lp ~ width of the
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -304,6 +305,9 @@ class TvShowSettingsPanel extends JPanel {
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.showtabletooltips"));
         panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 5 2 1");
       }
+
+      chckbxSeasonArtworkFallback = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.seasonartworkfallback"));
+      panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 6 2 1");
     }
     {
       JPanel panelAutomaticTasks = new JPanel();
@@ -545,5 +549,10 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_13, chckbxTraktRating,
         jCheckBoxBeanProperty);
     autoBinding_18.bind();
+    //
+    Property tvShowSettingsBeanProperty_14 = BeanProperty.create("seasonArtworkFallback");
+    AutoBinding autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_14,
+        chckbxSeasonArtworkFallback, jCheckBoxBeanProperty);
+    autoBinding_19.bind();
   }
 }

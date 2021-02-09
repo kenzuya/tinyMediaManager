@@ -221,6 +221,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        displayMissingSpecials                 = false;
   private boolean                                        capitalWordsinTitles                   = false;
   private boolean                                        showTvShowTableTooltips                = true;
+  private boolean                                        seasonArtworkFallback                  = false;
 
   public TvShowSettings() {
     super();
@@ -1410,6 +1411,16 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = showTvShowTableTooltips;
     showTvShowTableTooltips = newValue;
     firePropertyChange("showTvShowTableTooltips", oldValue, newValue);
+  }
+
+  public boolean isSeasonArtworkFallback() {
+    return seasonArtworkFallback;
+  }
+
+  public void setSeasonArtworkFallback(boolean newValue) {
+    boolean oldValue = seasonArtworkFallback;
+    seasonArtworkFallback = newValue;
+    firePropertyChange("seasonArtworkFallback", oldValue, newValue);
   }
 
   /*****************************************************************
