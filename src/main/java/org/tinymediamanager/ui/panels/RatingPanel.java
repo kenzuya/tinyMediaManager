@@ -72,14 +72,14 @@ public class RatingPanel extends JPanel {
     }
 
     // 3. rotten tomatoes rating
-    rating = ratings.get("rottenTomatoes");
+    rating = ratings.get("tomatometerallcritics");
     if (rating != null) {
       addedRatings.add(rating);
       add(new RatingContainer(rating));
     }
 
     // 4. metacritic rating
-    rating = ratings.get("metascore");
+    rating = ratings.get("metacritic");
     if (rating != null) {
       addedRatings.add(rating);
       add(new RatingContainer(rating));
@@ -154,12 +154,12 @@ public class RatingPanel extends JPanel {
           text = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
-        case "rottenTomatoes":
+        case "tomatometerallcritics":
           logo = new JLabel(IconManager.RATING_ROTTEN_TOMATOES);
           text = new JLabel(String.format("%.0f%%", rating.getRating()));
           break;
 
-        case "metascore":
+        case "metacritic":
           logo = new JLabel(IconManager.RATING_METACRITIC);
           text = new JLabel(String.format("%.0f", rating.getRating()));
           break;
@@ -216,11 +216,11 @@ public class RatingPanel extends JPanel {
           tooltipText += "TMDB: ";
           break;
 
-        case "rottenTomatoes":
+        case "tomatometerallcritics":
           tooltipText += "Rotten Tomatoes: ";
           break;
 
-        case "metascore":
+        case "metacritic":
           tooltipText += "Metascore: ";
           break;
 

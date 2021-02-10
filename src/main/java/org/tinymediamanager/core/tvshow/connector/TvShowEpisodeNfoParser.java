@@ -439,6 +439,18 @@ public class TvShowEpisodeNfoParser {
           // name
           r.id = ratingChild.attr("name");
 
+          // Kodi writes tmdb votes as "themoviedb"
+          if ("themoviedb".equals(r.id)) {
+            r.id = MediaMetadata.TMDB;
+          }
+          // cleanup
+          else if ("rottenTomatoes".equals(r.id)) {
+            r.id = "tomatometerallcritics";
+          }
+          else if ("metascore".equals(r.id)) {
+            r.id = "metacritic";
+          }
+
           // maxvalue
           try {
             r.maxValue = MetadataUtil.parseInt(ratingChild.attr("max"));

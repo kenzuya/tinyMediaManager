@@ -175,7 +175,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
     try {
-      org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("metascore");
+      org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("metacritic");
       rating.setRating(Float.parseFloat(result.metascore));
       rating.setMaxValue(100);
       metadata.addRating(rating);
@@ -212,37 +212,22 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
       LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
 
-    try {
-      if (!result.tomatoRating.contains("N/A")) {
-        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgcritics");
-        rating.setRating(Float.parseFloat(result.tomatoRating));
-        rating.setMaxValue(100);
-        rating.setVotes(MetadataUtil.parseInt(result.tomatoReviews));
-        metadata.addRating(rating);
-      }
-    }
-    catch (NumberFormatException e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-    }
-
-    try {
-      if (!result.tomatoUserRating.contains("N/A")) {
-        org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometeravgaudience");
-        rating.setRating(Float.parseFloat(result.tomatoUserRating));
-        rating.setMaxValue(100);
-        rating.setVotes(MetadataUtil.parseInt(result.tomatoUserReviews));
-        metadata.addRating(rating);
-      }
-    }
-    catch (NumberFormatException e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-    }
     // use rotten tomates from the Ratings block
     for (MediaRating movieRating : ListUtils.nullSafe(result.ratings)) {
       if ("Rotten Tomatoes".equals(movieRating.source)) {
         try {
-          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("rottenTomatoes");
+          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallcritics");
           rating.setRating(Integer.parseInt(movieRating.value.replace("%", "")));
+          rating.setMaxValue(100);
+          metadata.addRating(rating);
+        }
+        catch (Exception ignored) {
+        }
+      }
+      else if ("Metacritic".equals(movieRating.source)) {
+        try {
+          org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("metacritic");
+          rating.setRating(Integer.parseInt(movieRating.value.replace("/100", "")));
           rating.setMaxValue(100);
           metadata.addRating(rating);
         }

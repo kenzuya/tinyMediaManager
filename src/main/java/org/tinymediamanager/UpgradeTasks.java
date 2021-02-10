@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
@@ -48,8 +49,6 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
 import org.tinymediamanager.scraper.util.StrgUtils;
-
-import com.sun.jna.Platform;
 
 /**
  * The class UpdateTasks. To perform needed update tasks
@@ -323,20 +322,23 @@ public class UpgradeTasks {
     if (StrgUtils.compareVersion(v, "4.1") < 0) {
       // remove invalid ratings
       for (Movie movie : movieList.getMovies()) {
-        removeInvalidRating(movie);
+        repairRatings(movie);
       }
 
       for (TvShow tvShow : tvShowList.getTvShows()) {
-        removeInvalidRating(tvShow);
+        repairRatings(tvShow);
 
         for (TvShowEpisode episode : tvShow.getEpisodes()) {
-          removeInvalidRating(episode);
+          repairRatings(episode);
         }
       }
 
       // release date country
       if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getReleaseDateCountry())) {
         MovieModuleManager.SETTINGS.setReleaseDateCountry(Locale.getDefault().getCountry());
+      }
+      if (StringUtils.isBlank(TvShowModuleManager.SETTINGS.getReleaseDateCountry())) {
+        TvShowModuleManager.SETTINGS.setReleaseDateCountry(Locale.getDefault().getCountry());
       }
     }
   }
@@ -366,13 +368,27 @@ public class UpgradeTasks {
     }
   }
 
-  private static void removeInvalidRating(MediaEntity entity) {
+  private static void repairRatings(MediaEntity entity) {
     boolean dirty = false;
 
     Map<String, MediaRating> ratings = new HashMap<>(entity.getRatings());
     for (Map.Entry<String, MediaRating> entry : ratings.entrySet()) {
-      if (entry.getValue().getRating() < 0) {
+      MediaRating rating = entry.getValue();
+
+      if (rating.getRating() < 0) {
         entity.removeRating(entry.getKey());
+        dirty = true;
+      }
+      else if ("rottenTomatoes".equalsIgnoreCase(entry.getKey())) {
+        entity.removeRating(entry.getKey());
+        MediaRating mediaRating = new MediaRating("tomatometerallcritics", rating.getRating(), rating.getVotes(), rating.getMaxValue());
+        entity.setRating(mediaRating);
+        dirty = true;
+      }
+      else if ("metascore".equalsIgnoreCase(entry.getKey())) {
+        entity.removeRating(entry.getKey());
+        MediaRating mediaRating = new MediaRating("metacritic", rating.getRating(), rating.getVotes(), rating.getMaxValue());
+        entity.setRating(mediaRating);
         dirty = true;
       }
     }
@@ -387,7 +403,7 @@ public class UpgradeTasks {
    */
   public static void renameDownloadedFiles() {
     // OSX launcher
-    if (Platform.isMac()) {
+    if (SystemUtils.IS_OS_MAC) {
       File file = new File("macOS/MacOS/tinyMediaManager");
       if (file.exists() && file.length() > 0) {
         File cur = new File("../../MacOS/tinyMediaManager");
