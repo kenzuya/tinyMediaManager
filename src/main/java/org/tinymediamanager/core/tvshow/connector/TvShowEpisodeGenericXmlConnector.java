@@ -601,6 +601,10 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       profile.setTextContent(tvShowActor.getProfileUrl());
       actor.appendChild(profile);
 
+      Element type = document.createElement("type");
+      type.setTextContent("GuestStar");
+      actor.appendChild(type);
+
       // TMDB id
       int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
       if (tmdbid > 0) {

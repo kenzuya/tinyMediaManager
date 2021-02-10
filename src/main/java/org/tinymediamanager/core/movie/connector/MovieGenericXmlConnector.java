@@ -664,6 +664,10 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       profile.setTextContent(movieActor.getProfileUrl());
       actor.appendChild(profile);
 
+      Element type = document.createElement("type");
+      type.setTextContent("Actor");
+      actor.appendChild(type);
+
       // TMDB id
       int tmdbid = movieActor.getIdAsInt(MediaMetadata.TMDB);
       if (tmdbid > 0) {
