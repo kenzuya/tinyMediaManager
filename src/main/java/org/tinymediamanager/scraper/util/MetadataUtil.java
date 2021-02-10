@@ -158,7 +158,7 @@ public class MetadataUtil {
    * @throws NumberFormatException
    *           an exception if none of the parsing methods worked
    */
-  public static int parseInt(String intAsString) throws NumberFormatException {
+  public static int parseInt(String intAsString) throws NumberFormatException, NullPointerException {
     // first try to parse that with the interal parsing logic
     try {
       return Integer.parseInt(intAsString);
@@ -181,6 +181,10 @@ public class MetadataUtil {
    * @return the integer
    */
   public static int parseInt(String intAsString, int defaultValue) {
+    if (StringUtils.isBlank(intAsString)) {
+      return defaultValue;
+    }
+
     // first try to parse that with the interal parsing logic
     try {
       return parseInt(intAsString);

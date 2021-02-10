@@ -1,5 +1,12 @@
 package org.tinymediamanager.scraper.tvmaze;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -11,13 +18,12 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-
 public class ITTvMazeMetadataProviderTest extends BasicTest {
+
+  @Before
+  public void setUpBeforeTest() throws Exception {
+    setLicenseKey();
+  }
 
   /**
    * Testing ProviderInfo

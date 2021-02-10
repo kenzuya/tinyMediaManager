@@ -50,12 +50,9 @@ abstract class TvMazeMetadataProvider implements IMediaProvider {
   protected abstract Logger getLogger();
 
   protected MediaProviderInfo createMediaProviderInfo() {
-    MediaProviderInfo providerInfo = new MediaProviderInfo(ID, getSubId(), "tvmaze.com",
+    return new MediaProviderInfo(ID, getSubId(), "tvmaze.com",
         "TVmaze is a community of TV lovers and dedicated contributors that discuss and help maintain tv information on the web.",
         TvMazeMetadataProvider.class.getResource("/org/tinymediamanager/scraper/tvmaze.png"));
-
-    providerInfo.getConfig().load();
-    return providerInfo;
   }
 
   @Override
@@ -71,8 +68,7 @@ abstract class TvMazeMetadataProvider implements IMediaProvider {
 
     if (controller == null) {
       try {
-        controller = new Controller(false);
-        controller.setApiKey(getApiKey());
+        controller = new Controller(getApiKey(), false);
       }
       catch (Exception e) {
         getLogger().error("could not initialize the API: {}", e.getMessage());
