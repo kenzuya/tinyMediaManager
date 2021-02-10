@@ -243,6 +243,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
       options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
+      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
       options.setIds(episode.getTvShow().getIds());
 
       try {

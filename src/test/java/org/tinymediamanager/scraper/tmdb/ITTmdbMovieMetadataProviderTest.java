@@ -35,6 +35,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     options.setId(mp.getId(), "63");
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata md = mp.getMetadata(options);
 
@@ -44,7 +45,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     assertEquals("The future is history.", md.getTagline());
 
     assertNotNull(md.getCastMembers(ACTOR));
-    assertEquals(65, md.getCastMembers(ACTOR).size());
+    assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(65);
   }
 
   @Test
@@ -54,6 +55,8 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
 
     options.setLanguage(MediaLanguages.de);
     options.setCertificationCountry(CountryCode.DE);
+    options.setReleaseDateCountry("DE");
+
     options.setId(mp.getId(), "62177");
 
     MediaMetadata md = mp.getMetadata(options);
@@ -77,6 +80,8 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
+
     options.setId(mp.getId(), "79553");
 
     MediaMetadata md = mp.getMetadata(options);
@@ -133,6 +138,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     options.setSearchQuery("The Front Line");
     options.setLanguage(MediaLanguages.el);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
     // did we get a result?
@@ -152,6 +158,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     options.setSearchQuery("Harry Potter");
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
     // did we get a result?
@@ -169,6 +176,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     options.setSearchQuery("Harry Potter");
     options.setLanguage(MediaLanguages.de);
     options.setCertificationCountry(CountryCode.DE);
+    options.setReleaseDateCountry("DE");
 
     List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
     // did we get a result?
@@ -198,6 +206,7 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     options.setImdbId("tt0114746");
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata md = mp.getMetadata(options);
 
@@ -209,6 +218,6 @@ public class ITTmdbMovieMetadataProviderTest extends BasicTest {
     assertEquals("The future is history.", md.getTagline());
 
     assertNotNull(md.getCastMembers(ACTOR));
-    assertEquals(65, md.getCastMembers(ACTOR).size());
+    assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(65);
   }
 }

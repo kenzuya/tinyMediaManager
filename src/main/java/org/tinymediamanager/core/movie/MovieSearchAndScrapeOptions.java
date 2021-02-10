@@ -24,7 +24,6 @@ import org.tinymediamanager.scraper.entities.MediaType;
  * @author Manuel Laggner
  */
 public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
-  protected String releaseDateCountry = "";
 
   public MovieSearchAndScrapeOptions() {
     super(MediaType.MOVIE);
@@ -38,12 +37,6 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
    */
   public MovieSearchAndScrapeOptions(MovieSearchAndScrapeOptions original) {
     super(original.type);
-    setDataFromOtherOptions(original);
-  }
-
-  public void setDataFromOtherOptions(MovieSearchAndScrapeOptions original) {
-    super.setDataFromOtherOptions(original);
-    releaseDateCountry = original.releaseDateCountry;
   }
 
   /**
@@ -65,13 +58,5 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
 
     // subtitle
     subtitleScrapers.addAll(MovieList.getInstance().getDefaultSubtitleScrapers());
-  }
-
-  public String getReleaseDateCountry() {
-    return releaseDateCountry;
-  }
-
-  public void setReleaseDateCountry(String releaseDateCountry) {
-    this.releaseDateCountry = releaseDateCountry;
   }
 }

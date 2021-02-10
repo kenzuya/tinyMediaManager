@@ -68,6 +68,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
     options.setSearchQuery("Batman");
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaSearchResult> result = new ArrayList<>(mp.search(options));
 
@@ -86,6 +87,7 @@ public class ITMpdbMetadataProviderTest extends BasicTest {
     options.setId("mpdbtv", "3193");
     options.setLanguage(MediaLanguages.fr);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata result = mp.getMetadata(options);
     assertThat(result).isNotNull();

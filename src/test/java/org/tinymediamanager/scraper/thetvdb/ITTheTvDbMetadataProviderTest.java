@@ -72,6 +72,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
       options.setSearchQuery(title);
       options.setLanguage(MediaLanguages.get(language));
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
       if (setId != null) {
         options.setId(metadataProvider.getProviderInfo().getId(), setId); // when set, just lookup, no search
       }
@@ -133,6 +134,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       MediaMetadata md = metadataProvider.getMetadata(options);
 
@@ -178,6 +180,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
       options.setLanguage(MediaLanguages.tr);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       MediaMetadata md = metadataProvider.getMetadata(options);
 
@@ -369,6 +372,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       List<MediaMetadata> episodes = metadataProvider.getEpisodeList(options);
 
@@ -412,6 +416,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
       options.setLanguage(MediaLanguages.tr);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       List<MediaMetadata> episodes = metadataProvider.getEpisodeList(options);
 

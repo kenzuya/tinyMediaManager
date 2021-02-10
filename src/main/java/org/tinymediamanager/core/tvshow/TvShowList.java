@@ -689,6 +689,7 @@ public class TvShowList extends AbstractModelObject {
       options.setSearchQuery(searchTerm);
       options.setLanguage(language);
       options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
+      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
 
       if (ids != null) {
         options.setIds(ids);
