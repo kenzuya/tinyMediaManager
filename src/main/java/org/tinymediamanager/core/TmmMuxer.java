@@ -20,11 +20,16 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mp4parser.Container;
 import org.mp4parser.muxer.Movie;
 import org.mp4parser.muxer.Track;
 import org.mp4parser.muxer.builder.FragmentedMp4Builder;
 import org.mp4parser.muxer.container.mp4.MovieCreator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.Globals;
+import org.tinymediamanager.thirdparty.FFmpeg;
 
 /**
  * The TMM Muxer class for muxing an audio and an video file in MP4 format
@@ -32,8 +37,10 @@ import org.mp4parser.muxer.container.mp4.MovieCreator;
  * @author Wolfgang Janes
  */
 public class TmmMuxer {
-  private final Path audioFile;
-  private final Path videoFile;
+  private static final Logger LOGGER = LoggerFactory.getLogger(TmmMuxer.class);
+
+  private final Path          audioFile;
+  private final Path          videoFile;
 
   public TmmMuxer(Path audio, Path video) {
     audioFile = audio;
@@ -52,6 +59,18 @@ public class TmmMuxer {
     Movie video = null;
     Movie audio = null;
     Movie movie = null;
+
+    // try to use FFmpeg if available
+    if (StringUtils.isNotBlank(Globals.settings.getMediaFramework())) {
+      try {
+        FFmpeg.muxVideoAndAudio(videoFile, audioFile, destination);
+        return;
+      }
+      catch (Exception e) {
+        LOGGER.error("could not mux files using FFmpeg - '{}'", e.getMessage());
+        // fallback to mp4parser
+      }
+    }
 
     try {
       video = MovieCreator.build(videoFile.toAbsolutePath().toString());

@@ -74,6 +74,25 @@ public class FFmpeg {
     return cmdList.toArray(new String[0]);
   }
 
+  public static void muxVideoAndAudio(Path videoFile, Path audioFile, Path muxedFile) throws IOException, InterruptedException {
+    executeCommand(createCommandforMux(videoFile, audioFile, muxedFile));
+  }
+
+  private static String[] createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) {
+    List<String> cmdList = new ArrayList<>();
+    cmdList.add(Globals.settings.getMediaFramework());
+    cmdList.add("-y");
+    cmdList.add("-i");
+    cmdList.add(videoFile.toAbsolutePath().toString());
+    cmdList.add("-i");
+    cmdList.add(audioFile.toAbsolutePath().toString());
+    cmdList.add("-c");
+    cmdList.add("copy");
+    cmdList.add(muxedFile.toAbsolutePath().toString());
+
+    return cmdList.toArray(new String[0]);
+  }
+
   private static void executeCommand(String[] cmdline) throws IOException, InterruptedException {
     LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 

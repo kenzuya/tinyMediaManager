@@ -23,6 +23,7 @@ Version 4.1
 
 + added TVmaze scraper
 + creation of still/thumb creation via FFmpeg #1017
++ muxing downloaded trailers using FFmpeg
 + enhanced Trakt.tv sync (added personal rating sync, reworked settings & actions)
 + added missing movies in movie set #1111
 + added an option to suppress tooltips in the main tables #1128
