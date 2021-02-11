@@ -53,7 +53,6 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.LanguageUtils;
-import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -664,9 +663,9 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       profile.setTextContent(movieActor.getProfileUrl());
       actor.appendChild(profile);
 
-      Element type = document.createElement("type");
-      type.setTextContent("Actor");
-      actor.appendChild(type);
+      // Element type = document.createElement("type");
+      // type.setTextContent("Actor");
+      // actor.appendChild(type);
 
       // TMDB id
       int tmdbid = movieActor.getIdAsInt(MediaMetadata.TMDB);
@@ -678,9 +677,9 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
 
       // IMDB id
       String imdbid = movieActor.getIdAsString(MediaMetadata.IMDB);
-      if (MetadataUtil.isValidImdbId(imdbid)) {
+      if (StringUtils.isNotBlank(imdbid)) {
         Element id = document.createElement("imdbid");
-        id.setTextContent(String.valueOf(tmdbid));
+        id.setTextContent(imdbid);
         actor.appendChild(id);
       }
 
