@@ -31,12 +31,12 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
 
   /**
    * copy constructor
-   * 
+   *
    * @param original
    *          the original to copy
    */
   public MovieSearchAndScrapeOptions(MovieSearchAndScrapeOptions original) {
-    super(original.type);
+    super(original);
   }
 
   /**
