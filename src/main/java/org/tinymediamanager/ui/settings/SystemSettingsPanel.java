@@ -42,6 +42,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.LauncherExtraConfig;
@@ -82,10 +83,8 @@ class SystemSettingsPanel extends JPanel {
   private JTextField           tfMediaFramework;
   private JButton              btnSearchMediaPlayer;
   private JButton              btnSearchFFMpegBinary;
-  private JSlider              sliderFFMPEG;
   private JSlider              sliderMemory;
   private JLabel               lblMemory;
-  private JLabel               lblFFMPEG;
   private JCheckBox            chckbxIgnoreSSLProblems;
   private JSpinner             spMaximumDownloadThreads;
 
@@ -145,7 +144,7 @@ class SystemSettingsPanel extends JPanel {
     }
     {
       JPanel panelMediaFramework = new JPanel();
-      panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][][300lp][]", "[][][20lp!][]"));
+      panelMediaFramework.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][][300lp][]", "[][]"));
       JLabel lblMediaFrameworkT = new TmmLabel(TmmResourceBundle.getString("Settings.mediaframework"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMediaFramework, lblMediaFrameworkT, true);
       add(collapsiblePanel, "cell 0 2,growx, wmin 0");
@@ -160,26 +159,6 @@ class SystemSettingsPanel extends JPanel {
         JTextArea tpFFMpegLocation = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.mediaframework.hint"));
         panelMediaFramework.add(tpFFMpegLocation, "cell 1 1 2 1, growx");
         TmmFontHelper.changeFont(tpFFMpegLocation, L2);
-
-        JLabel lblFfmpegT = new JLabel("Set frame location");
-        panelMediaFramework.add(lblFfmpegT, "cell 1 3,aligny top");
-
-        sliderFFMPEG = new JSlider();
-        sliderFFMPEG.setPaintLabels(true);
-        sliderFFMPEG.setPaintTicks(true);
-        sliderFFMPEG.setSnapToTicks(true);
-        sliderFFMPEG.setMajorTickSpacing(25);
-        sliderFFMPEG.setMinorTickSpacing(5);
-        sliderFFMPEG.setMinimum(0);
-        sliderFFMPEG.setMaximum(100);
-        sliderFFMPEG.setValue(50);
-        panelMediaFramework.add(sliderFFMPEG, "cell 2 3,growx,aligny top");
-
-        lblFFMPEG = new JLabel("50");
-        panelMediaFramework.add(lblFFMPEG, "cell 3 3,aligny top");
-
-        JLabel lblPerc = new JLabel("%");
-        panelMediaFramework.add(lblPerc, "cell 3 3,aligny top");
 
       }
     }
@@ -356,71 +335,57 @@ class SystemSettingsPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<Settings, String> settingsBeanProperty = BeanProperty.create("proxyHost");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty = BeanProperty.create("text");
-    AutoBinding<Settings, String, JTextField, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty, tfProxyHost, jTextFieldBeanProperty);
+    Property settingsBeanProperty = BeanProperty.create("proxyHost");
+    Property jTextFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty, tfProxyHost,
+        jTextFieldBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<Settings, String> settingsBeanProperty_1 = BeanProperty.create("proxyPort");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_1 = BeanProperty.create("text");
-    AutoBinding<Settings, String, JTextField, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_1, tfProxyPort, jTextFieldBeanProperty_1);
+    Property settingsBeanProperty_1 = BeanProperty.create("proxyPort");
+    Property jTextFieldBeanProperty_1 = BeanProperty.create("text");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_1, tfProxyPort,
+        jTextFieldBeanProperty_1);
     autoBinding_1.bind();
     //
-    BeanProperty<Settings, String> settingsBeanProperty_2 = BeanProperty.create("proxyUsername");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_2 = BeanProperty.create("text");
-    AutoBinding<Settings, String, JTextField, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_2, tfProxyUsername, jTextFieldBeanProperty_2);
+    Property settingsBeanProperty_2 = BeanProperty.create("proxyUsername");
+    Property jTextFieldBeanProperty_2 = BeanProperty.create("text");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_2, tfProxyUsername,
+        jTextFieldBeanProperty_2);
     autoBinding_2.bind();
     //
-    BeanProperty<Settings, String> settingsBeanProperty_3 = BeanProperty.create("proxyPassword");
-    BeanProperty<JPasswordField, String> jPasswordFieldBeanProperty = BeanProperty.create("text");
-    AutoBinding<Settings, String, JPasswordField, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_3, tfProxyPassword, jPasswordFieldBeanProperty);
+    Property settingsBeanProperty_3 = BeanProperty.create("proxyPassword");
+    Property jPasswordFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_3, tfProxyPassword,
+        jPasswordFieldBeanProperty);
     autoBinding_3.bind();
     //
-    BeanProperty<Settings, String> settingsBeanProperty_6 = BeanProperty.create("mediaPlayer");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_3 = BeanProperty.create("text");
-    AutoBinding<Settings, String, JTextField, String> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_6, tfMediaPlayer, jTextFieldBeanProperty_3);
+    Property settingsBeanProperty_6 = BeanProperty.create("mediaPlayer");
+    Property jTextFieldBeanProperty_3 = BeanProperty.create("text");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_6, tfMediaPlayer,
+        jTextFieldBeanProperty_3);
     autoBinding_9.bind();
     //
-    BeanProperty<Settings, String> settingsBeanProperty_7 = BeanProperty.create("mediaFramework");
-    BeanProperty<JTextField, String> jTextFieldBeanProperty_4 = BeanProperty.create("text");
-    AutoBinding<Settings, String, JTextField, String> autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_7, tfMediaFramework, jTextFieldBeanProperty_4);
+    Property settingsBeanProperty_7 = BeanProperty.create("mediaFramework");
+    Property jTextFieldBeanProperty_4 = BeanProperty.create("text");
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_7, tfMediaFramework,
+        jTextFieldBeanProperty_4);
     autoBinding_10.bind();
     //
-    BeanProperty<Settings, Integer> jSettingsIntegerBeanProperty = BeanProperty.create("ffmpegPercentage");
-    BeanProperty<JSlider, Integer> jSliderIntegerBeanProperty = BeanProperty.create("value");
-    AutoBinding<Settings, Integer, JSlider, Integer> autoBinding12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        jSettingsIntegerBeanProperty, sliderFFMPEG, jSliderIntegerBeanProperty);
-    autoBinding12.bind();
-    //
-    //
-    BeanProperty<JSlider, Integer> jFfmpegSliderBeanProperty = BeanProperty.create("value");
-    BeanProperty<JLabel, String> jFfmpegLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<JSlider, Integer, JLabel, String> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, sliderFFMPEG,
-        jFfmpegSliderBeanProperty, lblFFMPEG, jFfmpegLabelBeanProperty);
-    autoBinding_12.bind();
-
-    BeanProperty<JSlider, Integer> jSliderBeanProperty = BeanProperty.create("value");
-    BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<JSlider, Integer, JLabel, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ, sliderMemory, jSliderBeanProperty,
-        lblMemory, jLabelBeanProperty);
+    Property jSliderBeanProperty = BeanProperty.create("value");
+    Property jLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ, sliderMemory, jSliderBeanProperty, lblMemory, jLabelBeanProperty);
     autoBinding_11.bind();
     //
-    BeanProperty<Settings, Boolean> settingsBeanProperty_4 = BeanProperty.create("ignoreSSLProblems");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<Settings, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_4, chckbxIgnoreSSLProblems, jCheckBoxBeanProperty);
+    Property settingsBeanProperty_4 = BeanProperty.create("ignoreSSLProblems");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_4, chckbxIgnoreSSLProblems,
+        jCheckBoxBeanProperty);
     autoBinding_4.bind();
     //
-    BeanProperty<Settings, Integer> settingsBeanProperty_5 = BeanProperty.create("maximumDownloadThreads");
-    BeanProperty<JSpinner, Object> jSpinnerBeanProperty = BeanProperty.create("value");
-    AutoBinding<Settings, Integer, JSpinner, Object> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        settingsBeanProperty_5, spMaximumDownloadThreads, jSpinnerBeanProperty);
+    Property settingsBeanProperty_5 = BeanProperty.create("maximumDownloadThreads");
+    Property jSpinnerBeanProperty = BeanProperty.create("value");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_5, spMaximumDownloadThreads,
+        jSpinnerBeanProperty);
     autoBinding_5.bind();
   }
 }
