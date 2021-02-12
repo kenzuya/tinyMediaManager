@@ -103,7 +103,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       assertNotNull("Result", results);
 
       // result count
-      assertThat(results.size()).isGreaterThanOrEqualTo(5);
+      assertThat(results.size()).isGreaterThanOrEqualTo(1);
 
       // check first result (Inglourious Basterds - 2009 - tt0361748)
       checkSearchResult("Inglourious Basterds", 2009, "tt0361748", results);
@@ -159,6 +159,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Psych");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
 
@@ -166,7 +167,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       assertNotNull("Result", results);
 
       // result count
-      assertThat(results.size()).isGreaterThanOrEqualTo(40);
+      assertThat(results.size()).isGreaterThanOrEqualTo(1);
 
       // check first result (Psych - 2006 - tt0491738)
       checkSearchResult("Psych", 2006, "tt0491738", results);
@@ -191,6 +192,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setId(mp.getProviderInfo().getId(), "tt0491738");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       episodes = mp.getEpisodeList(options);
 
@@ -222,6 +224,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt0491738");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -244,6 +247,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt0303461");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       md = mp.getMetadata(options);
 
@@ -277,6 +281,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options.setImdbId("tt0491738");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -690,8 +695,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
     assertEquals("writer", writer, sb.toString());
 
     // date can differ depending on the IP address
-    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-    assertNotEquals("release date", "", sdf.format(md.getReleaseDate()));
+    assertNotEquals("release date", null, md.getReleaseDate());
     // certification
     // assertEquals("certification",
     // Certification.getCertification(MovieModuleManager.MOVIE_SETTINGS.getCertificationCountry(),

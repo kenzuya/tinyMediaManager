@@ -45,6 +45,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
@@ -71,23 +72,23 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowSeasonInformationPanel extends JPanel {
-  private static final long            serialVersionUID = 1911808562993073590L;
+  private static final long                  serialVersionUID = 1911808562993073590L;
 
-  private Color                        defaultColor;
-  private Color                        dummyColor;
+  private Color                              defaultColor;
+  private Color                              dummyColor;
 
-  private EventList<TvShowEpisode>     episodeEventList;
-  private TmmTableModel<TvShowEpisode> episodeTableModel;
-  private TvShowSeasonSelectionModel   tvShowSeasonSelectionModel;
-  private ImageLabel                   lblTvShowPoster;
-  private JLabel                       lblPosterSize;
-  private ImageLabel                   lblTvShowBanner;
-  private JLabel                       lblBannerSize;
-  private ImageLabel                   lblTvShowThumb;
-  private JLabel                       lblThumbSize;
-  private JLabel                       lblTvshowTitle;
-  private JLabel                       lblSeason;
-  private TmmTable                     tableEpisodes;
+  private final EventList<TvShowEpisode>     episodeEventList;
+  private final TmmTableModel<TvShowEpisode> episodeTableModel;
+  private final TvShowSeasonSelectionModel   tvShowSeasonSelectionModel;
+  private ImageLabel                         lblTvShowPoster;
+  private JLabel                             lblPosterSize;
+  private ImageLabel                         lblTvShowBanner;
+  private JLabel                             lblBannerSize;
+  private ImageLabel                         lblTvShowThumb;
+  private JLabel                             lblThumbSize;
+  private JLabel                             lblTvshowTitle;
+  private JLabel                             lblSeason;
+  private TmmTable                           tableEpisodes;
 
   /**
    * Instantiates a new tv show information panel.
@@ -232,7 +233,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
     String posterPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER);
     Dimension posterSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
 
-    if (StringUtils.isBlank(posterPath)) {
+    if (StringUtils.isBlank(posterPath) && TvShowModuleManager.SETTINGS.isSeasonArtworkFallback()) {
       // fall back to the show
       posterPath = season.getTvShow().getArtworkFilename(MediaFileType.POSTER);
       posterSize = season.getTvShow().getArtworkDimension(MediaFileType.POSTER);
@@ -253,7 +254,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
     String bannerPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER);
     Dimension bannerSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_BANNER);
 
-    if (StringUtils.isBlank(bannerPath)) {
+    if (StringUtils.isBlank(bannerPath) && TvShowModuleManager.SETTINGS.isSeasonArtworkFallback()) {
       // fall back to the show
       bannerPath = season.getTvShow().getArtworkFilename(MediaFileType.BANNER);
       bannerSize = season.getTvShow().getArtworkDimension(MediaFileType.BANNER);
@@ -274,7 +275,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
     String thumbPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB);
     Dimension thumbSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_THUMB);
 
-    if (StringUtils.isBlank(thumbPath)) {
+    if (StringUtils.isBlank(thumbPath) && TvShowModuleManager.SETTINGS.isSeasonArtworkFallback()) {
       thumbPath = season.getTvShow().getArtworkFilename(MediaFileType.FANART);
       thumbSize = season.getTvShow().getArtworkDimension(MediaFileType.FANART);
     }

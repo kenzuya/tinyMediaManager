@@ -35,7 +35,6 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
-import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
@@ -46,6 +45,7 @@ import org.tinymediamanager.scraper.theshowdb.entities.Show;
 import org.tinymediamanager.scraper.theshowdb.entities.Shows;
 import org.tinymediamanager.scraper.util.CacheMap;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
  * the class {@link TheShowDBTvShowMetadataProvider} provides a meta data provider for TV shows
@@ -93,9 +93,23 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
         md.setPlot(show.getPlot());
         md.setRuntime(show.getRuntime());
         md.setId("zap2it", show.getZap2itId());
-        md.setId("theshowdb", show.getId());
-        md.setId(MediaMetadata.TVDB, show.getTvdbId());
-        md.setId(MediaMetadata.IMDB, show.getImdbId());
+        md.setId(getId(), show.getId());
+
+        if (MetadataUtil.parseInt(show.getTvdbId(), 0) > 0) {
+          md.setId(MediaMetadata.TVDB, MetadataUtil.parseInt(show.getTvdbId(), 0));
+        }
+
+        if (MetadataUtil.isValidImdbId(show.getImdbId())) {
+          md.setId(MediaMetadata.IMDB, show.getImdbId());
+        }
+
+        if (MetadataUtil.parseInt(show.getTmdbId(), 0) > 0) {
+          md.setId(MediaMetadata.TMDB, MetadataUtil.parseInt(show.getTmdbId(), 0));
+        }
+
+        if (MetadataUtil.parseInt(show.getTraktId(), 0) > 0) {
+          md.setId(MediaMetadata.TRAKT_TV, MetadataUtil.parseInt(show.getTraktId(), 0));
+        }
 
         // Genre
         for (String genre : show.getGenre().split("\\|")) {
@@ -171,11 +185,6 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
     SortedSet<MediaSearchResult> results = new TreeSet<>();
     Shows searchResult;
 
-    if (StringUtils.isBlank(getApiKey())) {
-      LOGGER.error("API Key not found");
-      throw new ScrapeException(new HttpException(401, "Unauthorized"));
-    }
-
     try {
       searchResult = controller.getShowByName(options.getSearchQuery());
     }
@@ -193,11 +202,23 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       MediaSearchResult result = new MediaSearchResult(getProviderInfo().getId(), MediaType.TV_SHOW);
       result.setTitle(show.getTitle());
 
-      result.setId("tvdb", show.getTvdbId());
-      result.setId("tvcom", show.getTvComId());
-      result.setId("imdb", show.getImdbId());
-      result.setId("zap2it", show.getZap2itId());
-      result.setId("theshowdb", show.getId());
+      if (MetadataUtil.parseInt(show.getTvdbId(), 0) > 0) {
+        result.setId(MediaMetadata.TVDB, show.getTvdbId());
+      }
+
+      if (MetadataUtil.isValidImdbId(show.getImdbId())) {
+        result.setId(MediaMetadata.IMDB, show.getImdbId());
+      }
+
+      if (MetadataUtil.parseInt(show.getTmdbId(), 0) > 0) {
+        result.setId(MediaMetadata.TMDB, show.getTmdbId());
+      }
+
+      if (MetadataUtil.parseInt(show.getTraktId(), 0) > 0) {
+        result.setId(MediaMetadata.TRAKT_TV, show.getTraktId());
+      }
+
+      result.setId(getId(), show.getId());
       result.setProviderId(getProviderInfo().getId());
       result.setPosterUrl(show.getPosterUrl());
       result.setOverview(show.getPlot());

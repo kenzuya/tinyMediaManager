@@ -179,7 +179,7 @@ public class ImdbTvShowParser extends ImdbParser {
       }
 
       // did we get a release date?
-      if (md.getReleaseDate() == null || config.getValueAsBool(LOCAL_RELEASE_DATE)) {
+      if (md.getReleaseDate() == null || Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE))) {
         // get the date from the releaseinfo page
         Document releaseinfoDoc = compSvcImdb.submit(worker).get();
         // parse original title here!!

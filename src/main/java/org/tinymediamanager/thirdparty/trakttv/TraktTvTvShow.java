@@ -25,10 +25,8 @@ import static org.tinymediamanager.thirdparty.trakttv.TraktTv.printStatus;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -117,9 +115,6 @@ class TraktTvTvShow {
 
     LOGGER.info("You have {} TvShows in your Trakt.tv collection", traktShows.size());
 
-    // remember which episodes are already in trakt
-    Set<TvShowEpisode> episodesInTrakt = new HashSet<>();
-
     for (BaseShow traktShow : traktShows) {
       List<TvShow> matchingTmmTvShows = getTmmTvShowForTraktShow(tvShows, traktShow.show);
 
@@ -144,12 +139,6 @@ class TraktTvTvShow {
             List<TvShowEpisode> matchingEpisodes = tmmShow.getEpisode(MetadataUtil.unboxInteger(bs.number, -1),
                 MetadataUtil.unboxInteger(be.number, -1));
             for (TvShowEpisode tmmEp : matchingEpisodes) {
-
-              // remove it from our list, if we already have at least a video source (so metadata has also been synced)
-              if (matchesMetadata(be.metadata, tmmEp)) {
-                episodesInTrakt.add(tmmEp);
-              }
-
               if (be.collected_at != null) {
                 Date collectedAt = DateTimeUtils.toDate(be.collected_at.toInstant());
                 if (!collectedAt.equals(tmmEp.getDateAdded())) {
@@ -696,13 +685,13 @@ class TraktTvTvShow {
       for (SyncSeason syncSeason : syncSeasons) {
         List<SyncEpisode> syncEpisodesDelta = new ArrayList<>();
         for (SyncEpisode syncEpisode : ListUtils.nullSafe(syncSeason.episodes)) {
-          if (!containsEpisode(showInTrakt, syncEpisode)) {
+          if (!containsEpisode(showInTrakt, syncEpisode, watched)) {
             syncEpisodesDelta.add(syncEpisode);
           }
         }
 
         if (!syncEpisodesDelta.isEmpty()) {
-          syncSeasonsDelta.add(new SyncSeason().episodes(syncEpisodesDelta));
+          syncSeasonsDelta.add(new SyncSeason().number(syncSeason.number).episodes(syncEpisodesDelta));
         }
       }
 
@@ -715,7 +704,7 @@ class TraktTvTvShow {
     return null;
   }
 
-  private boolean containsEpisode(BaseShow show, SyncEpisode syncEpisode) {
+  private boolean containsEpisode(BaseShow show, SyncEpisode syncEpisode, boolean watched) {
     int seasonNumber = MetadataUtil.unboxInteger(syncEpisode.season);
     int episodeNumber = MetadataUtil.unboxInteger(syncEpisode.number);
 
@@ -723,7 +712,14 @@ class TraktTvTvShow {
       if (seasonNumber == MetadataUtil.unboxInteger(season.number, -1)) {
         for (BaseEpisode episode : ListUtils.nullSafe(season.episodes)) {
           if (episodeNumber == MetadataUtil.unboxInteger(episode.number, -1)) {
-            return true;
+            if (watched) {
+              // for watched sync we do not need any further check
+              return true;
+            }
+            else if (matchesMetadata(episode.metadata, syncEpisode)) {
+              // for collection sync we also check the metadata
+              return true;
+            }
           }
         }
       }
@@ -813,7 +809,7 @@ class TraktTvTvShow {
       }
 
       if (!syncEpisodesDelta.isEmpty()) {
-        syncSeasonsDelta.add(new SyncSeason().episodes(syncEpisodesDelta));
+        syncSeasonsDelta.add(new SyncSeason().number(syncSeason.number).episodes(syncEpisodesDelta));
       }
     }
 
@@ -854,31 +850,31 @@ class TraktTvTvShow {
     return syncEpisode;
   }
 
-  static boolean matchesMetadata(Metadata metadata, TvShowEpisode episode) {
+  static boolean matchesMetadata(Metadata metadata, SyncEpisode episode) {
     if (metadata == null) {
       return false;
     }
 
-    if (metadata.is3d == null || metadata.is3d != episode.isVideoIn3D()) {
+    if (metadata.is3d == null || !metadata.is3d.equals(episode.is3d)) {
       return false;
     }
 
-    if (metadata.audio != getAudio(episode.getMediaInfoAudioCodec())) {
+    if (metadata.audio != episode.audio) {
       return false;
     }
 
-    if (metadata.media_type != getMediaType(episode.getMediaInfoSource())) {
+    if (metadata.media_type != episode.media_type) {
       return false;
     }
 
-    if (metadata.resolution != getResolution(episode.getMainVideoFile())) {
+    if (metadata.resolution != episode.resolution) {
       return false;
     }
-    if (metadata.audio_channels == getAudioChannels(episode.getMainVideoFile().getAudioChannelCount())) {
+    if (metadata.audio_channels != episode.audio_channels) {
       return false;
     }
 
-    if (metadata.hdr != getHdr(episode.getVideoHDRFormat())) {
+    if (metadata.hdr != episode.hdr) {
       return false;
     }
 

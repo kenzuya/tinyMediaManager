@@ -22,7 +22,7 @@ public class Show {
   @SerializedName("strShow")
   private String title;
 
-  @SerializedName("idTVcom")
+  @SerializedName("idShowTVcom")
   private String tvComId;
 
   @SerializedName("strStatus")
@@ -91,8 +91,14 @@ public class Show {
   @SerializedName("Rating")
   private String certification;
 
-  @SerializedName("idIMDB")
+  @SerializedName("idShowIMDB")
   private String imdbId;
+
+  @SerializedName("idShowTMDB")
+  private String tmdbId;
+
+  @SerializedName("idShowTrakt")
+  private String traktId;
 
   @SerializedName("idZap2it")
   private String zap2itId;
@@ -226,6 +232,14 @@ public class Show {
 
   public String getImdbId() {
     return imdbId;
+  }
+
+  public String getTmdbId() {
+    return tmdbId;
+  }
+
+  public String getTraktId() {
+    return traktId;
   }
 
   public String getZap2itId() {

@@ -41,7 +41,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
@@ -72,7 +71,7 @@ class TvShowSubtitleSettingsPanel extends JPanel {
   private static final long          serialVersionUID = -1607146878528487625L;
 
   private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
-  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<ScraperInTable> scrapers         = new ArrayList<>();
 
   private TmmTable                   tableScraper;
   private JTextPane                  tpScraperDescription;
@@ -81,10 +80,6 @@ class TvShowSubtitleSettingsPanel extends JPanel {
   private JComboBox<LanguageStyle>   cbLanguageStyle;
 
   TvShowSubtitleSettingsPanel() {
-    // UI init
-    initComponents();
-    initDataBindings();
-
     // data init
     List<String> enabledSubtitleProviders = settings.getSubtitleScrapers();
     int selectedIndex = -1;
@@ -100,6 +95,10 @@ class TvShowSubtitleSettingsPanel extends JPanel {
       scrapers.add(subtitleScraper);
       counter++;
     }
+
+    // UI init
+    initComponents();
+    initDataBindings();
 
     // adjust table columns
     // Checkbox and Logo shall have minimal width

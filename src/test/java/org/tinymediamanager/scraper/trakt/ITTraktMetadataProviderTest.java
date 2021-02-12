@@ -45,6 +45,7 @@ public class ITTraktMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Harry Potter and the Philosopher's Stone");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
       options.setImdbId("tt0241527");
       options.setTmdbId(671);
       // options.setId("trakt", "-2");
@@ -68,6 +69,7 @@ public class ITTraktMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Harry Potter and the Philosopher's Stone");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
       results = new ArrayList<>(mp.search(options));
 
       // did we get a result?
@@ -94,6 +96,7 @@ public class ITTraktMetadataProviderTest extends BasicTest {
     IMovieMetadataProvider mp = new TraktMovieMetadataProvider();
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
     options.setId(mp.getProviderInfo().getId(), "545"); // Harry Potter and the Philosopher's Stone
 
     try {
@@ -172,6 +175,7 @@ public class ITTraktMetadataProviderTest extends BasicTest {
     options.setId(mp.getId(), "1390");
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     try {
       MediaMetadata md = mp.getMetadata(options);

@@ -785,11 +785,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as String or an empty string
    */
   public String getIdAsString(String key) {
-    Object obj = ids.get(key);
-    if (obj == null) {
-      return "";
-    }
-    return String.valueOf(obj);
+    return MetadataUtil.getIdAsString(ids, key);
   }
 
   /**
@@ -798,24 +794,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as int or an empty string
    */
   public int getIdAsInt(String key) {
-    Object obj = ids.get(key);
-    if (obj == null) {
-      return 0;
-    }
-    if (obj instanceof Integer) {
-      return (Integer) obj;
-    }
-
-    if (obj instanceof String) {
-      try {
-        return Integer.parseInt((String) obj);
-      }
-      catch (Exception e) {
-        LOGGER.trace("could not parse int: {}", e.getMessage());
-      }
-    }
-
-    return 0;
+    return MetadataUtil.getIdAsInt(ids, key);
   }
 
   public void addToMediaFiles(MediaFile mediaFile) {

@@ -509,6 +509,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
         movieSearchAndScrapeOptions.setTmdbId(MetadataUtil.unboxInteger(part.id));
         movieSearchAndScrapeOptions.setLanguage(options.getLanguage());
         movieSearchAndScrapeOptions.setCertificationCountry(options.getCertificationCountry());
+        movieSearchAndScrapeOptions.setReleaseDateCountry(options.getReleaseDateCountry());
         MediaMetadata mdSubItem = getMetadata(movieSearchAndScrapeOptions);
 
         // Poster

@@ -182,6 +182,7 @@ public class TvShowSettings extends AbstractSettings {
   private String                                         scraper                                = Constants.TVDB;
   private MediaLanguages                                 scraperLanguage                        = MediaLanguages.en;
   private CountryCode                                    certificationCountry                   = CountryCode.US;
+  private String                                         releaseDateCountry                     = "";
   private final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig            = new ArrayList<>();
   private final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig           = new ArrayList<>();
 
@@ -221,6 +222,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        displayMissingSpecials                 = false;
   private boolean                                        capitalWordsinTitles                   = false;
   private boolean                                        showTvShowTableTooltips                = true;
+  private boolean                                        seasonArtworkFallback                  = false;
 
   public TvShowSettings() {
     super();
@@ -355,6 +357,7 @@ public class TvShowSettings extends AbstractSettings {
     CountryCode cc = CountryCode.getByCode(defaultLang.toUpperCase(Locale.ROOT));
     if (cc != null) {
       setCertificationCountry(cc);
+      setReleaseDateCountry(Locale.getDefault().getCountry());
     }
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
@@ -562,6 +565,16 @@ public class TvShowSettings extends AbstractSettings {
     CountryCode oldValue = this.certificationCountry;
     certificationCountry = newValue;
     firePropertyChange(CERTIFICATION_COUNTRY, oldValue, newValue);
+  }
+
+  public String getReleaseDateCountry() {
+    return releaseDateCountry;
+  }
+
+  public void setReleaseDateCountry(String newValue) {
+    String oldValue = this.releaseDateCountry;
+    this.releaseDateCountry = newValue;
+    firePropertyChange("releaseDateCountry", oldValue, newValue);
   }
 
   public String getRenamerSeasonFoldername() {
@@ -1410,6 +1423,16 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = showTvShowTableTooltips;
     showTvShowTableTooltips = newValue;
     firePropertyChange("showTvShowTableTooltips", oldValue, newValue);
+  }
+
+  public boolean isSeasonArtworkFallback() {
+    return seasonArtworkFallback;
+  }
+
+  public void setSeasonArtworkFallback(boolean newValue) {
+    boolean oldValue = seasonArtworkFallback;
+    seasonArtworkFallback = newValue;
+    firePropertyChange("seasonArtworkFallback", oldValue, newValue);
   }
 
   /*****************************************************************

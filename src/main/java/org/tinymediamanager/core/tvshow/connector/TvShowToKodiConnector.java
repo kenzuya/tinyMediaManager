@@ -28,6 +28,7 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
 /**
@@ -65,7 +66,13 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
       }
 
       Element rating = document.createElement("rating");
-      rating.setAttribute("name", r.getId());
+      // Kodi needs themoviedb instead of tmdb
+      if (MediaMetadata.TMDB.equals(r.getId())) {
+        rating.setAttribute("name", "themoviedb");
+      }
+      else {
+        rating.setAttribute("name", r.getId());
+      }
       rating.setAttribute("max", String.valueOf(r.getMaxValue()));
 
       MediaRating mainMediaRating = tvShow.getRating();

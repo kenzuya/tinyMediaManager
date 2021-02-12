@@ -361,6 +361,13 @@ public class MovieNfoParser {
         if ("themoviedb".equals(r.id)) {
           r.id = MediaMetadata.TMDB;
         }
+        // cleanup
+        else if ("rottenTomatoes".equals(r.id)) {
+          r.id = "tomatometerallcritics";
+        }
+        else if ("metascore".equals(r.id)) {
+          r.id = "metacritic";
+        }
 
         // maxvalue
         try {

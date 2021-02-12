@@ -34,11 +34,12 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     options.setTmdbId(160);
     options.setLanguage(MediaLanguages.de);
     options.setCertificationCountry(CountryCode.DE);
+    options.setReleaseDateCountry("DE");
 
     MediaMetadata md = mp.getMetadata(options);
 
     assertThat(md).isNotNull();
-    assertThat(md.getTitle()).isEqualTo("Teenage Mutant Hero Turtles");
+    assertThat(md.getTitle()).isEqualTo("Teenage Mutant Ninja Turtles");
     assertThat(md.getPlot()).isEqualTo(
         "Wer weiß schon, was in der Kanalisation von New York so alles lebt... Warum nicht auch vier Schildkröten? Allerdings vier ganz besondere Schildkröten, denn Leonardo, Donatello, Raphael und Michelangelo sind die Teenage Mutant Ninja Turtles! Durch eine geheimnisvolle Substanz, das Ooze, sind sie einst mutiert und haben nicht nur sprechen gelernt. Auch ihre sonstigen Fähigkeiten sind durchaus beachtlich. Denn ihr Meister, die ebenfalls mutierte Ratte Splinter, hat sie in der Kunst des Ninja-Kampfes unterrichtet. Mit erstaunlichen Ergebnissen.");
 
@@ -54,6 +55,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     options.setTmdbId(160);
     options.setLanguage(MediaLanguages.sq); // unavailable
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata md = mp.getMetadata(options);
 
@@ -70,6 +72,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     options.setSearchQuery("Game Of Thrones");
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaSearchResult> searchResults = new ArrayList<>(mp.search(options));
 
@@ -86,6 +89,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     options.setSearchQuery("2057");
     options.setLanguage(MediaLanguages.el);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaSearchResult> searchResults = new ArrayList<>(mp.search(options));
 
@@ -104,6 +108,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     options.setSearchQuery("Band of Brothers");
     options.setLanguage(MediaLanguages.ar); // AR not available!
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaSearchResult> searchResults = new ArrayList<>(mp.search(options));
 
@@ -121,6 +126,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
     options.setId(mp.getId(), "456");
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);
@@ -147,6 +153,7 @@ public class ITTmdbTvShowMetadataProviderTest extends BasicTest {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(MediaLanguages.el);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
     options.setId(mp.getId(), "456"); // Simpsons
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);

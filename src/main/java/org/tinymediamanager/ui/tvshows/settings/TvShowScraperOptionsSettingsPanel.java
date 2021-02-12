@@ -17,6 +17,8 @@ package org.tinymediamanager.ui.tvshows.settings;
 
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
+import java.util.Locale;
+
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -44,15 +46,14 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class TvShowScraperOptionsSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 4999827736720726395L;
+  private static final long         serialVersionUID = 4999827736720726395L;
 
-
-
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
-  private JCheckBox                   chckbxAutomaticallyScrapeImages;
-  private JComboBox<MediaLanguages>   cbScraperLanguage;
-  private JComboBox<CountryCode>      cbCertificationCountry;
-  private JCheckBox                   chckbxCapitalizeWords;
+  private TvShowSettings            settings         = TvShowModuleManager.SETTINGS;
+  private JCheckBox                 chckbxAutomaticallyScrapeImages;
+  private JComboBox<MediaLanguages> cbScraperLanguage;
+  private JComboBox<CountryCode>    cbCertificationCountry;
+  private JComboBox<CountryItem>    cbReleaseCountry;
+  private JCheckBox                 chckbxCapitalizeWords;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -61,6 +62,16 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
     // UI init
     initComponents();
     initDataBindings();
+
+    // data init
+    for (String country : Locale.getISOCountries()) {
+      CountryItem item = new CountryItem(new Locale("", country));
+      cbReleaseCountry.addItem(item);
+      if (item.locale.getCountry().equalsIgnoreCase(settings.getReleaseDateCountry())) {
+        cbReleaseCountry.setSelectedItem(item);
+      }
+    }
+    cbReleaseCountry.addItemListener(l -> settings.setReleaseDateCountry(((CountryItem) cbReleaseCountry.getSelectedItem()).locale.getCountry()));
   }
 
   private void initComponents() {
@@ -86,8 +97,14 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
         cbCertificationCountry = new JComboBox<>(CountryCode.values());
         panelOptions.add(cbCertificationCountry, "cell 1 1");
 
+        JLabel label = new JLabel(TmmResourceBundle.getString("Settings.releaseDateCountry"));
+        panelOptions.add(label, "flowx,cell 1 2 2 1");
+
+        cbReleaseCountry = new JComboBox();
+        panelOptions.add(cbReleaseCountry, "cell 1 2 2 1");
+
         chckbxCapitalizeWords = new JCheckBox(TmmResourceBundle.getString("Settings.scraper.capitalizeWords"));
-        panelOptions.add(chckbxCapitalizeWords, "cell 1 2");
+        panelOptions.add(chckbxCapitalizeWords, "cell 1 3");
       }
     }
     {
@@ -141,5 +158,18 @@ class TvShowScraperOptionsSettingsPanel extends JPanel {
     AutoBinding<TvShowSettings, Boolean, JCheckBox, Boolean> autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         settingsBeanProperty_10, chckbxCapitalizeWords, jCheckBoxBeanProperty_1);
     autoBinding_9.bind();
+  }
+
+  private static class CountryItem {
+    private final Locale locale;
+
+    public CountryItem(Locale locale) {
+      this.locale = locale;
+    }
+
+    @Override
+    public String toString() {
+      return locale.getCountry() + " - " + locale.getDisplayCountry();
+    }
   }
 }

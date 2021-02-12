@@ -42,7 +42,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -74,7 +73,7 @@ class MovieImageSettingsPanel extends JPanel {
   private static final long          serialVersionUID = 7312645402037806284L;
 
   private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
-  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<ScraperInTable> scrapers         = new ArrayList<>();
 
   private JComboBox                  cbImagePosterSize;
   private JComboBox                  cbImageFanartSize;
@@ -88,9 +87,6 @@ class MovieImageSettingsPanel extends JPanel {
    * Instantiates a new movie image settings panel.
    */
   MovieImageSettingsPanel() {
-    // UI init
-    initComponents();
-    initDataBindings();
 
     // data init
     List<String> enabledArtworkProviders = settings.getArtworkScrapers();
@@ -107,6 +103,10 @@ class MovieImageSettingsPanel extends JPanel {
       scrapers.add(artworkScraper);
       counter++;
     }
+
+    // UI init
+    initComponents();
+    initDataBindings();
 
     // adjust table columns
     // Checkbox and Logo shall have minimal width
