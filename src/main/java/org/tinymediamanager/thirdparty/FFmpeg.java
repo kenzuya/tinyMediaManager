@@ -26,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.addon.FFmpegAddon;
 
 /**
  * the class {@link FFmpeg} is used to access FFmpeg
@@ -59,7 +60,7 @@ public class FFmpeg {
 
   private static String[] createCommandforStill(Path videoFile, Path stillFile, int second) {
     List<String> cmdList = new ArrayList<>();
-    cmdList.add(Globals.settings.getMediaFramework());
+    cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
     cmdList.add("-ss");
     cmdList.add(String.valueOf(second));
@@ -80,7 +81,7 @@ public class FFmpeg {
 
   private static String[] createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) {
     List<String> cmdList = new ArrayList<>();
-    cmdList.add(Globals.settings.getMediaFramework());
+    cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
     cmdList.add("-i");
     cmdList.add(videoFile.toAbsolutePath().toString());
@@ -128,6 +129,17 @@ public class FFmpeg {
     catch (IOException e) {
       LOGGER.error("could not run FFmpeg", e);
       throw new RuntimeException("Failed to start process.", e);
+    }
+  }
+
+  private static String getFfmpegExecutable() {
+    FFmpegAddon fFmpegAddon = new FFmpegAddon();
+
+    if (Globals.settings.isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) {
+      return fFmpegAddon.getExecutablePath();
+    }
+    else {
+      return Globals.settings.getMediaFramework();
     }
   }
 }

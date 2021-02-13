@@ -55,7 +55,7 @@ public class UrlUtil {
   }
 
   private UrlUtil() {
-    // hide public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -404,7 +404,24 @@ public class UrlUtil {
    */
   public static String getStringFromUrl(String urlAsString, UrlImpl urlImpl) throws IOException, InterruptedException {
     try (InputStream is = getUrlFromUrlImpl(urlAsString, urlImpl).getInputStream()) {
-      return IOUtils.toString(is, UrlUtil.UTF_8);
+      return IOUtils.toString(is, StandardCharsets.UTF_8);
+    }
+  }
+
+  /**
+   * fetch the given url and parse it into a {@link String}
+   *
+   * @param url
+   *          the desired {@link Url} implementation
+   * @return the parsed {@link String}
+   * @throws IOException
+   *           Indicates that an {@link IOException} occurred
+   * @throws InterruptedException
+   *           Indicates that this thread as been interrupted
+   */
+  public static String getStringFromUrl(Url url) throws IOException, InterruptedException {
+    try (InputStream is = url.getInputStream()) {
+      return IOUtils.toString(is, StandardCharsets.UTF_8);
     }
   }
 

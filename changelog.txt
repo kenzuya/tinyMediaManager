@@ -21,9 +21,12 @@ Version 4.1
   The only drawback here is, that you may have to enter some options (like an individual API key) in every sub-scraper
   ATTENTION: since almost everything changed in the scraper setup, you may need to re-set the scraper options after the update
 
++ added integration of FFmpeg
+  You can directly download and use FFmpeg on Windows, macOS and Linux - as well as use FFmpeg from your system
+  - creation of still/thumb creation via FFmpeg #1017
+  - muxing downloaded trailers using FFmpeg
+
 + added TVmaze scraper
-+ creation of still/thumb creation via FFmpeg #1017
-+ muxing downloaded trailers using FFmpeg
 + enhanced Trakt.tv sync (added personal rating sync, reworked settings & actions)
 + added missing movies in movie set #1111
 + added an option to suppress tooltips in the main tables #1128
