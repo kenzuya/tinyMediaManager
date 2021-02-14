@@ -147,7 +147,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * user rating
      */
     col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", this::getUserRating, String.class);
-    col.setHeaderIcon(IconManager.RATING);
+    col.setHeaderIcon(IconManager.USER_RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
