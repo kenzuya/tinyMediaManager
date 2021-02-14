@@ -344,6 +344,10 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
     if ("gre".equals(languageCode)) {
       languageCode = "ell";
     }
+    // pt_BR -> pob
+    if ("pt_BR".equalsIgnoreCase(locale.toString())) {
+      languageCode = "pob";
+    }
 
     return languageCode;
   }
