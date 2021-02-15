@@ -248,10 +248,7 @@ public class MovieSetArtworkHelper {
     }
 
     List<Path> paths = new ArrayList<>();
-    String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
-
-    // also remove illegal separators
-    movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
+    String movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
 
     for (IMovieSetFileNaming fileNaming : filenamings) {
       if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
@@ -290,29 +287,21 @@ public class MovieSetArtworkHelper {
     // try to resolve via the filename
     for (IMovieSetFileNaming fileNaming : fileNamings) {
       for (MediaFile mediaFile : mediaFiles) {
+        // first try to use our old logic
         String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
         // also remove illegal separators
         movieSetName = MovieRenamer.replacePathSeparators(movieSetName);
 
-        if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
-          // Kodi style: <movie set artwork folder>/<movie set name>/<artwork type>.ext
-          Path path = Paths.get(artworkFolder.toString(), movieSetName, fileNaming.getFilename(movieSetName, ""));
-          if (mediaFile.getFileAsPath().toAbsolutePath().startsWith(path)) {
-            return mediaFile;
-          }
+        if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
+          return mediaFile;
         }
-        else if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.AUTOMATOR_STYLE_FOLDER) {
-          // Artwork Automator style: <movie set artwork folder>/<movie set name>-<artwork type>.ext
-          Path path = Paths.get(artworkFolder.toString(), fileNaming.getFilename(movieSetName, ""));
-          if (mediaFile.getFileAsPath().toAbsolutePath().startsWith(path)) {
-            return mediaFile;
-          }
-        }
-        else {
-          if (mediaFile.getFilename().contains(fileNaming.getFilename("", ""))) {
-            return mediaFile;
-          }
+
+        // second, try the Kodi style
+        movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
+
+        if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
+          return mediaFile;
         }
       }
     }
@@ -325,6 +314,23 @@ public class MovieSetArtworkHelper {
     }
 
     return null;
+  }
+
+  private static boolean isMediaFileInArtworkFolder(String cleanMovieSetName, Path artworkFolder, IMovieSetFileNaming fileNaming,
+      MediaFile mediaFile) {
+    if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
+      // Kodi style: <movie set artwork folder>/<movie set name>/<artwork type>.ext
+      Path path = Paths.get(artworkFolder.toString(), cleanMovieSetName, fileNaming.getFilename(cleanMovieSetName, ""));
+      return mediaFile.getFileAsPath().toAbsolutePath().startsWith(path);
+    }
+    else if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.AUTOMATOR_STYLE_FOLDER) {
+      // Artwork Automator style: <movie set artwork folder>/<movie set name>-<artwork type>.ext
+      Path path = Paths.get(artworkFolder.toString(), fileNaming.getFilename(cleanMovieSetName, ""));
+      return mediaFile.getFileAsPath().toAbsolutePath().startsWith(path);
+    }
+    else {
+      return mediaFile.getFilename().contains(fileNaming.getFilename("", ""));
+    }
   }
 
   /**
@@ -346,6 +352,7 @@ public class MovieSetArtworkHelper {
     // a)
     for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
       for (String fileType : SUPPORTED_ARTWORK_FILETYPES) {
+        // old tmm style
         String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
         // also remove illegal separators
@@ -359,12 +366,25 @@ public class MovieSetArtworkHelper {
           TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
           movieSet.addToMediaFiles(mediaFile);
         }
+
+        // Kodi style
+        movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
+
+        artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
+        artworkFile = Paths.get(artworkFolder, artworkFileName);
+        if (Files.exists(artworkFile)) {
+          // add this artwork to the media files
+          MediaFile mediaFile = new MediaFile(artworkFile, type);
+          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
+          movieSet.addToMediaFiles(mediaFile);
+        }
       }
     }
 
     // b)
     for (MediaFileType type : SUPPORTED_ARTWORK_TYPES) {
       for (String fileType : SUPPORTED_ARTWORK_FILETYPES) {
+        // old tmm style
         String movieSetName = MovieRenamer.replaceInvalidCharacters(movieSet.getTitle());
 
         // also remove illegal separators
@@ -372,6 +392,18 @@ public class MovieSetArtworkHelper {
 
         String artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         Path artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
+        if (Files.exists(artworkFile)) {
+          // add this artwork to the media files
+          MediaFile mediaFile = new MediaFile(artworkFile, type);
+          TmmTaskManager.getInstance().addUnnamedTask(new MediaFileInformationFetcherTask(mediaFile, movieSet, false));
+          movieSet.addToMediaFiles(mediaFile);
+        }
+
+        // Kodi style
+        movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
+
+        artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
+        artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
         if (Files.exists(artworkFile)) {
           // add this artwork to the media files
           MediaFile mediaFile = new MediaFile(artworkFile, type);
@@ -1015,5 +1047,26 @@ public class MovieSetArtworkHelper {
     }
 
     return fileNamings;
+  }
+
+  /**
+   * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
+   * 
+   * @param movieSetTitle
+   *          the movie set title
+   * @return the cleaned movie set title
+   */
+  private static String cleanMovieSetNameKodiStyle(String movieSetTitle) {
+    String result = movieSetTitle.replace('/', '_');
+    result = result.replace('\\', '_');
+    result = result.replace('?', '_');
+    result = result.replace(':', '_');
+    result = result.replace('*', '_');
+    result = result.replace('\"', '_');
+    result = result.replace('<', '_');
+    result = result.replace('>', '_');
+    result = result.replace('|', '_');
+
+    return result;
   }
 }

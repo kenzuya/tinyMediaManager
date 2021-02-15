@@ -31,6 +31,7 @@ import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -165,7 +166,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * rating
      */
-    col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", movie -> movie.getRating().getRating(), Float.class);
+    col = new Column(TmmResourceBundle.getString("metatag.rating"), "rating", movie -> getRating(movie.getRating()), Float.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
@@ -176,11 +177,24 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
+     * votes (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes",
+        movie -> movie.getRating() == MediaMetadata.EMPTY_RATING ? null : movie.getRating().getVotes(), Integer.class);
+    col.setColumnComparator(integerComparator);
+    col.setHeaderIcon(IconManager.VOTES);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("1000000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * user rating
      */
-    col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", movie -> movie.getUserRating().getRating(), Float.class);
+    col = new Column(TmmResourceBundle.getString("metatag.userrating"), "userrating", movie -> getRating(movie.getUserRating()), Float.class);
     col.setColumnComparator(floatComparator);
-    col.setHeaderIcon(IconManager.RATING);
+    col.setHeaderIcon(IconManager.USER_RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
@@ -190,7 +204,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * imdb rating
      */
-    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - IMDb", "imdb", movie -> movie.getRating(MediaMetadata.IMDB).getRating(),
+    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - IMDb", "imdb", movie -> getRating(movie.getRating(MediaMetadata.IMDB)),
         Float.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.IMDB);
@@ -204,7 +218,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      * rotten tomatoes rating
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Rotten Tomatoes", "rottenTomatoes",
-        movie -> movie.getRating("rottenTomatoes").getRating(), Float.class);
+        movie -> getRating(movie.getRating("tomatometerallcritics")), Float.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.ROTTEN_TOMATOES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
@@ -216,7 +230,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * metascore rating
      */
-    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Metascore", "metascore", movie -> movie.getRating("metascore").getRating(),
+    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Metascore", "metacritic", movie -> getRating(movie.getRating("metacritic")),
         Float.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.METASCORE);
@@ -229,25 +243,13 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * tmdb rating
      */
-    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - TMDB", "tmdb", movie -> movie.getRating(MediaMetadata.TMDB).getRating(),
+    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - TMDB", "tmdb", movie -> getRating(movie.getRating(MediaMetadata.TMDB)),
         Float.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.TMDB);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
-    col.setDefaultHidden(true);
-    addColumn(col);
-
-    /*
-     * votes (hidden per default)
-     */
-    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", movie -> movie.getRating().getVotes(), Integer.class);
-    col.setColumnComparator(integerComparator);
-    col.setHeaderIcon(IconManager.VOTES);
-    col.setCellRenderer(new RightAlignTableCellRenderer());
-    col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("1000000") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -474,6 +476,13 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     addColumn(col);
+  }
+
+  private Float getRating(MediaRating rating) {
+    if (rating == MediaMetadata.EMPTY_RATING) {
+      return null;
+    }
+    return rating.getRating();
   }
 
   private <E> Function<E, String> showTooltip(Function<E, String> tooltipFunction) {

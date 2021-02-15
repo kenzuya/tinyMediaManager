@@ -41,6 +41,7 @@ import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
@@ -94,6 +95,7 @@ public class MovieExporter extends MediaEntityExporter {
     engine.registerNamedRenderer(new MovieFilenameRenderer());
     engine.registerNamedRenderer(new MovieArtworkCopyRenderer(exportDir));
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
+    engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
 
     // prepare export destination

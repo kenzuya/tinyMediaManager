@@ -1094,6 +1094,14 @@ public class MovieNfoParser {
             actor.profile = child.ownText();
             break;
 
+          case "tmdbid":
+            actor.tmdbId = child.ownText();
+            break;
+
+          case "imdbid":
+            actor.imdbId = child.ownText();
+            break;
+
           default:
             break;
         }
@@ -1730,6 +1738,15 @@ public class MovieNfoParser {
     person.setThumbUrl(nfoPerson.thumb);
     person.setProfileUrl(nfoPerson.profile);
 
+    int tmdbId = MetadataUtil.parseInt(nfoPerson.tmdbId, 0);
+    if (tmdbId > 0) {
+      person.setId(MediaMetadata.TMDB, tmdbId);
+    }
+
+    if (StringUtils.isNotBlank(nfoPerson.imdbId)) {
+      person.setId(MediaMetadata.IMDB, nfoPerson.imdbId);
+    }
+
     return person;
   }
 
@@ -1753,6 +1770,8 @@ public class MovieNfoParser {
     String role    = "";
     String thumb   = "";
     String profile = "";
+    String tmdbId  = "";
+    String imdbId  = "";
   }
 
   static class Fileinfo {

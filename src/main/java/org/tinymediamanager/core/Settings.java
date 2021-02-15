@@ -96,6 +96,7 @@ public class Settings extends AbstractSettings {
   // language 2 char - saved to config
   private String                language;
   private String                mediaPlayer                 = "";
+  private boolean               useInternalMediaFramework   = true;
   private String                mediaFramework              = "";
   private Integer               ffmpegPercentage            = 50;
 
@@ -223,7 +224,7 @@ public class Settings extends AbstractSettings {
    *
    * @return single instance of Settings
    */
-  public synchronized static Settings getInstance(String folder) {
+  public static synchronized Settings getInstance(String folder) {
     if (instance == null) {
       instance = (Settings) getInstance(folder, CONFIG_FILE, Settings.class);
     }
@@ -867,6 +868,16 @@ public class Settings extends AbstractSettings {
     String oldValue = mediaPlayer;
     mediaPlayer = newValue;
     firePropertyChange("mediaPlayer", oldValue, newValue);
+  }
+
+  public boolean isUseInternalMediaFramework() {
+    return useInternalMediaFramework;
+  }
+
+  public void setUseInternalMediaFramework(boolean newValue) {
+    boolean oldvalue = useInternalMediaFramework;
+    useInternalMediaFramework = newValue;
+    firePropertyChange("useInternalMediaFramework", oldvalue, newValue);
   }
 
   public void setMediaFramework(String newValue) {
