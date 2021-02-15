@@ -20,6 +20,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,26 +56,43 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class TvShowModuleManager implements ITmmModule {
 
-  public static final TvShowSettings  SETTINGS     = TvShowSettings.getInstance();
+  public static final TvShowSettings SETTINGS     = TvShowSettings.getInstance();
 
-  private static final String         MODULE_TITLE = "TV show management";
-  private static final String         TV_SHOW_DB   = "tvshows.db";
-  private static final Logger         LOGGER       = LoggerFactory.getLogger(TvShowModuleManager.class);
-  private static TvShowModuleManager  instance;
+  private static final String        MODULE_TITLE = "TV show management";
+  private static final String        TV_SHOW_DB   = "tvshows.db";
+  private static final Logger        LOGGER       = LoggerFactory.getLogger(TvShowModuleManager.class);
+  private static TvShowModuleManager instance;
 
-  private boolean                     enabled;
-  private MVStore                     mvStore;
-  private ObjectWriter                tvShowObjectWriter;
-  private ObjectWriter                episodeObjectWriter;
+  private final List<String>         startupMessages;
+  private final Timer                compactTimer;
+  private final TimerTask            compactTask;
 
-  private MVMap<UUID, String>         tvShowMap;
-  private MVMap<UUID, String>         episodeMap;
+  private boolean                    enabled;
+  private MVStore                    mvStore;
+  private ObjectWriter               tvShowObjectWriter;
+  private ObjectWriter               episodeObjectWriter;
 
-  private List<String>                startupMessages;
+  private MVMap<UUID, String>        tvShowMap;
+  private MVMap<UUID, String>        episodeMap;
+
+  private boolean                    dirty;
 
   private TvShowModuleManager() {
     enabled = false;
     startupMessages = new ArrayList<>();
+
+    compactTask = new TimerTask() {
+      @Override
+      public void run() {
+        if (dirty) {
+          mvStore.compactFile(500);
+          dirty = false;
+        }
+      }
+    };
+
+    compactTimer = new Timer(true);
+    dirty = false;
   }
 
   public static TvShowModuleManager getInstance() {
@@ -93,7 +112,7 @@ public class TvShowModuleManager implements ITmmModule {
     // configure database
     Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), TV_SHOW_DB);
     try {
-      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
+      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
     }
     catch (Exception e) {
       // look if the file is locked by another process (rethrow rather than delete the db file)
@@ -107,7 +126,7 @@ public class TvShowModuleManager implements ITmmModule {
       try {
         Utils.deleteFileSafely(Paths.get(TV_SHOW_DB + ".corrupted"));
         Utils.moveFileSafe(databaseFile, Paths.get(TV_SHOW_DB + ".corrupted"));
-        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
+        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
 
         // inform user that the DB could not be loaded
         startupMessages.add(TmmResourceBundle.getString("tvshow.loaddb.failed"));
@@ -143,10 +162,14 @@ public class TvShowModuleManager implements ITmmModule {
     TvShowList.getInstance().loadEpisodesFromDatabase(episodeMap, objectMapper);
     TvShowList.getInstance().initDataAfterLoading();
     enabled = true;
+
+    compactTimer.schedule(compactTask, 10000, 10000);
   }
 
   @Override
   public void shutDown() throws Exception {
+    compactTimer.cancel();
+
     mvStore.compactMoveChunks();
     mvStore.close();
 
@@ -199,11 +222,13 @@ public class TvShowModuleManager implements ITmmModule {
     if (!StringUtils.equals(newValue, oldValue)) {
       // write to DB
       tvShowMap.put(tvShow.getDbId(), newValue);
+      dirty = true;
     }
   }
 
   void removeTvShowFromDb(TvShow tvShow) {
     tvShowMap.remove(tvShow.getDbId());
+    dirty = true;
   }
 
   void persistEpisode(TvShowEpisode episode) throws Exception {
@@ -212,11 +237,13 @@ public class TvShowModuleManager implements ITmmModule {
 
     if (!StringUtils.equals(newValue, oldValue)) {
       episodeMap.put(episode.getDbId(), newValue);
+      dirty = true;
     }
   }
 
   void removeEpisodeFromDb(TvShowEpisode episode) {
     episodeMap.remove(episode.getDbId());
+    dirty = true;
   }
 
   @Override

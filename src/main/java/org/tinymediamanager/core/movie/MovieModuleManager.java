@@ -20,6 +20,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -50,27 +52,44 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * @author Manuel Laggner
  */
 public class MovieModuleManager implements ITmmModule {
-  
-  public static final MovieSettings   SETTINGS     = MovieSettings.getInstance();
 
-  private static final String         MODULE_TITLE = "Movie management";
-  private static final String         MOVIE_DB     = "movies.db";
-  private static final Logger         LOGGER       = LoggerFactory.getLogger(MovieModuleManager.class);
-  private static MovieModuleManager   instance;
+  public static final MovieSettings SETTINGS     = MovieSettings.getInstance();
 
-  private boolean                     enabled;
-  private MVStore                     mvStore;
-  private ObjectWriter                movieObjectWriter;
-  private ObjectWriter                movieSetObjectWriter;
+  private static final String       MODULE_TITLE = "Movie management";
+  private static final String       MOVIE_DB     = "movies.db";
+  private static final Logger       LOGGER       = LoggerFactory.getLogger(MovieModuleManager.class);
+  private static MovieModuleManager instance;
 
-  private MVMap<UUID, String>         movieMap;
-  private MVMap<UUID, String>         movieSetMap;
+  private final List<String>        startupMessages;
+  private final Timer               compactTimer;
+  private final TimerTask           compactTask;
 
-  private List<String>                startupMessages;
+  private boolean                   enabled;
+  private MVStore                   mvStore;
+  private ObjectWriter              movieObjectWriter;
+  private ObjectWriter              movieSetObjectWriter;
+
+  private MVMap<UUID, String>       movieMap;
+  private MVMap<UUID, String>       movieSetMap;
+
+  private boolean                   dirty;
 
   private MovieModuleManager() {
     enabled = false;
     startupMessages = new ArrayList<>();
+
+    compactTask = new TimerTask() {
+      @Override
+      public void run() {
+        if (dirty) {
+          mvStore.compactFile(500);
+          dirty = false;
+        }
+      }
+    };
+
+    compactTimer = new Timer(true);
+    dirty = false;
   }
 
   public static MovieModuleManager getInstance() {
@@ -90,7 +109,7 @@ public class MovieModuleManager implements ITmmModule {
     // configure database
     Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), MOVIE_DB);
     try {
-      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
+      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
     }
     catch (Exception e) {
       // look if the file is locked by another process (rethrow rather than delete the db file)
@@ -104,7 +123,7 @@ public class MovieModuleManager implements ITmmModule {
       try {
         Utils.deleteFileSafely(Paths.get(MOVIE_DB + ".corrupted"));
         Utils.moveFileSafe(databaseFile, Paths.get(MOVIE_DB + ".corrupted"));
-        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
+        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
 
         // inform user that the DB could not be loaded
         startupMessages.add(TmmResourceBundle.getString("movie.loaddb.failed"));
@@ -140,10 +159,14 @@ public class MovieModuleManager implements ITmmModule {
     MovieList.getInstance().loadMovieSetsFromDatabase(movieSetMap, objectMapper);
     MovieList.getInstance().initDataAfterLoading();
     enabled = true;
+
+    compactTimer.schedule(compactTask, 10000, 10000);
   }
 
   @Override
   public void shutDown() throws Exception {
+    compactTimer.cancel();
+
     mvStore.compactMoveChunks();
     mvStore.close();
 
@@ -205,11 +228,13 @@ public class MovieModuleManager implements ITmmModule {
     if (!StringUtils.equals(newValue, oldValue)) {
       // write movie to DB
       movieMap.put(movie.getDbId(), newValue);
+      dirty = true;
     }
   }
 
   void removeMovieFromDb(Movie movie) {
     movieMap.remove(movie.getDbId());
+    dirty = true;
   }
 
   void persistMovieSet(MovieSet movieSet) throws Exception {
@@ -217,11 +242,13 @@ public class MovieModuleManager implements ITmmModule {
     String oldValue = movieSetMap.get(movieSet.getDbId());
     if (!StringUtils.equals(newValue, oldValue)) {
       movieSetMap.put(movieSet.getDbId(), newValue);
+      dirty = true;
     }
   }
 
   void removeMovieSetFromDb(MovieSet movieSet) {
     movieSetMap.remove(movieSet.getDbId());
+    dirty = true;
   }
 
   @Override
