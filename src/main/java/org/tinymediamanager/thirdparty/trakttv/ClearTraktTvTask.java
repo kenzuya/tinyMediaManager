@@ -17,6 +17,8 @@ package org.tinymediamanager.thirdparty.trakttv;
 
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.UTF8Control;
 import org.tinymediamanager.core.threading.TmmTask;
 
@@ -26,6 +28,7 @@ import org.tinymediamanager.core.threading.TmmTask;
  * @author Manuel Laggner
  */
 public class ClearTraktTvTask extends TmmTask {
+  private static final Logger         LOGGER       = LoggerFactory.getLogger(ClearTraktTvTask.class);
   private static final ResourceBundle BUNDLE       = ResourceBundle.getBundle("messages", new UTF8Control());
 
   private boolean                     clearMovies  = false;
@@ -42,13 +45,25 @@ public class ClearTraktTvTask extends TmmTask {
     TraktTv traktTV = TraktTv.getInstance();
 
     if (clearMovies) {
-      publishState(BUNDLE.getString("trakt.clear.movies"), 0);
-      traktTV.clearTraktMovies();
+      try {
+        publishState(BUNDLE.getString("trakt.clear.movies"), 0);
+        traktTV.clearTraktMovies();
+      }
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
+      }
+
     }
 
     if (clearTvShows) {
-      publishState(BUNDLE.getString("trakt.clear.tvshows"), 0);
-      traktTV.clearTraktTvShows();
+      try {
+        publishState(BUNDLE.getString("trakt.clear.tvshows"), 0);
+        traktTV.clearTraktTvShows();
+      }
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
+      }
+
     }
   }
 }

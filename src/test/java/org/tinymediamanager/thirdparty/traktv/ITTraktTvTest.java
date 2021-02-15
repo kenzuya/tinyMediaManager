@@ -4,7 +4,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.TmmModuleManager;
+import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.thirdparty.trakttv.TraktTv;
 
@@ -32,23 +34,23 @@ public class ITTraktTvTest {
   }
 
   @Test
-  public void syncTraktMovieCollection() {
-    t.syncTraktMovieCollection();
+  public void syncTraktMovieCollection() throws Exception {
+    t.syncTraktMovieCollection(MovieList.getInstance().getMovies());
   }
 
   @Test
-  public void syncTraktMovieWatched() {
-    t.syncTraktMovieWatched();
+  public void syncTraktMovieWatched() throws Exception {
+    t.syncTraktMovieWatched(MovieList.getInstance().getMovies());
   }
 
   @Test
-  public void syncTraktTvShowCollection() {
-    t.syncTraktTvShowCollection();
+  public void syncTraktTvShowCollection() throws Exception {
+    t.syncTraktTvShowCollection(TvShowList.getInstance().getTvShows());
   }
 
   @Test
-  public void syncTraktTvShowWatched() {
-    t.syncTraktTvShowWatched();
+  public void syncTraktTvShowWatched() throws Exception {
+    t.syncTraktTvShowWatched(TvShowList.getInstance().getTvShows());
   }
 
   // @Test
@@ -67,12 +69,12 @@ public class ITTraktTvTest {
   // }
 
   @Test
-  public void clearTvShows() {
+  public void clearTvShows() throws Exception {
     t.clearTraktTvShows();
   }
 
   @Test
-  public void clearMovies() {
+  public void clearMovies() throws Exception {
     t.clearTraktMovies();
   }
 }

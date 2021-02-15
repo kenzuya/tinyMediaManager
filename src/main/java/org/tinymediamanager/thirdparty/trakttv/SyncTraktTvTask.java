@@ -19,9 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.UTF8Control;
+import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 
 /**
@@ -30,14 +34,16 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  * @author Manuel Laggner
  */
 public class SyncTraktTvTask extends TmmTask {
+  private static final Logger         LOGGER             = LoggerFactory.getLogger(SyncTraktTvTask.class);
   private static final ResourceBundle BUNDLE             = ResourceBundle.getBundle("messages", new UTF8Control());
+
+  private final List<Movie>           movies             = new ArrayList<>();
+  private final List<TvShow>          tvShows            = new ArrayList<>();
 
   private boolean                     syncMovies         = false;
   private boolean                     syncMoviesWatched  = false;
   private boolean                     syncTvShows        = false;
   private boolean                     syncTvShowsWatched = false;
-  private List<Movie>                 movies             = new ArrayList<>();
-  private List<TvShow>                tvShows            = new ArrayList<>();
 
   public SyncTraktTvTask(boolean syncMovies, boolean syncMoviesWatched, boolean syncTvShow, boolean syncTvShowWatched) {
     super(BUNDLE.getString("trakt.sync"), 0, TaskType.BACKGROUND_TASK);
@@ -67,42 +73,66 @@ public class SyncTraktTvTask extends TmmTask {
 
     if (syncMovies) {
       publishState(BUNDLE.getString("trakt.sync.movie"), 0);
-      if (movies.isEmpty()) {
-        traktTV.syncTraktMovieCollection();
+      try {
+        if (movies.isEmpty()) {
+          traktTV.syncTraktMovieCollection(MovieList.getInstance().getMovies());
+        }
+        else {
+          traktTV.syncTraktMovieCollection(movies);
+        }
       }
-      else {
-        traktTV.syncTraktMovieCollection(movies);
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
       }
+
     }
 
     if (syncMoviesWatched) {
       publishState(BUNDLE.getString("trakt.sync.moviewatched"), 0);
-      if (movies.isEmpty()) {
-        traktTV.syncTraktMovieWatched();
+      try {
+        if (movies.isEmpty()) {
+          traktTV.syncTraktMovieWatched(MovieList.getInstance().getMovies());
+        }
+        else {
+          traktTV.syncTraktMovieWatched(movies);
+        }
       }
-      else {
-        traktTV.syncTraktMovieWatched(movies);
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
       }
+
     }
 
     if (syncTvShows) {
       publishState(BUNDLE.getString("trakt.sync.tvshow"), 0);
-      if (tvShows.isEmpty()) {
-        traktTV.syncTraktTvShowCollection();
+      try {
+        if (tvShows.isEmpty()) {
+          traktTV.syncTraktTvShowCollection(TvShowList.getInstance().getTvShows());
+        }
+        else {
+          traktTV.syncTraktTvShowCollection(tvShows);
+        }
       }
-      else {
-        traktTV.syncTraktTvShowCollection(tvShows);
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
       }
+
     }
 
     if (syncTvShowsWatched) {
       publishState(BUNDLE.getString("trakt.sync.tvshowwatched"), 0);
-      if (tvShows.isEmpty()) {
-        traktTV.syncTraktTvShowWatched();
+      try {
+        if (tvShows.isEmpty()) {
+          traktTV.syncTraktTvShowWatched(TvShowList.getInstance().getTvShows());
+        }
+        else {
+          traktTV.syncTraktTvShowWatched(tvShows);
+        }
       }
-      else {
-        traktTV.syncTraktTvShowWatched(tvShows);
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
       }
+
     }
   }
 }

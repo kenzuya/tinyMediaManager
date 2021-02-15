@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -186,4 +187,27 @@ public class MetadataUtil {
       return defaultValue;
     }
   }
+
+  /**
+   * safe unboxing of the given {@link Integer} or else return 0
+   *
+   * @param original
+   *          the integer to unbox
+   * @return the int value of the {@link Integer} or 0 if null
+   */
+  public static int unboxInteger(Integer original) {
+    return unboxInteger(original, 0);
+  }
+
+  /**
+   * safe unboxing of the given {@link Integer} or else return the default value
+   *
+   * @param original
+   *          the integer to unbox
+   * @return the int value of the {@link Integer} or the default value if null
+   */
+  public static int unboxInteger(Integer original, int defaulValue) {
+    return Optional.ofNullable(original).orElse(defaulValue);
+  }
+
 }

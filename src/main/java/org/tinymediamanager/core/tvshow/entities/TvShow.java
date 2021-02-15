@@ -2047,6 +2047,17 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     return ep;
   }
 
+  public List<TvShowEpisode> getEpisodes(int season, int episode) {
+    List<TvShowEpisode> eps = new ArrayList<>();
+
+    for (TvShowEpisode e : new ArrayList<>(this.episodes)) {
+      if (e.getSeason() == season && e.getEpisode() == episode) {
+        eps.add(e);
+      }
+    }
+    return eps;
+  }
+
   /**
    * check if one of the tv shows episode is newly added
    *

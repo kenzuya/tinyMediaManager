@@ -65,7 +65,7 @@ class ExternalServicesSettingsPanel extends JPanel {
     btnGetTraktPin.addActionListener(e -> getTraktPin());
     btnTestTraktConnection.addActionListener(e -> {
       try {
-        TraktTv.refreshAccessToken();
+        TraktTv.getInstance().refreshAccessToken();
         JOptionPane.showMessageDialog(MainWindow.getFrame(), BUNDLE.getString("Settings.trakt.testconnection.good"),
             BUNDLE.getString("Settings.trakt.testconnection"), JOptionPane.INFORMATION_MESSAGE);
       }
@@ -94,7 +94,7 @@ class ExternalServicesSettingsPanel extends JPanel {
     String accessToken = "";
     String refreshToken = "";
     try {
-      Map<String, String> tokens = TraktTv.authenticateViaPin(pin);
+      Map<String, String> tokens = TraktTv.getInstance().authenticateViaPin(pin);
       accessToken = tokens.get("accessToken") == null ? "" : tokens.get("accessToken");
       refreshToken = tokens.get("refreshToken") == null ? "" : tokens.get("refreshToken");
     }

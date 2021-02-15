@@ -841,6 +841,15 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return channels;
   }
 
+  public int getAudioChannelCount() {
+    MediaFileAudioStream highestStream = getDefaultOrBestAudioStream();
+
+    if (highestStream != null) {
+      return highestStream.getAudioChannels();
+    }
+    return 0;
+  }
+
   public List<String> getAudioChannelsList() {
     List<String> audioChannels = new ArrayList<>();
     for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
