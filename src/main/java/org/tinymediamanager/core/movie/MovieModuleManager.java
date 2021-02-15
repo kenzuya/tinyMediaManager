@@ -61,7 +61,6 @@ public class MovieModuleManager implements ITmmModule {
   private static MovieModuleManager instance;
 
   private final List<String>        startupMessages;
-  private final TimerTask           compactTask;
 
   private boolean                   enabled;
   private MVStore                   mvStore;
@@ -72,21 +71,12 @@ public class MovieModuleManager implements ITmmModule {
   private MVMap<UUID, String>       movieSetMap;
 
   private Timer                     compactTimer;
+  private TimerTask                 compactTask;
   private boolean                   dirty;
 
   private MovieModuleManager() {
     enabled = false;
     startupMessages = new ArrayList<>();
-
-    compactTask = new TimerTask() {
-      @Override
-      public void run() {
-        if (dirty) {
-          mvStore.compactFile(500);
-          dirty = false;
-        }
-      }
-    };
   }
 
   public static MovieModuleManager getInstance() {
@@ -158,6 +148,16 @@ public class MovieModuleManager implements ITmmModule {
     enabled = true;
 
     dirty = false;
+    compactTask = new TimerTask() {
+      @Override
+      public void run() {
+        if (dirty) {
+          mvStore.compactFile(500);
+          dirty = false;
+        }
+      }
+    };
+
     compactTimer = new Timer(true);
     compactTimer.schedule(compactTask, 10000, 10000);
   }

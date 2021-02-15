@@ -64,7 +64,6 @@ public class TvShowModuleManager implements ITmmModule {
   private static TvShowModuleManager instance;
 
   private final List<String>         startupMessages;
-  private final TimerTask            compactTask;
 
   private boolean                    enabled;
   private MVStore                    mvStore;
@@ -75,21 +74,12 @@ public class TvShowModuleManager implements ITmmModule {
   private MVMap<UUID, String>        episodeMap;
 
   private Timer                      compactTimer;
+  private TimerTask                  compactTask;
   private boolean                    dirty;
 
   private TvShowModuleManager() {
     enabled = false;
     startupMessages = new ArrayList<>();
-
-    compactTask = new TimerTask() {
-      @Override
-      public void run() {
-        if (dirty) {
-          mvStore.compactFile(500);
-          dirty = false;
-        }
-      }
-    };
   }
 
   public static TvShowModuleManager getInstance() {
@@ -161,6 +151,16 @@ public class TvShowModuleManager implements ITmmModule {
     enabled = true;
 
     dirty = false;
+    compactTask = new TimerTask() {
+      @Override
+      public void run() {
+        if (dirty) {
+          mvStore.compactFile(500);
+          dirty = false;
+        }
+      }
+    };
+
     compactTimer = new Timer(true);
     compactTimer.schedule(compactTask, 10000, 10000);
   }
