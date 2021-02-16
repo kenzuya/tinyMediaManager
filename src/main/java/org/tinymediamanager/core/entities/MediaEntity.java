@@ -68,8 +68,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
@@ -93,7 +91,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * @author Manuel Laggner
  */
 public abstract class MediaEntity extends AbstractModelObject {
-  private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
 
@@ -1282,4 +1279,49 @@ public abstract class MediaEntity extends AbstractModelObject {
   public abstract void callbackForWrittenArtwork(MediaArtworkType type);
 
   protected abstract Comparator<MediaFile> getMediaFileComparator();
+
+  protected void mergePersons(List<Person> baseList, List<Person> newItems) {
+    // if any of these lists is null, we cannot do anything here
+    if (baseList == null || newItems == null) {
+      return;
+    }
+
+    // first remove old ones
+    for (int i = baseList.size() - 1; i >= 0; i--) {
+      Person entry = baseList.get(i);
+      if (!newItems.contains(entry)) {
+        baseList.remove(entry);
+      }
+    }
+
+    // second, add new ones in the right order
+    for (int i = 0; i < newItems.size(); i++) {
+      Person entry = newItems.get(i);
+      if (!baseList.contains(entry)) {
+        try {
+          baseList.add(i, entry);
+        }
+        catch (IndexOutOfBoundsException e) {
+          baseList.add(entry);
+        }
+      }
+      else {
+        int indexOldList = baseList.indexOf(entry);
+
+        // merge the entries (e.g. use thumb url/profile/ids from both)
+        Person oldPerson = baseList.get(indexOldList);
+        oldPerson.merge(entry);
+
+        if (i != indexOldList) {
+          Person oldEntry = baseList.remove(indexOldList); // NOSONAR
+          try {
+            baseList.add(i, oldEntry);
+          }
+          catch (IndexOutOfBoundsException e) {
+            baseList.add(oldEntry);
+          }
+        }
+      }
+    }
+  }
 }

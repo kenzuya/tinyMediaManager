@@ -929,7 +929,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     // two way sync of actors
-    ListUtils.mergeLists(actors, newActors);
+    mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 
@@ -984,7 +984,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setDirectors(List<Person> newDirectors) {
     // two way sync of directors
-    ListUtils.mergeLists(directors, newDirectors);
+    mergePersons(directors, newDirectors);
 
     firePropertyChange(DIRECTORS, null, this.getDirectors());
     firePropertyChange(DIRECTORS_AS_STRING, null, this.getDirectorsAsString());
@@ -1063,7 +1063,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setWriters(List<Person> newWriters) {
     // two way sync of writers
-    ListUtils.mergeLists(writers, newWriters);
+    mergePersons(writers, newWriters);
 
     firePropertyChange(WRITERS, null, this.getWriters());
     firePropertyChange(WRITERS_AS_STRING, null, this.getWritersAsString());

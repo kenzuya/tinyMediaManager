@@ -96,7 +96,7 @@ public class Person extends AbstractModelObject {
 
   /**
    * copy constructor
-   * 
+   *
    * @param source
    *          the source to be copied
    */
@@ -109,6 +109,26 @@ public class Person extends AbstractModelObject {
 
     if (source.ids != null && !source.ids.isEmpty()) {
       this.ids = new HashMap<>(source.ids);
+    }
+  }
+
+  public void merge(Person other) {
+    if (other == null) {
+      return;
+    }
+
+    setName(StringUtils.isBlank(name) ? other.name : name);
+    setRole(StringUtils.isBlank(role) ? other.role : role);
+    setThumbUrl(StringUtils.isBlank(thumbUrl) ? other.thumbUrl : thumbUrl);
+    setProfileUrl(StringUtils.isBlank(profileUrl) ? other.profileUrl : profileUrl);
+
+    if (ids == null && !other.getIds().isEmpty()) {
+      ids = new HashMap<>(other.ids);
+    }
+    else if (ids != null) {
+      for (String key : other.getIds().keySet()) {
+        ids.put(key, other.getId(key));
+      }
     }
   }
 
@@ -321,9 +341,8 @@ public class Person extends AbstractModelObject {
 
     Person cast = (Person) obj;
 
-    // checks of equality
-    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role) && StringUtils.equals(thumbUrl, cast.thumbUrl)
-        && StringUtils.equals(profileUrl, cast.profileUrl)) {
+    // checks of equality (name and role is enough here)
+    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role)) {
       return true;
     }
 
@@ -332,6 +351,6 @@ public class Person extends AbstractModelObject {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(name).append(role).append(thumbUrl).build();
+    return new HashCodeBuilder().append(name).append(role).build();
   }
 }

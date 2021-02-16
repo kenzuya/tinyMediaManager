@@ -86,7 +86,7 @@ public class ListUtils {
       else {
         int indexOldList = baseList.indexOf(entry);
         if (i != indexOldList) {
-          T oldEntry = baseList.remove(indexOldList);
+          T oldEntry = baseList.remove(indexOldList); // NOSONAR
           try {
             baseList.add(i, oldEntry);
           }
