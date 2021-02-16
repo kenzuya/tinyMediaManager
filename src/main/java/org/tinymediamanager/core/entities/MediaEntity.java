@@ -178,14 +178,14 @@ public abstract class MediaEntity extends AbstractModelObject {
       return;
     }
 
-    setTitle(StringUtils.isEmpty(title) || force ? other.title : title);
-    setOriginalTitle(StringUtils.isEmpty(originalTitle) || force ? other.originalTitle : originalTitle);
+    setTitle(StringUtils.isBlank(title) || force ? other.title : title);
+    setOriginalTitle(StringUtils.isBlank(originalTitle) || force ? other.originalTitle : originalTitle);
     setYear(year == 0 || force ? other.year : year);
-    setPlot(StringUtils.isEmpty(plot) || force ? other.plot : plot);
-    setProductionCompany(StringUtils.isEmpty(productionCompany) || force ? other.productionCompany : productionCompany);
-    setOriginalFilename(StringUtils.isEmpty(originalFilename) || force ? other.originalFilename : originalFilename);
-    setLastScraperId(StringUtils.isEmpty(lastScraperId) || force ? other.lastScraperId : lastScraperId);
-    setLastScrapeLanguage(StringUtils.isEmpty(lastScrapeLanguage) || force ? other.lastScrapeLanguage : lastScrapeLanguage);
+    setPlot(StringUtils.isBlank(plot) || force ? other.plot : plot);
+    setProductionCompany(StringUtils.isBlank(productionCompany) || force ? other.productionCompany : productionCompany);
+    setOriginalFilename(StringUtils.isBlank(originalFilename) || force ? other.originalFilename : originalFilename);
+    setLastScraperId(StringUtils.isBlank(lastScraperId) || force ? other.lastScraperId : lastScraperId);
+    setLastScrapeLanguage(StringUtils.isBlank(lastScrapeLanguage) || force ? other.lastScrapeLanguage : lastScrapeLanguage);
 
     // when force is set, clear the lists/maps and add all other values
     if (force) {
@@ -1242,7 +1242,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   public String getTagsAsString() {
     StringBuilder sb = new StringBuilder();
     for (String tag : tags) {
-      if (!StringUtils.isEmpty(sb)) {
+      if (!StringUtils.isBlank(sb)) {
         sb.append(", ");
       }
       sb.append(tag);
