@@ -554,7 +554,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
           mdSubItem.setYear(calendar.get(Calendar.YEAR));
         }
 
-        if (part.vote_average != null) {
+        if (part.vote_average != null && MetadataUtil.unboxInteger(part.vote_count, 0) > 0) {
           mdSubItem.setRatings(
               Collections.singletonList(new MediaRating(getId(), part.vote_average.floatValue(), MetadataUtil.unboxInteger(part.vote_count))));
         }
@@ -716,11 +716,13 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     md.setTagline(movie.tagline);
     md.setRuntime(movie.runtime);
 
-    MediaRating rating = new MediaRating("tmdb");
-    rating.setRating(movie.vote_average.floatValue());
-    rating.setVotes(movie.vote_count);
-    rating.setMaxValue(10);
-    md.addRating(rating);
+    if (MetadataUtil.unboxInteger(movie.vote_count, 0) > 0) {
+      MediaRating rating = new MediaRating("tmdb");
+      rating.setRating(movie.vote_average.floatValue());
+      rating.setVotes(movie.vote_count);
+      rating.setMaxValue(10);
+      md.addRating(rating);
+    }
 
     // Poster
     if (StringUtils.isNotBlank(movie.poster_path)) {

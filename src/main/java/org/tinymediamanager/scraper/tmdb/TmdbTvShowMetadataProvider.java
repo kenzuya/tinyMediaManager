@@ -302,7 +302,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       for (TvSeason season : ListUtils.nullSafe(showResponse.body().seasons)) {
         List<MediaMetadata> seasonEpisodes = new ArrayList<>();
         Response<TvSeason> seasonResponse = api.tvSeasonsService()
-            .season(tmdbId, season.season_number, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS)).execute();
+            .season(tmdbId, season.season_number, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS))
+            .execute();
         if (!seasonResponse.isSuccessful()) {
           throw new HttpException(seasonResponse.code(), seasonResponse.message());
         }
@@ -369,8 +370,10 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
 
     TvShow complete = null;
     try {
-      Response<TvShow> httpResponse = api.tvService().tv(tmdbId, language, new AppendToResponse(AppendToResponseItem.TRANSLATIONS,
-          AppendToResponseItem.CREDITS, AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.CONTENT_RATINGS, AppendToResponseItem.KEYWORDS))
+      Response<TvShow> httpResponse = api.tvService()
+          .tv(tmdbId, language,
+              new AppendToResponse(AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS, AppendToResponseItem.EXTERNAL_IDS,
+                  AppendToResponseItem.CONTENT_RATINGS, AppendToResponseItem.KEYWORDS))
           .execute();
       if (!httpResponse.isSuccessful()) {
         throw new HttpException(httpResponse.code(), httpResponse.message());
@@ -394,15 +397,17 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     md.setTitle(complete.name);
     md.setOriginalTitle(complete.original_name);
 
-    try {
-      MediaRating rating = new MediaRating("tmdb");
-      rating.setRating(complete.vote_average);
-      rating.setVotes(complete.vote_count);
-      rating.setMaxValue(10);
-      md.addRating(rating);
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    if (MetadataUtil.unboxInteger(complete.vote_count, 0) > 0) {
+      try {
+        MediaRating rating = new MediaRating("tmdb");
+        rating.setRating(complete.vote_average);
+        rating.setVotes(complete.vote_count);
+        rating.setMaxValue(10);
+        md.addRating(rating);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
     }
 
     md.setReleaseDate(complete.first_air_date);
@@ -635,7 +640,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       // get episode via season listing -> improves caching performance
       try {
         Response<TvSeason> seasonResponse = api.tvSeasonsService()
-            .season(tmdbId, seasonNr, language, new AppendToResponse(AppendToResponseItem.CREDITS)).execute();
+            .season(tmdbId, seasonNr, language, new AppendToResponse(AppendToResponseItem.CREDITS))
+            .execute();
         if (!seasonResponse.isSuccessful()) {
           throw new HttpException(seasonResponse.code(), seasonResponse.message());
         }
@@ -708,15 +714,17 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     md.setTitle(episode.name);
     md.setPlot(episode.overview);
 
-    try {
-      MediaRating rating = new MediaRating("tmdb");
-      rating.setRating(MetadataUtil.unboxDouble(episode.vote_average));
-      rating.setVotes(MetadataUtil.unboxInteger(episode.vote_count));
-      rating.setMaxValue(10);
-      md.addRating(rating);
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    if (MetadataUtil.unboxInteger(episode.vote_count, 0) > 0) {
+      try {
+        MediaRating rating = new MediaRating("tmdb");
+        rating.setRating(MetadataUtil.unboxDouble(episode.vote_average));
+        rating.setVotes(MetadataUtil.unboxInteger(episode.vote_count));
+        rating.setMaxValue(10);
+        md.addRating(rating);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
     }
 
     md.setReleaseDate(episode.air_date);
@@ -954,7 +962,9 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       String languageFallback = MediaLanguages.get(getProviderInfo().getConfig().getValue("titleFallbackLanguage")).name().replace("_", "-");
 
       try {
-        TvEpisode ep = api.tvEpisodesService().episode(query.getTmdbId(), episode.season_number, episode.episode_number, languageFallback).execute()
+        TvEpisode ep = api.tvEpisodesService()
+            .episode(query.getTmdbId(), episode.season_number, episode.episode_number, languageFallback)
+            .execute()
             .body();
         if (ep != null) {
           if ((ep.season_number == seasonNr || ep.episode_number.equals(episode.season_number))
@@ -999,7 +1009,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     ep.setTitle(episode.name);
     ep.setPlot(episode.overview);
 
-    if (episode.vote_average != null && episode.vote_count != null) {
+    if (episode.vote_average != null && MetadataUtil.unboxInteger(episode.vote_count, 0) > 0) {
       MediaRating rating = new MediaRating(getProviderInfo().getId());
       rating.setRating(episode.vote_average);
       rating.setVotes(episode.vote_count);
