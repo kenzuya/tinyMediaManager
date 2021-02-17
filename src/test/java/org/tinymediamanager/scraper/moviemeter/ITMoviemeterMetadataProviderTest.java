@@ -53,6 +53,7 @@ public class ITMoviemeterMetadataProviderTest extends BasicTest {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.nl);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
       options.setId(rt.getProviderInfo().getId(), "17552");
 
       MediaMetadata md = rt.getMetadata(options);

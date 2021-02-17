@@ -318,6 +318,7 @@ public class MovieSetEditorDialog extends TmmDialog {
                   movieList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.MOVIE_SET);
               dialog.setLocationRelativeTo(MainWindow.getInstance());
               dialog.setVisible(true);
+              updateArtworkUrl(lblClearlogo, tfClearLogo);
             }
           });
           lblClearlogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -792,6 +793,7 @@ public class MovieSetEditorDialog extends TmmDialog {
             options.setImdbId(movie.getImdbId());
             options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
             options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+            options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
 
             try {
               MediaMetadata md = mp.getMetadata(options);

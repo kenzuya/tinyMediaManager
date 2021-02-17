@@ -178,6 +178,7 @@ public class MovieSettings extends AbstractSettings {
   private String                                 movieScraper                           = Constants.TMDB;
   private MediaLanguages                         scraperLanguage                        = MediaLanguages.en;
   private CountryCode                            certificationCountry                   = CountryCode.US;
+  private String                                 releaseDateCountry                     = "";
   private double                                 scraperThreshold                       = 0.75;
   private boolean                                scraperFallback                        = false;
   private final List<MovieScraperMetadataConfig> scraperMetadataConfig                  = new ArrayList<>();
@@ -194,6 +195,7 @@ public class MovieSettings extends AbstractSettings {
   private int                                    imageExtraFanartCount                  = 5;
   private String                                 movieSetArtworkFolder                  = "";
   private boolean                                scrapeBestImage                        = true;
+  private boolean                                scrapeBestImageMovieSet                = true;
   private MediaLanguages                         imageScraperLanguage                   = MediaLanguages.en;
   private boolean                                imageLanguagePriority                  = true;
   private boolean                                writeActorImages                       = false;
@@ -213,6 +215,9 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                runtimeFromMediaInfo                   = false;
   private boolean                                includeExternalAudioStreams            = false;
   private boolean                                syncTrakt                              = false;
+  private boolean                                syncTraktCollection                    = true;
+  private boolean                                syncTraktWatched                       = true;
+  private boolean                                syncTraktRating                        = true;
   private boolean                                extractArtworkFromVsmeta               = false;
   private boolean                                useMediainfoMetadata                   = false;
 
@@ -371,6 +376,7 @@ public class MovieSettings extends AbstractSettings {
     CountryCode cc = CountryCode.getByCode(defaultLang.toUpperCase(Locale.ROOT));
     if (cc != null) {
       setCertificationCountry(cc);
+      setReleaseDateCountry(Locale.getDefault().getCountry());
     }
     for (MediaLanguages ml : MediaLanguages.values()) {
       if (ml.name().equals(defaultLang)) {
@@ -884,6 +890,16 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("scrapeBestImage", oldValue, newValue);
   }
 
+  public boolean isScrapeBestImageMovieSet() {
+    return scrapeBestImageMovieSet;
+  }
+
+  public void setScrapeBestImageMovieSet(boolean newValue) {
+    boolean oldValue = this.scrapeBestImageMovieSet;
+    this.scrapeBestImageMovieSet = newValue;
+    firePropertyChange("scrapeBestImageMovieSet", oldValue, newValue);
+  }
+
   public void addMovieTrailerScraper(String newValue) {
     if (!trailerScrapers.contains(newValue)) {
       trailerScrapers.add(newValue);
@@ -996,6 +1012,16 @@ public class MovieSettings extends AbstractSettings {
     CountryCode oldValue = this.certificationCountry;
     certificationCountry = newValue;
     firePropertyChange("certificationCountry", oldValue, newValue);
+  }
+
+  public String getReleaseDateCountry() {
+    return releaseDateCountry;
+  }
+
+  public void setReleaseDateCountry(String newValue) {
+    String oldValue = this.releaseDateCountry;
+    this.releaseDateCountry = newValue;
+    firePropertyChange("releaseDateCountry", oldValue, newValue);
   }
 
   public double getScraperThreshold() {
@@ -1220,6 +1246,36 @@ public class MovieSettings extends AbstractSettings {
 
   public boolean getSyncTrakt() {
     return syncTrakt;
+  }
+
+  public void setSyncTraktCollection(boolean newValue) {
+    boolean oldValue = this.syncTraktCollection;
+    this.syncTraktCollection = newValue;
+    firePropertyChange("syncTraktCollection", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktCollection() {
+    return syncTraktCollection;
+  }
+
+  public void setSyncTraktWatched(boolean newValue) {
+    boolean oldValue = this.syncTraktWatched;
+    this.syncTraktWatched = newValue;
+    firePropertyChange("syncTraktWatched", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktWatched() {
+    return syncTraktWatched;
+  }
+
+  public void setSyncTraktRating(boolean newValue) {
+    boolean oldValue = this.syncTraktRating;
+    this.syncTraktRating = newValue;
+    firePropertyChange("syncTraktRating", oldValue, newValue);
+  }
+
+  public boolean getSyncTraktRating() {
+    return syncTraktRating;
   }
 
   public List<String> getRatingSources() {

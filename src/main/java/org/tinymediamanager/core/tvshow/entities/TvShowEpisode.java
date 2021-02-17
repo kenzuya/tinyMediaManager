@@ -546,39 +546,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   @Override
   public MediaRating getRating() {
-    MediaRating mediaRating = null;
-
-    // the user rating
-    if (TvShowModuleManager.SETTINGS.getPreferPersonalRating()) {
-      mediaRating = ratings.get(MediaRating.USER);
-    }
-
-    // the default rating
-    if (mediaRating == null) {
-      mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
-    }
-
-    // then the default one (either NFO or DEFAULT)
-    if (mediaRating == null) {
-      mediaRating = super.getRating();
-    }
-
-    return mediaRating;
-  }
-
-  /**
-   * get the user rating
-   * 
-   * @return user rating object
-   */
-  public MediaRating getUserRating() {
-    MediaRating mediaRating;
-
-    mediaRating = ratings.get(MediaRating.USER);
+    MediaRating mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
 
     if (mediaRating == null) {
       mediaRating = MediaMetadata.EMPTY_RATING;
     }
+
     return mediaRating;
   }
 
@@ -601,6 +574,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   /**
    * Initialize after loading.
    */
+  @Override
   public void initializeAfterLoading() {
     super.initializeAfterLoading();
   }
@@ -946,7 +920,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     // two way sync of actors
-    ListUtils.mergeLists(actors, newActors);
+    mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 
@@ -1001,7 +975,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setDirectors(List<Person> newDirectors) {
     // two way sync of directors
-    ListUtils.mergeLists(directors, newDirectors);
+    mergePersons(directors, newDirectors);
 
     firePropertyChange(DIRECTORS, null, this.getDirectors());
     firePropertyChange(DIRECTORS_AS_STRING, null, this.getDirectorsAsString());
@@ -1080,7 +1054,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setWriters(List<Person> newWriters) {
     // two way sync of writers
-    ListUtils.mergeLists(writers, newWriters);
+    mergePersons(writers, newWriters);
 
     firePropertyChange(WRITERS, null, this.getWriters());
     firePropertyChange(WRITERS_AS_STRING, null, this.getWritersAsString());
@@ -1351,7 +1325,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     // re-write NFO since we might have new mediainfo data
-    if (mediaFile.getType() == MediaFileType.VIDEO) {
+    if (mediaFile.getType() == MediaFileType.VIDEO && getHasNfoFile()) {
       writeNFO();
     }
   }

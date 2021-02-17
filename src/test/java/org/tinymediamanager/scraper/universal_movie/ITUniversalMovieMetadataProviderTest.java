@@ -82,6 +82,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setSearchQuery(searchString);
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
 
@@ -117,6 +118,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -157,6 +159,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setId("tmdb", "20352");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -235,11 +238,12 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
       assertThat(mediaMetadata.getIds()).containsValues("tt0114746", 63);
-      assertThat(mediaMetadata.getTitle()).isEqualTo("12 Monkeys");
+      assertThat(mediaMetadata.getTitle()).isEqualTo("Twelve Monkeys");
       assertThat(mediaMetadata.getOriginalTitle()).isEqualTo("Twelve Monkeys");
       assertThat(mediaMetadata.getTagline()).isNotEmpty();
       assertThat(mediaMetadata.getYear()).isEqualTo(1995);
@@ -293,6 +297,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setId("tmdb", "20352");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -350,6 +355,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -407,6 +413,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setId("tmdb", "63");
       options.setLanguage(MediaLanguages.nl);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -464,6 +471,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
       options.setId("imdb", "tt0114746");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       MediaMetadata mediaMetadata = mp.getMetadata(options);
 

@@ -563,8 +563,10 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
           if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
             TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(Collections.singletonList(tvShowToScrape));
-            task.setSyncCollection(true);
-            task.setSyncWatched(true);
+            task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
+            task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
+            task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
 

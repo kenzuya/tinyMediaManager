@@ -32,7 +32,7 @@ import java.util.Map;
 public class MapUtils {
 
   private MapUtils() {
-    // hide the public constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
@@ -69,5 +69,22 @@ public class MapUtils {
       result.put(entry.getKey(), entry.getValue());
     }
     return result;
+  }
+
+  /**
+   * check if both given {@link Map}s are not null and have equal entries
+   * 
+   * @param map1
+   *          map1
+   * @param map2
+   *          map2
+   * @return true/false
+   */
+  public static boolean equals(Map<?, ?> map1, Map<?, ?> map2) {
+    if (map1 == null || map2 == null) {
+      return false;
+    }
+
+    return map1.equals(map2);
   }
 }

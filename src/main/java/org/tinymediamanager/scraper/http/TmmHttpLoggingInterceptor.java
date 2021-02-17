@@ -19,6 +19,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -132,8 +133,8 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       long contentLength = responseBody.contentLength();
       String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
       String logUrl = response.request().url().toString().replaceAll("api_key=\\w+", "api_key=<API_KEY>").replaceAll("api/\\d+\\w+", "api/<API_KEY>");
-      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " ("
-          + tookMs + "ms" + ", " + bodySize + " body" + ')');
+      LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " (" + tookMs + "ms"
+          + ", " + bodySize + " body" + ')');
 
       Headers headersResponse = response.headers();
       for (int i = 0, count = headersResponse.size(); i < count; i++) {
@@ -216,10 +217,15 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
   private static boolean isTextResponse(Response response) {
     MediaType type = response.body().contentType();
 
-    if ("text".equalsIgnoreCase(type.type()) || "xml".equalsIgnoreCase(type.subtype()) || "json".equalsIgnoreCase(type.subtype())) {
-      return true;
+    // only log XML/JSON responses
+    switch (type.subtype().toLowerCase(Locale.ROOT)) {
+      case "json":
+      case "xml":
+        return true;
+
+      default:
+        return false;
     }
-    return false;
   }
 
   /**

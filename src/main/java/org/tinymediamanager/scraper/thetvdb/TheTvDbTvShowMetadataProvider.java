@@ -159,15 +159,17 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       md.setRuntime(0);
     }
 
-    try {
-      MediaRating rating = new MediaRating(getProviderInfo().getId());
-      rating.setRating(show.siteRating.floatValue());
-      rating.setVotes(TvUtils.parseInt(show.siteRatingCount));
-      rating.setMaxValue(10);
-      md.addRating(rating);
-    }
-    catch (Exception e) {
-      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+    if (MetadataUtil.unboxInteger(show.siteRatingCount, 0) > 0) {
+      try {
+        MediaRating rating = new MediaRating(getProviderInfo().getId());
+        rating.setRating(show.siteRating.floatValue());
+        rating.setVotes(TvUtils.parseInt(show.siteRatingCount));
+        rating.setMaxValue(10);
+        md.addRating(rating);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
+      }
     }
 
     try {

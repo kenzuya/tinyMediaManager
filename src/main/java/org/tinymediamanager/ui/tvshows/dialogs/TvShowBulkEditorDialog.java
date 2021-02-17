@@ -407,8 +407,9 @@ public class TvShowBulkEditorDialog extends TmmDialog {
             }
             tvShows1.addAll(tvShowsToEdit);
             TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows1));
-            task.setSyncCollection(true);
-            task.setSyncWatched(true);
+            task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
+            task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
+            task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
 
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }

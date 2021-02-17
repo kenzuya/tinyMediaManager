@@ -68,8 +68,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.ImageCache;
@@ -93,7 +91,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * @author Manuel Laggner
  */
 public abstract class MediaEntity extends AbstractModelObject {
-  private static final Logger          LOGGER             = LoggerFactory.getLogger(MediaEntity.class);
   /** The id for the database. */
   protected UUID                       dbId               = UUID.randomUUID();
 
@@ -181,14 +178,14 @@ public abstract class MediaEntity extends AbstractModelObject {
       return;
     }
 
-    setTitle(StringUtils.isEmpty(title) || force ? other.title : title);
-    setOriginalTitle(StringUtils.isEmpty(originalTitle) || force ? other.originalTitle : originalTitle);
+    setTitle(StringUtils.isBlank(title) || force ? other.title : title);
+    setOriginalTitle(StringUtils.isBlank(originalTitle) || force ? other.originalTitle : originalTitle);
     setYear(year == 0 || force ? other.year : year);
-    setPlot(StringUtils.isEmpty(plot) || force ? other.plot : plot);
-    setProductionCompany(StringUtils.isEmpty(productionCompany) || force ? other.productionCompany : productionCompany);
-    setOriginalFilename(StringUtils.isEmpty(originalFilename) || force ? other.originalFilename : originalFilename);
-    setLastScraperId(StringUtils.isEmpty(lastScraperId) || force ? other.lastScraperId : lastScraperId);
-    setLastScrapeLanguage(StringUtils.isEmpty(lastScrapeLanguage) || force ? other.lastScrapeLanguage : lastScrapeLanguage);
+    setPlot(StringUtils.isBlank(plot) || force ? other.plot : plot);
+    setProductionCompany(StringUtils.isBlank(productionCompany) || force ? other.productionCompany : productionCompany);
+    setOriginalFilename(StringUtils.isBlank(originalFilename) || force ? other.originalFilename : originalFilename);
+    setLastScraperId(StringUtils.isBlank(lastScraperId) || force ? other.lastScraperId : lastScraperId);
+    setLastScrapeLanguage(StringUtils.isBlank(lastScrapeLanguage) || force ? other.lastScrapeLanguage : lastScrapeLanguage);
 
     // when force is set, clear the lists/maps and add all other values
     if (force) {
@@ -388,29 +385,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * 
    * @return the main (preferred) rating
    */
-  public MediaRating getRating() {
-    MediaRating mediaRating = ratings.get(MediaRating.USER);
-
-    // then the default one (either NFO or DEFAULT)
-    if (mediaRating == null) {
-      mediaRating = ratings.get(MediaRating.NFO);
-    }
-    if (mediaRating == null) {
-      mediaRating = ratings.get(MediaRating.DEFAULT);
-    }
-
-    // is there any rating?
-    if (mediaRating == null && !ratings.isEmpty()) {
-      mediaRating = ratings.values().iterator().next();
-    }
-
-    // last but not least a non null value
-    if (mediaRating == null) {
-      mediaRating = MediaMetadata.EMPTY_RATING;
-    }
-
-    return mediaRating;
-  }
+  public abstract MediaRating getRating();
 
   public MediaRating getUserRating() {
     MediaRating mediaRating = ratings.get(MediaRating.USER);
@@ -807,11 +782,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as String or an empty string
    */
   public String getIdAsString(String key) {
-    Object obj = ids.get(key);
-    if (obj == null) {
-      return "";
-    }
-    return String.valueOf(obj);
+    return MetadataUtil.getIdAsString(ids, key);
   }
 
   /**
@@ -820,24 +791,7 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return the ID-value as int or an empty string
    */
   public int getIdAsInt(String key) {
-    Object obj = ids.get(key);
-    if (obj == null) {
-      return 0;
-    }
-    if (obj instanceof Integer) {
-      return (Integer) obj;
-    }
-
-    if (obj instanceof String) {
-      try {
-        return Integer.parseInt((String) obj);
-      }
-      catch (Exception e) {
-        LOGGER.trace("could not parse int: {}", e.getMessage());
-      }
-    }
-
-    return 0;
+    return MetadataUtil.getIdAsInt(ids, key);
   }
 
   public void addToMediaFiles(MediaFile mediaFile) {
@@ -1288,7 +1242,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   public String getTagsAsString() {
     StringBuilder sb = new StringBuilder();
     for (String tag : tags) {
-      if (!StringUtils.isEmpty(sb)) {
+      if (!StringUtils.isBlank(sb)) {
         sb.append(", ");
       }
       sb.append(tag);
@@ -1325,4 +1279,49 @@ public abstract class MediaEntity extends AbstractModelObject {
   public abstract void callbackForWrittenArtwork(MediaArtworkType type);
 
   protected abstract Comparator<MediaFile> getMediaFileComparator();
+
+  protected void mergePersons(List<Person> baseList, List<Person> newItems) {
+    // if any of these lists is null, we cannot do anything here
+    if (baseList == null || newItems == null) {
+      return;
+    }
+
+    // first remove old ones
+    for (int i = baseList.size() - 1; i >= 0; i--) {
+      Person entry = baseList.get(i);
+      if (!newItems.contains(entry)) {
+        baseList.remove(entry);
+      }
+    }
+
+    // second, add new ones in the right order
+    for (int i = 0; i < newItems.size(); i++) {
+      Person entry = newItems.get(i);
+      if (!baseList.contains(entry)) {
+        try {
+          baseList.add(i, entry);
+        }
+        catch (IndexOutOfBoundsException e) {
+          baseList.add(entry);
+        }
+      }
+      else {
+        int indexOldList = baseList.indexOf(entry);
+
+        // merge the entries (e.g. use thumb url/profile/ids from both)
+        Person oldPerson = baseList.get(indexOldList);
+        oldPerson.merge(entry);
+
+        if (i != indexOldList) {
+          Person oldEntry = baseList.remove(indexOldList); // NOSONAR
+          try {
+            baseList.add(i, oldEntry);
+          }
+          catch (IndexOutOfBoundsException e) {
+            baseList.add(oldEntry);
+          }
+        }
+      }
+    }
+  }
 }

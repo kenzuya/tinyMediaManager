@@ -91,6 +91,7 @@ public abstract class ImdbParser {
   static final String                 SCRAPE_UNCREDITED_ACTORS = "scrapeUncreditedActors";
   static final String                 SCRAPE_LANGUAGE_NAMES    = "scrapeLanguageNames";
   static final String                 LOCAL_RELEASE_DATE       = "localReleaseDate";
+  static final String                 INCLUDE_PREMIERE_DATE    = "includePremiereDate";
   static final String                 MAX_KEYWORD_COUNT        = "maxKeywordCount";
 
   protected final IMediaProvider      metadataProvider;
@@ -1087,27 +1088,44 @@ public abstract class ImdbParser {
     Date releaseDate = null;
     Pattern pattern = Pattern.compile("/calendar/\\?region=(.{2})");
 
+    String releaseDateCountry = options.getReleaseDateCountry();
+    boolean parseLocalReleaseDate = Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE, false));
+    boolean includePremiereDate = Boolean.TRUE.equals(config.getValueAsBool(INCLUDE_PREMIERE_DATE, true));
+
     Element tableReleaseDates = doc.getElementById("release_dates");
     if (tableReleaseDates != null) {
       Elements rows = tableReleaseDates.getElementsByTag("tr");
       // first round: check the release date for the first one with the requested country
       for (Element row : rows) {
-        // get the anchor
-        Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
-        if (anchor != null) {
-          Matcher matcher = pattern.matcher(anchor.attr("href"));
-          if (matcher.find()) {
-            String country = matcher.group(1);
+        // check if we want premiere dates
+        if (row.text().contains("(premiere)") && !includePremiereDate) {
+          continue;
+        }
 
-            Element column = row.getElementsByClass("release_date").first();
-            if (column != null) {
-              Date parsedDate = parseDate(column.text());
-              // do not overwrite any parsed date with a null value!
-              if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
-                releaseDate = parsedDate;
+        if (!parseLocalReleaseDate) {
+          // global first release
+          Element column = row.getElementsByClass("release_date").first();
+          Date parsedDate = parseDate(column.text());
+          if (parsedDate != null) {
+            releaseDate = parsedDate;
+            break;
+          }
+        }
+        else {
+          // local release date
+          // get the anchor
+          Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
+          if (anchor != null) {
+            Matcher matcher = pattern.matcher(anchor.attr("href"));
+            if (matcher.find()) {
+              String country = matcher.group(1);
 
-                // abort the loop if we have found a valid date in our desired language
-                if (options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country)) {
+              Element column = row.getElementsByClass("release_date").first();
+              if (column != null) {
+                Date parsedDate = parseDate(column.text());
+                // do not overwrite any parsed date with a null value!
+                if (parsedDate != null && releaseDateCountry.equalsIgnoreCase(country)) {
+                  releaseDate = parsedDate;
                   break;
                 }
               }
@@ -1121,22 +1139,34 @@ public abstract class ImdbParser {
     if (releaseDate == null) {
       Elements rows = doc.getElementsByClass("release-date-item");
       for (Element row : rows) {
-        Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
-        if (anchor != null) {
-          Matcher matcher = pattern.matcher(anchor.attr("href"));
-          // continue if we either do not have found any date yet or the country matches
-          if (matcher.find()) {
-            String country = matcher.group(1);
+        // check if we want premiere dates
+        if (row.text().contains("(premiere)") && !includePremiereDate) {
+          continue;
+        }
 
-            Element column = row.getElementsByClass("release-date-item__date").first();
-            if (column != null) {
-              Date parsedDate = parseDate(column.text());
-              // do not overwrite any parsed date with a null value!
-              if (parsedDate != null && (releaseDate == null || options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country))) {
-                releaseDate = parsedDate;
+        if (!parseLocalReleaseDate) {
+          // global first release
+          Element column = row.getElementsByClass("release-date-item__date").first();
+          Date parsedDate = parseDate(column.text());
+          if (parsedDate != null) {
+            releaseDate = parsedDate;
+            break;
+          }
+        }
+        else {
+          Element anchor = row.getElementsByAttributeValueStarting("href", "/calendar/").first();
+          if (anchor != null) {
+            Matcher matcher = pattern.matcher(anchor.attr("href"));
+            // continue if we either do not have found any date yet or the country matches
+            if (matcher.find()) {
+              String country = matcher.group(1);
 
-                // abort the loop if we have found a valid date in our desired language
-                if (options.getCertificationCountry().getAlpha2().equalsIgnoreCase(country)) {
+              Element column = row.getElementsByClass("release-date-item__date").first();
+              if (column != null) {
+                Date parsedDate = parseDate(column.text());
+                // do not overwrite any parsed date with a null value!
+                if (parsedDate != null && releaseDateCountry.equalsIgnoreCase(country)) {
+                  releaseDate = parsedDate;
                   break;
                 }
               }
@@ -1148,9 +1178,21 @@ public abstract class ImdbParser {
 
     // no matching local release date found; take the first one
     if (releaseDate == null && tableReleaseDates != null) {
-      Element column = tableReleaseDates.getElementsByClass("release_date").first();
-      if (column != null) {
-        releaseDate = parseDate(column.text());
+      Elements rows = tableReleaseDates.getElementsByTag("tr");
+      // first round: check the release date for the first one with the requested country
+      for (Element row : rows) {
+        // check if we want premiere dates
+        if (row.text().contains("(premiere)") && !includePremiereDate) {
+          continue;
+        }
+
+        // global first release
+        Element column = row.getElementsByClass("release_date").first();
+        Date parsedDate = parseDate(column.text());
+        if (parsedDate != null) {
+          releaseDate = parsedDate;
+          break;
+        }
       }
     }
 

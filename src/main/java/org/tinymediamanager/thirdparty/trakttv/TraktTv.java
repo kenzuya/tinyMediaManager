@@ -63,6 +63,12 @@ public class TraktTv implements TmmFeature {
 
   private TraktV2             api;
 
+  enum SyncType {
+    COLLECTION,
+    WATCHED,
+    RATING
+  }
+
   // thread safe initialization of the API
   protected synchronized void initAPI() throws ScrapeException {
     // create a new instance of the trakt api
@@ -180,11 +186,11 @@ public class TraktTv implements TmmFeature {
    * Gets all Trakt movies from collection, matches them to ours, and sends ONLY the new ones back to Trakt
    */
   public void syncTraktMovieCollection(List<Movie> moviesInTmm) throws ScrapeException {
+    initAPI();
+
     if (!isEnabled()) {
       return;
     }
-
-    initAPI();
 
     new TraktTvMovie(this).syncTraktMovieCollection(moviesInTmm);
   }
@@ -195,13 +201,27 @@ public class TraktTv implements TmmFeature {
    * Then update the remaining TMM movies on Trakt as 'seen'.
    */
   public void syncTraktMovieWatched(List<Movie> moviesInTmm) throws ScrapeException {
+    initAPI();
+
     if (!isEnabled()) {
       return;
     }
 
+    new TraktTvMovie(this).syncTraktMovieWatched(moviesInTmm);
+  }
+
+  /**
+   * Syncs Trakt.tv "personal rating"<br>
+   * Gets all movies from Trakt, set the personal rating for movies without existing personal rating and send back new/changed items<br>
+   */
+  public void syncTraktMovieRating(List<Movie> moviesInTmm) throws ScrapeException {
     initAPI();
 
-    new TraktTvMovie(this).syncTraktMovieWatched(moviesInTmm);
+    if (!isEnabled()) {
+      return;
+    }
+
+    new TraktTvMovie(this).syncTraktMovieRating(moviesInTmm);
   }
 
   /**
@@ -209,11 +229,11 @@ public class TraktTv implements TmmFeature {
    * state; a little helper to initialize the collection
    */
   void clearTraktMovies() throws Exception {
+    initAPI();
+
     if (!isEnabled()) {
       return;
     }
-
-    initAPI();
 
     new TraktTvMovie(this).clearTraktMovies();
   }
@@ -232,23 +252,33 @@ public class TraktTv implements TmmFeature {
    * Do not send diffs, since this is too complicated currently :|
    */
   public void syncTraktTvShowCollection(List<TvShow> tvShowsInTmm) throws Exception {
+    initAPI();
+
     if (!isEnabled()) {
       return;
     }
-
-    initAPI();
 
     new TraktTvTvShow(this).syncTraktTvShowCollection(tvShowsInTmm);
   }
 
   public void syncTraktTvShowWatched(List<TvShow> tvShowsInTmm) throws Exception {
+    initAPI();
+
     if (!isEnabled()) {
       return;
     }
 
+    new TraktTvTvShow(this).syncTraktTvShowWatched(tvShowsInTmm);
+  }
+
+  public void syncTraktTvShowRating(List<TvShow> tvShowsInTmm) throws Exception {
     initAPI();
 
-    new TraktTvTvShow(this).syncTraktTvShowWatched(tvShowsInTmm);
+    if (!isEnabled()) {
+      return;
+    }
+
+    new TraktTvTvShow(this).syncTraktTvShowRating(tvShowsInTmm);
   }
 
   /**
@@ -256,11 +286,11 @@ public class TraktTv implements TmmFeature {
    * state; a little helper to initialize the collection
    */
   public void clearTraktTvShows() throws Exception {
+    initAPI();
+
     if (!isEnabled()) {
       return;
     }
-
-    initAPI();
 
     new TraktTvTvShow(this).clearTraktTvShows();
   }

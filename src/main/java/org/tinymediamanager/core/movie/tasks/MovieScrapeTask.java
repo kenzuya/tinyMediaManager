@@ -126,8 +126,9 @@ public class MovieScrapeTask extends TmmThreadPool {
 
     if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
       MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(moviesToScrape);
-      task.setSyncCollection(true);
-      task.setSyncWatched(true);
+      task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
+      task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
+      task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
 
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }

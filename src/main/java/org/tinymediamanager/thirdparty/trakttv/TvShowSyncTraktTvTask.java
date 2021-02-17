@@ -32,9 +32,11 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 public class TvShowSyncTraktTvTask extends TmmTask {
   private static final Logger LOGGER         = LoggerFactory.getLogger(TvShowSyncTraktTvTask.class);
 
+  private final List<TvShow>  tvShows        = new ArrayList<>();
+
   private boolean             syncCollection = false;
   private boolean             syncWatched    = false;
-  private final List<TvShow>  tvShows        = new ArrayList<>();
+  private boolean             syncRating     = false;
 
   public TvShowSyncTraktTvTask(List<TvShow> tvShows) {
     super(TmmResourceBundle.getString("trakt.sync"), 0, TaskType.BACKGROUND_TASK);
@@ -47,6 +49,10 @@ public class TvShowSyncTraktTvTask extends TmmTask {
 
   public void setSyncWatched(boolean value) {
     this.syncWatched = value;
+  }
+
+  public void setSyncRating(boolean value) {
+    this.syncRating = value;
   }
 
   @Override
@@ -71,6 +77,16 @@ public class TvShowSyncTraktTvTask extends TmmTask {
       publishState(TmmResourceBundle.getString("trakt.sync.tvshowwatched"), 0);
       try {
         traktTV.syncTraktTvShowWatched(tvShows);
+      }
+      catch (Exception e) {
+        LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());
+      }
+    }
+
+    if (syncRating) {
+      publishState(TmmResourceBundle.getString("trakt.sync.tvshowrating"), 0);
+      try {
+        traktTV.syncTraktTvShowRating(tvShows);
       }
       catch (Exception e) {
         LOGGER.error("Could not sync to trakt - '{}'", e.getMessage());

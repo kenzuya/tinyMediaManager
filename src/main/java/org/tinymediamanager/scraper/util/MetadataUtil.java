@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.util;
 
 import java.util.Calendar;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -157,7 +158,7 @@ public class MetadataUtil {
    * @throws NumberFormatException
    *           an exception if none of the parsing methods worked
    */
-  public static int parseInt(String intAsString) throws NumberFormatException {
+  public static int parseInt(String intAsString) throws NumberFormatException, NullPointerException {
     // first try to parse that with the interal parsing logic
     try {
       return Integer.parseInt(intAsString);
@@ -180,6 +181,10 @@ public class MetadataUtil {
    * @return the integer
    */
   public static int parseInt(String intAsString, int defaultValue) {
+    if (StringUtils.isBlank(intAsString)) {
+      return defaultValue;
+    }
+
     // first try to parse that with the interal parsing logic
     try {
       return parseInt(intAsString);
@@ -231,5 +236,52 @@ public class MetadataUtil {
    */
   public static double unboxDouble(Double original) {
     return Optional.ofNullable(original).orElse(0d);
+  }
+
+  /**
+   * any ID as String or empty
+   *
+   * @return the ID-value as String or an empty string
+   */
+  public static String getIdAsString(Map<String, Object> ids, String key) {
+    if (ids == null) {
+      return "";
+    }
+
+    Object obj = ids.get(key);
+    if (obj == null) {
+      return "";
+    }
+    return String.valueOf(obj);
+  }
+
+  /**
+   * any ID as int or 0
+   *
+   * @return the ID-value as int or an empty string
+   */
+  public static int getIdAsInt(Map<String, Object> ids, String key) {
+    if (ids == null) {
+      return 0;
+    }
+
+    Object obj = ids.get(key);
+    if (obj == null) {
+      return 0;
+    }
+    if (obj instanceof Integer) {
+      return (Integer) obj;
+    }
+
+    if (obj instanceof String) {
+      try {
+        return Integer.parseInt((String) obj);
+      }
+      catch (Exception e) {
+        LOGGER.trace("could not parse int: {}", e.getMessage());
+      }
+    }
+
+    return 0;
   }
 }

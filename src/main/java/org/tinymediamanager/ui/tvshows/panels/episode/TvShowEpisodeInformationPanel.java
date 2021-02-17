@@ -21,14 +21,21 @@ import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.SEASON_POSTER;
 import static org.tinymediamanager.core.Constants.THUMB;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.beans.PropertyChangeListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextArea;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -46,6 +53,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.ui.ColumnLayout;
 import org.tinymediamanager.ui.IconManager;
@@ -55,16 +63,14 @@ import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
+import org.tinymediamanager.ui.panels.RatingPanel;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeOtherIdsConverter;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
-import org.tinymediamanager.ui.tvshows.TvShowOtherIdsConverter;
-import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
 
 /**
  * The Class TvShowEpisodeInformationPanel.
@@ -80,9 +86,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
 
   /** UI components */
-  private StarRater                          panelRatingStars;
   private JLabel                             lblTvShowName;
-  private JLabel                             lblRating;
   private JLabel                             lblEpisodeTitle;
   private ImageLabel                         lblEpisodeThumb;
   private ImageLabel                         lblSeasonPoster;
@@ -104,6 +108,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private LinkLabel                          lblImdbId;
   private LinkLabel                          lblTmdbId;
   private JTextArea                          taOtherIds;
+  private RatingPanel                        ratingPanel;
 
   /**
    * Instantiates a new tv show information panel.
@@ -367,12 +372,8 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         panelRight.add(new JSeparator(), "cell 0 1,growx");
       }
       {
-        panelRatingStars = new StarRater(10, 1);
-        panelRight.add(panelRatingStars, "flowx,cell 0 2,aligny center");
-        panelRatingStars.setEnabled(false);
-
-        lblRating = new JLabel("");
-        panelRight.add(lblRating, "cell 0 2,aligny center");
+        ratingPanel = new RatingPanel();
+        panelRight.add(ratingPanel, "flowx,cell 0 2,aligny center");
       }
       {
         sepLogos = new JSeparator();
@@ -451,16 +452,13 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   }
 
   private void setRating(TvShowEpisode episode) {
-    MediaRating rating = episode.getRating();
+    Map<String, MediaRating> ratings = new HashMap<>(episode.getRatings());
+    MediaRating customRating = episode.getRating();
+    if (customRating != MediaMetadata.EMPTY_RATING) {
+      ratings.put("custom", customRating);
+    }
 
-    if (rating == null) {
-      panelRatingStars.setRating(0);
-      lblRating.setText("");
-    }
-    else {
-      panelRatingStars.setRating(rating.getRatingNormalized());
-      lblRating.setText(ratingRatingConverter.convertForward(rating));
-    }
+    ratingPanel.setRatings(ratings);
   }
 
   protected void initDataBindings() {

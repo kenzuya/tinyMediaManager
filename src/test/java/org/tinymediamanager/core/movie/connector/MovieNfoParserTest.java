@@ -693,10 +693,10 @@ public class MovieNfoParserTest extends BasicTest {
       assertThat(parser.ratings.get("imdb").rating).isEqualTo(8.9f);
       assertThat(parser.ratings.get("imdb").votes).isEqualTo(12345);
       assertThat(parser.ratings.get("imdb").maxValue).isEqualTo(10);
-      assertThat(parser.ratings.get("metascore").id).isEqualTo("metascore");
-      assertThat(parser.ratings.get("metascore").rating).isEqualTo(67f);
-      assertThat(parser.ratings.get("metascore").votes).isEqualTo(5);
-      assertThat(parser.ratings.get("metascore").maxValue).isEqualTo(100);
+      assertThat(parser.ratings.get("metacritic").id).isEqualTo("metacritic");
+      assertThat(parser.ratings.get("metacritic").rating).isEqualTo(67f);
+      assertThat(parser.ratings.get("metacritic").votes).isEqualTo(5);
+      assertThat(parser.ratings.get("metacritic").maxValue).isEqualTo(100);
 
       assertThat(parser.set).isNotNull();
       assertThat(parser.set.name).isNotEmpty();

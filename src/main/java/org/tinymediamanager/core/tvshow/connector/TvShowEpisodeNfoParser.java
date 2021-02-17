@@ -439,6 +439,18 @@ public class TvShowEpisodeNfoParser {
           // name
           r.id = ratingChild.attr("name");
 
+          // Kodi writes tmdb votes as "themoviedb"
+          if ("themoviedb".equals(r.id)) {
+            r.id = MediaMetadata.TMDB;
+          }
+          // cleanup
+          else if ("rottenTomatoes".equals(r.id)) {
+            r.id = "tomatometerallcritics";
+          }
+          else if ("metascore".equals(r.id)) {
+            r.id = "metacritic";
+          }
+
           // maxvalue
           try {
             r.maxValue = MetadataUtil.parseInt(ratingChild.attr("max"));
@@ -983,6 +995,17 @@ public class TvShowEpisodeNfoParser {
             case "profile":
               actor.profile = child.ownText();
               break;
+
+            case "tmdbid":
+              actor.tmdbId = child.ownText();
+              break;
+
+            case "imdbid":
+              actor.imdbId = child.ownText();
+              break;
+
+            default:
+              break;
           }
         }
         if (StringUtils.isNotBlank(actor.name)) {
@@ -1391,6 +1414,14 @@ public class TvShowEpisodeNfoParser {
       person.setThumbUrl(nfoPerson.thumb);
       person.setProfileUrl(nfoPerson.profile);
 
+      int tmdbId = MetadataUtil.parseInt(nfoPerson.tmdbId, 0);
+      if (tmdbId > 0) {
+        person.setId(MediaMetadata.TMDB, tmdbId);
+      }
+
+      if (StringUtils.isNotBlank(nfoPerson.imdbId)) {
+        person.setId(MediaMetadata.IMDB, nfoPerson.imdbId);
+      }
       return person;
     }
   }
@@ -1413,6 +1444,8 @@ public class TvShowEpisodeNfoParser {
     public String role    = "";
     public String thumb   = "";
     public String profile = "";
+    public String tmdbId  = "";
+    public String imdbId  = "";
   }
 
   public static class Fileinfo {

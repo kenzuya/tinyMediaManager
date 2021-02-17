@@ -56,6 +56,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
+import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFilesizeRenderer;
 import org.tinymediamanager.core.jmte.NamedLowerCaseRenderer;
@@ -148,6 +149,7 @@ public class TvShowRenamer {
     tokenMap.put("videoResolution", "episode.mediaInfoVideoResolution");
     tokenMap.put("aspectRatio", "episode.mediaInfoAspectRatioAsString");
     tokenMap.put("videoBitDepth", "episode.mediaInfoVideoBitDepth");
+    tokenMap.put("videoBitRate", "episode.mediaInfoVideoBitrate;bitrate");
     tokenMap.put("audioCodec", "episode.mediaInfoAudioCodec");
     tokenMap.put("audioCodecList", "episode.mediaInfoAudioCodecList");
     tokenMap.put("audioCodecsAsString", "episode.mediaInfoAudioCodecList;array");
@@ -1370,6 +1372,7 @@ public class TvShowRenamer {
       engine.registerNamedRenderer(new TvShowNamedFirstCharacterRenderer());
       engine.registerNamedRenderer(new NamedArrayRenderer());
       engine.registerNamedRenderer(new NamedFilesizeRenderer());
+      engine.registerNamedRenderer(new NamedBitrateRenderer());
       engine.registerNamedRenderer(new NamedReplacementRenderer());
 
       engine.setModelAdaptor(new TvShowRenamerModelAdaptor());

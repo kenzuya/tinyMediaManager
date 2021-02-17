@@ -213,6 +213,7 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setSearchResult(result);
       options.setLanguage(language);
       options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+      options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");

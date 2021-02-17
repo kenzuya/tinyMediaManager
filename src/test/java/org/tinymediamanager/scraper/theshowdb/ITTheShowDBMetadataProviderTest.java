@@ -21,11 +21,10 @@ public class ITTheShowDBMetadataProviderTest extends BasicTest {
   TheShowDBTvShowMetadataProvider mp;
 
   @Before
-  public void setUp() {
-
+  public void setUp() throws Exception {
+    setLicenseKey();
     mp = new TheShowDBTvShowMetadataProvider();
     mp.getProviderInfo().getConfig().setValue("apiKey", 1);
-
   }
 
   @Test

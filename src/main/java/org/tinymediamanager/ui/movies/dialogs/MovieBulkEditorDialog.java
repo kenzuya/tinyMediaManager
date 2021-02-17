@@ -646,8 +646,9 @@ public class MovieBulkEditorDialog extends TmmDialog {
             // if configured - sync with trakt.tv
             if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
               MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(moviesToEdit);
-              task.setSyncCollection(true);
-              task.setSyncWatched(true);
+              task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
+              task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
+              task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
 
               TmmTaskManager.getInstance().addUnnamedTask(task);
             }

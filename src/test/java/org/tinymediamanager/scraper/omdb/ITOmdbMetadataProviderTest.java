@@ -101,6 +101,7 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
       MovieSearchAndScrapeOptions scrapeOptions = new MovieSearchAndScrapeOptions();
       scrapeOptions.setLanguage(MediaLanguages.en);
       scrapeOptions.setCertificationCountry(CountryCode.US);
+      scrapeOptions.setReleaseDateCountry("US");
 
       MediaMetadata md;
 

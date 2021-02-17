@@ -181,11 +181,8 @@ public class ImdbMovieParser extends ImdbParser {
       if (releaseinfoDoc != null) {
         parseReleaseinfoPageAKAs(releaseinfoDoc, options, md);
 
-        // did we get a release date?
-        if (md.getReleaseDate() == null || config.getValueAsBool(LOCAL_RELEASE_DATE)) {
-          // get the date from the releaseinfo page
-          parseReleaseinfoPage(releaseinfoDoc, options, md);
-        }
+        // get the date from the releaseinfo page
+        parseReleaseinfoPage(releaseinfoDoc, options, md);
       }
 
       // if everything worked so far, we can set the given id

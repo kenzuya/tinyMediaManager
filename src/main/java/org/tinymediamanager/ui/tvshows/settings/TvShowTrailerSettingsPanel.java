@@ -87,10 +87,6 @@ public class TvShowTrailerSettingsPanel extends JPanel {
   TvShowTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
 
-    // UI init
-    initComponents();
-    initDataBindings();
-
     // implement checkBoxListener for preset events
     settings.addPropertyChangeListener(evt -> {
       if ("preset".equals(evt.getPropertyName())) {
@@ -113,6 +109,10 @@ public class TvShowTrailerSettingsPanel extends JPanel {
       scrapers.add(trailerScraper);
       counter++;
     }
+
+    // UI init
+    initComponents();
+    initDataBindings();
 
     // adjust table columns
     // Checkbox and Logo shall have minimal width

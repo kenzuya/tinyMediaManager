@@ -88,6 +88,10 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxTvShowSeasonCheckThumb;
   private JCheckBox                    chckbxTvShowEpisodeCheckThumb;
   private JCheckBox                    chckbxMetadataFromMediainfo;
+  private JCheckBox                    chckbxTraktCollection;
+  private JCheckBox                    chckbxTraktWatched;
+  private JCheckBox                    chckbxTraktRating;
+  private JCheckBox                    chckbxSeasonArtworkFallback;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -272,7 +276,7 @@ class TvShowSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][]")); // 16lp ~ width of the
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -301,10 +305,13 @@ class TvShowSettingsPanel extends JPanel {
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.showtabletooltips"));
         panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 5 2 1");
       }
+
+      chckbxSeasonArtworkFallback = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.seasonartworkfallback"));
+      panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 6 2 1");
     }
     {
       JPanel panelAutomaticTasks = new JPanel();
-      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][10lp!][]")); // 16lp ~ width of the
 
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
@@ -316,20 +323,29 @@ class TvShowSettingsPanel extends JPanel {
 
         JLabel lblAutomaticRenameHint = new JLabel(IconManager.HINT);
         lblAutomaticRenameHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.automaticrename.desc"));
-        panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0");
+        panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0 2 1");
 
         chckbxTraktTv = new JCheckBox(TmmResourceBundle.getString("Settings.trakt"));
         panelAutomaticTasks.add(chckbxTraktTv, "cell 1 1 2 1");
 
         btnClearTraktTvShows = new JButton(TmmResourceBundle.getString("Settings.trakt.cleartvshows"));
-        panelAutomaticTasks.add(btnClearTraktTvShows, "cell 1 1");
+        panelAutomaticTasks.add(btnClearTraktTvShows, "cell 1 1 2 1");
+
+        chckbxTraktCollection = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.collection"));
+        panelAutomaticTasks.add(chckbxTraktCollection, "cell 2 2");
+
+        chckbxTraktWatched = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.watched"));
+        panelAutomaticTasks.add(chckbxTraktWatched, "cell 2 3");
+
+        chckbxTraktRating = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.rating"));
+        panelAutomaticTasks.add(chckbxTraktRating, "cell 2 4");
 
         chckbxAutoUpdateOnStart = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.automaticupdate"));
-        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 2 2 1");
+        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 6 2 1");
 
         JLabel lblAutomaticUpdateHint = new JLabel(IconManager.HINT);
         lblAutomaticUpdateHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.automaticupdate.desc"));
-        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 2 2 1");
+        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 6 2 1");
       }
     }
     {
@@ -506,5 +522,37 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_9,
         chckbxMetadataFromMediainfo, jCheckBoxBeanProperty);
     autoBinding_12.bind();
+    //
+    AutoBinding autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxTraktTv, jCheckBoxBeanProperty, chckbxTraktCollection,
+        jCheckBoxBeanProperty_1);
+    autoBinding_13.bind();
+    //
+    AutoBinding autoBinding_14 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxTraktTv, jCheckBoxBeanProperty, chckbxTraktWatched,
+        jCheckBoxBeanProperty_1);
+    autoBinding_14.bind();
+    //
+    AutoBinding autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxTraktTv, jCheckBoxBeanProperty, chckbxTraktRating,
+        jCheckBoxBeanProperty_1);
+    autoBinding_15.bind();
+    //
+    Property tvShowSettingsBeanProperty_10 = BeanProperty.create("syncTraktCollection");
+    AutoBinding autoBinding_16 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_10, chckbxTraktCollection,
+        jCheckBoxBeanProperty);
+    autoBinding_16.bind();
+    //
+    Property tvShowSettingsBeanProperty_12 = BeanProperty.create("syncTraktWatched");
+    AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_12, chckbxTraktWatched,
+        jCheckBoxBeanProperty);
+    autoBinding_17.bind();
+    //
+    Property tvShowSettingsBeanProperty_13 = BeanProperty.create("syncTraktRating");
+    AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_13, chckbxTraktRating,
+        jCheckBoxBeanProperty);
+    autoBinding_18.bind();
+    //
+    Property tvShowSettingsBeanProperty_14 = BeanProperty.create("seasonArtworkFallback");
+    AutoBinding autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_14,
+        chckbxSeasonArtworkFallback, jCheckBoxBeanProperty);
+    autoBinding_19.bind();
   }
 }

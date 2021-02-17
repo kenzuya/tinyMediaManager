@@ -175,7 +175,6 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       taPlot = new ReadOnlyTextArea();
       scrollPane_1.setViewportView(taPlot);
-      splitPane.setDividerLocation(300);
     }
     {
 
@@ -243,6 +242,7 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
       options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
+      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
       options.setIds(episode.getTvShow().getIds());
 
       try {

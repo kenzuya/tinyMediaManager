@@ -214,6 +214,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${videoCodec}"));
     exampleEventList.add(new MovieRenamerExample("${videoFormat}"));
     exampleEventList.add(new MovieRenamerExample("${videoBitDepth}"));
+    exampleEventList.add(new MovieRenamerExample("${videoBitRate}"));
     exampleEventList.add(new MovieRenamerExample("${audioCodec}"));
     exampleEventList.add(new MovieRenamerExample("${audioCodecList}"));
     exampleEventList.add(new MovieRenamerExample("${audioCodecsAsString}"));
@@ -396,7 +397,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         panelExample.add(lblExampleT, "cell 1 0");
 
         cbMovieForPreview = new JComboBox();
-        panelExample.add(cbMovieForPreview, "cell 1 0");
+        panelExample.add(cbMovieForPreview, "cell 1 0, wmin 0");
 
         lblExample = new TmmLabel("", L1);
         panelExample.add(lblExample, "cell 1 1, wmin 0");

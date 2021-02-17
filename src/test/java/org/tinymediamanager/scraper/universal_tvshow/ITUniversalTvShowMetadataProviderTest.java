@@ -80,6 +80,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
       options.setSearchQuery(searchString);
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       List<MediaSearchResult> results = new ArrayList<>(mp.search(options));
 
@@ -139,6 +140,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -199,6 +201,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -259,6 +262,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -286,6 +290,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
     options.setId("tmdb", "615");
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     MediaMetadata mediaMetadata = mp.getMetadata(options);
 
@@ -435,6 +440,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);
 
@@ -449,6 +455,7 @@ public class ITUniversalTvShowMetadataProviderTest extends BasicTest {
     options.setId(providerId, id);
     options.setLanguage(MediaLanguages.en);
     options.setCertificationCountry(CountryCode.US);
+    options.setReleaseDateCountry("US");
 
     List<MediaMetadata> episodes = mp.getEpisodeList(options);
 

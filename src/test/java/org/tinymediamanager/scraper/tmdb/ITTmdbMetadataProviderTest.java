@@ -54,6 +54,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Harry Potter");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -74,6 +75,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -101,6 +103,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Slevin");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -129,6 +132,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Recrutas da Pesada"); // O Pelotão Chanfrado
       options.setLanguage(MediaLanguages.pt_BR);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(mp.search(options));
       // did we get a result?
@@ -162,6 +166,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setId(mp.getProviderInfo().getId(), "63");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -173,7 +178,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       assertEquals("The future is history.", md.getTagline());
 
       assertNotNull(md.getCastMembers(ACTOR));
-      assertEquals(65, md.getCastMembers(ACTOR).size());
+      assertThat(md.getCastMembers(ACTOR).size()).isGreaterThanOrEqualTo(65);
     }
     catch (Exception e) {
       fail(e.getMessage());
@@ -186,6 +191,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setId(mp.getProviderInfo().getId(), "671");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -215,6 +221,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       options.setId(mp.getProviderInfo().getId(), "62177");
 
@@ -242,6 +249,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.pt_BR);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       options.setId(mp.getProviderInfo().getId(), "10890");
 
@@ -273,6 +281,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Harry Potter");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       results = mp.search(options);
       // did we get a result?
@@ -297,6 +306,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("101 Dalmatiner");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       results = mp.search(options);
       // did we get a result?
@@ -330,6 +340,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setId(mp.getProviderInfo().getId(), "1241");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -361,6 +372,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Psych");
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       results = new ArrayList<>(metadataProvider.search(options));
 
@@ -383,6 +395,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setSearchQuery("Die Simpsons");
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       results = new ArrayList<>(metadataProvider.search(options));
 
@@ -410,6 +423,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
       options.setId(mp.getProviderInfo().getId(), "1447");
 
       episodes = mp.getEpisodeList(options);
@@ -418,7 +432,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       assertNotNull("Episodes", episodes);
 
       // result count
-      assertEquals("Episodes count", 146, episodes.size());
+      assertThat(episodes.size()).isGreaterThanOrEqualTo(144);
 
     }
     catch (Exception e) {
@@ -442,6 +456,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setTmdbId(1447);
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       md = mp.getMetadata(options);
 
@@ -488,6 +503,7 @@ public class ITTmdbMetadataProviderTest extends BasicTest {
       options.setTvShowIds(Collections.singletonMap(mp.getProviderInfo().getId(), "1447"));
       options.setLanguage(MediaLanguages.en);
       options.setCertificationCountry(CountryCode.US);
+      options.setReleaseDateCountry("US");
 
       options.setId(MediaMetadata.SEASON_NR, "1");
       options.setId(MediaMetadata.EPISODE_NR, "1");

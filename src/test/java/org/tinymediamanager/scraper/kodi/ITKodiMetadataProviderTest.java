@@ -85,6 +85,7 @@ public class ITKodiMetadataProviderTest extends BasicTest {
       searchOptions.setSearchYear(1987);
       searchOptions.setLanguage(MediaLanguages.de);
       searchOptions.setCertificationCountry(CountryCode.US);
+      searchOptions.setReleaseDateCountry("US");
 
       List<MediaSearchResult> results = new ArrayList<>(show.search(searchOptions));
       for (MediaSearchResult mediaSearchResult : results) {
@@ -140,6 +141,7 @@ public class ITKodiMetadataProviderTest extends BasicTest {
       searchOptions.setSearchYear(2001);
       searchOptions.setLanguage(MediaLanguages.en);
       searchOptions.setCertificationCountry(CountryCode.US);
+      searchOptions.setReleaseDateCountry("US");
 
       List<MediaSearchResult> results = new ArrayList<>(tmdb.search(searchOptions));
 
@@ -159,7 +161,7 @@ public class ITKodiMetadataProviderTest extends BasicTest {
               md.getPlot());
       assertEquals(152, md.getRuntime());
       assertEquals("Let the Magic Begin.", md.getTagline());
-      assertEquals("Harry Potter Collection", md.getCollectionName());
+      assertThat(md.getCollectionName()).startsWith("Harry Potter Collection");
 
       assertNotNull(md.getCastMembers(ACTOR));
       assertThat(md.getCastMembers(ACTOR).size()).isGreaterThan(0);

@@ -42,6 +42,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -186,6 +187,7 @@ public class MovieSet extends MediaEntity {
    * @param type
    *          the {@link MediaFileType} for all {@link MediaFile}s to delete
    */
+  @Override
   public void deleteMediaFiles(MediaFileType type) {
     getMediaFiles(type).forEach(mediaFile -> {
       Utils.deleteFileSafely(mediaFile.getFile());
@@ -535,6 +537,11 @@ public class MovieSet extends MediaEntity {
 
   public List<MovieSetMovie> getDummyMovies() {
     return dummyMovies;
+  }
+
+  @Override
+  public MediaRating getRating() {
+    return MediaMetadata.EMPTY_RATING;
   }
 
   /*******************************************************************************

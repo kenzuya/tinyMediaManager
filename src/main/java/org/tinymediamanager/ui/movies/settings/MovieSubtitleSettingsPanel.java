@@ -42,7 +42,6 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
@@ -73,7 +72,7 @@ class MovieSubtitleSettingsPanel extends JPanel {
   private static final long          serialVersionUID = -1607146878528487625L;
 
   private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
-  private final List<ScraperInTable> scrapers         = ObservableCollections.observableList(new ArrayList<>());
+  private final List<ScraperInTable> scrapers         = new ArrayList<>();
 
   private TmmTable                   tableScraper;
   private JTextPane                  tpScraperDescription;
@@ -83,10 +82,6 @@ class MovieSubtitleSettingsPanel extends JPanel {
   private JCheckBox                  chckbxSuppressLanguageTag;
 
   MovieSubtitleSettingsPanel() {
-    // UI init
-    initComponents();
-    initDataBindings();
-
     // data init
     List<String> enabledSubtitleProviders = settings.getSubtitleScrapers();
     int selectedIndex = -1;
@@ -102,6 +97,10 @@ class MovieSubtitleSettingsPanel extends JPanel {
       scrapers.add(subtitleScraper);
       counter++;
     }
+
+    // UI init
+    initComponents();
+    initDataBindings();
 
     // add a CSS rule to force body tags to use the default label font
     // instead of the value in javax.swing.text.html.default.csss

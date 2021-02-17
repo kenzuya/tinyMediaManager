@@ -305,7 +305,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addUserrating() {
     // get main rating and calculate the rating value to a base of 10
-    Float rating10;
+    float rating10;
 
     MediaRating mediaRating = movie.getRating(MediaRating.USER);
 
@@ -662,6 +662,26 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       Element profile = document.createElement("profile");
       profile.setTextContent(movieActor.getProfileUrl());
       actor.appendChild(profile);
+
+      // Element type = document.createElement("type");
+      // type.setTextContent("Actor");
+      // actor.appendChild(type);
+
+      // TMDB id
+      int tmdbid = movieActor.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbid > 0) {
+        Element id = document.createElement("tmdbid");
+        id.setTextContent(String.valueOf(tmdbid));
+        actor.appendChild(id);
+      }
+
+      // IMDB id
+      String imdbid = movieActor.getIdAsString(MediaMetadata.IMDB);
+      if (StringUtils.isNotBlank(imdbid)) {
+        Element id = document.createElement("imdbid");
+        id.setTextContent(imdbid);
+        actor.appendChild(id);
+      }
 
       root.appendChild(actor);
     }

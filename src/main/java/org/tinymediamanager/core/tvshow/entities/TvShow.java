@@ -436,39 +436,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    */
   @Override
   public MediaRating getRating() {
-    MediaRating mediaRating = null;
-
-    // the user rating
-    if (TvShowModuleManager.SETTINGS.getPreferPersonalRating()) {
-      mediaRating = ratings.get(MediaRating.USER);
-    }
-
-    // the default rating
-    if (mediaRating == null) {
-      mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
-    }
-
-    // then the default one (either NFO or DEFAULT)
-    if (mediaRating == null) {
-      mediaRating = super.getRating();
-    }
-
-    return mediaRating;
-  }
-
-  /**
-   * get the user rating
-   * 
-   * @return user rating object
-   */
-  public MediaRating getUserRating() {
-    MediaRating mediaRating;
-
-    mediaRating = ratings.get(MediaRating.USER);
+    MediaRating mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
 
     if (mediaRating == null) {
       mediaRating = MediaMetadata.EMPTY_RATING;
     }
+
     return mediaRating;
   }
 
@@ -1378,7 +1351,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @JsonSetter
   public void setActors(List<Person> newActors) {
     // two way sync of actors
-    ListUtils.mergeLists(actors, newActors);
+    mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 
@@ -1458,16 +1431,23 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return true, if all episodes are watched
    */
   public boolean isWatched() {
+    boolean episodeFound = false;
     boolean watched = true;
 
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isWatched()) {
-        watched = false;
-        break;
+      if (!episode.isDummy()) {
+        episodeFound = true;
+        watched = watched && episode.isWatched();
       }
     }
 
-    return watched;
+    // at least 1 non-dummy found -> pass the collected watched state
+    if (episodeFound) {
+      return watched;
+    }
+
+    // only dummy episodes -> return false
+    return false;
   }
 
   /**

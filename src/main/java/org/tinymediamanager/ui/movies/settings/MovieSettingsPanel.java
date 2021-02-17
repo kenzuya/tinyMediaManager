@@ -106,6 +106,9 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxSortTitle;
 
   private final ItemListener           checkBoxListener;
+  private JCheckBox                    chckbxTraktSyncWatched;
+  private JCheckBox                    chckbxTraktSyncRating;
+  private JCheckBox                    chckbxTraktSyncCollection;
 
   public MovieSettingsPanel() {
 
@@ -369,7 +372,7 @@ public class MovieSettingsPanel extends JPanel {
     }
     {
       JPanel panelAutomaticTasks = new JPanel();
-      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelAutomaticTasks.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][10lp!][]")); // 16lp ~ width of the
 
       JLabel lblAutomaticTasksT = new TmmLabel(TmmResourceBundle.getString("Settings.automatictasks"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAutomaticTasks, lblAutomaticTasksT, true);
@@ -389,12 +392,21 @@ public class MovieSettingsPanel extends JPanel {
         btnClearTraktData = new JButton(TmmResourceBundle.getString("Settings.trakt.clearmovies"));
         panelAutomaticTasks.add(btnClearTraktData, "cell 1 1 2 1");
 
+        chckbxTraktSyncCollection = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.collection"));
+        panelAutomaticTasks.add(chckbxTraktSyncCollection, "cell 2 2");
+
+        chckbxTraktSyncWatched = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.watched"));
+        panelAutomaticTasks.add(chckbxTraktSyncWatched, "cell 2 3");
+
+        chckbxTraktSyncRating = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.rating"));
+        panelAutomaticTasks.add(chckbxTraktSyncRating, "cell 2 4");
+
         chckbxAutoUpdateOnStart = new JCheckBox(TmmResourceBundle.getString("Settings.movie.automaticupdate"));
-        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 2 2 1");
+        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 6 2 1");
 
         JLabel lblAutomaticUpdateHint = new JLabel(IconManager.HINT);
         lblAutomaticUpdateHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticupdate.desc"));
-        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 2 2 1");
+        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 6 2 1");
 
       }
     }
@@ -570,5 +582,33 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_6,
         chckbxUseMediainfoMetadata, jCheckBoxBeanProperty);
     autoBinding_5.bind();
+    //
+    Property jCheckBoxBeanProperty_1 = BeanProperty.create("enabled");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxTraktSync, jCheckBoxBeanProperty, chckbxTraktSyncCollection,
+        jCheckBoxBeanProperty_1);
+    autoBinding_6.bind();
+    //
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxTraktSync, jCheckBoxBeanProperty, chckbxTraktSyncWatched,
+        jCheckBoxBeanProperty_1);
+    autoBinding_7.bind();
+    //
+    AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxTraktSync, jCheckBoxBeanProperty, chckbxTraktSyncRating,
+        jCheckBoxBeanProperty_1);
+    autoBinding_10.bind();
+    //
+    Property movieSettingsBeanProperty_7 = BeanProperty.create("syncTraktRating");
+    AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_7, chckbxTraktSyncRating,
+        jCheckBoxBeanProperty);
+    autoBinding_18.bind();
+    //
+    Property movieSettingsBeanProperty_10 = BeanProperty.create("syncTraktWatched");
+    AutoBinding autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_10, chckbxTraktSyncWatched,
+        jCheckBoxBeanProperty);
+    autoBinding_19.bind();
+    //
+    Property movieSettingsBeanProperty_18 = BeanProperty.create("syncTraktCollection");
+    AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_18,
+        chckbxTraktSyncCollection, jCheckBoxBeanProperty);
+    autoBinding_20.bind();
   }
 }

@@ -1977,7 +1977,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @JsonSetter
   public void setActors(List<Person> newActors) {
     // two way sync of actors
-    ListUtils.mergeLists(actors, newActors);
+    mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 
@@ -2040,7 +2040,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @JsonSetter
   public void setProducers(List<Person> newProducers) {
     // two way sync of producers
-    ListUtils.mergeLists(producers, newProducers);
+    mergePersons(producers, newProducers);
     firePropertyChange(PRODUCERS, null, producers);
   }
 
@@ -2104,7 +2104,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @JsonSetter
   public void setDirectors(List<Person> newDirectors) {
     // two way sync of directors
-    ListUtils.mergeLists(directors, newDirectors);
+    mergePersons(directors, newDirectors);
 
     firePropertyChange(DIRECTORS, null, directors);
     firePropertyChange(DIRECTORS_AS_STRING, null, getDirectorsAsString());
@@ -2183,7 +2183,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @JsonSetter
   public void setWriters(List<Person> newWriters) {
     // two way sync of writers
-    ListUtils.mergeLists(writers, newWriters);
+    mergePersons(writers, newWriters);
 
     firePropertyChange(WRITERS, null, this.getWriters());
     firePropertyChange(WRITERS_AS_STRING, null, getWritersAsString());
@@ -2621,8 +2621,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
       mixinLocalTrailers();
     }
 
-    // re-write NFO since we might have new mediainfo data
-    if (mediaFile.getType() == MediaFileType.VIDEO) {
+    // re-write NFO since we might have new mediainfo data (only if there is no existing NFO yet)
+    if (mediaFile.getType() == MediaFileType.VIDEO && getHasNfoFile()) {
       writeNFO();
     }
   }

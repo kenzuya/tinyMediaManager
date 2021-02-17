@@ -60,6 +60,7 @@ public class ITOfdbMetadataProviderTest extends BasicTest {
         options.setSearchQuery("Die Piefke Saga");
         options.setLanguage(MediaLanguages.de);
         options.setCertificationCountry(CountryCode.DE);
+        options.setReleaseDateCountry("DE");
 
         results = new ArrayList<>(mp.search(options));
         // did we get a result?
@@ -82,6 +83,7 @@ public class ITOfdbMetadataProviderTest extends BasicTest {
         options.setSearchQuery("Slevin");
         options.setLanguage(MediaLanguages.de);
         options.setCertificationCountry(CountryCode.DE);
+        options.setReleaseDateCountry("DE");
 
         results = new ArrayList<>(mp.search(options));
         // did we get a result?
@@ -117,6 +119,7 @@ public class ITOfdbMetadataProviderTest extends BasicTest {
       options = new MovieSearchAndScrapeOptions();
       options.setLanguage(MediaLanguages.de);
       options.setCertificationCountry(CountryCode.DE);
+      options.setReleaseDateCountry("DE");
 
       options.setId(mp.getProviderInfo().getId(), "226045");
 

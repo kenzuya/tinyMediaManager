@@ -18,7 +18,9 @@ package org.tinymediamanager.ui.movies.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 import static org.tinymediamanager.ui.TmmFontHelper.L2;
 
+import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Locale;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -51,17 +53,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieScraperOptionsSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -299825914193235308L;
+  private static final long         serialVersionUID = -299825914193235308L;
 
-  
+  private final MovieSettings       settings         = MovieModuleManager.SETTINGS;
 
-  private MovieSettings               settings         = MovieModuleManager.SETTINGS;
-  private JSlider                     sliderThreshold;
-  private JCheckBox                   chckbxAutomaticallyScrapeImages;
-  private JComboBox<MediaLanguages>   cbScraperLanguage;
-  private JComboBox<CountryCode>      cbCertificationCountry;
-  private JCheckBox                   chckbxScraperFallback;
-  private JCheckBox                   chckbxCapitalizeWords;
+  private JSlider                   sliderThreshold;
+  private JCheckBox                 chckbxAutomaticallyScrapeImages;
+  private JComboBox<MediaLanguages> cbScraperLanguage;
+  private JComboBox<CountryCode>    cbCertificationCountry;
+  private JComboBox<CountryItem>    cbReleaseCountry;
+  private JCheckBox                 chckbxScraperFallback;
+  private JCheckBox                 chckbxCapitalizeWords;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -72,7 +74,17 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     initDataBindings();
 
     // data init
-    Hashtable<Integer, JLabel> labelTable = new java.util.Hashtable<>();
+    for (String country : Locale.getISOCountries()) {
+      CountryItem item = new CountryItem(new Locale("", country));
+      cbReleaseCountry.addItem(item);
+      if (item.locale.getCountry().equalsIgnoreCase(settings.getReleaseDateCountry())) {
+        cbReleaseCountry.setSelectedItem(item);
+      }
+    }
+    cbReleaseCountry.addItemListener(l -> settings.setReleaseDateCountry(((CountryItem) cbReleaseCountry.getSelectedItem()).locale.getCountry()));
+
+    // threshold slider
+    Dictionary<Integer, JLabel> labelTable = new Hashtable<>();
     labelTable.put(100, new JLabel("100"));
     labelTable.put(75, new JLabel("75"));
     labelTable.put(50, new JLabel("50"));
@@ -87,7 +99,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[700lp,grow]", "[][]15lp![][15lp!][][15lp!][]"));
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][]")); // 16lp ~ width of the
 
       JLabel lblOptions = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptions, true);
@@ -98,19 +110,25 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
-        panelOptions.add(cbScraperLanguage, "cell 1 0");
+        panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
         JLabel lblCountry = new JLabel(TmmResourceBundle.getString("Settings.certificationCountry"));
         panelOptions.add(lblCountry, "cell 1 1 2 1");
 
         cbCertificationCountry = new JComboBox(CountryCode.values());
-        panelOptions.add(cbCertificationCountry, "cell 1 1");
+        panelOptions.add(cbCertificationCountry, "cell 1 1 2 1");
+
+        JLabel label = new JLabel(TmmResourceBundle.getString("Settings.releaseDateCountry"));
+        panelOptions.add(label, "flowx,cell 1 2 2 1");
+
+        cbReleaseCountry = new JComboBox();
+        panelOptions.add(cbReleaseCountry, "cell 1 2 2 1");
 
         chckbxScraperFallback = new JCheckBox(TmmResourceBundle.getString("Settings.scraperfallback"));
-        panelOptions.add(chckbxScraperFallback, "cell 1 2 2 1");
+        panelOptions.add(chckbxScraperFallback, "cell 1 4 2 1");
 
         chckbxCapitalizeWords = new JCheckBox((TmmResourceBundle.getString("Settings.scraper.capitalizeWords")));
-        panelOptions.add(chckbxCapitalizeWords, "cell 1 3 2 1");
+        panelOptions.add(chckbxCapitalizeWords, "cell 1 5 2 1");
       }
     }
     {
@@ -193,5 +211,18 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
     AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
         settingsBeanProperty_2, chckbxCapitalizeWords, jCheckBoxBeanProperty_3);
     autoBinding_2.bind();
+  }
+
+  private static class CountryItem {
+    private final Locale locale;
+
+    public CountryItem(Locale locale) {
+      this.locale = locale;
+    }
+
+    @Override
+    public String toString() {
+      return locale.getCountry() + " - " + locale.getDisplayCountry();
+    }
   }
 }

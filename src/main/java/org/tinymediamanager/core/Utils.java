@@ -50,6 +50,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.CodeSource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -78,6 +79,7 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileExistsException;
@@ -131,7 +133,6 @@ public class Utils {
       .compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
 
   public static final String   DISC_FOLDER_REGEX     = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
-
 
   private static List<Locale>  availableLocales      = new ArrayList<>();
 
@@ -1850,12 +1851,49 @@ public class Utils {
           try (OutputStream o = Files.newOutputStream(f.toPath())) {
             IOUtils.copy(ais, o);
           }
+
+          if (entry instanceof TarArchiveEntry) {
+            TarArchiveEntry tae = (TarArchiveEntry) entry;
+            Files.setPosixFilePermissions(f.toPath(), parsePerms(tae.getMode()));
+          }
         }
       }
     }
     catch (ArchiveException e) {
       throw new IOException("Could not extract archive", e);
     }
+  }
+
+  private static Set<PosixFilePermission> parsePerms(int mode) {
+    Set<PosixFilePermission> ret = new HashSet<>();
+    if ((mode & 0001) > 0) {
+      ret.add(PosixFilePermission.OTHERS_EXECUTE);
+    }
+    if ((mode & 0002) > 0) {
+      ret.add(PosixFilePermission.OTHERS_WRITE);
+    }
+    if ((mode & 0004) > 0) {
+      ret.add(PosixFilePermission.OTHERS_READ);
+    }
+    if ((mode & 0010) > 0) {
+      ret.add(PosixFilePermission.GROUP_EXECUTE);
+    }
+    if ((mode & 0020) > 0) {
+      ret.add(PosixFilePermission.GROUP_WRITE);
+    }
+    if ((mode & 0040) > 0) {
+      ret.add(PosixFilePermission.GROUP_READ);
+    }
+    if ((mode & 0100) > 0) {
+      ret.add(PosixFilePermission.OWNER_EXECUTE);
+    }
+    if ((mode & 0200) > 0) {
+      ret.add(PosixFilePermission.OWNER_WRITE);
+    }
+    if ((mode & 0400) > 0) {
+      ret.add(PosixFilePermission.OWNER_READ);
+    }
+    return ret;
   }
 
   public static void clearTempFolder() {

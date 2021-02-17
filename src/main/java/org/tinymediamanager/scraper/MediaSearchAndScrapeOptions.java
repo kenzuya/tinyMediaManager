@@ -41,6 +41,7 @@ public abstract class MediaSearchAndScrapeOptions {
   protected final Map<String, Object> ids                  = new HashMap<>();
   protected MediaLanguages            language             = MediaLanguages.en;
   protected CountryCode               certificationCountry = CountryCode.US;
+  protected String                    releaseDateCountry   = "";
 
   // search related fields
   protected String                    searchQuery          = "";
@@ -67,7 +68,7 @@ public abstract class MediaSearchAndScrapeOptions {
    *          the original to copy
    */
   protected MediaSearchAndScrapeOptions(MediaSearchAndScrapeOptions original) {
-    this.type = original.type;
+    this(original.type);
     setDataFromOtherOptions(original);
   }
 
@@ -81,6 +82,7 @@ public abstract class MediaSearchAndScrapeOptions {
     setIds(original.ids);
     this.language = original.language;
     this.certificationCountry = original.certificationCountry;
+    this.releaseDateCountry = original.releaseDateCountry;
     this.searchQuery = original.searchQuery;
     this.searchYear = original.searchYear;
     this.searchResult = original.searchResult;
@@ -117,6 +119,25 @@ public abstract class MediaSearchAndScrapeOptions {
    */
   public CountryCode getCertificationCountry() {
     return certificationCountry;
+  }
+
+  /**
+   * get the release date country
+   * 
+   * @return the country for the release date
+   */
+  public String getReleaseDateCountry() {
+    return releaseDateCountry;
+  }
+
+  /**
+   * set the country for the release date
+   * 
+   * @param releaseDateCountry
+   *          the country for the release date
+   */
+  public void setReleaseDateCountry(String releaseDateCountry) {
+    this.releaseDateCountry = releaseDateCountry;
   }
 
   /**

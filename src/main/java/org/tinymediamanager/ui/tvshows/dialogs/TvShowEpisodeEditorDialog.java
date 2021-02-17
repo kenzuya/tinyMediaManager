@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.InputMap;
@@ -87,6 +88,7 @@ import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.NothingFoundException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.ShadowLayerUI;
@@ -613,7 +615,10 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       JPanel scrapePanel = new JPanel();
       scrapePanel.setOpaque(false);
 
-      cbScraper = new MediaScraperComboBox(tvShowList.getAvailableMediaScrapers());
+      cbScraper = new MediaScraperComboBox(tvShowList.getAvailableMediaScrapers()
+          .stream()
+          .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
+          .collect(Collectors.toList()));
       MediaScraper defaultScraper = tvShowList.getDefaultMediaScraper();
       scrapePanel.setLayout(new MigLayout("", "[100lp:200lp][][][grow]", "[]"));
       cbScraper.setSelectedItem(defaultScraper);

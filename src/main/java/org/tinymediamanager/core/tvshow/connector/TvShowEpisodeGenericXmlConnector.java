@@ -600,6 +600,26 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       profile.setTextContent(tvShowActor.getProfileUrl());
       actor.appendChild(profile);
 
+      // Element type = document.createElement("type");
+      // type.setTextContent("GuestStar");
+      // actor.appendChild(type);
+
+      // TMDB id
+      int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
+      if (tmdbid > 0) {
+        Element id = document.createElement("tmdbid");
+        id.setTextContent(String.valueOf(tmdbid));
+        actor.appendChild(id);
+      }
+
+      // IMDB id
+      String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
+      if (StringUtils.isNotBlank(imdbid)) {
+        Element id = document.createElement("imdbid");
+        id.setTextContent(imdbid);
+        actor.appendChild(id);
+      }
+
       root.appendChild(actor);
     }
   }

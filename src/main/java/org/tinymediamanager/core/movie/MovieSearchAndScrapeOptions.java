@@ -24,13 +24,14 @@ import org.tinymediamanager.scraper.entities.MediaType;
  * @author Manuel Laggner
  */
 public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
+
   public MovieSearchAndScrapeOptions() {
     super(MediaType.MOVIE);
   }
 
   /**
    * copy constructor
-   * 
+   *
    * @param original
    *          the original to copy
    */
@@ -44,6 +45,7 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
   public void loadDefaults() {
     language = MovieModuleManager.SETTINGS.getScraperLanguage();
     certificationCountry = MovieModuleManager.SETTINGS.getCertificationCountry();
+    releaseDateCountry = MovieModuleManager.SETTINGS.getReleaseDateCountry();
 
     // metadata
     metadataScraper = MovieList.getInstance().getDefaultMediaScraper();

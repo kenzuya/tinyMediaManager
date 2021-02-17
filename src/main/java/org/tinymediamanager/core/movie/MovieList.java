@@ -600,6 +600,7 @@ public class MovieList extends AbstractModelObject {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setLanguage(language);
       options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+      options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
       options.setMetadataScraper(mediaScraper);
 
       if (ids != null) {

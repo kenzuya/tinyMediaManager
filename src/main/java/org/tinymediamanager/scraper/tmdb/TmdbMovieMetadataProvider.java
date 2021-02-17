@@ -100,6 +100,8 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     info.getConfig().addBoolean("scrapeLanguageNames", true);
     info.getConfig().addBoolean("titleFallback", false);
     info.getConfig().addSelect("titleFallbackLanguage", PT, "en-US");
+    info.getConfig().addBoolean("localReleaseDate", true);
+    info.getConfig().addBoolean("includePremiereDate", true);
     info.getConfig().load();
 
     return info;
@@ -507,6 +509,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
         movieSearchAndScrapeOptions.setTmdbId(MetadataUtil.unboxInteger(part.id));
         movieSearchAndScrapeOptions.setLanguage(options.getLanguage());
         movieSearchAndScrapeOptions.setCertificationCountry(options.getCertificationCountry());
+        movieSearchAndScrapeOptions.setReleaseDateCountry(options.getReleaseDateCountry());
         MediaMetadata mdSubItem = getMetadata(movieSearchAndScrapeOptions);
 
         // Poster
@@ -551,7 +554,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
           mdSubItem.setYear(calendar.get(Calendar.YEAR));
         }
 
-        if (part.vote_average != null) {
+        if (part.vote_average != null && MetadataUtil.unboxInteger(part.vote_count, 0) > 0) {
           mdSubItem.setRatings(
               Collections.singletonList(new MediaRating(getId(), part.vote_average.floatValue(), MetadataUtil.unboxInteger(part.vote_count))));
         }
@@ -713,11 +716,13 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     md.setTagline(movie.tagline);
     md.setRuntime(movie.runtime);
 
-    MediaRating rating = new MediaRating("tmdb");
-    rating.setRating(movie.vote_average.floatValue());
-    rating.setVotes(movie.vote_count);
-    rating.setMaxValue(10);
-    md.addRating(rating);
+    if (MetadataUtil.unboxInteger(movie.vote_count, 0) > 0) {
+      MediaRating rating = new MediaRating("tmdb");
+      rating.setRating(movie.vote_average.floatValue());
+      rating.setVotes(movie.vote_count);
+      rating.setMaxValue(10);
+      md.addRating(rating);
+    }
 
     // Poster
     if (StringUtils.isNotBlank(movie.poster_path)) {
@@ -761,20 +766,41 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
     if (movie.release_dates != null) {
       // only use the certification of the desired country (if any country has been chosen)
       CountryCode countryCode = options.getCertificationCountry();
+      String releaseDateCountry = options.getReleaseDateCountry();
 
       for (ReleaseDatesResult countries : ListUtils.nullSafe(movie.release_dates.results)) {
-        if (countryCode == null
-            || (StringUtils.isNotBlank(countries.iso_3166_1) && countryCode.getAlpha2().compareToIgnoreCase(countries.iso_3166_1) == 0)) {
-          // Any release from the desired country will do
+        if (StringUtils.isBlank(countries.iso_3166_1)) {
+          continue;
+        }
+
+        // certification
+        if (countryCode != null && countries.iso_3166_1.equalsIgnoreCase(countryCode.getAlpha2())) {
           for (ReleaseDate countryReleaseDate : ListUtils.nullSafe(countries.release_dates)) {
-            // 1... premiere -> ignore this
-            if (MetadataUtil.unboxInteger(countryReleaseDate.type) > 1 && (md.getReleaseDate() == null
-                || countryReleaseDate.release_date != null && countryReleaseDate.release_date.before(md.getReleaseDate()))) {
-              md.setReleaseDate(countryReleaseDate.release_date);
-            }
             // do not use any empty certifications
             if (StringUtils.isNotBlank(countryReleaseDate.certification)) {
               md.addCertification(MediaCertification.getCertification(countries.iso_3166_1, countryReleaseDate.certification));
+            }
+          }
+        }
+
+        // release date
+        if (Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("localReleaseDate"))) {
+          if (StringUtils.isNotBlank(releaseDateCountry) && releaseDateCountry.equalsIgnoreCase(countries.iso_3166_1)) {
+            for (ReleaseDate countryReleaseDate : ListUtils.nullSafe(countries.release_dates)) {
+              if (countryReleaseDate.release_date == null
+                  || (md.getReleaseDate() != null && countryReleaseDate.release_date.after(md.getReleaseDate()))) {
+                // either null or after -> we do not need this
+                continue;
+              }
+
+              // depending on the type we might want this
+              int type = MetadataUtil.unboxInteger(countryReleaseDate.type);
+
+              // 1... premiere
+              // >1.. "normal" releases (theatrical, physical, ...)
+              if (type > 1 || (type == 1 && Boolean.TRUE.equals(getProviderInfo().getConfig().getValueAsBool("includePremiereDate")))) {
+                md.setReleaseDate(countryReleaseDate.release_date);
+              }
             }
           }
         }

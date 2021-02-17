@@ -16,6 +16,14 @@
 package org.tinymediamanager.ui.moviesets.dialogs;
 
 import static java.util.Locale.ROOT;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARART;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.CLEARLOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.DISC;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.LOGO;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -24,7 +32,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -53,10 +63,12 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
@@ -66,6 +78,8 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
@@ -76,6 +90,7 @@ import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.ScraperMetadataConfigCheckComboBox;
 import org.tinymediamanager.ui.components.table.TmmTable;
+import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.moviesets.MovieSetChooserModel;
 import org.tinymediamanager.ui.moviesets.MovieSetChooserModel.MovieInSet;
@@ -413,8 +428,37 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
           // get images?
           if (ScraperMetadataConfig.containsAnyArtwork(scraperConfig)) {
-            // get artwork asynchronous
-            model.startArtworkScrapeTask(movieSetToScrape, scraperConfig);
+            // let the user choose the images
+            if (!MovieModuleManager.SETTINGS.isScrapeBestImageMovieSet()) {
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.POSTER)) {
+                chooseArtwork(MediaFileType.POSTER);
+              }
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.FANART)) {
+                chooseArtwork(MediaFileType.FANART);
+              }
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.BANNER)) {
+                chooseArtwork(MediaFileType.BANNER);
+              }
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.LOGO)) {
+                chooseArtwork(MediaFileType.LOGO);
+              }
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.CLEARLOGO)) {
+                chooseArtwork(MediaFileType.CLEARLOGO);
+              }
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.CLEARART)) {
+                chooseArtwork(MediaFileType.CLEARART);
+              }
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.DISCART)) {
+                chooseArtwork(MediaFileType.DISC);
+              }
+              if (scraperConfig.contains(MovieSetScraperMetadataConfig.THUMB)) {
+                chooseArtwork(MediaFileType.THUMB);
+              }
+            }
+            else {
+              // get artwork asynchronous
+              model.startArtworkScrapeTask(movieSetToScrape, scraperConfig);
+            }
           }
         }
         setVisible(false);
@@ -428,8 +472,79 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
     }
   }
 
+  private void chooseArtwork(MediaFileType mediaFileType) {
+    MediaArtwork.MediaArtworkType imageType;
+
+    switch (mediaFileType) {
+      case POSTER:
+        if (MovieModuleManager.SETTINGS.getMovieSetPosterFilenames().isEmpty()) {
+          return;
+        }
+        imageType = POSTER;
+        break;
+
+      case FANART:
+        if (MovieModuleManager.SETTINGS.getMovieSetFanartFilenames().isEmpty()) {
+          return;
+        }
+        imageType = BACKGROUND;
+        break;
+
+      case BANNER:
+        if (MovieModuleManager.SETTINGS.getMovieSetBannerFilenames().isEmpty()) {
+          return;
+        }
+        imageType = BANNER;
+        break;
+
+      case LOGO:
+        if (MovieModuleManager.SETTINGS.getMovieSetLogoFilenames().isEmpty()) {
+          return;
+        }
+        imageType = LOGO;
+        break;
+
+      case CLEARLOGO:
+        if (MovieModuleManager.SETTINGS.getMovieSetClearlogoFilenames().isEmpty()) {
+          return;
+        }
+        imageType = CLEARLOGO;
+        break;
+
+      case CLEARART:
+        if (MovieModuleManager.SETTINGS.getMovieSetClearartFilenames().isEmpty()) {
+          return;
+        }
+        imageType = CLEARART;
+        break;
+
+      case DISC:
+        if (MovieModuleManager.SETTINGS.getMovieSetDiscartFilenames().isEmpty()) {
+          return;
+        }
+        imageType = DISC;
+        break;
+
+      case THUMB:
+        if (MovieModuleManager.SETTINGS.getMovieSetThumbFilenames().isEmpty()) {
+          return;
+        }
+        imageType = THUMB;
+        break;
+
+      default:
+        return;
+    }
+
+    Map<String, Object> newIds = new HashMap<>(movieSetToScrape.getIds());
+    String imageUrl = ImageChooserDialog.chooseImage(this, newIds, imageType, MovieList.getInstance().getDefaultArtworkScrapers(),
+        MediaType.MOVIE_SET, MovieModuleManager.SETTINGS.getMovieSetArtworkFolder());
+
+    movieSetToScrape.setArtworkUrl(imageUrl, mediaFileType);
+  }
+
   private class ScrapeTask extends SwingWorker<Void, Void> {
-    private MovieSetChooserModel model;
+    private final MovieSetChooserModel model;
 
     ScrapeTask(MovieSetChooserModel model) {
       this.model = model;

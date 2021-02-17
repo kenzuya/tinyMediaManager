@@ -34,8 +34,8 @@ public class MovieSyncTraktTvAction extends TmmAction {
 
 
   public MovieSyncTraktTvAction() {
-    putValue(NAME, TmmResourceBundle.getString("movie.synctrakt.complete"));
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.complete.desc"));
+    putValue(NAME, TmmResourceBundle.getString("movie.synctrakt"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.desc"));
     putValue(SMALL_ICON, IconManager.SYNC);
     putValue(LARGE_ICON_KEY, IconManager.SYNC);
   }
@@ -45,6 +45,7 @@ public class MovieSyncTraktTvAction extends TmmAction {
     MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieList.getInstance().getMovies());
     task.setSyncCollection(true);
     task.setSyncWatched(true);
+    task.setSyncRating(true);
 
     TmmTaskManager.getInstance().addUnnamedTask(task);
   }

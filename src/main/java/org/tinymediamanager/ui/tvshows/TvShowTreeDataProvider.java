@@ -118,14 +118,13 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     };
 
     episodePropertyChangeListener = evt -> {
-      TvShowEpisode episode;
+      TvShowEpisode episode = (TvShowEpisode) evt.getSource();
 
       switch (evt.getPropertyName()) {
         // changed the season/episode nr of an episode
         case Constants.SEASON:
         case Constants.EPISODE:
           // simply remove it from the tree and readd it
-          episode = (TvShowEpisode) evt.getSource();
           removeTvShowEpisode(episode);
           addTvShowEpisode(episode);
           updateDummyEpisodesForTvShow(episode.getTvShow());
@@ -135,8 +134,16 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           // do not react on change of the TV show itself
           break;
 
+        case Constants.WATCHED:
+        case Constants.MEDIA_FILES:
+          // update the node itself, but also its parents
+          nodeChanged(episode);
+          nodeChanged(episode.getTvShowSeason());
+          nodeChanged(episode.getTvShow());
+          break;
+
         default:
-          nodeChanged(evt.getSource());
+          nodeChanged(episode);
           break;
       }
     };

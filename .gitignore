@@ -54,6 +54,7 @@ tvshows.db
 /tmp/
 /templates/*.jar
 launcher-extra.yml
+/native/addons/
 
 /src/test/resources/tmm_build_license
 /dependency-reduced-pom.xml

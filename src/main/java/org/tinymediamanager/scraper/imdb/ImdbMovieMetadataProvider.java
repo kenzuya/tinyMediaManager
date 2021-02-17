@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.scraper.imdb;
 
+import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_PREMIERE_DATE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_SHORT;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_TV_MOVIE;
 import static org.tinymediamanager.scraper.imdb.ImdbParser.INCLUDE_TV_SERIES;
@@ -62,6 +63,7 @@ public class ImdbMovieMetadataProvider extends ImdbMetadataProvider implements I
     providerInfo.getConfig().addBoolean(USE_TMDB_FOR_MOVIES, false);
     providerInfo.getConfig().addBoolean(SCRAPE_COLLETION_INFO, false);
     providerInfo.getConfig().addBoolean(LOCAL_RELEASE_DATE, true);
+    providerInfo.getConfig().addBoolean(INCLUDE_PREMIERE_DATE, true);
     providerInfo.getConfig().addBoolean(SCRAPE_UNCREDITED_ACTORS, true);
     providerInfo.getConfig().addBoolean(SCRAPE_LANGUAGE_NAMES, true);
     providerInfo.getConfig().addBoolean(SCRAPE_KEYWORDS_PAGE, false);
