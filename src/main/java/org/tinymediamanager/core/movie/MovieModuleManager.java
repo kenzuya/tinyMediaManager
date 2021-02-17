@@ -120,7 +120,7 @@ public class MovieModuleManager implements ITmmModule {
       }
     }
     mvStore.setAutoCommitDelay(2000); // 2 sec
-    mvStore.setRetentionTime(0);
+    mvStore.setRetentionTime(2000);
     mvStore.setReuseSpace(true);
     mvStore.setCacheSize(8);
 
@@ -152,7 +152,8 @@ public class MovieModuleManager implements ITmmModule {
       @Override
       public void run() {
         if (dirty) {
-          mvStore.compactFile(500);
+          mvStore.compact(95, 512 * 1024);
+          mvStore.compactMoveChunks();
           dirty = false;
         }
       }
