@@ -519,8 +519,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
     firePropertyChange(AIRED_SEASON, oldValue, newValue);
   }
+
   /**
    * get the Trakt ID
+   * 
    * @return the Trakt ID
    */
   public String getTraktTvId() {
@@ -529,15 +531,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the IMDB ID
+   * 
    * @return IMDB ID
    */
   public String getImdbId() {
     return this.getIdAsString(IMDB);
   }
 
-
   /**
    * Get the TMDB ID
+   * 
    * @return the TMDB ID
    */
   public String getTmdbId() {
@@ -923,13 +926,15 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setActors(List<Person> newActors) {
     // do not add actors which are in the TV show itself
+
     // tvShow is null while loading
     if (getTvShow() != null) {
       newActors.removeAll(getTvShow().getActors());
     }
 
     // two way sync of actors
-    mergePersons(actors, newActors);
+    ListUtils.mergeLists(actors, newActors);
+    // mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 

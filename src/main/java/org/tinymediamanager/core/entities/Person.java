@@ -127,7 +127,7 @@ public class Person extends AbstractModelObject {
     }
     else if (ids != null) {
       for (String key : other.getIds().keySet()) {
-        ids.put(key, other.getId(key));
+        ids.putIfAbsent(key, other.getId(key));
       }
     }
   }
@@ -341,8 +341,9 @@ public class Person extends AbstractModelObject {
 
     Person cast = (Person) obj;
 
-    // checks of equality (name and role is enough here)
-    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role)) {
+    // checks of equality
+    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role) && StringUtils.equals(thumbUrl, cast.thumbUrl)
+        && StringUtils.equals(profileUrl, cast.profileUrl)) {
       return true;
     }
 
@@ -351,6 +352,6 @@ public class Person extends AbstractModelObject {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(name).append(role).build();
+    return new HashCodeBuilder().append(name).append(role).append(thumbUrl).append(profileUrl).build();
   }
 }
