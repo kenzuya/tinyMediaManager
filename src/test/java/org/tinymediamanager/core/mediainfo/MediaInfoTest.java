@@ -109,6 +109,11 @@ public class MediaInfoTest extends BasicTest {
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("EAC3");
     assertThat(mf.getAudioChannels()).isEqualTo("6ch");
+
+    mf = new MediaFile(Paths.get("src/test/resources/samples/E-AC3-2.ac3"));
+    mf.gatherMediaInformation();
+    assertThat(mf.getAudioCodec()).isEqualTo("EAC3");
+    assertThat(mf.getAudioChannels()).isEqualTo("8ch");
   }
 
   // @Test

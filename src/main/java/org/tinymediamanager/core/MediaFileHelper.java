@@ -1679,17 +1679,25 @@ public class MediaFileHelper {
       // search for well known String in defined keys (changes between different MI versions!)
       String[] acSearch = new String[] { "Format", "Format_Profile", "Format_Commercial", "Format_Commercial_IfAny", "CodecID", "Codec" };
       String audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "TrueHD", acSearch);
-      if (audioCodec.isEmpty()) {
+      if (StringUtils.isBlank(audioCodec)) {
         audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "Atmos", acSearch);
       }
-      if (audioCodec.isEmpty()) {
+      if (StringUtils.isBlank(audioCodec)) {
         audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "DTS", acSearch);
       }
 
       // else just take format
-      if (audioCodec.isEmpty()) {
+      if (StringUtils.isBlank(audioCodec)) {
         audioCodec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format");
         audioCodec = audioCodec.replaceAll("\\p{Punct}", "");
+      }
+
+      // E-AC-3 in Format_String
+      if ("ac3".equalsIgnoreCase(audioCodec)) {
+        String formatString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_String");
+        if ("e-ac-3".equalsIgnoreCase(formatString)) {
+          audioCodec = "EAC3";
+        }
       }
 
       // https://github.com/Radarr/Radarr/blob/develop/src/NzbDrone.Core/MediaFiles/MediaInfo/MediaInfoFormatter.cs#L35
