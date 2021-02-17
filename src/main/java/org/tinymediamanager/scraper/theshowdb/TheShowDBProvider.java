@@ -59,13 +59,12 @@ abstract class TheShowDBProvider implements IMediaProvider {
 
   // thread safe initialization of the API
   protected synchronized void initAPI() throws ScrapeException {
-
-    if (!isActive()) {
-      throw new ScrapeException(new FeatureNotEnabledException(this));
-    }
-
     // create a new instance of the omdb api
     if (controller == null) {
+      if (!isActive()) {
+        throw new ScrapeException(new FeatureNotEnabledException(this));
+      }
+
       controller = new TheShowDBController(false);
     }
 
