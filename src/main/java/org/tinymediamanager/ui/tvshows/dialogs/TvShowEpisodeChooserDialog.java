@@ -175,7 +175,6 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       taPlot = new ReadOnlyTextArea();
       scrollPane_1.setViewportView(taPlot);
-      splitPane.setDividerLocation(300);
     }
     {
 
