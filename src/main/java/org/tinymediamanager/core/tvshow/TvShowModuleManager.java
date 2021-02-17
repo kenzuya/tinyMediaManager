@@ -18,11 +18,14 @@ package org.tinymediamanager.core.tvshow;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -37,6 +40,7 @@ import org.tinymediamanager.core.NullKeySerializer;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
@@ -56,30 +60,34 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class TvShowModuleManager implements ITmmModule {
 
-  public static final TvShowSettings SETTINGS     = TvShowSettings.getInstance();
+  public static final TvShowSettings   SETTINGS     = TvShowSettings.getInstance();
 
-  private static final String        MODULE_TITLE = "TV show management";
-  private static final String        TV_SHOW_DB   = "tvshows.db";
-  private static final Logger        LOGGER       = LoggerFactory.getLogger(TvShowModuleManager.class);
-  private static TvShowModuleManager instance;
+  private static final String          MODULE_TITLE = "TV show management";
+  private static final String          TV_SHOW_DB   = "tvshows.db";
+  private static final Logger          LOGGER       = LoggerFactory.getLogger(TvShowModuleManager.class);
+  private static final int             COMMIT_DELAY = 2000;
 
-  private final List<String>         startupMessages;
+  private static TvShowModuleManager   instance;
 
-  private boolean                    enabled;
-  private MVStore                    mvStore;
-  private ObjectWriter               tvShowObjectWriter;
-  private ObjectWriter               episodeObjectWriter;
+  private final List<String>           startupMessages;
+  private final Map<MediaEntity, Long> pendingChanges;
+  private final ReentrantReadWriteLock lock;
 
-  private MVMap<UUID, String>        tvShowMap;
-  private MVMap<UUID, String>        episodeMap;
+  private boolean                      enabled;
+  private MVStore                      mvStore;
+  private ObjectWriter                 tvShowObjectWriter;
+  private ObjectWriter                 episodeObjectWriter;
 
-  private Timer                      compactTimer;
-  private TimerTask                  compactTask;
-  private boolean                    dirty;
+  private MVMap<UUID, String>          tvShowMap;
+  private MVMap<UUID, String>          episodeMap;
+
+  private Timer                        databaseTimer;
 
   private TvShowModuleManager() {
     enabled = false;
     startupMessages = new ArrayList<>();
+    pendingChanges = new HashMap<>();
+    lock = new ReentrantReadWriteLock();
   }
 
   public static TvShowModuleManager getInstance() {
@@ -123,7 +131,7 @@ public class TvShowModuleManager implements ITmmModule {
       }
     }
     mvStore.setAutoCommitDelay(2000); // 2 sec
-    mvStore.setRetentionTime(2000);
+    mvStore.setRetentionTime(0);
     mvStore.setReuseSpace(true);
     mvStore.setCacheSize(8);
 
@@ -150,25 +158,20 @@ public class TvShowModuleManager implements ITmmModule {
     TvShowList.getInstance().initDataAfterLoading();
     enabled = true;
 
-    dirty = false;
-    compactTask = new TimerTask() {
+    TimerTask databaseWriteTask = new TimerTask() {
       @Override
       public void run() {
-        if (dirty) {
-          mvStore.compact(95, 512 * 1024);
-          mvStore.compactMoveChunks();
-          dirty = false;
-        }
+        writePendingChanges();
       }
     };
-
-    compactTimer = new Timer(true);
-    compactTimer.schedule(compactTask, 10000, 10000);
+    databaseTimer = new Timer();
+    databaseTimer.schedule(databaseWriteTask, COMMIT_DELAY, COMMIT_DELAY);
   }
 
   @Override
   public void shutDown() throws Exception {
-    compactTimer.cancel();
+    databaseTimer.cancel();
+    writePendingChanges();
 
     mvStore.compactMoveChunks();
     mvStore.close();
@@ -180,6 +183,61 @@ public class TvShowModuleManager implements ITmmModule {
         Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
         Utils.deleteDirectoryRecursive(file);
       }
+    }
+  }
+
+  private synchronized void writePendingChanges() {
+    try {
+      lock.writeLock().lock();
+      Map<MediaEntity, Long> pending = new HashMap<>(pendingChanges);
+
+      long now = System.currentTimeMillis();
+
+      boolean dirty = false;
+
+      for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
+        if (entry.getValue() < (now - COMMIT_DELAY)) {
+          try {
+            if (entry.getKey() instanceof TvShow) {
+              // store TV show
+              TvShow tvShow = (TvShow) entry.getKey();
+
+              // only diffs
+              String oldValue = tvShowMap.get(tvShow.getDbId());
+              String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
+              if (!StringUtils.equals(oldValue, newValue)) {
+                tvShowMap.put(tvShow.getDbId(), newValue);
+                pendingChanges.remove(entry.getKey());
+                dirty = true;
+              }
+            }
+            else if (entry.getKey() instanceof TvShowEpisode) {
+              // store episode
+              TvShowEpisode episode = (TvShowEpisode) entry.getKey();
+
+              // only diffs
+              String oldValue = episodeMap.get(episode.getDbId());
+              String newValue = episodeObjectWriter.writeValueAsString(episode);
+              if (!StringUtils.equals(oldValue, newValue)) {
+                episodeMap.put(episode.getDbId(), newValue);
+                pendingChanges.remove(entry.getKey());
+                dirty = true;
+              }
+            }
+          }
+          catch (Exception e) {
+            LOGGER.warn("could not store '{}' - '{}'", entry.getKey().getClass().getName(), e.getMessage());
+            pendingChanges.remove(entry.getKey());
+          }
+        }
+      }
+
+      if (dirty) {
+        mvStore.compactMoveChunks();
+      }
+    }
+    finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -215,35 +273,47 @@ public class TvShowModuleManager implements ITmmModule {
     }
   }
 
-  void persistTvShow(TvShow tvShow) throws Exception {
-    String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
-    String oldValue = tvShowMap.get(tvShow.getDbId());
-
-    if (!StringUtils.equals(newValue, oldValue)) {
-      // write to DB
-      tvShowMap.put(tvShow.getDbId(), newValue);
-      dirty = true;
+  void persistTvShow(TvShow tvShow) {
+    // write movie to DB
+    try {
+      lock.writeLock().lock();
+      pendingChanges.put(tvShow, System.currentTimeMillis());
+    }
+    finally {
+      lock.writeLock().unlock();
     }
   }
 
   void removeTvShowFromDb(TvShow tvShow) {
-    tvShowMap.remove(tvShow.getDbId());
-    dirty = true;
+    try {
+      lock.writeLock().lock();
+      pendingChanges.remove(tvShow);
+      tvShowMap.remove(tvShow.getDbId());
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 
-  void persistEpisode(TvShowEpisode episode) throws Exception {
-    String newValue = episodeObjectWriter.writeValueAsString(episode);
-    String oldValue = episodeMap.get(episode.getDbId());
-
-    if (!StringUtils.equals(newValue, oldValue)) {
-      episodeMap.put(episode.getDbId(), newValue);
-      dirty = true;
+  void persistEpisode(TvShowEpisode episode) {
+    try {
+      lock.writeLock().lock();
+      pendingChanges.put(episode, System.currentTimeMillis());
+    }
+    finally {
+      lock.writeLock().unlock();
     }
   }
 
   void removeEpisodeFromDb(TvShowEpisode episode) {
-    episodeMap.remove(episode.getDbId());
-    dirty = true;
+    try {
+      lock.writeLock().lock();
+      pendingChanges.remove(episode);
+      episodeMap.remove(episode.getDbId());
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 
   @Override
