@@ -891,7 +891,7 @@ public class MediaMetadata {
    *          the rating to be set
    */
   public void addRating(MediaRating rating) {
-    if (rating != null && StringUtils.isNotBlank(rating.getId()) && rating.getRating() >= 0 && rating.getMaxValue() > 0) {
+    if (rating != null && StringUtils.isNotBlank(rating.getId()) && rating.getMaxValue() > 0 && (rating.getRating() > 0 || rating.getVotes() > 0)) {
       if (!ratings.contains(rating)) {
         ratings.add(rating);
       }

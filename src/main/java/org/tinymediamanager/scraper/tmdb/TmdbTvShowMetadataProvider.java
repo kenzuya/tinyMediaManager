@@ -397,17 +397,15 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     md.setTitle(complete.name);
     md.setOriginalTitle(complete.original_name);
 
-    if (MetadataUtil.unboxInteger(complete.vote_count, 0) > 0) {
-      try {
-        MediaRating rating = new MediaRating("tmdb");
-        rating.setRating(complete.vote_average);
-        rating.setVotes(complete.vote_count);
-        rating.setMaxValue(10);
-        md.addRating(rating);
-      }
-      catch (Exception e) {
-        LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
-      }
+    try {
+      MediaRating rating = new MediaRating("tmdb");
+      rating.setRating(complete.vote_average);
+      rating.setVotes(complete.vote_count);
+      rating.setMaxValue(10);
+      md.addRating(rating);
+    }
+    catch (Exception e) {
+      LOGGER.trace("could not parse rating/vote count: {}", e.getMessage());
     }
 
     md.setReleaseDate(complete.first_air_date);
