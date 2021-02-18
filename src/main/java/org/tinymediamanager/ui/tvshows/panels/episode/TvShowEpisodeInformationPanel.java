@@ -62,6 +62,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.RatingConverter;
@@ -101,7 +102,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private JLabel                             lblEpisode;
   private JLabel                             lblAired;
   private JTextArea                          taTags;
-  private LinkLabel                          lblPath;
+  private LinkTextArea                       lblPath;
   private JLabel                             lblNote;
   private LinkLabel                          lblTraktTvId;
   private LinkLabel                          lblTvdbId;
@@ -412,7 +413,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
             JLabel lblPathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
             panelBottomDetails.add(lblPathT, "cell 0 1");
 
-            lblPath = new LinkLabel("");
+            lblPath = new LinkTextArea("");
             panelBottomDetails.add(lblPath, "cell 2 1,growx,wmin 0");
           }
           {
@@ -524,9 +525,9 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     autoBinding_12.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShowEpisode.path");
-    BeanProperty<LinkLabel, String> linkLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_11, lblPath, linkLabelBeanProperty);
+    BeanProperty<LinkTextArea, String> linkTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, LinkTextArea, String> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_11, lblPath, linkTextAreaBeanProperty);
     autoBinding_13.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_12 = BeanProperty.create("selectedTvShowEpisode.note");

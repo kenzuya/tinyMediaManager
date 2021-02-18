@@ -25,7 +25,6 @@ import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.util.Map;
 
-import javax.swing.JLabel;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Manuel Laggner
  */
 
-public class LinkLabel extends JLabel {
+public class LinkTextArea extends ReadOnlyTextArea {
   private static final long serialVersionUID = 3762584745632060187L;
 
   protected String          link;
@@ -45,11 +44,11 @@ public class LinkLabel extends JLabel {
 
   /**
    * Creates a new LinkLabel with the given text.
-   * 
+   *
    * @param text
    *          the text
    */
-  public LinkLabel(String text) {
+  public LinkTextArea(String text) {
     super(text);
     setLink(text);
   }
@@ -57,7 +56,7 @@ public class LinkLabel extends JLabel {
   /**
    * Creates a new LinkLabel with the given text.
    */
-  public LinkLabel() {
+  public LinkTextArea() {
     this(null);
   }
 

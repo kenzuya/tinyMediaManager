@@ -54,7 +54,7 @@ import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
-import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -75,7 +75,7 @@ class UiSettingsPanel extends JPanel {
   private final List<LocaleComboBox> locales            = new ArrayList<>();
 
   private JComboBox                  cbLanguage;
-  private LinkLabel                  lblLinkTranslate;
+  private LinkTextArea               lblLinkTranslate;
   private JComboBox                  cbFontSize;
   private JComboBox                  cbFontFamily;
   private JLabel                     lblLanguageChangeHint;
@@ -199,7 +199,7 @@ class UiSettingsPanel extends JPanel {
         panelLanguage.add(lblLanguageHint, "cell 1 1 2 1");
       }
       {
-        lblLinkTranslate = new LinkLabel("https://forum.kodi.tv/showthread.php?tid=174987");
+        lblLinkTranslate = new LinkTextArea("https://forum.kodi.tv/showthread.php?tid=174987");
         panelLanguage.add(lblLinkTranslate, "cell 1 2 2 1, grow, wmin 0");
       }
       {

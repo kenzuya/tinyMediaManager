@@ -43,7 +43,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
@@ -64,7 +64,6 @@ import net.miginfocom.swing.MigLayout;
 abstract public class MediaInformationPanel extends JPanel {
   private static final long                 serialVersionUID = 2513029074142934502L;
 
-
   private static final Logger               LOGGER           = LoggerFactory.getLogger(MediaInformationPanel.class);
 
   protected EventList<MediaFile>            mediaFileEventList;
@@ -79,7 +78,7 @@ abstract public class MediaInformationPanel extends JPanel {
   protected JLabel                          lblVideoBitDepth;
   protected JLabel                          lblFrameRate;
   protected JLabel                          lblSource;
-  protected LinkLabel                       lblPath;
+  protected LinkTextArea                    lblPath;
   protected JLabel                          lblDateAdded;
   protected JLabel                          lblOriginalFilename;
   protected JLabel                          lblHdrFormat;
@@ -103,7 +102,7 @@ abstract public class MediaInformationPanel extends JPanel {
       JLabel lblMoviePathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
       add(lblMoviePathT, "cell 0 0");
 
-      lblPath = new LinkLabel("");
+      lblPath = new LinkTextArea("");
       lblPath.addActionListener(new LinkLabelListener());
       add(lblPath, "cell 1 0 5 1,growx,wmin 0");
     }
@@ -306,7 +305,8 @@ abstract public class MediaInformationPanel extends JPanel {
       /*
        * bitrate
        */
-      col = new Column(TmmResourceBundle.getString("metatag.bitrate"), "bitrate", container -> container.audioStream.getBitrateInKbps(), String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.bitrate"), "bitrate", container -> container.audioStream.getBitrateInKbps(),
+          String.class);
       col.setColumnComparator(stringComparator);
       addColumn(col);
 
