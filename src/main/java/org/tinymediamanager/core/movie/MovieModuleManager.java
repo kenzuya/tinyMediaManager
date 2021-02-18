@@ -18,11 +18,14 @@ package org.tinymediamanager.core.movie;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
@@ -37,6 +40,7 @@ import org.tinymediamanager.core.NullKeySerializer;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 
@@ -53,30 +57,34 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  */
 public class MovieModuleManager implements ITmmModule {
 
-  public static final MovieSettings SETTINGS     = MovieSettings.getInstance();
+  public static final MovieSettings    SETTINGS     = MovieSettings.getInstance();
 
-  private static final String       MODULE_TITLE = "Movie management";
-  private static final String       MOVIE_DB     = "movies.db";
-  private static final Logger       LOGGER       = LoggerFactory.getLogger(MovieModuleManager.class);
-  private static MovieModuleManager instance;
+  private static final String          MODULE_TITLE = "Movie management";
+  private static final String          MOVIE_DB     = "movies.db";
+  private static final Logger          LOGGER       = LoggerFactory.getLogger(MovieModuleManager.class);
+  private static final int             COMMIT_DELAY = 2000;
 
-  private final List<String>        startupMessages;
+  private static MovieModuleManager    instance;
 
-  private boolean                   enabled;
-  private MVStore                   mvStore;
-  private ObjectWriter              movieObjectWriter;
-  private ObjectWriter              movieSetObjectWriter;
+  private final List<String>           startupMessages;
+  private final Map<MediaEntity, Long> pendingChanges;
+  private final ReentrantReadWriteLock lock;
 
-  private MVMap<UUID, String>       movieMap;
-  private MVMap<UUID, String>       movieSetMap;
+  private boolean                      enabled;
+  private MVStore                      mvStore;
+  private ObjectWriter                 movieObjectWriter;
+  private ObjectWriter                 movieSetObjectWriter;
 
-  private Timer                     compactTimer;
-  private TimerTask                 compactTask;
-  private boolean                   dirty;
+  private MVMap<UUID, String>          movieMap;
+  private MVMap<UUID, String>          movieSetMap;
+
+  private Timer                        databaseTimer;
 
   private MovieModuleManager() {
     enabled = false;
     startupMessages = new ArrayList<>();
+    pendingChanges = new HashMap<>();
+    lock = new ReentrantReadWriteLock();
   }
 
   public static MovieModuleManager getInstance() {
@@ -147,24 +155,20 @@ public class MovieModuleManager implements ITmmModule {
     MovieList.getInstance().initDataAfterLoading();
     enabled = true;
 
-    dirty = false;
-    compactTask = new TimerTask() {
+    TimerTask databaseWriteTask = new TimerTask() {
       @Override
       public void run() {
-        if (dirty) {
-          mvStore.compactFile(500);
-          dirty = false;
-        }
+        writePendingChanges();
       }
     };
-
-    compactTimer = new Timer(true);
-    compactTimer.schedule(compactTask, 10000, 10000);
+    databaseTimer = new Timer();
+    databaseTimer.schedule(databaseWriteTask, COMMIT_DELAY, COMMIT_DELAY);
   }
 
   @Override
   public void shutDown() throws Exception {
-    compactTimer.cancel();
+    databaseTimer.cancel();
+    writePendingChanges();
 
     mvStore.compactMoveChunks();
     mvStore.close();
@@ -176,6 +180,61 @@ public class MovieModuleManager implements ITmmModule {
         Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
         Utils.deleteDirectoryRecursive(file);
       }
+    }
+  }
+
+  private synchronized void writePendingChanges() {
+    try {
+      lock.writeLock().lock();
+      Map<MediaEntity, Long> pending = new HashMap<>(pendingChanges);
+
+      long now = System.currentTimeMillis();
+
+      boolean dirty = false;
+
+      for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
+        if (entry.getValue() < (now - COMMIT_DELAY)) {
+          try {
+            if (entry.getKey() instanceof Movie) {
+              // store movie
+              Movie movie = (Movie) entry.getKey();
+
+              // only diffs
+              String oldValue = movieMap.get(movie.getDbId());
+              String newValue = movieObjectWriter.writeValueAsString(movie);
+              if (!StringUtils.equals(oldValue, newValue)) {
+                movieMap.put(movie.getDbId(), newValue);
+                pendingChanges.remove(entry.getKey());
+                dirty = true;
+              }
+            }
+            else if (entry.getKey() instanceof MovieSet) {
+              // store movie set
+              MovieSet movieSet = (MovieSet) entry.getKey();
+
+              // only diffs
+              String oldValue = movieSetMap.get(movieSet.getDbId());
+              String newValue = movieSetObjectWriter.writeValueAsString(movieSet);
+              if (!StringUtils.equals(oldValue, newValue)) {
+                movieSetMap.put(movieSet.getDbId(), newValue);
+                pendingChanges.remove(entry.getKey());
+                dirty = true;
+              }
+            }
+          }
+          catch (Exception e) {
+            LOGGER.warn("could not store '{}' - '{}'", entry.getKey().getClass().getName(), e.getMessage());
+            pendingChanges.remove(entry.getKey());
+          }
+        }
+      }
+
+      if (dirty) {
+        mvStore.compactMoveChunks();
+      }
+    }
+    finally {
+      lock.writeLock().unlock();
     }
   }
 
@@ -220,34 +279,47 @@ public class MovieModuleManager implements ITmmModule {
     }
   }
 
-  void persistMovie(Movie movie) throws Exception {
-    String newValue = movieObjectWriter.writeValueAsString(movie);
-    String oldValue = movieMap.get(movie.getDbId());
-
-    if (!StringUtils.equals(newValue, oldValue)) {
-      // write movie to DB
-      movieMap.put(movie.getDbId(), newValue);
-      dirty = true;
+  void persistMovie(Movie movie) {
+    // write movie to DB
+    try {
+      lock.writeLock().lock();
+      pendingChanges.put(movie, System.currentTimeMillis());
+    }
+    finally {
+      lock.writeLock().unlock();
     }
   }
 
   void removeMovieFromDb(Movie movie) {
-    movieMap.remove(movie.getDbId());
-    dirty = true;
+    try {
+      lock.writeLock().lock();
+      pendingChanges.remove(movie);
+      movieMap.remove(movie.getDbId());
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 
-  void persistMovieSet(MovieSet movieSet) throws Exception {
-    String newValue = movieSetObjectWriter.writeValueAsString(movieSet);
-    String oldValue = movieSetMap.get(movieSet.getDbId());
-    if (!StringUtils.equals(newValue, oldValue)) {
-      movieSetMap.put(movieSet.getDbId(), newValue);
-      dirty = true;
+  void persistMovieSet(MovieSet movieSet) {
+    try {
+      lock.writeLock().lock();
+      pendingChanges.put(movieSet, System.currentTimeMillis());
+    }
+    finally {
+      lock.writeLock().unlock();
     }
   }
 
   void removeMovieSetFromDb(MovieSet movieSet) {
-    movieSetMap.remove(movieSet.getDbId());
-    dirty = true;
+    try {
+      lock.writeLock().lock();
+      movieSetMap.remove(movieSet.getDbId());
+      pendingChanges.remove(movieSet);
+    }
+    finally {
+      lock.writeLock().unlock();
+    }
   }
 
   @Override

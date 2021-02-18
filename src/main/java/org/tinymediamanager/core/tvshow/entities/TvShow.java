@@ -1351,7 +1351,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @JsonSetter
   public void setActors(List<Person> newActors) {
     // two way sync of actors
-    ListUtils.mergeLists(actors, newActors);
+    mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 

@@ -315,6 +315,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         }
       }
 
+      if (cancel) {
+        return;
+      }
+
       LOGGER.info("getting Mediainfo...");
 
       initThreadPool(1, "mediainfo");
@@ -348,6 +352,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         waitForCompletionOrCancel();
+      }
+
+      if (cancel) {
+        return;
       }
 
       if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {

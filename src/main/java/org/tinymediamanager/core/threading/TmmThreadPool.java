@@ -102,7 +102,6 @@ public abstract class TmmThreadPool extends TmmTask {
       try {
         final Future<Object> future = service.poll(500, TimeUnit.MILLISECONDS);
         if (cancel) {
-          pool.shutdownNow();
           break;
         }
 
@@ -115,9 +114,9 @@ public abstract class TmmThreadPool extends TmmTask {
           break;
         }
       }
-      catch (InterruptedException e) {
+      catch (InterruptedException e) { // NOSONAR
         LOGGER.error("ThreadPool {} interrupted!", poolname);
-        Thread.currentThread().interrupt();
+        cancel = true;
       }
       catch (ExecutionException e) {
         LOGGER.error("ThreadPool {}: Error getting result! - {}", poolname, e.getMessage());
@@ -125,7 +124,7 @@ public abstract class TmmThreadPool extends TmmTask {
     }
 
     if (cancel) {
-      LOGGER.info("Abort queue (discarding {} tasks", workUnits - progressDone);
+      LOGGER.info("Abort queue (discarding {} tasks)", workUnits - progressDone);
       pool.shutdownNow();
     }
   }

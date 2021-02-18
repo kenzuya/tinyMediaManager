@@ -100,11 +100,11 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
 
   private synchronized void initAPI() throws ScrapeException {
 
-    if (!isActive()) {
-      throw new ScrapeException(new FeatureNotEnabledException(this));
-    }
-
     if (client == null) {
+      if (!isActive()) {
+        throw new ScrapeException(new FeatureNotEnabledException(this));
+      }
+
       try {
         client = new TmmXmlRpcClient(new URL(SERVICE));
       }

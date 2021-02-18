@@ -96,7 +96,7 @@ public class Person extends AbstractModelObject {
 
   /**
    * copy constructor
-   * 
+   *
    * @param source
    *          the source to be copied
    */
@@ -109,6 +109,26 @@ public class Person extends AbstractModelObject {
 
     if (source.ids != null && !source.ids.isEmpty()) {
       this.ids = new HashMap<>(source.ids);
+    }
+  }
+
+  public void merge(Person other) {
+    if (other == null) {
+      return;
+    }
+
+    setName(StringUtils.isBlank(name) ? other.name : name);
+    setRole(StringUtils.isBlank(role) ? other.role : role);
+    setThumbUrl(StringUtils.isBlank(thumbUrl) ? other.thumbUrl : thumbUrl);
+    setProfileUrl(StringUtils.isBlank(profileUrl) ? other.profileUrl : profileUrl);
+
+    if (ids == null && !other.getIds().isEmpty()) {
+      ids = new HashMap<>(other.ids);
+    }
+    else if (ids != null) {
+      for (String key : other.getIds().keySet()) {
+        ids.putIfAbsent(key, other.getId(key));
+      }
     }
   }
 
@@ -332,6 +352,6 @@ public class Person extends AbstractModelObject {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(name).append(role).append(thumbUrl).build();
+    return new HashCodeBuilder().append(name).append(role).append(thumbUrl).append(profileUrl).build();
   }
 }

@@ -519,8 +519,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
     firePropertyChange(AIRED_SEASON, oldValue, newValue);
   }
+
   /**
    * get the Trakt ID
+   * 
    * @return the Trakt ID
    */
   public String getTraktTvId() {
@@ -529,15 +531,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the IMDB ID
+   * 
    * @return IMDB ID
    */
   public String getImdbId() {
     return this.getIdAsString(IMDB);
   }
 
-
   /**
    * Get the TMDB ID
+   * 
    * @return the TMDB ID
    */
   public String getTmdbId() {
@@ -923,6 +926,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setActors(List<Person> newActors) {
     // do not add actors which are in the TV show itself
+
     // tvShow is null while loading
     if (getTvShow() != null) {
       newActors.removeAll(getTvShow().getActors());
@@ -930,6 +934,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     // two way sync of actors
     ListUtils.mergeLists(actors, newActors);
+    // mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 
@@ -984,7 +989,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setDirectors(List<Person> newDirectors) {
     // two way sync of directors
-    ListUtils.mergeLists(directors, newDirectors);
+    mergePersons(directors, newDirectors);
 
     firePropertyChange(DIRECTORS, null, this.getDirectors());
     firePropertyChange(DIRECTORS_AS_STRING, null, this.getDirectorsAsString());
@@ -1063,7 +1068,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @JsonSetter
   public void setWriters(List<Person> newWriters) {
     // two way sync of writers
-    ListUtils.mergeLists(writers, newWriters);
+    mergePersons(writers, newWriters);
 
     firePropertyChange(WRITERS, null, this.getWriters());
     firePropertyChange(WRITERS_AS_STRING, null, this.getWritersAsString());

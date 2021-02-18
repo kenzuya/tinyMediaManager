@@ -173,7 +173,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
       if ((episode && entry.getKey().startsWith("episode"))
           || (!episode && !entry.getKey().startsWith("episode")) && !UNDEFINED.equals(entry.getValue())) {
         ITvShowMetadataProvider mp = COMPATIBLE_SCRAPERS.get(entry.getValue());
-        if (mp != null) {
+        if (mp != null && mp.isActive()) {
           metadataProviders.add(mp);
         }
       }
@@ -190,7 +190,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     List<Future<MediaMetadata>> futures = new ArrayList<>();
     for (ITvShowMetadataProvider mp : metadataProviders) {
       // look into the cache - maybe we do not need to call it again
-      if (metadataMap.get(mp.getProviderInfo().getId()) == null) {
+      if (metadataMap.get(mp.getProviderInfo().getId()) == null && mp.isActive()) {
         futures.add(completionService.submit(new TvShowMetadataProviderWorker(mp, options)));
       }
     }
@@ -231,7 +231,7 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
     List<Future<MediaMetadata>> futures = new ArrayList<>();
     for (ITvShowMetadataProvider mp : metadataProviders) {
       // look into the cache - maybe we do not need to call it again
-      if (metadataMap.get(mp.getProviderInfo().getId()) == null) {
+      if (metadataMap.get(mp.getProviderInfo().getId()) == null && mp.isActive()) {
         futures.add(completionService.submit(new TvShowEpisodeMetadataProviderWorker(mp, options)));
       }
     }

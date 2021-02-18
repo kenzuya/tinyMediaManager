@@ -194,7 +194,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     for (Map.Entry<String, String> entry : providerInfo.getConfig().getConfigKeyValuePairs().entrySet()) {
       if (!UNDEFINED.equals(entry.getValue())) {
         IMovieMetadataProvider mp = COMPATIBLE_SCRAPERS.get(entry.getValue());
-        if (mp != null) {
+        if (mp != null && mp.isActive()) {
           metadataProviders.add(mp);
         }
       }
@@ -282,7 +282,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     List<Future<MediaMetadata>> futures = new ArrayList<>();
     for (IMovieMetadataProvider mp : metadataProviders) {
       // look into the cache - maybe we do not need to call it again
-      if (metadataMap.get(mp.getProviderInfo().getId()) == null) {
+      if (metadataMap.get(mp.getProviderInfo().getId()) == null && mp.isActive()) {
         futures.add(completionService.submit(new MetadataProviderWorker(mp, options)));
       }
     }
