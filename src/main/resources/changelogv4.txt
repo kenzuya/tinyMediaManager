@@ -1,11 +1,15 @@
 - bundled JRE and rewritten launcher (no installed Java needed any more)
 - real HiDPI support (slightly changed look and feel to achieve correct UI scaling)
 - mix in IMDB ratings for almost every scraper without the need of the universal scrapers
-- universal TV show scraper
+- new scrapers (TVMaze, OMDB for TV shows, universal TV show)
+- individual scraper settings
 - completely reworked libmediainfo usage:
   - full support of reading/writing mediainfo XML files
   - better support of disc structures (.iso and VIDEO_TS/BDMV/HVDVD_TS folders)
   - several fixes for reading data out of libmediainfo
+- FFmpeg integration
+- missing movies in movie sets
+- enhanced Trakt.tv sync
 - enhanced filter management
 - new command line interface
 - mediainfo integration for Trakt.tv
@@ -18,4 +22,5 @@
 - fixed handling of MP2/MP3 streams
 - enhanced downloading of youtube trailers
 - KodiRPC: improve matching
+- new rating implementation
 - and many more changes under the hood…
