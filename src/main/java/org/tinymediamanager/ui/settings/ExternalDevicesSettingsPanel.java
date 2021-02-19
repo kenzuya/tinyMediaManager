@@ -60,25 +60,22 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class ExternalDevicesSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 8176824801347872222L;
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
+  private static final long   serialVersionUID = 8176824801347872222L;
+  private static final Logger LOGGER           = LoggerFactory.getLogger(ExternalDevicesSettingsPanel.class);
 
+  private final Settings      settings         = Settings.getInstance();
 
-  
-
-  private Settings                    settings         = Settings.getInstance();
-
-  private JTable                      tableWolDevices;
-  private JTextField                  tfKodiHost;
-  private JTextField                  tfKodiTcpPort;
-  private JTextField                  tfKodiHttpPort;
-  private JTextField                  tfKodiUsername;
-  private JPasswordField              tfKodiPassword;
-  private JButton                     btnRemoveWolDevice;
-  private JButton                     btnAddWolDevice;
-  private JButton                     btnEditWolDevice;
-  private JCheckBox                   chckbxUpnpShareLibrary;
-  private JCheckBox                   chckbxUpnpRemotePlay;
+  private JTable              tableWolDevices;
+  private JTextField          tfKodiHost;
+  private JTextField          tfKodiTcpPort;
+  private JTextField          tfKodiHttpPort;
+  private JTextField          tfKodiUsername;
+  private JPasswordField      tfKodiPassword;
+  private JButton             btnRemoveWolDevice;
+  private JButton             btnAddWolDevice;
+  private JButton             btnEditWolDevice;
+  private JCheckBox           chckbxUpnpShareLibrary;
+  private JCheckBox           chckbxUpnpRemotePlay;
 
   ExternalDevicesSettingsPanel() {
 
@@ -98,7 +95,7 @@ class ExternalDevicesSettingsPanel extends JPanel {
       row = tableWolDevices.convertRowIndexToModel(row);
       if (row != -1) {
         WolDevice device = Globals.settings.getWolDevices().get(row);
-        Globals.settings.removeWolDevice(device);
+        Globals.settings.removeWolDevices(device);
       }
     });
     btnEditWolDevice.addActionListener(e -> {
