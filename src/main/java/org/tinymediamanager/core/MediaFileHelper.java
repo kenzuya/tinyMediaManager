@@ -1680,9 +1680,6 @@ public class MediaFileHelper {
       String[] acSearch = new String[] { "Format", "Format_Profile", "Format_Commercial", "Format_Commercial_IfAny", "CodecID", "Codec" };
       String audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "TrueHD", acSearch);
       if (StringUtils.isBlank(audioCodec)) {
-        audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "Atmos", acSearch);
-      }
-      if (StringUtils.isBlank(audioCodec)) {
         audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "DTS", acSearch);
       }
 
@@ -1722,7 +1719,7 @@ public class MediaFileHelper {
         }
         if ("TrueHD".equalsIgnoreCase(audioCodec)) {
           if (addFeature.equalsIgnoreCase("16-ch")) {
-            audioCodec = "Atmos";
+            audioCodec = "TrueHD/Atmos";
           }
         }
       }
@@ -1747,7 +1744,7 @@ public class MediaFileHelper {
         }
         if ("TrueHD".equalsIgnoreCase(audioCodec)) {
           if (audioProfile.contains("Atmos")) {
-            audioCodec = "Atmos";
+            audioCodec = "TrueHD/Atmos";
           }
         }
         if ("MPEG Audio".equalsIgnoreCase(audioCodec)) {
@@ -1762,7 +1759,8 @@ public class MediaFileHelper {
       }
 
       // newer 18.12 style
-      if ("ac3".equalsIgnoreCase(audioCodec) || "dts".equalsIgnoreCase(audioCodec) || "TrueHD".equalsIgnoreCase(audioCodec)) {
+      if ("ac3".equalsIgnoreCase(audioCodec) || "eac3".equalsIgnoreCase(audioCodec) || "dts".equalsIgnoreCase(audioCodec)
+          || "TrueHD".equalsIgnoreCase(audioCodec)) {
         String commName = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Commercial", "Format_Commercial_IfAny")
             .toLowerCase(Locale.ROOT);
 
@@ -1776,8 +1774,11 @@ public class MediaFileHelper {
           if (commName.contains("extended") || commName.contains("es matrix") || commName.contains("es discrete")) {
             audioCodec = "DTS-ES";
           }
-          if (commName.contains("atmos")) {
-            audioCodec = "Atmos";
+          if (commName.contains("truehd") && commName.contains("atmos")) {
+            audioCodec = "TrueHD/Atmos";
+          }
+          if (commName.contains("dolby digital plus") && commName.contains("atmos")) {
+            audioCodec = "EAC3/Atmos";
           }
           // Dolby Digital EX
           if (commName.contains("ex audio")) {

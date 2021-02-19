@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.core.tasks;
 
+import static org.tinymediamanager.core.Utils.cleanFilename;
+
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,7 +66,6 @@ import com.github.kiulian.downloader.model.quality.VideoQuality;
 public abstract class YTDownloadTask extends TmmTask {
 
   private static final Logger  LOGGER                      = LoggerFactory.getLogger(YTDownloadTask.class);
-  private static final char[]  ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':' };
 
   private final MediaTrailer   mediaTrailer;
   private final TrailerQuality desiredQuality;
@@ -519,10 +520,5 @@ public abstract class YTDownloadTask extends TmmTask {
     return String.format("%.2fkB/s", speed / 1000d);
   }
 
-  private static String cleanFilename(String filename) {
-    for (char c : ILLEGAL_FILENAME_CHARACTERS) {
-      filename = filename.replace(c, '_');
-    }
-    return filename;
-  }
+
 }
