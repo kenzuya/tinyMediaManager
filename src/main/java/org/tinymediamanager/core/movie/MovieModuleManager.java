@@ -185,7 +185,11 @@ public class MovieModuleManager implements ITmmModule {
 
   private synchronized void writePendingChanges() {
     try {
-      lock.writeLock().lock();
+      // lock if there is no other task running
+      if (!lock.writeLock().tryLock()) {
+        return;
+      }
+
       Map<MediaEntity, Long> pending = new HashMap<>(pendingChanges);
 
       long now = System.currentTimeMillis();
@@ -230,7 +234,7 @@ public class MovieModuleManager implements ITmmModule {
       }
 
       if (dirty) {
-        mvStore.compactMoveChunks();
+        mvStore.compactFile(100);
       }
     }
     finally {
