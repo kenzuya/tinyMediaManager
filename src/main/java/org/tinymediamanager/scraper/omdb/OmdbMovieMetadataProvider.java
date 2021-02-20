@@ -226,6 +226,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
             org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("tomatometerallcritics");
             rating.setRating(Integer.parseInt(movieRating.value.replace("%", "")));
             rating.setMaxValue(100);
+            rating.setVotes(1); // no votes here, but set to 1 to avoid filter out 0 ratings
             metadata.addRating(rating);
           }
           catch (Exception ignored) {
@@ -237,6 +238,7 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
             org.tinymediamanager.core.entities.MediaRating rating = new org.tinymediamanager.core.entities.MediaRating("metacritic");
             rating.setRating(Integer.parseInt(movieRating.value.replace("/100", "")));
             rating.setMaxValue(100);
+            rating.setVotes(1); // no votes here, but set to 1 to avoid filter out 0 ratings
             metadata.addRating(rating);
           }
           catch (Exception ignored) {

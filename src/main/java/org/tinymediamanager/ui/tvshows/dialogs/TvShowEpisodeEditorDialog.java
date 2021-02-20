@@ -129,7 +129,6 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID    = 7702248909791283043L;
   private static final Logger                LOGGER              = LoggerFactory.getLogger(TvShowEpisodeEditorDialog.class);
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String                SPACER              = "        ";
   private static final String                DIALOG_ID           = "tvShowEpisodeEditor";
 
   private TvShowList                         tvShowList          = TvShowList.getInstance();
@@ -360,7 +359,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         LinkLabel lblThumbSize = new LinkLabel();
         detailsPanel.add(lblThumbSize, "cell 9 0");
 
-        JButton btnDeleteThumb = new FlatButton(SPACER, IconManager.DELETE_GRAY);
+        JButton btnDeleteThumb = new FlatButton(IconManager.DELETE_GRAY);
         btnDeleteThumb.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
         btnDeleteThumb.addActionListener(e -> {
           lblThumb.clearImage();
@@ -393,7 +392,8 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         });
         lblThumb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         detailsPanel.add(lblThumb, "cell 9 1 1 6,grow");
-        lblThumb.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, MediaFileType.THUMB));
+        lblThumb.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE,
+            e -> setImageSizeAndCreateLink(lblThumbSize, lblThumb, btnDeleteThumb, MediaFileType.THUMB));
       }
       {
         JLabel lblRating = new TmmLabel(TmmResourceBundle.getString("metatag.userrating"));
@@ -1019,12 +1019,14 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     dpFirstAired.cleanup();
   }
 
-  private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, MediaFileType type) {
+  private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, JButton buttonDelete, MediaFileType type) {
     createLinkForImage(lblSize, imageLabel);
 
     // image has been deleted
     if (imageLabel.getOriginalImageSize().width == 0 && imageLabel.getOriginalImageSize().height == 0) {
       lblSize.setText("");
+      lblSize.setVisible(false);
+      buttonDelete.setVisible(false);
       return;
     }
 
@@ -1035,6 +1037,9 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     else {
       lblSize.setText(dimension.width + "x" + dimension.height);
     }
+
+    lblSize.setVisible(true);
+    buttonDelete.setVisible(true);
   }
 
   private class AddRatingAction extends AbstractAction {

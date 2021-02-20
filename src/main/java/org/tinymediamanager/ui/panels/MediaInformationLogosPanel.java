@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.ui.images.AspectRatioIcon;
 import org.tinymediamanager.ui.images.AudioChannelsIcon;
 import org.tinymediamanager.ui.images.GenericVideoCodecIcon;
@@ -107,7 +108,7 @@ public class MediaInformationLogosPanel extends JPanel {
    * @return the icon or null
    */
   private Icon getVideoFormatIcon() {
-    String videoFormat = mediaInformationSource.getMediaInfoVideoFormat();
+    String videoFormat = Utils.cleanFilename(mediaInformationSource.getMediaInfoVideoFormat());
 
     // a) return null if the Format is empty
     if (StringUtils.isBlank(videoFormat)) {
@@ -148,7 +149,7 @@ public class MediaInformationLogosPanel extends JPanel {
    * @return the icon or null
    */
   private Icon getVideoCodecIcon() {
-    String videoCodec = mediaInformationSource.getMediaInfoVideoCodec();
+    String videoCodec = Utils.cleanFilename(mediaInformationSource.getMediaInfoVideoCodec());
 
     // a) return null if the Format is empty
     if (StringUtils.isBlank(videoCodec)) {
@@ -175,7 +176,7 @@ public class MediaInformationLogosPanel extends JPanel {
    * @return the icon or null
    */
   private Icon getAudioCodecIcon() {
-    String audioCodec = mediaInformationSource.getMediaInfoAudioCodec();
+    String audioCodec = Utils.cleanFilename(mediaInformationSource.getMediaInfoAudioCodec());
 
     // a) return null if the codec is empty
     if (StringUtils.isBlank(audioCodec)) {

@@ -62,6 +62,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -109,7 +110,7 @@ public class MovieInformationPanel extends JPanel {
   private JTextArea                  taProduction;
   private JTextArea                  taTags;
   private JLabel                     lblEdition;
-  private LinkLabel                  lblMoviePath;
+  private LinkTextArea               lblMoviePath;
   private JLabel                     lblMovieSet;
   private JLabel                     lblSpokenLanguages;
   private JLabel                     lblCountry;
@@ -470,7 +471,7 @@ public class MovieInformationPanel extends JPanel {
           JLabel lblMoviePathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
           panelBottomDetails.add(lblMoviePathT, "cell 0 4");
 
-          lblMoviePath = new LinkLabel("");
+          lblMoviePath = new LinkTextArea("");
           panelBottomDetails.add(lblMoviePath, "cell 1 4,growx,wmin 0");
         }
         {
