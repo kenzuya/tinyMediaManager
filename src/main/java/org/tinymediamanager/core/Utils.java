@@ -1856,8 +1856,13 @@ public class Utils {
           }
 
           if (entry instanceof TarArchiveEntry) {
-            TarArchiveEntry tae = (TarArchiveEntry) entry;
-            Files.setPosixFilePermissions(f.toPath(), parsePerms(tae.getMode()));
+            try {
+              TarArchiveEntry tae = (TarArchiveEntry) entry;
+              Files.setPosixFilePermissions(f.toPath(), parsePerms(tae.getMode()));
+            }
+            catch (Exception ignored) {
+              // may fail on filesystems w/o posix support
+            }
           }
         }
       }
