@@ -187,12 +187,12 @@ public class TvShowModuleManager implements ITmmModule {
   }
 
   private synchronized void writePendingChanges() {
-    try {
-      // lock if there is no other task running
-      if (!lock.writeLock().tryLock()) {
-        return;
-      }
+    // lock if there is no other task running
+    if (!lock.writeLock().tryLock()) {
+      return;
+    }
 
+    try {
       Map<MediaEntity, Long> pending = new HashMap<>(pendingChanges);
 
       long now = System.currentTimeMillis();
