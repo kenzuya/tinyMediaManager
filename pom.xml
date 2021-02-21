@@ -341,6 +341,12 @@
             <version>2.4.6-tmm</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.4</version>
+        </dependency>
+
         <!-- testing -->
         <dependency>
             <groupId>junit</groupId>
