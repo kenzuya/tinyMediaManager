@@ -49,21 +49,21 @@ public class FFmpegAddon implements IAddon {
       return false;
     }
 
-    if (SystemUtils.IS_OS_WINDOWS) {
-      if (addonFolder.resolve("ffmpeg.exe").toFile().exists() && addonFolder.toFile().canExecute()) {
-        return true;
-      }
-    }
-    else {
-      if (addonFolder.resolve("ffmpeg").toFile().exists() && addonFolder.toFile().canExecute()) {
-        return true;
-      }
+    if (addonFolder.resolve(getExecutableFilename()).toFile().exists()) {
+      return true;
     }
 
     return false;
   }
 
   public String getExecutablePath() {
-    return getAddonFolder().resolve(getAddonName()).resolve("ffmpeg").toAbsolutePath().toString();
+    return getAddonFolder().resolve(getAddonName()).resolve(getExecutableFilename()).toAbsolutePath().toString();
+  }
+
+  private String getExecutableFilename() {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      return "ffmpeg.exe";
+    }
+    return "ffmpeg";
   }
 }
