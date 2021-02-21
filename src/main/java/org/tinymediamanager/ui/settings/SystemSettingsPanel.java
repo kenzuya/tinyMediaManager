@@ -166,7 +166,7 @@ class SystemSettingsPanel extends JPanel {
       catch (Exception e) {
         LOGGER.error("could not download FFmpeg addon - '{}'", e.getMessage());
         JOptionPane.showMessageDialog(SettingsDialog.getInstance(),
-            TmmResourceBundle.getString("Settings.mediaframework.downloaderror" + " - " + e.getLocalizedMessage()),
+            TmmResourceBundle.getString("Settings.mediaframework.downloaderror") + " - " + e.getLocalizedMessage(),
             TmmResourceBundle.getString("Settings.mediaframework.downloaderror"), JOptionPane.ERROR_MESSAGE);
       }
       setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
