@@ -1,7 +1,8 @@
 Version 4.1
 =======================
-+ License changes - Now there is a Free and PRO version of tinyMediaManager. In the Free version there is no more limitation of loaded movies/TV shows or API calls.
-  The Free version includes:
++ License changes - Now there is a FREE and PRO version of tinyMediaManager. In the FREE version there is no more limitation of loaded movies/TV shows or API calls.
+
+  The FREE version includes:
     - base functionality of tinyMediaManager (update data sources, scrape, rename, edit, export, command line interface, ...)
     - TMDB scraper
 
@@ -12,16 +13,19 @@ Version 4.1
     - Trakt.tv integration
 
 + BIG scraper rework:
+
   We split up all scrapers into individual sub-scrapers for every scope (meta data, artwork, trailer, subtitle).
   This offers new options to configure them:
     - now they are all independently configurable (no setting for the movie section influences the TV show section)
     - we could strip out options which are not needed for the actual section (e.g. TV show options in the movie scraper)
     - they have a better code base for future changes
     - separated country setting for certifications and release date
+
   The only drawback here is, that you may have to enter some options (like an individual API key) in every sub-scraper
   ATTENTION: since almost everything changed in the scraper setup, you may need to re-set the scraper options after the update
 
 + added integration of FFmpeg
+
   You can directly download and use FFmpeg on Windows, macOS and Linux - as well as use FFmpeg from your system
   - creation of still/thumb creation via FFmpeg #1017
   - muxing downloaded trailers using FFmpeg
@@ -41,9 +45,9 @@ Version 4.1
 + added period (year of movies in collection) for Movie Sets
 + added clickable ID Links to the Episode Detail Panel
 + added button in tv show scrape/search window for opening TVShow folder
-+ added original title column for tvshows / episodes
++ added original title column for TV shows / episodes
 + reworked visualization of ratings
-+ added original title column for tvshows / episodes
++ added original title column for TV shows / episodes
 + added possibility to play the trailer url in the editor (Movie and TvShow)
 + added option to manual choose artwork in the movie set chooser (as for movies)
 x separated country setting for certifications and release date
