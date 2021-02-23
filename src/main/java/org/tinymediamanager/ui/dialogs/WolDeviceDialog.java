@@ -15,12 +15,17 @@
  */
 package org.tinymediamanager.ui.dialogs;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
@@ -36,13 +41,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class WolDeviceDialog extends TmmDialog {
-  private static final long   serialVersionUID = -8293021735704401080L;
+  private static final long serialVersionUID = -8293021735704401080L;
 
-  private WolDevice           device           = null;
+  private WolDevice         device           = null;
 
-  private final JTextField    tfName;
-  private final JTextField    tfMacAddress;
-  private static final String   WOL_DEVICES                 = "wolDevices";
+  private final JTextField  tfName;
+  private final JTextField  tfMacAddress;
 
   /**
    * constructor for creating a device
@@ -119,7 +123,7 @@ public class WolDeviceDialog extends TmmDialog {
 
       device.setName(tfName.getText());
       device.setMacAddress(tfMacAddress.getText());
-      firePropertyChange(WOL_DEVICES, null, device);
+
       setVisible(false);
     }
   }
