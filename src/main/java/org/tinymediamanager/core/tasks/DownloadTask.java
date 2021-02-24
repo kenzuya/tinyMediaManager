@@ -209,6 +209,7 @@ public abstract class DownloadTask extends TmmTask {
       Thread.currentThread().interrupt();
     }
     catch (Exception e) {
+      MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "DownloadTask", e.getMessage()));
       LOGGER.error("problem downloading: ", e);
       setState(TaskState.FAILED);
     }
