@@ -171,7 +171,8 @@ public class TvShowModuleManager implements ITmmModule {
   @Override
   public void shutDown() throws Exception {
     databaseTimer.cancel();
-    writePendingChanges();
+    // write pending changes
+    writePendingChanges(true);
 
     mvStore.compactMoveChunks();
     mvStore.close();
@@ -186,10 +187,20 @@ public class TvShowModuleManager implements ITmmModule {
     }
   }
 
-  private synchronized void writePendingChanges() {
-    // lock if there is no other task running
-    if (!lock.writeLock().tryLock()) {
-      return;
+  private void writePendingChanges() {
+    writePendingChanges(false);
+  }
+
+  private synchronized void writePendingChanges(boolean force) {
+    if (force) {
+      // force write - wait until the lock is released
+      lock.writeLock().lock();
+    }
+    else {
+      // lock if there is no other task running
+      if (!lock.writeLock().tryLock()) {
+        return;
+      }
     }
 
     try {
@@ -200,7 +211,7 @@ public class TvShowModuleManager implements ITmmModule {
       boolean dirty = false;
 
       for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
-        if (entry.getValue() < (now - COMMIT_DELAY)) {
+        if (force || entry.getValue() < (now - COMMIT_DELAY)) {
           try {
             if (entry.getKey() instanceof TvShow) {
               // store TV show
