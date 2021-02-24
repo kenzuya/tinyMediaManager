@@ -21,6 +21,8 @@ import java.beans.PropertyChangeSupport;
 
 import javax.swing.event.SwingPropertyChangeSupport;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 /**
  * The Class AbstractModelObject.
  * 
@@ -123,5 +125,18 @@ public abstract class AbstractModelObject {
     }
     catch (AssertionError ignored) {
     }
+  }
+
+  /**
+   * <p>
+   * Uses <code>ReflectionToStringBuilder</code> to generate a <code>toString</code> for the specified object.
+   * </p>
+   *
+   * @return the String result
+   * @see ReflectionToStringBuilder#toString(Object)
+   */
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toStringExclude(this, "propertyChangeSupport");
   }
 }
