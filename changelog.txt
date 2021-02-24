@@ -1,3 +1,10 @@
+Version 4.1.1
+=======================
++ filter for note field
+x (TV show) do not select all episodes in TV show rename action per default
+x better visualization of failed download #1229
+
+
 Version 4.1
 =======================
 + License changes - Now there is a FREE and PRO version of tinyMediaManager. In the FREE version there is no more limitation of loaded movies/TV shows or API calls.
