@@ -60,7 +60,7 @@ public class TvShowRenameAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShowsRecursive();
+    List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
     Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
 
     // add all episodes which are not part of a selected tv show
