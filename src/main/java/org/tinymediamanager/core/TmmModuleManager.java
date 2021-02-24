@@ -17,6 +17,8 @@ package org.tinymediamanager.core;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +34,13 @@ public class TmmModuleManager {
   private static final Logger     LOGGER = LoggerFactory.getLogger(TmmModuleManager.class);
   private static TmmModuleManager instance;
 
-  private Set<ITmmModule>         modules;
+  private final Set<ITmmModule>   modules;
+  private final Timer             statisticsTimer;
 
   private TmmModuleManager() {
     modules = new LinkedHashSet<>();
+
+    statisticsTimer = new Timer(true);
   }
 
   public static TmmModuleManager getInstance() {
@@ -73,13 +78,30 @@ public class TmmModuleManager {
    * start up tmm - do initialization code here
    */
   public void startUp() {
+    statisticsTimer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        Runtime rt = Runtime.getRuntime();
+        long totalMem = rt.totalMemory();
+        long maxMem = rt.maxMemory(); // = Xmx
+        long freeMem = rt.freeMemory();
+        long megs = 1048576;
 
+        // see http://stackoverflow.com/a/18375641
+        long used = (totalMem - freeMem) / megs;
+        long free = (maxMem - totalMem + freeMem) / megs;
+
+        LOGGER.debug("Memory usage: used - {} M | free - {} M", used, free);
+      }
+    }, 0, 60000);
   }
 
   /**
    * shutdown tmm - forces all registered modules to shut down
    */
   public void shutDown() {
+    statisticsTimer.cancel();
+
     // shutdown modules
     for (ITmmModule module : modules) {
       if (module.isEnabled()) {
