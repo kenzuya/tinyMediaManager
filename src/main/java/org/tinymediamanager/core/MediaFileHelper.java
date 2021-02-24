@@ -694,7 +694,7 @@ public class MediaFileHelper {
       mediaFile.setFilesize(size);
     }
     catch (Exception e) {
-      LOGGER.warn("could not get file information (size/date): {}", e.getMessage());
+      LOGGER.debug("could not get file information (size/date): {}", e.getMessage());
     }
 
     // calculate the filesize for our virtual disc files
@@ -778,13 +778,13 @@ public class MediaFileHelper {
 
     // read mediainfo.xml only if the file size has not been changed
     if (!fileSizeChanged) {
-      LOGGER.trace("try to read XML");
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
         mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
 
         if (!mediaInfoFiles.isEmpty()) {
+          LOGGER.trace("mediainfo.xml found - '{}'", xmlFile.getFileName());
           parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
         }
       }
@@ -843,8 +843,6 @@ public class MediaFileHelper {
     else {
       gatherMediaInformationFromFile(mediaFile, mediaInfoFiles);
     }
-
-    LOGGER.trace("extracted MI");
   }
 
   /**
@@ -2212,7 +2210,7 @@ public class MediaFileHelper {
       mediaFile.setContainerFormat(mediaFile.getExtension());
       return;
     }
-    LOGGER.trace("got MI");
+    LOGGER.trace("got mediainfo for '{}'", mediaFile.getFileAsPath());
 
     switch (mediaFile.getType()) {
       case VIDEO:
@@ -2269,7 +2267,7 @@ public class MediaFileHelper {
         break;
 
       default:
-        LOGGER.warn("no mediainformation handling for MediaFile type {} yet.", mediaFile.getType());
+        LOGGER.debug("no mediainformation handling for MediaFile type {} yet.", mediaFile.getType());
         break;
     }
 
@@ -2383,7 +2381,7 @@ public class MediaFileHelper {
     if (!StringUtils.isEmpty(mvc) && mvc.equals("2")) {
       video3DFormat = MediaFileHelper.VIDEO_3D;
       String mvl = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Layout").toLowerCase(Locale.ROOT);
-      LOGGER.debug("3D detected :) - {}", mvl);
+      LOGGER.trace("3D detected :) - {}", mvl);
       if (!StringUtils.isEmpty(mvl) && mvl.contains("top") && mvl.contains("bottom")) {
         video3DFormat = MediaFileHelper.VIDEO_3D_HTAB; // assume HalfTAB as default
         if (height > width) {

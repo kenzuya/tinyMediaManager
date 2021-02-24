@@ -131,7 +131,7 @@ public class ImageCache {
       return StrgUtils.bytesToHex(key);
     }
     catch (Exception e) {
-      LOGGER.error("Failed to create cached filename for image: {} - {}", path, e);
+      LOGGER.debug("Failed to create cached filename for image: {} - {}", path, e);
     }
     return "";
   }
@@ -199,7 +199,7 @@ public class ImageCache {
         }
         catch (OutOfMemoryError e) {
           // memory limit hit; give it another 500ms time to recover
-          LOGGER.warn("hit memory cap: {}", e.getMessage());
+          LOGGER.debug("hit memory cap: {}", e.getMessage());
           Thread.sleep(500);
         }
         retries--;
@@ -370,7 +370,7 @@ public class ImageCache {
       cacheImage(mediaFile, true);
     }
     catch (Exception e) {
-      LOGGER.warn("could not cache image: {}", e.getMessage());
+      LOGGER.debug("could not cache image: {}", e.getMessage());
     }
   }
 
@@ -421,7 +421,6 @@ public class ImageCache {
     }
     Path cachedFile = ImageCache.getCacheDir().resolve(getMD5WithSubfolder(url) + "." + ext);
     if (Files.exists(cachedFile)) {
-      LOGGER.trace("found cached url :) {}", url);
       return cachedFile;
     }
 
@@ -435,7 +434,6 @@ public class ImageCache {
       Url u = new Url(url);
       boolean ok = u.download(cachedFile);
       if (ok) {
-        LOGGER.trace("cached url successfully :) {}", url);
         return cachedFile;
       }
     }
@@ -443,7 +441,6 @@ public class ImageCache {
       LOGGER.trace("Problem getting cached file for url {}", e.getMessage());
     }
 
-    LOGGER.trace("could not get cached file for url {}", url);
     return null;
   }
 
@@ -478,7 +475,6 @@ public class ImageCache {
 
     Path cachedFile = ImageCache.getCacheDir().resolve(getMD5WithSubfolder(path.toString()) + "." + Utils.getExtension(path));
     if (Files.exists(cachedFile)) {
-      LOGGER.trace("found cached file :) {}", path);
       return cachedFile;
     }
 
@@ -489,24 +485,22 @@ public class ImageCache {
 
     // is the image cache activated?
     if (!Globals.settings.isImageCache()) {
-      LOGGER.trace("ImageCache not activated!");
       // need to return null, else the caller couldn't distinguish between cached/original file
       return null;
     }
 
     try {
       Path p = cacheImage(mediaFile);
-      LOGGER.trace("cached file successfully :) {}", p);
       return p;
     }
     catch (EmptyFileException e) {
-      LOGGER.warn("failed to cache file (file is empty): {}", path);
+      LOGGER.debug("failed to cache file (file is empty): {}", path);
     }
     catch (FileNotFoundException ignored) {
       // no need to log anything here
     }
     catch (Exception e) {
-      LOGGER.warn("problem caching file: {}", e.getMessage());
+      LOGGER.debug("problem caching file: {}", e.getMessage());
     }
 
     // need to return null, else the caller couldn't distinguish between cached/original file
