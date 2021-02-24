@@ -35,12 +35,11 @@ public class TmmModuleManager {
   private static TmmModuleManager instance;
 
   private final Set<ITmmModule>   modules;
-  private final Timer             statisticsTimer;
+
+  private Timer                   statisticsTimer;
 
   private TmmModuleManager() {
     modules = new LinkedHashSet<>();
-
-    statisticsTimer = new Timer(true);
   }
 
   public static TmmModuleManager getInstance() {
@@ -78,6 +77,7 @@ public class TmmModuleManager {
    * start up tmm - do initialization code here
    */
   public void startUp() {
+    statisticsTimer = new Timer(true);
     statisticsTimer.schedule(new TimerTask() {
       @Override
       public void run() {
