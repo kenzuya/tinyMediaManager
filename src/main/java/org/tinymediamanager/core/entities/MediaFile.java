@@ -37,9 +37,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -675,19 +672,6 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
   public boolean hasSubtitles() {
     return (subtitles != null && !subtitles.isEmpty());
-  }
-
-  /**
-   * <p>
-   * Uses <code>ReflectionToStringBuilder</code> to generate a <code>toString</code> for the specified object.
-   * </p>
-   *
-   * @return the String result
-   * @see ReflectionToStringBuilder#toString(Object)
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
   /**

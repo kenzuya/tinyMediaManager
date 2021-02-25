@@ -15,13 +15,10 @@
  */
 package org.tinymediamanager.core.entities;
 
-import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
@@ -124,16 +121,6 @@ public class MediaTrailer extends AbstractModelObject implements Comparable<Medi
     Date oldValue = this.date;
     this.date = newValue;
     firePropertyChange("date", oldValue, newValue);
-  }
-
-  @Override
-  public String toString() {
-    return (new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE) {
-      @Override
-      protected boolean accept(Field f) {
-        return super.accept(f) && !f.getName().equals("propertyChangeSupport");
-      }
-    }).toString();
   }
 
   @Override

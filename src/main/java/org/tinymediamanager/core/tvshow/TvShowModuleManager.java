@@ -171,7 +171,8 @@ public class TvShowModuleManager implements ITmmModule {
   @Override
   public void shutDown() throws Exception {
     databaseTimer.cancel();
-    writePendingChanges();
+    // write pending changes
+    writePendingChanges(true);
 
     mvStore.compactMoveChunks();
     mvStore.close();
@@ -186,10 +187,20 @@ public class TvShowModuleManager implements ITmmModule {
     }
   }
 
-  private synchronized void writePendingChanges() {
-    // lock if there is no other task running
-    if (!lock.writeLock().tryLock()) {
-      return;
+  private void writePendingChanges() {
+    writePendingChanges(false);
+  }
+
+  private synchronized void writePendingChanges(boolean force) {
+    if (force) {
+      // force write - wait until the lock is released
+      lock.writeLock().lock();
+    }
+    else {
+      // lock if there is no other task running
+      if (!lock.writeLock().tryLock()) {
+        return;
+      }
     }
 
     try {
@@ -200,7 +211,7 @@ public class TvShowModuleManager implements ITmmModule {
       boolean dirty = false;
 
       for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
-        if (entry.getValue() < (now - COMMIT_DELAY)) {
+        if (force || entry.getValue() < (now - COMMIT_DELAY)) {
           try {
             if (entry.getKey() instanceof TvShow) {
               // store TV show
@@ -211,7 +222,6 @@ public class TvShowModuleManager implements ITmmModule {
               String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
               if (!StringUtils.equals(oldValue, newValue)) {
                 tvShowMap.put(tvShow.getDbId(), newValue);
-                pendingChanges.remove(entry.getKey());
                 dirty = true;
               }
             }
@@ -224,13 +234,14 @@ public class TvShowModuleManager implements ITmmModule {
               String newValue = episodeObjectWriter.writeValueAsString(episode);
               if (!StringUtils.equals(oldValue, newValue)) {
                 episodeMap.put(episode.getDbId(), newValue);
-                pendingChanges.remove(entry.getKey());
                 dirty = true;
               }
             }
           }
           catch (Exception e) {
             LOGGER.warn("could not store '{}' - '{}'", entry.getKey().getClass().getName(), e.getMessage());
+          }
+          finally {
             pendingChanges.remove(entry.getKey());
           }
         }

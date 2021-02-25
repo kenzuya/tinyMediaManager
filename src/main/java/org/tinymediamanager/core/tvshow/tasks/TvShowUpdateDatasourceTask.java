@@ -714,7 +714,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               // em.setType(MediaFileType.EXTRA);
               // }
               epFiles.add(em);
-              LOGGER.trace("UDS: found matching MF - {}", em);
+              LOGGER.trace("UDS: found matching MF - {}", em.getFile());
             }
           }
         }

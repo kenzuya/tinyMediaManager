@@ -82,6 +82,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowMissingEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingMetadataFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowMissingSubtitlesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowNewEpisodesFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowNoteFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowStatusFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowStudioFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowSubtitleCountFilter;
@@ -153,6 +154,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowTagFilter(), panelMain);
         addFilter(new TvShowEmptyFilter(), panelMain);
         addFilter(new TvShowUncategorizedEpisodesFilter(), panelMain);
+        addFilter(new TvShowNoteFilter(), panelMain);
       }
 
       {

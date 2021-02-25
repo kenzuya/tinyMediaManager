@@ -1,3 +1,13 @@
+Version 4.1.1
+=======================
++ filter for note field
+x (TV show) fixes endless update data source #1230 #1228
+x (TV show) do not select all episodes in TV show rename action per default
+x better visualization of failed download #1229
+x increased max memory limit to 8G
+x fix changing maximum download thread count at runtime #1232
+
+
 Version 4.1
 =======================
 + License changes - Now there is a FREE and PRO version of tinyMediaManager. In the FREE version there is no more limitation of loaded movies/TV shows or API calls.

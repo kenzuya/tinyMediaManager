@@ -1021,7 +1021,7 @@ public class Settings extends AbstractSettings {
    * @return the amount of download threads
    */
   public int getMaximumDownloadThreads() {
-    return maximumDownloadThreads;
+    return Math.max(maximumDownloadThreads, 1);
   }
 
   /**

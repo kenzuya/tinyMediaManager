@@ -27,7 +27,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
- * The ForumAction to redirect to the Kodi forum
+ * The ForumAction to redirect to reddit
  * 
  * @author Manuel Laggner
  */
@@ -42,7 +42,7 @@ public class ForumAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    String url = StringEscapeUtils.unescapeHtml4("http://forum.xbmc.org/forumdisplay.php?fid=204");
+    String url = StringEscapeUtils.unescapeHtml4("https://www.reddit.com/r/tinyMediaManager/");
     try {
       TmmUIHelper.browseUrl(url);
     }
