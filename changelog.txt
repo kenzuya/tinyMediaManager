@@ -5,6 +5,7 @@ x (TV show) fixes endless update data source #1230 #1228
 x (TV show) do not select all episodes in TV show rename action per default
 x better visualization of failed download #1229
 x increased max memory limit to 8G
+x fix changing maximum download thread count at runtime #1232
 
 
 Version 4.1

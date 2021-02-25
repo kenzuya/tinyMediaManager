@@ -45,6 +45,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 
 import org.jdesktop.beansbinding.AutoBinding;
@@ -331,7 +332,7 @@ class SystemSettingsPanel extends JPanel {
         JLabel lblParallelDownloadCountT = new JLabel(TmmResourceBundle.getString("Settings.paralleldownload"));
         panelMisc.add(lblParallelDownloadCountT, "cell 1 0 2 1");
 
-        spMaximumDownloadThreads = new JSpinner();
+        spMaximumDownloadThreads = new JSpinner(new SpinnerNumberModel(settings.getMaximumDownloadThreads(), 1, 1024, 1));
         spMaximumDownloadThreads.setMinimumSize(new Dimension(60, 20));
         panelMisc.add(spMaximumDownloadThreads, "cell 1 0 2 1");
 
