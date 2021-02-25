@@ -171,6 +171,7 @@ class MovieScraperOptionsSettingsPanel extends JPanel {
         sliderThreshold = new JSlider();
         sliderThreshold.setMinorTickSpacing(5);
         sliderThreshold.setMajorTickSpacing(10);
+        sliderThreshold.setSnapToTicks(true);
         sliderThreshold.setPaintTicks(true);
         sliderThreshold.setPaintLabels(true);
         panelAutomaticScrape.add(sliderThreshold, "cell 2 0,growx,aligny top");
