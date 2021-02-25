@@ -219,7 +219,6 @@ public class MovieModuleManager implements ITmmModule {
               String newValue = movieObjectWriter.writeValueAsString(movie);
               if (!StringUtils.equals(oldValue, newValue)) {
                 movieMap.put(movie.getDbId(), newValue);
-                pendingChanges.remove(entry.getKey());
                 dirty = true;
               }
             }
@@ -232,13 +231,14 @@ public class MovieModuleManager implements ITmmModule {
               String newValue = movieSetObjectWriter.writeValueAsString(movieSet);
               if (!StringUtils.equals(oldValue, newValue)) {
                 movieSetMap.put(movieSet.getDbId(), newValue);
-                pendingChanges.remove(entry.getKey());
                 dirty = true;
               }
             }
           }
           catch (Exception e) {
             LOGGER.warn("could not store '{}' - '{}'", entry.getKey().getClass().getName(), e.getMessage());
+          }
+          finally {
             pendingChanges.remove(entry.getKey());
           }
         }

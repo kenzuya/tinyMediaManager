@@ -222,7 +222,6 @@ public class TvShowModuleManager implements ITmmModule {
               String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
               if (!StringUtils.equals(oldValue, newValue)) {
                 tvShowMap.put(tvShow.getDbId(), newValue);
-                pendingChanges.remove(entry.getKey());
                 dirty = true;
               }
             }
@@ -235,13 +234,14 @@ public class TvShowModuleManager implements ITmmModule {
               String newValue = episodeObjectWriter.writeValueAsString(episode);
               if (!StringUtils.equals(oldValue, newValue)) {
                 episodeMap.put(episode.getDbId(), newValue);
-                pendingChanges.remove(entry.getKey());
                 dirty = true;
               }
             }
           }
           catch (Exception e) {
             LOGGER.warn("could not store '{}' - '{}'", entry.getKey().getClass().getName(), e.getMessage());
+          }
+          finally {
             pendingChanges.remove(entry.getKey());
           }
         }
