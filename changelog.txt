@@ -1,3 +1,7 @@
+Version 4.1.2
+=======================
+
+
 Version 4.1.1
 =======================
 + filter for note field
