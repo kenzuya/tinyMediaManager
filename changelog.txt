@@ -6,6 +6,7 @@ x (TV show) do not select all episodes in TV show rename action per default
 x better visualization of failed download #1229
 x increased max memory limit to 8G
 x fix changing maximum download thread count at runtime #1232
+x sort showlinks in the dropdown box #1231
 
 
 Version 4.1
