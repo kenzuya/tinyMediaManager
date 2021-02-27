@@ -68,7 +68,6 @@ class TvShowSettingsPanel extends JPanel {
   private JButton                      btnPresetMediaPortal1;
   private JButton                      btnPresetMediaPortal2;
   private JButton                      btnPresetPlex;
-  private JCheckBox                    chckbxPersonalRatingFirst;
   private AutocompleteComboBox<String> cbRating;
   private JCheckBox                    chckbxRenameAfterScrape;
   private JCheckBox                    chckbxAutoUpdateOnStart;
@@ -296,11 +295,8 @@ class TvShowSettingsPanel extends JPanel {
         JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
         panelUiSettings.add(lblRating, "flowx,cell 1 3 2 1");
 
-        cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes"));
+        cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes", "anidb"));
         panelUiSettings.add(cbRating, "cell 1 3 2 1");
-
-        chckbxPersonalRatingFirst = new JCheckBox(TmmResourceBundle.getString("Settings.personalratingfirst"));
-        panelUiSettings.add(chckbxPersonalRatingFirst, "cell 2 4");
 
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.showtabletooltips"));
         panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 5 2 1");
@@ -477,11 +473,6 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_3, cbRating,
         autocompleteComboBoxBeanProperty);
     autoBinding_4.bind();
-    //
-    Property tvShowSettingsBeanProperty_4 = BeanProperty.create("preferPersonalRating");
-    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4,
-        chckbxPersonalRatingFirst, jCheckBoxBeanProperty);
-    autoBinding_5.bind();
     //
     Property tvShowSettingsBeanProperty_5 = BeanProperty.create("renameAfterScrape");
     AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_5, chckbxRenameAfterScrape,

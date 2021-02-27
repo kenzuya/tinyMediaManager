@@ -174,16 +174,18 @@ public class RatingPanel extends JPanel {
           text = new JLabel(String.format("%.1f", rating.getRating()));
           break;
 
-        case MediaRating.DEFAULT:
-        case MediaRating.NFO:
-          logo = new JLabel(IconManager.RATING_NEUTRAL);
-          text = new JLabel(String.format("%.1f", rating.getRating()));
-          break;
-
         case "": // empty rating
           logo = new JLabel(IconManager.RATING_EMTPY);
           text = new JLabel("?");
           break;
+
+        case MediaRating.DEFAULT:
+        case MediaRating.NFO:
+        default:
+          logo = new JLabel(IconManager.RATING_NEUTRAL);
+          text = new JLabel(String.format("%.1f", rating.getRating()));
+          break;
+
       }
 
       if (logo != null && text != null) {
@@ -205,35 +207,39 @@ public class RatingPanel extends JPanel {
           break; // no label
 
         case MediaRating.USER:
-          tooltipText += TmmResourceBundle.getString("rating.personal") + ": ";
+          tooltipText = TmmResourceBundle.getString("rating.personal") + ": ";
           break;
 
         case MediaMetadata.IMDB:
-          tooltipText += "IMDb: ";
+          tooltipText = "IMDb: ";
           break;
 
         case MediaMetadata.TMDB:
-          tooltipText += "TMDB: ";
+          tooltipText = "TMDB: ";
           break;
 
         case "tomatometerallcritics":
-          tooltipText += "Rotten Tomatoes: ";
+          tooltipText = "Rotten Tomatoes: ";
           break;
 
         case "metacritic":
-          tooltipText += "Metascore: ";
+          tooltipText = "Metascore: ";
           break;
 
         case MediaMetadata.TVDB:
-          tooltipText += "TheTVDB: ";
+          tooltipText = "TheTVDB: ";
           break;
 
         case MediaMetadata.TRAKT_TV:
-          tooltipText += "Trakt.tv: ";
+          tooltipText = "Trakt.tv: ";
           break;
 
         case "": // empty rating
-          tooltipText += TmmResourceBundle.getString("rating.empty");
+          tooltipText = TmmResourceBundle.getString("rating.empty");
+          break;
+
+        default:
+          tooltipText = rating.getId() + ": ";
           break;
       }
 
