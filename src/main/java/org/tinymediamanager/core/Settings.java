@@ -764,18 +764,24 @@ public class Settings extends AbstractSettings {
     firePropertyChange("language", oldValue, language);
   }
 
-  public void addWolDevice(WolDevice newDevice) {
+  public void addWolDevices(WolDevice newDevice) {
     wolDevices.add(newDevice);
-    firePropertyChange(WOL_DEVICES, null, wolDevices.size());
+    firePropertyChange(WOL_DEVICES, null, wolDevices);
   }
 
-  public void removeWolDevice(WolDevice device) {
+  public void removeWolDevices(WolDevice device) {
     wolDevices.remove(device);
-    firePropertyChange(WOL_DEVICES, null, wolDevices.size());
+    firePropertyChange(WOL_DEVICES, null, wolDevices);
   }
 
   public List<WolDevice> getWolDevices() {
     return wolDevices;
+  }
+
+  public void setWolDevices(List<WolDevice> newValues) {
+    wolDevices.clear();
+    wolDevices.addAll(newValues);
+    firePropertyChange(WOL_DEVICES, null, wolDevices);
   }
 
   @JsonSerialize(using = EncryptedStringSerializer.class)
@@ -1015,7 +1021,7 @@ public class Settings extends AbstractSettings {
    * @return the amount of download threads
    */
   public int getMaximumDownloadThreads() {
-    return maximumDownloadThreads;
+    return Math.max(maximumDownloadThreads, 1);
   }
 
   /**

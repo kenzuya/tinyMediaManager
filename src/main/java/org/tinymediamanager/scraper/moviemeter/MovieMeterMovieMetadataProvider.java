@@ -87,6 +87,10 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
   // thread safe initialization of the API
   private synchronized void initAPI() throws ScrapeException {
     if (api == null) {
+      if (!isActive()) {
+        throw new ScrapeException(new FeatureNotEnabledException(this));
+      }
+
       try {
         api = new MovieMeter();
       }
@@ -116,10 +120,6 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
 
   @Override
   public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
-
-    if (!isActive()) {
-      throw new ScrapeException(new FeatureNotEnabledException(this));
-    }
 
     // lazy loading of the api
     initAPI();
@@ -246,10 +246,6 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
 
   @Override
   public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
-
-    if (!isActive()) {
-      throw new ScrapeException(new FeatureNotEnabledException(this));
-    }
 
     // lazy loading of the api
     initAPI();

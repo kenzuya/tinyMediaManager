@@ -85,11 +85,11 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
 
   protected synchronized void initAPI() throws ScrapeException {
 
-    if (!isActive()) {
-      throw new ScrapeException(new FeatureNotEnabledException(this));
-    }
-
     if (tvdb == null) {
+      if (!isActive()) {
+        throw new ScrapeException(new FeatureNotEnabledException(this));
+      }
+
       try {
         tvdb = new TheTvdb(getApiKey()) {
           // tell the tvdb api to use our OkHttp client
@@ -125,18 +125,16 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       }
     }
 
-    if (tvdb != null) {
-      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getConfig().getValue("apiKey");
 
-      // check if the API should change from current key to user key
-      if (StringUtils.isNotBlank(userApiKey)) {
-        tvdb.apiKey(userApiKey);
-      }
+    // check if the API should change from current key to user key
+    if (StringUtils.isNotBlank(userApiKey)) {
+      tvdb.apiKey(userApiKey);
+    }
 
-      // check if the API should change from current key to tmm key
-      if (StringUtils.isBlank(userApiKey)) {
-        tvdb.apiKey(getApiKey());
-      }
+    // check if the API should change from current key to tmm key
+    if (StringUtils.isBlank(userApiKey)) {
+      tvdb.apiKey(getApiKey());
     }
   }
 

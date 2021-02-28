@@ -92,7 +92,12 @@ public class MediaInfoTest extends BasicTest {
 
     mf = new MediaFile(Paths.get("src/test/resources/samples/TrueHD-Atmos.mka"));
     mf.gatherMediaInformation();
-    assertThat(mf.getAudioCodec()).isEqualTo("Atmos");
+    assertThat(mf.getAudioCodec()).isEqualTo("TrueHD/Atmos");
+    assertThat(mf.getAudioChannels()).isEqualTo("8ch");
+
+    mf = new MediaFile(Paths.get("src/test/resources/samples/EAC3-Atmos.mkv"));
+    mf.gatherMediaInformation();
+    assertThat(mf.getAudioCodec()).isEqualTo("EAC3/Atmos");
     assertThat(mf.getAudioChannels()).isEqualTo("8ch");
 
     mf = new MediaFile(Paths.get("src/test/resources/samples/AC-3.mka"));
@@ -109,6 +114,11 @@ public class MediaInfoTest extends BasicTest {
     mf.gatherMediaInformation();
     assertThat(mf.getAudioCodec()).isEqualTo("EAC3");
     assertThat(mf.getAudioChannels()).isEqualTo("6ch");
+
+    mf = new MediaFile(Paths.get("src/test/resources/samples/E-AC3-2.ac3"));
+    mf.gatherMediaInformation();
+    assertThat(mf.getAudioCodec()).isEqualTo("EAC3");
+    assertThat(mf.getAudioChannels()).isEqualTo("8ch");
   }
 
   // @Test

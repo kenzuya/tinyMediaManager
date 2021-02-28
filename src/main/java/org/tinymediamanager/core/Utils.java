@@ -106,35 +106,38 @@ import org.tinymediamanager.scraper.util.UrlUtil;
  * @author Manuel Laggner / Myron Boyle
  */
 public class Utils {
-  private static final Logger  LOGGER                = LoggerFactory.getLogger(Utils.class);
-  private static final Pattern localePattern         = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties", Pattern.CASE_INSENSITIVE);
+  private static final Logger  LOGGER                      = LoggerFactory.getLogger(Utils.class);
+  private static final Pattern localePattern               = Pattern.compile("messages_(.{2})_?(.{2,4})?\\.properties", Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc> <0-N>
-  private static final Pattern stackingPattern1      = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)(\\.[^.]+)$",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern1            = Pattern
+      .compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // <cd/dvd/part/pt/disk/disc> <a-d>
-  private static final Pattern stackingPattern2      = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[a-d])(\\.[^.]+)$",
+  private static final Pattern stackingPattern2            = Pattern.compile("(.*?)[ _.-]+((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[a-d])(\\.[^.]+)$",
       Pattern.CASE_INSENSITIVE);
 
   // moviename-a.avi // modified mandatory delimiter (but no space), and A-D must be at end!
-  private static final Pattern stackingPattern3      = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern3            = Pattern.compile("(.*?)[_.-]+([a-d])(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // moviename-1of2.avi, moviename-1 of 2.avi
-  private static final Pattern stackingPattern4      = Pattern.compile("(.*?)[ \\(_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ \\)_-]?(\\.[^.]+)$",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern stackingPattern4            = Pattern
+      .compile("(.*?)[ \\(_.-]+([1-9][0-9]?[ .]?of[ .]?[1-9][0-9]?)[ \\)_-]?(\\.[^.]+)$", Pattern.CASE_INSENSITIVE);
 
   // folder stacking marker <cd/dvd/part/pt/disk/disc> <0-N> - must be last part
-  private static final Pattern folderStackingPattern = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)$",
+  private static final Pattern folderStackingPattern       = Pattern.compile("(.*?)[ _.-]*((?:cd|dvd|p(?:ar)?t|dis[ck])[ _.-]*[1-9][0-9]?)$",
       Pattern.CASE_INSENSITIVE);
 
+  // illegal file name characters
+  private static final char[]  ILLEGAL_FILENAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':' };
+
   // pattern for matching youtube links
-  public static final Pattern  YOUTUBE_PATTERN       = Pattern
+  public static final Pattern  YOUTUBE_PATTERN             = Pattern
       .compile("^((?:https?:)?\\/\\/)?((?:www|m)\\.)?((?:youtube\\.com|youtu.be))(\\/(?:[\\w\\-]+\\?v=|embed\\/|v\\/)?)([\\w\\-]+)(\\S+)?$");
 
-  public static final String   DISC_FOLDER_REGEX     = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
+  public static final String   DISC_FOLDER_REGEX           = "(?i)(VIDEO_TS|BDMV|HVDVD_TS)$";
 
-  private static List<Locale>  availableLocales      = new ArrayList<>();
+  private static List<Locale>  availableLocales            = new ArrayList<>();
 
   private static String        tempFolder;
 
@@ -1853,8 +1856,13 @@ public class Utils {
           }
 
           if (entry instanceof TarArchiveEntry) {
-            TarArchiveEntry tae = (TarArchiveEntry) entry;
-            Files.setPosixFilePermissions(f.toPath(), parsePerms(tae.getMode()));
+            try {
+              TarArchiveEntry tae = (TarArchiveEntry) entry;
+              Files.setPosixFilePermissions(f.toPath(), parsePerms(tae.getMode()));
+            }
+            catch (Exception ignored) {
+              // may fail on filesystems w/o posix support
+            }
           }
         }
       }
@@ -1907,5 +1915,19 @@ public class Utils {
         // just ignore
       }
     }
+  }
+
+  /**
+   * replace all illegal characters in a filename with an underscore
+   * 
+   * @param filename
+   *          the filename to be cleaned
+   * @return the cleaned filename
+   */
+  public static String cleanFilename(String filename) {
+    for (char c : ILLEGAL_FILENAME_CHARACTERS) {
+      filename = filename.replace(c, '_');
+    }
+    return filename;
   }
 }

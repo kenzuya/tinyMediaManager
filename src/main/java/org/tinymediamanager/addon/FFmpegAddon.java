@@ -21,6 +21,8 @@ import static org.tinymediamanager.addon.AddonManager.getOsName;
 
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.SystemUtils;
+
 /**
  * the class {@link FFmpegAddon} provides native integration of FFmpeg
  * 
@@ -47,7 +49,7 @@ public class FFmpegAddon implements IAddon {
       return false;
     }
 
-    if (addonFolder.resolve("ffmpeg").toFile().exists() && addonFolder.toFile().canExecute()) {
+    if (addonFolder.resolve(getExecutableFilename()).toFile().exists()) {
       return true;
     }
 
@@ -55,6 +57,13 @@ public class FFmpegAddon implements IAddon {
   }
 
   public String getExecutablePath() {
-    return getAddonFolder().resolve(getAddonName()).resolve("ffmpeg").toAbsolutePath().toString();
+    return getAddonFolder().resolve(getAddonName()).resolve(getExecutableFilename()).toAbsolutePath().toString();
+  }
+
+  private String getExecutableFilename() {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      return "ffmpeg.exe";
+    }
+    return "ffmpeg";
   }
 }

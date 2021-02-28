@@ -45,8 +45,8 @@ public class WolDeviceDialog extends TmmDialog {
 
   private WolDevice         device           = null;
 
-  private JTextField        tfName;
-  private JTextField        tfMacAddress;
+  private final JTextField  tfName;
+  private final JTextField  tfMacAddress;
 
   /**
    * constructor for creating a device
@@ -118,7 +118,7 @@ public class WolDeviceDialog extends TmmDialog {
       // create a new WOL device
       if (device == null) {
         device = new WolDevice();
-        Globals.settings.addWolDevice(device);
+        Globals.settings.addWolDevices(device);
       }
 
       device.setName(tfName.getText());

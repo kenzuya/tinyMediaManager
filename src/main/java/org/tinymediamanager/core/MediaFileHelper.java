@@ -694,7 +694,7 @@ public class MediaFileHelper {
       mediaFile.setFilesize(size);
     }
     catch (Exception e) {
-      LOGGER.warn("could not get file information (size/date): {}", e.getMessage());
+      LOGGER.debug("could not get file information (size/date): {}", e.getMessage());
     }
 
     // calculate the filesize for our virtual disc files
@@ -778,13 +778,13 @@ public class MediaFileHelper {
 
     // read mediainfo.xml only if the file size has not been changed
     if (!fileSizeChanged) {
-      LOGGER.trace("try to read XML");
       try {
         // just parse via XML
         Path xmlFile = Paths.get(mediaFile.getPath(), FilenameUtils.getBaseName(mediaFile.getFilename()) + "-mediainfo.xml");
         mediaInfoFiles.addAll(detectRelevantFiles(parseMediaInfoXml(xmlFile)));
 
         if (!mediaInfoFiles.isEmpty()) {
+          LOGGER.trace("mediainfo.xml found - '{}'", xmlFile.getFileName());
           parseMediainfoSnapshot(mediaFile, mediaInfoFiles);
         }
       }
@@ -843,8 +843,6 @@ public class MediaFileHelper {
     else {
       gatherMediaInformationFromFile(mediaFile, mediaInfoFiles);
     }
-
-    LOGGER.trace("extracted MI");
   }
 
   /**
@@ -1679,17 +1677,22 @@ public class MediaFileHelper {
       // search for well known String in defined keys (changes between different MI versions!)
       String[] acSearch = new String[] { "Format", "Format_Profile", "Format_Commercial", "Format_Commercial_IfAny", "CodecID", "Codec" };
       String audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "TrueHD", acSearch);
-      if (audioCodec.isEmpty()) {
-        audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "Atmos", acSearch);
-      }
-      if (audioCodec.isEmpty()) {
+      if (StringUtils.isBlank(audioCodec)) {
         audioCodec = getMediaInfoContains(miSnapshot, MediaInfo.StreamKind.Audio, i, "DTS", acSearch);
       }
 
       // else just take format
-      if (audioCodec.isEmpty()) {
+      if (StringUtils.isBlank(audioCodec)) {
         audioCodec = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format");
         audioCodec = audioCodec.replaceAll("\\p{Punct}", "");
+      }
+
+      // E-AC-3 in Format_String
+      if ("ac3".equalsIgnoreCase(audioCodec)) {
+        String formatString = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_String");
+        if ("e-ac-3".equalsIgnoreCase(formatString)) {
+          audioCodec = "EAC3";
+        }
       }
 
       // https://github.com/Radarr/Radarr/blob/develop/src/NzbDrone.Core/MediaFiles/MediaInfo/MediaInfoFormatter.cs#L35
@@ -1714,7 +1717,7 @@ public class MediaFileHelper {
         }
         if ("TrueHD".equalsIgnoreCase(audioCodec)) {
           if (addFeature.equalsIgnoreCase("16-ch")) {
-            audioCodec = "Atmos";
+            audioCodec = "TrueHD/Atmos";
           }
         }
       }
@@ -1739,7 +1742,7 @@ public class MediaFileHelper {
         }
         if ("TrueHD".equalsIgnoreCase(audioCodec)) {
           if (audioProfile.contains("Atmos")) {
-            audioCodec = "Atmos";
+            audioCodec = "TrueHD/Atmos";
           }
         }
         if ("MPEG Audio".equalsIgnoreCase(audioCodec)) {
@@ -1754,7 +1757,8 @@ public class MediaFileHelper {
       }
 
       // newer 18.12 style
-      if ("ac3".equalsIgnoreCase(audioCodec) || "dts".equalsIgnoreCase(audioCodec) || "TrueHD".equalsIgnoreCase(audioCodec)) {
+      if ("ac3".equalsIgnoreCase(audioCodec) || "eac3".equalsIgnoreCase(audioCodec) || "dts".equalsIgnoreCase(audioCodec)
+          || "TrueHD".equalsIgnoreCase(audioCodec)) {
         String commName = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Audio, i, "Format_Commercial", "Format_Commercial_IfAny")
             .toLowerCase(Locale.ROOT);
 
@@ -1768,8 +1772,11 @@ public class MediaFileHelper {
           if (commName.contains("extended") || commName.contains("es matrix") || commName.contains("es discrete")) {
             audioCodec = "DTS-ES";
           }
-          if (commName.contains("atmos")) {
-            audioCodec = "Atmos";
+          if (commName.contains("truehd") && commName.contains("atmos")) {
+            audioCodec = "TrueHD/Atmos";
+          }
+          if (commName.contains("dolby digital plus") && commName.contains("atmos")) {
+            audioCodec = "EAC3/Atmos";
           }
           // Dolby Digital EX
           if (commName.contains("ex audio")) {
@@ -2203,7 +2210,7 @@ public class MediaFileHelper {
       mediaFile.setContainerFormat(mediaFile.getExtension());
       return;
     }
-    LOGGER.trace("got MI");
+    LOGGER.trace("got mediainfo for '{}'", mediaFile.getFileAsPath());
 
     switch (mediaFile.getType()) {
       case VIDEO:
@@ -2260,7 +2267,7 @@ public class MediaFileHelper {
         break;
 
       default:
-        LOGGER.warn("no mediainformation handling for MediaFile type {} yet.", mediaFile.getType());
+        LOGGER.debug("no mediainformation handling for MediaFile type {} yet.", mediaFile.getType());
         break;
     }
 
@@ -2374,7 +2381,7 @@ public class MediaFileHelper {
     if (!StringUtils.isEmpty(mvc) && mvc.equals("2")) {
       video3DFormat = MediaFileHelper.VIDEO_3D;
       String mvl = getMediaInfo(miSnapshot, MediaInfo.StreamKind.Video, 0, "MultiView_Layout").toLowerCase(Locale.ROOT);
-      LOGGER.debug("3D detected :) - {}", mvl);
+      LOGGER.trace("3D detected :) - {}", mvl);
       if (!StringUtils.isEmpty(mvl) && mvl.contains("top") && mvl.contains("bottom")) {
         video3DFormat = MediaFileHelper.VIDEO_3D_HTAB; // assume HalfTAB as default
         if (height > width) {

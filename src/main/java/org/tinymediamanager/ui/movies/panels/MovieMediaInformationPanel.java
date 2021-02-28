@@ -36,7 +36,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.panels.MediaInformationPanel;
 
@@ -45,11 +45,9 @@ import org.tinymediamanager.ui.panels.MediaInformationPanel;
  * 
  */
 public class MovieMediaInformationPanel extends MediaInformationPanel {
-  private static final long           serialVersionUID = 2513029074142934502L;
+  private static final long   serialVersionUID = 2513029074142934502L;
 
-
-
-  private MovieSelectionModel         movieSelectionModel;
+  private MovieSelectionModel movieSelectionModel;
 
   /**
    * Instantiates a new movie media information panel.
@@ -229,9 +227,9 @@ public class MovieMediaInformationPanel extends MediaInformationPanel {
     autoBinding_1.bind();
     //
     BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_2 = BeanProperty.create("selectedMovie.path");
-    BeanProperty<LinkLabel, String> linkLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<MovieSelectionModel, String, LinkLabel, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel,
-        movieSelectionModelBeanProperty_2, lblPath, linkLabelBeanProperty);
+    BeanProperty<LinkTextArea, String> linkTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding<MovieSelectionModel, String, LinkTextArea, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        movieSelectionModel, movieSelectionModelBeanProperty_2, lblPath, linkTextAreaBeanProperty);
     autoBinding_2.bind();
     //
     BeanProperty<MovieSelectionModel, String> movieSelectionModelBeanProperty_3 = BeanProperty.create("selectedMovie.originalFilename");

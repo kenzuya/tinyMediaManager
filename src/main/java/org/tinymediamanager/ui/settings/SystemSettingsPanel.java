@@ -26,6 +26,8 @@ import java.awt.event.HierarchyListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +45,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 
 import org.jdesktop.beansbinding.AutoBinding;
@@ -166,7 +169,7 @@ class SystemSettingsPanel extends JPanel {
       catch (Exception e) {
         LOGGER.error("could not download FFmpeg addon - '{}'", e.getMessage());
         JOptionPane.showMessageDialog(SettingsDialog.getInstance(),
-            TmmResourceBundle.getString("Settings.mediaframework.downloaderror" + " - " + e.getLocalizedMessage()),
+            TmmResourceBundle.getString("Settings.mediaframework.downloaderror") + " - " + e.getLocalizedMessage(),
             TmmResourceBundle.getString("Settings.mediaframework.downloaderror"), JOptionPane.ERROR_MESSAGE);
       }
       setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -246,18 +249,21 @@ class SystemSettingsPanel extends JPanel {
         panelMemory.add(lblMemoryT, "cell 1 0,aligny top");
 
         sliderMemory = new JSlider();
-        sliderMemory.setPaintLabels(true);
-        sliderMemory.setPaintTicks(true);
         sliderMemory.setSnapToTicks(true);
-        sliderMemory.setMajorTickSpacing(512);
-        sliderMemory.setMinorTickSpacing(128);
+
+        Dictionary<Integer, JLabel> labelTable = new Hashtable<>();
+        labelTable.put(256, new JLabel("256"));
+        labelTable.put(2048, new JLabel("2048"));
+        labelTable.put(4096, new JLabel("4096"));
+        labelTable.put(6144, new JLabel("6144"));
+        labelTable.put(8192, new JLabel("8192"));
+        sliderMemory.setLabelTable(labelTable);
+
+        sliderMemory.setPaintTicks(true);
+        sliderMemory.setPaintLabels(true);
+        sliderMemory.setMinorTickSpacing(256);
         sliderMemory.setMinimum(256);
-        if (Platform.is64Bit()) {
-          sliderMemory.setMaximum(2560);
-        }
-        else {
-          sliderMemory.setMaximum(1536);
-        }
+        sliderMemory.setMaximum(8192);
         sliderMemory.setValue(512);
         panelMemory.add(sliderMemory, "cell 2 0,growx,aligny top");
 
@@ -326,7 +332,7 @@ class SystemSettingsPanel extends JPanel {
         JLabel lblParallelDownloadCountT = new JLabel(TmmResourceBundle.getString("Settings.paralleldownload"));
         panelMisc.add(lblParallelDownloadCountT, "cell 1 0 2 1");
 
-        spMaximumDownloadThreads = new JSpinner();
+        spMaximumDownloadThreads = new JSpinner(new SpinnerNumberModel(settings.getMaximumDownloadThreads(), 1, 1024, 1));
         spMaximumDownloadThreads.setMinimumSize(new Dimension(60, 20));
         panelMisc.add(spMaximumDownloadThreads, "cell 1 0 2 1");
 

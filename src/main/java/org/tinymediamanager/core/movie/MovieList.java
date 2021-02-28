@@ -1386,10 +1386,11 @@ public class MovieList extends AbstractModelObject {
   public List<String> getTvShowTitles() {
     List<String> tvShowTitles = new ArrayList<>();
     TvShowList.getInstance().getTvShows().forEach(tvShow -> tvShowTitles.add(tvShow.getTitle()));
+    tvShowTitles.sort(Comparator.naturalOrder());
     return tvShowTitles;
   }
 
-  private class MovieSetComparator implements Comparator<MovieSet> {
+  private static class MovieSetComparator implements Comparator<MovieSet> {
     @Override
     public int compare(MovieSet o1, MovieSet o2) {
       if (o1 == null || o2 == null || o1.getTitleSortable() == null || o2.getTitleSortable() == null) {
@@ -1399,7 +1400,7 @@ public class MovieList extends AbstractModelObject {
     }
   }
 
-  private class MovieMediaScraperComparator implements Comparator<MediaScraper> {
+  private static class MovieMediaScraperComparator implements Comparator<MediaScraper> {
     @Override
     public int compare(MediaScraper o1, MediaScraper o2) {
       return o1.getId().compareTo(o2.getId());

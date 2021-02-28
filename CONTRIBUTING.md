@@ -4,9 +4,12 @@
 
 When considering [reporting an issue/bug][1], first do a thorough search to determine if it has already been addressed or a workaround has been described. Interactions between users and developers occur in multiple places:
 
-* [GitLab Issue Tracker][2] For use when you are relatively certain that a developer's attention is required (don't forget to search the closed reports in addition to those currently open, first)
-* [Kodi tMM sub-forum][3] If you aren't certain if your issue is due to a peculiarity in your setup or an actual flaw in the program, creating a thread here will often allow more experienced users to help you to make that determination.
-* [tMM Docs][4] and [tMM FAQ][5] Answers to questions/misunderstandings that arise with some frequency will often receive a definitive treatment here
+* [GitLab Issue Tracker][2] For use when you are relatively certain that a developer's attention is required (don't
+  forget to search the closed reports in addition to those currently open, first)
+* [Reddit community][3] If you aren't certain if your issue is due to a peculiarity in your setup or an actual flaw in
+  the program, creating a topic here will often allow more experienced users to help you to make that determination.
+* [tMM Docs][4] and [tMM FAQ][5] Answers to questions/misunderstandings that arise with some frequency will often
+  receive a definitive treatment here
 
 If your search fails to yield anything pertinent or you feel that your experience requires reexamining an acknowledged issue at more length, provide as much information as possible, including at a minimum:
 
@@ -33,8 +36,11 @@ If you want to help us translating tinyMediaManager, please register at [Weblate
 Feature requests are also accepted via the [Issue Tracker][2] when made politely and a good case is made for how it will benefit a relatively broad portion of the userbase.
 
 [1]: https://gitlab.com/tinyMediaManager/tinyMediaManager/issues/new?issue
+
 [2]: https://gitlab.com/tinyMediaManager/tinyMediaManager/issues?scope=all&state=all
-[3]: https://forum.kodi.tv/forumdisplay.php?fid=204
+
+[3]: https://www.reddit.com/r/tinyMediaManager/
+
 [4]: https://www.tinymediamanager.org/docs/
 [5]: https://www.tinymediamanager.org/help/faq
 [7]: https://gitlab.com/tinyMediaManager/tinyMediaManager/forks/new

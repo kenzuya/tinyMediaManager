@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--created on 2021-02-17 13:55:26 - tinyMediaManager 4.1-SNAPSHOT-->
+<MediaInfo xmlns="https://mediaarea.net/mediainfo" version="2.0">
+    <creatingLibrary url="https://www.tinymediamanager.org" version="4.1-SNAPSHOT">tinyMediaManager</creatingLibrary>
+    <media ref="C:\DataPool\Videos\EAC3 as AC3\EAC3 as AC3.mkv">
+        <track type="General">
+            <Count>331</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>General</StreamKind>
+            <StreamKind_String>General</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <VideoCount>1</VideoCount>
+            <AudioCount>1</AudioCount>
+            <TextCount>1</TextCount>
+            <MenuCount>1</MenuCount>
+            <Video_Format_List>HEVC</Video_Format_List>
+            <Video_Format_WithHint_List>HEVC</Video_Format_WithHint_List>
+            <Video_Codec_List>HEVC</Video_Codec_List>
+            <Audio_Format_List>E-AC-3</Audio_Format_List>
+            <Audio_Format_WithHint_List>E-AC-3</Audio_Format_WithHint_List>
+            <Audio_Codec_List>E-AC-3</Audio_Codec_List>
+            <Audio_Language_List>German</Audio_Language_List>
+            <Text_Format_List>PGS</Text_Format_List>
+            <Text_Format_WithHint_List>PGS</Text_Format_WithHint_List>
+            <Text_Codec_List>PGS</Text_Codec_List>
+            <Text_Language_List>German</Text_Language_List>
+            <CompleteName>C:\DataPool\Videos\EAC3 as AC3\EAC3 as AC3.mkv</CompleteName>
+            <FolderName>C:\DataPool\Videos\EAC3 as AC3</FolderName>
+            <FileNameExtension>EAC3 as AC3.mkv</FileNameExtension>
+            <FileName>EAC3 as AC3</FileName>
+            <FileExtension>mkv</FileExtension>
+            <Format>Matroska</Format>
+            <Format_String>Matroska</Format_String>
+            <Format_Url>https://matroska.org/downloads/windows.html</Format_Url>
+            <Format_Extensions>mkv mk3d mka mks</Format_Extensions>
+            <Format_Commercial>Matroska</Format_Commercial>
+            <Format_Version>Version 4</Format_Version>
+            <FileSize>12805650605</FileSize>
+            <FileSize_String>11.9 GiB</FileSize_String>
+            <FileSize_String1>12 GiB</FileSize_String1>
+            <FileSize_String2>12 GiB</FileSize_String2>
+            <FileSize_String3>11.9 GiB</FileSize_String3>
+            <FileSize_String4>11.93 GiB</FileSize_String4>
+            <Duration>8513.024</Duration>
+            <Duration_String>2 h 21 min</Duration_String>
+            <Duration_String1>2 h 21 min 53 s 24 ms</Duration_String1>
+            <Duration_String2>2 h 21 min</Duration_String2>
+            <Duration_String3>02:21:53.024</Duration_String3>
+            <Duration_String4>02:21:55;02</Duration_String4>
+            <Duration_String5>02:21:53.024 (02:21:55;02)</Duration_String5>
+            <OverallBitRate>12033938</OverallBitRate>
+            <OverallBitRate_String>12.0 Mb/s</OverallBitRate_String>
+            <FrameRate>23.976</FrameRate>
+            <FrameRate_String>23.976 FPS</FrameRate_String>
+            <FrameCount>204108</FrameCount>
+            <StreamSize>2108345</StreamSize>
+            <StreamSize_String>2.01 MiB (0%)</StreamSize_String>
+            <StreamSize_String1>2 MiB</StreamSize_String1>
+            <StreamSize_String2>2.0 MiB</StreamSize_String2>
+            <StreamSize_String3>2.01 MiB</StreamSize_String3>
+            <StreamSize_String4>2.011 MiB</StreamSize_String4>
+            <StreamSize_String5>2.01 MiB (0%)</StreamSize_String5>
+            <StreamSize_Proportion>0.00016</StreamSize_Proportion>
+            <IsStreamable>Yes</IsStreamable>
+            <Encoded_Date>UTC 2020-05-05 01:52:13</Encoded_Date>
+            <File_Created_Date>UTC 2020-05-05 01:52:13.887</File_Created_Date>
+            <File_Created_Date_Local>2020-05-05 02:52:13.887</File_Created_Date_Local>
+            <File_Modified_Date>UTC 2020-12-26 23:37:39.359</File_Modified_Date>
+            <File_Modified_Date_Local>2020-12-27 00:37:39.359</File_Modified_Date_Local>
+            <Encoded_Application>mkvmerge v12.0.0 ('Trust / Lust') 64bit</Encoded_Application>
+            <Encoded_Application_String>mkvmerge v12.0.0 ('Trust / Lust') 64bit</Encoded_Application_String>
+            <Encoded_Library>libebml v1.3.4 + libmatroska v1.4.5</Encoded_Library>
+            <Encoded_Library_String>libebml v1.3.4 + libmatroska v1.4.5</Encoded_Library_String>
+        </track>
+        <track type="Video">
+            <Count>377</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Video</StreamKind>
+            <StreamKind_String>Video</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>0</StreamOrder>
+            <ID>1</ID>
+            <ID_String>1</ID_String>
+            <UniqueID>1</UniqueID>
+            <Format>HEVC</Format>
+            <Format_String>HEVC</Format_String>
+            <Format_Info>High Efficiency Video Coding</Format_Info>
+            <Format_Url>http://www.itu.int</Format_Url>
+            <Format_Commercial>HEVC</Format_Commercial>
+            <Format_Profile>Main 10@L4@Main</Format_Profile>
+            <InternetMediaType>video/H265</InternetMediaType>
+            <CodecID>V_MPEGH/ISO/HEVC</CodecID>
+            <Duration>8513.005</Duration>
+            <Duration_String>2 h 21 min</Duration_String>
+            <Duration_String1>2 h 21 min 53 s 5 ms</Duration_String1>
+            <Duration_String2>2 h 21 min</Duration_String2>
+            <Duration_String3>02:21:53.005</Duration_String3>
+            <Duration_String4>02:21:55;02</Duration_String4>
+            <Duration_String5>02:21:53.005 (02:21:55;02)</Duration_String5>
+            <BitRate>11135964</BitRate>
+            <BitRate_String>11.1 Mb/s</BitRate_String>
+            <Width>1920</Width>
+            <Width_String>1 920 pixels</Width_String>
+            <Height>804</Height>
+            <Height_String>804 pixels</Height_String>
+            <Stored_Height>808</Stored_Height>
+            <Sampled_Width>1920</Sampled_Width>
+            <Sampled_Height>804</Sampled_Height>
+            <PixelAspectRatio>1.000</PixelAspectRatio>
+            <DisplayAspectRatio>2.388</DisplayAspectRatio>
+            <DisplayAspectRatio_String>2.40:1</DisplayAspectRatio_String>
+            <FrameRate_Mode>CFR</FrameRate_Mode>
+            <FrameRate_Mode_String>Constant</FrameRate_Mode_String>
+            <FrameRate>23.976</FrameRate>
+            <FrameRate_String>23.976 (24000/1001) FPS</FrameRate_String>
+            <FrameRate_Num>24000</FrameRate_Num>
+            <FrameRate_Den>1001</FrameRate_Den>
+            <FrameCount>204108</FrameCount>
+            <ColorSpace>YUV</ColorSpace>
+            <ChromaSubsampling>4:2:0</ChromaSubsampling>
+            <ChromaSubsampling_String>4:2:0</ChromaSubsampling_String>
+            <BitDepth>10</BitDepth>
+            <BitDepth_String>10 bits</BitDepth_String>
+            <Bits-Pixel_Frame>0.301</Bits-Pixel_Frame>
+            <Delay>0</Delay>
+            <Delay_String3>00:00:00.000</Delay_String3>
+            <Delay_Source>Container</Delay_Source>
+            <Delay_Source_String>Container</Delay_Source_String>
+            <StreamSize>11850065304</StreamSize>
+            <StreamSize_String>11.0 GiB (93%)</StreamSize_String>
+            <StreamSize_String1>11 GiB</StreamSize_String1>
+            <StreamSize_String2>11 GiB</StreamSize_String2>
+            <StreamSize_String3>11.0 GiB</StreamSize_String3>
+            <StreamSize_String4>11.04 GiB</StreamSize_String4>
+            <StreamSize_String5>11.0 GiB (93%)</StreamSize_String5>
+            <StreamSize_Proportion>0.92538</StreamSize_Proportion>
+            <Title>EAC3 as AC3</Title>
+            <Encoded_Library>x265 - 3.3+3-c2769ac5fa9d:[Linux][GCC 5.4.0][64 bit] 10bitsik</Encoded_Library>
+            <Encoded_Library_String>x265 3.3+3-c2769ac5fa9d:[Linux][GCC 5.4.0][64 bit] 10bitsik</Encoded_Library_String>
+            <Encoded_Library_Name>x265</Encoded_Library_Name>
+            <Encoded_Library_Version>3.3+3-c2769ac5fa9d:[Linux][GCC 5.4.0][64 bit] 10bitsik</Encoded_Library_Version>
+            <Encoded_Library_Settings>cpuid=1310959 / frame-threads=3 / wpp / no-pmode / no-pme / no-psnr / no-ssim /
+                log-level=2 / input-csp=1 / input-res=1920x804 / interlace=0 / total-frames=0 / level-idc=0 /
+                high-tier=1 / uhd-bd=0 / ref=4 / no-allow-non-conformance / no-repeat-headers / annexb / no-aud / no-hrd
+                / info / hash=0 / no-temporal-layers / open-gop / min-keyint=23 / keyint=250 / gop-lookahead=0 /
+                bframes=4 / b-adapt=2 / b-pyramid / bframe-bias=0 / rc-lookahead=25 / lookahead-slices=4 / scenecut=40 /
+                hist-scenecut=0 / radl=0 / no-splice / no-intra-refresh / ctu=64 / min-cu-size=8 / rect / no-amp /
+                max-tu-size=32 / tu-inter-depth=1 / tu-intra-depth=1 / limit-tu=0 / rdoq-level=2 / dynamic-rd=0.00 /
+                no-ssim-rd / signhide / no-tskip / nr-intra=0 / nr-inter=0 / no-constrained-intra /
+                strong-intra-smoothing / max-merge=3 / limit-refs=3 / limit-modes / me=3 / subme=3 / merange=57 /
+                temporal-mvp / no-frame-dup / no-hme / weightp / no-weightb / no-analyze-src-pics / deblock=0:0 / no-sao
+                / no-sao-non-deblock / rd=4 / selective-sao=0 / no-early-skip / rskip / no-fast-intra / no-tskip-fast /
+                no-cu-lossless / no-b-intra / no-splitrd-skip / rdpenalty=0 / psy-rd=2.00 / psy-rdoq=1.00 / no-rd-refine
+                / no-lossless / cbqpoffs=0 / crqpoffs=0 / rc=crf / crf=18.0 / qcomp=0.60 / qpstep=4 / stats-write=0 /
+                stats-read=0 / ipratio=1.40 / pbratio=1.30 / aq-mode=1 / aq-strength=1.00 / cutree / zone-count=0 /
+                no-strict-cbr / qg-size=32 / no-rc-grain / qpmax=69 / qpmin=0 / no-const-vbv / sar=1 / overscan=0 /
+                videoformat=5 / range=0 / colorprim=2 / transfer=2 / colormatrix=2 / chromaloc=0 / display-window=0 /
+                cll=0,0 / min-luma=0 / max-luma=1023 / log2-max-poc-lsb=8 / vui-timing-info / vui-hrd-info / slices=1 /
+                no-opt-qp-pps / no-opt-ref-list-length-pps / no-multi-pass-opt-rps / scenecut-bias=0.05 /
+                hist-threshold=0.01 / no-opt-cu-delta-qp / no-aq-motion / no-hdr10 / no-hdr10-opt / no-dhdr10-opt /
+                no-idr-recovery-sei / analysis-reuse-level=0 / analysis-save-reuse-level=0 / analysis-load-reuse-level=0
+                / scale-factor=0 / refine-intra=0 / refine-inter=0 / refine-mv=1 / refine-ctu-distortion=0 /
+                no-limit-sao / ctu-info=0 / no-lowpass-dct / refine-analysis-type=0 / copy-pic=1 / max-ausize-factor=1.0
+                / no-dynamic-refine / no-single-sei / no-hevc-aq / no-svt / no-field / qp-adaptation-range=1.00 /
+                no-scenecut-aware-qpconformance-window-offsets / right=0 / bottom=0
+            </Encoded_Library_Settings>
+            <Default>Yes</Default>
+            <Default_String>Yes</Default_String>
+            <Forced>No</Forced>
+            <Forced_String>No</Forced_String>
+            <colour_range>Limited</colour_range>
+            <colour_range_Source>Stream</colour_range_Source>
+        </track>
+        <track type="Audio">
+            <Count>308</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Audio</StreamKind>
+            <StreamKind_String>Audio</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>1</StreamOrder>
+            <ID>2</ID>
+            <ID_String>2</ID_String>
+            <UniqueID>8937872558171190613</UniqueID>
+            <Format>AC-3</Format>
+            <Format_String>E-AC-3</Format_String>
+            <Format_Info>Enhanced AC-3</Format_Info>
+            <Format_Url>https://en.wikipedia.org/wiki/AC3</Format_Url>
+            <Format_Commercial>Dolby Digital Plus</Format_Commercial>
+            <Format_Commercial_IfAny>Dolby Digital Plus</Format_Commercial_IfAny>
+            <Format_Profile>Blu-ray Disc</Format_Profile>
+            <Format_Settings_Endianness>Big</Format_Settings_Endianness>
+            <Format_AdditionalFeatures>Dep</Format_AdditionalFeatures>
+            <InternetMediaType>audio/eac3</InternetMediaType>
+            <CodecID>A_EAC3</CodecID>
+            <Duration>8513.024</Duration>
+            <Duration_String>2 h 21 min</Duration_String>
+            <Duration_String1>2 h 21 min 53 s 24 ms</Duration_String1>
+            <Duration_String2>2 h 21 min</Duration_String2>
+            <Duration_String3>02:21:53.024</Duration_String3>
+            <Duration_String4>02:23:01:21</Duration_String4>
+            <Duration_String5>02:21:53.024 (02:23:01:21)</Duration_String5>
+            <BitRate_Mode>CBR</BitRate_Mode>
+            <BitRate_Mode_String>Constant</BitRate_Mode_String>
+            <BitRate>896000</BitRate>
+            <BitRate_String>896 kb/s</BitRate_String>
+            <Channels>8</Channels>
+            <Channels_String>8 channels</Channels_String>
+            <ChannelPositions>Front: L C R, Side: L R, Back: L R, LFE</ChannelPositions>
+            <ChannelPositions_String2>3/2/0.1</ChannelPositions_String2>
+            <ChannelLayout>L R C LFE Ls Rs Lb Rb</ChannelLayout>
+            <SamplesPerFrame>1536</SamplesPerFrame>
+            <SamplingRate>48000</SamplingRate>
+            <SamplingRate_String>48.0 kHz</SamplingRate_String>
+            <SamplingCount>408625152</SamplingCount>
+            <FrameRate>31.250</FrameRate>
+            <FrameRate_String>31.250 FPS (1536 SPF)</FrameRate_String>
+            <FrameCount>266032</FrameCount>
+            <Compression_Mode>Lossy</Compression_Mode>
+            <Compression_Mode_String>Lossy</Compression_Mode_String>
+            <Delay>0</Delay>
+            <Delay_String3>00:00:00.000</Delay_String3>
+            <Delay_Source>Container</Delay_Source>
+            <Delay_Source_String>Container</Delay_Source_String>
+            <Video_Delay>0</Video_Delay>
+            <Video_Delay_String3>00:00:00.000</Video_Delay_String3>
+            <StreamSize>953460224</StreamSize>
+            <StreamSize_String>909 MiB (7%)</StreamSize_String>
+            <StreamSize_String1>909 MiB</StreamSize_String1>
+            <StreamSize_String2>909 MiB</StreamSize_String2>
+            <StreamSize_String3>909 MiB</StreamSize_String3>
+            <StreamSize_String4>909.3 MiB</StreamSize_String4>
+            <StreamSize_String5>909 MiB (7%)</StreamSize_String5>
+            <StreamSize_Proportion>0.07446</StreamSize_Proportion>
+            <Title>EAC3 7.1</Title>
+            <Language>de</Language>
+            <Language_String>German</Language_String>
+            <Language_String1>German</Language_String1>
+            <Language_String2>de</Language_String2>
+            <Language_String3>deu</Language_String3>
+            <Language_String4>de</Language_String4>
+            <ServiceKind>CM</ServiceKind>
+            <ServiceKind_String>Complete Main</ServiceKind_String>
+            <Default>Yes</Default>
+            <Default_String>Yes</Default_String>
+            <Forced>No</Forced>
+            <Forced_String>No</Forced_String>
+            <bsid>16</bsid>
+            <dialnorm>-27</dialnorm>
+            <dialnorm_String>-27 dB</dialnorm_String>
+            <compr>-0.28</compr>
+            <compr_String>-0.28 dB</compr_String>
+            <acmod>7 / 5</acmod>
+            <lfeon>1 / 0</lfeon>
+            <dialnorm_Average>-27</dialnorm_Average>
+            <dialnorm_Average_String>-27 dB</dialnorm_Average_String>
+            <dialnorm_Minimum>-27</dialnorm_Minimum>
+            <dialnorm_Minimum_String>-27 dB</dialnorm_Minimum_String>
+            <dialnorm_Maximum>-27</dialnorm_Maximum>
+            <dialnorm_Maximum_String>-27 dB</dialnorm_Maximum_String>
+            <dialnorm_Count>1742</dialnorm_Count>
+            <compr_Average>5.55</compr_Average>
+            <compr_Average_String>5.55 dB</compr_Average_String>
+            <compr_Minimum>-0.56</compr_Minimum>
+            <compr_Minimum_String>-0.56 dB</compr_Minimum_String>
+            <compr_Maximum>6.02</compr_Maximum>
+            <compr_Maximum_String>6.02 dB</compr_Maximum_String>
+            <compr_Count>1142</compr_Count>
+            <dynrng_Average>2.85</dynrng_Average>
+            <dynrng_Average_String>2.85 dB</dynrng_Average_String>
+            <dynrng_Minimum>-0.42</dynrng_Minimum>
+            <dynrng_Minimum_String>-0.42 dB</dynrng_Minimum_String>
+            <dynrng_Maximum>6.02</dynrng_Maximum>
+            <dynrng_Maximum_String>6.02 dB</dynrng_Maximum_String>
+            <dynrng_Count>1586</dynrng_Count>
+        </track>
+        <track type="Text">
+            <Count>238</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Text</StreamKind>
+            <StreamKind_String>Text</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <StreamOrder>2</StreamOrder>
+            <ID>3</ID>
+            <ID_String>3</ID_String>
+            <UniqueID>8749776951927572946</UniqueID>
+            <Format>PGS</Format>
+            <Format_String>PGS</Format_String>
+            <Format_Commercial>PGS</Format_Commercial>
+            <CodecID>S_HDMV/PGS</CodecID>
+            <CodecID_Info>Picture based subtitle format used on BDs/HD-DVDs</CodecID_Info>
+            <Duration>5842.962</Duration>
+            <Duration_String>1 h 37 min</Duration_String>
+            <Duration_String1>1 h 37 min 22 s 962 ms</Duration_String1>
+            <Duration_String2>1 h 37 min</Duration_String2>
+            <Duration_String3>01:37:22.962</Duration_String3>
+            <Duration_String5>01:37:22.962</Duration_String5>
+            <BitRate>22</BitRate>
+            <BitRate_String>22 b/s</BitRate_String>
+            <FrameRate>0.001</FrameRate>
+            <FrameRate_String>0.001 FPS</FrameRate_String>
+            <FrameCount>4</FrameCount>
+            <ElementCount>4</ElementCount>
+            <StreamSize>16732</StreamSize>
+            <StreamSize_String>16.3 KiB (0%)</StreamSize_String>
+            <StreamSize_String1>16 KiB</StreamSize_String1>
+            <StreamSize_String2>16 KiB</StreamSize_String2>
+            <StreamSize_String3>16.3 KiB</StreamSize_String3>
+            <StreamSize_String4>16.34 KiB</StreamSize_String4>
+            <StreamSize_String5>16.3 KiB (0%)</StreamSize_String5>
+            <StreamSize_Proportion>0.00000</StreamSize_Proportion>
+            <Title>Forced Subs</Title>
+            <Language>de</Language>
+            <Language_String>German</Language_String>
+            <Language_String1>German</Language_String1>
+            <Language_String2>de</Language_String2>
+            <Language_String3>deu</Language_String3>
+            <Language_String4>de</Language_String4>
+            <Default>Yes</Default>
+            <Default_String>Yes</Default_String>
+            <Forced>No</Forced>
+            <Forced_String>No</Forced_String>
+        </track>
+        <track type="Menu">
+            <Count>138</Count>
+            <StreamCount>1</StreamCount>
+            <StreamKind>Menu</StreamKind>
+            <StreamKind_String>Menu</StreamKind_String>
+            <StreamKindID>0</StreamKindID>
+            <Chapters_Pos_Begin>94</Chapters_Pos_Begin>
+            <Chapters_Pos_End>138</Chapters_Pos_End>
+            <_00_00_00_000>:Kapitel 01</_00_00_00_000>
+            <_00_00_09_176>:Kapitel 02</_00_00_09_176>
+            <_00_01_40_934>:Kapitel 03</_00_01_40_934>
+            <_00_03_47_811>:Kapitel 04</_00_03_47_811>
+            <_00_06_42_902>:Kapitel 05</_00_06_42_902>
+            <_00_08_26_673>:Kapitel 06</_00_08_26_673>
+            <_00_10_04_896>:Kapitel 07</_00_10_04_896>
+            <_00_12_48_142>:Kapitel 08</_00_12_48_142>
+            <_00_13_54_000>:Kapitel 09</_00_13_54_000>
+            <_00_15_17_416>:Kapitel 10</_00_15_17_416>
+            <_00_17_13_199>:Kapitel 11</_00_17_13_199>
+            <_00_19_25_039>:Kapitel 12</_00_19_25_039>
+            <_00_21_28_579>:Kapitel 13</_00_21_28_579>
+            <_00_25_27_693>:Kapitel 14</_00_25_27_693>
+            <_00_27_14_883>:Kapitel 15</_00_27_14_883>
+            <_00_30_41_548>:Kapitel 16</_00_30_41_548>
+            <_00_35_49_064>:Kapitel 17</_00_35_49_064>
+            <_00_41_37_745>:Kapitel 18</_00_41_37_745>
+            <_00_43_15_259>:Kapitel 19</_00_43_15_259>
+            <_00_45_28_351>:Kapitel 20</_00_45_28_351>
+            <_00_48_24_568>:Kapitel 21</_00_48_24_568>
+            <_00_54_37_566>:Kapitel 22</_00_54_37_566>
+            <_00_58_49_192>:Kapitel 23</_00_58_49_192>
+            <_01_02_54_771>:Kapitel 24</_01_02_54_771>
+            <_01_06_23_104>:Kapitel 25</_01_06_23_104>
+            <_01_09_54_607>:Kapitel 26</_01_09_54_607>
+            <_01_13_07_383>:Kapitel 27</_01_13_07_383>
+            <_01_18_23_616>:Kapitel 28</_01_18_23_616>
+            <_01_23_41_225>:Kapitel 29</_01_23_41_225>
+            <_01_27_02_884>:Kapitel 30</_01_27_02_884>
+            <_01_30_23_126>:Kapitel 31</_01_30_23_126>
+            <_01_35_00_820>:Kapitel 32</_01_35_00_820>
+            <_01_38_47_880>:Kapitel 33</_01_38_47_880>
+            <_01_40_35_863>:Kapitel 34</_01_40_35_863>
+            <_01_43_03_135>:Kapitel 35</_01_43_03_135>
+            <_01_45_27_863>:Kapitel 36</_01_45_27_863>
+            <_01_48_48_188>:Kapitel 37</_01_48_48_188>
+            <_01_53_27_634>:Kapitel 38</_01_53_27_634>
+            <_01_55_30_757>:Kapitel 39</_01_55_30_757>
+            <_01_59_02_969>:Kapitel 40</_01_59_02_969>
+            <_02_01_37_749>:Kapitel 41</_02_01_37_749>
+            <_02_05_20_430>:Kapitel 42</_02_05_20_430>
+            <_02_09_42_692>:Kapitel 43</_02_09_42_692>
+            <_02_12_25_896>:Kapitel 44</_02_12_25_896>
+        </track>
+    </media>
+</MediaInfo>

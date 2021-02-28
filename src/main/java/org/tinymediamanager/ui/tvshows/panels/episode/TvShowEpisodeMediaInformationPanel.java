@@ -37,7 +37,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.panels.MediaInformationPanel;
 import org.tinymediamanager.ui.tvshows.TvShowEpisodeSelectionModel;
 
@@ -216,9 +216,9 @@ public class TvShowEpisodeMediaInformationPanel extends MediaInformationPanel {
 
   protected void initDataBindings() {
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty = BeanProperty.create("selectedTvShowEpisode.path");
-    BeanProperty<LinkLabel, String> linkLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowEpisodeSelectionModel, String, LinkLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, selectionModel,
-        tvShowEpisodeSelectionModelBeanProperty, this.lblPath, linkLabelBeanProperty);
+    BeanProperty<LinkTextArea, String> linkTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, LinkTextArea, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ,
+        selectionModel, tvShowEpisodeSelectionModelBeanProperty, this.lblPath, linkTextAreaBeanProperty);
     autoBinding.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_1 = BeanProperty

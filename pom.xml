@@ -5,7 +5,7 @@
 
     <groupId>org.tinymediamanager</groupId>
     <artifactId>tinyMediaManager</artifactId>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.1.2-SNAPSHOT</version>
 
     <name>tinyMediaManager</name>
     <description>a media management tool written in Java</description>
@@ -51,8 +51,8 @@
 
     <mailingLists>
         <mailingList>
-            <name>Kodi-Forum</name>
-            <post>http://forum.kodi.tv/forumdisplay.php?fid=204</post>
+            <name>Reddit</name>
+            <post>https://www.reddit.com/r/tinyMediaManager/</post>
         </mailingList>
     </mailingLists>
 
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.tinymediamanager</groupId>
             <artifactId>license</artifactId>
-            <version>2.0.1</version>
+            <version>2.0.2</version>
         </dependency>
 
         <dependency>
@@ -340,6 +340,12 @@
             <groupId>org.tinymediamanager</groupId>
             <artifactId>yt</artifactId>
             <version>2.4.6-tmm</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.4</version>
         </dependency>
 
         <!-- testing -->

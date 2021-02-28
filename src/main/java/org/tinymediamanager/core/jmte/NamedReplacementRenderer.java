@@ -16,17 +16,21 @@
 
 package org.tinymediamanager.core.jmte;
 
+import java.io.FileReader;
+import java.io.Reader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.scraper.util.CacheMap;
-import org.tinymediamanager.scraper.util.CsvParser;
 
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
@@ -55,12 +59,18 @@ public class NamedReplacementRenderer implements NamedRenderer {
       Path csv = Paths.get(Globals.DATA_FOLDER, filename);
       if (csv.toFile().exists()) {
         // try to parse the csv
-        try {
-          csvContents = new CsvParser().readFile(csv.toFile());
-          CACHE.put(filename, csvContents);
+        List<String[]> tokens = new ArrayList<>();
+        try (Reader in = new FileReader(csv.toFile())) {
+          Iterable<CSVRecord> records = CSVFormat.DEFAULT.parse(in);
+          for (CSVRecord record : records) {
+            if (record.size() == 2) {
+              tokens.add(new String[] { record.get(0), record.get(1) });
+            }
+          }
+          CACHE.put(filename, tokens);
         }
         catch (Exception e) {
-          LOGGER.debug("could not read csv: '{}'", e.getMessage());
+          LOGGER.error("could not read csv: '{}'", e.getMessage());
         }
       }
     }

@@ -25,9 +25,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -127,7 +124,7 @@ public class Person extends AbstractModelObject {
     }
     else if (ids != null) {
       for (String key : other.getIds().keySet()) {
-        ids.put(key, other.getId(key));
+        ids.putIfAbsent(key, other.getId(key));
       }
     }
   }
@@ -320,19 +317,6 @@ public class Person extends AbstractModelObject {
     firePropertyChange("profileUrl", oldValue, newValue);
   }
 
-  /**
-   * <p>
-   * Uses <code>ReflectionToStringBuilder</code> to generate a <code>toString</code> for the specified object.
-   * </p>
-   * 
-   * @return the String result
-   * @see ReflectionToStringBuilder#toString(Object)
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof Person)) {
@@ -341,8 +325,9 @@ public class Person extends AbstractModelObject {
 
     Person cast = (Person) obj;
 
-    // checks of equality (name and role is enough here)
-    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role)) {
+    // checks of equality
+    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role) && StringUtils.equals(thumbUrl, cast.thumbUrl)
+        && StringUtils.equals(profileUrl, cast.profileUrl)) {
       return true;
     }
 
@@ -351,6 +336,6 @@ public class Person extends AbstractModelObject {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(name).append(role).build();
+    return new HashCodeBuilder().append(name).append(role).append(thumbUrl).append(profileUrl).build();
   }
 }

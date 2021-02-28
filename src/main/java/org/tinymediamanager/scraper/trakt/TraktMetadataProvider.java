@@ -83,13 +83,12 @@ abstract class TraktMetadataProvider implements IMediaProvider {
 
   // thread safe initialization of the API
   protected synchronized void initAPI() throws ScrapeException {
-
-    if (!isActive()) {
-      throw new ScrapeException(new FeatureNotEnabledException(this));
-    }
-
     // create a new instance of the trakt api
     if (api == null) {
+      if (!isActive()) {
+        throw new ScrapeException(new FeatureNotEnabledException(this));
+      }
+
       try {
         api = new TraktV2(getApiKey()) {
           // tell the trakt api to use our OkHttp client
@@ -110,18 +109,16 @@ abstract class TraktMetadataProvider implements IMediaProvider {
       }
     }
 
-    if (api != null) {
-      String userApiKey = providerInfo.getConfig().getValue("apiKey");
+    String userApiKey = providerInfo.getConfig().getValue("apiKey");
 
-      // check if the API should change from current key to user key
-      if (StringUtils.isNotBlank(userApiKey)) {
-        api.apiKey(userApiKey);
-      }
+    // check if the API should change from current key to user key
+    if (StringUtils.isNotBlank(userApiKey)) {
+      api.apiKey(userApiKey);
+    }
 
-      // check if the API should change from current key to tmm key
-      if (StringUtils.isBlank(userApiKey)) {
-        api.apiKey(getApiKey());
-      }
+    // check if the API should change from current key to tmm key
+    if (StringUtils.isBlank(userApiKey)) {
+      api.apiKey(getApiKey());
     }
   }
 

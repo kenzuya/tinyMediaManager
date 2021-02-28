@@ -61,11 +61,11 @@ import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
-import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
 import org.tinymediamanager.ui.panels.RatingPanel;
@@ -80,41 +80,40 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowInformationPanel extends JPanel {
-  private static final long                  serialVersionUID      = 1911808562993073590L;
+  private static final long          serialVersionUID = 1911808562993073590L;
 
-  private static final Logger                LOGGER                = LoggerFactory.getLogger(TvShowInformationPanel.class);
+  private static final Logger        LOGGER           = LoggerFactory.getLogger(TvShowInformationPanel.class);
 
-  private final TvShowSelectionModel         tvShowSelectionModel;
-  private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
+  private final TvShowSelectionModel tvShowSelectionModel;
 
-  private JTextArea                          taGenres;
-  private JLabel                             lblCertification;
-  private LinkLabel                          lblThetvdbId;
-  private LinkLabel                          lblImdbId;
-  private LinkLabel                          lblTmdbId;
-  private LinkLabel                          lblPath;
-  private JLabel                             lblPremiered;
-  private JTextArea                          taStudio;
-  private JLabel                             lblStatus;
-  private JLabel                             lblYear;
-  private JTextArea                          taTags;
-  private JTextArea                          taOtherIds;
-  private JLabel                             lblCountry;
-  private JLabel                             lblRuntime;
-  private JTextArea                          taNote;
-  private JLabel                             lblTvShowName;
-  private ImageLabel                         lblTvShowBackground;
-  private JLabel                             lblFanartSize;
-  private ImageLabel                         lblTvShowPoster;
-  private JLabel                             lblPosterSize;
-  private ImageLabel                         lblTvShowBanner;
-  private JLabel                             lblBannerSize;
-  private JTextArea                          taOverview;
-  private MediaInformationLogosPanel         panelLogos;
-  private JLabel                             lblOriginalTitle;
-  private JScrollPane                        scrollPane;
-  private JLabel                             lblCertificationLogo;
-  private RatingPanel                        ratingPanel;
+  private JTextArea                  taGenres;
+  private JLabel                     lblCertification;
+  private LinkLabel                  lblThetvdbId;
+  private LinkLabel                  lblImdbId;
+  private LinkLabel                  lblTmdbId;
+  private LinkTextArea               lblPath;
+  private JLabel                     lblPremiered;
+  private JTextArea                  taStudio;
+  private JLabel                     lblStatus;
+  private JLabel                     lblYear;
+  private JTextArea                  taTags;
+  private JTextArea                  taOtherIds;
+  private JLabel                     lblCountry;
+  private JLabel                     lblRuntime;
+  private JTextArea                  taNote;
+  private JLabel                     lblTvShowName;
+  private ImageLabel                 lblTvShowBackground;
+  private JLabel                     lblFanartSize;
+  private ImageLabel                 lblTvShowPoster;
+  private JLabel                     lblPosterSize;
+  private ImageLabel                 lblTvShowBanner;
+  private JLabel                     lblBannerSize;
+  private JTextArea                  taOverview;
+  private MediaInformationLogosPanel panelLogos;
+  private JLabel                     lblOriginalTitle;
+  private JScrollPane                scrollPane;
+  private JLabel                     lblCertificationLogo;
+  private RatingPanel                ratingPanel;
 
   /**
    * Instantiates a new tv show information panel.
@@ -421,7 +420,7 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblPathT = new TmmLabel(TmmResourceBundle.getString("metatag.path"));
           panelBottomDetails.add(lblPathT, "cell 0 1");
 
-          lblPath = new LinkLabel("");
+          lblPath = new LinkTextArea("");
           panelBottomDetails.add(lblPath, "cell 1 1,growx,wmin 0");
         }
         {
@@ -562,8 +561,9 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding_17.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_18 = BeanProperty.create("selectedTvShow.path");
-    AutoBinding<TvShowSelectionModel, String, LinkLabel, String> autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_18, lblPath, linkLabelBeanProperty);
+    BeanProperty<LinkTextArea, String> linkTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowSelectionModel, String, LinkTextArea, String> autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_18, lblPath, linkTextAreaBeanProperty);
     autoBinding_18.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_19 = BeanProperty.create("selectedTvShow.note");

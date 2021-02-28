@@ -57,7 +57,7 @@ public class ReadOnlyTextArea extends JTextArea {
   /**
    * an empty caret
    */
-  private final class NullCaret implements Caret {
+  private static final class NullCaret implements Caret {
     @Override
     public void setVisible(boolean v) {
       // just do nothing

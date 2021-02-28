@@ -62,11 +62,11 @@ abstract class TvMazeMetadataProvider implements IMediaProvider {
 
   protected synchronized void initAPI() throws ScrapeException {
 
-    if (!isActive()) {
-      throw new ScrapeException(new FeatureNotEnabledException(this));
-    }
-
     if (controller == null) {
+      if (!isActive()) {
+        throw new ScrapeException(new FeatureNotEnabledException(this));
+      }
+
       try {
         controller = new Controller(getApiKey(), false);
       }

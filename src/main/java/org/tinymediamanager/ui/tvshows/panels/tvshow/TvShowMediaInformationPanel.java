@@ -43,7 +43,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.TmmUIHelper;
-import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.panels.MediaFilesPanel;
 import org.tinymediamanager.ui.tvshows.TvShowSelectionModel;
@@ -60,18 +60,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowMediaInformationPanel extends JPanel {
-  private static final long           serialVersionUID = 1610264727610254912L;
+  private static final long    serialVersionUID = 1610264727610254912L;
 
-  
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
+  private static final Logger  LOGGER           = LoggerFactory.getLogger(TvShowMediaInformationPanel.class);
 
-  private TvShowSelectionModel        selectionModel;
-  private EventList<MediaFile>        mediaFileEventList;
-  private MediaFilesPanel             panelMediaFiles;
+  private TvShowSelectionModel selectionModel;
+  private EventList<MediaFile> mediaFileEventList;
+  private MediaFilesPanel      panelMediaFiles;
 
-  private LinkLabel                   lblTvShowPath;
-  private JLabel                      lblDateAdded;
-  private JCheckBox                   cbWatched;
+  private LinkTextArea         lblTvShowPath;
+  private JLabel               lblDateAdded;
+  private JCheckBox            cbWatched;
 
   public TvShowMediaInformationPanel(TvShowSelectionModel model) {
     this.selectionModel = model;
@@ -134,7 +133,7 @@ public class TvShowMediaInformationPanel extends JPanel {
     add(lblTvShowPathT, "cell 0 0");
     {
 
-      lblTvShowPath = new LinkLabel("");
+      lblTvShowPath = new LinkTextArea("");
       add(lblTvShowPath, "cell 1 0 2 1,growx,wmin 0");
     }
     {
