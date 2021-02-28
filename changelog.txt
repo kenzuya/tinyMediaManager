@@ -2,6 +2,7 @@ Version 4.1.2
 =======================
 x removed unused code fot TV show ratings #1233
 x display custom rating source logo #1233
+x (movies/TV shows) saving changed data sources in settings
 
 
 Version 4.1.1
