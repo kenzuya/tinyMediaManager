@@ -130,6 +130,7 @@ public class MovieRenamer {
 
     tokenMap.put("videoCodec", "movie.mediaInfoVideoCodec");
     tokenMap.put("videoFormat", "movie.mediaInfoVideoFormat");
+    tokenMap.put("aspectRatio", "movie.mediaInfoAspectRatioAsString");
     tokenMap.put("videoResolution", "movie.mediaInfoVideoResolution");
     tokenMap.put("videoBitDepth", "movie.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "movie.mediaInfoVideoBitrate;bitrate");
@@ -145,7 +146,8 @@ public class MovieRenamer {
     tokenMap.put("subtitleLanguageList", "movie.mediaInfoSubtitleLanguageList");
     tokenMap.put("subtitleLanguagesAsString", "movie.mediaInfoSubtitleLanguageList;array");
     tokenMap.put("3Dformat", "movie.video3DFormat");
-    tokenMap.put("hdr", "movie.videoHDRFormat");
+    tokenMap.put("hdr", "movie.videoHDR");
+    tokenMap.put("hdrformat", "movie.videoHDRFormat");
     tokenMap.put("filesize", "movie.videoFilesize;filesize");
 
     tokenMap.put("mediaSource", "movie.mediaSource");
