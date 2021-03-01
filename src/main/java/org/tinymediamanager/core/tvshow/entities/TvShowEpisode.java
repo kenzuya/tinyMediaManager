@@ -666,7 +666,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (!matchFound) {
       // clear the old ids to set only the new ones
       ids.clear();
-      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -730,6 +729,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS)) {
+      removeAllTags();
       addToTags(metadata.getTags());
     }
 

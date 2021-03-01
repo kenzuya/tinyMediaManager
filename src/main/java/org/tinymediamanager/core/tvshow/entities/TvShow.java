@@ -872,7 +872,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if (!matchFound) {
       // clear the old ids to set only the new ones
       ids.clear();
-      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -956,6 +955,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
+      removeAllTags();
       addToTags(metadata.getTags());
     }
 

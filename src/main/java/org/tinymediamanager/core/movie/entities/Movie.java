@@ -734,7 +734,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (!matchFound) {
       // clear the old ids/tags to set only the new ones
       ids.clear();
-      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -841,6 +840,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS)) {
+      removeAllTags();
       addToTags(metadata.getTags());
     }
 
