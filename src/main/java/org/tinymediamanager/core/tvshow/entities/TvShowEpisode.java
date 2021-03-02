@@ -1312,11 +1312,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         saveToDb();
       }
     }
-
-    // re-write NFO since we might have new mediainfo data
-    if (mediaFile.getType() == MediaFileType.VIDEO && getHasNfoFile()) {
-      writeNFO();
-    }
   }
 
   @Override

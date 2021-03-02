@@ -4,6 +4,7 @@ x removed unused code fot TV show ratings #1233
 x display custom rating source logo #1233
 x do not delete tags on further scrapes #1233
 x (movies/TV shows) saving changed data sources in settings
+x (movies/TV shows) do not write NFO on update data sources
 
 
 Version 4.1.1
