@@ -210,6 +210,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${tags[0]}"));
     exampleEventList.add(new MovieRenamerExample("${language}"));
     exampleEventList.add(new MovieRenamerExample("${videoResolution}"));
+    exampleEventList.add(new MovieRenamerExample("${aspectRatio}"));
     exampleEventList.add(new MovieRenamerExample("${videoCodec}"));
     exampleEventList.add(new MovieRenamerExample("${videoFormat}"));
     exampleEventList.add(new MovieRenamerExample("${videoBitDepth}"));
@@ -228,6 +229,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${mediaSource}"));
     exampleEventList.add(new MovieRenamerExample("${3Dformat}"));
     exampleEventList.add(new MovieRenamerExample("${hdr}"));
+    exampleEventList.add(new MovieRenamerExample("${hdrformat}"));
     exampleEventList.add(new MovieRenamerExample("${filesize}"));
     exampleEventList.add(new MovieRenamerExample("${edition}"));
     exampleEventList.add(new MovieRenamerExample("${parent}"));
