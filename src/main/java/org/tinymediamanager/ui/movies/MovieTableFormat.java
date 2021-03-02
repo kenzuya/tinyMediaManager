@@ -334,6 +334,28 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
+     * aspect ratio (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.aspectratio"), "aspectratio", Movie::getMediaInfoAspectRatio, Float.class);
+    col.setColumnComparator(floatComparator);
+    col.setHeaderIcon(IconManager.ASPECT_RATIO);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("1.78") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
+     * HDR (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.hdr"), "hdr", movie -> getCheckIcon(movie.isVideoInHDR()), ImageIcon.class);
+    col.setColumnComparator(imageComparator);
+    col.setHeaderIcon(IconManager.HDR);
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * video codec (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.videocodec"), "videoCodec", Movie::getMediaInfoVideoCodec, String.class);
