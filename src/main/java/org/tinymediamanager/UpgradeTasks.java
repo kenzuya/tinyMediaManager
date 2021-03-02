@@ -341,6 +341,31 @@ public class UpgradeTasks {
         TvShowModuleManager.SETTINGS.setReleaseDateCountry(Locale.getDefault().getCountry());
       }
     }
+
+    if (StrgUtils.compareVersion(v, "4.1.2") < 0) {
+      // do not run the upgrade task in the git build, since it would always overwrite the values
+      if (!ReleaseInfo.isGitBuild()) {
+        {
+          String folderPattern = MovieModuleManager.SETTINGS.getRenamerPathname();
+          if (folderPattern.contains("${hdr}")) {
+            MovieModuleManager.SETTINGS.setRenamerPathname(folderPattern.replace("${hdr}", "${hdrformat}"));
+            MovieModuleManager.SETTINGS.saveSettings();
+          }
+
+          String filenamePattern = MovieModuleManager.SETTINGS.getRenamerFilename();
+          if (filenamePattern.contains("${hdr}")) {
+            MovieModuleManager.SETTINGS.setRenamerFilename(filenamePattern.replace("${hdr}", "${hdrformat}"));
+            MovieModuleManager.SETTINGS.saveSettings();
+          }
+
+          filenamePattern = TvShowModuleManager.SETTINGS.getRenamerFilename();
+          if (filenamePattern.contains("${hdr}")) {
+            TvShowModuleManager.SETTINGS.setRenamerFilename(filenamePattern.replace("${hdr}", "${hdrformat}"));
+            TvShowModuleManager.SETTINGS.saveSettings();
+          }
+        }
+      }
+    }
   }
 
   private static boolean upgradeContainerFormat(MediaFile mediaFile) {
