@@ -1,6 +1,7 @@
 Version 4.1.2
 =======================
 + new columns for HDR and aspect ratio - thx @icebaer72
++ (movies) option to only include the first studio in the NFO
 x removed unused code fot TV show ratings #1233
 x display custom rating source logo #1233
 x do not delete tags on further scrapes #1233

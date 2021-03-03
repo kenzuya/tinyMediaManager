@@ -158,6 +158,7 @@ public class MovieSettings extends AbstractSettings {
   private MediaLanguages                         nfoLanguage                            = MediaLanguages.en;
   private boolean                                createOutline                          = true;
   private boolean                                outlineFirstSentence                   = false;
+  private boolean                                nfoWriteSingleStudio                   = false;
 
   // renamer
   private boolean                                renameAfterScrape                      = false;
@@ -1388,6 +1389,16 @@ public class MovieSettings extends AbstractSettings {
     DateField oldValue = nfoDateAddedField;
     this.nfoDateAddedField = newValue;
     firePropertyChange("nfoDateAddedField", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteSingleStudio() {
+    return nfoWriteSingleStudio;
+  }
+
+  public void setNfoWriteSingleStudio(boolean newValue) {
+    boolean oldValue = nfoWriteSingleStudio;
+    nfoWriteSingleStudio = newValue;
+    firePropertyChange("nfoWriteSingleStudio", oldValue, newValue);
   }
 
   public MediaLanguages getNfoLanguage() {

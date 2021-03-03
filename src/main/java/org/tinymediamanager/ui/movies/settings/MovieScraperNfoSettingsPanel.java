@@ -30,6 +30,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.MediaCertification;
@@ -65,6 +66,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
   private JComboBox<DateField>                 cbDatefield;
   private JHintCheckBox                        chckbxCreateOutline;
   private JCheckBox                            chckbxOutlineFirstSentence;
+  private JCheckBox                            chckbxSingleStudio;
 
   private ItemListener                         checkBoxListener;
   private ItemListener                         comboBoxListener;
@@ -161,7 +163,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[]"));
     {
       JPanel panelNfo = new JPanel();
-      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][][]")); // 16lp ~ width of the
+      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblNfoT = new TmmLabel(TmmResourceBundle.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
@@ -172,7 +174,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblNfoFormat, "cell 1 0 2 1");
 
         cbNfoFormat = new JComboBox(MovieConnectors.values());
-        panelNfo.add(cbNfoFormat, "cell 1 0");
+        panelNfo.add(cbNfoFormat, "cell 1 0 2 1");
 
         {
           JPanel panelNfoFormat = new JPanel();
@@ -196,13 +198,13 @@ class MovieScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblNfoDatefield, "cell 1 4 2 1");
 
         cbDatefield = new JComboBox(DateField.values());
-        panelNfo.add(cbDatefield, "cell 1 4");
+        panelNfo.add(cbDatefield, "cell 1 4 2 1");
 
         JLabel lblNfoLanguage = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage"));
         panelNfo.add(lblNfoLanguage, "cell 1 5 2 1");
 
         cbNfoLanguage = new JComboBox(MediaLanguages.valuesSorted());
-        panelNfo.add(cbNfoLanguage, "cell 1 5");
+        panelNfo.add(cbNfoLanguage, "cell 1 5 2 1");
 
         JLabel lblNfoLanguageDesc = new JLabel(TmmResourceBundle.getString("Settings.nfolanguage.desc"));
         panelNfo.add(lblNfoLanguageDesc, "cell 2 6");
@@ -211,7 +213,7 @@ class MovieScraperNfoSettingsPanel extends JPanel {
         panelNfo.add(lblCertificationStyle, "flowx,cell 1 7 2 1");
 
         cbCertificationStyle = new JComboBox();
-        panelNfo.add(cbCertificationStyle, "cell 1 7, wmin 0");
+        panelNfo.add(cbCertificationStyle, "cell 1 7 2 1,wmin 0");
 
         chckbxCreateOutline = new JHintCheckBox(TmmResourceBundle.getString("Settings.createoutline"));
         chckbxCreateOutline.setToolTipText(TmmResourceBundle.getString("Settings.createoutline.hint"));
@@ -220,6 +222,9 @@ class MovieScraperNfoSettingsPanel extends JPanel {
 
         chckbxOutlineFirstSentence = new JCheckBox(TmmResourceBundle.getString("Settings.outlinefirstsentence"));
         panelNfo.add(chckbxOutlineFirstSentence, "cell 2 9");
+
+        chckbxSingleStudio = new JCheckBox(TmmResourceBundle.getString("Settings.singlestudio"));
+        panelNfo.add(chckbxSingleStudio, "cell 1 10 2 1");
       }
     }
   }
@@ -257,43 +262,48 @@ class MovieScraperNfoSettingsPanel extends JPanel {
   }
 
   protected void initDataBindings() {
-    BeanProperty<MovieSettings, MovieConnectors> settingsBeanProperty_11 = BeanProperty.create("movieConnector");
-    BeanProperty<JComboBox<MovieConnectors>, Object> jComboBoxBeanProperty_1 = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, MovieConnectors, JComboBox<MovieConnectors>, Object> autoBinding_9 = Bindings
-        .createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_11, cbNfoFormat, jComboBoxBeanProperty_1);
+    Property settingsBeanProperty_11 = BeanProperty.create("movieConnector");
+    Property jComboBoxBeanProperty_1 = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_9 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_11, cbNfoFormat,
+        jComboBoxBeanProperty_1);
     autoBinding_9.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty = BeanProperty.create("writeCleanNfo");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty, chckbxWriteCleanNfo, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty = BeanProperty.create("writeCleanNfo");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, chckbxWriteCleanNfo,
+        jCheckBoxBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<MovieSettings, MediaLanguages> movieSettingsBeanProperty_1 = BeanProperty.create("nfoLanguage");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, MediaLanguages, JComboBox, Object> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_1, cbNfoLanguage, jComboBoxBeanProperty);
+    Property movieSettingsBeanProperty_1 = BeanProperty.create("nfoLanguage");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, cbNfoLanguage,
+        jComboBoxBeanProperty);
     autoBinding_3.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_2 = BeanProperty.create("createOutline");
-    BeanProperty<JHintCheckBox, Boolean> jHintCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JHintCheckBox, Boolean> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_2, chckbxCreateOutline, jHintCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_2 = BeanProperty.create("createOutline");
+    Property jHintCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_2, chckbxCreateOutline,
+        jHintCheckBoxBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty_3 = BeanProperty.create("outlineFirstSentence");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_3, chckbxOutlineFirstSentence, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty_3 = BeanProperty.create("outlineFirstSentence");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_3,
+        chckbxOutlineFirstSentence, jCheckBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty_1 = BeanProperty.create("enabled");
-    AutoBinding<JHintCheckBox, Boolean, JCheckBox, Boolean> autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxCreateOutline,
-        jHintCheckBoxBeanProperty, chckbxOutlineFirstSentence, jCheckBoxBeanProperty_1);
+    Property jCheckBoxBeanProperty_1 = BeanProperty.create("enabled");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ, chckbxCreateOutline, jHintCheckBoxBeanProperty,
+        chckbxOutlineFirstSentence, jCheckBoxBeanProperty_1);
     autoBinding_4.bind();
     //
-    BeanProperty<MovieSettings, DateField> movieSettingsBeanProperty_4 = BeanProperty.create("nfoDateAddedField");
-    AutoBinding<MovieSettings, DateField, JComboBox, Object> autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty_4, cbDatefield, jComboBoxBeanProperty);
+    Property movieSettingsBeanProperty_4 = BeanProperty.create("nfoDateAddedField");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_4, cbDatefield,
+        jComboBoxBeanProperty);
     autoBinding_5.bind();
+    //
+    Property movieSettingsBeanProperty_5 = BeanProperty.create("nfoWriteSingleStudio");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_5, chckbxSingleStudio,
+        jCheckBoxBeanProperty);
+    autoBinding_6.bind();
   }
 }
