@@ -216,6 +216,7 @@ public class TmdbMovieMetadataProvider extends TmdbMetadataProvider
         } while (page <= maxPage);
 
         LOGGER.debug("found {} results with search string", results.size());
+
       }
       catch (Exception e) {
         LOGGER.warn("problem getting data from tmdb: {}", e.getMessage());

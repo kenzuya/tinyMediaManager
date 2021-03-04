@@ -70,7 +70,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
   }
 
   @Override
-  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(TvShowSearchAndScrapeOptions options) throws ScrapeException {
     LOGGER.debug("getMetadata() - TvShow: {}", options.getSearchQuery());
 
     initAPI();
@@ -88,7 +88,7 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     try {
       result = controller.getScrapeDataById(imdbId, "series", true);
     }
-    catch (IOException e) {
+    catch (Exception e) {
       LOGGER.error("error searching: {}", e.getMessage());
       throw new ScrapeException(e);
     }

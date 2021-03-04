@@ -27,6 +27,7 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -148,6 +149,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
   private JTextArea                                                      taMovieDescription;
   private ImageLabel                                                     lblMoviePoster;
   private JLabel                                                         lblProgressAction;
+  private JLabel                                                         lblError;
   private JProgressBar                                                   progressBar;
   private JLabel                                                         lblTagline;
   private JButton                                                        okButton;
@@ -332,13 +334,18 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     {
       {
         JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new MigLayout("", "[][grow]", "[]"));
+        infoPanel.setLayout(new MigLayout("hidemode 3", "[][grow]", "[]"));
 
         progressBar = new JProgressBar();
         infoPanel.add(progressBar, "cell 0 0");
 
         lblProgressAction = new JLabel("");
         infoPanel.add(lblProgressAction, "cell 1 0");
+
+        lblError = new JLabel("");
+        TmmFontHelper.changeFont(lblError, Font.BOLD);
+        lblError.setForeground(Color.RED);
+        infoPanel.add(lblError, "cell 1 0");
 
         setBottomInformationPanel(infoPanel);
       }
@@ -690,6 +697,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
       lblProgressAction.setText(description);
       progressBar.setVisible(true);
       progressBar.setIndeterminate(true);
+      lblError.setText("");
     });
   }
 
@@ -740,6 +748,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     private final MediaLanguages    language;
 
     private List<MediaSearchResult> searchResult;
+    private Throwable               error  = null;
     boolean                         cancel = false;
 
     private SearchTask(String searchTerm, Movie movie, boolean withIds) {
@@ -752,7 +761,12 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     @Override
     public Void doInBackground() {
       startProgressBar(TmmResourceBundle.getString("chooser.searchingfor") + " " + searchTerm);
-      searchResult = movieList.searchMovie(searchTerm, movie.getYear(), withIds ? movie.getIds() : null, mediaScraper, language);
+      try {
+        searchResult = movieList.searchMovie(searchTerm, movie.getYear(), withIds ? movie.getIds() : null, mediaScraper, language);
+      }
+      catch (Exception e) {
+        error = e;
+      }
       return null;
     }
 
@@ -762,8 +776,15 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public void done() {
-      if (!cancel) {
-        searchResultEventList.clear();
+      stopProgressBar();
+      searchResultEventList.clear();
+
+      if (error != null) {
+        // display empty result
+        searchResultEventList.add(MovieChooserModel.emptyResult);
+        SwingUtilities.invokeLater(() -> lblError.setText(error.getMessage()));
+      }
+      else if (!cancel) {
         if (searchResult == null || searchResult.isEmpty()) {
           // display empty result
           searchResultEventList.add(MovieChooserModel.emptyResult);
@@ -782,11 +803,11 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
             // get metadataProvider from searchresult
           }
         }
-        if (!searchResultEventList.isEmpty()) { // only one result
-          tableSearchResults.setRowSelectionInterval(0, 0); // select first row
-        }
       }
-      stopProgressBar();
+
+      if (!searchResultEventList.isEmpty()) { // only one result
+        tableSearchResults.setRowSelectionInterval(0, 0); // select first row
+      }
     }
   }
 

@@ -353,7 +353,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     if (tvdbId != 0) {
       LOGGER.debug("found TvDb ID {} - getting direct", tvdbId);
       try {
-
         // check with submitted language
         Response<SeriesResponse> httpResponse = tvdb.series().series(tvdbId, language).execute();
         if (!httpResponse.isSuccessful()) {
@@ -365,6 +364,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       }
       catch (Exception e) {
         LOGGER.error("problem getting data vom tvdb via ID: {}", e.getMessage());
+        throw new ScrapeException(e);
       }
     }
 
@@ -396,6 +396,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       }
       catch (Exception e) {
         LOGGER.error("problem getting data vom tvdb: {}", e.getMessage());
+        throw new ScrapeException(e);
       }
     }
 
