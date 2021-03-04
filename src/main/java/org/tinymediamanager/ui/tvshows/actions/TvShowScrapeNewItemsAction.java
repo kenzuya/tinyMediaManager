@@ -31,7 +31,6 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowList;
-import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
@@ -109,39 +108,30 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
     for (Map.Entry<TvShow, List<TvShowEpisode>> entry : newEpisodes.entrySet()) {
       TvShow tvShow = entry.getKey();
 
-      // so for the known ones, we can directly start scraping
+      TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog
+          .createEpisodeScrapeDialog(TmmResourceBundle.getString("tvshowepisode.scrape") + " - \"" + tvShow.getTitle() + "\"");
+
+      // so for the known ones, we pre-set the values
       if (StringUtils.isNoneBlank(tvShow.getLastScraperId(), tvShow.getLastScrapeLanguage())) {
-        // automatically scrape
-        TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
-        options.loadDefaults();
-        options.setMetadataScraper(MediaScraper.getMediaScraperById(tvShow.getLastScraperId(), ScraperType.TV_SHOW));
-        options.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
-
-        List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.SETTINGS.getEpisodeScraperMetadataConfig();
-
-        TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
+        dialog.setMetadataScraper(MediaScraper.getMediaScraperById(tvShow.getLastScraperId(), ScraperType.TV_SHOW));
+        dialog.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
       }
-      else {
-        // otherwise we need to show the dialog
-        TvShowScrapeMetadataDialog dialog = TvShowScrapeMetadataDialog
-            .createEpisodeScrapeDialog(TmmResourceBundle.getString("tvshowepisode.scrape") + " - \"" + tvShow.getTitle() + "\"");
-        dialog.setLocationRelativeTo(MainWindow.getInstance());
-        dialog.setVisible(true);
 
-        // do we want to scrape?
-        if (!dialog.shouldStartScrape()) {
-          return;
-        }
+      dialog.setLocationRelativeTo(MainWindow.getInstance());
+      dialog.setVisible(true);
 
-        // get options from dialog
-        TvShowEpisodeSearchAndScrapeOptions options = dialog.getTvShowEpisodeSearchAndScrapeOptions();
-        List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
-
-        // scrape
-        TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig);
-        TmmTaskManager.getInstance().addUnnamedTask(task);
+      // do we want to scrape?
+      if (!dialog.shouldStartScrape()) {
+        continue;
       }
+
+      // get options from dialog
+      TvShowEpisodeSearchAndScrapeOptions options = dialog.getTvShowEpisodeSearchAndScrapeOptions();
+      List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
+
+      // scrape
+      TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig);
+      TmmTaskManager.getInstance().addUnnamedTask(task);
     }
   }
 }

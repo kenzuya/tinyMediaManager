@@ -2016,7 +2016,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @Override
   public boolean isScraped() {
     if (!scraped) {
-      if (!plot.isEmpty() && !(year == 0) && !(genres == null || genres.isEmpty()) && !(actors == null || actors.isEmpty())) {
+      if (StringUtils.isNotBlank(plot) && year > 0 && ListUtils.isNotEmpty(genres) && ListUtils.isNotEmpty(actors)) {
         return true;
       }
     }
