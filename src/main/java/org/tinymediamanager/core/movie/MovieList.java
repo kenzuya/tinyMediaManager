@@ -50,7 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -564,9 +563,12 @@ public class MovieList extends AbstractModelObject {
    *          a map of all available ids of the movie or null if no id based search is requested
    * @param metadataScraper
    *          the media scraper
+   * @throws ScrapeException
+   *           any {@link ScrapeException} occurred while searching
    * @return the list
    */
-  public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper metadataScraper) {
+  public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper metadataScraper)
+      throws ScrapeException {
     return searchMovie(searchTerm, year, ids, metadataScraper, movieSettings.getScraperLanguage());
   }
 
@@ -583,82 +585,71 @@ public class MovieList extends AbstractModelObject {
    *          the media scraper
    * @param language
    *          the language to search with
+   * @throws ScrapeException
+   *           any {@link ScrapeException} occurred while searching
    * @return the list
    */
-  public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper,
-      MediaLanguages language) {
+  public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper, MediaLanguages language)
+      throws ScrapeException {
 
     if (mediaScraper == null || !mediaScraper.isEnabled()) {
       return Collections.emptyList();
     }
 
     Set<MediaSearchResult> sr = new TreeSet<>();
-    try {
-      IMovieMetadataProvider provider = (IMovieMetadataProvider) mediaScraper.getMediaProvider();
+    IMovieMetadataProvider provider = (IMovieMetadataProvider) mediaScraper.getMediaProvider();
 
-      // set what we have, so the provider could chose from all :)
-      MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
-      options.setLanguage(language);
-      options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-      options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
-      options.setMetadataScraper(mediaScraper);
+    // set what we have, so the provider could chose from all :)
+    MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
+    options.setLanguage(language);
+    options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+    options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+    options.setMetadataScraper(mediaScraper);
 
-      if (ids != null) {
-        options.setIds(ids);
-      }
-
-      if (!searchTerm.isEmpty()) {
-        if (MetadataUtil.isValidImdbId(searchTerm)) {
-          options.setImdbId(searchTerm);
-        }
-        options.setSearchQuery(searchTerm);
-      }
-
-      if (year > 0) {
-        options.setSearchYear(year);
-      }
-
-      LOGGER.info("=====================================================");
-      LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
-      LOGGER.info("options: {}", options);
-      LOGGER.info("=====================================================");
-      sr.addAll(provider.search(options));
-      // if result is empty, try all scrapers
-      if (sr.isEmpty() && movieSettings.isScraperFallback()) {
-        for (MediaScraper ms : getAvailableMediaScrapers()) {
-          if (provider.getProviderInfo().equals(ms.getMediaProvider().getProviderInfo())
-              || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi") || !ms.getMediaProvider().isActive()) {
-            continue;
-          }
-          LOGGER.info("no result yet - trying alternate scraper: {}", ms.getName());
-          try {
-            LOGGER.info("=====================================================");
-            LOGGER.info("Searching with alternate scraper: '{}', '{}'", ms.getMediaProvider().getId(), provider.getProviderInfo().getVersion());
-            LOGGER.info("options: {}", options);
-            LOGGER.info("=====================================================");
-            sr.addAll(((IMovieMetadataProvider) ms.getMediaProvider()).search(options));
-          }
-          catch (ScrapeException e) {
-            LOGGER.error("searchMovieFallback", e);
-            MessageManager.instance
-                .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
-          }
-
-          if (!sr.isEmpty()) {
-            break;
-          }
-        }
-      }
+    if (ids != null) {
+      options.setIds(ids);
     }
-    catch (ScrapeException e) {
-      if (e.getCause() instanceof FeatureNotEnabledException) {
-        LOGGER.info("this feature is not enabled - '{}'", e.getMessage());
-        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, this, "message.profeature", new String[] { e.getMessage() }));
+
+    if (!searchTerm.isEmpty()) {
+      if (MetadataUtil.isValidImdbId(searchTerm)) {
+        options.setImdbId(searchTerm);
       }
-      else {
-        LOGGER.error("searchMovie", e);
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, this, "message.movie.searcherror", new String[] { ":", e.getLocalizedMessage() }));
+      options.setSearchQuery(searchTerm);
+    }
+
+    if (year > 0) {
+      options.setSearchYear(year);
+    }
+
+    LOGGER.info("=====================================================");
+    LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
+    LOGGER.info("options: {}", options);
+    LOGGER.info("=====================================================");
+    sr.addAll(provider.search(options));
+
+    // if result is empty, try all scrapers
+    if (sr.isEmpty() && movieSettings.isScraperFallback()) {
+      for (MediaScraper ms : getAvailableMediaScrapers()) {
+        if (provider.getProviderInfo().equals(ms.getMediaProvider().getProviderInfo())
+            || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi") || !ms.getMediaProvider().isActive()) {
+          continue;
+        }
+        LOGGER.info("no result yet - trying alternate scraper: {}", ms.getName());
+        try {
+          LOGGER.info("=====================================================");
+          LOGGER.info("Searching with alternate scraper: '{}', '{}'", ms.getMediaProvider().getId(), provider.getProviderInfo().getVersion());
+          LOGGER.info("options: {}", options);
+          LOGGER.info("=====================================================");
+          sr.addAll(((IMovieMetadataProvider) ms.getMediaProvider()).search(options));
+        }
+        catch (ScrapeException e) {
+          LOGGER.error("searchMovieFallback", e);
+          // just swallow those errors here
+        }
+
+        if (!sr.isEmpty()) {
+          break;
+        }
       }
     }
 

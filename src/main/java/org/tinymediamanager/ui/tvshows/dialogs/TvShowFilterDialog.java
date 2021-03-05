@@ -154,6 +154,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowTagFilter(), panelMain);
         addFilter(new TvShowEmptyFilter(), panelMain);
         addFilter(new TvShowUncategorizedEpisodesFilter(), panelMain);
+        addFilter(new TvShowMissingEpisodesFilter(), panelMain);
         addFilter(new TvShowNoteFilter(),panelMain);
       }
 
@@ -184,7 +185,6 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowMissingMetadataFilter(), panelMediaData);
         addFilter(new TvShowMissingArtworkFilter(), panelMediaData);
         addFilter(new TvShowMissingSubtitlesFilter(), panelMediaData);
-        addFilter(new TvShowMissingEpisodesFilter(), panelMediaData);
         addFilter(new TvShowHDRFormatFilter(), panelMediaData);
       }
 

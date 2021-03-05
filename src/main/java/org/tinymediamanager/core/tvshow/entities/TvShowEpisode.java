@@ -50,8 +50,20 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.io.FilenameUtils;
@@ -657,7 +669,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     if (!matchFound) {
       // clear the old ids to set only the new ones
       ids.clear();
-      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -721,6 +732,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS)) {
+      removeAllTags();
       addToTags(metadata.getTags());
     }
 
@@ -746,6 +758,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         writeNewThumb = true;
       }
     }
+
+    // set scraped
+    setScraped(true);
 
     // update DB
     writeNFO();
@@ -1312,11 +1327,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
         saveToDb();
       }
     }
-
-    // re-write NFO since we might have new mediainfo data
-    if (mediaFile.getType() == MediaFileType.VIDEO && getHasNfoFile()) {
-      writeNFO();
-    }
   }
 
   @Override
@@ -1362,8 +1372,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   @Override
   public boolean isScraped() {
-    if (!scraped && !plot.isEmpty() && firstAired != null && getSeason() > -1 && getEpisode() > -1) {
-      return true;
+    if (!scraped) {
+      if (StringUtils.isNotBlank(plot) && firstAired != null && getSeason() > -1 && getEpisode() > -1) {
+        return true;
+      }
     }
     return scraped;
   }

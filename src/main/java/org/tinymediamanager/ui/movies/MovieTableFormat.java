@@ -197,7 +197,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.USER_RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("9.9") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -210,7 +210,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.IMDB);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("9.9") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -218,25 +218,25 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      * rotten tomatoes rating
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Rotten Tomatoes", "rottenTomatoes",
-        movie -> getRating(movie.getRating("tomatometerallcritics")), Float.class);
+        movie -> getRatingInteger(movie.getRating("tomatometerallcritics")), Integer.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.ROTTEN_TOMATOES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
     /*
      * metascore rating
      */
-    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Metascore", "metacritic", movie -> getRating(movie.getRating("metacritic")),
-        Float.class);
+    col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Metascore", "metacritic",
+        movie -> getRatingInteger(movie.getRating("metacritic")), Integer.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.METASCORE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -249,7 +249,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.TMDB);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("9.9") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -505,6 +505,13 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
       return null;
     }
     return rating.getRating();
+  }
+
+  private Integer getRatingInteger(MediaRating rating) {
+    if (rating == MediaMetadata.EMPTY_RATING) {
+      return null;
+    }
+    return Math.round(rating.getRating());
   }
 
   private <E> Function<E, String> showTooltip(Function<E, String> tooltipFunction) {

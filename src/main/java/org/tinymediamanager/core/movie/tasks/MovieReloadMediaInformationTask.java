@@ -36,10 +36,9 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  * @author Manuel Laggner
  */
 public class MovieReloadMediaInformationTask extends TmmThreadPool {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(MovieReloadMediaInformationTask.class);
-  
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieReloadMediaInformationTask.class);
 
-  private List<Movie>                 moviesToReload;
+  private List<Movie>         moviesToReload;
 
   public MovieReloadMediaInformationTask(List<Movie> movies) {
     super(TmmResourceBundle.getString("movie.updatemediainfo"));
@@ -60,7 +59,14 @@ public class MovieReloadMediaInformationTask extends TmmThreadPool {
           break;
         }
         for (MediaFile mf : m.getMediaFiles()) {
-          submitTask(new MediaFileInformationFetcherTask(mf, m, true));
+          submitTask(new MediaFileInformationFetcherTask(mf, m, true) {
+            @Override
+            public void callbackForGatheredMediainformation() {
+              super.callbackForGatheredMediainformation();
+              // rewrite NFO to include mediainfo data
+              m.writeNFO();
+            }
+          });
         }
       }
 

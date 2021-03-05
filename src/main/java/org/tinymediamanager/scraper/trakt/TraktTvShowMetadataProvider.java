@@ -96,22 +96,20 @@ public class TraktTvShowMetadataProvider extends TraktMetadataProvider implement
     List<SearchResult> searchResults = null;
 
     // pass NO language here since trakt.tv returns less results when passing a language :(
-
-    synchronized (api) {
-      try {
-        Response<List<SearchResult>> response = api.search()
-            .textQueryShow(searchString, null, null, null, null, null, null, null, null, null, Extended.FULL, 1, 25).execute();
-        if (!response.isSuccessful()) {
-          LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
-          throw new HttpException(response.code(), response.message());
-        }
-        searchResults = response.body();
-
+    try {
+      Response<List<SearchResult>> response = api.search()
+          .textQueryShow(searchString, null, null, null, null, null, null, null, null, null, Extended.FULL, 1, 25)
+          .execute();
+      if (!response.isSuccessful()) {
+        LOGGER.warn("request was NOT successful: HTTP/{} - {}", response.code(), response.message());
+        throw new HttpException(response.code(), response.message());
       }
-      catch (Exception e) {
-        LOGGER.debug("failed to search: {}", e.getMessage());
-        throw new ScrapeException(e);
-      }
+      searchResults = response.body();
+
+    }
+    catch (Exception e) {
+      LOGGER.debug("failed to search: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
 
     if (searchResults == null || searchResults.isEmpty()) {

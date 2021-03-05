@@ -48,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
@@ -653,9 +652,12 @@ public class TvShowList extends AbstractModelObject {
    *          a map of all available ids of the TV show or null if no id based search is requested
    * @param mediaScraper
    *          the media scraper
+   * @throws ScrapeException
+   *           any {@link ScrapeException} occurred while searching
    * @return the list
    */
-  public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper) {
+  public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper)
+      throws ScrapeException {
     return searchTvShow(searchTerm, year, ids, mediaScraper, TvShowModuleManager.SETTINGS.getScraperLanguage());
   }
 
@@ -672,73 +674,46 @@ public class TvShowList extends AbstractModelObject {
    *          the media scraper
    * @param language
    *          the language to search with
+   * @throws ScrapeException
+   *           any {@link ScrapeException} occurred while searching
    * @return the list
    */
   public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper,
-      MediaLanguages language) {
+      MediaLanguages language) throws ScrapeException {
 
     if (mediaScraper == null || !mediaScraper.isEnabled()) {
       return Collections.emptyList();
     }
 
     Set<MediaSearchResult> results = new TreeSet<>();
-    try {
-      ITvShowMetadataProvider provider = (ITvShowMetadataProvider) mediaScraper.getMediaProvider();
+    ITvShowMetadataProvider provider = (ITvShowMetadataProvider) mediaScraper.getMediaProvider();
 
-      TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+    TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
+    options.setSearchQuery(searchTerm);
+    options.setLanguage(language);
+    options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
+    options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+
+    if (ids != null) {
+      options.setIds(ids);
+    }
+
+    if (!searchTerm.isEmpty()) {
+      if (MetadataUtil.isValidImdbId(searchTerm)) {
+        options.setImdbId(searchTerm);
+      }
       options.setSearchQuery(searchTerm);
-      options.setLanguage(language);
-      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
-
-      if (ids != null) {
-        options.setIds(ids);
-      }
-
-      if (!searchTerm.isEmpty()) {
-        if (MetadataUtil.isValidImdbId(searchTerm)) {
-          options.setImdbId(searchTerm);
-        }
-        options.setSearchQuery(searchTerm);
-      }
-
-      if (year > 0) {
-        options.setSearchYear(year);
-      }
-
-      LOGGER.info("=====================================================");
-      LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
-      LOGGER.info("options: {}", options);
-      LOGGER.info("=====================================================");
-      results.addAll(provider.search(options));
-
-      // if result is empty, try all scrapers
-      // FIXME only needed if we have more "true" scrapers
-      // if (searchResult.isEmpty()) {
-      // LOGGER.debug("no result yet - trying alternate scrapers");
-      // for (TvShowScrapers ts : TvShowScrapers.values()) {
-      // ITvShowMetadataProvider provider2 = getMetadataProvider(ts);
-      // if (provider.getProviderInfo().equals(provider2.getProviderInfo())) {
-      // continue;
-      // }
-      // searchResult = provider2.search(options);
-      // if (!searchResult.isEmpty()) {
-      // break;
-      // }
-      // }
-      // }
     }
-    catch (ScrapeException e) {
-      if (e.getCause() instanceof FeatureNotEnabledException) {
-        LOGGER.info("this feature is not enabled - '{}'", e.getMessage());
-        MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, this, "message.profeature", new String[] { e.getMessage() }));
-      }
-      else {
-        LOGGER.error("searchTvShow", e);
-        MessageManager.instance
-            .pushMessage(new Message(MessageLevel.ERROR, this, "message.tvshow.searcherror", new String[] { ":", e.getLocalizedMessage() }));
-      }
+
+    if (year > 0) {
+      options.setSearchYear(year);
     }
+
+    LOGGER.info("=====================================================");
+    LOGGER.info("Searching with scraper: {}", provider.getProviderInfo().getId());
+    LOGGER.info("options: {}", options);
+    LOGGER.info("=====================================================");
+    results.addAll(provider.search(options));
 
     return new ArrayList<>(results);
   }

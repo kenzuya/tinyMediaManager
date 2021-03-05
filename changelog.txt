@@ -1,5 +1,16 @@
 Version 4.1.2
 =======================
++ new columns for HDR and aspect ratio - thx @icebaer72
++ (movies) option to only include the first studio in the NFO
+x removed unused code fot TV show ratings #1233
+x display custom rating source logo #1233
+x do not delete tags on further scrapes #1233
+x (movies/TV shows) saving changed data sources in settings
+x (movies/TV shows) do not write NFO on update data sources
+x (TV shows) do not strip out TV show title from inside the episode title
+x changed renamer token ${hdr} to ${hdrformat}
+x better propagation of API errors to the UI #1237
+x (TV shows) reworked scrape new items
 
 
 Version 4.1.1

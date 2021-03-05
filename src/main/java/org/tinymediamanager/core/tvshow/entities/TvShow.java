@@ -872,7 +872,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if (!matchFound) {
       // clear the old ids to set only the new ones
       ids.clear();
-      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -956,6 +955,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
+      removeAllTags();
       addToTags(metadata.getTags());
     }
 
@@ -2016,7 +2016,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @Override
   public boolean isScraped() {
     if (!scraped) {
-      if (!plot.isEmpty() && !(year == 0) && !(genres == null || genres.isEmpty()) && !(actors == null || actors.isEmpty())) {
+      if (StringUtils.isNotBlank(plot) && year > 0 && ListUtils.isNotEmpty(genres) && ListUtils.isNotEmpty(actors)) {
         return true;
       }
     }

@@ -229,6 +229,14 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     }
   }
 
+  public void setMetadataScraper(MediaScraper metadataScraper) {
+    cbMetadataScraper.setSelectedItem(metadataScraper);
+  }
+
+  public void setLanguage(MediaLanguages language) {
+    cbLanguage.setSelectedItem(language);
+  }
+
   /**
    * Pass the tv show search and scrape config to the caller.
    * 

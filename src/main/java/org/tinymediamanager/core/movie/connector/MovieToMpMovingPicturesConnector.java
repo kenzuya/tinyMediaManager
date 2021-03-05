@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -91,7 +92,15 @@ public class MovieToMpMovingPicturesConnector extends MovieGenericXmlConnector {
     Element studio = document.createElement("studio");
 
     List<String> studios = ParserUtils.split(movie.getProductionCompany());
-    studio.setTextContent(StringUtils.join(studios, ", "));
+    // if we just want to write one studio, we have to strip that out
+    if (MovieSettings.getInstance().isNfoWriteSingleStudio()) {
+      if (!studios.isEmpty()) {
+        studio.setTextContent(studios.get(0));
+      }
+    }
+    else {
+      studio.setTextContent(StringUtils.join(studios, ", "));
+    }
 
     root.appendChild(studio);
   }

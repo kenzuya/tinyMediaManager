@@ -78,7 +78,6 @@ public class TvShowEpisodeAndSeasonParser {
     if (tvShowName != null && !tvShowName.isEmpty()) {
       // remove string like tvshow name (440, 24, ...)
       basename = basename.replaceAll("(?i)^" + Pattern.quote(tvShowName) + "", "");
-      basename = basename.replaceAll("(?i) " + Pattern.quote(tvShowName) + " ", "");
     }
     basename = basename.replaceFirst("\\.\\w{1,4}$", ""); // remove extension if 1-4 chars
     basename = basename.replaceFirst("[\\(\\[]\\d{4}[\\)\\]]", ""); // remove (xxxx) or [xxxx] as year

@@ -223,7 +223,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     try {
       searchResult = controller.getTvShowSearchResults(options.getSearchQuery());
     }
-    catch (IOException e) {
+    catch (Exception e) {
       LOGGER.error("error searching: {}", e.getMessage());
       throw new ScrapeException(e);
     }

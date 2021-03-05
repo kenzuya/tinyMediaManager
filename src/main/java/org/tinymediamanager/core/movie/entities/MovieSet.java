@@ -46,6 +46,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -604,6 +605,13 @@ public class MovieSet extends MediaEntity {
     @Override
     public void rename() {
       // do nothing here
+    }
+
+    @Override
+    public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config) {
+      // do not set movie set assignment since that could create new movie sets in the DB
+      config.remove(MovieScraperMetadataConfig.COLLECTION);
+      super.setMetadata(metadata, config);
     }
 
     @Override

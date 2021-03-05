@@ -17,7 +17,6 @@ package org.tinymediamanager.scraper.theshowdb;
 
 import static org.tinymediamanager.core.TmmDateFormat.LOGGER;
 
-import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +76,7 @@ public class TheShowDBTvShowMetadataProvider extends TheShowDBProvider implement
       // do not swallow these Exceptions
       Thread.currentThread().interrupt();
     }
-    catch (IOException e) {
+    catch (Exception e) {
       LOGGER.error("error searching: {}", e.getMessage());
       throw new ScrapeException(e);
     }

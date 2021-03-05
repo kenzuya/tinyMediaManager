@@ -234,7 +234,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
             // mix in the dummy movie
             MovieSet.MovieSetMovie movieSetMovie = new MovieSet.MovieSetMovie();
-            movieSetMovie.setMetadata(item, Arrays.asList(MovieScraperMetadataConfig.values()));
+            movieSetMovie.setMetadata(item, new ArrayList<>(Arrays.asList(MovieScraperMetadataConfig.values())));
             movieSetMovie.setLastScraperId(scraper.getMediaProvider().getId());
             movieSetMovie.setLastScrapeLanguage(options.getLanguage().name());
 

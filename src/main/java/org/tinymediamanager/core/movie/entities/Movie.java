@@ -733,7 +733,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (!matchFound) {
       // clear the old ids/tags to set only the new ones
       ids.clear();
-      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -840,6 +839,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS)) {
+      removeAllTags();
       addToTags(metadata.getTags());
     }
 
@@ -2604,11 +2604,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (mediaFile.getType() == MediaFileType.TRAILER) {
       // re-write the trailer list
       mixinLocalTrailers();
-    }
-
-    // re-write NFO since we might have new mediainfo data (only if there is no existing NFO yet)
-    if (mediaFile.getType() == MediaFileType.VIDEO && getHasNfoFile()) {
-      writeNFO();
     }
   }
 

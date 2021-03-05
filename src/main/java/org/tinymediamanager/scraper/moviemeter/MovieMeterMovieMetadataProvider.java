@@ -255,7 +255,6 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
 
     String imdb = options.getImdbId();
     String searchString = options.getSearchQuery();
-    int myear = options.getSearchYear();
 
     if (StringUtils.isBlank(searchString) && !MetadataUtil.isValidImdbId(imdb)) {
       LOGGER.debug("cannot search without a search string");
