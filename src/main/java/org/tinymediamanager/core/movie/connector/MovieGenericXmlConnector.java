@@ -49,6 +49,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -599,11 +600,16 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    * add studios in <studio>xxx</studio> tags (multiple)
    */
   protected void addStudios() {
-    String[] studios = movie.getProductionCompany().split("\\s*[,\\/]\\s*"); // split on , or / and remove whitespace around
+    List<String> studios = ParserUtils.split(movie.getProductionCompany());
     for (String s : studios) {
       Element studio = document.createElement("studio");
       studio.setTextContent(s);
       root.appendChild(studio);
+
+      // break here if we just want to write one studio
+      if (MovieSettings.getInstance().isNfoWriteSingleStudio()) {
+        break;
+      }
     }
   }
 

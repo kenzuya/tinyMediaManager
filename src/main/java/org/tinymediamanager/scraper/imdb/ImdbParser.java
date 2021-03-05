@@ -296,16 +296,6 @@ public abstract class ImdbParser {
     getLogger().debug("search(): {}", options);
     SortedSet<MediaSearchResult> result = new TreeSet<>();
 
-    // API key check
-    String apiKey;
-
-    try {
-      apiKey = metadataProvider.getApiKey();
-    }
-    catch (Exception e) {
-      throw new ScrapeException(e);
-    }
-
     /*
      * IMDb matches seem to come in several "flavours".
      *

@@ -186,6 +186,8 @@ public class IconManager {
   public static final ImageIcon              VIDEO_CODEC                  = createTableHeaderIcon("file-video-o.svg");
   public static final ImageIcon              VOTES                        = createTableHeaderIcon("thumbs-up.svg");
   public static final ImageIcon              WATCHED                      = createTableHeaderIcon("play.svg");
+  public static final ImageIcon              ASPECT_RATIO                 = createTableHeaderIcon("ruler-combined-solid.svg");
+  public static final ImageIcon              HDR                          = createTableHeaderIcon("delicious-brands.svg");
 
   // sort icons for glazedlists
   public static final ImageIcon              SORT_UP_PRIMARY              = createSVGIcon("chevron-up.svg", 0.833);

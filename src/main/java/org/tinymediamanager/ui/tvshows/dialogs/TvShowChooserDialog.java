@@ -27,6 +27,7 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -144,6 +145,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   private JTextArea                                                              taOverview;
   private ImageLabel                                                             lblTvShowPoster;
   private JLabel                                                                 lblProgressAction;
+  private JLabel                                                                 lblError;
   private JProgressBar                                                           progressBar;
   private JButton                                                                okButton;
   private JLabel                                                                 lblPath;
@@ -332,13 +334,18 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     {
       {
         JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new MigLayout("", "[][grow]", "[]"));
+        infoPanel.setLayout(new MigLayout("hidemode 3", "[][grow]", "[]"));
 
         progressBar = new JProgressBar();
         infoPanel.add(progressBar, "cell 0 0");
 
         lblProgressAction = new JLabel("");
         infoPanel.add(lblProgressAction, "cell 1 0");
+
+        lblError = new JLabel("");
+        TmmFontHelper.changeFont(lblError, Font.BOLD);
+        lblError.setForeground(Color.RED);
+        infoPanel.add(lblError, "cell 1 0");
 
         setBottomInformationPanel(infoPanel);
       }
@@ -704,6 +711,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       lblProgressAction.setText(description);
       progressBar.setVisible(true);
       progressBar.setIndeterminate(true);
+      lblError.setText("");
     });
   }
 
@@ -716,12 +724,13 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   }
 
   private class SearchTask extends SwingWorker<Void, Void> {
-    private String                  searchTerm;
-    private TvShow                  show;
-    private boolean                 withIds;
-    private MediaLanguages          language;
+    private final String            searchTerm;
+    private final TvShow            show;
+    private final boolean           withIds;
+    private final MediaLanguages    language;
 
-    private List<MediaSearchResult> searchResult = null;
+    private List<MediaSearchResult> searchResult;
+    private Throwable               error  = null;
     boolean                         cancel       = false;
 
     private SearchTask(String searchTerm, TvShow show, boolean withIds) {
@@ -734,7 +743,12 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     @Override
     public Void doInBackground() {
       startProgressBar(TmmResourceBundle.getString("chooser.searchingfor") + " " + searchTerm);
-      searchResult = tvShowList.searchTvShow(searchTerm, show.getYear(), withIds ? show.getIds() : null, mediaScraper, language);
+      try {
+        searchResult = tvShowList.searchTvShow(searchTerm, show.getYear(), withIds ? show.getIds() : null, mediaScraper, language);
+      }
+      catch (Exception e) {
+        error = e;
+      }
       return null;
     }
 
@@ -744,8 +758,15 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public void done() {
-      if (!cancel) {
-        searchResultEventList.clear();
+      stopProgressBar();
+      searchResultEventList.clear();
+
+      if (error != null) {
+        // display empty result
+        searchResultEventList.add(TvShowChooserModel.emptyResult);
+        SwingUtilities.invokeLater(() -> lblError.setText(error.getMessage()));
+      }
+      else if (!cancel) {
         if (ListUtils.isEmpty(searchResult)) {
           // display empty result
           searchResultEventList.add(TvShowChooserModel.emptyResult);
@@ -759,17 +780,16 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
             searchResultEventList.add(new TvShowChooserModel(mpFromResult, artworkScrapers, trailerScrapers, result, language));
           }
         }
-
-        if (!searchResultEventList.isEmpty()) {
-          tableSearchResults.setRowSelectionInterval(0, 0); // select first row
-        }
       }
-      stopProgressBar();
+
+      if (!searchResultEventList.isEmpty()) {
+        tableSearchResults.setRowSelectionInterval(0, 0); // select first row
+      }
     }
   }
 
   private class ScrapeTask extends SwingWorker<Void, Void> {
-    private TvShowChooserModel model;
+    private final TvShowChooserModel model;
 
     private ScrapeTask(TvShowChooserModel model) {
       this.model = model;

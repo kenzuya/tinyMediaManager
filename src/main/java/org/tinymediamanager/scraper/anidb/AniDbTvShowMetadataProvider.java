@@ -18,6 +18,7 @@ package org.tinymediamanager.scraper.anidb;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -570,7 +571,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
   /*
    * build up the hashmap for a fast title search
    */
-  private void buildTitleHashMap() {
+  private void buildTitleHashMap() throws ScrapeException {
     // <aid>|<type>|<language>|<title>
     // type:
     // 1=primary title (one per anime),
@@ -591,7 +592,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
       return;
     }
 
-    try (InputStream is = animeList.getInputStream(); Scanner scanner = new Scanner(new GZIPInputStream(is), UrlUtil.UTF_8)) {
+    try (InputStream is = animeList.getInputStream(); Scanner scanner = new Scanner(new GZIPInputStream(is), StandardCharsets.UTF_8)) {
       while (scanner.hasNextLine()) {
         Matcher matcher = pattern.matcher(scanner.nextLine());
 
@@ -612,6 +613,7 @@ public class AniDbTvShowMetadataProvider implements ITvShowMetadataProvider, ITv
     }
     catch (IOException e) {
       LOGGER.error("error getting AniDB index: {}", e.getMessage());
+      throw new ScrapeException(e);
     }
   }
 

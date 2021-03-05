@@ -148,11 +148,13 @@ class KodiUtil {
    *
    * @return File or NULL
    */
-  public static File detectKodiUserFolder() {
+  public static List<File> detectKodiUserFolders() {
     // http://wiki.xbmc.org/?title=Userdata
     String[] appFolder = { "Kodi", ".kodi", "kodi", "XMBC", ".xbmc", "xbmc" };
-    String[] userFolder = { System.getenv("APPDATA"), System.getProperty("user.home"),
-        System.getProperty("user.home") + "/Library/Application Support" };
+    String[] userFolder = { System.getenv("APPDATA"), System.getProperty("user.home") + "/Library/Application Support",
+        System.getProperty("user.home") };
+
+    List<File> userFolders = new ArrayList<>();
 
     for (String u : userFolder) {
       if (StringUtils.isEmpty(u)) {
@@ -161,12 +163,12 @@ class KodiUtil {
       for (String a : appFolder) {
         File path = new File(u, a);
         if (path.exists()) {
-          return path;
+          userFolders.add(path);
         }
       }
     }
 
-    return null;
+    return userFolders;
   }
 
   /**
@@ -201,9 +203,11 @@ class KodiUtil {
       }
 
       // detect addons from Kodi user data folder
-      addons = new File(detectKodiUserFolder(), "addons");
-      if (addons != null && addons.exists()) {
-        foundAddonFiles.addAll(FileUtils.listFiles(addons, fileFilter, dirFilter));
+      for (File userFolder : detectKodiUserFolders()) {
+        addons = new File(userFolder, "addons");
+        if (addons != null && addons.exists()) {
+          foundAddonFiles.addAll(FileUtils.listFiles(addons, fileFilter, dirFilter));
+        }
       }
 
       // detect addons from Kodi install folder

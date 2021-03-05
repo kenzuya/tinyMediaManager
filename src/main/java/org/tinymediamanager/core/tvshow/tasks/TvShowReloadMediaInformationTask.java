@@ -37,11 +37,10 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
  * @author Manuel Laggner
  */
 public class TvShowReloadMediaInformationTask extends TmmThreadPool {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowReloadMediaInformationTask.class);
-  
+  private static final Logger       LOGGER = LoggerFactory.getLogger(TvShowReloadMediaInformationTask.class);
 
-  private List<TvShow>                tvShows;
-  private List<TvShowEpisode>         episodes;
+  private final List<TvShow>        tvShows;
+  private final List<TvShowEpisode> episodes;
 
   public TvShowReloadMediaInformationTask(List<TvShow> tvShows, List<TvShowEpisode> episodes) {
     super(TmmResourceBundle.getString("tvshow.updatemediainfo"));
@@ -73,7 +72,14 @@ public class TvShowReloadMediaInformationTask extends TmmThreadPool {
           break;
         }
         for (MediaFile mf : show.getMediaFiles()) {
-          submitTask(new MediaFileInformationFetcherTask(mf, show, true));
+          submitTask(new MediaFileInformationFetcherTask(mf, show, true) {
+            @Override
+            public void callbackForGatheredMediainformation() {
+              super.callbackForGatheredMediainformation();
+              // rewrite NFO to include mediainfo data
+              show.writeNFO();
+            }
+          });
         }
       }
 
@@ -82,13 +88,20 @@ public class TvShowReloadMediaInformationTask extends TmmThreadPool {
           break;
         }
         for (MediaFile mf : episode.getMediaFiles()) {
-          submitTask(new MediaFileInformationFetcherTask(mf, episode, true));
+          submitTask(new MediaFileInformationFetcherTask(mf, episode, true) {
+            @Override
+            public void callbackForGatheredMediainformation() {
+              super.callbackForGatheredMediainformation();
+              // rewrite NFO to include mediainfo data
+              episode.writeNFO();
+            }
+          });
         }
       }
 
       waitForCompletionOrCancel();
       stopWatch.stop();
-      LOGGER.info("Done getting MediaInfo - took " + stopWatch);
+      LOGGER.info("Done getting MediaInfo - took {}", stopWatch);
     }
     catch (Exception e) {
       LOGGER.error("Thread crashed", e);

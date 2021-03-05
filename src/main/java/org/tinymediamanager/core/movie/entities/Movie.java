@@ -51,8 +51,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -734,7 +733,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (!matchFound) {
       // clear the old ids/tags to set only the new ones
       ids.clear();
-      removeAllTags();
     }
 
     setIds(metadata.getIds());
@@ -841,6 +839,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
     // tags
     if (config.contains(MovieScraperMetadataConfig.TAGS)) {
+      removeAllTags();
       addToTags(metadata.getTags());
     }
 
@@ -2354,6 +2353,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return getMainVideoFile().getAspectRatio();
   }
 
+  public String getMediaInfoAspectRatioAsString() {
+    DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
+    return df.format(getMainVideoFile().getAspectRatio()).replaceAll("\\.", "");
+  }
+
   @Override
   public String getMediaInfoAudioCodec() {
     return getMainVideoFile().getAudioCodec();
@@ -2424,6 +2428,14 @@ public class Movie extends MediaEntity implements IMediaInformation {
   @Override
   public String getVideoHDRFormat() {
     return getMainVideoFile().getHdrFormat();
+  }
+
+  public Boolean isVideoInHDR() {
+    return StringUtils.isNotEmpty(getMainVideoFile().getHdrFormat());
+  }
+
+  public String getVideoHDR() {
+    return isVideoInHDR() ? "HDR" : "";
   }
 
   public MovieEdition getEdition() {
@@ -2592,11 +2604,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
     if (mediaFile.getType() == MediaFileType.TRAILER) {
       // re-write the trailer list
       mixinLocalTrailers();
-    }
-
-    // re-write NFO since we might have new mediainfo data (only if there is no existing NFO yet)
-    if (mediaFile.getType() == MediaFileType.VIDEO && getHasNfoFile()) {
-      writeNFO();
     }
   }
 

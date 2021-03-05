@@ -212,6 +212,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${showTitleSortable}"));
     exampleEventList.add(new TvShowRenamerExample("${showStatus}"));
     exampleEventList.add(new TvShowRenamerExample("${videoResolution}"));
+    exampleEventList.add(new TvShowRenamerExample("${aspectRatio}"));
     exampleEventList.add(new TvShowRenamerExample("${videoFormat}"));
     exampleEventList.add(new TvShowRenamerExample("${videoCodec}"));
     exampleEventList.add(new TvShowRenamerExample("${videoFormat}"));
@@ -230,6 +231,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${subtitleLanguagesAsString}"));
     exampleEventList.add(new TvShowRenamerExample("${mediaSource}"));
     exampleEventList.add(new TvShowRenamerExample("${hdr}"));
+    exampleEventList.add(new TvShowRenamerExample("${hdrformat}"));
     exampleEventList.add(new TvShowRenamerExample("${filesize}"));
     exampleEventList.add(new TvShowRenamerExample("${parent}"));
     exampleEventList.add(new TvShowRenamerExample("${showNote}"));

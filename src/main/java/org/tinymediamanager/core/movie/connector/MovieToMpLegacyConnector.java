@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -111,7 +112,16 @@ public class MovieToMpLegacyConnector extends MovieGenericXmlConnector {
   @Override
   protected void addStudios() {
     Element studio = document.createElement("studio");
-    studio.setTextContent(movie.getProductionCompany());
+    // if we just want to write one studio, we have to strip that out
+    if (MovieSettings.getInstance().isNfoWriteSingleStudio()) {
+      List<String> studios = ParserUtils.split(movie.getProductionCompany());
+      if (!studios.isEmpty()) {
+        studio.setTextContent(studios.get(0));
+      }
+    }
+    else {
+      studio.setTextContent(movie.getProductionCompany());
+    }
     root.appendChild(studio);
   }
 
