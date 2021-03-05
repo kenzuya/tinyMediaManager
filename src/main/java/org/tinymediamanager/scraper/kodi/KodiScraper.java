@@ -231,19 +231,22 @@ public class KodiScraper implements IMediaProvider {
           switch (type) {
             case "bool":
               if (defaultValue.equalsIgnoreCase("true") || defaultValue.equalsIgnoreCase("false")) {
-                this.providerInfo.getConfig().addBoolean(setid, Boolean.valueOf(defaultValue));
+                this.providerInfo.getConfig().addBoolean(setid, Boolean.parseBoolean(defaultValue));
               }
               else {
-                LOGGER.warn("This is not a boolean '" + setid + "=" + defaultValue + "' - ignoring");
+                LOGGER.debug("This is not a boolean '{} = {}' - ignoring", setid, defaultValue);
               }
               break;
+
             case "select":
             case "labelenum":
               this.providerInfo.getConfig().addSelect(setid, possibleValues, defaultValue);
               break;
+
             case "enum":
               this.providerInfo.getConfig().addSelectIndex(setid, possibleValues, defaultValue);
               break;
+
             // case "action":
             case "text":
               this.providerInfo.getConfig().addText(setid, defaultValue, encrypt);
@@ -265,16 +268,20 @@ public class KodiScraper implements IMediaProvider {
       // =====================================================
       // parse Kodi saved setting values and update TMM config
       // =====================================================
-      File savedSettings = new File(KodiUtil.detectKodiUserFolder(), "userdata/addon_data/" + providerInfo.getId() + "/settings.xml");
-      if (savedSettings.exists()) {
-        Document set = Jsoup.parse(savedSettings, "UTF-8", "");
-        Elements settings = set.getElementsByTag("setting");
-        for (Element el : settings) {
-          String setid = el.attr("id");
-          String value = el.attr("value");
-          if (providerInfo.getConfig().getConfigKeyValuePairs().keySet().contains(setid)) {
-            providerInfo.getConfig().setValue(setid, value);
+      List<File> userFolders = KodiUtil.detectKodiUserFolders();
+      for (File userFolder : userFolders) {
+        File savedSettings = new File(userFolder, "userdata/addon_data/" + providerInfo.getId() + "/settings.xml");
+        if (savedSettings.exists()) {
+          Document set = Jsoup.parse(savedSettings, "UTF-8", "");
+          Elements settings = set.getElementsByTag("setting");
+          for (Element el : settings) {
+            String setid = el.attr("id");
+            String value = el.attr("value");
+            if (providerInfo.getConfig().getConfigKeyValuePairs().containsKey(setid)) {
+              providerInfo.getConfig().setValue(setid, value);
+            }
           }
+          break;
         }
       }
 
