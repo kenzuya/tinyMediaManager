@@ -16,13 +16,16 @@
 package org.tinymediamanager.thirdparty;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -94,7 +97,28 @@ public class FFmpeg {
     return cmdList.toArray(new String[0]);
   }
 
-  private static void executeCommand(String[] cmdline) throws IOException, InterruptedException {
+  public static String getMetaData(Path videoFile) throws IOException, InterruptedException {
+    return executeCommand(createCommandForMetaData(videoFile));
+  }
+
+  private static String[] createCommandForMetaData(Path videoFile) {
+    List<String> cmdList = new ArrayList<>();
+    cmdList.add(getFfprobeExecutable());
+    cmdList.add("-v");
+    cmdList.add("error");
+    cmdList.add("-select_streams");
+    cmdList.add("v:0");
+    cmdList.add("-show_entries");
+    cmdList.add("stream=width,height,sample_aspect_ratio:format=duration");
+    cmdList.add("-of");
+    cmdList.add("default=nw=1:nk=1");
+    cmdList.add("-i");
+    cmdList.add(videoFile.toAbsolutePath().toString());
+
+    return cmdList.toArray(new String[0]);
+  }
+
+  private static String executeCommand(String[] cmdline) throws IOException, InterruptedException {
     LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 
     try {
@@ -116,6 +140,7 @@ public class FFmpeg {
           LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
           throw new IOException("could not create the still - code '" + processValue + "'");
         }
+        return outputStream.toString(Charset.defaultCharset());
       }
       finally {
         if (process != null) {
@@ -133,6 +158,22 @@ public class FFmpeg {
   }
 
   private static String getFfmpegExecutable() {
+    String executable = "ffmpeg";
+    if (SystemUtils.IS_OS_WINDOWS) {
+      executable = "ffmpeg.exe";
+    }
+    return getFfmpegPath() + File.separator + executable;
+  }
+
+  private static String getFfprobeExecutable() {
+    String executable = "ffprobe";
+    if (SystemUtils.IS_OS_WINDOWS) {
+      executable = "ffprobe.exe";
+    }
+    return getFfmpegPath() + File.separator + executable;
+  }
+
+  private static String getFfmpegPath() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
 
     if (Globals.settings.isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) {

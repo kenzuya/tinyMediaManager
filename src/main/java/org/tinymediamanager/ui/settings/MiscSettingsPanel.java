@@ -17,11 +17,7 @@ package org.tinymediamanager.ui.settings;
 
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -54,6 +50,11 @@ class MiscSettingsPanel extends JPanel {
   private JCheckBox                   chckbxDeleteTrash;
   private JCheckBox                   chckbxMediaInfoXml;
   private JComboBox                   cbImageCacheSize;
+  // aspect ratio detector
+  private JTextField                  tfARRoundings;
+  private ButtonGroup                 buttonGroupRound = new ButtonGroup();
+  private JRadioButton                rdbtnRoundNearest;
+  private JRadioButton                rdbtnRoundUpToNext;
 
   /**
    * Instantiates a new general settings panel.
@@ -61,7 +62,6 @@ class MiscSettingsPanel extends JPanel {
   MiscSettingsPanel() {
     initComponents();
     initDataBindings();
-
   }
 
   private void initComponents() {
@@ -71,9 +71,9 @@ class MiscSettingsPanel extends JPanel {
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][20lp][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
-      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
-      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
-      add(collapsiblePanel, "cell 0 0,growx, wmin 0");
+      CollapsiblePanel collapsiblePanelMisc = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanelMisc.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
+      add(collapsiblePanelMisc, "cell 0 0,growx, wmin 0");
       {
         chckbxImageCache = new JCheckBox(TmmResourceBundle.getString("Settings.imagecache"));
         panelMisc.add(chckbxImageCache, "cell 1 0 2 1");
@@ -125,6 +125,30 @@ class MiscSettingsPanel extends JPanel {
 
         chckbxMediaInfoXml = new JCheckBox(TmmResourceBundle.getString("Settings.writemediainfoxml"));
         panelMisc.add(chckbxMediaInfoXml, "cell 1 7 2 1");
+      }
+
+      JPanel panelArd = new JPanel();
+      panelArd.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][20lp][][]")); // 16lp ~ width of the
+
+      JLabel lblARDT = new TmmLabel(TmmResourceBundle.getString("Settings.ard"), H3);
+      CollapsiblePanel collapsiblePanelARD = new CollapsiblePanel(panelArd, lblARDT, true);
+      collapsiblePanelARD.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
+      add(collapsiblePanelARD, "cell 0 1,growx, wmin 0");
+      {
+        tfARRoundings = new JTextField();
+        tfARRoundings.setColumns(35);
+        panelArd.add(tfARRoundings, "cell 1 0 2 1");
+
+        JTextArea tpARRoundings = new ReadOnlyTextArea("Round detected aspect ratio to (whitespace separated list");
+        panelArd.add(tpARRoundings, "cell 2 5,growx");
+
+        rdbtnRoundNearest = new JRadioButton("Round to nearest aspect ratio in list");
+        buttonGroupRound.add(rdbtnRoundNearest);
+        panelArd.add(rdbtnRoundNearest, "cell 1 1 2 1");
+
+        rdbtnRoundUpToNext = new JRadioButton("Round up to next wider aspect ratio in list");
+        buttonGroupRound.add(rdbtnRoundUpToNext);
+        panelArd.add(rdbtnRoundUpToNext, "cell 1 3 2 1");
       }
     }
   }

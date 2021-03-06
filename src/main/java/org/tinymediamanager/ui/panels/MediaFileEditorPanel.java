@@ -20,8 +20,7 @@ import static org.tinymediamanager.core.MediaFileType.SAMPLE;
 import static org.tinymediamanager.core.MediaFileType.TRAILER;
 import static org.tinymediamanager.core.MediaFileType.VIDEO;
 
-import java.awt.Component;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,6 +61,8 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.tasks.ARDetectorTask;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.DoubleInputVerifier;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
@@ -178,6 +179,10 @@ public class MediaFileEditorPanel extends JPanel {
           tfHeight.setInputVerifier(new IntegerInputVerifier());
           panelDetails.add(tfHeight, "cell 4 2,growx");
           tfHeight.setColumns(10);
+        }
+        {
+          JButton scanButton = new JButton(new ScanAspectRationAction());
+          panelDetails.add(scanButton, "cell 7 1");
         }
         {
           JLabel lblAspectT = new TmmLabel(TmmResourceBundle.getString("metatag.aspect"));
@@ -424,6 +429,27 @@ public class MediaFileEditorPanel extends JPanel {
             mf.removeSubtitle(row);
           }
         }
+      }
+    }
+  }
+
+  private class ScanAspectRationAction extends AbstractAction {
+    private static final long serialVersionUID = 8777310652284455423L;
+
+    public ScanAspectRationAction() {
+      putValue(SHORT_DESCRIPTION, "reales AR auslesen");
+      putValue(SMALL_ICON, IconManager.EDIT);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int mediaFileRow = tableMediaFiles.getSelectedRow();
+      if (mediaFileRow > -1) {
+        mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
+        MediaFileContainer mf = mediaFiles.get(mediaFileRow);
+
+        ARDetectorTask task = new ARDetectorTask(mf.getMediaFile().getFileAsPath());
+        TmmTaskManager.getInstance().addUnnamedTask(task);
       }
     }
   }
