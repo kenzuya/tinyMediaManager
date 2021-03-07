@@ -514,7 +514,15 @@ public class TmmTreeTable extends TmmTable {
       ((TmmTreeModel<?>) model).updateSortingAndFiltering();
     }
 
+    storeFilters();
     firePropertyChange("filterChanged", null, treeFilters);
+  }
+
+  /**
+   * to be overridden to provide storing of filters
+   */
+  public void storeFilters() {
+    // to be overridden in implementations
   }
 
   public void setFilterValues(List<AbstractSettings.UIFilters> values) {

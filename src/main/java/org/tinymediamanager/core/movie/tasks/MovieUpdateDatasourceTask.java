@@ -1096,7 +1096,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       boolean dirty = false;
 
       // check only movies matching datasource
-      if (datasource.equals(movie.getDataSource())) {
+      if (!Paths.get(datasource).equals(Paths.get(movie.getDataSource()))) {
         continue;
       }
 

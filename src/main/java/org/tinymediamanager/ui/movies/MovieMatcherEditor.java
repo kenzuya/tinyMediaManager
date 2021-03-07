@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.movies;
 
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.core.AbstractSettings;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.ITmmUIFilter;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
@@ -107,6 +109,21 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
       }
       fireChanged(matcher);
     });
+
+    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
+      List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
+      for (IMovieUIFilter filter : filters) {
+        if (filter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
+          AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
+          uiFilters.id = filter.getId();
+          uiFilters.state = filter.getFilterState();
+          uiFilters.filterValue = filter.getFilterValueAsString();
+          filterValues.add(uiFilters);
+        }
+      }
+      MovieModuleManager.SETTINGS.setUiFilters(filterValues);
+      MovieModuleManager.SETTINGS.saveSettings();
+    }
   }
 
   /**

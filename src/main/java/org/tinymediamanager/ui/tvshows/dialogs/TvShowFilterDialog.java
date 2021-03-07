@@ -208,15 +208,6 @@ public class TvShowFilterDialog extends TmmDialog {
         panelFilterPreset.add(lblFilterPresetT, "cell 1 3, alignx trailing");
 
         cbPreset = new JComboBox<>();
-        cbPreset.addActionListener(e -> {
-          String filterName = (String) cbPreset.getSelectedItem();
-          if (StringUtils.isNotBlank(filterName)) {
-            treeTable.setFilterValues(TvShowModuleManager.SETTINGS.getUiFilterPresets().get(filterName));
-          }
-          else {
-            treeTable.setFilterValues(Collections.emptyList());
-          }
-        });
         panelFilterPreset.add(cbPreset, "cell 2 3");
 
         JButton btnSavePreset = new FlatButton(IconManager.SAVE);

@@ -22,9 +22,11 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
@@ -157,6 +159,10 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
   }
 
   private void init() {
+    // re-set filters
+    if (MovieModuleManager.SETTINGS.isStoreMovieSetUiFilters()) {
+      SwingUtilities.invokeLater(() -> treePanel.getTreeTable().setFilterValues(MovieModuleManager.SETTINGS.getMovieSetUiFilters()));
+    }
   }
 
   public void setFilterDialogVisible(boolean visible) {
