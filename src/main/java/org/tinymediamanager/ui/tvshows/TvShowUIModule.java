@@ -21,12 +21,14 @@ import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -198,6 +200,13 @@ public class TvShowUIModule extends AbstractTmmUIModule {
   }
 
   private void init() {
+    // re-set filters
+    if (TvShowModuleManager.SETTINGS.isStoreUiFilters()) {
+      SwingUtilities.invokeLater(() -> {
+        TvShowList.getInstance().searchDuplicateEpisodes();
+        listPanel.getTreeTable().setFilterValues(TvShowModuleManager.SETTINGS.getUiFilters());
+      });
+    }
   }
 
   public static TvShowUIModule getInstance() {

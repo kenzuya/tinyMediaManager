@@ -25,7 +25,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
@@ -43,8 +45,10 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.ITmmTabItem;
@@ -126,7 +130,28 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     add(btnFilter, "cell 1 0");
 
     TmmTreeTableFormat<TmmTreeNode> tableFormat = new MovieSetTableFormat();
-    tree = new TmmTreeTable(new MovieSetTreeDataProvider(tableFormat), tableFormat);
+    tree = new TmmTreeTable(new MovieSetTreeDataProvider(tableFormat), tableFormat) {
+      @Override
+      public void storeFilters() {
+        if (MovieModuleManager.SETTINGS.isStoreMovieSetUiFilters()) {
+          List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
+          for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
+            if (filter instanceof ITmmUIFilter) {
+              ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+              if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
+                AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
+                uiFilters.id = uiFilter.getId();
+                uiFilters.state = uiFilter.getFilterState();
+                uiFilters.filterValue = uiFilter.getFilterValueAsString();
+                filterValues.add(uiFilters);
+              }
+            }
+          }
+          MovieModuleManager.SETTINGS.setMovieSetUiFilters(filterValues);
+          MovieModuleManager.SETTINGS.saveSettings();
+        }
+      }
+    };
     tree.getColumnModel().getColumn(0).setCellRenderer(new MovieSetTreeCellRenderer());
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
 

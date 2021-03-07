@@ -25,7 +25,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
@@ -42,9 +44,11 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -135,7 +139,28 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     add(btnFilter, "cell 1 0");
 
     TmmTreeTableFormat<TmmTreeNode> tableFormat = new TvShowTableFormat();
-    tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat);
+    tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat) {
+      @Override
+      public void storeFilters() {
+        if (TvShowModuleManager.SETTINGS.isStoreUiFilters()) {
+          List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
+          for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
+            if (filter instanceof ITmmUIFilter) {
+              ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+              if (uiFilter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
+                AbstractSettings.UIFilters uiFilters = new AbstractSettings.UIFilters();
+                uiFilters.id = uiFilter.getId();
+                uiFilters.state = uiFilter.getFilterState();
+                uiFilters.filterValue = uiFilter.getFilterValueAsString();
+                filterValues.add(uiFilters);
+              }
+            }
+          }
+          TvShowModuleManager.SETTINGS.setUiFilters(filterValues);
+          TvShowModuleManager.SETTINGS.saveSettings();
+        }
+      }
+    };
     tree.getColumnModel().getColumn(0).setCellRenderer(new TvShowTreeCellRenderer());
     tree.addPropertyChangeListener("filterChanged", evt -> updateFilterIndicator());
     tree.setName("tvshows.tvshowTree");
