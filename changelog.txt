@@ -3,6 +3,7 @@ Version 4.1.2
 + new columns for HDR and aspect ratio - thx @icebaer72
 + (movies/TV shows) re-added persisting of last used filters #1153
 + (movies) option to only include the first studio in the NFO
++ (movies) added cover.ext to well known poster file names
 x removed unused code fot TV show ratings #1233
 x display custom rating source logo #1233
 x do not delete tags on further scrapes #1233
