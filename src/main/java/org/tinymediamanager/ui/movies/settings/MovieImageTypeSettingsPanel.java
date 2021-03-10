@@ -50,40 +50,39 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieImageTypeSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 7312645402037806284L;
+  private static final long   serialVersionUID = 7312645402037806284L;
 
-  
+  private final MovieSettings settings         = MovieModuleManager.SETTINGS;
 
-  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+  private JCheckBox           chckbxMoviePosterFilename2;
+  private JCheckBox           chckbxMoviePosterFilename4;
+  private JCheckBox           chckbxMoviePosterFilename6;
+  private JCheckBox           chckbxMoviePosterFilename7;
+  private JCheckBox           chckbxMovieFanartFilename1;
+  private JCheckBox           chckbxMovieFanartFilename2;
+  private JCheckBox           chckbxMoviePosterFilename8;
+  private JCheckBox           chckbxMoviePosterFilename9;
+  private JCheckBox           chckbxMovieFanartFilename3;
+  private JCheckBox           chckbxBanner1;
+  private JCheckBox           chckbxBanner2;
+  private JCheckBox           chckbxClearart1;
+  private JCheckBox           chckbxClearart2;
+  private JCheckBox           chckbxThumb1;
+  private JCheckBox           chckbxThumb2;
+  private JCheckBox           chckbxThumb3;
+  private JCheckBox           chckbxThumb4;
+  private JCheckBox           chckbxLogo1;
+  private JCheckBox           chckbxLogo2;
+  private JCheckBox           chckbxClearlogo1;
+  private JCheckBox           chckbxClearlogo2;
+  private JCheckBox           chckbxDiscart1;
+  private JCheckBox           chckbxDiscart2;
+  private JCheckBox           chckbxDiscart4;
+  private JCheckBox           chckbxDiscart3;
+  private JCheckBox           chckbxKeyart1;
+  private JCheckBox           chckbxKeyart2;
 
-  private JCheckBox                   chckbxMoviePosterFilename2;
-  private JCheckBox                   chckbxMoviePosterFilename4;
-  private JCheckBox                   chckbxMoviePosterFilename6;
-  private JCheckBox                   chckbxMoviePosterFilename7;
-  private JCheckBox                   chckbxMovieFanartFilename1;
-  private JCheckBox                   chckbxMovieFanartFilename2;
-  private JCheckBox                   chckbxMoviePosterFilename8;
-  private JCheckBox                   chckbxMovieFanartFilename3;
-  private JCheckBox                   chckbxBanner1;
-  private JCheckBox                   chckbxBanner2;
-  private JCheckBox                   chckbxClearart1;
-  private JCheckBox                   chckbxClearart2;
-  private JCheckBox                   chckbxThumb1;
-  private JCheckBox                   chckbxThumb2;
-  private JCheckBox                   chckbxThumb3;
-  private JCheckBox                   chckbxThumb4;
-  private JCheckBox                   chckbxLogo1;
-  private JCheckBox                   chckbxLogo2;
-  private JCheckBox                   chckbxClearlogo1;
-  private JCheckBox                   chckbxClearlogo2;
-  private JCheckBox                   chckbxDiscart1;
-  private JCheckBox                   chckbxDiscart2;
-  private JCheckBox                   chckbxDiscart4;
-  private JCheckBox                   chckbxDiscart3;
-  private JCheckBox                   chckbxKeyart1;
-  private JCheckBox                   chckbxKeyart2;
-
-  private ItemListener                checkBoxListener;
+  private ItemListener        checkBoxListener;
 
   /**
    * Instantiates a new movie image settings panel.
@@ -117,8 +116,9 @@ class MovieImageTypeSettingsPanel extends JPanel {
     chckbxMoviePosterFilename7.removeItemListener(checkBoxListener);
     chckbxMoviePosterFilename8.removeItemListener(checkBoxListener);
     chckbxMoviePosterFilename6.removeItemListener(checkBoxListener);
+    chckbxMoviePosterFilename9.removeItemListener(checkBoxListener);
     clearSelection(chckbxMoviePosterFilename2, chckbxMoviePosterFilename4, chckbxMoviePosterFilename6, chckbxMoviePosterFilename7,
-        chckbxMoviePosterFilename8);
+        chckbxMoviePosterFilename8, chckbxMoviePosterFilename9);
 
     chckbxBanner1.removeItemListener(checkBoxListener);
     chckbxBanner2.removeItemListener(checkBoxListener);
@@ -158,17 +158,25 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case FILENAME:
           chckbxMoviePosterFilename7.setSelected(true);
           break;
+
         case FILENAME_POSTER:
           chckbxMoviePosterFilename8.setSelected(true);
           break;
+
         case FOLDER:
           chckbxMoviePosterFilename6.setSelected(true);
           break;
+
         case MOVIE:
           chckbxMoviePosterFilename2.setSelected(true);
           break;
+
         case POSTER:
           chckbxMoviePosterFilename4.setSelected(true);
+          break;
+
+        case COVER:
+          chckbxMoviePosterFilename9.setSelected(true);
           break;
       }
     }
@@ -179,9 +187,11 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case FANART:
           chckbxMovieFanartFilename2.setSelected(true);
           break;
+
         case FILENAME_FANART:
           chckbxMovieFanartFilename1.setSelected(true);
           break;
+
         case FILENAME_FANART2:
           chckbxMovieFanartFilename3.setSelected(true);
           break;
@@ -194,6 +204,7 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case BANNER:
           chckbxBanner2.setSelected(true);
           break;
+
         case FILENAME_BANNER:
           chckbxBanner1.setSelected(true);
           break;
@@ -206,6 +217,7 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case CLEARART:
           chckbxClearart2.setSelected(true);
           break;
+
         case FILENAME_CLEARART:
           chckbxClearart1.setSelected(true);
           break;
@@ -218,12 +230,15 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case THUMB:
           chckbxThumb2.setSelected(true);
           break;
+
         case FILENAME_THUMB:
           chckbxThumb1.setSelected(true);
           break;
+
         case LANDSCAPE:
           chckbxThumb4.setSelected(true);
           break;
+
         case FILENAME_LANDSCAPE:
           chckbxThumb3.setSelected(true);
           break;
@@ -236,6 +251,7 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case LOGO:
           chckbxLogo2.setSelected(true);
           break;
+
         case FILENAME_LOGO:
           chckbxLogo1.setSelected(true);
           break;
@@ -248,6 +264,7 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case CLEARLOGO:
           chckbxClearlogo2.setSelected(true);
           break;
+
         case FILENAME_CLEARLOGO:
           chckbxClearlogo1.setSelected(true);
           break;
@@ -260,12 +277,15 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case DISC:
           chckbxDiscart2.setSelected(true);
           break;
+
         case FILENAME_DISC:
           chckbxDiscart1.setSelected(true);
           break;
+
         case DISCART:
           chckbxDiscart4.setSelected(true);
           break;
+
         case FILENAME_DISCART:
           chckbxDiscart3.setSelected(true);
           break;
@@ -278,6 +298,7 @@ class MovieImageTypeSettingsPanel extends JPanel {
         case KEYART:
           chckbxKeyart1.setSelected(true);
           break;
+
         case FILENAME_KEYART:
           chckbxKeyart2.setSelected(true);
           break;
@@ -294,6 +315,7 @@ class MovieImageTypeSettingsPanel extends JPanel {
     chckbxMoviePosterFilename7.addItemListener(checkBoxListener);
     chckbxMoviePosterFilename8.addItemListener(checkBoxListener);
     chckbxMoviePosterFilename6.addItemListener(checkBoxListener);
+    chckbxMoviePosterFilename9.addItemListener(checkBoxListener);
 
     chckbxBanner1.addItemListener(checkBoxListener);
     chckbxBanner2.addItemListener(checkBoxListener);
@@ -348,7 +370,8 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxMoviePosterFilename2 = new JCheckBox("movie." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxMoviePosterFilename2, "cell 3 1");
 
-        chckbxMoviePosterFilename7 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxMoviePosterFilename7 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxMoviePosterFilename7, "cell 5 1");
 
         chckbxMoviePosterFilename4 = new JCheckBox("poster." + TmmResourceBundle.getString("Settings.artwork.extension"));
@@ -356,6 +379,9 @@ class MovieImageTypeSettingsPanel extends JPanel {
 
         chckbxMoviePosterFilename6 = new JCheckBox("folder." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxMoviePosterFilename6, "cell 3 2");
+
+        chckbxMoviePosterFilename9 = new JCheckBox("cover." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        panelFileNaming.add(chckbxMoviePosterFilename9, "cell 5 2");
 
         JLabel lblFanartFileNaming = new TmmLabel(TmmResourceBundle.getString("mediafiletype.fanart"));
         panelFileNaming.add(lblFanartFileNaming, "cell 1 4");
@@ -377,7 +403,8 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxBanner2 = new JCheckBox("banner." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxBanner2, "cell 3 7");
 
-        chckbxBanner1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-banner." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxBanner1 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-banner." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxBanner1, "cell 5 7");
 
         JLabel lblClearartNamingT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearart"));
@@ -386,7 +413,8 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxClearart2 = new JCheckBox("clearart." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxClearart2, "cell 3 9");
 
-        chckbxClearart1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-clearart." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxClearart1 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-clearart." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxClearart1, "cell 5 9");
 
         JLabel lblThumbNamingT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.thumb"));
@@ -395,13 +423,15 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxThumb2 = new JCheckBox("thumb." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxThumb2, "cell 3 11");
 
-        chckbxThumb1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-thumb." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxThumb1 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-thumb." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxThumb1, "cell 5 11");
 
         chckbxThumb4 = new JCheckBox("landscape." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxThumb4, "cell 3 12");
 
-        chckbxThumb3 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-landscape." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxThumb3 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-landscape." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxThumb3, "cell 5 12");
 
         JLabel lblLogoNamingT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.logo"));
@@ -410,7 +440,8 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxLogo2 = new JCheckBox("logo." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxLogo2, "cell 3 14");
 
-        chckbxLogo1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-logo." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxLogo1 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-logo." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxLogo1, "cell 5 14");
 
         JLabel lblClearlogoNamingT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.clearlogo"));
@@ -419,7 +450,8 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxClearlogo2 = new JCheckBox("clearlogo." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxClearlogo2, "cell 3 16");
 
-        chckbxClearlogo1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-clearlogo." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxClearlogo1 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-clearlogo." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxClearlogo1, "cell 5 16");
 
         JLabel lblDiscartNamingT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.disc"));
@@ -428,13 +460,15 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxDiscart2 = new JCheckBox("disc." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxDiscart2, "cell 3 18");
 
-        chckbxDiscart1 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-disc." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxDiscart1 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-disc." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxDiscart1, "cell 5 18");
 
         chckbxDiscart4 = new JCheckBox("discart." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxDiscart4, "cell 3 19");
 
-        chckbxDiscart3 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-discart." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxDiscart3 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-discart." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxDiscart3, "cell 5 19");
 
         JLabel lblKeyartT = new TmmLabel(TmmResourceBundle.getString("mediafiletype.keyart"));
@@ -443,7 +477,8 @@ class MovieImageTypeSettingsPanel extends JPanel {
         chckbxKeyart1 = new JCheckBox("keyart." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxKeyart1, "cell 3 21");
 
-        chckbxKeyart2 = new JCheckBox(TmmResourceBundle.getString("Settings.moviefilename") + "-keyart." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        chckbxKeyart2 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.moviefilename") + "-keyart." + TmmResourceBundle.getString("Settings.artwork.extension"));
         panelFileNaming.add(chckbxKeyart2, "cell 5 21");
 
         JTextArea tpFileNamingHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.naming.info"));
@@ -474,6 +509,9 @@ class MovieImageTypeSettingsPanel extends JPanel {
     }
     if (chckbxMoviePosterFilename8.isSelected()) {
       settings.addPosterFilename(MoviePosterNaming.FILENAME_POSTER);
+    }
+    if (chckbxMoviePosterFilename9.isSelected()) {
+      settings.addPosterFilename(MoviePosterNaming.COVER);
     }
 
     // set fanart filenames

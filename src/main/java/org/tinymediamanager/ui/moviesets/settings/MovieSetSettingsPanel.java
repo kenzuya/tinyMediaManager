@@ -61,6 +61,7 @@ public class MovieSetSettingsPanel extends JPanel {
   private JCheckBox           chckbxCheckDiscart;
 
   private final ItemListener  checkBoxListener;
+  private JCheckBox           chckbxStoreFilter;
 
   public MovieSetSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -171,19 +172,23 @@ public class MovieSetSettingsPanel extends JPanel {
     setLayout(new MigLayout("", "[600lp,grow]", "[][]"));
     {
       JPanel panelUiSettings = new JPanel();
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][]")); // 16lp ~ width of the
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][]")); // 16lp ~ width of the
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
+        chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
+        panelUiSettings.add(chckbxStoreFilter, "cell 1 0 2 1");
+      }
+      {
         chckbxShowMissingMovies = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.showmissingmovies"));
-        panelUiSettings.add(chckbxShowMissingMovies, "cell 1 0 2 1");
+        panelUiSettings.add(chckbxShowMissingMovies, "cell 1 1 2 1");
       }
       {
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.showtabletooltips"));
-        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 1 2 1");
+        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 2 2 1");
       }
     }
     {
@@ -239,5 +244,10 @@ public class MovieSetSettingsPanel extends JPanel {
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1,
         chckbxTvShowTableTooltips, jCheckBoxBeanProperty);
     autoBinding_1.bind();
+    //
+    Property movieSettingsBeanProperty_2 = BeanProperty.create("storeMovieSetUiFilters");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_2, chckbxStoreFilter,
+        jCheckBoxBeanProperty);
+    autoBinding_2.bind();
   }
 }

@@ -305,7 +305,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       add(panelRight, "cell 1 1,grow");
       {
         JPanel panelTopDetails = new JPanel();
-        panelTopDetails.setLayout(new MigLayout("insets 0", "[][10lp][grow]", "[]2lp[][]"));
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][]", "[]2lp[][][][]"));
 
         panelRight.add(panelTopDetails, "cell 0 0,grow");
         {
@@ -315,7 +315,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
           lblSeason = new JLabel("");
           TmmFontHelper.changeFont(lblSeason, 1.166);
-          panelTopDetails.add(lblSeason, "cell 2 0");
+          panelTopDetails.add(lblSeason, "cell 1 0");
         }
         {
           JLabel lblEpisodeT = new JLabel(TmmResourceBundle.getString("metatag.episode"));
@@ -324,14 +324,14 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
           lblEpisode = new JLabel("");
           TmmFontHelper.changeFont(lblEpisode, 1.166);
-          panelTopDetails.add(lblEpisode, "cell 2 1");
+          panelTopDetails.add(lblEpisode, "cell 1 1");
         }
         JLabel lblAiredT = new TmmLabel(TmmResourceBundle.getString("metatag.aired"));
         panelTopDetails.add(lblAiredT, "cell 0 2");
         {
 
           lblAired = new JLabel("");
-          panelTopDetails.add(lblAired, "cell 2 2");
+          panelTopDetails.add(lblAired, "cell 1 2");
         }
         {
           JLabel lblImdbIdT = new TmmLabel("IMDB ID");

@@ -159,7 +159,7 @@ public class TvShowEpisodeAndSeasonParser {
    * @return result the calculated result
    */
   private static EpisodeMatchingResult detect(String name, String showname) {
-    LOGGER.debug("parsing '" + name + "'");
+    LOGGER.debug("parsing '{}'", name);
     EpisodeMatchingResult result = new EpisodeMatchingResult();
     Pattern regex;
     Matcher m;
@@ -192,7 +192,6 @@ public class TvShowEpisodeAndSeasonParser {
     if (showname != null && !showname.isEmpty()) {
       // remove string like tvshow name (440, 24, ...)
       basename = basename.replaceAll("(?i)^" + Pattern.quote(showname) + "", "");
-      basename = basename.replaceAll("(?i) " + Pattern.quote(showname) + " ", "");
     }
     basename = basename.replaceFirst("\\.\\w{1,4}$", ""); // remove extension if 1-4 chars
     basename = basename.replaceFirst("[\\(\\[]\\d{4}[\\)\\]]", ""); // remove (xxxx) or [xxxx] as year
@@ -462,18 +461,25 @@ public class TvShowEpisodeAndSeasonParser {
     switch (letter) {
       case 'M':
         return 1000;
+
       case 'D':
         return 500;
+
       case 'C':
         return 100;
+
       case 'L':
         return 50;
+
       case 'X':
         return 10;
+
       case 'V':
         return 5;
+
       case 'I':
         return 1;
+
       default:
         return 0;
     }
