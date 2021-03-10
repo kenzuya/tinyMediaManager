@@ -16,9 +16,7 @@
 package org.tinymediamanager.thirdparty;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -61,7 +59,7 @@ public class FFmpeg {
     executeCommand(createCommandforStill(videoFile, stillFile, second));
   }
 
-  private static String[] createCommandforStill(Path videoFile, Path stillFile, int second) {
+  private static List<String> createCommandforStill(Path videoFile, Path stillFile, int second) {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
@@ -75,14 +73,14 @@ public class FFmpeg {
     cmdList.add("2");
     cmdList.add(stillFile.toAbsolutePath().toString());
 
-    return cmdList.toArray(new String[0]);
+    return cmdList;
   }
 
   public static void muxVideoAndAudio(Path videoFile, Path audioFile, Path muxedFile) throws IOException, InterruptedException {
     executeCommand(createCommandforMux(videoFile, audioFile, muxedFile));
   }
 
-  private static String[] createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) {
+  private static List<String> createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
@@ -94,35 +92,49 @@ public class FFmpeg {
     cmdList.add("copy");
     cmdList.add(muxedFile.toAbsolutePath().toString());
 
-    return cmdList.toArray(new String[0]);
+    return cmdList;
   }
 
-  public static String getMetaData(Path videoFile) throws IOException, InterruptedException {
-    return executeCommand(createCommandForMetaData(videoFile));
+  public static String scanSample(int start, int duration, Path videoFile) throws IOException, InterruptedException {
+    return executeCommand(createCommandForScanSample(start, duration, videoFile), true);
   }
 
-  private static String[] createCommandForMetaData(Path videoFile) {
+  private static List<String> createCommandForScanSample(int start, int duration, Path videoFile) {
     List<String> cmdList = new ArrayList<>();
-    cmdList.add(getFfprobeExecutable());
-    cmdList.add("-v");
-    cmdList.add("error");
-    cmdList.add("-select_streams");
-    cmdList.add("v:0");
-    cmdList.add("-show_entries");
-    cmdList.add("stream=width,height,sample_aspect_ratio:format=duration");
-    cmdList.add("-of");
-    cmdList.add("default=nw=1:nk=1");
+    cmdList.add(getFfmpegExecutable());
+    cmdList.add("-hide_banner");
+    cmdList.add("-ss");
+    cmdList.add(Integer.toString(start));
     cmdList.add("-i");
     cmdList.add(videoFile.toAbsolutePath().toString());
+    cmdList.add("-f");
+    cmdList.add("matroska");
+    cmdList.add("-t");
+    cmdList.add(Integer.toString(duration));
+    cmdList.add("-an");
+    cmdList.add("-sn");
+    cmdList.add("-vf");
+    cmdList.add("cropdetect=0.07:2:0");
+    cmdList.add("-y");
+    cmdList.add("-crf");
+    cmdList.add("51");
+    cmdList.add("-preset");
+    cmdList.add("ultrafast");
+    cmdList.add(getNullOutput());
 
-    return cmdList.toArray(new String[0]);
+    //"-ss ' + $Seconds + ' -i \"' + $videofile + '\" -f matroska -t ' + $global:SampleDuration + ' -an -sn -vf cropdetect=0.07:2:0 -y -crf 51 -preset ultrafast"
+    return cmdList;
   }
 
-  private static String executeCommand(String[] cmdline) throws IOException, InterruptedException {
+  private static String executeCommand(List<String> cmdline) throws InterruptedException {
+    return executeCommand(cmdline, false);
+  }
+
+  private static String executeCommand(List<String> cmdline, boolean ignoreError) throws InterruptedException {
     LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 
     try {
-      ProcessBuilder pb = new ProcessBuilder(cmdline).redirectErrorStream(true);
+      ProcessBuilder pb = new ProcessBuilder(cmdline.toArray(new String[0])).redirectErrorStream(true);
       final Process process = pb.start();
 
       try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -136,11 +148,11 @@ public class FFmpeg {
         }).start();
 
         int processValue = process.waitFor();
-        if (processValue != 0) {
+        if (!ignoreError && processValue != 0) {
           LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
           throw new IOException("could not create the still - code '" + processValue + "'");
         }
-        return outputStream.toString(Charset.defaultCharset());
+        return outputStream.toString(StandardCharsets.UTF_8);
       }
       finally {
         if (process != null) {
@@ -158,22 +170,6 @@ public class FFmpeg {
   }
 
   private static String getFfmpegExecutable() {
-    String executable = "ffmpeg";
-    if (SystemUtils.IS_OS_WINDOWS) {
-      executable = "ffmpeg.exe";
-    }
-    return getFfmpegPath() + File.separator + executable;
-  }
-
-  private static String getFfprobeExecutable() {
-    String executable = "ffprobe";
-    if (SystemUtils.IS_OS_WINDOWS) {
-      executable = "ffprobe.exe";
-    }
-    return getFfmpegPath() + File.separator + executable;
-  }
-
-  private static String getFfmpegPath() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
 
     if (Globals.settings.isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) {
@@ -182,5 +178,12 @@ public class FFmpeg {
     else {
       return Globals.settings.getMediaFramework();
     }
+  }
+
+  private static String getNullOutput() {
+    if (SystemUtils.IS_OS_WINDOWS) {
+      return "nul 2>&1";
+    }
+    return "/dev/null";
   }
 }

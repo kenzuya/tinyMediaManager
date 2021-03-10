@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListCellRenderer;
@@ -107,6 +108,7 @@ public class MediaFileEditorPanel extends JPanel {
   private JTextField                      tfHdrFormat;
   private JTextField                      tfVideoBitrate;
   private JTextField                      tfRuntime;
+  private JButton                         btnARD;
 
   public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
     this.mediaFiles = ObservableCollections.observableList(new ArrayList<>());
@@ -181,8 +183,8 @@ public class MediaFileEditorPanel extends JPanel {
           tfHeight.setColumns(10);
         }
         {
-          JButton scanButton = new JButton(new ScanAspectRationAction());
-          panelDetails.add(scanButton, "cell 7 1");
+          btnARD = new JButton(new ScanAspectRationAction());
+          panelDetails.add(btnARD, "cell 7 1");
         }
         {
           JLabel lblAspectT = new TmmLabel(TmmResourceBundle.getString("metatag.aspect"));
@@ -321,6 +323,7 @@ public class MediaFileEditorPanel extends JPanel {
             cb3dFormat.setEnabled(videoTypes.contains(mf.getType()));
             // runtime is also only available for video types
             tfRuntime.setEnabled(videoTypes.contains(mf.getType()));
+            btnARD.setEnabled(videoTypes.contains(mf.getType()));
           }
         }
       }
@@ -437,8 +440,8 @@ public class MediaFileEditorPanel extends JPanel {
     private static final long serialVersionUID = 8777310652284455423L;
 
     public ScanAspectRationAction() {
-      putValue(SHORT_DESCRIPTION, "reales AR auslesen");
-      putValue(SMALL_ICON, IconManager.EDIT);
+      putValue(NAME, "Aspect Ratio Detector");
+      putValue(SMALL_ICON, IconManager.SEARCH);
     }
 
     @Override
@@ -448,7 +451,7 @@ public class MediaFileEditorPanel extends JPanel {
         mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
         MediaFileContainer mf = mediaFiles.get(mediaFileRow);
 
-        ARDetectorTask task = new ARDetectorTask(mf.getMediaFile().getFileAsPath());
+        ARDetectorTask task = new ARDetectorTask(mf.getMediaFile());
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
     }

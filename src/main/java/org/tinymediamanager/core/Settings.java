@@ -56,6 +56,7 @@ public class Settings extends AbstractSettings {
   private static final String   SUBTITLE_FILE_TYPE          = "subtitleFileType";
   private static final String   CLEANUP_FILE_TYPE           = "cleanupFileType";
   private static final String   WOL_DEVICES                 = "wolDevices";
+  private static final String   CUSTOM_ASPECT_RATIO        = "customAspectRatio";
 
   /**
    * statics
@@ -71,6 +72,7 @@ public class Settings extends AbstractSettings {
   private final List<String>    subtitleFileTypes           = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>    cleanupFileTypes            = ObservableCollections.observableList(new ArrayList<>());
   private final List<WolDevice> wolDevices                  = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    customAspectRatios          = ObservableCollections.observableList(new ArrayList<>());
 
   private String                version                     = "";
 
@@ -117,6 +119,15 @@ public class Settings extends AbstractSettings {
   private boolean               ignoreSSLProblems           = true;
 
   private boolean               writeMediaInfoXml           = false;
+
+  // aspect ratio detector
+  private int                   ardSampleDuration           = 2;
+  private int                   ardSampleMinNumber          = 6;
+  private int                   ardSampleMaxGap             = 900;
+  private float                 ardIgnoreBeginning          = 2;
+  private float                 ardIgnoreEnd                = 8;
+  private boolean               ardRoundUp                  = false;
+  private float                 ardRoundThreshold           = 0.04f;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -171,6 +182,12 @@ public class Settings extends AbstractSettings {
     subtitleFileTypes.addAll(MediaFileHelper.DEFAULT_SUBTITLE_FILETYPES);
     Collections.sort(subtitleFileTypes);
     firePropertyChange(SUBTITLE_FILE_TYPE, null, subtitleFileTypes);
+
+    // default custom aspect ratios
+    customAspectRatios.clear();
+    customAspectRatios.addAll(MediaFileHelper.DEFAULT_CUSTOM_ASPECT_RATIOS);
+    Collections.sort(customAspectRatios);
+    firePropertyChange(CUSTOM_ASPECT_RATIO, null, customAspectRatios);
 
     // default title prefix
     titlePrefixes.clear();
@@ -1055,5 +1072,96 @@ public class Settings extends AbstractSettings {
     boolean oldValue = this.writeMediaInfoXml;
     this.writeMediaInfoXml = newValue;
     firePropertyChange("writeMediaInfoXml", oldValue, newValue);
+  }
+
+  public void setArdSampleDuration(int newValue) {
+    int oldValue = this.ardSampleDuration;
+    this.ardSampleDuration = newValue;
+    firePropertyChange("ardSampleDuration", oldValue, newValue);
+  }
+
+  public int getArdSampleDuration() {
+    return this.ardSampleDuration;
+  }
+
+  public void setArdSampleMinNumber(int newValue) {
+    int oldValue = this.ardSampleMinNumber;
+    this.ardSampleMinNumber = newValue;
+    firePropertyChange("ardSampleMinNumber", oldValue, newValue);
+  }
+
+  public int getArdSampleMinNumber() {
+    return this.ardSampleMinNumber;
+  }
+
+  public void setArdSampleMaxGap(int newValue) {
+    int oldValue = this.ardSampleMaxGap;
+    this.ardSampleMaxGap = newValue;
+    firePropertyChange("ardSampleMaxGap", oldValue, newValue);
+  }
+
+  public int getArdSampleMaxGap() {
+    return this.ardSampleMaxGap;
+  }
+
+  public void setArdIgnoreBeginning(float newValue) {
+    float oldValue = this.ardIgnoreBeginning;
+    this.ardIgnoreBeginning = newValue;
+    firePropertyChange("ardIgnoreBeginning", oldValue, newValue);
+  }
+
+  public float getArdIgnoreBeginning() {
+    return this.ardIgnoreBeginning;
+  }
+
+  public void setArdIgnoreEnd(float newValue) {
+    float oldValue = this.ardIgnoreEnd;
+    this.ardIgnoreEnd = newValue;
+    firePropertyChange("ardIgnoreEnd", oldValue, newValue);
+  }
+
+  public float getArdIgnoreEnd() {
+    return this.ardIgnoreEnd;
+  }
+
+  public void setArdRoundUp(boolean newValue) {
+    boolean oldValue = this.ardRoundUp;
+    this.ardRoundUp = newValue;
+    firePropertyChange("ardRoundUp", oldValue, newValue);
+  }
+
+  public boolean isArdRoundUp() {
+    return this.ardRoundUp;
+  }
+
+  public void setArdRoundThreshold(float newValue) {
+    float oldValue = this.ardRoundThreshold;
+    this.ardRoundThreshold = newValue;
+    firePropertyChange("ardRoundThreshold", oldValue, newValue);
+  }
+
+  public float getArdRoundThreshold() {
+    return this.ardRoundThreshold;
+  }
+
+  public void addCustomAspectRatio(String aspectRatio) {
+    try {
+      // check if number is valid
+      Double.valueOf(aspectRatio);
+
+      if (!customAspectRatios.contains(aspectRatio)) {
+        customAspectRatios.add(aspectRatio);
+        firePropertyChange(CUSTOM_ASPECT_RATIO, null, customAspectRatios);
+      }
+    } catch (Exception ex) {}
+  }
+
+  public void removeCustomAspectRatio(String aspectRatio) {
+    customAspectRatios.remove(aspectRatio);
+    firePropertyChange(CUSTOM_ASPECT_RATIO, null, customAspectRatios);
+  }
+
+  public List<String> getCustomAspectRatios() {
+    return customAspectRatios;
   }
 }

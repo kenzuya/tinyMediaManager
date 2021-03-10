@@ -19,20 +19,24 @@ import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import javax.swing.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.jdesktop.swingbinding.JListBinding;
+import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.ui.components.CollapsiblePanel;
-import org.tinymediamanager.ui.components.DocsButton;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
-import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.*;
 
 import net.miginfocom.swing.MigLayout;
+
+import java.util.List;
 
 /**
  * The Class MiscSettingsPanel.
@@ -51,10 +55,19 @@ class MiscSettingsPanel extends JPanel {
   private JCheckBox                   chckbxMediaInfoXml;
   private JComboBox                   cbImageCacheSize;
   // aspect ratio detector
-  private JTextField                  tfARRoundings;
+  private JTextField                  tfSampleDuration;
+  private JTextField                  tfSampleMinNumber;
+  private JTextField                  tfSampleMaxGap;
+  private JTextField                  tfIgnoreBeginning;
+  private JTextField                  tfIgnoreEnd;
+  private JList<String>               listCustomAspectRatios;
+  private JButton                     btnRemoveCustomAspectRatio;
+  private JButton                     btnAddCustomAspectRatio;
+  private JTextField                  tfCustomAspectRatio;
   private ButtonGroup                 buttonGroupRound = new ButtonGroup();
   private JRadioButton                rdbtnRoundNearest;
   private JRadioButton                rdbtnRoundUpToNext;
+  private JTextField                  tfRoundThreshold;
 
   /**
    * Instantiates a new general settings panel.
@@ -62,11 +75,30 @@ class MiscSettingsPanel extends JPanel {
   MiscSettingsPanel() {
     initComponents();
     initDataBindings();
+
+    // data init
+    btnAddCustomAspectRatio.addActionListener(e -> {
+      if (StringUtils.isNotEmpty(tfCustomAspectRatio.getText())) {
+        Globals.settings.addCustomAspectRatio(tfCustomAspectRatio.getText());
+        tfCustomAspectRatio.setText("");
+      }
+    });
+    btnRemoveCustomAspectRatio.addActionListener(arg0 -> {
+      int row = listCustomAspectRatios.getSelectedIndex();
+      if (row != -1) {
+        String prefix = Globals.settings.getCustomAspectRatios().get(row);
+        Globals.settings.removeCustomAspectRatio(prefix);
+      }
+    });
+
+    rdbtnRoundUpToNext.setSelected(settings.isArdRoundUp());
+    rdbtnRoundNearest.setSelected(!settings.isArdRoundUp());
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][]"));
     {
+      // Misc settings
       JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][20lp][][]")); // 16lp ~ width of the
 
@@ -116,7 +148,7 @@ class MiscSettingsPanel extends JPanel {
           panel.add(lblImageCacheTypeQualityT, "cell 1 0,growx, wmin 0");
 
           JTextArea lblImageCacheTypeUltraQualityT = new ReadOnlyTextArea(
-              "ULTRA_QUALITY - " + TmmResourceBundle.getString("Settings.imagecachetype.ultra_quality"));
+            "ULTRA_QUALITY - " + TmmResourceBundle.getString("Settings.imagecachetype.ultra_quality"));
           panel.add(lblImageCacheTypeUltraQualityT, "cell 1 0,growx, wmin 0");
         }
 
@@ -126,29 +158,93 @@ class MiscSettingsPanel extends JPanel {
         chckbxMediaInfoXml = new JCheckBox(TmmResourceBundle.getString("Settings.writemediainfoxml"));
         panelMisc.add(chckbxMediaInfoXml, "cell 1 7 2 1");
       }
-
-      JPanel panelArd = new JPanel();
-      panelArd.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][20lp][][]")); // 16lp ~ width of the
+    }
+    {
+      // Aspect Ratio Detector
+      JPanel panelArd = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][100lp][][grow]", "[]"));
 
       JLabel lblARDT = new TmmLabel(TmmResourceBundle.getString("Settings.ard"), H3);
       CollapsiblePanel collapsiblePanelARD = new CollapsiblePanel(panelArd, lblARDT, true);
       collapsiblePanelARD.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
-      add(collapsiblePanelARD, "cell 0 1,growx, wmin 0");
+      add(collapsiblePanelARD, "cell 0 2,growx, wmin 0");
       {
-        tfARRoundings = new JTextField();
-        tfARRoundings.setColumns(35);
-        panelArd.add(tfARRoundings, "cell 1 0 2 1");
+        // sample duration
+        JLabel lblSampleDuration = new JLabel(TmmResourceBundle.getString("Settings.ard.sampleDuration"));
+        panelArd.add(lblSampleDuration, "cell 1 0,alignx right");
 
-        JTextArea tpARRoundings = new ReadOnlyTextArea("Round detected aspect ratio to (whitespace separated list");
-        panelArd.add(tpARRoundings, "cell 2 5,growx");
+        tfSampleDuration = new JTextField();
+        panelArd.add(tfSampleDuration, "cell 2 0");
+        tfSampleDuration.setColumns(3);
+        lblSampleDuration.setLabelFor(tfSampleDuration);
+
+        // sample min number
+        JLabel lblSampleMinNumber = new JLabel(TmmResourceBundle.getString("Settings.ard.sampleMinNumber"));
+        panelArd.add(lblSampleMinNumber, "cell 1 1,alignx right");
+
+        tfSampleMinNumber = new JTextField();
+        panelArd.add(tfSampleMinNumber, "cell 2 1");
+        tfSampleMinNumber.setColumns(3);
+        lblSampleMinNumber.setLabelFor(tfSampleMinNumber);
+
+        // sample max gap
+        JLabel lblSampleMaxGap = new JLabel(TmmResourceBundle.getString("Settings.ard.sampleMaxGap"));
+        panelArd.add(lblSampleMaxGap, "cell 1 2,alignx right");
+
+        tfSampleMaxGap = new JTextField();
+        panelArd.add(tfSampleMaxGap, "cell 2 2");
+        tfSampleMaxGap.setColumns(3);
+        lblSampleMaxGap.setLabelFor(tfSampleMaxGap);
+
+        // ignore beginning
+        JLabel lblIgnoreBeginning = new JLabel(TmmResourceBundle.getString("Settings.ard.ignoreBeginning"));
+        panelArd.add(lblIgnoreBeginning, "cell 1 3,alignx right");
+
+        tfIgnoreBeginning = new JTextField();
+        panelArd.add(tfIgnoreBeginning, "cell 2 3");
+        tfIgnoreBeginning.setColumns(3);
+        lblIgnoreBeginning.setLabelFor(tfIgnoreBeginning);
+
+        // ignore end
+        JLabel lblIgnoreEnd = new JLabel(TmmResourceBundle.getString("Settings.ard.ignoreEnd"));
+        panelArd.add(lblIgnoreEnd, "cell 1 4,alignx right");
+
+        tfIgnoreEnd = new JTextField();
+        panelArd.add(tfIgnoreEnd, "cell 2 4");
+        tfIgnoreEnd.setColumns(3);
+        lblIgnoreEnd.setLabelFor(tfIgnoreEnd);
+
+        // custom aspect ratios
+        JLabel lblAspectRatiosDesc = new JLabel(TmmResourceBundle.getString("Settings.ard.roundAspectRatios.hint"));
+        panelArd.add(lblAspectRatiosDesc, "cell 1 5 3 1");
+
+        JScrollPane scrollPaneCustomAspectRatios = new JScrollPane();
+        panelArd.add(scrollPaneCustomAspectRatios, "cell 1 6,grow");
+
+        listCustomAspectRatios = new JList<>();
+        scrollPaneCustomAspectRatios.setViewportView(listCustomAspectRatios);
+
+        btnRemoveCustomAspectRatio = new SquareIconButton(IconManager.REMOVE_INV);
+        panelArd.add(btnRemoveCustomAspectRatio, "cell 2 6,aligny bottom");
+        btnRemoveCustomAspectRatio.setToolTipText(TmmResourceBundle.getString("Button.remove"));
+
+        tfCustomAspectRatio = new JTextField();
+        panelArd.add(tfCustomAspectRatio, "cell 1 7,growx");
+
+        btnAddCustomAspectRatio = new SquareIconButton(IconManager.ADD_INV);
+        panelArd.add(btnAddCustomAspectRatio, "cell 2 7");
+        btnAddCustomAspectRatio.setToolTipText(TmmResourceBundle.getString("Button.add"));
 
         rdbtnRoundNearest = new JRadioButton("Round to nearest aspect ratio in list");
         buttonGroupRound.add(rdbtnRoundNearest);
-        panelArd.add(rdbtnRoundNearest, "cell 1 1 2 1");
+        panelArd.add(rdbtnRoundNearest, "cell 1 8 2 1,aligny bottom");
 
-        rdbtnRoundUpToNext = new JRadioButton("Round up to next wider aspect ratio in list");
+        rdbtnRoundUpToNext = new JRadioButton("Round up to next wider aspect ratio in list, threshold: ");
         buttonGroupRound.add(rdbtnRoundUpToNext);
-        panelArd.add(rdbtnRoundUpToNext, "cell 1 3 2 1");
+        panelArd.add(rdbtnRoundUpToNext, "cell 1 9 2 1");
+
+        tfRoundThreshold = new JTextField();
+        panelArd.add(tfRoundThreshold, "cell 3 9,growx");
+
       }
     }
   }
@@ -180,5 +276,74 @@ class MiscSettingsPanel extends JPanel {
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, settingsBeanProperty_1, cbImageCacheSize,
         jComboBoxBeanProperty);
     autoBinding_1.bind();
+
+    // aspect ratio detector
+    //
+
+    // sample duration
+    Property ardSampleDurationBeanProperty = BeanProperty.create("ardSampleDuration");
+    Property jTextFieldBeanProperty_ard_sampleDuration = BeanProperty.create("text");
+    AutoBinding autoBinding_ard_sampleDuration = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+                                                                            ardSampleDurationBeanProperty,
+                                                                            tfSampleDuration,
+                                                                            jTextFieldBeanProperty_ard_sampleDuration);
+    autoBinding_ard_sampleDuration.bind();
+
+    // sample min number
+    Property ardSampleMinNumberBeanProperty = BeanProperty.create("ardSampleMinNumber");
+    Property jTextFieldBeanProperty_ard_sampleMinNumber = BeanProperty.create("text");
+    AutoBinding autoBinding_ard_sampleMinNumber = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+                                                                            ardSampleMinNumberBeanProperty,
+                                                                            tfSampleMinNumber,
+                                                                            jTextFieldBeanProperty_ard_sampleMinNumber);
+    autoBinding_ard_sampleMinNumber.bind();
+
+    // sample max gap
+    Property ardSampleMaxGapBeanProperty = BeanProperty.create("ardSampleMaxGap");
+    Property jTextFieldBeanProperty_ard_sampleMaxGap = BeanProperty.create("text");
+    AutoBinding autoBinding_ard_sampleMaxGap = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+                                                                            ardSampleMaxGapBeanProperty,
+                                                                            tfSampleMaxGap,
+                                                                            jTextFieldBeanProperty_ard_sampleMaxGap);
+    autoBinding_ard_sampleMaxGap.bind();
+
+    // sample ignore beginning
+    Property ardIgnoreBeginningBeanProperty = BeanProperty.create("ardIgnoreBeginning");
+    Property jTextFieldBeanProperty_ard_ignoreBeginning = BeanProperty.create("text");
+    AutoBinding autoBinding_ard_ignoreBeginning = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+                                                                            ardIgnoreBeginningBeanProperty,
+                                                                            tfIgnoreBeginning,
+                                                                            jTextFieldBeanProperty_ard_ignoreBeginning);
+    autoBinding_ard_ignoreBeginning.bind();
+
+    // sample ignore beginning
+    Property ardIgnoreEndBeanProperty = BeanProperty.create("ardIgnoreEnd");
+    Property jTextFieldBeanProperty_ard_ignoreEnd = BeanProperty.create("text");
+    AutoBinding autoBinding_ard_ignoreEnd = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+                                                                            ardIgnoreEndBeanProperty,
+                                                                            tfIgnoreEnd,
+                                                                            jTextFieldBeanProperty_ard_ignoreEnd);
+    autoBinding_ard_ignoreEnd.bind();
+
+    // custom aspect ratios
+    BeanProperty<Settings, List<String>> ardCustomAspectRatiosBeanProperty = BeanProperty.create("customAspectRatios");
+    JListBinding<String, Settings, JList> jListBinding_ard_customAspectRatios = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings,
+      ardCustomAspectRatiosBeanProperty, listCustomAspectRatios);
+    jListBinding_ard_customAspectRatios.bind();
+
+    // round up
+    Property ardRoundUpBeanProperty = BeanProperty.create("ardRoundUp");
+    AutoBinding autoBinding_ard_roundUp = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, ardRoundUpBeanProperty, rdbtnRoundUpToNext,
+      jCheckBoxBeanProperty);
+    autoBinding_ard_roundUp.bind();
+
+    // round threshold
+    Property ardRoundThresholdBeanProperty = BeanProperty.create("ardRoundThreshold");
+    Property jTextFieldBeanProperty_ard_roundThreshold = BeanProperty.create("text");
+    AutoBinding autoBinding_ard_roundThreshold = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+      ardRoundThresholdBeanProperty,
+      tfRoundThreshold,
+      jTextFieldBeanProperty_ard_roundThreshold);
+    autoBinding_ard_roundThreshold.bind();
   }
 }
