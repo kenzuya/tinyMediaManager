@@ -111,6 +111,11 @@ public class ARDetectorTask implements Runnable {
       seconds += increment + videoInfo.sampleSkipAdjustement;
     }
 
+    if (videoInfo.sampleCount == 0) {
+      LOGGER.error("No results from scanning");
+      return;
+    }
+
     calculateARPrimaryAndSecondaryRaw(videoInfo);
 
     if (this.multiFormatMode > 0) {
@@ -126,6 +131,8 @@ public class ARDetectorTask implements Runnable {
   }
 
   protected void parseSample(String result, int seconds, int increment, VideoInfo videoInfo) {
+    LOGGER.info("Parsing sample result: {}", result);
+
     if (StringUtils.isNotEmpty(result)) {
       Matcher matcher = patternSample.matcher(result);
       if (matcher.find()) {
@@ -158,6 +165,8 @@ public class ARDetectorTask implements Runnable {
                             barstxt, seconds, increment, videoInfo);
         }
       }
+    } else {
+      throw new RuntimeException("Sample result is empty");
     }
   }
 

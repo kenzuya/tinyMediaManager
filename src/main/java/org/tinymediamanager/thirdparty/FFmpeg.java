@@ -131,7 +131,7 @@ public class FFmpeg {
   }
 
   private static String executeCommand(List<String> cmdline, boolean ignoreError) throws InterruptedException {
-    LOGGER.debug("Running command: {}", String.join(" ", cmdline));
+    LOGGER.info("Running command: {}", String.join(" ", cmdline));
 
     try {
       ProcessBuilder pb = new ProcessBuilder(cmdline.toArray(new String[0])).redirectErrorStream(true);
@@ -149,7 +149,7 @@ public class FFmpeg {
 
         int processValue = process.waitFor();
         if (!ignoreError && processValue != 0) {
-          LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
+          LOGGER.warn("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
           throw new IOException("could not create the still - code '" + processValue + "'");
         }
         return outputStream.toString(StandardCharsets.UTF_8);
