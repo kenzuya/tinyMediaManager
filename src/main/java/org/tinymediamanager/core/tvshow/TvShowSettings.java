@@ -222,6 +222,8 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        capitalWordsinTitles                   = false;
   private boolean                                        showTvShowTableTooltips                = true;
   private boolean                                        seasonArtworkFallback                  = false;
+  private boolean                                        storeUiFilters                         = false;
+  private List<UIFilters>                                uiFilters                              = new ArrayList<>();
 
   public TvShowSettings() {
     super();
@@ -1424,6 +1426,29 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = seasonArtworkFallback;
     seasonArtworkFallback = newValue;
     firePropertyChange("seasonArtworkFallback", oldValue, newValue);
+  }
+
+  public void setUiFilters(List<UIFilters> filters) {
+    uiFilters.clear();
+    uiFilters.addAll(filters);
+    firePropertyChange("uiFilters", null, uiFilters);
+  }
+
+  public List<UIFilters> getUiFilters() {
+    if (storeUiFilters) {
+      return uiFilters;
+    }
+    return new ArrayList<>();
+  }
+
+  public void setStoreUiFilters(boolean newValue) {
+    boolean oldValue = this.storeUiFilters;
+    this.storeUiFilters = newValue;
+    firePropertyChange("storeUiFilters", oldValue, newValue);
+  }
+
+  public boolean isStoreUiFilters() {
+    return storeUiFilters;
   }
 
   /*****************************************************************

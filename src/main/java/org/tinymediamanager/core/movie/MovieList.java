@@ -716,7 +716,7 @@ public class MovieList extends AbstractModelObject {
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
     List<MediaScraper> defaultScrapers = getArtworkScrapers(movieSettings.getArtworkScrapers());
-    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
+    return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
   /**
@@ -738,7 +738,7 @@ public class MovieList extends AbstractModelObject {
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
     List<MediaScraper> defaultScrapers = getTrailerScrapers(movieSettings.getTrailerScrapers());
-    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
+    return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
   /**
@@ -782,7 +782,7 @@ public class MovieList extends AbstractModelObject {
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
     List<MediaScraper> defaultScrapers = getSubtitleScrapers(movieSettings.getSubtitleScrapers());
-    return defaultScrapers.stream().filter(MediaScraper::isEnabled).collect(Collectors.toList());
+    return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
   /**

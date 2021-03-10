@@ -109,6 +109,7 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxTraktSyncWatched;
   private JCheckBox                    chckbxTraktSyncRating;
   private JCheckBox                    chckbxTraktSyncCollection;
+  private JCheckBox                    chckbxStoreFilter;
 
   public MovieSettingsPanel() {
 
@@ -297,7 +298,7 @@ public class MovieSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
-      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][][10lp!][][125lp,grow]"));
+      panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][10lp!][][125lp,grow]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -331,15 +332,19 @@ public class MovieSettingsPanel extends JPanel {
         panelUiSettings.add(chckbxSortTitle, "cell 2 1");
       }
       {
+        chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
+        panelUiSettings.add(chckbxStoreFilter, "cell 1 2 2 1");
+      }
+      {
         chckbxMovieTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movie.showtabletooltips"));
-        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 3 2 1");
+        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 4 2 1");
       }
       {
         JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "cell 1 5 2 1");
+        panelUiSettings.add(lblRating, "cell 1 6 2 1");
 
         JPanel panelRatingSource = new JPanel();
-        panelUiSettings.add(panelRatingSource, "cell 2 6,grow");
+        panelUiSettings.add(panelRatingSource, "cell 2 7,grow");
         panelRatingSource.setLayout(new MigLayout("insets 0", "[100lp][]", "[grow][]"));
         {
           listRatings = new JList();
@@ -610,5 +615,10 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_18,
         chckbxTraktSyncCollection, jCheckBoxBeanProperty);
     autoBinding_20.bind();
+    //
+    Property movieSettingsBeanProperty_19 = BeanProperty.create("storeUiFilters");
+    AutoBinding autoBinding_21 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_19, chckbxStoreFilter,
+        jCheckBoxBeanProperty);
+    autoBinding_21.bind();
   }
 }

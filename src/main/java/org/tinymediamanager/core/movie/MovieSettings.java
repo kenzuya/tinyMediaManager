@@ -235,6 +235,10 @@ public class MovieSettings extends AbstractSettings {
   private final List<String>                     ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
   private final List<MediaArtworkType>           checkImagesMovie                       = new ArrayList<>();
   private final List<MediaArtworkType>           checkImagesMovieSet                    = new ArrayList<>();
+  private boolean                                storeUiFilters                         = false;
+  private final List<UIFilters>                  uiFilters                              = new ArrayList<>();
+  private boolean                                storeMovieSetUiFilters                 = false;
+  private final List<UIFilters>                  movieSetUiFilters                      = new ArrayList<>();
 
   public MovieSettings() {
     super();
@@ -1597,6 +1601,52 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = this.displayMovieSetMissingMovies;
     this.displayMovieSetMissingMovies = newValue;
     firePropertyChange("displayMovieSetMissingMovies", oldValue, newValue);
+  }
+
+  public void setUiFilters(List<UIFilters> filters) {
+    uiFilters.clear();
+    uiFilters.addAll(filters);
+    firePropertyChange("uiFilters", null, uiFilters);
+  }
+
+  public List<UIFilters> getUiFilters() {
+    if (storeUiFilters) {
+      return uiFilters;
+    }
+    return new ArrayList<>();
+  }
+
+  public void setStoreUiFilters(boolean newValue) {
+    boolean oldValue = this.storeUiFilters;
+    this.storeUiFilters = newValue;
+    firePropertyChange("storeUiFilters", oldValue, newValue);
+  }
+
+  public boolean isStoreUiFilters() {
+    return storeUiFilters;
+  }
+
+  public void setMovieSetUiFilters(List<UIFilters> filters) {
+    movieSetUiFilters.clear();
+    movieSetUiFilters.addAll(filters);
+    firePropertyChange("movieSetUiFilters", null, movieSetUiFilters);
+  }
+
+  public List<UIFilters> getMovieSetUiFilters() {
+    if (storeUiFilters) {
+      return movieSetUiFilters;
+    }
+    return new ArrayList<>();
+  }
+
+  public void setStoreMovieSetUiFilters(boolean newValue) {
+    boolean oldValue = this.storeMovieSetUiFilters;
+    this.storeMovieSetUiFilters = newValue;
+    firePropertyChange("storeMovieSetUiFilters", oldValue, newValue);
+  }
+
+  public boolean isStoreMovieSetUiFilters() {
+    return storeMovieSetUiFilters;
   }
 
   /*****************************************************************

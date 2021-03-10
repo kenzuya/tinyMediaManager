@@ -738,7 +738,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
           MediaFile epNfo = getMediaFile(epFiles, MediaFileType.NFO);
           if (epNfo != null) {
-            LOGGER.info("found episode NFO - try to parse '{}'", showDir.relativize(epNfo.getFileAsPath()));
+            LOGGER.debug("found episode NFO - try to parse '{}'", showDir.relativize(epNfo.getFileAsPath()));
             List<TvShowEpisode> episodesInNfo = new ArrayList<>();
 
             try {

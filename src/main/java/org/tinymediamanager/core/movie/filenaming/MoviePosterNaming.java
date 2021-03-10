@@ -64,5 +64,13 @@ public enum MoviePosterNaming implements IFileNaming {
     public String getFilename(String basename, String extension) {
       return "folder." + extension;
     }
+  },
+
+  /** cover.* */
+  COVER {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return "cover." + extension;
+    }
   }
 }
