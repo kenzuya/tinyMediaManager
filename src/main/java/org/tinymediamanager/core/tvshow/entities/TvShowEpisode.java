@@ -1657,14 +1657,15 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     String baseName = "";
     if (isDisc()) {
+      // https://kodi.wiki/view/NFO_files/TV_shows#nfo_Name_and_Location_2
       if (firstMediaFile.isBlurayFile()) {
-        baseName = "BDMV.nfo"; // dunno, but more correct
+        baseName = "index";
       }
       if (firstMediaFile.isDVDFile()) {
-        baseName = "VIDEO_TS.nfo";
+        baseName = "VIDEO_TS";
       }
       if (firstMediaFile.isHDDVDFile()) {
-        baseName = "HVDVD_TS.nfo";
+        baseName = "HVDVD_TS";
       }
     }
     else {
