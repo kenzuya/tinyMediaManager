@@ -51,7 +51,10 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1123,7 +1126,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return the nfo filename
    */
   public String getNfoFilename(MovieNfoNaming nfo, String newMovieFilename) {
-    String filename = "";
+    String filename;
+
     switch (nfo) {
       case FILENAME_NFO:
         if (isDisc()) {
@@ -1146,6 +1150,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
         filename = "";
         break;
     }
+
     LOGGER.trace("getNfoFilename: '{}' / '{}' -> '{}'", newMovieFilename, nfo, filename);
     return filename;
   }

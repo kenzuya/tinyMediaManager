@@ -45,6 +45,7 @@ import static org.tinymediamanager.core.Constants.WATCHED;
 import static org.tinymediamanager.core.Constants.WRITERS;
 import static org.tinymediamanager.core.Constants.WRITERS_AS_STRING;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -1652,26 +1653,42 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   public String getNfoFilename(TvShowEpisodeNfoNaming nfoNaming) {
-    List<MediaFile> mfs = getMediaFiles(MediaFileType.VIDEO);
-    MediaFile firstMediaFile = mfs.get(0);
+    MediaFile mainVideoFile = getMainVideoFile();
 
-    String baseName = "";
+    String baseName;
     if (isDisc()) {
       // https://kodi.wiki/view/NFO_files/TV_shows#nfo_Name_and_Location_2
-      if (firstMediaFile.isBlurayFile()) {
-        baseName = "index";
-      }
-      if (firstMediaFile.isDVDFile()) {
-        baseName = "VIDEO_TS";
-      }
-      if (firstMediaFile.isHDDVDFile()) {
-        baseName = "HVDVD_TS";
-      }
+      baseName = FilenameUtils.removeExtension(findDiscMainFile());
     }
     else {
-      baseName = firstMediaFile.getBasename();
+      baseName = mainVideoFile.getBasename();
     }
-    return nfoNaming.getFilename(baseName, "nfo");
+
+    String filename = nfoNaming.getFilename(baseName, "nfo");
+    LOGGER.trace("getNfoFilename: '{}' -> '{}'", mainVideoFile.getFilename(), filename);
+    return filename;
+  }
+
+  public String findDiscMainFile() {
+    MediaFile mainVideoFile = getMainVideoFile();
+
+    String filename = "";
+
+    if (mainVideoFile.isBlurayFile()) {
+      filename = "index.bdmv";
+    }
+    if (mainVideoFile.isDVDFile()) {
+      filename = "VIDEO_TS.ifo";
+    }
+    if (mainVideoFile.isHDDVDFile()) {
+      filename = "HVDVD_TS.ifo";
+    }
+
+    if (StringUtils.isNotBlank(filename) && mainVideoFile.getFile().toFile().isDirectory()) {
+      filename = mainVideoFile.getFilename() + File.separator + filename;
+    }
+
+    return filename;
   }
 
   /**
