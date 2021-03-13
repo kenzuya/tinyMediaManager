@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -107,22 +106,15 @@ public class FFmpeg {
     cmdList.add(Integer.toString(start));
     cmdList.add("-i");
     cmdList.add(videoFile.toAbsolutePath().toString());
-    cmdList.add("-f");
-    cmdList.add("matroska");
     cmdList.add("-t");
     cmdList.add(Integer.toString(duration));
     cmdList.add("-an");
     cmdList.add("-sn");
     cmdList.add("-vf");
     cmdList.add("cropdetect=0.07:2:0");
-    cmdList.add("-y");
-    cmdList.add("-crf");
-    cmdList.add("51");
-    cmdList.add("-preset");
-    cmdList.add("ultrafast");
-    cmdList.add(getNullOutput());
-
-    //"-ss ' + $Seconds + ' -i \"' + $videofile + '\" -f matroska -t ' + $global:SampleDuration + ' -an -sn -vf cropdetect=0.07:2:0 -y -crf 51 -preset ultrafast"
+    cmdList.add("-f");
+    cmdList.add("null");
+    cmdList.add("pipe:1");
     return cmdList;
   }
 
@@ -131,7 +123,7 @@ public class FFmpeg {
   }
 
   private static String executeCommand(List<String> cmdline, boolean ignoreError) throws InterruptedException {
-    LOGGER.info("Running command: {}", String.join(" ", cmdline));
+    LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 
     try {
       ProcessBuilder pb = new ProcessBuilder(cmdline.toArray(new String[0])).redirectErrorStream(true);
@@ -149,7 +141,7 @@ public class FFmpeg {
 
         int processValue = process.waitFor();
         if (!ignoreError && processValue != 0) {
-          LOGGER.warn("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
+          LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
           throw new IOException("could not create the still - code '" + processValue + "'");
         }
         return outputStream.toString(StandardCharsets.UTF_8);
@@ -178,12 +170,5 @@ public class FFmpeg {
     else {
       return Globals.settings.getMediaFramework();
     }
-  }
-
-  private static String getNullOutput() {
-    if (SystemUtils.IS_OS_WINDOWS) {
-      return "nul 2>&1";
-    }
-    return "/dev/null";
   }
 }

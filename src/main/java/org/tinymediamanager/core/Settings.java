@@ -15,12 +15,8 @@
  */
 package org.tinymediamanager.core;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -56,7 +52,7 @@ public class Settings extends AbstractSettings {
   private static final String   SUBTITLE_FILE_TYPE          = "subtitleFileType";
   private static final String   CLEANUP_FILE_TYPE           = "cleanupFileType";
   private static final String   WOL_DEVICES                 = "wolDevices";
-  private static final String   CUSTOM_ASPECT_RATIO        = "customAspectRatio";
+  private static final String   CUSTOM_ASPECT_RATIOS        = "customAspectRatios";
 
   /**
    * statics
@@ -72,7 +68,7 @@ public class Settings extends AbstractSettings {
   private final List<String>    subtitleFileTypes           = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>    cleanupFileTypes            = ObservableCollections.observableList(new ArrayList<>());
   private final List<WolDevice> wolDevices                  = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>    customAspectRatios          = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    customAspectRatios          = ObservableCollections.observableList(getDefaultAspectRatios());
 
   private String                version                     = "";
 
@@ -128,6 +124,8 @@ public class Settings extends AbstractSettings {
   private float                 ardIgnoreEnd                = 8;
   private boolean               ardRoundUp                  = false;
   private float                 ardRoundThreshold           = 0.04f;
+  private int                   ardMFMode                   = 0;
+  private float                 ardMFThreshold              = 7;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -187,7 +185,7 @@ public class Settings extends AbstractSettings {
     customAspectRatios.clear();
     customAspectRatios.addAll(MediaFileHelper.DEFAULT_CUSTOM_ASPECT_RATIOS);
     Collections.sort(customAspectRatios);
-    firePropertyChange(CUSTOM_ASPECT_RATIO, null, customAspectRatios);
+    firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
 
     // default title prefix
     titlePrefixes.clear();
@@ -1144,24 +1142,99 @@ public class Settings extends AbstractSettings {
     return this.ardRoundThreshold;
   }
 
-  public void addCustomAspectRatio(String aspectRatio) {
+  public void addCustomAspectRatios(String aspectRatio) {
     try {
       // check if number is valid
       Double.valueOf(aspectRatio);
 
       if (!customAspectRatios.contains(aspectRatio)) {
         customAspectRatios.add(aspectRatio);
-        firePropertyChange(CUSTOM_ASPECT_RATIO, null, customAspectRatios);
+        firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
       }
     } catch (Exception ex) {}
   }
 
-  public void removeCustomAspectRatio(String aspectRatio) {
+  public void removeCustomAspectRatios(String aspectRatio) {
     customAspectRatios.remove(aspectRatio);
-    firePropertyChange(CUSTOM_ASPECT_RATIO, null, customAspectRatios);
+    firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
+  }
+
+  public void setCustomAspectRatios(List<String> newValues) {
+    customAspectRatios.clear();
+    customAspectRatios.addAll(newValues);
+    firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
   }
 
   public List<String> getCustomAspectRatios() {
     return customAspectRatios;
+  }
+
+  private static List<String> getDefaultAspectRatios() {
+    LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
+    predefinedValues.put(1.33f, "4:3 (1.33:1)");
+    predefinedValues.put(1.37f, "11:8 (1.37:1)");
+    predefinedValues.put(1.43f, "IMAX (1.43:1)");
+    predefinedValues.put(1.56f, "14:9 (1.56:1)");
+    predefinedValues.put(1.66f, "5:3 (1.66:1)");
+    predefinedValues.put(1.78f, "16:9 (1.78:1)");
+    predefinedValues.put(1.85f, "Widescreen (1.85:1)");
+    predefinedValues.put(1.90f, "Digital IMAX (1.90:1)");
+    predefinedValues.put(2.20f, "70mm (2.20:1)");
+    predefinedValues.put(2.35f, "Anamorphic (2.35:1)");
+    predefinedValues.put(2.40f, "Anamorphic widescreen (2.39:1 & 12:5)");
+    return predefinedValues.keySet()
+                           .stream()
+                           .map(entry -> entry.toString())
+                           .collect(Collectors.toList());
+  }
+
+  public void setArdMFMode(int newValue) {
+    int oldValue = this.ardMFMode;
+    this.ardMFMode = newValue;
+    firePropertyChange("ardMFMode", oldValue, newValue);
+  }
+
+  public int getArdMFMode() {
+    return this.ardMFMode;
+  }
+
+  public void setArdMFMostFrequent(boolean newValue) {
+    int oldValue = this.ardMFMode;
+    this.ardMFMode = newValue ? 0 : this.ardMFMode;
+    firePropertyChange("ardMFMode", oldValue, newValue);
+  }
+
+  public boolean isArdMFMostFrequent() {
+    return this.ardMFMode == 0;
+  }
+
+  public void setArdMFWider(boolean newValue) {
+    int oldValue = this.ardMFMode;
+    this.ardMFMode = newValue ? 1 : this.ardMFMode;
+    firePropertyChange("ardMFMode", oldValue, newValue);
+  }
+
+  public boolean isArdMFWider() {
+    return this.ardMFMode == 1;
+  }
+
+  public void setArdMFHigher(boolean newValue) {
+    int oldValue = this.ardMFMode;
+    this.ardMFMode = newValue ? 2 : this.ardMFMode;
+    firePropertyChange("ardMFMode", oldValue, newValue);
+  }
+
+  public boolean isArdMFHigher() {
+    return this.ardMFMode == 2;
+  }
+
+  public void setArdMFThreshold(float newValue) {
+    float oldValue = this.ardMFThreshold;
+    this.ardMFThreshold = newValue;
+    firePropertyChange("ardMFThreshold", oldValue, newValue);
+  }
+
+  public float getArdMFThreshold() {
+    return this.ardMFThreshold;
   }
 }

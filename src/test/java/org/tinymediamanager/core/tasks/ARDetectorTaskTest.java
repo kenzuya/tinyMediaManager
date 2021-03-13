@@ -36,7 +36,7 @@ public class ARDetectorTaskTest {
     task.calculateARPrimaryAndSecondaryRaw(videoInfo);
 
     // then
-    assertThat(videoInfo.arPrimary).isEqualTo(2.4f);
+    assertThat(videoInfo.arPrimaryRaw).isEqualTo(2.4f);
     assertThat(videoInfo.arSecondary).isEqualTo(2.6f);
   }
 
@@ -61,7 +61,7 @@ public class ARDetectorTaskTest {
     task.calculateARPrimaryAndSecondaryRaw(videoInfo);
 
     // then
-    assertThat(videoInfo.arPrimary).isEqualTo(2.4f);
+    assertThat(videoInfo.arPrimaryRaw).isEqualTo(2.4f);
     assertThat(videoInfo.arSecondary).isEqualTo(0);
   }
 

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.thirdparty.MediaInfo;
 
@@ -15,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class ARDetectorTask implements Runnable {
+public class ARDetectorTask extends TmmTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ARDetectorTask.class);
 
@@ -46,12 +47,14 @@ public class ARDetectorTask implements Runnable {
   protected final List<Float> arCustomList = new LinkedList<>();
 
   public ARDetectorTask(MediaFile mediaFile) {
+    super("ard-" + mediaFile.getBasename(), 1, TaskType.BACKGROUND_TASK);
+
     this.mediaFile = mediaFile;
     init();
   }
 
   @Override
-  public void run() {
+  protected void doInBackground() {
     analyze();
   }
 
@@ -69,70 +72,81 @@ public class ARDetectorTask implements Runnable {
                                      .collect(Collectors.toList()));
     this.roundUp = settings.isArdRoundUp();
     this.roundUpThreshold = settings.getArdRoundThreshold();
+    this.multiFormatMode = settings.getArdMFMode();
+    this.multiFormatThreshold = settings.getArdMFThreshold() / 100f;
   }
 
   protected void analyze() {
-    VideoInfo videoInfo = new VideoInfo();
-    videoInfo.width = this.mediaFile.getVideoWidth();
-    videoInfo.height = this.mediaFile.getVideoHeight();
-    videoInfo.duration = this.mediaFile.getDuration();
-    videoInfo.arSample = getSampleAR(this.mediaFile);
-    if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
+    try {
+      VideoInfo videoInfo = new VideoInfo();
+      videoInfo.width = this.mediaFile.getVideoWidth();
+      videoInfo.height = this.mediaFile.getVideoHeight();
+      videoInfo.duration = this.mediaFile.getDuration();
+      videoInfo.arSample = getSampleAR(this.mediaFile);
+      if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
 
-    LOGGER.info("Metadata: {}x{}px, duration:{}, AR:{}, SAR:{}",
-                videoInfo.width, videoInfo.height,
-                this.mediaFile.getDurationHHMMSS(),
-                this.mediaFile.getAspectRatio(),
-                videoInfo.arSample);
+      LOGGER.info("Metadata: {}x{}px, duration:{}, AR:{}, SAR:{}",
+        videoInfo.width, videoInfo.height,
+        this.mediaFile.getDurationHHMMSS(),
+        this.mediaFile.getAspectRatio(),
+        videoInfo.arSample);
 
-    int start = Float.valueOf((float)videoInfo.duration * this.ignoreBeginning / 100f).intValue();
-    int end = Float.valueOf((float)videoInfo.duration * (1f - (this.ignoreEnd / 100f))).intValue();
+      int start = Float.valueOf((float) videoInfo.duration * this.ignoreBeginning / 100f).intValue();
+      int end = Float.valueOf((float) videoInfo.duration * (1f - (this.ignoreEnd / 100f))).intValue();
 
-    float increment = (float)(end - start) / (this.sampleMinNumber + 1f);
+      float increment = (float) (end - start) / (this.sampleMinNumber + 1f);
 
-    float seconds = start + increment;
+      float seconds = start + increment;
 
-    if (increment > this.sampleMaxGap) {
-      increment = this.sampleMaxGap;
-      seconds = start;
-    }
-
-    while (seconds < (end - 2)) {
-      LOGGER.info("Scanning @{}s", seconds);
-      try {
-        int iSec = Math.round(seconds);
-        int iInc = Math.round(increment);
-        String result = FFmpeg.scanSample(iSec, sampleDuration, this.mediaFile.getFile());
-        parseSample(result, iSec, iInc, videoInfo);
-      } catch (Exception ex) {
-        LOGGER.error("Error scanning sample", ex);
+      if (increment > this.sampleMaxGap) {
+        increment = this.sampleMaxGap;
+        seconds = start;
       }
 
-      seconds += increment + videoInfo.sampleSkipAdjustement;
+      while (seconds < (end - 2)) {
+        LOGGER.debug("Scanning @{}s", seconds);
+        try {
+          int iSec = Math.round(seconds);
+          int iInc = Math.round(increment);
+          String result = FFmpeg.scanSample(iSec, sampleDuration, this.mediaFile.getFile());
+          parseSample(result, iSec, iInc, videoInfo);
+        } catch (Exception ex) {
+          LOGGER.warn("Error scanning sample", ex);
+        }
+
+        seconds += increment + videoInfo.sampleSkipAdjustement;
+      }
+
+      if (videoInfo.sampleCount == 0) {
+        LOGGER.warn("No results from scanning");
+        setState(TaskState.FAILED);
+        return;
+      }
+
+      calculateARPrimaryAndSecondaryRaw(videoInfo);
+
+      if (this.multiFormatMode > 0) {
+        detectMultiFormat(videoInfo);
+      } else {
+        LOGGER.debug("Multi format: disabled");
+      }
+
+      videoInfo.arPrimary = roundAR(videoInfo.arPrimaryRaw);
+      LOGGER.debug("AR_Primary: {}", String.format("%.2f", videoInfo.arPrimary));
+
+      this.mediaFile.setAspectRatio(videoInfo.arPrimary);
+
+      int newHeight = getNewHeight(videoInfo);
+      this.mediaFile.setVideoHeight(newHeight);
+
+      LOGGER.info("Detected: {}x{} AR:{}", videoInfo.width, newHeight, videoInfo.arPrimary);
+    } catch (Exception ex) {
+      LOGGER.error("Error detecting aspect ratio", ex);
+      setState(TaskState.FAILED);
     }
-
-    if (videoInfo.sampleCount == 0) {
-      LOGGER.error("No results from scanning");
-      return;
-    }
-
-    calculateARPrimaryAndSecondaryRaw(videoInfo);
-
-    if (this.multiFormatMode > 0) {
-      detectMultiFormat(videoInfo);
-    } else {
-      LOGGER.info("Multi format: disabled");
-    }
-
-    videoInfo.arPrimary = roundAR(videoInfo.arPrimary);
-    LOGGER.info("AR_Primary: {}", String.format("%.2f", videoInfo.arPrimary));
-
-    this.mediaFile.setAspectRatio(videoInfo.arPrimary);
   }
 
   protected void parseSample(String result, int seconds, int increment, VideoInfo videoInfo) {
-    LOGGER.info("Parsing sample result: {}", result);
-
     if (StringUtils.isNotEmpty(result)) {
       Matcher matcher = patternSample.matcher(result);
       if (matcher.find()) {
@@ -177,7 +191,7 @@ public class ARDetectorTask implements Runnable {
                                  int seconds, int increment,
                                  VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
-      LOGGER.info(" => bars: {} => Sample ignored: More than {}% difference between left and right black bar",
+      LOGGER.debug(" => bars: {} => Sample ignored: More than {}% difference between left and right black bar",
                   barstxt, this.plausiWidthDeltaPct);
       if (videoInfo.sampleSkipAdjustement > 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
@@ -185,7 +199,7 @@ public class ARDetectorTask implements Runnable {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
-      LOGGER.info(" => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
+      LOGGER.debug(" => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
                   barstxt, this.plausiHeightDeltaPct);
       if (videoInfo.sampleSkipAdjustement > 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
@@ -193,7 +207,7 @@ public class ARDetectorTask implements Runnable {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if ((videoInfo.width * this.plausiWidthPct / 100d) >= width) {
-      LOGGER.info(" => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
+      LOGGER.debug(" => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
                   barstxt, width, this.plausiWidthPct, videoInfo.width);
       if (videoInfo.sampleSkipAdjustement > 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
@@ -201,7 +215,7 @@ public class ARDetectorTask implements Runnable {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if ((videoInfo.height * this.plausiHeightPct / 100d) >= height) {
-      LOGGER.info(" => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
+      LOGGER.debug(" => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
                   barstxt, height, this.plausiHeightPct, videoInfo.height);
       if (videoInfo.sampleSkipAdjustement > 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
@@ -216,7 +230,7 @@ public class ARDetectorTask implements Runnable {
         videoInfo.arMap.put(videoInfo.arCalculated, videoInfo.arMap.get(videoInfo.arCalculated) + 1);
       }
       videoInfo.sampleCount++;
-      LOGGER.info("Analyzing {}s @ {} => bars: {} crop: {}x{} ({}) * SAR => AR_Calculated = {}",
+      LOGGER.debug("Analyzing {}s @ {} => bars: {} crop: {}x{} ({}) * SAR => AR_Calculated = {}",
                   this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
                   barstxt, width, height,
                   String.format("%.5f", videoInfo.arMeasured), String.format("%.5f", videoInfo.arCalculated));
@@ -224,7 +238,7 @@ public class ARDetectorTask implements Runnable {
   }
 
   protected void calculateARPrimaryAndSecondaryRaw(VideoInfo videoInfo) {
-    videoInfo.arPrimary = videoInfo.arMap.entrySet()
+    videoInfo.arPrimaryRaw = videoInfo.arMap.entrySet()
                                             .stream()
                                             .sorted(Map.Entry.<Float, Integer>comparingByValue().reversed())
                                             .findFirst()
@@ -233,8 +247,8 @@ public class ARDetectorTask implements Runnable {
 
     videoInfo.arSecondary = videoInfo.arMap.entrySet()
                                               .stream()
-                                              .filter(entry -> (entry.getKey() <= (videoInfo.arPrimary - this.arSecondaryDelta) ||
-                                                                entry.getKey() >= (videoInfo.arPrimary + this.arSecondaryDelta)))
+                                              .filter(entry -> (entry.getKey() <= (videoInfo.arPrimaryRaw - this.arSecondaryDelta) ||
+                                                                entry.getKey() >= (videoInfo.arPrimaryRaw + this.arSecondaryDelta)))
                                               .sorted(Map.Entry.<Float, Integer>comparingByValue().reversed())
                                               .findFirst()
                                               .map(entry -> entry.getKey())
@@ -244,8 +258,8 @@ public class ARDetectorTask implements Runnable {
 
     int arPrimarySum = videoInfo.arMap.entrySet()
                                       .stream()
-                                      .filter(entry -> (entry.getKey() >= (videoInfo.arPrimary - this.arSecondaryDelta / 2) &&
-                                                        entry.getKey() <= (videoInfo.arPrimary + this.arSecondaryDelta / 2)))
+                                      .filter(entry -> (entry.getKey() >= (videoInfo.arPrimaryRaw - this.arSecondaryDelta / 2) &&
+                                                        entry.getKey() <= (videoInfo.arPrimaryRaw + this.arSecondaryDelta / 2)))
                                       .map(entry -> entry.getValue())
                                       .reduce(0, Integer::sum);
     int arSecondarySum = videoInfo.arMap.entrySet()
@@ -259,39 +273,36 @@ public class ARDetectorTask implements Runnable {
     videoInfo.arSecondaryPct = arSecondarySum * 100 / videoInfo.sampleCount;
     float arOtherPct = ((videoInfo.sampleCount - arPrimarySum - arSecondarySum) * 100 / videoInfo.sampleCount);
 
-    LOGGER.info("AR_PrimaryRaw:     {}, {}% of samples are within ±{}  Aspect ratio (AR) detected in most of the analyzed samples",
-      String.format("%.5f", videoInfo.arPrimary), String.format("%.1f", arPrimaryPct), this.arSecondaryDelta);
-    LOGGER.info("AR_SecondaryRaw:   {}, {}% of samples are within ±{}  Aspect ratio (AR) detected in most of the analyzed samples",
+    LOGGER.debug("AR_PrimaryRaw:     {}, {}% of samples are within ±{}  Aspect ratio (AR) detected in most of the analyzed samples",
+      String.format("%.5f", videoInfo.arPrimaryRaw), String.format("%.1f", arPrimaryPct), this.arSecondaryDelta);
+    LOGGER.debug("AR_SecondaryRaw:   {}, {}% of samples are within ±{}  Aspect ratio (AR) detected in most of the analyzed samples",
       String.format("%.5f", videoInfo.arSecondary), String.format("%.1f", videoInfo.arSecondaryPct), this.arSecondaryDelta);
-    LOGGER.info("Other ARs:         {}% of samplesOther                ARs found, high value means bad detection",
+    LOGGER.debug("Other ARs:         {}% of samplesOther                ARs found, high value means bad detection",
       String.format("%.1f", arOtherPct));
   }
 
   protected void detectMultiFormat(VideoInfo videoInfo) {
     if (videoInfo.arSecondaryPct >= this.multiFormatThreshold) {
-      LOGGER.info("Multi format: yes   AR_Secondary ({}% of samples) >= MFV Detection Threshold ({}% of samples)",
+      LOGGER.debug("Multi format: yes   AR_Secondary ({}% of samples) >= MFV Detection Threshold ({}% of samples)",
       String.format("%.1f", videoInfo.arSecondaryPct), String.format("%f", videoInfo.arSecondaryPct * 100));
 
       if (multiFormatMode == 1) {
-        LOGGER.info("AR_Primary = most frequent AR, rounded to list of ARs");
-        LOGGER.info("AR_Secondary = second most frequent AR, rounded to list of ARs");
+        float tmp = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
+        videoInfo.arSecondary = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
+        videoInfo.arPrimaryRaw = tmp;
+
+        LOGGER.debug("MFV detected, AR_Primary = wider AR, rounded to list of ARs");
+        LOGGER.debug("MFV detected, AR_Secondary = higher AR, rounded to list of ARs");
       } else if (multiFormatMode == 2) {
-        float tmp = Math.max(videoInfo.arPrimary, videoInfo.arSecondary);
-        videoInfo.arSecondary = Math.min(videoInfo.arPrimary, videoInfo.arSecondary);
-        videoInfo.arPrimary = tmp;
+        float tmp = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
+        videoInfo.arSecondary = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
+        videoInfo.arPrimaryRaw = tmp;
 
-        LOGGER.info("MFV detected, AR_Primary = wider AR, rounded to list of ARs");
-        LOGGER.info("MFV detected, AR_Secondary = higher AR, rounded to list of ARs");
-      } else {
-        float tmp = Math.min(videoInfo.arPrimary, videoInfo.arSecondary);
-        videoInfo.arSecondary = Math.max(videoInfo.arPrimary, videoInfo.arSecondary);
-        videoInfo.arPrimary = tmp;
-
-        LOGGER.info("AR_Primary = higher AR, rounded to list of ARs");
-        LOGGER.info("AR_Secondary = wider AR, rounded to list of ARs");
+        LOGGER.debug("AR_Primary = higher AR, rounded to list of ARs");
+        LOGGER.debug("AR_Secondary = wider AR, rounded to list of ARs");
       }
     } else {
-      LOGGER.info("Multi format: no    AR_Secondary ({}% of samples) < MFV Detection Threshold ({}%)",
+      LOGGER.debug("Multi format: no    AR_Secondary ({}% of samples) < MFV Detection Threshold ({}%)",
                   String.format("%.1f", videoInfo.arSecondaryPct), String.format("%f", this.multiFormatThreshold * 100));
     }
   }
@@ -334,6 +345,21 @@ public class ARDetectorTask implements Runnable {
     return rounded;
   }
 
+  protected int getNewHeight(VideoInfo videoInfo) {
+    int height = videoInfo.height;
+    if ((videoInfo.arPrimaryRaw * 1.25f) > videoInfo.arPrimary) {
+      int croppedHeight = Math.round(videoInfo.width / (videoInfo.arPrimary / videoInfo.arSample));
+      if (Math.abs(videoInfo.height - croppedHeight) >= 10) {
+        height = croppedHeight;
+      } else {
+        LOGGER.debug("Cropped height is close to real height");
+      }
+    } else {
+      LOGGER.debug("Real aspect ration is much lower then rounded aspect ratio");
+    }
+    return height;
+  }
+
   protected float getSampleAR(MediaFile mediaFile) {
     String pixelAspectRatio = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "PixelAspectRatio");
     if (StringUtils.isNotEmpty(pixelAspectRatio)) {
@@ -353,6 +379,7 @@ public class ARDetectorTask implements Runnable {
     float arMeasured = 0f;
     float arCalculated = 0f;
     float arPrimary = 0f;
+    float arPrimaryRaw = 0f;
     float arSecondary = 0f;
     float arSecondaryPct = 0f;
 

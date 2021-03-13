@@ -68,6 +68,11 @@ class MiscSettingsPanel extends JPanel {
   private JRadioButton                rdbtnRoundNearest;
   private JRadioButton                rdbtnRoundUpToNext;
   private JTextField                  tfRoundThreshold;
+  private ButtonGroup                 buttonGroupARUseMode = new ButtonGroup();
+  private JRadioButton                rdbtnMFMostFrequent;
+  private JRadioButton                rdbtnMFWider;
+  private JRadioButton                rdbtnMFHigher;
+  private JTextField                  tfMFThreshold;
 
   /**
    * Instantiates a new general settings panel.
@@ -79,7 +84,7 @@ class MiscSettingsPanel extends JPanel {
     // data init
     btnAddCustomAspectRatio.addActionListener(e -> {
       if (StringUtils.isNotEmpty(tfCustomAspectRatio.getText())) {
-        Globals.settings.addCustomAspectRatio(tfCustomAspectRatio.getText());
+        Globals.settings.addCustomAspectRatios(tfCustomAspectRatio.getText());
         tfCustomAspectRatio.setText("");
       }
     });
@@ -87,7 +92,7 @@ class MiscSettingsPanel extends JPanel {
       int row = listCustomAspectRatios.getSelectedIndex();
       if (row != -1) {
         String prefix = Globals.settings.getCustomAspectRatios().get(row);
-        Globals.settings.removeCustomAspectRatio(prefix);
+        Globals.settings.removeCustomAspectRatios(prefix);
       }
     });
 
@@ -245,6 +250,20 @@ class MiscSettingsPanel extends JPanel {
         tfRoundThreshold = new JTextField();
         panelArd.add(tfRoundThreshold, "cell 3 9,growx");
 
+        rdbtnMFMostFrequent = new JRadioButton("Use nearest AR");
+        buttonGroupARUseMode.add(rdbtnMFMostFrequent);
+        panelArd.add(rdbtnMFMostFrequent, "cell 1 10,growx");
+
+        rdbtnMFWider = new JRadioButton("Use wider AR");
+        buttonGroupARUseMode.add(rdbtnMFWider);
+        panelArd.add(rdbtnMFWider, "cell 1 11,growx");
+
+        rdbtnMFHigher = new JRadioButton("Use higher AR");
+        buttonGroupARUseMode.add(rdbtnMFHigher);
+        panelArd.add(rdbtnMFHigher, "cell 1 12,growx");
+
+        tfMFThreshold = new JTextField();
+        panelArd.add(tfMFThreshold, "cell 3 13,growx");
       }
     }
   }
@@ -316,7 +335,7 @@ class MiscSettingsPanel extends JPanel {
                                                                             jTextFieldBeanProperty_ard_ignoreBeginning);
     autoBinding_ard_ignoreBeginning.bind();
 
-    // sample ignore beginning
+    // sample ignore end
     Property ardIgnoreEndBeanProperty = BeanProperty.create("ardIgnoreEnd");
     Property jTextFieldBeanProperty_ard_ignoreEnd = BeanProperty.create("text");
     AutoBinding autoBinding_ard_ignoreEnd = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
@@ -327,23 +346,65 @@ class MiscSettingsPanel extends JPanel {
 
     // custom aspect ratios
     BeanProperty<Settings, List<String>> ardCustomAspectRatiosBeanProperty = BeanProperty.create("customAspectRatios");
-    JListBinding<String, Settings, JList> jListBinding_ard_customAspectRatios = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings,
-      ardCustomAspectRatiosBeanProperty, listCustomAspectRatios);
-    jListBinding_ard_customAspectRatios.bind();
+    JListBinding<String, Settings, JList> jListBinding_ard_customAspectRatios = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE,
+                                                                    settings,
+                                                                    ardCustomAspectRatiosBeanProperty,
+                                                                    listCustomAspectRatios);
+                                                                    jListBinding_ard_customAspectRatios.bind();
 
     // round up
     Property ardRoundUpBeanProperty = BeanProperty.create("ardRoundUp");
-    AutoBinding autoBinding_ard_roundUp = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, ardRoundUpBeanProperty, rdbtnRoundUpToNext,
-      jCheckBoxBeanProperty);
+    AutoBinding autoBinding_ard_roundUp = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
+                                                                     ardRoundUpBeanProperty,
+                                                                     rdbtnRoundUpToNext,
+                                                                     jCheckBoxBeanProperty);
     autoBinding_ard_roundUp.bind();
 
     // round threshold
     Property ardRoundThresholdBeanProperty = BeanProperty.create("ardRoundThreshold");
     Property jTextFieldBeanProperty_ard_roundThreshold = BeanProperty.create("text");
-    AutoBinding autoBinding_ard_roundThreshold = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-      ardRoundThresholdBeanProperty,
-      tfRoundThreshold,
-      jTextFieldBeanProperty_ard_roundThreshold);
+    AutoBinding autoBinding_ard_roundThreshold = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+                                                                            settings,
+                                                                            ardRoundThresholdBeanProperty,
+                                                                            tfRoundThreshold,
+                                                                            jTextFieldBeanProperty_ard_roundThreshold);
     autoBinding_ard_roundThreshold.bind();
+
+    // MF round most frequent
+    Property ardMFRoundMostFrequentBeanProperty = BeanProperty.create("ardMFMostFrequent");
+    AutoBinding autoBinding_ard_mfRoundMostFrequent = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+                                                                                 settings,
+                                                                                 ardMFRoundMostFrequentBeanProperty,
+                                                                                 rdbtnMFMostFrequent,
+                                                                                 jCheckBoxBeanProperty);
+    autoBinding_ard_mfRoundMostFrequent.bind();
+
+    // MF round wider
+    Property ardMFRoundWiderBeanProperty = BeanProperty.create("ardMFWider");
+    AutoBinding autoBinding_ard_mfRoundWider = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+                                                                          settings,
+                                                                          ardMFRoundWiderBeanProperty,
+                                                                          rdbtnMFWider,
+                                                                          jCheckBoxBeanProperty);
+    autoBinding_ard_mfRoundWider.bind();
+
+    // MF round most frequent
+    Property ardMFRoundHigherBeanProperty = BeanProperty.create("ardMFHigher");
+    AutoBinding autoBinding_ard_mfRoundHigher = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+                                                                           settings,
+                                                                           ardMFRoundHigherBeanProperty,
+                                                                           rdbtnMFHigher,
+                                                                           jCheckBoxBeanProperty);
+    autoBinding_ard_mfRoundHigher.bind();
+
+    // MF threshold
+    Property ardMFThresholdBeanProperty = BeanProperty.create("ardMFThreshold");
+    Property jTextFieldBeanProperty_ard_mfThreshold = BeanProperty.create("text");
+    AutoBinding autoBinding_ard_mfThreshold = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,
+                                                                         settings,
+                                                                         ardMFThresholdBeanProperty,
+                                                                         tfMFThreshold,
+                                                                         jTextFieldBeanProperty_ard_mfThreshold);
+    autoBinding_ard_mfThreshold.bind();
   }
 }
