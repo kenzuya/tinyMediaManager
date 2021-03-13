@@ -3,10 +3,9 @@ package org.tinymediamanager.core.tasks;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.thirdparty.MediaInfo;
 
@@ -16,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class ARDetectorTask extends TmmTask {
+public class ARDetectorTask extends TmmThreadPool {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ARDetectorTask.class);
 
@@ -47,7 +46,7 @@ public class ARDetectorTask extends TmmTask {
   protected final List<Float> arCustomList = new LinkedList<>();
 
   public ARDetectorTask(MediaFile mediaFile) {
-    super("ard-" + mediaFile.getBasename(), 1, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("update.aspectRatio"));
 
     this.mediaFile = mediaFile;
     init();
@@ -119,7 +118,7 @@ public class ARDetectorTask extends TmmTask {
 
       if (videoInfo.sampleCount == 0) {
         LOGGER.warn("No results from scanning");
-        setState(TaskState.FAILED);
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed"));
         return;
       }
 
@@ -142,7 +141,7 @@ public class ARDetectorTask extends TmmTask {
       LOGGER.info("Detected: {}x{} AR:{}", videoInfo.width, newHeight, videoInfo.arPrimary);
     } catch (Exception ex) {
       LOGGER.error("Error detecting aspect ratio", ex);
-      setState(TaskState.FAILED);
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed"));
     }
   }
 
@@ -387,4 +386,13 @@ public class ARDetectorTask extends TmmTask {
 
     Map<Float, Integer> arMap = new HashMap<>();
   }
+
+
+  @Override
+  public void callback(Object obj) {
+    // do not publish task description here, because with different workers the
+    // text is never right
+    publishState(progressDone);
+  }
+
 }

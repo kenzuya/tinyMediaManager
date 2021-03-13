@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -161,6 +162,11 @@ public class FFmpeg {
     }
   }
 
+  public static boolean isAvailable() {
+    FFmpegAddon fFmpegAddon = new FFmpegAddon();
+    return ((Globals.settings.isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) ||
+            StringUtils.isNotEmpty(Globals.settings.getMediaFramework()));
+  }
   private static String getFfmpegExecutable() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
 
