@@ -3,6 +3,7 @@ Version 4.1.2
 + new columns for HDR and aspect ratio - thx @icebaer72
 + (movies/TV shows) re-added persisting of last used filters #1153
 + (movies) option to only include the first studio in the NFO
++ (movies) added cover.ext to well known poster file names
 x removed unused code fot TV show ratings #1233
 x display custom rating source logo #1233
 x do not delete tags on further scrapes #1233
@@ -13,6 +14,7 @@ x changed renamer token ${hdr} to ${hdrformat}
 x better propagation of API errors to the UI #1237
 x (TV shows) reworked scrape new items
 x (macOS) search for Kodi scrapers in different locations
+x (TV shows) writing of correct NFO file name for BD/DVD episodes #1248
 
 
 Version 4.1.1
