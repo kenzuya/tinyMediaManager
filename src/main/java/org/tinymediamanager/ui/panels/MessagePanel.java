@@ -124,7 +124,7 @@ public class MessagePanel extends JPanel {
     lblTitle = new JLabel();
     TmmFontHelper.changeFont(lblTitle, Font.BOLD);
 
-    innerPanel.add(lblTitle, "cell 2 0,growx");
+    innerPanel.add(lblTitle, "cell 2 0,wmin 0,growx");
 
     taMessage = new ReadOnlyTextArea();
     innerPanel.add(taMessage, "cell 2 1,wmin 0,grow");
