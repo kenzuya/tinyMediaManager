@@ -935,7 +935,7 @@ public class TvShowArtworkHelper {
 
     FFmpeg.createStill(mf.getFileAsPath(), tempFile, seconds);
 
-    if (tempFile.toFile().exists()) {
+    if (Files.exists(tempFile)) {
       episode.removeAllMediaFiles(MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
 
       boolean first = true;
@@ -945,7 +945,7 @@ public class TvShowArtworkHelper {
       for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.SETTINGS.getEpisodeThumbFilenames()) {
         Path thumb = episode.getPathNIO().resolve(thumbNaming.getFilename(basename, "jpg"));
 
-        if (thumb.toFile().exists()) {
+        if (Files.exists(thumb)) {
           Utils.deleteFileSafely(thumb);
         }
 

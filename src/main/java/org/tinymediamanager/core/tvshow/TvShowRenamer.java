@@ -487,7 +487,7 @@ public class TvShowRenamer {
         if (name == TvShowExtraFanartNaming.FOLDER_EXTRAFANART) {
           folder = tvShow.getPathNIO().resolve("extrafanart");
           try {
-            if (!folder.toFile().exists()) {
+            if (Files.notExists(folder)) {
               Files.createDirectory(folder);
             }
           }

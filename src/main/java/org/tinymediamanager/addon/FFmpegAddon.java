@@ -19,6 +19,7 @@ import static org.tinymediamanager.addon.AddonManager.getAddonFolder;
 import static org.tinymediamanager.addon.AddonManager.getOsArch;
 import static org.tinymediamanager.addon.AddonManager.getOsName;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -45,11 +46,11 @@ public class FFmpegAddon implements IAddon {
   public boolean isAvailable() {
     Path addonFolder = getAddonFolder().resolve(getAddonName());
 
-    if (!addonFolder.toFile().exists()) {
+    if (Files.notExists(addonFolder)) {
       return false;
     }
 
-    if (addonFolder.resolve(getExecutableFilename()).toFile().exists()) {
+    if (Files.exists(addonFolder.resolve(getExecutableFilename()))) {
       return true;
     }
 

@@ -1042,7 +1042,7 @@ public class MovieRenamer {
               if (fileNaming == MovieExtraFanartNaming.FOLDER_EXTRAFANART) {
                 folder = newMovieDir.resolve("extrafanart");
                 try {
-                  if (!folder.toFile().exists()) {
+                  if (Files.notExists(folder)) {
                     Files.createDirectory(folder);
                   }
                 }

@@ -117,7 +117,7 @@ public class MovieSetArtworkHelper {
         if (mf.getFilesize() == 0) {
           return false;
         }
-        if (!mf.getFile().toFile().exists()) {
+        if (Files.notExists(mf.getFile())) {
           return false;
         }
         return true;
