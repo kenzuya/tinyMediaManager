@@ -107,7 +107,7 @@ public class TvShowExtraImageFetcherTask implements Runnable {
     if (fileNaming == TvShowExtraFanartNaming.FOLDER_EXTRAFANART) {
       folder = tvShow.getPathNIO().resolve("extrafanart");
       try {
-        if (Files.notExists(folder)) {
+        if (!Files.exists(folder)) {
           Files.createDirectory(folder);
         }
       }

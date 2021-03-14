@@ -1689,7 +1689,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @return list of actor images on filesystem
    */
   private List<MediaFile> listActorFiles() {
-    if (Files.notExists(getPathNIO().resolve(Person.ACTOR_DIR))) {
+    if (!Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
       return Collections.emptyList();
     }
 

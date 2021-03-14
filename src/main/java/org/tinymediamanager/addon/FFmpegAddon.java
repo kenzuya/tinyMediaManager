@@ -46,7 +46,7 @@ public class FFmpegAddon implements IAddon {
   public boolean isAvailable() {
     Path addonFolder = getAddonFolder().resolve(getAddonName());
 
-    if (Files.notExists(addonFolder)) {
+    if (!Files.exists(addonFolder)) {
       return false;
     }
 

@@ -121,7 +121,7 @@ public class MovieExtraImageFetcherTask implements Runnable {
     if (fileNaming == MovieExtraFanartNaming.FOLDER_EXTRAFANART) {
       folder = movie.getPathNIO().resolve("extrafanart");
       try {
-        if (Files.notExists(folder)) {
+        if (!Files.exists(folder)) {
           Files.createDirectory(folder);
         }
       }
