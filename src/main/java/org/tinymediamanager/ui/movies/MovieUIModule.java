@@ -50,7 +50,7 @@ import org.tinymediamanager.ui.movies.actions.MovieDownloadActorImagesAction;
 import org.tinymediamanager.ui.movies.actions.MovieDownloadMissingArtworkAction;
 import org.tinymediamanager.ui.movies.actions.MovieEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieExportAction;
-import org.tinymediamanager.ui.movies.actions.MovieFetchImdbRating;
+import org.tinymediamanager.ui.movies.actions.MovieFetchImdbRatingAction;
 import org.tinymediamanager.ui.movies.actions.MovieFindMissingAction;
 import org.tinymediamanager.ui.movies.actions.MovieMediaInformationAction;
 import org.tinymediamanager.ui.movies.actions.MovieReadNfoAction;
@@ -206,7 +206,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
     enhancedEditMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbRating.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieFetchImdbRatingAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
