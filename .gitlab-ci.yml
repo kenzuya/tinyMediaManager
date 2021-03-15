@@ -129,7 +129,7 @@ deploy:nightly:
   only:
     variables:
       - $NIGHTLY_BUILD == "true"
-  dependencies:
+  needs:
     - package:nightly
   trigger:
     project: tinyMediaManager/nightly.tinymediamanager.org
@@ -165,7 +165,7 @@ deploy:PRE-RELEASE:
   stage: deploy
   only:
     - v3@tinyMediaManager/tinyMediaManager
-  dependencies:
+  needs:
     - package:PRE-RELEASE
   trigger:
     project: tinyMediaManager/prerelease.tinymediamanager.org
@@ -245,7 +245,7 @@ deploy:RELEASE:
   stage: deploy
   only:
     - v3@tinyMediaManager/tinyMediaManager
-  dependencies:
+  needs:
     - package:RELEASE
   trigger:
     project: tinyMediaManager/release.tinymediamanager.org
