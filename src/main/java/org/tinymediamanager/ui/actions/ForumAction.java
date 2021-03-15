@@ -43,7 +43,7 @@ public class ForumAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    String url = StringEscapeUtils.unescapeHtml4("http://forum.xbmc.org/forumdisplay.php?fid=204");
+    String url = StringEscapeUtils.unescapeHtml4("https://www.reddit.com/r/tinyMediaManager/");
     try {
       TmmUIHelper.browseUrl(url);
     }
