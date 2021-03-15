@@ -126,6 +126,9 @@ package:nightly:
 
 deploy:nightly:
   stage: deploy
+  only:
+    variables:
+      - $NIGHTLY_BUILD == "true"
   needs:
     - package:nightly
   trigger:
@@ -159,6 +162,8 @@ package:PRE-RELEASE:
 
 deploy:PRE-RELEASE:
   stage: deploy
+  only:
+    - v3@tinyMediaManager/tinyMediaManager
   needs:
     - package:PRE-RELEASE
   trigger:
@@ -236,6 +241,8 @@ package:RELEASE:
 
 deploy:RELEASE:
   stage: deploy
+  only:
+    - v3@tinyMediaManager/tinyMediaManager
   needs:
     - package:RELEASE
   trigger:
