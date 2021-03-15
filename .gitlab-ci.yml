@@ -13,7 +13,6 @@ cache:
 stages:
   - compile
   - test
-  - package
   - deploy
 
 compile:
@@ -96,8 +95,8 @@ sonarqube-qa:
   script:
     - mvn $MAVEN_CLI_OPTS sonar:sonar -Dsonar.projectKey=org.tinymediamanager:tinyMediaManager -Dsonar.organization=tinymediamanager -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${SONARCLOUD_API_TOKEN}
 
-package:nightly:
-  stage: package
+deploy:nightly:
+  stage: deploy
   image: maven:3-jdk-8                                # stay with stretch
   environment:
     name: nightly
@@ -118,25 +117,17 @@ package:nightly:
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v3 build\"}" https://gitlab.com/api/v4/projects/7895208/repository/files/v3_job_id.txt
 
+    # trigger the deployment on nightly.tinymediamanager.org
+    - curl -X POST -F "token=${NIGHTLY_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/7895208/trigger/pipeline
+
   artifacts:
     paths:
       - build/
       - dist/
     expire_in: 1 week
 
-deploy:nightly:
+deploy:PRE-RELEASE:
   stage: deploy
-  only:
-    variables:
-      - $NIGHTLY_BUILD == "true"
-  needs:
-    - package:nightly
-  trigger:
-    project: tinyMediaManager/nightly.tinymediamanager.org
-    branch: master
-
-package:PRE-RELEASE:
-  stage: package
   image: maven:3-jdk-8  # stay with stretch
   environment:
     name: prerelease
@@ -155,24 +146,17 @@ package:PRE-RELEASE:
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v3 build\"}" https://gitlab.com/api/v4/projects/10869644/repository/files/v3_job_id.txt
 
+    # trigger the deployment on prerelease.tinymediamanager.org (new HP)
+    - curl -X POST -F "token=${PREREL_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/10869644/trigger/pipeline
+
   artifacts:
     paths:
       - build/
       - dist/
     expire_in: never
 
-deploy:PRE-RELEASE:
+deploy:RELEASE:
   stage: deploy
-  only:
-    - v3@tinyMediaManager/tinyMediaManager
-  needs:
-    - package:PRE-RELEASE
-  trigger:
-    project: tinyMediaManager/prerelease.tinymediamanager.org
-    branch: master
-
-package:RELEASE:
-  stage: package
   image: maven:3-jdk-8      # use stretch
   environment:
     name: release
@@ -235,18 +219,11 @@ package:RELEASE:
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v3 build\"}" https://gitlab.com/api/v4/projects/10869704/repository/files/v3_job_id.txt
 
+    # trigger the deployment on release.tinymediamanager.org (new HP)
+    - curl -X POST -F "token=${RELEASE_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/10869704/trigger/pipeline
+
   artifacts:
     paths:
       - build/
       - dist/
     expire_in: never
-
-deploy:RELEASE:
-  stage: deploy
-  only:
-    - v3@tinyMediaManager/tinyMediaManager
-  needs:
-    - package:RELEASE
-  trigger:
-    project: tinyMediaManager/release.tinymediamanager.org
-    branch: master
