@@ -3,6 +3,7 @@ Version 3.1.13
 x fix loading of various aspect ratio icons #1160
 x fixes Trakt.tv integration
 x fixed parsing of TMDB id for TV shows
+x (macOS) fixed JVM discovery on Big Sur
 
 
 Version 3.1.12.1

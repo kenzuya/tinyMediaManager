@@ -37,6 +37,12 @@ export LC_ALL="en_US.UTF-8"
 # search for the right JVM - priority is java 8
 if [ -x /usr/libexec/java_home ]; then
 	JAVA_HOME="$(/usr/libexec/java_home -v 1.8+ -F)"
+
+	# alternate search for Big Sur
+	if [ ! -f "$JAVA_HOME/bin/java" ]; then
+		JAVA_HOME="$(/usr/libexec/java_home)"
+	fi
+
 	export JAVA_HOME
 fi
 
