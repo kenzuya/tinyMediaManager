@@ -35,43 +35,43 @@ test:jdk8:
     - dpkg -i libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
     - wget https://mediaarea.net/download/binary/libmediainfo0/20.03/libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
     - dpkg -i libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
+    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
 
 test:jdk11:
   stage: test
-  image: maven:3-jdk-11
+  image: registry.gitlab.com/tinymediamanager/docker/jdk11
   except:
-    - master@tinyMediaManager/tinyMediaManager
+    - main@tinyMediaManager/tinyMediaManager
   only:
     - pushes
   script:
-    # install libmediainfo for unit tests
-    - apt-get update && apt-get install -y --no-install-recommends libmms0 libglib2.0-0
-    - wget https://mediaarea.net/download/binary/libzen0/0.4.38/libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
-    - dpkg -i libzen0v5_0.4.38-1_amd64.Debian_9.0.deb
-    - wget https://mediaarea.net/download/binary/libmediainfo0/20.03/libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
-    - dpkg -i libmediainfo0v5_20.03-1_amd64.Debian_9.0.deb
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
 
-test:jdk11_openj9:
+test:jdk14:
   stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk11_openj9
+  image: registry.gitlab.com/tinymediamanager/docker/jdk14
   except:
-    - master@tinyMediaManager/tinyMediaManager
+    - main@tinyMediaManager/tinyMediaManager
   only:
     - pushes
   script:
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
 
-test:jdk14_openj9:
+test:jdk15:
   stage: test
-  image: registry.gitlab.com/tinymediamanager/docker/jdk14_openj9
+  image: registry.gitlab.com/tinymediamanager/docker/jdk15
   except:
-    - master@tinyMediaManager/tinyMediaManager
+    - main@tinyMediaManager/tinyMediaManager
   only:
     - pushes
   script:
-    - mvn $MAVEN_CLI_OPTS -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false test
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
 
 # use dependency scanning (only on QA)
 include:
