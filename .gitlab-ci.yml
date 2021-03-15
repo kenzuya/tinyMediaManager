@@ -135,6 +135,8 @@ deploy:PRE-RELEASE:
     url: https://prerelease.tinymediamanager.org
   only:
     - v3@tinyMediaManager/tinyMediaManager
+  tags:
+    - docker
   when: manual
   script:
     # update package sources and install ant + 32 bit libs
@@ -163,6 +165,8 @@ deploy:RELEASE:
   when: manual
   only:
     - v3@tinyMediaManager/tinyMediaManager
+  tags:
+    - docker
   script:
     # update package sources and install ant + 32 bit libs
     - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 lftp curl
