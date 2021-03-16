@@ -57,7 +57,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadMissingArtworkActio
 import org.tinymediamanager.ui.tvshows.actions.TvShowDownloadThemeAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowExportAction;
-import org.tinymediamanager.ui.tvshows.actions.TvShowFetchImdbRating;
+import org.tinymediamanager.ui.tvshows.actions.TvShowFetchImdbRatingAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMediaInformationAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowMissingEpisodeListAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowReadEpisodeNfoAction;
@@ -285,7 +285,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     JMenu enhancedEditMenu = new JMenu(TmmResourceBundle.getString("edit.enhanced"));
     enhancedEditMenu.setIcon(IconManager.MENU);
     enhancedEditMenu.add(createAndRegisterAction(TvShowToggleWatchedFlagAction.class));
-    enhancedEditMenu.add(createAndRegisterAction(TvShowFetchImdbRating.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowFetchImdbRatingAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeSeasonArtworkAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowReadEpisodeNfoAction.class));

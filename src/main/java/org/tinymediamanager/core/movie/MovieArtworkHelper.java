@@ -1300,7 +1300,7 @@ public class MovieArtworkHelper {
       return;
     }
 
-    if (tempFile.toFile().exists()) {
+    if (Files.exists(tempFile)) {
       movie.removeAllMediaFiles(MediaFileType.getMediaFileType(MediaArtworkType.THUMB));
 
       boolean first = true;
@@ -1309,7 +1309,7 @@ public class MovieArtworkHelper {
       for (MovieThumbNaming thumbNaming : getThumbNamesForMovie(movie)) {
         Path thumb = movie.getPathNIO().resolve(getArtworkFilename(movie, thumbNaming, "jpg"));
 
-        if (thumb.toFile().exists()) {
+        if (Files.exists(thumb)) {
           Utils.deleteFileSafely(thumb);
         }
 

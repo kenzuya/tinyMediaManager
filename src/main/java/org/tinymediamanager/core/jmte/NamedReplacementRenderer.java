@@ -18,6 +18,7 @@ package org.tinymediamanager.core.jmte;
 
 import java.io.FileReader;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class NamedReplacementRenderer implements NamedRenderer {
     if (csvContents == null) {
       // try to load the csv with the replacements
       Path csv = Paths.get(Globals.DATA_FOLDER, filename);
-      if (csv.toFile().exists()) {
+      if (Files.exists(csv)) {
         // try to parse the csv
         List<String[]> tokens = new ArrayList<>();
         try (Reader in = new FileReader(csv.toFile())) {

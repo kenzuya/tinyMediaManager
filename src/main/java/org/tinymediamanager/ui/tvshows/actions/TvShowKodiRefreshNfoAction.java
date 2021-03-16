@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,7 +24,9 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -41,8 +42,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowKodiRefreshNfoAction extends TmmAction {
-  private static final long           serialVersionUID = -3911290901017607679L;
-  
+  private static final long serialVersionUID = -3911290901017607679L;
 
   public TvShowKodiRefreshNfoAction() {
     putValue(LARGE_ICON_KEY, IconManager.NFO);
@@ -87,17 +87,35 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
       }
     }
 
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    // update show + all EPs
-    for (Object obj : shows) {
-      MediaEntity me = (MediaEntity) obj;
-      KodiRPC.getInstance().refreshFromNfo(me);
-    }
-    // update single EP only
-    for (Object obj : eps) {
-      MediaEntity me = (MediaEntity) obj;
-      KodiRPC.getInstance().refreshFromNfo(me);
-    }
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    TmmTaskManager.getInstance()
+        .addUnnamedTask(
+            new TmmTask(TmmResourceBundle.getString("kodi.rpc.refreshnfo"), shows.size() + eps.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+
+              @Override
+              protected void doInBackground() {
+                KodiRPC kodiRPC = KodiRPC.getInstance();
+                int i = 0;
+
+                // update show + all EPs
+                for (TvShow tvShow : shows) {
+                  kodiRPC.refreshFromNfo(tvShow);
+
+                  publishState(++i);
+                  if (cancel) {
+                    return;
+                  }
+                }
+
+                // update single EP only
+                for (TvShowEpisode episode : eps) {
+                  kodiRPC.refreshFromNfo(episode);
+
+                  publishState(++i);
+                  if (cancel) {
+                    return;
+                  }
+                }
+              }
+            });
   }
 }

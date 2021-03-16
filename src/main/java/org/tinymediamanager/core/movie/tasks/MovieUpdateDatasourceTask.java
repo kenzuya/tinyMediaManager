@@ -25,6 +25,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -741,7 +742,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     boolean videoRemoved = false;
 
     for (MediaFile mediaFile : movie.getMediaFiles()) {
-      if (!mediaFile.getFile().toFile().exists()) {
+      if (!Files.exists(mediaFile.getFile(), LinkOption.NOFOLLOW_LINKS)) {
         if (mediaFile.getType() == MediaFileType.VIDEO) {
           videoRemoved = true;
         }
@@ -933,7 +934,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       // fifth round - remove files which are not here any more
       // ***************************************************************
       for (MediaFile mediaFile : movie.getMediaFiles()) {
-        if (!mediaFile.getFile().toFile().exists()) {
+        if (!Files.exists(mediaFile.getFile())) {
           movie.removeFromMediaFiles(mediaFile);
         }
       }

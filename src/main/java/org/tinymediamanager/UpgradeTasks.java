@@ -480,7 +480,7 @@ public class UpgradeTasks {
 
       // remove macOS folder
       Path macOS = Paths.get("macOS");
-      if (macOS.toFile().exists()) {
+      if (Files.exists(macOS)) {
         try {
           Utils.deleteDirectoryRecursive(macOS);
         }

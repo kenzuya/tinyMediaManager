@@ -45,6 +45,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -201,13 +202,19 @@ public class Utils {
    * @return
    */
   public static boolean isRegularFile(Path file) {
-    // see windows impl http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7u40-b43/sun/nio/fs/WindowsFileAttributes.java#451
     try {
       BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class);
-      return (attr.isRegularFile() || attr.isOther()) && !attr.isDirectory();
+      return isRegularFile(attr);
     }
     catch (IOException e) {
-      return false;
+      // maybe this is a "broken" symlink -> just try to read the link itself
+      try {
+        BasicFileAttributes attr = Files.readAttributes(file, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        return isRegularFile(attr);
+      }
+      catch (IOException e1) {
+        return false;
+      }
     }
   }
 
@@ -222,7 +229,8 @@ public class Utils {
    */
   public static boolean isRegularFile(BasicFileAttributes attr) {
     // see windows impl http://grepcode.com/file/repository.grepcode.com/java/root/jdk/openjdk/7u40-b43/sun/nio/fs/WindowsFileAttributes.java#451
-    return (attr.isRegularFile() || attr.isOther()) && !attr.isDirectory();
+    // symbolic link is used in git annex
+    return (attr.isRegularFile() || attr.isOther() || attr.isSymbolicLink()) && !attr.isDirectory();
   }
 
   /**

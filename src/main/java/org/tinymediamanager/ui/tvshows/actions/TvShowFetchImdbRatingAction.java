@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.tvshows.actions;
 
 import static org.tinymediamanager.core.Constants.IMDB;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -31,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.RatingUtil;
@@ -39,11 +41,10 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
-public class TvShowFetchImdbRating extends TmmAction {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(TvShowFetchImdbRating.class);
-  
+public class TvShowFetchImdbRatingAction extends TmmAction {
+  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowFetchImdbRatingAction.class);
 
-  public TvShowFetchImdbRating() {
+  public TvShowFetchImdbRatingAction() {
     putValue(LARGE_ICON_KEY, IconManager.RATING_BLUE);
     putValue(SMALL_ICON, IconManager.RATING_BLUE);
     putValue(NAME, TmmResourceBundle.getString("tvshow.refetchimdbrating"));
@@ -70,24 +71,42 @@ public class TvShowFetchImdbRating extends TmmAction {
       return;
     }
 
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    for (TvShow tvShow : selectedTvShows) {
-      MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
-      if (rating != null) {
-        tvShow.setRating(rating);
-        tvShow.saveToDb();
-        tvShow.writeNFO();
-      }
-    }
+    TmmTaskManager.getInstance()
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("tvshow.refetchimdbrating"), selectedTvShows.size() + selectedEpisodes.size(),
+            TmmTaskHandle.TaskType.BACKGROUND_TASK) {
 
-    for (TvShowEpisode episode : selectedEpisodes) {
-      MediaRating rating = RatingUtil.getImdbRating(episode.getIdAsString(IMDB));
-      if (rating != null) {
-        episode.setRating(rating);
-        episode.saveToDb();
-        episode.writeNFO();
-      }
-    }
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+          @Override
+          protected void doInBackground() {
+            int i = 0;
+
+            for (TvShow tvShow : selectedTvShows) {
+              MediaRating rating = RatingUtil.getImdbRating(tvShow.getImdbId());
+              if (rating != null) {
+                tvShow.setRating(rating);
+                tvShow.saveToDb();
+                tvShow.writeNFO();
+              }
+
+              publishState(++i);
+              if (cancel) {
+                return;
+              }
+            }
+
+            for (TvShowEpisode episode : selectedEpisodes) {
+              MediaRating rating = RatingUtil.getImdbRating(episode.getIdAsString(IMDB));
+              if (rating != null) {
+                episode.setRating(rating);
+                episode.saveToDb();
+                episode.writeNFO();
+              }
+
+              publishState(++i);
+              if (cancel) {
+                break;
+              }
+            }
+          }
+        });
   }
 }

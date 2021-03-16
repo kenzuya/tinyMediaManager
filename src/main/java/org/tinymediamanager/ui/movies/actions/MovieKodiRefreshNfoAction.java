@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +23,9 @@ import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -36,8 +38,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Myron Boyle
  */
 public class MovieKodiRefreshNfoAction extends TmmAction {
-  private static final long           serialVersionUID = -6731682301579049379L;
-
+  private static final long serialVersionUID = -6731682301579049379L;
 
   public MovieKodiRefreshNfoAction() {
     putValue(LARGE_ICON_KEY, IconManager.NFO);
@@ -47,15 +48,30 @@ public class MovieKodiRefreshNfoAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<MediaEntity> movies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<MediaEntity> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
-    if (movies.isEmpty()) {
+    if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    KodiRPC.getInstance().refreshFromNfo(movies);
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    TmmTaskManager.getInstance()
+        .addUnnamedTask(
+            new TmmTask(TmmResourceBundle.getString("kodi.rpc.refreshnfo"), selectedMovies.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+
+              @Override
+              protected void doInBackground() {
+                KodiRPC kodiRPC = KodiRPC.getInstance();
+                int i = 0;
+
+                for (MediaEntity entity : selectedMovies) {
+                  kodiRPC.refreshFromNfo(entity);
+                  publishState(++i);
+                  if (cancel) {
+                    break;
+                  }
+                }
+              }
+            });
   }
 }

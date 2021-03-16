@@ -2068,7 +2068,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return list of actor images on filesystem
    */
   private List<MediaFile> listActorFiles() {
-    if (!getPathNIO().resolve(Person.ACTOR_DIR).toFile().exists()) {
+    if (!Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
       return Collections.emptyList();
     }
 
