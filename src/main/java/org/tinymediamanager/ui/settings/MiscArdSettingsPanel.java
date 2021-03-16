@@ -179,11 +179,6 @@ public class MiscArdSettingsPanel extends JPanel {
     JLabel lblMultiFormat = new JLabel(TmmResourceBundle.getString("Settings.ard.multiformat.hint"));
     add(lblMultiFormat, "cell 1 " + row + " 3 1");
 
-    row++;
-    JLabel lblMultiFormatHint = new JLabel(TmmResourceBundle.getString("Settings.ard.multiformathint.hint"));
-    TmmFontHelper.changeFont(lblMultiFormatHint, L2);
-    add(lblMultiFormatHint, "cell 2 " + row + " 3 1");
-
     // MF most frequent
     row++;
     rdbtnMFMostFrequent = new JRadioButton(TmmResourceBundle.getString("Settings.ard.useMostFrequent"));
@@ -201,6 +196,11 @@ public class MiscArdSettingsPanel extends JPanel {
     rdbtnMFHigher = new JRadioButton(TmmResourceBundle.getString("Settings.ard.useHigher"));
     buttonGroupARUseMode.add(rdbtnMFHigher);
     add(rdbtnMFHigher, "cell 1 " + row + ",growx");
+
+    row++;
+    JLabel lblMultiFormatHint = new JLabel(TmmResourceBundle.getString("Settings.ard.multiformathint.hint"));
+    TmmFontHelper.changeFont(lblMultiFormatHint, L2);
+    add(lblMultiFormatHint, "cell 2 " + row + " 3 1");
 
     // MF threshold
     row++;
