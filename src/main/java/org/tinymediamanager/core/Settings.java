@@ -68,7 +68,11 @@ public class Settings extends AbstractSettings {
   private final List<String>    subtitleFileTypes           = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>    cleanupFileTypes            = ObservableCollections.observableList(new ArrayList<>());
   private final List<WolDevice> wolDevices                  = ObservableCollections.observableList(new ArrayList<>());
-  private final List<String>    customAspectRatios          = ObservableCollections.observableList(getDefaultAspectRatios());
+  private final List<String>    customAspectRatios          = ObservableCollections.observableList(AspectRatio.getDefaultValues()
+                                                                                                              .keySet()
+                                                                                                              .stream()
+                                                                                                              .map(entry -> Float.toString(entry))
+                                                                                                              .collect(Collectors.toList()));
 
   private String                version                     = "";
 
@@ -183,7 +187,11 @@ public class Settings extends AbstractSettings {
 
     // default custom aspect ratios
     customAspectRatios.clear();
-    customAspectRatios.addAll(MediaFileHelper.DEFAULT_CUSTOM_ASPECT_RATIOS);
+    customAspectRatios.addAll(AspectRatio.getDefaultValues()
+                                         .keySet()
+                                         .stream()
+                                         .map(ar -> ar.toString())
+                                         .collect(Collectors.toList()));
     Collections.sort(customAspectRatios);
     firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
 
@@ -1122,6 +1130,16 @@ public class Settings extends AbstractSettings {
     return this.ardIgnoreEnd;
   }
 
+  public void setArdRoundNearest(boolean newValue) {
+    boolean oldValue = !this.ardRoundUp;
+    this.ardRoundUp = !newValue;
+    firePropertyChange("ardRoundNearest", oldValue, newValue);
+  }
+
+  public boolean isArdRoundNearest() {
+    return !this.ardRoundUp;
+  }
+
   public void setArdRoundUp(boolean newValue) {
     boolean oldValue = this.ardRoundUp;
     this.ardRoundUp = newValue;
@@ -1144,9 +1162,6 @@ public class Settings extends AbstractSettings {
 
   public void addCustomAspectRatios(String aspectRatio) {
     try {
-      // check if number is valid
-      Double.valueOf(aspectRatio);
-
       if (!customAspectRatios.contains(aspectRatio)) {
         customAspectRatios.add(aspectRatio);
         firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
@@ -1167,25 +1182,6 @@ public class Settings extends AbstractSettings {
 
   public List<String> getCustomAspectRatios() {
     return customAspectRatios;
-  }
-
-  private static List<String> getDefaultAspectRatios() {
-    LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
-    predefinedValues.put(1.33f, "4:3 (1.33:1)");
-    predefinedValues.put(1.37f, "11:8 (1.37:1)");
-    predefinedValues.put(1.43f, "IMAX (1.43:1)");
-    predefinedValues.put(1.56f, "14:9 (1.56:1)");
-    predefinedValues.put(1.66f, "5:3 (1.66:1)");
-    predefinedValues.put(1.78f, "16:9 (1.78:1)");
-    predefinedValues.put(1.85f, "Widescreen (1.85:1)");
-    predefinedValues.put(1.90f, "Digital IMAX (1.90:1)");
-    predefinedValues.put(2.20f, "70mm (2.20:1)");
-    predefinedValues.put(2.35f, "Anamorphic (2.35:1)");
-    predefinedValues.put(2.40f, "Anamorphic widescreen (2.39:1 & 12:5)");
-    return predefinedValues.keySet()
-                           .stream()
-                           .map(entry -> entry.toString())
-                           .collect(Collectors.toList());
   }
 
   public void setArdMFMode(int newValue) {

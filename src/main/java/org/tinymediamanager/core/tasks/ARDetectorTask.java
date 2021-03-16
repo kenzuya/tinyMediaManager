@@ -63,8 +63,7 @@ public class ARDetectorTask extends TmmThreadPool {
     this.sampleMaxGap = settings.getArdSampleMaxGap();
     this.ignoreBeginning = settings.getArdIgnoreBeginning();
     this.ignoreEnd = settings.getArdIgnoreEnd();
-    this.arCustomList.addAll(settings
-                                     .getCustomAspectRatios()
+    this.arCustomList.addAll(settings.getCustomAspectRatios()
                                      .stream()
                                      .map(ar -> Float.valueOf(ar))
                                      .sorted()

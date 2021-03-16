@@ -55,6 +55,7 @@ import org.jdesktop.beansbinding.Property;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.AspectRatio;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -332,17 +333,7 @@ public class MediaFileEditorPanel extends JPanel {
   private static Map<Float, String> createAspectRatios() {
     LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
     predefinedValues.put(0f, "calculated");
-    predefinedValues.put(1.33f, "4:3 (1.33:1)");
-    predefinedValues.put(1.37f, "11:8 (1.37:1)");
-    predefinedValues.put(1.43f, "IMAX (1.43:1)");
-    predefinedValues.put(1.56f, "14:9 (1.56:1)");
-    predefinedValues.put(1.66f, "5:3 (1.66:1)");
-    predefinedValues.put(1.78f, "16:9 (1.78:1)");
-    predefinedValues.put(1.85f, "Widescreen (1.85:1)");
-    predefinedValues.put(1.90f, "Digital IMAX (1.90:1)");
-    predefinedValues.put(2.20f, "70mm (2.20:1)");
-    predefinedValues.put(2.35f, "Anamorphic (2.35:1)");
-    predefinedValues.put(2.40f, "Anamorphic widescreen (2.39:1 & 12:5)");
+    predefinedValues.putAll(AspectRatio.getDefaultValues());
     return predefinedValues;
   }
 

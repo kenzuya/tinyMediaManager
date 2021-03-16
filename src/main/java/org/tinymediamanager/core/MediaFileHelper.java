@@ -80,7 +80,6 @@ public class MediaFileHelper {
   public static final List<String> DEFAULT_AUDIO_FILETYPES;
   public static final List<String> DEFAULT_SUBTITLE_FILETYPES;
   public static final List<String> BINARY_FILETYPES;
-  public static final List<String> DEFAULT_CUSTOM_ASPECT_RATIOS;
 
   public static final Pattern      MOVIESET_ARTWORK_PATTERN;
   public static final Pattern      POSTER_PATTERN;
@@ -149,8 +148,6 @@ public class MediaFileHelper {
         ".ssf", ".ssa", ".svcd", ".usf", ".ass", ".pgs", ".vobsub");
 
     BINARY_FILETYPES = List.of("bin", "dat", "img", "nrg", "disc");
-
-    DEFAULT_CUSTOM_ASPECT_RATIOS = List.of("1.33", "1.37", "1.43", "1.56", "1.66", "1.78", "1.85", "1.90", "2.20", "2.35", "2.40");
 
     String extensions = String.join("|", SUPPORTED_ARTWORK_FILETYPES);
 
