@@ -37,7 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
@@ -63,7 +63,7 @@ import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.ZeroIdConverter;
@@ -86,21 +86,21 @@ public class TvShowInformationPanel extends JPanel {
 
   private final TvShowSelectionModel tvShowSelectionModel;
 
-  private JTextArea                  taGenres;
+  private JTextPane                  taGenres;
   private JLabel                     lblCertification;
   private LinkLabel                  lblThetvdbId;
   private LinkLabel                  lblImdbId;
   private LinkLabel                  lblTmdbId;
   private LinkTextArea               lblPath;
   private JLabel                     lblPremiered;
-  private JTextArea                  taStudio;
+  private JTextPane                  taStudio;
   private JLabel                     lblStatus;
   private JLabel                     lblYear;
-  private JTextArea                  taTags;
-  private JTextArea                  taOtherIds;
+  private JTextPane                  taTags;
+  private JTextPane                  taOtherIds;
   private JLabel                     lblCountry;
   private JLabel                     lblRuntime;
-  private JTextArea                  taNote;
+  private JTextPane                  taNote;
   private JLabel                     lblTvShowName;
   private ImageLabel                 lblTvShowBackground;
   private JLabel                     lblFanartSize;
@@ -108,7 +108,7 @@ public class TvShowInformationPanel extends JPanel {
   private JLabel                     lblPosterSize;
   private ImageLabel                 lblTvShowBanner;
   private JLabel                     lblBannerSize;
-  private JTextArea                  taOverview;
+  private JTextPane                  taOverview;
   private MediaInformationLogosPanel panelLogos;
   private JLabel                     lblOriginalTitle;
   private JScrollPane                scrollPane;
@@ -284,7 +284,7 @@ public class TvShowInformationPanel extends JPanel {
       {
         JPanel panelTopDetails = new JPanel();
         panelRight.add(panelTopDetails, "cell 0 0,growx");
-        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][grow][]", "[]2lp[]2lp[grow]2lp[]2lp[]2lp[]2lp[]2lp[]"));
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp!][][grow][]", "[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]2lp[]"));
         {
           JLabel lblYearT = new TmmLabel(TmmResourceBundle.getString("metatag.year"));
           panelTopDetails.add(lblYearT, "flowy,cell 0 0");
@@ -312,7 +312,6 @@ public class TvShowInformationPanel extends JPanel {
         }
         {
           JLabel lblThetvdbIdT = new TmmLabel("TheTVDB ID");
-          lblThetvdbIdT.setText("TheTVDB ID");
           panelTopDetails.add(lblThetvdbIdT, "cell 3 1");
 
           lblThetvdbId = new LinkLabel("");
@@ -336,7 +335,7 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblOtherIdsT = new TmmLabel(TmmResourceBundle.getString("metatag.otherids"));
           panelTopDetails.add(lblOtherIdsT, "cell 3 3");
 
-          taOtherIds = new ReadOnlyTextArea();
+          taOtherIds = new ReadOnlyTextPane();
           panelTopDetails.add(taOtherIds, "cell 4 3 2 1,growx,wmin 0");
         }
         {
@@ -350,7 +349,7 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblGenresT = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
           panelTopDetails.add(lblGenresT, "cell 0 4");
 
-          taGenres = new ReadOnlyTextArea();
+          taGenres = new ReadOnlyTextPane();
           panelTopDetails.add(taGenres, "cell 1 4 5 1,growx,wmin 0");
         }
         {
@@ -364,7 +363,7 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblStudioT = new TmmLabel(TmmResourceBundle.getString("metatag.studio"));
           panelTopDetails.add(lblStudioT, "cell 0 6,wmin 0");
 
-          taStudio = new ReadOnlyTextArea();
+          taStudio = new ReadOnlyTextPane();
           panelTopDetails.add(taStudio, "cell 1 6 5 1,growx, wmin 0");
         }
         {
@@ -398,7 +397,7 @@ public class TvShowInformationPanel extends JPanel {
         panelRight.add(lblPlot, "cell 0 6");
         TmmFontHelper.changeFont(lblPlot, Font.BOLD);
 
-        taOverview = new ReadOnlyTextArea();
+        taOverview = new ReadOnlyTextPane();
         panelRight.add(taOverview, "cell 0 7,growx,wmin 0,aligny top");
       }
       {
@@ -413,7 +412,7 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
           panelBottomDetails.add(lblTagsT, "cell 0 0");
 
-          taTags = new ReadOnlyTextArea();
+          taTags = new ReadOnlyTextPane();
           panelBottomDetails.add(taTags, "cell 1 0,growx,wmin 0");
         }
         {
@@ -427,7 +426,7 @@ public class TvShowInformationPanel extends JPanel {
           JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
           panelBottomDetails.add(lblNoteT, "cell 0 2");
 
-          taNote = new ReadOnlyTextArea();
+          taNote = new ReadOnlyTextPane();
           panelBottomDetails.add(taNote, "cell 1 2,growx,wmin 0");
         }
       }
@@ -488,9 +487,9 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_1 = BeanProperty.create("selectedTvShow.plot");
-    BeanProperty<JTextArea, String> jTextAreaBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
-        tvShowSelectionModelBeanProperty_1, taOverview, jTextAreaBeanProperty);
+    BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tvShowSelectionModel,
+        tvShowSelectionModelBeanProperty_1, taOverview, jTextPaneBeanProperty);
     autoBinding_1.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_4 = BeanProperty.create("selectedTvShow.originalTitle");
@@ -525,8 +524,8 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding_10.bind();
     //
     BeanProperty<TvShowSelectionModel, Map<String, Object>> tvShowSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShow.ids");
-    AutoBinding<TvShowSelectionModel, Map<String, Object>, JTextArea, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_11, taOtherIds, jTextAreaBeanProperty);
+    AutoBinding<TvShowSelectionModel, Map<String, Object>, JTextPane, String> autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_11, taOtherIds, jTextPaneBeanProperty);
     autoBinding_11.setConverter(new TvShowOtherIdsConverter());
     autoBinding_11.bind();
     //
@@ -536,8 +535,8 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding_12.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_13 = BeanProperty.create("selectedTvShow.genresAsString");
-    AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_13, taGenres, jTextAreaBeanProperty);
+    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_13 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_13, taGenres, jTextPaneBeanProperty);
     autoBinding_13.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_14 = BeanProperty.create("selectedTvShow.firstAiredAsString");
@@ -545,9 +544,10 @@ public class TvShowInformationPanel extends JPanel {
         tvShowSelectionModelBeanProperty_14, lblPremiered, jLabelBeanProperty);
     autoBinding_14.bind();
     //
+
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_15 = BeanProperty.create("selectedTvShow.productionCompany");
-    AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_15, taStudio, jTextAreaBeanProperty);
+    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_15 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_15, taStudio, jTextPaneBeanProperty);
     autoBinding_15.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_16 = BeanProperty.create("selectedTvShow.country");
@@ -556,8 +556,8 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding_16.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_17 = BeanProperty.create("selectedTvShow.tagsAsString");
-    AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_17, taTags, jTextAreaBeanProperty);
+    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_17, taTags, jTextPaneBeanProperty);
     autoBinding_17.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_18 = BeanProperty.create("selectedTvShow.path");
@@ -567,8 +567,8 @@ public class TvShowInformationPanel extends JPanel {
     autoBinding_18.bind();
     //
     BeanProperty<TvShowSelectionModel, String> tvShowSelectionModelBeanProperty_19 = BeanProperty.create("selectedTvShow.note");
-    AutoBinding<TvShowSelectionModel, String, JTextArea, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowSelectionModel, tvShowSelectionModelBeanProperty_19, taNote, jTextAreaBeanProperty);
+    AutoBinding<TvShowSelectionModel, String, JTextPane, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowSelectionModel, tvShowSelectionModelBeanProperty_19, taNote, jTextPaneBeanProperty);
     autoBinding_19.bind();
     //
     BeanProperty<TvShowSelectionModel, MediaCertification> tvShowSelectionModelBeanProperty_20 = BeanProperty.create("selectedTvShow.certification");

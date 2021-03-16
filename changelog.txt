@@ -15,9 +15,10 @@ x better propagation of API errors to the UI #1237
 x (TV shows) reworked scrape new items
 x (macOS) search for Kodi scrapers in different locations
 x (TV shows) writing of correct NFO file name for BD/DVD episodes #1248
-x (movies/TV show) fixed update data sources for git-annex setups #1223
+x (movies/TV shows) fixed update data sources for git-annex setups #1223
 x run some long running actions in a background task
 x (movies) sorting of MS/RT columns
+x (movies/TV shows) fixed rendering issues of bidirectional text
 
 
 Version 4.1.1
