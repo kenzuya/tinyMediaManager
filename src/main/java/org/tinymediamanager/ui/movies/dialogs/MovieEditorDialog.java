@@ -121,7 +121,7 @@ import org.tinymediamanager.ui.dialogs.IdEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
-import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.dialogs.TmmProgressDialog;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -135,7 +135,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MovieEditorDialog extends TmmDialog {
+public class MovieEditorDialog extends TmmProgressDialog {
   private static final long                  serialVersionUID    = -286251957529920347L;
   private static final Logger                LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
@@ -1248,7 +1248,7 @@ public class MovieEditorDialog extends TmmDialog {
      * MediaFilesPanel
      **********************************************************************************/
     {
-      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles);
+      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles, this);
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediafiles"), null, mediaFilesPanel, null);
       mediaFilesPanel.setLayout(new MigLayout("", "[400lp:500lp,grow,fill]", "[300lp:400lp,grow,fill]"));
     }

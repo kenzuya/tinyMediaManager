@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.*;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.threading.TmmThreadPool;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.thirdparty.MediaInfo;
 
@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class ARDetectorTask extends TmmThreadPool {
+public class ARDetectorTask extends TmmTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ARDetectorTask.class);
 
@@ -46,8 +46,7 @@ public class ARDetectorTask extends TmmThreadPool {
   protected final List<Float> arCustomList = new LinkedList<>();
 
   public ARDetectorTask(MediaFile mediaFile) {
-    super(TmmResourceBundle.getString("update.aspectRatio"));
-
+    super("", 0, TaskType.BACKGROUND_TASK);
     this.mediaFile = mediaFile;
     init();
   }
@@ -113,6 +112,9 @@ public class ARDetectorTask extends TmmThreadPool {
         }
 
         seconds += increment + videoInfo.sampleSkipAdjustement;
+
+        int progress = ((int)seconds - start) * 100 / (end - start);
+        publishState(progress);
       }
 
       if (videoInfo.sampleCount == 0) {
@@ -384,14 +386,6 @@ public class ARDetectorTask extends TmmThreadPool {
     float sampleSkipAdjustement = 0f;
 
     Map<Float, Integer> arMap = new HashMap<>();
-  }
-
-
-  @Override
-  public void callback(Object obj) {
-    // do not publish task description here, because with different workers the
-    // text is never right
-    publishState(progressDone);
   }
 
 }

@@ -111,7 +111,7 @@ import org.tinymediamanager.ui.dialogs.IdEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
-import org.tinymediamanager.ui.dialogs.TmmDialog;
+import org.tinymediamanager.ui.dialogs.TmmProgressDialog;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -125,7 +125,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowEpisodeEditorDialog extends TmmDialog {
+public class TvShowEpisodeEditorDialog extends TmmProgressDialog {
   private static final long                  serialVersionUID    = 7702248909791283043L;
   private static final Logger                LOGGER              = LoggerFactory.getLogger(TvShowEpisodeEditorDialog.class);
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
@@ -604,7 +604,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
      * Media Files panel
      *********************************************************************************/
     {
-      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles);
+      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles, this);
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediafiles"), null, mediaFilesPanel, null); // $NON-NLS-1$
     }
 
