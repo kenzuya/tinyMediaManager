@@ -35,7 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -63,7 +63,7 @@ import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.RatingConverter;
 import org.tinymediamanager.ui.panels.MediaInformationLogosPanel;
@@ -91,7 +91,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private JLabel                             lblEpisodeTitle;
   private ImageLabel                         lblEpisodeThumb;
   private ImageLabel                         lblSeasonPoster;
-  private JTextArea                          taOverview;
+  private JTextPane                          taOverview;
   private MediaInformationLogosPanel         panelLogos;
   private JSeparator                         sepLogos;
   private JLabel                             lblSeasonPosterSize;
@@ -101,14 +101,14 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private JLabel                             lblSeason;
   private JLabel                             lblEpisode;
   private JLabel                             lblAired;
-  private JTextArea                          taTags;
+  private JTextPane                          taTags;
   private LinkTextArea                       lblPath;
   private JLabel                             lblNote;
   private LinkLabel                          lblTraktTvId;
   private LinkLabel                          lblTvdbId;
   private LinkLabel                          lblImdbId;
   private LinkLabel                          lblTmdbId;
-  private JTextArea                          taOtherIds;
+  private JTextPane                          taOtherIds;
   private RatingPanel                        ratingPanel;
 
   /**
@@ -305,7 +305,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       add(panelRight, "cell 1 1,grow");
       {
         JPanel panelTopDetails = new JPanel();
-        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][]", "[]2lp[][][][]"));
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp!][][]", "[]2lp[][][][]"));
 
         panelRight.add(panelTopDetails, "cell 0 0,grow");
         {
@@ -365,7 +365,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
           JLabel lblOtherIdsT = new TmmLabel(TmmResourceBundle.getString("metatag.otherids"));
           panelTopDetails.add(lblOtherIdsT, "cell 3 4");
 
-          taOtherIds = new ReadOnlyTextArea();
+          taOtherIds = new ReadOnlyTextPane();
           panelTopDetails.add(taOtherIds, "cell 4 4 2 1,growx,wmin 0");
         }
       }
@@ -391,7 +391,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
         JLabel lblPlot = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlot, "cell 0 6");
 
-        taOverview = new ReadOnlyTextArea();
+        taOverview = new ReadOnlyTextPane();
         panelRight.add(taOverview, "cell 0 7,growx,wmin 0,aligny top");
       }
       {
@@ -406,7 +406,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
             JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
             panelBottomDetails.add(lblTagsT, "cell 0 0");
 
-            taTags = new ReadOnlyTextArea();
+            taTags = new ReadOnlyTextPane();
             panelBottomDetails.add(taTags, "cell 2 0,growx,wmin 0");
           }
           {
@@ -477,9 +477,9 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     autoBinding_1.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_3 = BeanProperty.create("selectedTvShowEpisode.plot");
-    BeanProperty<JTextArea, String> JTextAreaBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowEpisodeSelectionModel, String, JTextArea, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_3, taOverview, JTextAreaBeanProperty);
+    BeanProperty<JTextPane, String> JTextPaneBeanProperty = BeanProperty.create("text");
+    AutoBinding<TvShowEpisodeSelectionModel, String, JTextPane, String> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_3, taOverview, JTextPaneBeanProperty);
     autoBinding_3.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_2 = BeanProperty
@@ -519,9 +519,8 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_10 = BeanProperty
         .create("selectedTvShowEpisode.tagsAsString");
-    BeanProperty<JTextArea, String> jTextAreaBeanProperty = BeanProperty.create("text");
-    AutoBinding<TvShowEpisodeSelectionModel, String, JTextArea, String> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_10, taTags, jTextAreaBeanProperty);
+    AutoBinding<TvShowEpisodeSelectionModel, String, JTextPane, String> autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_10, taTags, JTextPaneBeanProperty);
     autoBinding_12.bind();
     //
     BeanProperty<TvShowEpisodeSelectionModel, String> tvShowEpisodeSelectionModelBeanProperty_11 = BeanProperty.create("selectedTvShowEpisode.path");
@@ -561,8 +560,8 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     //
     BeanProperty<TvShowEpisodeSelectionModel, Map<String, Object>> tvShowEpisodeSelectionModelBeanProperty_17 = BeanProperty
         .create("selectedTvShowEpisode.ids");
-    AutoBinding<TvShowEpisodeSelectionModel, Map<String, Object>, JTextArea, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
-        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_17, taOtherIds, jTextAreaBeanProperty);
+    AutoBinding<TvShowEpisodeSelectionModel, Map<String, Object>, JTextPane, String> autoBinding_19 = Bindings.createAutoBinding(UpdateStrategy.READ,
+        tvShowEpisodeSelectionModel, tvShowEpisodeSelectionModelBeanProperty_17, taOtherIds, JTextPaneBeanProperty);
     autoBinding_19.setConverter(new TvShowEpisodeOtherIdsConverter());
     autoBinding_19.bind();
   }

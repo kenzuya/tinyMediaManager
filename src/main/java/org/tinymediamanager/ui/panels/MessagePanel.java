@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 
 import org.tinymediamanager.core.Message;
@@ -33,7 +33,7 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -42,7 +42,7 @@ public class MessagePanel extends JPanel {
   private static final ResourceBundle BUNDLE           = ResourceBundle.getBundle("messages"); // direct access to the message ids is needed here
 
   private JLabel                      lblTitle;
-  private JTextArea                   taMessage;
+  private JTextPane                   taMessage;
   private JLabel                      lblIcon;
   private JLabel                      lblDate;
 
@@ -89,12 +89,15 @@ public class MessagePanel extends JPanel {
       case ERROR:
         lblIcon.setIcon(IconManager.ERROR);
         break;
+
       case WARN:
         lblIcon.setIcon(IconManager.WARN);
         break;
+
       case INFO:
         lblIcon.setIcon(IconManager.INFO);
         break;
+
       default:
         lblIcon.setIcon(null);
         break;
@@ -126,7 +129,7 @@ public class MessagePanel extends JPanel {
 
     innerPanel.add(lblTitle, "cell 2 0,wmin 0,growx");
 
-    taMessage = new ReadOnlyTextArea();
+    taMessage = new ReadOnlyTextPane();
     innerPanel.add(taMessage, "cell 2 1,wmin 0,grow");
   }
 }

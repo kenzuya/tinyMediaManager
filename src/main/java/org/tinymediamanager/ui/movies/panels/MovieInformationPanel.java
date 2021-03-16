@@ -36,7 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
@@ -64,7 +64,7 @@ import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
 import org.tinymediamanager.ui.converter.RuntimeConverter;
@@ -95,27 +95,27 @@ public class MovieInformationPanel extends JPanel {
   private LinkLabel                  lblImdbid;
   private JLabel                     lblRunningTime;
   private LinkLabel                  lblTmdbid;
-  private JTextArea                  taGenres;
-  private JTextArea                  taPlot;
+  private JTextPane                  taGenres;
+  private JTextPane                  taPlot;
   private ImageLabel                 lblMoviePoster;
   private JLabel                     lblPosterSize;
   private ImageLabel                 lblMovieFanart;
   private JLabel                     lblFanartSize;
   private JLabel                     lblCertification;
-  private JTextArea                  taOtherIds;
+  private JTextPane                  taOtherIds;
   private MediaInformationLogosPanel panelLogos;
   private JLabel                     lblOriginalTitle;
   private JButton                    btnPlay;
   private JScrollPane                scrollPane;
-  private JTextArea                  taProduction;
-  private JTextArea                  taTags;
+  private JTextPane                  taProduction;
+  private JTextPane                  taTags;
   private JLabel                     lblEdition;
   private LinkTextArea               lblMoviePath;
   private JLabel                     lblMovieSet;
   private JLabel                     lblSpokenLanguages;
   private JLabel                     lblCountry;
   private JLabel                     lblReleaseDate;
-  private JTextArea                  taNote;
+  private JTextPane                  taNote;
   private JLabel                     lblCertificationLogo;
   private LinkLabel                  lblTraktTvId;
   private JLabel                     lblShowlink;
@@ -302,7 +302,7 @@ public class MovieInformationPanel extends JPanel {
       {
         JPanel panelTopDetails = new JPanel();
         panelRight.add(panelTopDetails, "cell 0 0,grow");
-        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp][][grow][]", "[]2lp[]2lp[grow]2lp[]2lp[]2lp[]2lp[]2lp[]"));
+        panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp!][][grow][]", "[]2lp[]2lp[grow]2lp[]2lp[]2lp[]2lp[]2lp[]"));
 
         {
           JLabel lblYearT = new TmmLabel(TmmResourceBundle.getString("metatag.year"));
@@ -354,7 +354,7 @@ public class MovieInformationPanel extends JPanel {
           JLabel lblOtherIdsT = new TmmLabel(TmmResourceBundle.getString("metatag.otherids"));
           panelTopDetails.add(lblOtherIdsT, "cell 3 3");
 
-          taOtherIds = new ReadOnlyTextArea();
+          taOtherIds = new ReadOnlyTextPane();
           panelTopDetails.add(taOtherIds, "cell 4 3 2 1,growx,wmin 0");
         }
         {
@@ -368,14 +368,14 @@ public class MovieInformationPanel extends JPanel {
           JLabel lblGenresT = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
           panelTopDetails.add(lblGenresT, "cell 0 4");
 
-          taGenres = new ReadOnlyTextArea();
+          taGenres = new ReadOnlyTextPane();
           panelTopDetails.add(taGenres, "cell 1 4 5 1,growx,wmin 0");
         }
         {
           JLabel lblProductionT = new TmmLabel(TmmResourceBundle.getString("metatag.production"));
           panelTopDetails.add(lblProductionT, "cell 0 5");
 
-          taProduction = new ReadOnlyTextArea();
+          taProduction = new ReadOnlyTextPane();
           panelTopDetails.add(taProduction, "cell 1 5 5 1,growx,wmin 0");
         }
         {
@@ -387,10 +387,10 @@ public class MovieInformationPanel extends JPanel {
         }
         {
           JLabel lblSpokenLanguagesT = new TmmLabel(TmmResourceBundle.getString("metatag.spokenlanguages"));
-          panelTopDetails.add(lblSpokenLanguagesT, "cell 0 7,wmin 0");
+          panelTopDetails.add(lblSpokenLanguagesT, "cell 0 7");
 
           lblSpokenLanguages = new JLabel("");
-          panelTopDetails.add(lblSpokenLanguages, "cell 1 7 5 1");
+          panelTopDetails.add(lblSpokenLanguages, "cell 1 7 5 1,wmin 0");
         }
       }
 
@@ -429,7 +429,7 @@ public class MovieInformationPanel extends JPanel {
         JLabel lblPlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlotT, "cell 0 8,alignx left,aligny top");
 
-        taPlot = new ReadOnlyTextArea();
+        taPlot = new ReadOnlyTextPane();
         panelRight.add(taPlot, "cell 0 9,growx,wmin 0,aligny top");
       }
       {
@@ -464,7 +464,7 @@ public class MovieInformationPanel extends JPanel {
           JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
           panelBottomDetails.add(lblTagsT, "cell 0 3");
 
-          taTags = new ReadOnlyTextArea();
+          taTags = new ReadOnlyTextPane();
           panelBottomDetails.add(taTags, "cell 1 3,growx,wmin 0");
         }
         {
@@ -478,7 +478,7 @@ public class MovieInformationPanel extends JPanel {
           JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
           panelBottomDetails.add(lblNoteT, "cell 0 5");
 
-          taNote = new ReadOnlyTextArea();
+          taNote = new ReadOnlyTextPane();
           panelBottomDetails.add(taNote, "cell 1 5,growx,wmin 0");
         }
       }
@@ -527,9 +527,9 @@ public class MovieInformationPanel extends JPanel {
     autoBinding_9.bind();
     //
     Property movieSelectionModelBeanProperty_12 = BeanProperty.create("selectedMovie.imdbId");
-    Property jTextAreaBeanProperty = BeanProperty.create("text");
+    Property JTextPaneBeanProperty = BeanProperty.create("text");
     AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_12, lblImdbid,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_10.bind();
     //
     Property movieSelectionModelBeanProperty_13 = BeanProperty.create("selectedMovie.runtime");
@@ -540,18 +540,18 @@ public class MovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_15 = BeanProperty.create("selectedMovie.tmdbId");
     AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_15, lblTmdbid,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_7.setConverter(new ZeroIdConverter());
     autoBinding_7.bind();
     //
     Property movieSelectionModelBeanProperty_16 = BeanProperty.create("selectedMovie.genresAsString");
     AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_16, taGenres,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_17.bind();
     //
     Property movieSelectionModelBeanProperty_14 = BeanProperty.create("selectedMovie.plot");
     AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_14, taPlot,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_18.bind();
     //
     Property movieSelectionModelBeanProperty_3 = BeanProperty.create("selectedMovie.tagline");
@@ -576,7 +576,7 @@ public class MovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_5 = BeanProperty.create("selectedMovie.ids");
     AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_5, taOtherIds,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_6.setConverter(new MovieOtherIdsConverter());
     autoBinding_6.bind();
     //
@@ -587,7 +587,7 @@ public class MovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_10 = BeanProperty.create("selectedMovie.productionCompany");
     AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_10,
-        taProduction, jTextAreaBeanProperty);
+        taProduction, JTextPaneBeanProperty);
     autoBinding_12.bind();
     //
     Property movieSelectionModelBeanProperty_11 = BeanProperty.create("selectedMovie.country");
@@ -612,7 +612,7 @@ public class MovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_20 = BeanProperty.create("selectedMovie.tagsAsString");
     AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_20, taTags,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_20.bind();
     //
     Property movieSelectionModelBeanProperty_21 = BeanProperty.create("selectedMovie.path");
@@ -623,7 +623,7 @@ public class MovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_22 = BeanProperty.create("selectedMovie.note");
     AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_22, taNote,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_22.bind();
     //
     Property movieSelectionModelBeanProperty_23 = BeanProperty.create("selectedMovie.certification");
@@ -635,7 +635,7 @@ public class MovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_24 = BeanProperty.create("selectedMovie.traktTvId");
     AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_24,
-        lblTraktTvId, jTextAreaBeanProperty);
+        lblTraktTvId, JTextPaneBeanProperty);
     autoBinding_24.setConverter(new ZeroIdConverter());
     autoBinding_24.bind();
     //
