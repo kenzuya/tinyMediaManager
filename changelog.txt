@@ -17,6 +17,7 @@ x (macOS) search for Kodi scrapers in different locations
 x (TV shows) writing of correct NFO file name for BD/DVD episodes #1248
 x (movies/TV show) fixed update data sources for git-annex setups #1223
 x run some long running actions in a background task
+x (movies) sorting of MS/RT columns
 
 
 Version 4.1.1
