@@ -111,7 +111,7 @@ public class ARDetectorTask extends TmmTask {
           LOGGER.warn("Error scanning sample", ex);
         }
 
-        seconds += increment + videoInfo.sampleSkipAdjustement;
+        seconds += increment - videoInfo.sampleSkipAdjustement;
 
         int progress = ((int)seconds - start) * 100 / (end - start);
         publishState(progress);
