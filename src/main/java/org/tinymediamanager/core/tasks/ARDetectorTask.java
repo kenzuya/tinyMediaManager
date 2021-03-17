@@ -193,7 +193,7 @@ public class ARDetectorTask extends TmmTask {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
       LOGGER.debug(" => bars: {} => Sample ignored: More than {}% difference between left and right black bar",
                   barstxt, this.plausiWidthDeltaPct);
-      if (videoInfo.sampleSkipAdjustement > 0) {
+      if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       } else {
         videoInfo.sampleSkipAdjustement = 0;
@@ -201,7 +201,7 @@ public class ARDetectorTask extends TmmTask {
     } else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
       LOGGER.debug(" => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
                   barstxt, this.plausiHeightDeltaPct);
-      if (videoInfo.sampleSkipAdjustement > 0) {
+      if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
       } else {
         videoInfo.sampleSkipAdjustement = 0;
@@ -209,7 +209,7 @@ public class ARDetectorTask extends TmmTask {
     } else if ((videoInfo.width * this.plausiWidthPct / 100d) >= width) {
       LOGGER.debug(" => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
                   barstxt, width, this.plausiWidthPct, videoInfo.width);
-      if (videoInfo.sampleSkipAdjustement > 0) {
+      if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       } else {
         videoInfo.sampleSkipAdjustement = 0;
@@ -217,7 +217,7 @@ public class ARDetectorTask extends TmmTask {
     } else if ((videoInfo.height * this.plausiHeightPct / 100d) >= height) {
       LOGGER.debug(" => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
                   barstxt, height, this.plausiHeightPct, videoInfo.height);
-      if (videoInfo.sampleSkipAdjustement > 0) {
+      if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
       } else {
         videoInfo.sampleSkipAdjustement = 0;
