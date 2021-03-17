@@ -130,7 +130,7 @@ public class RatingPanel extends JPanel {
       add(new RatingContainer(MediaMetadata.EMPTY_RATING));
     }
 
-    invalidate();
+    // invalidate();
   }
 
   private class RatingContainer extends Panel {

@@ -219,7 +219,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Rotten Tomatoes", "rottenTomatoes",
         movie -> getRatingInteger(movie.getRating("tomatometerallcritics")), Integer.class);
-    col.setColumnComparator(floatComparator);
+    col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.ROTTEN_TOMATOES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -232,7 +232,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      */
     col = new Column(TmmResourceBundle.getString("metatag.rating") + " - Metascore", "metacritic",
         movie -> getRatingInteger(movie.getRating("metacritic")), Integer.class);
-    col.setColumnComparator(floatComparator);
+    col.setColumnComparator(integerComparator);
     col.setHeaderIcon(IconManager.METASCORE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);

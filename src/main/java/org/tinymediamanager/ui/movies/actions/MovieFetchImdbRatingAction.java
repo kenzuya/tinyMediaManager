@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -25,22 +24,21 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.util.RatingUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
-public class MovieFetchImdbRating extends TmmAction {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(MovieFetchImdbRating.class);
+public class MovieFetchImdbRatingAction extends TmmAction {
 
-
-  public MovieFetchImdbRating() {
+  public MovieFetchImdbRatingAction() {
     putValue(LARGE_ICON_KEY, IconManager.RATING_BLUE);
     putValue(SMALL_ICON, IconManager.RATING_BLUE);
     putValue(NAME, TmmResourceBundle.getString("movie.refetchimdbrating"));
@@ -49,22 +47,35 @@ public class MovieFetchImdbRating extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> movies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
+    List<Movie> selectedMovies = new ArrayList<>(MovieUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
-    if (movies.isEmpty()) {
+    if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    for (Movie movie : movies) {
-      MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
-      if (rating != null) {
-        movie.setRating(rating);
-        movie.saveToDb();
-        movie.writeNFO();
-      }
-    }
-    MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    TmmTaskManager.getInstance()
+        .addUnnamedTask(
+            new TmmTask(TmmResourceBundle.getString("movie.refetchimdbrating"), selectedMovies.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+
+              @Override
+              protected void doInBackground() {
+                int i = 0;
+
+                for (Movie movie : selectedMovies) {
+                  MediaRating rating = RatingUtil.getImdbRating(movie.getImdbId());
+                  if (rating != null) {
+                    movie.setRating(rating);
+                    movie.saveToDb();
+                    movie.writeNFO();
+                  }
+
+                  publishState(++i);
+                  if (cancel) {
+                    break;
+                  }
+                }
+              }
+            });
   }
 }

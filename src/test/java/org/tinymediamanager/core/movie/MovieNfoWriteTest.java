@@ -18,11 +18,11 @@ package org.tinymediamanager.core.movie;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -62,7 +62,7 @@ public class MovieNfoWriteTest extends BasicTest {
     MovieModuleManager.getInstance().shutDown();
     TmmModuleManager.getInstance().shutDown();
     Utils.deleteDirectoryRecursive(Paths.get(getSettingsFolder(), "testmovies_nfo"));
-    Files.delete(new File(getSettingsFolder(), "movies.db"));
+    Files.delete(Paths.get(getSettingsFolder(), "movies.db"));
   }
 
   private void loadMovies() throws Exception {
@@ -90,24 +90,24 @@ public class MovieNfoWriteTest extends BasicTest {
 
     // bluray
     Path nfo = Paths.get(base.toString(), "BluRay", "BDMV", "index.nfo");
-    assertThat(nfo.toFile().exists()).isTrue();
+    assertThat(Files.exists(nfo)).isTrue();
 
     // plain dvd files
     nfo = Paths.get(base.toString(), "DVD", "VIDEO_TS.nfo");
-    assertThat(nfo.toFile().exists()).isTrue();
+    assertThat(Files.exists(nfo)).isTrue();
 
     // nested dvd files
     nfo = Paths.get(base.toString(), "DVDfolder", "VIDEO_TS", "VIDEO_TS.nfo");
-    assertThat(nfo.toFile().exists()).isTrue();
+    assertThat(Files.exists(nfo)).isTrue();
 
     // single movie dir
     nfo = Paths.get(base.toString(), "Single", "singlefile.nfo");
-    assertThat(nfo.toFile().exists()).isTrue();
+    assertThat(Files.exists(nfo)).isTrue();
 
     // multi movie dir
     nfo = Paths.get(base.toString(), "Multi1", "multifile1.nfo");
-    assertThat(nfo.toFile().exists()).isTrue();
+    assertThat(Files.exists(nfo)).isTrue();
     nfo = Paths.get(base.toString(), "Multi1", "multifile2.nfo");
-    assertThat(nfo.toFile().exists()).isTrue();
+    assertThat(Files.exists(nfo)).isTrue();
   }
 }

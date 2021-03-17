@@ -26,7 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
@@ -49,7 +49,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
-import org.tinymediamanager.ui.components.ReadOnlyTextArea;
+import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.StarRater;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.CertificationImageConverter;
@@ -82,15 +82,15 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
   private LinkLabel                          lblImdbid;
   private JLabel                             lblRunningTime;
   private LinkLabel                          lblTmdbid;
-  private JTextArea                          taGenres;
-  private JTextArea                          taPlot;
+  private JTextPane                          taGenres;
+  private JTextPane                          taPlot;
   private ImageLabel                         lblMoviePoster;
   private ImageLabel                         lblMovieFanart;
   private JLabel                             lblCertification;
   private JLabel                             lblOriginalTitle;
   private JScrollPane                        scrollPane;
-  private JTextArea                          taProduction;
-  private JTextArea                          taTags;
+  private JTextPane                          taProduction;
+  private JTextPane                          taTags;
   private JLabel                             lblSpokenLanguages;
   private JLabel                             lblCountry;
   private JLabel                             lblReleaseDate;
@@ -275,14 +275,14 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
           JLabel lblGenresT = new TmmLabel(TmmResourceBundle.getString("metatag.genre"));
           panelTopDetails.add(lblGenresT, "cell 0 4");
 
-          taGenres = new ReadOnlyTextArea();
+          taGenres = new ReadOnlyTextPane();
           panelTopDetails.add(taGenres, "cell 1 4 5 1,growx,wmin 0");
         }
         {
           JLabel lblProductionT = new TmmLabel(TmmResourceBundle.getString("metatag.production"));
           panelTopDetails.add(lblProductionT, "cell 0 5");
 
-          taProduction = new ReadOnlyTextArea();
+          taProduction = new ReadOnlyTextPane();
           panelTopDetails.add(taProduction, "cell 1 5 5 1,growx,wmin 0");
         }
         {
@@ -322,7 +322,7 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
         JLabel lblPlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
         panelRight.add(lblPlotT, "cell 0 4,alignx left,aligny top");
 
-        taPlot = new ReadOnlyTextArea();
+        taPlot = new ReadOnlyTextPane();
         panelRight.add(taPlot, "cell 0 5,growx,wmin 0,aligny top");
       }
       {
@@ -336,7 +336,7 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
           JLabel lblTagsT = new TmmLabel(TmmResourceBundle.getString("metatag.tags"));
           panelBottomDetails.add(lblTagsT, "cell 0 0");
 
-          taTags = new ReadOnlyTextArea();
+          taTags = new ReadOnlyTextPane();
           panelBottomDetails.add(taTags, "cell 1 0,growx,wmin 0");
         }
       }
@@ -374,9 +374,9 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
     autoBinding_9.bind();
     //
     Property movieSelectionModelBeanProperty_12 = BeanProperty.create("selectedMovie.imdbId");
-    Property jTextAreaBeanProperty = BeanProperty.create("text");
+    Property JTextPaneBeanProperty = BeanProperty.create("text");
     AutoBinding autoBinding_10 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_12, lblImdbid,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_10.bind();
     //
     Property movieSelectionModelBeanProperty_13 = BeanProperty.create("selectedMovie.runtime");
@@ -387,18 +387,18 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_15 = BeanProperty.create("selectedMovie.tmdbId");
     AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_15, lblTmdbid,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_7.setConverter(new ZeroIdConverter());
     autoBinding_7.bind();
     //
     Property movieSelectionModelBeanProperty_16 = BeanProperty.create("selectedMovie.genresAsString");
     AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_16, taGenres,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_17.bind();
     //
     Property movieSelectionModelBeanProperty_14 = BeanProperty.create("selectedMovie.plot");
     AutoBinding autoBinding_18 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_14, taPlot,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_18.bind();
     //
     Property movieSelectionModelBeanProperty_4 = BeanProperty.create("selectedMovie.title");
@@ -423,7 +423,7 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_10 = BeanProperty.create("selectedMovie.productionCompany");
     AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_10,
-        taProduction, jTextAreaBeanProperty);
+        taProduction, JTextPaneBeanProperty);
     autoBinding_12.bind();
     //
     Property movieSelectionModelBeanProperty_11 = BeanProperty.create("selectedMovie.country");
@@ -438,7 +438,7 @@ public class MovieSetMissingMovieInformationPanel extends JPanel {
     //
     Property movieSelectionModelBeanProperty_20 = BeanProperty.create("selectedMovie.tagsAsString");
     AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, movieSelectionModel, movieSelectionModelBeanProperty_20, taTags,
-        jTextAreaBeanProperty);
+        JTextPaneBeanProperty);
     autoBinding_1.bind();
     //
     Property movieSelectionModelBeanProperty_23 = BeanProperty.create("selectedMovie.certification");

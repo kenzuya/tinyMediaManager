@@ -20,6 +20,7 @@ import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TMDB;
 import static org.tinymediamanager.core.Constants.TMDB_SET;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -215,7 +216,7 @@ public class MovieSet extends MediaEntity {
     // we did not find an image - get the cached file from the url
     if (StringUtils.isBlank(artworkFilename)) {
       Path cachedFile = ImageCache.getCachedFile(getArtworkUrl(type));
-      if (cachedFile != null && cachedFile.toFile().exists()) {
+      if (cachedFile != null && Files.exists(cachedFile)) {
         return cachedFile.toAbsolutePath().toString();
       }
     }

@@ -88,6 +88,8 @@ deploy:nightly:
   only:
     variables:
       - $NIGHTLY_BUILD == "true"
+  tags:
+    - docker # force running on gitlab
   except:
     - pushes                                          # do not run packaging on push-builds
   script:
@@ -118,6 +120,8 @@ deploy:PRE-RELEASE:
     url: https://prerelease.tinymediamanager.org
   only:
     - main@tinyMediaManager/tinyMediaManager
+  tags:
+    - docker # force running on gitlab
   when: manual
   script:
     # update package sources and install ant + 32 bit libs
@@ -146,6 +150,8 @@ deploy:RELEASE:
   when: manual
   only:
     - main@tinyMediaManager/tinyMediaManager
+  tags:
+    - docker # force running on gitlab
   script:
     # update package sources and install ant + 32 bit libs
     - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 lftp curl
