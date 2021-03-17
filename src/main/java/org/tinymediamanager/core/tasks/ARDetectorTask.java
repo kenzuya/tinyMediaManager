@@ -25,6 +25,7 @@ public class ARDetectorTask extends TmmTask {
 
   private final Settings settings = Settings.getInstance();
 
+  protected Settings.ArdMode mode = Settings.ArdMode.DEFAULT;
   protected int sampleDuration = 2;
   protected int sampleMinNumber = 6;
   protected int sampleMaxGap = 900;
@@ -40,7 +41,7 @@ public class ARDetectorTask extends TmmTask {
   private float plausiWidthDeltaPct = 1.5f;
   private float plausiHeightDeltaPct = 2f;
 
-  protected int multiFormatMode = 1;
+  protected int multiFormatMode = 0;
   private float multiFormatThreshold = 0.07f;
 
   protected final List<Float> arCustomList = new LinkedList<>();
@@ -57,9 +58,15 @@ public class ARDetectorTask extends TmmTask {
   }
 
   protected void init() {
-    this.sampleDuration = settings.getArdSampleDuration();
-    this.sampleMinNumber = settings.getArdSampleMinNumber();
-    this.sampleMaxGap = settings.getArdSampleMaxGap();
+    this.mode = settings.getArdMode();
+    Settings.ARDSampleSetting modeSettings = settings.getArdSetting(this.mode);
+    if (modeSettings == null) {
+      modeSettings = settings.getArdSetting(Settings.ArdMode.DEFAULT);
+    }
+    this.sampleDuration = modeSettings.getDuration();
+    this.sampleMinNumber = modeSettings.getMinNumber();
+    this.sampleMaxGap = modeSettings.getMaxGap();
+
     this.ignoreBeginning = settings.getArdIgnoreBeginning();
     this.ignoreEnd = settings.getArdIgnoreEnd();
     this.arCustomList.addAll(settings.getCustomAspectRatios()
@@ -70,14 +77,30 @@ public class ARDetectorTask extends TmmTask {
     this.roundUp = settings.isArdRoundUp();
     this.roundUpThreshold = settings.getArdRoundThreshold();
     this.multiFormatMode = settings.getArdMFMode();
-    this.multiFormatThreshold = settings.getArdMFThreshold() / 100f;
+    if (!Settings.ArdMode.ACCURATE.equals(this.mode)) {
+      this.multiFormatMode = 0;
+    }
+    this.multiFormatThreshold = settings.getArdMFThreshold();
   }
 
   protected void analyze() {
     try {
       VideoInfo videoInfo = new VideoInfo();
-      videoInfo.width = this.mediaFile.getVideoWidth();
-      videoInfo.height = this.mediaFile.getVideoHeight();
+
+      try {
+        String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
+        videoInfo.width = Integer.valueOf(width);
+      } catch (Exception ex) {
+        videoInfo.width = this.mediaFile.getVideoWidth();
+      }
+
+      try {
+        String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
+        videoInfo.height = Integer.valueOf(height);
+      } catch (Exception ex) {
+        videoInfo.height = this.mediaFile.getVideoHeight();
+      }
+
       videoInfo.duration = this.mediaFile.getDuration();
       videoInfo.arSample = getSampleAR(this.mediaFile);
       if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
@@ -101,7 +124,6 @@ public class ARDetectorTask extends TmmTask {
       }
 
       while (seconds < (end - 2)) {
-        LOGGER.debug("Scanning @{}s", seconds);
         try {
           int iSec = Math.round(seconds);
           int iInc = Math.round(increment);
@@ -191,7 +213,8 @@ public class ARDetectorTask extends TmmTask {
                                  int seconds, int increment,
                                  VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
-      LOGGER.debug(" => bars: {} => Sample ignored: More than {}% difference between left and right black bar",
+      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample ignored: More than {}% difference between left and right black bar",
+                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
                   barstxt, this.plausiWidthDeltaPct);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
@@ -199,7 +222,8 @@ public class ARDetectorTask extends TmmTask {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
-      LOGGER.debug(" => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
+      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
+                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
                   barstxt, this.plausiHeightDeltaPct);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
@@ -207,7 +231,8 @@ public class ARDetectorTask extends TmmTask {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if ((videoInfo.width * this.plausiWidthPct / 100d) >= width) {
-      LOGGER.debug(" => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
+      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
+                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
                   barstxt, width, this.plausiWidthPct, videoInfo.width);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
@@ -215,7 +240,8 @@ public class ARDetectorTask extends TmmTask {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if ((videoInfo.height * this.plausiHeightPct / 100d) >= height) {
-      LOGGER.debug(" => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
+      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
+                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
                   barstxt, height, this.plausiHeightPct, videoInfo.height);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
@@ -282,9 +308,9 @@ public class ARDetectorTask extends TmmTask {
   }
 
   protected void detectMultiFormat(VideoInfo videoInfo) {
-    if (videoInfo.arSecondaryPct >= this.multiFormatThreshold) {
+    if (videoInfo.arSecondaryPct >= this.multiFormatThreshold * 100) {
       LOGGER.debug("Multi format: yes   AR_Secondary ({}% of samples) >= MFV Detection Threshold ({}% of samples)",
-      String.format("%.1f", videoInfo.arSecondaryPct), String.format("%f", videoInfo.arSecondaryPct * 100));
+      String.format("%.1f", videoInfo.arSecondaryPct), String.format("%f", this.multiFormatThreshold * 100));
 
       if (multiFormatMode == 1) {
         float tmp = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
