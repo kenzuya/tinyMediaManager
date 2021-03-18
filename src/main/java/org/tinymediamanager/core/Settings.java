@@ -125,7 +125,7 @@ public class Settings extends AbstractSettings {
   private boolean               ardRoundUp                  = false;
   private float                 ardRoundThreshold           = 0.04f;
   private int                   ardMFMode                   = 0;
-  private float                 ardMFThreshold              = 0.07f;
+  private float                 ardMFThreshold              = 0.06f;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
