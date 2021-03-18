@@ -61,6 +61,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tasks.ARDetectorTask;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -74,7 +75,6 @@ import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
 import net.miginfocom.swing.MigLayout;
-import org.tinymediamanager.ui.dialogs.TmmProgressDialog;
 
 /**
  * The class MediaFileEditorPanel is used to maintain associated media files
@@ -90,7 +90,7 @@ public class MediaFileEditorPanel extends JPanel {
 
   private final Set<Binding>              bindings         = new HashSet<>();
 
-  private TmmProgressDialog               owner;
+  private TmmTask                         ardTask;
   private List<MediaFileContainer>        mediaFiles;
   private TmmTable                        tableMediaFiles;
   private JLabel                          lblFilename;
@@ -113,8 +113,7 @@ public class MediaFileEditorPanel extends JPanel {
   private JTextField                      tfRuntime;
   private JButton                         btnARD;
 
-  public MediaFileEditorPanel(List<MediaFile> mediaFiles, TmmProgressDialog owner) {
-    this.owner = owner;
+  public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
 
     this.mediaFiles = ObservableCollections.observableList(new ArrayList<>());
     for (MediaFile mediaFile : mediaFiles) {
@@ -445,18 +444,15 @@ public class MediaFileEditorPanel extends JPanel {
         ARDetectorTask task = new ARDetectorTask(mf.getMediaFile());
         task.addListener(this);
         TmmTaskManager.getInstance().addUnnamedTask(task);
+        MediaFileEditorPanel.this.ardTask = task;
       }
     }
 
     @Override
     public void processTaskEvent(TmmTaskHandle task) {
       if (TmmTaskHandle.TaskState.QUEUED.equals(task.getState())) {
-        MediaFileEditorPanel.this.owner.startProgress(TmmResourceBundle.getString("update.aspectRatio"), 100);
         btnARD.setEnabled(false);
-      } else if (TmmTaskHandle.TaskState.STARTED.equals(task.getState())) {
-        MediaFileEditorPanel.this.owner.setProgressValue(task.getProgressDone());
       } else if (TmmTaskHandle.TaskState.FINISHED.equals(task.getState())) {
-        MediaFileEditorPanel.this.owner.stopProgress();
         btnARD.setEnabled(true);
       }
     }
@@ -696,5 +692,12 @@ public class MediaFileEditorPanel extends JPanel {
     AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_5, tfRuntime,
         jTextFieldBeanProperty_7);
     autoBinding_11.bind();
+  }
+
+  public void cancelTask() {
+    if (this.ardTask != null) {
+      this.ardTask.cancel();
+      this.ardTask = null;
+    }
   }
 }

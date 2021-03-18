@@ -58,6 +58,8 @@ public class ARDetectorTask extends TmmTask {
   }
 
   protected void init() {
+    setWorkUnits(100);
+
     this.mode = settings.getArdMode();
     Settings.ARDSampleSetting modeSettings = settings.getArdSetting(this.mode);
     if (modeSettings == null) {
@@ -81,6 +83,12 @@ public class ARDetectorTask extends TmmTask {
       this.multiFormatMode = 0;
     }
     this.multiFormatThreshold = settings.getArdMFThreshold();
+
+    this.arSecondaryDelta = settings.getArdSecondaryDelta();
+    this.plausiWidthPct = settings.getArdPlausiWidthPct();
+    this.plausiHeightPct = settings.getArdPlausiHeightPct();
+    this.plausiWidthDeltaPct = settings.getArdPlausiWidthDeltaPct();
+    this.plausiHeightDeltaPct = settings.getArdPlausiHeightDeltaPct();
   }
 
   protected void analyze() {
@@ -134,6 +142,10 @@ public class ARDetectorTask extends TmmTask {
         }
 
         seconds += increment - videoInfo.sampleSkipAdjustement;
+
+        if (this.cancel) {
+          return;
+        }
 
         int progress = ((int)seconds - start) * 100 / (end - start);
         publishState(progress);
@@ -295,9 +307,9 @@ public class ARDetectorTask extends TmmTask {
                                         .map(entry -> entry.getValue())
                                         .reduce(0, Integer::sum);
 
-    float arPrimaryPct = ((float) arPrimarySum) * 100 / ((float) videoInfo.sampleCount);
-    videoInfo.arSecondaryPct = ((float) arSecondarySum) * 100 / ((float) videoInfo.sampleCount);
-    float arOtherPct = (((float) (videoInfo.sampleCount - arPrimarySum - arSecondarySum)) * 100 / ((float) videoInfo.sampleCount));
+    float arPrimaryPct = arPrimarySum * 100f / videoInfo.sampleCount;
+    videoInfo.arSecondaryPct = arSecondarySum * 100f / videoInfo.sampleCount;
+    float arOtherPct = (videoInfo.sampleCount - arPrimarySum - arSecondarySum) * 100f / videoInfo.sampleCount;
 
     LOGGER.debug("AR_PrimaryRaw:     {}, {}% of samples are within ±{}    Aspect ratio (AR) detected in most of the analyzed samples",
                 String.format("%7.5f", videoInfo.arPrimaryRaw), String.format("%6.2f", arPrimaryPct), this.arSecondaryDelta);
@@ -355,7 +367,7 @@ public class ARDetectorTask extends TmmTask {
       if (this.arCustomList.size() == 1) {
         return this.arCustomList.get(0);
       } else {
-        for (int idx = 0; idx < this.arCustomList.size() - 2; idx++) {
+        for (int idx = 0; idx < this.arCustomList.size() - 1; idx++) {
           float maxAr = (float) Math.sqrt(this.arCustomList.get(idx).doubleValue() *
                                           this.arCustomList.get(idx + 1).doubleValue());
           if (ar < maxAr) {

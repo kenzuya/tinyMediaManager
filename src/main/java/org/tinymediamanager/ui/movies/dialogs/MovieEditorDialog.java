@@ -121,7 +121,7 @@ import org.tinymediamanager.ui.dialogs.IdEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
-import org.tinymediamanager.ui.dialogs.TmmProgressDialog;
+import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -135,7 +135,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class MovieEditorDialog extends TmmProgressDialog {
+public class MovieEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID    = -286251957529920347L;
   private static final Logger                LOGGER              = LoggerFactory.getLogger(MovieEditorDialog.class);
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
@@ -1248,7 +1248,7 @@ public class MovieEditorDialog extends TmmProgressDialog {
      * MediaFilesPanel
      **********************************************************************************/
     {
-      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles, this);
+      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles);
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediafiles"), null, mediaFilesPanel, null);
       mediaFilesPanel.setLayout(new MigLayout("", "[400lp:500lp,grow,fill]", "[300lp:400lp,grow,fill]"));
     }
@@ -1267,9 +1267,11 @@ public class MovieEditorDialog extends TmmProgressDialog {
       }
 
       JButton cancelButton = new JButton(new DiscardAction());
+      cancelButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addButton(cancelButton);
 
       JButton okButton = new JButton(new ChangeMovieAction());
+      okButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addDefaultButton(okButton);
     }
   }
