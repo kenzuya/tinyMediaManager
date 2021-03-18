@@ -58,6 +58,8 @@ public class ARDetectorTask extends TmmTask {
   }
 
   protected void init() {
+    setWorkUnits(100);
+
     this.mode = settings.getArdMode();
     Settings.ARDSampleSetting modeSettings = settings.getArdSetting(this.mode);
     if (modeSettings == null) {
@@ -81,6 +83,12 @@ public class ARDetectorTask extends TmmTask {
       this.multiFormatMode = 0;
     }
     this.multiFormatThreshold = settings.getArdMFThreshold();
+
+    this.arSecondaryDelta = settings.getArdSecondaryDelta();
+    this.plausiWidthPct = settings.getArdPlausiWidthPct();
+    this.plausiHeightPct = settings.getArdPlausiHeightPct();
+    this.plausiWidthDeltaPct = settings.getArdPlausiWidthDeltaPct();
+    this.plausiHeightDeltaPct = settings.getArdPlausiHeightDeltaPct();
   }
 
   protected void analyze() {
@@ -134,6 +142,10 @@ public class ARDetectorTask extends TmmTask {
         }
 
         seconds += increment - videoInfo.sampleSkipAdjustement;
+
+        if (this.cancel) {
+          return;
+        }
 
         int progress = ((int)seconds - start) * 100 / (end - start);
         publishState(progress);

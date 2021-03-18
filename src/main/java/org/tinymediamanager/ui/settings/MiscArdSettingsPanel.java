@@ -29,17 +29,39 @@ public class MiscArdSettingsPanel extends JPanel {
   private JRadioButton                rdbtnMFHigher;
   private JRadioButton                rdbtnMFWider;
 
+  private int                         previousMode          = -1;
+  private int                         previousMFMode        = -1;
+
   public MiscArdSettingsPanel() {
     initComponents();
     initDataBindings();
 
+    this.previousMode = settings.getArdMode().ordinal();
     sliderDetectionMode.setValue(settings.getArdMode().ordinal());
     sliderDetectionMode.addChangeListener(e -> {
-      boolean isAccurate = sliderDetectionMode.getValue() == 2;
-      rdbtnMFDisabled.setEnabled(isAccurate);
-      rdbtnMFWider.setEnabled(isAccurate);
-      rdbtnMFHigher.setEnabled(isAccurate);
-      settings.setArdMode(Settings.ArdMode.values()[sliderDetectionMode.getValue()]);
+      if (!sliderDetectionMode.getValueIsAdjusting()) {
+        switch (sliderDetectionMode.getValue()) {
+          case 0: // fast
+          case 1: // default
+            rdbtnMFDisabled.setEnabled(false);
+            rdbtnMFWider.setEnabled(false);
+            rdbtnMFHigher.setEnabled(false);
+
+            this.previousMFMode = this.previousMode == 2 ? settings.getArdMFMode() : this.previousMFMode;
+            buttonGroupARUseMode.clearSelection();
+            break;
+          case 2: // accurate
+            rdbtnMFDisabled.setEnabled(true);
+            rdbtnMFWider.setEnabled(true);
+            rdbtnMFHigher.setEnabled(true);
+            rdbtnMFDisabled.setSelected(this.previousMFMode == 0);
+            rdbtnMFHigher.setSelected(this.previousMFMode == 1);
+            rdbtnMFWider.setSelected(this.previousMFMode == 2);
+            break;
+        }
+        settings.setArdMode(Settings.ArdMode.values()[sliderDetectionMode.getValue()]);
+        this.previousMode = sliderDetectionMode.getValue();
+      }
     });
 
 
@@ -52,14 +74,15 @@ public class MiscArdSettingsPanel extends JPanel {
     }
 
     boolean isAccurate = sliderDetectionMode.getValue() == 2;
+    previousMFMode = settings.getArdMFMode();
     rdbtnMFDisabled.addChangeListener(e -> { if (rdbtnMFDisabled.isSelected()) settings.setArdMFMode(0); });
-    rdbtnMFDisabled.setSelected(settings.getArdMFMode() == 0);
+    rdbtnMFDisabled.setSelected(isAccurate && settings.getArdMFMode() == 0);
     rdbtnMFDisabled.setEnabled(isAccurate);
     rdbtnMFHigher.addChangeListener(e -> { if (rdbtnMFHigher.isSelected()) settings.setArdMFMode(1); });
-    rdbtnMFHigher.setSelected(settings.getArdMFMode() == 1);
+    rdbtnMFHigher.setSelected(isAccurate && settings.getArdMFMode() == 1);
     rdbtnMFHigher.setEnabled(isAccurate);
     rdbtnMFWider.addChangeListener(e -> { if (rdbtnMFWider.isSelected()) settings.setArdMFMode(2); });
-    rdbtnMFWider.setSelected(settings.getArdMFMode() == 2);
+    rdbtnMFWider.setSelected(isAccurate && settings.getArdMFMode() == 2);
     rdbtnMFWider.setEnabled(isAccurate);
   }
 

@@ -111,7 +111,7 @@ import org.tinymediamanager.ui.dialogs.IdEditorDialog;
 import org.tinymediamanager.ui.dialogs.ImageChooserDialog;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
-import org.tinymediamanager.ui.dialogs.TmmProgressDialog;
+import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.panels.MediaFileEditorPanel;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -125,7 +125,7 @@ import net.miginfocom.swing.MigLayout;
  * 
  * @author Manuel Laggner
  */
-public class TvShowEpisodeEditorDialog extends TmmProgressDialog {
+public class TvShowEpisodeEditorDialog extends TmmDialog {
   private static final long                  serialVersionUID    = 7702248909791283043L;
   private static final Logger                LOGGER              = LoggerFactory.getLogger(TvShowEpisodeEditorDialog.class);
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
@@ -604,7 +604,7 @@ public class TvShowEpisodeEditorDialog extends TmmProgressDialog {
      * Media Files panel
      *********************************************************************************/
     {
-      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles, this);
+      mediaFilesPanel = new MediaFileEditorPanel(mediaFiles);
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.mediafiles"), null, mediaFilesPanel, null); // $NON-NLS-1$
     }
 
@@ -643,9 +643,11 @@ public class TvShowEpisodeEditorDialog extends TmmProgressDialog {
       }
 
       JButton cancelButton = new JButton(new DiscardAction());
+      cancelButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addButton(cancelButton);
 
       JButton okButton = new JButton(new ChangeEpisodeAction());
+      okButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addDefaultButton(okButton);
     }
   }

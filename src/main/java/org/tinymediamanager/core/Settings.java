@@ -126,6 +126,11 @@ public class Settings extends AbstractSettings {
   private float                 ardRoundThreshold           = 0.04f;
   private int                   ardMFMode                   = 0;
   private float                 ardMFThreshold              = 0.06f;
+  private float                 ardPlausiWidthPct           = 50f;
+  private float                 ardPlausiHeightPct          = 60f;
+  private float                 ardPlausiWidthDeltaPct      = 1.5f;
+  private float                 ardPlausiHeightDeltaPct     = 2f;
+  private float                 ardSecondaryDelta           = 0.15f;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -1107,6 +1112,56 @@ public class Settings extends AbstractSettings {
 
   public float getArdIgnoreEnd() {
     return this.ardIgnoreEnd;
+  }
+
+  public void setArdPlausiWidthPct(float newValue) {
+    float oldValue = this.ardPlausiWidthPct;
+    this.ardPlausiWidthPct = newValue;
+    firePropertyChange("ardPlausiWidthPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiWidthPct() {
+    return this.ardPlausiWidthPct;
+  }
+
+  public void setArdPlausiHeightPct(float newValue) {
+    float oldValue = this.ardPlausiHeightPct;
+    this.ardPlausiHeightPct = newValue;
+    firePropertyChange("ardPlausiHeightPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiHeightPct() {
+    return this.ardPlausiHeightPct;
+  }
+
+  public void setArdPlausiWidthDeltaPct(float newValue) {
+    float oldValue = this.ardPlausiWidthDeltaPct;
+    this.ardPlausiWidthDeltaPct = newValue;
+    firePropertyChange("ardPlausiWidthDeltaPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiWidthDeltaPct() {
+    return this.ardPlausiWidthDeltaPct;
+  }
+
+  public void setArdPlausiHeightDeltaPct(float newValue) {
+    float oldValue = this.ardPlausiHeightDeltaPct;
+    this.ardPlausiHeightDeltaPct = newValue;
+    firePropertyChange("ardPlausiHeightDeltaPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiHeightDeltaPct() {
+    return this.ardPlausiHeightDeltaPct;
+  }
+
+  public void setArdSecondaryDelta(float newValue) {
+    float oldValue = this.ardSecondaryDelta;
+    this.ardSecondaryDelta = newValue;
+    firePropertyChange("ardSecondaryDelta", oldValue, newValue);
+  }
+
+  public float getArdSecondaryDelta() {
+    return this.ardSecondaryDelta;
   }
 
   public void setArdRoundNearest(boolean newValue) {
