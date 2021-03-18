@@ -88,14 +88,14 @@ public class ARDetectorTask extends TmmTask {
       VideoInfo videoInfo = new VideoInfo();
 
       try {
-        String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
+        String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
         videoInfo.width = Integer.valueOf(width);
       } catch (Exception ex) {
         videoInfo.width = this.mediaFile.getVideoWidth();
       }
 
       try {
-        String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
+        String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
         videoInfo.height = Integer.valueOf(height);
       } catch (Exception ex) {
         videoInfo.height = this.mediaFile.getVideoHeight();
@@ -105,11 +105,11 @@ public class ARDetectorTask extends TmmTask {
       videoInfo.arSample = getSampleAR(this.mediaFile);
       if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
 
-      LOGGER.info("Metadata: {}x{}px, duration:{}, AR:{}, SAR:{}",
+      LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, Duration: {}",
         videoInfo.width, videoInfo.height,
-        this.mediaFile.getDurationHHMMSS(),
         this.mediaFile.getAspectRatio(),
-        videoInfo.arSample);
+        videoInfo.arSample,
+        this.mediaFile.getDurationHHMMSS());
 
       int start = Float.valueOf((float) videoInfo.duration * this.ignoreBeginning / 100f).intValue();
       int end = Float.valueOf((float) videoInfo.duration * (1f - (this.ignoreEnd / 100f))).intValue();
@@ -150,18 +150,18 @@ public class ARDetectorTask extends TmmTask {
       if (this.multiFormatMode > 0) {
         detectMultiFormat(videoInfo);
       } else {
-        LOGGER.debug("Multi format: disabled");
+        LOGGER.debug("Multi format:      disabled");
       }
 
       videoInfo.arPrimary = roundAR(videoInfo.arPrimaryRaw);
-      LOGGER.debug("AR_Primary: {}", String.format("%.2f", videoInfo.arPrimary));
+      LOGGER.debug("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
 
       this.mediaFile.setAspectRatio(videoInfo.arPrimary);
 
       int newHeight = getNewHeight(videoInfo);
       this.mediaFile.setVideoHeight(newHeight);
 
-      LOGGER.info("Detected: {}x{} AR:{}", videoInfo.width, newHeight, videoInfo.arPrimary);
+      LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, newHeight, videoInfo.arPrimary);
     } catch (Exception ex) {
       LOGGER.error("Error detecting aspect ratio", ex);
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed"));
@@ -194,7 +194,7 @@ public class ARDetectorTask extends TmmTask {
 
           videoInfo.arCalculated = (float) (Math.round(videoInfo.arMeasured * videoInfo.arSample * 10E5) / 10E5);
 
-          String barstxt = String.format("{%d|%d} {%d|%d}",
+          String barstxt = String.format("{%4d|%4d} {%3d|%3d}",
                                          blackLeft, blackRight, blackTop, blackBottom);
 
           checkPlausibility(width, height, blackLeft, blackRight, blackTop, blackBottom,
@@ -295,41 +295,41 @@ public class ARDetectorTask extends TmmTask {
                                         .map(entry -> entry.getValue())
                                         .reduce(0, Integer::sum);
 
-    float arPrimaryPct = arPrimarySum * 100 / videoInfo.sampleCount;
-    videoInfo.arSecondaryPct = arSecondarySum * 100 / videoInfo.sampleCount;
-    float arOtherPct = ((videoInfo.sampleCount - arPrimarySum - arSecondarySum) * 100 / videoInfo.sampleCount);
+    float arPrimaryPct = ((float) arPrimarySum) * 100 / ((float) videoInfo.sampleCount);
+    videoInfo.arSecondaryPct = ((float) arSecondarySum) * 100 / ((float) videoInfo.sampleCount);
+    float arOtherPct = (((float) (videoInfo.sampleCount - arPrimarySum - arSecondarySum)) * 100 / ((float) videoInfo.sampleCount));
 
-    LOGGER.debug("AR_PrimaryRaw:     {}, {}% of samples are within ±{}  Aspect ratio (AR) detected in most of the analyzed samples",
-      String.format("%.5f", videoInfo.arPrimaryRaw), String.format("%.1f", arPrimaryPct), this.arSecondaryDelta);
-    LOGGER.debug("AR_SecondaryRaw:   {}, {}% of samples are within ±{}  Aspect ratio (AR) detected in most of the analyzed samples",
-      String.format("%.5f", videoInfo.arSecondary), String.format("%.1f", videoInfo.arSecondaryPct), this.arSecondaryDelta);
-    LOGGER.debug("Other ARs:         {}% of samplesOther                ARs found, high value means bad detection",
-      String.format("%.1f", arOtherPct));
+    LOGGER.debug("AR_PrimaryRaw:     {}, {}% of samples are within ±{}    Aspect ratio (AR) detected in most of the analyzed samples",
+                String.format("%7.5f", videoInfo.arPrimaryRaw), String.format("%6.2f", arPrimaryPct), this.arSecondaryDelta);
+    LOGGER.debug("AR_SecondaryRaw:   {}, {}% of samples are within ±{}    Second most frequent AR (multi format video likely at higher values)",
+                String.format("%7.5f", videoInfo.arSecondary), String.format("%6.2f", videoInfo.arSecondaryPct), this.arSecondaryDelta);
+    LOGGER.debug("Other ARs:                  {}% of samples                     Other ARs found, high value means bad detection",
+                String.format("%6.2f", arOtherPct));
   }
 
   protected void detectMultiFormat(VideoInfo videoInfo) {
     if (videoInfo.arSecondaryPct >= this.multiFormatThreshold * 100) {
-      LOGGER.debug("Multi format: yes   AR_Secondary ({}% of samples) >= MFV Detection Threshold ({}% of samples)",
-      String.format("%.1f", videoInfo.arSecondaryPct), String.format("%f", this.multiFormatThreshold * 100));
+      LOGGER.debug("Multi format:      yes                                             AR_Secondary ({}% of samples) >= MFV Detection Threshold ({}% of samples)",
+      String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThreshold * 100));
 
       if (multiFormatMode == 1) {
+        float tmp = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
+        videoInfo.arSecondary = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
+        videoInfo.arPrimaryRaw = Math.max(tmp, ((float) 1.78));
+
+        LOGGER.debug("MFV detected, AR_Primary = higher AR, rounded to list of ARs (but not higher than 1.78)");
+        LOGGER.debug("MFV detected, AR_Secondary = wider AR, rounded to list of ARs");
+      } else if (multiFormatMode == 2) {
         float tmp = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arSecondary = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arPrimaryRaw = tmp;
 
         LOGGER.debug("MFV detected, AR_Primary = wider AR, rounded to list of ARs");
         LOGGER.debug("MFV detected, AR_Secondary = higher AR, rounded to list of ARs");
-      } else if (multiFormatMode == 2) {
-        float tmp = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
-        videoInfo.arSecondary = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
-        videoInfo.arPrimaryRaw = tmp;
-
-        LOGGER.debug("AR_Primary = higher AR, rounded to list of ARs");
-        LOGGER.debug("AR_Secondary = wider AR, rounded to list of ARs");
       }
     } else {
-      LOGGER.debug("Multi format: no    AR_Secondary ({}% of samples) < MFV Detection Threshold ({}%)",
-                  String.format("%.1f", videoInfo.arSecondaryPct), String.format("%f", this.multiFormatThreshold * 100));
+      LOGGER.debug("Multi format:      no                                              AR_Secondary ({}% of samples) < MFV Detection Threshold ({}% of samples)",
+                  String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThreshold * 100));
     }
   }
 
@@ -381,7 +381,7 @@ public class ARDetectorTask extends TmmTask {
         LOGGER.debug("Cropped height is close to real height");
       }
     } else {
-      LOGGER.debug("Real aspect ration is much lower then rounded aspect ratio");
+      LOGGER.debug("Real aspect ratio is much lower then rounded aspect ratio");
     }
     return height;
   }
