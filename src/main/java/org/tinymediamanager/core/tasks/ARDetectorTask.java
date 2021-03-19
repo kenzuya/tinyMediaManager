@@ -345,16 +345,41 @@ public class ARDetectorTask extends TmmTask {
     }
   }
 
-  protected float roundAR(float ar) {
+  protected float roundAR_nearest(float ar) {
     float rounded = 999f;
 
+    // Round to nearest Aspect Ratio from list
+    if (this.arCustomList.size() == 1) {
+      return this.arCustomList.get(0);
+    } else {
+      for (int idx = 0; idx < this.arCustomList.size() - 1; idx++) {
+        float maxAr = (float) Math.sqrt(this.arCustomList.get(idx).doubleValue() *
+                                        this.arCustomList.get(idx + 1).doubleValue());
+        if (ar < maxAr) {
+          rounded = this.arCustomList.get(idx).floatValue();
+          break;
+        }
+      }
+    }
+
+    if (rounded == 999f) rounded = this.arCustomList.get(this.arCustomList.size() - 1).floatValue();
+    LOGGER.debug("Rounded to nearest Aspect Ratio from list");
+
+    return rounded;
+  }
+
+  protected float roundAR(float ar) {
+    float rounded = 999f;
+	int round_nearest = 0;
+
     if (this.roundUp) {
+      // Round up to next wider Aspect Ratio from list if delta is greater than threshold
       float arDelta = 999f;
 
       for (Float arProvided : this.arCustomList) {
-        // Round up to next wider Aspect Ratio from list if delta is greater than threshold
         if (Math.abs(arProvided - ar) <= this.roundUpThreshold) {
-          rounded = arProvided;
+          rounded = roundAR_nearest(ar);
+		  round_nearest = 1;
           break;
         }
         if ((arDelta > (arProvided - ar)) && ((arProvided - ar) >= 0)) {
@@ -362,23 +387,12 @@ public class ARDetectorTask extends TmmTask {
           rounded = arProvided;
         }
       }
+      if (rounded == 999f) rounded = this.arCustomList.get(this.arCustomList.size() - 1).floatValue();
     } else {
-      // Round to nearest Aspect Ratio from list
-      if (this.arCustomList.size() == 1) {
-        return this.arCustomList.get(0);
-      } else {
-        for (int idx = 0; idx < this.arCustomList.size() - 1; idx++) {
-          float maxAr = (float) Math.sqrt(this.arCustomList.get(idx).doubleValue() *
-                                          this.arCustomList.get(idx + 1).doubleValue());
-          if (ar < maxAr) {
-            rounded = this.arCustomList.get(idx).floatValue();
-            break;
-          }
-        }
-      }
+      rounded = roundAR_nearest(ar);
+	  round_nearest = 1;
     }
-
-    if (rounded == 999f) rounded = this.arCustomList.get(this.arCustomList.size() - 1).floatValue();
+    if (round_nearest == 0) LOGGER.debug("Rounded to next wider Aspect Ratio from list");
 
     return rounded;
   }
