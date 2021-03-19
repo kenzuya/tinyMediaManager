@@ -225,7 +225,7 @@ public class ARDetectorTask extends TmmTask {
                                  int seconds, int increment,
                                  VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
-      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample ignored: More than {}% difference between left and right black bar",
+      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: More than {}% difference between left and right black bar",
                   this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
                   barstxt, this.plausiWidthDeltaPct);
       if (videoInfo.sampleSkipAdjustement == 0) {
@@ -327,17 +327,17 @@ public class ARDetectorTask extends TmmTask {
       if (multiFormatMode == 1) {
         float tmp = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arSecondary = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
-        videoInfo.arPrimaryRaw = Math.max(tmp, ((float) 1.78));
+        videoInfo.arPrimaryRaw = tmp;
 
-        LOGGER.debug("MFV detected, AR_Primary = higher AR, rounded to list of ARs (but not higher than 1.78)");
-        LOGGER.debug("MFV detected, AR_Secondary = wider AR, rounded to list of ARs");
+        LOGGER.debug("MFV detected, AR_Primary = higher AR");
+        LOGGER.debug("MFV detected, AR_Secondary = wider AR");
       } else if (multiFormatMode == 2) {
         float tmp = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arSecondary = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arPrimaryRaw = tmp;
 
-        LOGGER.debug("MFV detected, AR_Primary = wider AR, rounded to list of ARs");
-        LOGGER.debug("MFV detected, AR_Secondary = higher AR, rounded to list of ARs");
+        LOGGER.debug("MFV detected, AR_Primary = wider AR");
+        LOGGER.debug("MFV detected, AR_Secondary = higher AR");
       }
     } else {
       LOGGER.debug("Multi format:      no                                              AR_Secondary ({}% of samples) < MFV Detection Threshold ({}% of samples)",
