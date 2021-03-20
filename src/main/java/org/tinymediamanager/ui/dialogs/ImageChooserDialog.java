@@ -1054,7 +1054,7 @@ public class ImageChooserDialog extends TmmDialog {
           if (e instanceof InterruptedException || e instanceof InterruptedIOException) { // NOSONAR
             // shutdown the pool
             pool.getQueue().clear();
-            pool.shutdown();
+            pool.shutdownNow();
 
             return null;
           }
@@ -1064,20 +1064,26 @@ public class ImageChooserDialog extends TmmDialog {
 
       // wait for all downloads to finish
       pool.shutdown();
-      while (!pool.isTerminated()) {
+      while (true) {
         try {
-          final Future<DownloadChunk> future = service.take();
-          DownloadChunk dc = future.get();
-          if (dc.image != null) {
-            publish(dc);
-            imagesFound = true;
+          final Future<DownloadChunk> future = service.poll(1, TimeUnit.SECONDS);
+          if (future != null) {
+            DownloadChunk dc = future.get();
+            if (dc.image != null) {
+              publish(dc);
+              imagesFound = true;
+            }
+          }
+          else if (pool.isTerminated()) {
+            // no result got and the pool is terminated -> we're finished
+            break;
           }
         }
         catch (InterruptedException e) { // NOSONAR
           return null;
         }
         catch (ExecutionException e) {
-          LOGGER.error("ThreadPool imageChooser: Error getting result! - {}", e);
+          LOGGER.error("ThreadPool imageChooser: Error getting result! - {}", e.getMessage());
         }
       }
 

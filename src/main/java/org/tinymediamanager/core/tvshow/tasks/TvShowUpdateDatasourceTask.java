@@ -300,10 +300,16 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("PostDir: {}", postDir);
         LOGGER.debug("VisFile: {}", visFile);
 
-        if (!cancel) {
-          cleanupShows();
-          waitForCompletionOrCancel();
+        if (cancel) {
+          return;
         }
+
+        cleanupShows();
+        waitForCompletionOrCancel();
+      }
+
+      if (cancel) {
+        return;
       }
 
       LOGGER.info("getting Mediainfo...");
@@ -339,6 +345,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         waitForCompletionOrCancel();
+      }
+
+      if (cancel) {
+        return;
       }
 
       stopWatch.stop();
