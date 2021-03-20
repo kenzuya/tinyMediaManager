@@ -76,21 +76,15 @@ public class ARDetectorTaskTest {
       }
     };
 
-    // when
-    float result_240_1 = task.roundAR(2.39f);
-    float result_240_2 = task.roundAR(2.42f);
-    float result_240_3 = task.roundAR(2.5f);
-    float result_185_1 = task.roundAR(1.83f);
-    float result_185_2 = task.roundAR(1.85f);
-    float result_185_3 = task.roundAR(1.86f);
-
-    // then
-    assertThat(result_240_1).isEqualTo(2.4f);
-    assertThat(result_240_2).isEqualTo(2.4f);
-    assertThat(result_240_3).isEqualTo(2.4f);
-    assertThat(result_185_1).isEqualTo(1.85f);
-    assertThat(result_185_2).isEqualTo(1.85f);
-    assertThat(result_185_3).isEqualTo(1.85f);
+    // expect
+    assertThat(task.roundAR(2.0f)).isEqualTo(1.85f);
+    assertThat(task.roundAR(2.36f)).isEqualTo(2.35f);
+    assertThat(task.roundAR(2.38f)).isEqualTo(2.4f);
+    assertThat(task.roundAR(2.42f)).isEqualTo(2.4f);
+    assertThat(task.roundAR(2.5f)).isEqualTo(2.4f);
+    assertThat(task.roundAR(1.83f)).isEqualTo(1.85f);
+    assertThat(task.roundAR(1.85f)).isEqualTo(1.85f);
+    assertThat(task.roundAR(1.86f)).isEqualTo(1.85f);
   }
 
   @Test
@@ -103,22 +97,17 @@ public class ARDetectorTaskTest {
         this.roundUp = true;
       }
     };
+    task.roundUpThreshold = 0.01f;
 
-    // when
-    float result_240_1 = task.roundAR(2.38f);
-    float result_240_2 = task.roundAR(2.42f);
-    float result_240_3 = task.roundAR(2.5f);
-    float result_185_1 = task.roundAR(1.83f);
-    float result_185_2 = task.roundAR(1.85f);
-    float result_185_3 = task.roundAR(1.86f);
-
-    // then
-    assertThat(result_240_1).isEqualTo(2.35f);
-    assertThat(result_240_2).isEqualTo(2.4f);
-    assertThat(result_240_3).isEqualTo(2.4f);
-    assertThat(result_185_1).isEqualTo(1.85f);
-    assertThat(result_185_2).isEqualTo(1.85f);
-    assertThat(result_185_3).isEqualTo(1.85f);
+    // expect
+    assertThat(task.roundAR(2.0f)).isEqualTo(2.35f);
+    assertThat(task.roundAR(2.36f)).isEqualTo(2.35f);
+    assertThat(task.roundAR(2.38f)).isEqualTo(2.4f);
+    assertThat(task.roundAR(2.42f)).isEqualTo(2.4f);
+    assertThat(task.roundAR(2.5f)).isEqualTo(2.4f);
+    assertThat(task.roundAR(1.83f)).isEqualTo(1.85f);
+    assertThat(task.roundAR(1.85f)).isEqualTo(1.85f);
+    assertThat(task.roundAR(1.86f)).isEqualTo(1.85f);
   }
 
 }

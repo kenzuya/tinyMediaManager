@@ -370,7 +370,7 @@ public class ARDetectorTask extends TmmTask {
 
   protected float roundAR(float ar) {
     float rounded = 999f;
-	int round_nearest = 0;
+	  boolean roundNearest = false;
 
     if (this.roundUp) {
       // Round up to next wider Aspect Ratio from list if delta is greater than threshold
@@ -379,7 +379,7 @@ public class ARDetectorTask extends TmmTask {
       for (Float arProvided : this.arCustomList) {
         if (Math.abs(arProvided - ar) <= this.roundUpThreshold) {
           rounded = roundAR_nearest(ar);
-		  round_nearest = 1;
+		      roundNearest = true;
           break;
         }
         if ((arDelta > (arProvided - ar)) && ((arProvided - ar) >= 0)) {
@@ -390,9 +390,9 @@ public class ARDetectorTask extends TmmTask {
       if (rounded == 999f) rounded = this.arCustomList.get(this.arCustomList.size() - 1).floatValue();
     } else {
       rounded = roundAR_nearest(ar);
-	  round_nearest = 1;
+	    roundNearest = true;
     }
-    if (round_nearest == 0) LOGGER.debug("Rounded to next wider Aspect Ratio from list");
+    if (!roundNearest) LOGGER.debug("Rounded to next wider Aspect Ratio from list");
 
     return rounded;
   }

@@ -40,6 +40,7 @@ public class TvShowAspectRatioFilter extends AbstractCheckComboBoxTvShowUIFilter
   private static final String RATIO_1_78 = "16:9 (1.78:1)";
   private static final String RATIO_1_85 = "Widescreen (1.85:1)";
   private static final String RATIO_1_90 = "Digital IMAX (1.90:1)";
+  private static final String RATIO_2_00 = "18:9 (2.00:1)";
   private static final String RATIO_2_20 = "70mm (2.20:1)";
   private static final String RATIO_2_35 = "Anamorphic (2.35:1)";
   private static final String RATIO_2_40 = "Anamorphic widescreen (2.39:1 & 12:5)";
@@ -51,7 +52,7 @@ public class TvShowAspectRatioFilter extends AbstractCheckComboBoxTvShowUIFilter
     checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     others = TmmResourceBundle.getString("filter.others");
 
-    setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90, RATIO_2_20, RATIO_2_35, RATIO_2_40,
+    setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90, RATIO_2_20, RATIO_2_20, RATIO_2_35, RATIO_2_40,
         others);
   }
 
@@ -116,6 +117,11 @@ public class TvShowAspectRatioFilter extends AbstractCheckComboBoxTvShowUIFilter
       }
       else if (aspectRatio == 1.90F) {
         if (ratios.equals(RATIO_1_90)) {
+          return true;
+        }
+      }
+      else if (aspectRatio == 2.00F) {
+        if (ratios.equals(RATIO_2_00)) {
           return true;
         }
       }
