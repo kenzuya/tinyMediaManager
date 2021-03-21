@@ -270,6 +270,13 @@ public class TinyMediaManager {
             splash.update();
           }
           TmmModuleManager.getInstance().startUp();
+
+          // register the shutdown handler
+          Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            TmmModuleManager.getInstance().shutDown();
+            shutdownLogger();
+          }));
+
           TmmModuleManager.getInstance().registerModule(MovieModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(MovieModuleManager.getInstance());
 
@@ -401,13 +408,10 @@ public class TinyMediaManager {
               TmmModuleManager.getInstance().saveSettings();
               // hard kill
               TmmTaskManager.getInstance().shutdownNow();
-              // close database connection
-              TmmModuleManager.getInstance().shutDown();
             }
             catch (Exception ex) {
               LOGGER.warn(ex.getMessage());
             }
-            shutdownLogger();
             System.exit(0);
           }
         }

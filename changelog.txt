@@ -1,3 +1,8 @@
+Upcoming version
+=======================
+x added shutdown hook to prevent database corruption
+
+
 Version 4.1.2
 =======================
 + new columns for HDR and aspect ratio - thx @icebaer72
