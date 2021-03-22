@@ -20,8 +20,9 @@ import static org.tinymediamanager.core.Constants.IMDB;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
@@ -54,7 +55,7 @@ public class TvShowFetchImdbRatingAction extends TmmAction {
   @Override
   protected void processAction(ActionEvent e) {
     List<TvShow> selectedTvShows = TvShowUIModule.getInstance().getSelectionModel().getSelectedTvShows();
-    List<TvShowEpisode> selectedEpisodes = new ArrayList<>();
+    Set<TvShowEpisode> selectedEpisodes = new HashSet<>();
 
     // add all episodes which are not part of a selected tv show
     for (Object obj : TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects()) {
@@ -65,6 +66,8 @@ public class TvShowFetchImdbRatingAction extends TmmAction {
         }
       }
     }
+
+    selectedTvShows.forEach(tvShow -> selectedEpisodes.addAll(tvShow.getEpisodes()));
 
     if (selectedEpisodes.isEmpty() && selectedTvShows.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
