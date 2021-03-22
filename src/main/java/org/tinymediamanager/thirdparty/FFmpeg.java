@@ -96,7 +96,7 @@ public class FFmpeg {
   }
 
   public static String scanSample(int start, int duration, Path videoFile) throws IOException, InterruptedException {
-    return executeCommand(createCommandForScanSample(start, duration, videoFile), true);
+    return executeCommand(createCommandForScanSample(start, duration, videoFile));
   }
 
   private static List<String> createCommandForScanSample(int start, int duration, Path videoFile) {
@@ -121,10 +121,6 @@ public class FFmpeg {
   }
 
   private static String executeCommand(List<String> cmdline) throws InterruptedException {
-    return executeCommand(cmdline, false);
-  }
-
-  private static String executeCommand(List<String> cmdline, boolean ignoreError) throws InterruptedException {
     LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 
     try {
@@ -142,7 +138,7 @@ public class FFmpeg {
         }).start();
 
         int processValue = process.waitFor();
-        if (!ignoreError && processValue != 0) {
+        if (processValue != 0) {
           LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
           throw new IOException("could not create the still - code '" + processValue + "'");
         }
