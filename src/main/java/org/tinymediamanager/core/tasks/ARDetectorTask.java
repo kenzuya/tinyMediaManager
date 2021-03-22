@@ -119,10 +119,10 @@ public class ARDetectorTask extends TmmTask {
         videoInfo.arSample,
         this.mediaFile.getDurationHHMMSS());
 
-      int start = Float.valueOf((float) videoInfo.duration * this.ignoreBeginning / 100f).intValue();
-      int end = Float.valueOf((float) videoInfo.duration * (1f - (this.ignoreEnd / 100f))).intValue();
+      int start = (int)(videoInfo.duration * this.ignoreBeginning / 100f);
+      int end = (int)(videoInfo.duration * (1f - (this.ignoreEnd / 100f)));
 
-      float increment = (float) (end - start) / (this.sampleMinNumber + 1f);
+      float increment = (end - start) / (this.sampleMinNumber + 1f);
 
       float seconds = start + increment;
 
