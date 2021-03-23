@@ -42,7 +42,7 @@ public class ARDetectorTask extends TmmTask {
   private float plausiHeightDeltaPct = 2f;
 
   protected int multiFormatMode = 0;
-  private float multiFormatThreshold = 0.07f;
+  private float multiFormatThreshold = 0.06f;
 
   protected final List<Float> arCustomList = new LinkedList<>();
 
@@ -162,18 +162,20 @@ public class ARDetectorTask extends TmmTask {
       if (this.multiFormatMode > 0) {
         detectMultiFormat(videoInfo);
       } else {
+        getNewHeight(videoInfo);
+        videoInfo.height = videoInfo.heightPrimary;
+        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);
+
         LOGGER.debug("Multi format:      disabled");
       }
-
       videoInfo.arPrimary = roundAR(videoInfo.arPrimaryRaw);
       LOGGER.debug("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
 
       this.mediaFile.setAspectRatio(videoInfo.arPrimary);
+      this.mediaFile.setVideoHeight(videoInfo.height);
+      this.mediaFile.setVideoWidth(videoInfo.width);
 
-      int newHeight = getNewHeight(videoInfo);
-      this.mediaFile.setVideoHeight(newHeight);
-
-      LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, newHeight, videoInfo.arPrimary);
+      LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, videoInfo.height, videoInfo.arPrimary);
     } catch (Exception ex) {
       LOGGER.error("Error detecting aspect ratio", ex);
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed"));
@@ -267,6 +269,16 @@ public class ARDetectorTask extends TmmTask {
       } else {
         videoInfo.arMap.put(videoInfo.arCalculated, videoInfo.arMap.get(videoInfo.arCalculated) + 1);
       }
+      if (!videoInfo.heightMap.containsKey(height)) {
+        videoInfo.heightMap.put(height, 1);
+      } else {
+        videoInfo.heightMap.put(height, videoInfo.heightMap.get(height) + 1);
+      }
+      if (!videoInfo.widthMap.containsKey(width)) {
+        videoInfo.widthMap.put(width, 1);
+      } else {
+        videoInfo.widthMap.put(width, videoInfo.widthMap.get(width) + 1);
+      }
       videoInfo.sampleCount++;
       LOGGER.debug("Analyzing {}s @ {} => bars: {} crop: {}x{} ({}) * SAR => AR_Calculated = {}",
                   this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
@@ -284,13 +296,13 @@ public class ARDetectorTask extends TmmTask {
                                             .orElse(0f);
 
     videoInfo.arSecondary = videoInfo.arMap.entrySet()
-                                              .stream()
-                                              .filter(entry -> (entry.getKey() <= (videoInfo.arPrimaryRaw - this.arSecondaryDelta) ||
-                                                                entry.getKey() >= (videoInfo.arPrimaryRaw + this.arSecondaryDelta)))
-                                              .sorted(Map.Entry.<Float, Integer>comparingByValue().reversed())
-                                              .findFirst()
-                                              .map(entry -> entry.getKey())
-                                              .orElse(0f);
+                                           .stream()
+                                           .filter(entry -> (entry.getKey() <= (videoInfo.arPrimaryRaw - this.arSecondaryDelta) ||
+                                                             entry.getKey() >= (videoInfo.arPrimaryRaw + this.arSecondaryDelta)))
+                                           .sorted(Map.Entry.<Float, Integer>comparingByValue().reversed())
+                                           .findFirst()
+                                           .map(entry -> entry.getKey())
+                                           .orElse(0f);
 
     if (videoInfo.arMap.size() == 0) videoInfo.arSecondary = 0f;
 
@@ -306,6 +318,13 @@ public class ARDetectorTask extends TmmTask {
                                                           entry.getKey() <= (videoInfo.arSecondary + this.arSecondaryDelta / 2)))
                                         .map(entry -> entry.getValue())
                                         .reduce(0, Integer::sum);
+
+    // If sums are equal arPrimaryRaw and arSecondary need to be swapped because sort order of heightPrimary is different
+    if (arPrimarySum == arSecondarySum) {
+      float tmp = videoInfo.arPrimaryRaw;
+      videoInfo.arPrimaryRaw = videoInfo.arSecondary;
+      videoInfo.arSecondary = tmp;
+    }
 
     float arPrimaryPct = arPrimarySum * 100f / videoInfo.sampleCount;
     videoInfo.arSecondaryPct = arSecondarySum * 100f / videoInfo.sampleCount;
@@ -328,18 +347,28 @@ public class ARDetectorTask extends TmmTask {
         float tmp = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arSecondary = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arPrimaryRaw = tmp;
+        getNewHeight(videoInfo);
+        videoInfo.height = Math.max(videoInfo.heightPrimary, videoInfo.heightSecondary);
+        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);;
 
-        LOGGER.debug("MFV detected, AR_Primary = higher AR");
-        LOGGER.debug("MFV detected, AR_Secondary = wider AR");
+        LOGGER.debug("MFV detected, arPrimaryRaw is higher AR: {} height: {}", String.format("%.5f", videoInfo.arPrimaryRaw), videoInfo.height);
+        LOGGER.debug("MFV detected, arSecondary is wider AR: {}", String.format("%.5f", videoInfo.arSecondary));
       } else if (multiFormatMode == 2) {
         float tmp = Math.max(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arSecondary = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
         videoInfo.arPrimaryRaw = tmp;
+        getNewHeight(videoInfo);
+        videoInfo.height = Math.min(videoInfo.heightPrimary, videoInfo.heightSecondary);
+        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);;
 
-        LOGGER.debug("MFV detected, AR_Primary = wider AR");
-        LOGGER.debug("MFV detected, AR_Secondary = higher AR");
+        LOGGER.debug("MFV detected, arPrimaryRaw is wider AR: {} height: {}", String.format("%.5f", videoInfo.arPrimaryRaw), videoInfo.height);
+        LOGGER.debug("MFV detected, arSecondary is higher AR: {}", String.format("%.5f", videoInfo.arSecondary));
       }
     } else {
+      getNewHeight(videoInfo);
+      videoInfo.height = videoInfo.heightPrimary;
+      videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);
+
       LOGGER.debug("Multi format:      no                                              AR_Secondary ({}% of samples) < MFV Detection Threshold ({}% of samples)",
                   String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThreshold * 100));
     }
@@ -379,7 +408,7 @@ public class ARDetectorTask extends TmmTask {
       for (Float arProvided : this.arCustomList) {
         if (Math.abs(arProvided - ar) <= this.roundUpThreshold) {
           rounded = roundAR_nearest(ar);
-		      roundNearest = true;
+          roundNearest = true;
           break;
         }
         if ((arDelta > (arProvided - ar)) && ((arProvided - ar) >= 0)) {
@@ -390,26 +419,35 @@ public class ARDetectorTask extends TmmTask {
       if (rounded == 999f) rounded = this.arCustomList.get(this.arCustomList.size() - 1).floatValue();
     } else {
       rounded = roundAR_nearest(ar);
-	    roundNearest = true;
+      roundNearest = true;
     }
     if (!roundNearest) LOGGER.debug("Rounded to next wider Aspect Ratio from list");
 
     return rounded;
   }
 
-  protected int getNewHeight(VideoInfo videoInfo) {
-    int height = videoInfo.height;
-    if ((videoInfo.arPrimaryRaw * 1.25f) > videoInfo.arPrimary) {
-      int croppedHeight = Math.round(videoInfo.width / (videoInfo.arPrimary / videoInfo.arSample));
-      if (Math.abs(videoInfo.height - croppedHeight) >= 10) {
-        height = croppedHeight;
-      } else {
-        LOGGER.debug("Cropped height is close to real height");
-      }
-    } else {
-      LOGGER.debug("Real aspect ratio is much lower then rounded aspect ratio");
-    }
-    return height;
+  protected void getNewHeight(VideoInfo videoInfo) {
+    int widthPrimary = videoInfo.widthMap.entrySet()
+                                         .stream()
+                                         .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                         .findFirst()
+                                         .map(entry -> entry.getKey())
+                                         .orElse(videoInfo.width);
+    videoInfo.heightPrimary = videoInfo.heightMap.entrySet()
+                                                 .stream()
+                                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                                 .findFirst()
+                                                 .map(entry -> entry.getKey())
+                                                 .orElse(videoInfo.height);
+
+    videoInfo.heightSecondary = videoInfo.heightMap.entrySet()
+                                                   .stream()
+                                                   .filter(entry -> (entry.getKey() >= widthPrimary / (videoInfo.arPrimaryRaw + this.arSecondaryDelta) &&
+                                                                     entry.getKey() <= widthPrimary / (videoInfo.arPrimaryRaw - this.arSecondaryDelta)))
+                                                   .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                                   .findFirst()
+                                                   .map(entry -> entry.getKey())
+                                                   .orElse(videoInfo.heightPrimary);
   }
 
   protected float getSampleAR(MediaFile mediaFile) {
@@ -437,7 +475,12 @@ public class ARDetectorTask extends TmmTask {
 
     float sampleSkipAdjustement = 0f;
 
+    int heightPrimary;
+    int heightSecondary;
+
     Map<Float, Integer> arMap = new HashMap<>();
+    Map<Integer, Integer> widthMap = new HashMap<>();
+    Map<Integer, Integer> heightMap = new HashMap<>();
   }
 
 }
