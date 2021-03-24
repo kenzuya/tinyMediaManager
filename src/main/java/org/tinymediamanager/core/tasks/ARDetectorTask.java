@@ -47,7 +47,7 @@ public class ARDetectorTask extends TmmTask {
   protected final List<Float> arCustomList = new LinkedList<>();
 
   public ARDetectorTask(MediaFile mediaFile) {
-    super("", 0, TaskType.BACKGROUND_TASK);
+    super(TmmResourceBundle.getString("update.aspectRatio"), 0, TaskType.BACKGROUND_TASK);
     this.mediaFile = mediaFile;
     init();
   }
