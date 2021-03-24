@@ -1,5 +1,6 @@
 Upcoming version
 =======================
++ (TV shows) added vote count column
 x added shutdown hook to prevent database corruption
 x (TV shows) also fetch imdb ratings for episodes
 x (movies) catch occasional errors in movie set sorting
