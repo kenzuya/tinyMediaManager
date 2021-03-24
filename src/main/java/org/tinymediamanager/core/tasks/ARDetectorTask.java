@@ -164,7 +164,7 @@ public class ARDetectorTask extends TmmTask {
       } else {
         getNewHeight(videoInfo);
         videoInfo.height = videoInfo.heightPrimary;
-        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);
+        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
 
         LOGGER.debug("Multi format:      disabled");
       }
@@ -349,7 +349,7 @@ public class ARDetectorTask extends TmmTask {
         videoInfo.arPrimaryRaw = tmp;
         getNewHeight(videoInfo);
         videoInfo.height = Math.max(videoInfo.heightPrimary, videoInfo.heightSecondary);
-        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);;
+        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
 
         LOGGER.debug("MFV detected, arPrimaryRaw is higher AR: {} height: {}", String.format("%.5f", videoInfo.arPrimaryRaw), videoInfo.height);
         LOGGER.debug("MFV detected, arSecondary is wider AR: {}", String.format("%.5f", videoInfo.arSecondary));
@@ -359,7 +359,7 @@ public class ARDetectorTask extends TmmTask {
         videoInfo.arPrimaryRaw = tmp;
         getNewHeight(videoInfo);
         videoInfo.height = Math.min(videoInfo.heightPrimary, videoInfo.heightSecondary);
-        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);;
+        videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
 
         LOGGER.debug("MFV detected, arPrimaryRaw is wider AR: {} height: {}", String.format("%.5f", videoInfo.arPrimaryRaw), videoInfo.height);
         LOGGER.debug("MFV detected, arSecondary is higher AR: {}", String.format("%.5f", videoInfo.arSecondary));
@@ -367,7 +367,7 @@ public class ARDetectorTask extends TmmTask {
     } else {
       getNewHeight(videoInfo);
       videoInfo.height = videoInfo.heightPrimary;
-      videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw);
+      videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
 
       LOGGER.debug("Multi format:      no                                              AR_Secondary ({}% of samples) < MFV Detection Threshold ({}% of samples)",
                   String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThreshold * 100));
