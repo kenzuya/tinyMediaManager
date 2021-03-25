@@ -32,6 +32,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
@@ -45,7 +46,6 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  * @author Manuel Laggner
  */
 public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
-
 
   public TvShowTableFormat() {
     FontMetrics fontMetrics = getFontMetrics();
@@ -142,6 +142,18 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("99.9") * 1.2f));
     col.setColumnComparator(floatComparator);
+    addColumn(col);
+
+    /*
+     * votes (hidden per default)
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.votes"), "votes", this::getVotes, String.class);
+    col.setHeaderIcon(IconManager.VOTES);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
+    col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("1000000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    col.setColumnComparator(integerComparator);
     addColumn(col);
 
     /*
@@ -373,11 +385,22 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShow || userObject instanceof TvShowEpisode) {
       MediaRating mediaRating = ((MediaEntity) userObject).getRating();
-      if (mediaRating != null && mediaRating.getRating() > 0) {
+      if (mediaRating != null && mediaRating != MediaMetadata.EMPTY_RATING && mediaRating.getRating() > 0) {
         return String.valueOf(mediaRating.getRating());
       }
     }
-    return "";
+    return null;
+  }
+
+  private String getVotes(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShow || userObject instanceof TvShowEpisode) {
+      MediaRating mediaRating = ((MediaEntity) userObject).getRating();
+      if (mediaRating != null && mediaRating != MediaMetadata.EMPTY_RATING && mediaRating.getRating() > 0) {
+        return String.valueOf(mediaRating.getVotes());
+      }
+    }
+    return null;
   }
 
   private String getUserRating(TmmTreeNode node) {
@@ -388,7 +411,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return String.valueOf(mediaRating.getRating());
       }
     }
-    return "";
+    return null;
   }
 
   private Date getAiredDate(TmmTreeNode node) {
