@@ -5,6 +5,7 @@ x added shutdown hook to prevent database corruption
 x (TV shows) also fetch imdb ratings for episodes
 x (movies) catch occasional errors in movie set sorting
 x check write access to the tinyMediaManager folder on startup
+x added columns for music theme and Video Bitrate
 
 
 Version 4.1.2
