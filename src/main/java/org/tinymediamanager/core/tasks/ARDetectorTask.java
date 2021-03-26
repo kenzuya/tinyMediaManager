@@ -44,12 +44,19 @@ public class ARDetectorTask extends TmmTask {
   protected int multiFormatMode = 0;
   private float multiFormatThreshold = 0.06f;
 
+  private final Message msgError;
+
   protected final List<Float> arCustomList = new LinkedList<>();
 
   public ARDetectorTask(MediaFile mediaFile) {
     super(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename(),
           0, TaskType.BACKGROUND_TASK);
     this.mediaFile = mediaFile;
+
+    this.msgError = new Message(Message.MessageLevel.ERROR,
+                                "task.ard",
+                                "message.ard.failed",
+                                new String[] { ":", this.mediaFile.getFilename()});
     init();
   }
 
@@ -154,7 +161,7 @@ public class ARDetectorTask extends TmmTask {
 
       if (videoInfo.sampleCount == 0) {
         LOGGER.warn("No results from scanning");
-        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed"));
+        MessageManager.instance.pushMessage(this.msgError);
         return;
       }
 
@@ -179,7 +186,7 @@ public class ARDetectorTask extends TmmTask {
       LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, videoInfo.height, videoInfo.arPrimary);
     } catch (Exception ex) {
       LOGGER.error("Error detecting aspect ratio", ex);
-      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, "task.ard", "message.ard.failed"));
+      MessageManager.instance.pushMessage(this.msgError);
     }
   }
 
