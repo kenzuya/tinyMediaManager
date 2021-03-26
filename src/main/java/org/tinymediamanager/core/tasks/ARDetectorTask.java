@@ -15,11 +15,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class ARDetectorTask extends TmmTask {
+public abstract class ARDetectorTask extends TmmTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ARDetectorTask.class);
-
-  private final MediaFile mediaFile;
 
   private final Pattern patternSample = Pattern.compile("x1:([0-9]*)\\sx2:([0-9]*)\\sy1:([0-9]*)\\sy2:([0-9]*)\\sw:([0-9]*)\\sh:([0-9]*)\\sx:");
 
@@ -44,30 +42,15 @@ public class ARDetectorTask extends TmmTask {
   protected int multiFormatMode = 0;
   private float multiFormatThreshold = 0.06f;
 
-  private final Message msgError;
-
   protected final List<Float> arCustomList = new LinkedList<>();
 
-  public ARDetectorTask(MediaFile mediaFile) {
-    super(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename(),
-          0, TaskType.BACKGROUND_TASK);
-    this.mediaFile = mediaFile;
-
-    this.msgError = new Message(Message.MessageLevel.ERROR,
-                                "task.ard",
-                                "message.ard.failed",
-                                new String[] { ":", this.mediaFile.getFilename()});
+  public ARDetectorTask() {
+    super(TmmResourceBundle.getString("update.aspectRatio"),
+          100, TaskType.BACKGROUND_TASK);
     init();
   }
 
-  @Override
-  protected void doInBackground() {
-    analyze();
-  }
-
   protected void init() {
-    setWorkUnits(100);
-
     this.mode = settings.getArdMode();
     Settings.ARDSampleSetting modeSettings = settings.getArdSetting(this.mode);
     if (modeSettings == null) {
@@ -99,7 +82,13 @@ public class ARDetectorTask extends TmmTask {
     this.plausiHeightDeltaPct = settings.getArdPlausiHeightDeltaPct();
   }
 
-  protected void analyze() {
+  protected void analyze(MediaFile mediaFile) {
+    analyze(mediaFile, 0);
+  }
+
+  protected void analyze(MediaFile mediaFile, int idx) {
+    setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
+
     try {
       VideoInfo videoInfo = new VideoInfo();
 
@@ -107,25 +96,25 @@ public class ARDetectorTask extends TmmTask {
         String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
         videoInfo.width = Integer.valueOf(width);
       } catch (Exception ex) {
-        videoInfo.width = this.mediaFile.getVideoWidth();
+        videoInfo.width = mediaFile.getVideoWidth();
       }
 
       try {
         String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
         videoInfo.height = Integer.valueOf(height);
       } catch (Exception ex) {
-        videoInfo.height = this.mediaFile.getVideoHeight();
+        videoInfo.height = mediaFile.getVideoHeight();
       }
 
-      videoInfo.duration = this.mediaFile.getDuration();
-      videoInfo.arSample = getSampleAR(this.mediaFile);
+      videoInfo.duration = mediaFile.getDuration();
+      videoInfo.arSample = getSampleAR(mediaFile);
       if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
 
       LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, Duration: {}",
         videoInfo.width, videoInfo.height,
-        this.mediaFile.getAspectRatio(),
+        mediaFile.getAspectRatio(),
         videoInfo.arSample,
-        this.mediaFile.getDurationHHMMSS());
+        mediaFile.getDurationHHMMSS());
 
       int start = (int)(videoInfo.duration * this.ignoreBeginning / 100f);
       int end = (int)(videoInfo.duration * (1f - (this.ignoreEnd / 100f)));
@@ -143,7 +132,7 @@ public class ARDetectorTask extends TmmTask {
         try {
           int iSec = Math.round(seconds);
           int iInc = Math.round(increment);
-          String result = FFmpeg.scanSample(iSec, sampleDuration, this.mediaFile.getFile());
+          String result = FFmpeg.scanSample(iSec, sampleDuration, mediaFile.getFile());
           parseSample(result, iSec, iInc, videoInfo);
         } catch (Exception ex) {
           LOGGER.warn("Error scanning sample", ex);
@@ -156,12 +145,15 @@ public class ARDetectorTask extends TmmTask {
         }
 
         int progress = ((int)seconds - start) * 100 / (end - start);
-        publishState(progress);
+        publishState(idx * 100 + progress);
       }
 
       if (videoInfo.sampleCount == 0) {
         LOGGER.warn("No results from scanning");
-        MessageManager.instance.pushMessage(this.msgError);
+        MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR,
+                                            "task.ard",
+                                            "message.ard.failed",
+                                            new String[] { ":", mediaFile.getFilename()}));
         return;
       }
 
@@ -179,14 +171,17 @@ public class ARDetectorTask extends TmmTask {
       videoInfo.arPrimary = roundAR(videoInfo.arPrimaryRaw);
       LOGGER.debug("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
 
-      this.mediaFile.setAspectRatio(videoInfo.arPrimary);
-      this.mediaFile.setVideoHeight(videoInfo.height);
-      this.mediaFile.setVideoWidth(videoInfo.width);
+      mediaFile.setAspectRatio(videoInfo.arPrimary);
+      mediaFile.setVideoHeight(videoInfo.height);
+      mediaFile.setVideoWidth(videoInfo.width);
 
       LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, videoInfo.height, videoInfo.arPrimary);
     } catch (Exception ex) {
       LOGGER.error("Error detecting aspect ratio", ex);
-      MessageManager.instance.pushMessage(this.msgError);
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR,
+                                                      "task.ard",
+                                                      "message.ard.failed",
+                                                      new String[] { ":", mediaFile.getFilename()}));
     }
   }
 
@@ -490,5 +485,4 @@ public class ARDetectorTask extends TmmTask {
     Map<Integer, Integer> widthMap = new HashMap<>();
     Map<Integer, Integer> heightMap = new HashMap<>();
   }
-
 }

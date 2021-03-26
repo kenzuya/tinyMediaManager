@@ -38,6 +38,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
+import org.tinymediamanager.ui.movies.actions.MovieAspectRatioDetectAction;
 import org.tinymediamanager.ui.movies.actions.MovieAssignMovieSetAction;
 import org.tinymediamanager.ui.movies.actions.MovieBulkEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieChangeDatasourceAction;
@@ -210,6 +211,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
     popupMenu.add(enhancedEditMenu);
 
     popupMenu.addSeparator();

@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ARDetectorTaskTest {
+public class MediaFileARDetectorTaskTest {
 
   private final List<Float> customARs = Arrays.asList(1.78f, 1.85f, 2.35f, 2.4f);
 
@@ -25,7 +25,7 @@ public class ARDetectorTaskTest {
     videoInfo.arMap.put(2.59f, 1);
     videoInfo.arMap.put(2.2f, 1);
 
-    ARDetectorTask task = new ARDetectorTask(null) {
+    ARDetectorTask task = new MediaFileARDetectorTask(null) {
       @Override
       protected void init() {
         this.arCustomList.addAll(customARs);
@@ -50,7 +50,7 @@ public class ARDetectorTaskTest {
     videoInfo.arMap.put(2.45f, 1);
     videoInfo.arMap.put(2.35f, 3);
 
-    ARDetectorTask task = new ARDetectorTask(null) {
+    ARDetectorTask task = new MediaFileARDetectorTask(null) {
       @Override
       protected void init() {
         this.arCustomList.addAll(customARs);
@@ -68,7 +68,7 @@ public class ARDetectorTaskTest {
   @Test
   public void roundAR_round() {
     // given
-    ARDetectorTask task = new ARDetectorTask(null) {
+    ARDetectorTask task = new MediaFileARDetectorTask(null) {
       @Override
       protected void init() {
         this.arCustomList.addAll(customARs);
@@ -90,7 +90,7 @@ public class ARDetectorTaskTest {
   @Test
   public void roundAR_roundUp() {
     // given
-    ARDetectorTask task = new ARDetectorTask(null) {
+    ARDetectorTask task = new MediaFileARDetectorTask(null) {
       @Override
       protected void init() {
         this.arCustomList.addAll(customARs);

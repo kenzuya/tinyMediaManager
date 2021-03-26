@@ -62,6 +62,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.tasks.ARDetectorTask;
+import org.tinymediamanager.core.tasks.MediaFileARDetectorTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskListener;
@@ -442,7 +443,7 @@ public class MediaFileEditorPanel extends JPanel {
         mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
         MediaFileContainer mf = mediaFiles.get(mediaFileRow);
 
-        ARDetectorTask task = new ARDetectorTask(mf.getMediaFile());
+        ARDetectorTask task = new MediaFileARDetectorTask(mf.getMediaFile());
         task.addListener(this);
         TmmTaskManager.getInstance().addUnnamedTask(task);
         MediaFileEditorPanel.this.ardTask = task;
