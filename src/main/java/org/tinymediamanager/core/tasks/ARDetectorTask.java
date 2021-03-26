@@ -96,14 +96,24 @@ public abstract class ARDetectorTask extends TmmTask {
         String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
         videoInfo.width = Integer.valueOf(width);
       } catch (Exception ex) {
-        videoInfo.width = mediaFile.getVideoWidth();
+        try {
+          String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
+          videoInfo.width = Integer.valueOf(width);
+        } catch (Exception ex1) {
+          videoInfo.width = mediaFile.getVideoWidth();
+        }
       }
 
       try {
         String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
         videoInfo.height = Integer.valueOf(height);
       } catch (Exception ex) {
-        videoInfo.height = mediaFile.getVideoHeight();
+        try {
+          String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
+          videoInfo.height = Integer.valueOf(height);
+        } catch (Exception ex1) {
+          videoInfo.height = mediaFile.getVideoHeight();
+        }
       }
 
       videoInfo.duration = mediaFile.getDuration();
