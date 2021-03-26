@@ -431,7 +431,7 @@ public class MediaFileEditorPanel extends JPanel {
     private static final long serialVersionUID = 8777310652284455423L;
 
     public ScanAspectRationAction() {
-      putValue(NAME, "Aspect Ratio Detector");
+      putValue(NAME, TmmResourceBundle.getString("task.ard"));
       putValue(SMALL_ICON, IconManager.SEARCH);
     }
 
