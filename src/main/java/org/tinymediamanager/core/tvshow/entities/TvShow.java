@@ -1071,6 +1071,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     return false;
   }
 
+
+  /**
+   * Check if Tv show has a Music Theme File
+   * @return the check for the musictheme file
+   */
+  public Boolean getHasMusicTheme() {
+    return (!getMediaFiles(MediaFileType.THEME).isEmpty());
+  }
+
   /**
    * Gets the check mark for images. What to be checked is configurable
    *

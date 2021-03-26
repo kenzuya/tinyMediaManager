@@ -1584,6 +1584,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return getMainVideoFile().getBitDepth();
   }
 
+  public int getMediaInfoVideoBitrate() {
+    return getMainVideoFile().getVideoBitRate();
+  }
+
   @Override
   public List<String> getMediaInfoAudioLanguageList() {
     return getMainVideoFile().getAudioLanguagesList();

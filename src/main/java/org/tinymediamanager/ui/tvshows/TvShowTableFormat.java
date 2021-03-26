@@ -240,6 +240,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
+    * Video Bitrate
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.videobitrate"), "videoBitrate", this::getVideoBitrate, Integer.class);
+    col.setHeaderIcon(IconManager.VIDEO_BITRATE);
+    col.setMinWidth((int) (fontMetrics.stringWidth("20000") * 1.2f + 10));
+    col.setDefaultHidden(true);
+    addColumn(col);
+
+    /*
      * main video file size (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.size"), "fileSize", this::getFileSize, String.class);
@@ -318,6 +327,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
+    addColumn(col);
+
+    /*
+     * has downloaded theme
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.musictheme"), "theme", this::hasDownloadedMusicTheme, ImageIcon.class);
+    col.setHeaderIcon(IconManager.MUSIC);
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
     addColumn(col);
   }
 
@@ -469,6 +487,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return "";
   }
 
+  private Integer getVideoBitrate(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if (userObject instanceof TvShowEpisode) {
+      return ((TvShowEpisode) userObject).getMediaInfoVideoBitrate();
+    }
+    return null;
+  }
+
   private String getFileSize(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof TvShowEpisode) {
@@ -609,6 +635,14 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     }
     else if (userObject instanceof TvShowEpisode) {
       return ((TvShowEpisode) userObject).getOriginalTitle();
+    }
+    return null;
+  }
+
+  private ImageIcon hasDownloadedMusicTheme(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if ( userObject instanceof TvShow) {
+      return getCheckIcon(((TvShow) userObject ).getHasMusicTheme());
     }
     return null;
   }
