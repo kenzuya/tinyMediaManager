@@ -120,12 +120,12 @@ public class Settings extends AbstractSettings {
   // aspect ratio detector
   private ArdMode               ardMode                     = ArdMode.DEFAULT;
   private Map<ArdMode, ARDSampleSetting> ardSampleSettings  = defaultARDSampleSettings();
-  private float                 ardIgnoreBeginning          = 2;
-  private float                 ardIgnoreEnd                = 8;
+  private float                 ardIgnoreBeginningPct       = 2f;
+  private float                 ardIgnoreEndPct             = 8f;
   private boolean               ardRoundUp                  = false;
-  private float                 ardRoundThreshold           = 0.04f;
+  private float                 ardRoundUpThresholdPct      = 4f;
   private int                   ardMFMode                   = 0;
-  private float                 ardMFThreshold              = 0.06f;
+  private float                 ardMFThresholdPct           = 6f;
   private float                 ardPlausiWidthPct           = 50f;
   private float                 ardPlausiHeightPct          = 60f;
   private float                 ardPlausiWidthDeltaPct      = 1.5f;
@@ -1094,24 +1094,24 @@ public class Settings extends AbstractSettings {
     return this.ardMode;
   }
 
-  public void setArdIgnoreBeginning(float newValue) {
-    float oldValue = this.ardIgnoreBeginning;
-    this.ardIgnoreBeginning = newValue;
-    firePropertyChange("ardIgnoreBeginning", oldValue, newValue);
+  public void setArdIgnoreBeginningPct(float newValue) {
+    float oldValue = this.ardIgnoreBeginningPct;
+    this.ardIgnoreBeginningPct = newValue;
+    firePropertyChange("ardIgnoreBeginningPct", oldValue, newValue);
   }
 
-  public float getArdIgnoreBeginning() {
-    return this.ardIgnoreBeginning;
+  public float getArdIgnoreBeginningPct() {
+    return this.ardIgnoreBeginningPct;
   }
 
-  public void setArdIgnoreEnd(float newValue) {
-    float oldValue = this.ardIgnoreEnd;
-    this.ardIgnoreEnd = newValue;
-    firePropertyChange("ardIgnoreEnd", oldValue, newValue);
+  public void setArdIgnoreEndPct(float newValue) {
+    float oldValue = this.ardIgnoreEndPct;
+    this.ardIgnoreEndPct = newValue;
+    firePropertyChange("ardIgnoreEndPct", oldValue, newValue);
   }
 
-  public float getArdIgnoreEnd() {
-    return this.ardIgnoreEnd;
+  public float getArdIgnoreEndPct() {
+    return this.ardIgnoreEndPct;
   }
 
   public void setArdPlausiWidthPct(float newValue) {
@@ -1184,14 +1184,14 @@ public class Settings extends AbstractSettings {
     return this.ardRoundUp;
   }
 
-  public void setArdRoundThreshold(float newValue) {
-    float oldValue = this.ardRoundThreshold;
-    this.ardRoundThreshold = newValue;
-    firePropertyChange("ardRoundThreshold", oldValue, newValue);
+  public void setArdRoundUpThresholdPct(float newValue) {
+    float oldValue = this.ardRoundUpThresholdPct;
+    this.ardRoundUpThresholdPct = newValue;
+    firePropertyChange("ardRoundUpThresholdPct", oldValue, newValue);
   }
 
-  public float getArdRoundThreshold() {
-    return this.ardRoundThreshold;
+  public float getArdRoundUpThresholdPct() {
+    return this.ardRoundUpThresholdPct;
   }
 
   public void addCustomAspectRatios(String aspectRatio) {
@@ -1228,14 +1228,14 @@ public class Settings extends AbstractSettings {
     return this.ardMFMode;
   }
 
-  public void setArdMFThreshold(float newValue) {
-    float oldValue = this.ardMFThreshold;
-    this.ardMFThreshold = newValue;
-    firePropertyChange("ardMFThreshold", oldValue, newValue);
+  public void setArdMFThresholdPct(float newValue) {
+    float oldValue = this.ardMFThresholdPct;
+    this.ardMFThresholdPct = newValue;
+    firePropertyChange("ardMFThresholdPct", oldValue, newValue);
   }
 
-  public float getArdMFThreshold() {
-    return this.ardMFThreshold;
+  public float getArdMFThresholdPct() {
+    return this.ardMFThresholdPct;
   }
 
   public Map<ArdMode, ARDSampleSetting> getArdSampleSettings() {

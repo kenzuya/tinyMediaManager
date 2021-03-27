@@ -28,11 +28,11 @@ public abstract class ARDetectorTask extends TmmTask {
   protected int sampleDuration = 2;
   protected int sampleMinNumber = 6;
   protected int sampleMaxGap = 900;
-  protected float ignoreBeginning = 2f;
-  protected float ignoreEnd = 8f;
+  protected float ignoreBeginningPct = 2f;
+  protected float ignoreEndPct = 8f;
 
   protected boolean roundUp = false;
-  protected float roundUpThreshold = 0.04f;
+  protected float roundUpThresholdPct = 4f;
 
   private float arSecondaryDelta = 0.15f;
   private float plausiWidthPct = 50f;
@@ -41,7 +41,7 @@ public abstract class ARDetectorTask extends TmmTask {
   private float plausiHeightDeltaPct = 2f;
 
   protected int multiFormatMode = 0;
-  private float multiFormatThreshold = 0.06f;
+  private float multiFormatThresholdPct = 6f;
 
   protected final List<Float> arCustomList = new LinkedList<>();
 
@@ -61,20 +61,20 @@ public abstract class ARDetectorTask extends TmmTask {
     this.sampleMinNumber = modeSettings.getMinNumber();
     this.sampleMaxGap = modeSettings.getMaxGap();
 
-    this.ignoreBeginning = settings.getArdIgnoreBeginning();
-    this.ignoreEnd = settings.getArdIgnoreEnd();
+    this.ignoreBeginningPct = settings.getArdIgnoreBeginningPct();
+    this.ignoreEndPct = settings.getArdIgnoreEndPct();
     this.arCustomList.addAll(settings.getCustomAspectRatios()
                                      .stream()
                                      .map(ar -> Float.valueOf(ar))
                                      .sorted()
                                      .collect(Collectors.toList()));
     this.roundUp = settings.isArdRoundUp();
-    this.roundUpThreshold = settings.getArdRoundThreshold();
+    this.roundUpThresholdPct = settings.getArdRoundUpThresholdPct();
     this.multiFormatMode = settings.getArdMFMode();
     if (!Settings.ArdMode.ACCURATE.equals(this.mode)) {
       this.multiFormatMode = 0;
     }
-    this.multiFormatThreshold = settings.getArdMFThreshold();
+    this.multiFormatThresholdPct = settings.getArdMFThresholdPct();
 
     this.arSecondaryDelta = settings.getArdSecondaryDelta();
     this.plausiWidthPct = settings.getArdPlausiWidthPct();
@@ -126,8 +126,8 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.arSample,
         mediaFile.getDurationHHMMSS());
 
-      int start = (int)(videoInfo.duration * this.ignoreBeginning / 100f);
-      int end = (int)(videoInfo.duration * (1f - (this.ignoreEnd / 100f)));
+      int start = (int)(videoInfo.duration * this.ignoreBeginningPct / 100f);
+      int end = (int)(videoInfo.duration * (1f - (this.ignoreEndPct / 100f)));
 
       float increment = (end - start) / (this.sampleMinNumber + 1f);
 
@@ -352,9 +352,9 @@ public abstract class ARDetectorTask extends TmmTask {
   }
 
   protected void detectMultiFormat(VideoInfo videoInfo) {
-    if (videoInfo.arSecondaryPct >= this.multiFormatThreshold * 100) {
+    if (videoInfo.arSecondaryPct >= this.multiFormatThresholdPct) {
       LOGGER.debug("Multi format:      yes                                             AR_Secondary ({}% of samples) >= MFV Detection Threshold ({}% of samples)",
-      String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThreshold * 100));
+      String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThresholdPct));
 
       if (multiFormatMode == 1) {
         float tmp = Math.min(videoInfo.arPrimaryRaw, videoInfo.arSecondary);
@@ -383,7 +383,7 @@ public abstract class ARDetectorTask extends TmmTask {
       videoInfo.width = Math.round(videoInfo.height * videoInfo.arPrimaryRaw / videoInfo.arSample);
 
       LOGGER.debug("Multi format:      no                                              AR_Secondary ({}% of samples) < MFV Detection Threshold ({}% of samples)",
-                  String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThreshold * 100));
+                  String.format("%.2f", videoInfo.arSecondaryPct), String.format("%.2f", this.multiFormatThresholdPct));
     }
   }
 
@@ -419,7 +419,7 @@ public abstract class ARDetectorTask extends TmmTask {
       float arDelta = 999f;
 
       for (Float arProvided : this.arCustomList) {
-        if (Math.abs(arProvided - ar) <= this.roundUpThreshold) {
+        if (Math.abs(arProvided - ar) <= (this.roundUpThresholdPct / 100f)) {
           rounded = roundAR_nearest(ar);
           roundNearest = true;
           break;

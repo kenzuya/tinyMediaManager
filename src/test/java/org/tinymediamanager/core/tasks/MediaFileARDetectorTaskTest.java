@@ -97,7 +97,7 @@ public class MediaFileARDetectorTaskTest {
         this.roundUp = true;
       }
     };
-    task.roundUpThreshold = 0.01f;
+    task.roundUpThresholdPct = 1f;
 
     // expect
     assertThat(task.roundAR(2.0f)).isEqualTo(2.35f);
