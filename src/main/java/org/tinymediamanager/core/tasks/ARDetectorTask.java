@@ -47,7 +47,7 @@ public abstract class ARDetectorTask extends TmmTask {
 
   public ARDetectorTask() {
     super(TmmResourceBundle.getString("update.aspectRatio"),
-          100, TaskType.BACKGROUND_TASK);
+          100, TaskType.MAIN_TASK);
     init();
   }
 
@@ -91,33 +91,7 @@ public abstract class ARDetectorTask extends TmmTask {
     setTaskName(TmmResourceBundle.getString("update.aspectRatio") + ": " + mediaFile.getFilename());
 
     try {
-      VideoInfo videoInfo = new VideoInfo();
-
-      videoInfo.width = mediaFile.getVideoWidth();
-      String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
-      if (NumberUtils.isParsable(width)) {
-        videoInfo.width = Integer.valueOf(width);
-      } else {
-        width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
-        if (NumberUtils.isParsable(width)) {
-          videoInfo.width = Integer.valueOf(width);
-        }
-      }
-
-      videoInfo.height = mediaFile.getVideoHeight();
-      String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
-      if (NumberUtils.isParsable(height)) {
-        videoInfo.height = Integer.valueOf(height);
-      } else {
-        height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
-        if (NumberUtils.isParsable(height)) {
-          videoInfo.height = Integer.valueOf(height);
-        }
-      }
-
-      videoInfo.duration = mediaFile.getDuration();
-      videoInfo.arSample = getSampleAR(mediaFile);
-      if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
+      VideoInfo videoInfo = getPrefilledVideoInfo(mediaFile);
 
       LOGGER.info("Filename: {}", mediaFile.getFileAsPath());
       LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, Duration: {}",
@@ -193,6 +167,38 @@ public abstract class ARDetectorTask extends TmmTask {
                                                       "message.ard.failed",
                                                       new String[] { ":", mediaFile.getFilename()}));
     }
+  }
+
+  protected VideoInfo getPrefilledVideoInfo(MediaFile mediaFile) {
+    VideoInfo videoInfo = new VideoInfo();
+
+    videoInfo.width = mediaFile.getVideoWidth();
+    String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
+    if (NumberUtils.isParsable(width)) {
+      videoInfo.width = Integer.valueOf(width);
+    } else {
+      width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
+      if (NumberUtils.isParsable(width)) {
+        videoInfo.width = Integer.valueOf(width);
+      }
+    }
+
+    videoInfo.height = mediaFile.getVideoHeight();
+    String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
+    if (NumberUtils.isParsable(height)) {
+      videoInfo.height = Integer.valueOf(height);
+    } else {
+      height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
+      if (NumberUtils.isParsable(height)) {
+        videoInfo.height = Integer.valueOf(height);
+      }
+    }
+
+    videoInfo.duration = mediaFile.getDuration();
+    videoInfo.arSample = getSampleAR(mediaFile);
+    if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
+
+    return videoInfo;
   }
 
   protected void parseSample(String result, int seconds, int increment, VideoInfo videoInfo) {
