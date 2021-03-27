@@ -120,6 +120,7 @@ public abstract class ARDetectorTask extends TmmTask {
       videoInfo.arSample = getSampleAR(mediaFile);
       if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
 
+      LOGGER.info("Filename: {}", mediaFile.getFileAsPath());
       LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, Duration: {}",
         videoInfo.width, videoInfo.height,
         mediaFile.getAspectRatio(),
@@ -241,7 +242,7 @@ public abstract class ARDetectorTask extends TmmTask {
                                  VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: More than {}% difference between left and right black bar",
-                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
+                  this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, this.plausiWidthDeltaPct);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
@@ -250,7 +251,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
     } else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
       LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
-                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
+                  this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, this.plausiHeightDeltaPct);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = (float) increment * 1.4f;
@@ -259,7 +260,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
     } else if ((videoInfo.width * this.plausiWidthPct / 100d) >= width) {
       LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
-                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
+                  this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, width, this.plausiWidthPct, videoInfo.width);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
@@ -268,7 +269,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
     } else if ((videoInfo.height * this.plausiHeightPct / 100d) >= height) {
       LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
-                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
+                  this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, height, this.plausiHeightPct, videoInfo.height);
       if (videoInfo.sampleSkipAdjustement == 0) {
         videoInfo.sampleSkipAdjustement = increment * 1.4f;
@@ -294,7 +295,7 @@ public abstract class ARDetectorTask extends TmmTask {
       }
       videoInfo.sampleCount++;
       LOGGER.debug("Analyzing {}s @ {} => bars: {} crop: {}x{} ({}) * SAR => AR_Calculated = {}",
-                  this.sampleDuration, LocalTime.MIN.plusSeconds(seconds).toString(),
+                  this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, width, height,
                   String.format("%.5f", videoInfo.arMeasured), String.format("%.5f", videoInfo.arCalculated));
     }
