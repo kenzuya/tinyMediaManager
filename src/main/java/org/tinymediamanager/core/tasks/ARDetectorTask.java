@@ -1,6 +1,7 @@
 package org.tinymediamanager.core.tasks;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.*;
@@ -92,27 +93,25 @@ public abstract class ARDetectorTask extends TmmTask {
     try {
       VideoInfo videoInfo = new VideoInfo();
 
-      try {
-        String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
+      videoInfo.width = mediaFile.getVideoWidth();
+      String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Width");
+      if (NumberUtils.isParsable(width)) {
         videoInfo.width = Integer.valueOf(width);
-      } catch (Exception ex) {
-        try {
-          String width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
+      } else {
+        width = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Width");
+        if (NumberUtils.isParsable(width)) {
           videoInfo.width = Integer.valueOf(width);
-        } catch (Exception ex1) {
-          videoInfo.width = mediaFile.getVideoWidth();
         }
       }
 
-      try {
-        String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
+      videoInfo.height = mediaFile.getVideoHeight();
+      String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Sampled_Height");
+      if (NumberUtils.isParsable(height)) {
         videoInfo.height = Integer.valueOf(height);
-      } catch (Exception ex) {
-        try {
-          String height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
+      } else {
+        height = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Height");
+        if (NumberUtils.isParsable(height)) {
           videoInfo.height = Integer.valueOf(height);
-        } catch (Exception ex1) {
-          videoInfo.height = mediaFile.getVideoHeight();
         }
       }
 
