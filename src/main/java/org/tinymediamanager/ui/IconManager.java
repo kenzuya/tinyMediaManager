@@ -169,6 +169,7 @@ public class IconManager {
   public static final ImageIcon              IMDB                         = createTextIcon("IMDb", 0.9);
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
   public static final ImageIcon              METASCORE                    = createTextIcon("MS", 0.9);
+  public static final ImageIcon              MUSIC_HEADER                 = createTableHeaderIcon("music.svg");
   public static final ImageIcon              NEW                          = createTableHeaderIcon("plus-circle.svg");
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");

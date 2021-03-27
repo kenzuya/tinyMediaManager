@@ -159,6 +159,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         addEpisodeguide();
         addId();
         addImdbid();
+        addTmdbid();
         addIds();
         addPremiered();
         addStatus();
@@ -599,6 +600,17 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     Element imdbid = document.createElement("imdbid");
     imdbid.setTextContent(tvShow.getImdbId());
     root.appendChild(imdbid);
+  }
+
+  /**
+   * add the tmdb id in <tmdbid>xxx</tmdbid>
+   */
+  protected void addTmdbid() {
+    Element tmdbid = document.createElement("tmdbid");
+    if (tvShow.getTmdbId() > 0) {
+      tmdbid.setTextContent(Integer.toString(tvShow.getTmdbId()));
+    }
+    root.appendChild(tmdbid);
   }
 
   /**

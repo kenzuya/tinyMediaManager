@@ -16,6 +16,9 @@
 
 package org.tinymediamanager.core.tvshow.filenaming;
 
+import java.io.File;
+
+import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.IFileNaming;
 
 /**
@@ -31,6 +34,26 @@ public enum TvShowTrailerNaming implements IFileNaming {
     @Override
     public String getFilename(String basename, String extension) {
       return "tvshow-trailer." + extension;
+    }
+  },
+
+  /**
+   * <tvshow title>-trailer.*
+   */
+  TVSHOWNAME_TRAILER {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? basename + "-trailer." + extension : "";
+    }
+  },
+
+  /**
+   * trailers/<tvshow title>-trailer.*
+   */
+  TRAILERS_TVSHOWNAME_TRAILER {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return StringUtils.isNotBlank(basename) ? "trailers" + File.separator + basename + "-trailer." + extension : "";
     }
   }
 }

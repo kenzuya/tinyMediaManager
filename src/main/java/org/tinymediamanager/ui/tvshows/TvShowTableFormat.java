@@ -333,7 +333,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
      * has downloaded theme
      */
     col = new Column(TmmResourceBundle.getString("metatag.musictheme"), "theme", this::hasDownloadedMusicTheme, ImageIcon.class);
-    col.setHeaderIcon(IconManager.MUSIC);
+    col.setHeaderIcon(IconManager.MUSIC_HEADER);
     col.setColumnResizeable(false);
     col.setDefaultHidden(true);
     addColumn(col);
