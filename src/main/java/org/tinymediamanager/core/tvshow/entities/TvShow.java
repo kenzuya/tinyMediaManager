@@ -1594,8 +1594,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the associated trailer filename
    */
   public String getTrailerFilename(TvShowTrailerNaming trailer) {
-    // at the moment there is no VIDEO file for a TV show, so we just need to call the .getFilename() without any basename
-    return FilenameUtils.getBaseName(trailer.getFilename("", "mov"));
+    // basename is the TV show title itself
+    return FilenameUtils.removeExtension(trailer.getFilename(getTitle(), "ext"));
   }
 
   /**

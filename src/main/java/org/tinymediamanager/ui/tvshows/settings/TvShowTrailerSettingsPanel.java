@@ -27,6 +27,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -71,9 +72,10 @@ import net.miginfocom.swing.MigLayout;
 
 public class TvShowTrailerSettingsPanel extends JPanel {
 
-  private final TvShowSettings       settings = TvShowModuleManager.SETTINGS;
-  private final List<ScraperInTable> scrapers = ObservableCollections.observableList(new ArrayList<>());
+  private final TvShowSettings       settings                   = TvShowModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers                   = ObservableCollections.observableList(new ArrayList<>());
   private final ItemListener         checkBoxListener;
+  private final ButtonGroup          trailerFilenameButtonGroup = new ButtonGroup();
 
   private TmmTable                   tableTrailerScraper;
   private JTextPane                  tpScraperDescription;
@@ -83,6 +85,8 @@ public class TvShowTrailerSettingsPanel extends JPanel {
   private JCheckBox                  chckbxAutomaticTrailerDownload;
   private JPanel                     panelScraperOptions;
   private JCheckBox                  cbTrailerFilename1;
+  private JCheckBox                  cbTrailerFilename2;
+  private JCheckBox                  cbTrailerFilename3;
 
   TvShowTrailerSettingsPanel() {
     checkBoxListener = e -> checkChanges();
@@ -172,15 +176,25 @@ public class TvShowTrailerSettingsPanel extends JPanel {
 
   private void buildCheckBoxes() {
     cbTrailerFilename1.removeItemListener(checkBoxListener);
-    clearSelection(cbTrailerFilename1);
+    cbTrailerFilename2.removeItemListener(checkBoxListener);
+    cbTrailerFilename3.removeItemListener(checkBoxListener);
+    clearSelection(cbTrailerFilename1, cbTrailerFilename2, cbTrailerFilename3);
 
     // trailer filenames
     List<TvShowTrailerNaming> trailerFilenames = settings.getTrailerFilenames();
     if (trailerFilenames.contains(TvShowTrailerNaming.TVSHOW_TRAILER)) {
       cbTrailerFilename1.setSelected(true);
     }
+    else if (trailerFilenames.contains(TvShowTrailerNaming.TVSHOWNAME_TRAILER)) {
+      cbTrailerFilename2.setSelected(true);
+    }
+    else if (trailerFilenames.contains(TvShowTrailerNaming.TRAILERS_TVSHOWNAME_TRAILER)) {
+      cbTrailerFilename3.setSelected(true);
+    }
 
     cbTrailerFilename1.addItemListener(checkBoxListener);
+    cbTrailerFilename2.addItemListener(checkBoxListener);
+    cbTrailerFilename3.addItemListener(checkBoxListener);
   }
 
   private void clearSelection(JCheckBox... checkBoxes) {
@@ -194,6 +208,12 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     settings.clearTrailerFilenames();
     if (cbTrailerFilename1.isSelected()) {
       settings.addTrailerFilename(TvShowTrailerNaming.TVSHOW_TRAILER);
+    }
+    if (cbTrailerFilename2.isSelected()) {
+      settings.addTrailerFilename(TvShowTrailerNaming.TVSHOWNAME_TRAILER);
+    }
+    if (cbTrailerFilename3.isSelected()) {
+      settings.addTrailerFilename(TvShowTrailerNaming.TRAILERS_TVSHOWNAME_TRAILER);
     }
   }
 
@@ -271,13 +291,24 @@ public class TvShowTrailerSettingsPanel extends JPanel {
 
         JPanel panelTrailerFilenames = new JPanel();
         panelOptions.add(panelTrailerFilenames, "cell 1 5 2 1");
-        panelTrailerFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][]"));
+        panelTrailerFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][][]"));
 
         JLabel lblTrailerFileNaming = new JLabel(TmmResourceBundle.getString("Settings.trailerFileNaming"));
         panelTrailerFilenames.add(lblTrailerFileNaming, "cell 0 0");
 
         cbTrailerFilename1 = new JCheckBox("tvshow-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename1);
         panelTrailerFilenames.add(cbTrailerFilename1, "cell 1 0");
+
+        cbTrailerFilename2 = new JCheckBox(
+            TmmResourceBundle.getString("Settings.trailer.tvshowtitle") + "-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename2);
+        panelTrailerFilenames.add(cbTrailerFilename2, "cell 1 1");
+
+        cbTrailerFilename3 = new JCheckBox("trailers/" + TmmResourceBundle.getString("Settings.trailer.tvshowtitle") + "-trailer."
+            + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename3);
+        panelTrailerFilenames.add(cbTrailerFilename3, "cell 1 2");
       }
     }
   }

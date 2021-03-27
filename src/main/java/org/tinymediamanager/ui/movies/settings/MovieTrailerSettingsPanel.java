@@ -26,6 +26,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -74,14 +75,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieTrailerSettingsPanel extends JPanel {
-  private static final long          serialVersionUID = -1607146878528487625L;
+  private static final long          serialVersionUID           = -1607146878528487625L;
   /**
    * @wbp.nls.resourceBundle messages
    */
 
-  private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
-  private final List<ScraperInTable> scrapers         = new ArrayList<>();
+  private final MovieSettings        settings                   = MovieModuleManager.SETTINGS;
+  private final List<ScraperInTable> scrapers                   = new ArrayList<>();
   private final ItemListener         checkBoxListener;
+
+  private final ButtonGroup          trailerFilenameButtonGroup = new ButtonGroup();
 
   private TmmTable                   tableScraperInTable;
   private JTextPane                  tpScraperDescription;
@@ -191,10 +194,10 @@ class MovieTrailerSettingsPanel extends JPanel {
     if (movieTrailerFilenames.contains(MovieTrailerNaming.FILENAME_TRAILER)) {
       cbTrailerFilename1.setSelected(true);
     }
-    if (movieTrailerFilenames.contains(MovieTrailerNaming.MOVIE_TRAILER)) {
+    else if (movieTrailerFilenames.contains(MovieTrailerNaming.MOVIE_TRAILER)) {
       cbTrailerFilename2.setSelected(true);
     }
-    if (movieTrailerFilenames.contains(MovieTrailerNaming.TRAILERS_FILENAME_TRAILER)) {
+    else if (movieTrailerFilenames.contains(MovieTrailerNaming.TRAILERS_FILENAME_TRAILER)) {
       cbTrailerFilename3.setSelected(true);
     }
 
@@ -307,12 +310,15 @@ class MovieTrailerSettingsPanel extends JPanel {
 
         cbTrailerFilename1 = new JCheckBox(
             TmmResourceBundle.getString("Settings.moviefilename") + "-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename1);
         panelTrailerFilenames.add(cbTrailerFilename1, "cell 1 0");
 
         cbTrailerFilename2 = new JCheckBox("movie-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename2);
         panelTrailerFilenames.add(cbTrailerFilename2, "cell 1 1");
 
         cbTrailerFilename3 = new JCheckBox("trailers/movie-trailer." + TmmResourceBundle.getString("Settings.artwork.extension"));
+        trailerFilenameButtonGroup.add(cbTrailerFilename3);
         panelTrailerFilenames.add(cbTrailerFilename3, "cell 1 2");
       }
     }
