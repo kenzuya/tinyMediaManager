@@ -5,7 +5,7 @@ x added shutdown hook to prevent database corruption
 x (TV shows) also fetch imdb ratings for episodes
 x (movies) catch occasional errors in movie set sorting
 x check write access to the tinyMediaManager folder on startup
-x added columns for music theme and Video Bitrate
+x (TV shows) added columns for music theme and video bitrate
 
 
 Version 4.1.2
@@ -15,7 +15,7 @@ Version 4.1.2
 + (movies) option to only include the first studio in the NFO
 + (movies) added cover.ext to well known poster file names
 x removed unused code fot TV show ratings #1233
-x display custom rating source logo #1233
+x display custom rating source logo #1233--
 x do not delete tags on further scrapes #1233
 x (movies/TV shows) saving changed data sources in settings
 x (movies/TV shows) do not write NFO on update data sources
