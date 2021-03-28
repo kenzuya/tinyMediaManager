@@ -1360,7 +1360,7 @@ public class TvShowNfoParser {
 
     Element element = getSingleElement(root, "enddate");
     if (element != null) {
-      enddate = element.children().toString();
+      enddate = element.ownText();
     }
 
     return null;

@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaAiredStatus;
@@ -115,12 +116,16 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
       Map<String, Person> actors = new LinkedHashMap<>();
 
       for (Person person : tvShow.getActors()) {
-        actors.putIfAbsent(person.getName(), person);
+        if (StringUtils.isNotBlank(person.getName())) {
+          actors.putIfAbsent(person.getName(), person);
+        }
       }
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
-        for (Person guest : episode.getActors()) {
-          actors.putIfAbsent(guest.getName(), guest);
+        for (Person guest : episode.getGuests()) {
+          if (StringUtils.isNotBlank(guest.getName())) {
+            actors.putIfAbsent(guest.getName(), guest);
+          }
         }
       }
 
