@@ -197,7 +197,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.USER_RATING);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("9.9") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("10.0") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -223,7 +223,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.ROTTEN_TOMATOES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("100") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 
@@ -236,7 +236,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.METASCORE);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("99") * 1.2f + 10));
+    col.setMinWidth((int) (fontMetrics.stringWidth("100") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 

@@ -416,6 +416,12 @@ public abstract class YTDownloadTask extends TmmTask {
       LOGGER.trace("Muxing...");
       TmmMuxer muxer = new TmmMuxer(audioFile, videoFile);
       Path trailer = getDestinationWoExtension().getParent().resolve(getDestinationWoExtension().getFileName() + ".mp4");
+
+      // create parent if needed
+      if (!Files.exists(trailer.getParent())) {
+        Files.createDirectory(trailer.getParent());
+      }
+
       muxer.mergeAudioVideo(trailer);
       LOGGER.trace("Muxing finished");
 

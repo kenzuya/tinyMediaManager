@@ -670,9 +670,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     if (!episodes.isEmpty()) {
       for (int i = episodes.size() - 1; i >= 0; i--) {
         TvShowEpisode episode = episodes.get(i);
-        // episode.removePropertyChangeListener(propertyChangeListener);
-        // removeFromSeason(episode);
-        // episodes.remove(episode);
         removeEpisode(episode);
         TvShowList.getInstance().removeEpisodeFromDb(episode);
       }
@@ -700,7 +697,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       firePropertyChange(EPISODE_COUNT, oldValue, episodes.size());
 
       // and mix in the dummy one again
-      if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
+      // check if there is no other episode available (e.g. exchanged media file)
+      if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes() && ListUtils.isEmpty(getEpisode(episode.getSeason(), episode.getEpisode()))) {
         for (TvShowEpisode dummy : dummyEpisodes) {
           if (dummy.getSeason() == 0 && !TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
             continue;
@@ -1069,6 +1067,15 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     return false;
+  }
+
+  /**
+   * Check if Tv show has a Music Theme File
+   * 
+   * @return the check for the musictheme file
+   */
+  public Boolean getHasMusicTheme() {
+    return (!getMediaFiles(MediaFileType.THEME).isEmpty());
   }
 
   /**
@@ -1587,8 +1594,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the associated trailer filename
    */
   public String getTrailerFilename(TvShowTrailerNaming trailer) {
-    // at the moment there is no VIDEO file for a TV show, so we just need to call the .getFilename() without any basename
-    return FilenameUtils.getBaseName(trailer.getFilename("", "mov"));
+    // basename is the TV show title itself
+    return FilenameUtils.removeExtension(trailer.getFilename(getTitle(), "ext"));
   }
 
   /**

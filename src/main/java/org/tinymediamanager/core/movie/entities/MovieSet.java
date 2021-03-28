@@ -109,8 +109,12 @@ public class MovieSet extends MediaEntity {
         movies.add(movie);
       }
     }
-
-    movies.sort(MOVIE_SET_COMPARATOR);
+    try {
+      movies.sort(MOVIE_SET_COMPARATOR);
+    }
+    catch (Exception e) {
+      LOGGER.debug("could not sort movies - '{}'", e.getMessage());
+    }
 
     // rebuild the ID table the same way
     movieIds.clear();
@@ -568,13 +572,15 @@ public class MovieSet extends MediaEntity {
       }
 
       // sort with release date if available
-      result = DATE_COMPARATOR.compare(o1.getReleaseDate(), o2.getReleaseDate());
-      if (result != 0) {
-        return result;
+      if (o1.getReleaseDate() != null && o2.getReleaseDate() != null) {
+        result = DATE_COMPARATOR.compare(o1.getReleaseDate(), o2.getReleaseDate());
+        if (result != 0) {
+          return result;
+        }
       }
 
       // fallback: sort via title
-      return o2.getTitleForUi().compareTo(o1.getTitleForUi());
+      return o1.getTitleForUi().compareTo(o2.getTitleForUi());
     }
   }
 
