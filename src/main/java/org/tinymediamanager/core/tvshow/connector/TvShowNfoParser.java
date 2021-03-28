@@ -115,6 +115,7 @@ public class TvShowNfoParser {
   public String                     code                = "";
   public Date                       dateadded           = null;
   public String                     episodeguide        = "";
+  public String                     enddate             = "";
 
   /**
    * create a new instance by parsing the document
@@ -172,6 +173,7 @@ public class TvShowNfoParser {
     parseTag(TvShowNfoParser::parseCode);
     parseTag(TvShowNfoParser::parseDateadded);
     parseTag(TvShowNfoParser::parseEpisodeguide);
+    parseTag(TvShowNfoParser::parseEnddate);
     parseTag(TvShowNfoParser::parseUserNote);
 
     // MUST BE THE LAST ONE!
@@ -1345,6 +1347,20 @@ public class TvShowNfoParser {
     Element element = getSingleElement(root, "episodeguide");
     if (element != null) {
       episodeguide = element.children().toString();
+    }
+
+    return null;
+  }
+
+  /**
+   * find enddate for emby related nfos
+   */
+  private Void parseEnddate() {
+    supportedElements.add("enddate");
+
+    Element element = getSingleElement(root, "enddate");
+    if (element != null) {
+      enddate = element.children().toString();
     }
 
     return null;

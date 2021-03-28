@@ -21,6 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +33,8 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
+import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -105,6 +109,32 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
   }
 
   @Override
+  protected void addActors() {
+    if (TvShowModuleManager.SETTINGS.isNfoWriteAllActors()) {
+      // combine base cast and guests
+      Map<String, Person> actors = new LinkedHashMap<>();
+
+      for (Person person : tvShow.getActors()) {
+        actors.putIfAbsent(person.getName(), person);
+      }
+
+      for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        for (Person guest : episode.getActors()) {
+          actors.putIfAbsent(guest.getName(), guest);
+        }
+      }
+
+      for (Person additionalActor : actors.values()) {
+        addActor(additionalActor);
+      }
+    }
+    else {
+      // write only base cast
+      super.addActors();
+    }
+  }
+
+  @Override
   protected void addOwnTags() {
     // emby special tag for the end date
     addEnddate();
@@ -154,7 +184,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
    * This will only be set if the status of the TV show is ENDED
    */
   protected void addEnddate() {
-    if (tvShow.getStatus() != MediaAiredStatus.ENDED) {
+    if (!TvShowModuleManager.SETTINGS.isNfoWriteDateEnded() || tvShow.getStatus() != MediaAiredStatus.ENDED) {
       return;
     }
 

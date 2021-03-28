@@ -659,15 +659,21 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       }
     }
     else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_CREATION_DATE) {
-      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles().stream().filter(mf -> mf.getType() == MediaFileType.VIDEO)
-          .min(Comparator.comparing(MediaFile::getDateCreated)).orElse(null);
+      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
+          .stream()
+          .filter(mf -> mf.getType() == MediaFileType.VIDEO)
+          .min(Comparator.comparing(MediaFile::getDateCreated))
+          .orElse(null);
       if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
         dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
       }
     }
     else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_LAST_MODIFIED_DATE) {
-      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles().stream().filter(mf -> mf.getType() == MediaFileType.VIDEO)
-          .min(Comparator.comparing(MediaFile::getDateLastModified)).orElse(null);
+      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
+          .stream()
+          .filter(mf -> mf.getType() == MediaFileType.VIDEO)
+          .min(Comparator.comparing(MediaFile::getDateLastModified))
+          .orElse(null);
       if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {
         dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateLastModified()));
       }
@@ -746,46 +752,56 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    */
   protected void addActors() {
     for (Person tvShowActor : tvShow.getActors()) {
-      Element actor = document.createElement("actor");
-
-      Element name = document.createElement("name");
-      name.setTextContent(tvShowActor.getName());
-      actor.appendChild(name);
-
-      Element role = document.createElement("role");
-      role.setTextContent(tvShowActor.getRole());
-      actor.appendChild(role);
-
-      Element thumb = document.createElement("thumb");
-      thumb.setTextContent(tvShowActor.getThumbUrl());
-      actor.appendChild(thumb);
-
-      Element profile = document.createElement("profile");
-      profile.setTextContent(tvShowActor.getProfileUrl());
-      actor.appendChild(profile);
-
-      // Element type = document.createElement("type");
-      // type.setTextContent("Actor");
-      // actor.appendChild(type);
-
-      // TMDB id
-      int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
-      if (tmdbid > 0) {
-        Element id = document.createElement("tmdbid");
-        id.setTextContent(String.valueOf(tmdbid));
-        actor.appendChild(id);
-      }
-
-      // IMDB id
-      String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
-      if (StringUtils.isNotBlank(imdbid)) {
-        Element id = document.createElement("imdbid");
-        id.setTextContent(imdbid);
-        actor.appendChild(id);
-      }
-
-      root.appendChild(actor);
+      addActor(tvShowActor);
     }
+  }
+
+  /**
+   * add the given {@link Person} as an own <actor> tag
+   * 
+   * @param tvShowActor
+   *          the {@link Person} to add
+   */
+  protected void addActor(Person tvShowActor) {
+    Element actor = document.createElement("actor");
+
+    Element name = document.createElement("name");
+    name.setTextContent(tvShowActor.getName());
+    actor.appendChild(name);
+
+    Element role = document.createElement("role");
+    role.setTextContent(tvShowActor.getRole());
+    actor.appendChild(role);
+
+    Element thumb = document.createElement("thumb");
+    thumb.setTextContent(tvShowActor.getThumbUrl());
+    actor.appendChild(thumb);
+
+    Element profile = document.createElement("profile");
+    profile.setTextContent(tvShowActor.getProfileUrl());
+    actor.appendChild(profile);
+
+    // Element type = document.createElement("type");
+    // type.setTextContent("Actor");
+    // actor.appendChild(type);
+
+    // TMDB id
+    int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
+    if (tmdbid > 0) {
+      Element id = document.createElement("tmdbid");
+      id.setTextContent(String.valueOf(tmdbid));
+      actor.appendChild(id);
+    }
+
+    // IMDB id
+    String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
+    if (StringUtils.isNotBlank(imdbid)) {
+      Element id = document.createElement("imdbid");
+      id.setTextContent(imdbid);
+      actor.appendChild(id);
+    }
+
+    root.appendChild(actor);
   }
 
   /**
