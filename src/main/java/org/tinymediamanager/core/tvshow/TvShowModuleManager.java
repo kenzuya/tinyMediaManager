@@ -177,11 +177,14 @@ public class TvShowModuleManager implements ITmmModule {
     enabled = false;
 
     databaseTimer.cancel();
-    // write pending changes
-    writePendingChanges(true);
 
-    mvStore.compactMoveChunks();
-    mvStore.close();
+    // write pending changes
+    if (mvStore != null && !mvStore.isClosed()) {
+      writePendingChanges(true);
+
+      mvStore.compactMoveChunks();
+      mvStore.close();
+    }
 
     if (Globals.settings.isDeleteTrashOnExit()) {
       for (String ds : SETTINGS.getTvShowDataSource()) {
