@@ -1164,16 +1164,6 @@ public class Settings extends AbstractSettings {
     return this.ardSecondaryDelta;
   }
 
-  public void setArdRoundNearest(boolean newValue) {
-    boolean oldValue = !this.ardRoundUp;
-    this.ardRoundUp = !newValue;
-    firePropertyChange("ardRoundNearest", oldValue, newValue);
-  }
-
-  public boolean isArdRoundNearest() {
-    return !this.ardRoundUp;
-  }
-
   public void setArdRoundUp(boolean newValue) {
     boolean oldValue = this.ardRoundUp;
     this.ardRoundUp = newValue;

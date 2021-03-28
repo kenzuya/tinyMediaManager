@@ -45,9 +45,8 @@ public abstract class ARDetectorTask extends TmmTask {
 
   protected final List<Float> arCustomList = new LinkedList<>();
 
-  public ARDetectorTask() {
-    super(TmmResourceBundle.getString("update.aspectRatio"),
-          100, TaskType.MAIN_TASK);
+  public ARDetectorTask(TaskType type) {
+    super(TmmResourceBundle.getString("update.aspectRatio"), 100, type);
     init();
   }
 
@@ -159,7 +158,7 @@ public abstract class ARDetectorTask extends TmmTask {
       mediaFile.setVideoHeight(videoInfo.height);
       mediaFile.setVideoWidth(videoInfo.width);
 
-      LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, videoInfo.height, videoInfo.arPrimary);
+      LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, videoInfo.height, String.format("%.2f", videoInfo.arPrimary));
     } catch (Exception ex) {
       LOGGER.error("Error detecting aspect ratio", ex);
       MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR,
@@ -393,32 +392,14 @@ public abstract class ARDetectorTask extends TmmTask {
     }
   }
 
-  protected float roundAR_nearest(float ar) {
-    float rounded = 999f;
-
-    // Round to nearest Aspect Ratio from list
-    if (this.arCustomList.size() == 1) {
-      return this.arCustomList.get(0);
-    } else {
-      for (int idx = 0; idx < this.arCustomList.size() - 1; idx++) {
-        float maxAr = (float) Math.sqrt(this.arCustomList.get(idx).doubleValue() *
-                                        this.arCustomList.get(idx + 1).doubleValue());
-        if (ar < maxAr) {
-          rounded = this.arCustomList.get(idx).floatValue();
-          break;
-        }
-      }
-    }
-
-    if (rounded == 999f) rounded = this.arCustomList.get(this.arCustomList.size() - 1).floatValue();
-    LOGGER.debug("Rounded to nearest Aspect Ratio from list");
-
-    return rounded;
-  }
-
   protected float roundAR(float ar) {
     float rounded = 999f;
 	  boolean roundNearest = false;
+
+    if (this.arCustomList.isEmpty()) {
+      LOGGER.info("Aspect ratio list is empty. Round to two decimal points ");
+      return Math.round(ar * 100f) / 100f;
+    }
 
     if (this.roundUp) {
       // Round up to next wider Aspect Ratio from list if delta is greater than threshold
@@ -441,6 +422,29 @@ public abstract class ARDetectorTask extends TmmTask {
       roundNearest = true;
     }
     if (!roundNearest) LOGGER.debug("Rounded to next wider Aspect Ratio from list");
+
+    return rounded;
+  }
+
+  protected float roundAR_nearest(float ar) {
+    float rounded = 999f;
+
+    // Round to nearest Aspect Ratio from list
+    if (this.arCustomList.size() == 1) {
+      return this.arCustomList.get(0);
+    } else {
+      for (int idx = 0; idx < this.arCustomList.size() - 1; idx++) {
+        float maxAr = (float) Math.sqrt(this.arCustomList.get(idx).doubleValue() *
+          this.arCustomList.get(idx + 1).doubleValue());
+        if (ar < maxAr) {
+          rounded = this.arCustomList.get(idx).floatValue();
+          break;
+        }
+      }
+    }
+
+    if (rounded == 999f) rounded = this.arCustomList.get(this.arCustomList.size() - 1).floatValue();
+    LOGGER.debug("Rounded to nearest Aspect Ratio from list");
 
     return rounded;
   }
@@ -475,6 +479,18 @@ public abstract class ARDetectorTask extends TmmTask {
       return Float.valueOf(pixelAspectRatio);
     }
     return 0f;
+  }
+
+  protected boolean canRun() {
+    if (!FFmpeg.isAvailable()) {
+      LOGGER.warn("ffmpeg is not available");
+      MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR,
+        "task.ard",
+        "message.ard.ffmpegmissing"));
+
+      return false;
+    }
+    return true;
   }
 
   protected static class VideoInfo {

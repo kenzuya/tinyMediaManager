@@ -16,11 +16,14 @@ public class MovieARDetectorTask extends ARDetectorTask {
   private final List<Movie> movies;
 
   public MovieARDetectorTask(List<Movie> movies) {
+    super(TaskType.MAIN_TASK);
     this.movies = movies;
   }
 
   @Override
   protected void doInBackground() {
+    if (!canRun()) return;
+
     int filesTotal = this.movies.stream()
       .map(movie -> movie.getMediaFiles(MediaFileType.VIDEO).size())
       .reduce(Integer::sum)

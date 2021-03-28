@@ -16,11 +16,14 @@ public class TvShowARDetectorTask extends ARDetectorTask {
   private final List<TvShowEpisode> episodes;
 
   public TvShowARDetectorTask(List<TvShowEpisode> episodes) {
+    super(TaskType.MAIN_TASK);
     this.episodes = episodes;
   }
 
   @Override
   protected void doInBackground() {
+    if (!canRun()) return;
+
     int filesTotal = this.episodes.stream()
                                   .map(episode -> episode.getMediaFiles(MediaFileType.VIDEO).size())
                                   .reduce(Integer::sum)
