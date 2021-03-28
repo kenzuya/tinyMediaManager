@@ -55,11 +55,6 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
     super(tvShow);
   }
 
-  @Override
-  protected Logger getLogger() {
-    return LOGGER;
-  }
-
   /**
    * write the new rating style<br />
    * <ratings> <rating name="default" max="10" default="true"> <value>5.800000</value> <votes>2100</votes> </rating> <rating name="imdb">

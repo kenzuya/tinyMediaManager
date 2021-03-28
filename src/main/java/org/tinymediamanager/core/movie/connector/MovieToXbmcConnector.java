@@ -47,11 +47,6 @@ public class MovieToXbmcConnector extends MovieGenericXmlConnector {
   }
 
   @Override
-  protected Logger getLogger() {
-    return LOGGER;
-  }
-
-  @Override
   protected void addOwnTags() {
     addEpbookmark();
     addTop250();

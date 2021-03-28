@@ -48,6 +48,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
@@ -75,6 +76,8 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
+  private static final Logger   LOGGER               = LoggerFactory.getLogger(TvShowGenericXmlConnector.class);
+
   protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
   protected final TvShow        tvShow;
@@ -86,13 +89,6 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   protected TvShowGenericXmlConnector(TvShow tvShow) {
     this.tvShow = tvShow;
   }
-
-  /**
-   * get the logger for the impl. class
-   *
-   * @return the logger
-   */
-  protected abstract Logger getLogger();
 
   /**
    * write own tag which are not covered by this generic connector
@@ -207,14 +203,14 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
           Utils.writeStringToFile(f, xml);
         }
         else {
-          getLogger().debug("NFO did not change - do not write it!");
+          LOGGER.debug("NFO did not change - do not write it!");
         }
         MediaFile mf = new MediaFile(f);
         mf.gatherMediaInformation(true); // force to update filedate
         newNfos.add(mf);
       }
       catch (Exception e) {
-        getLogger().error("write {}: {}", tvShow.getPathNIO().resolve(nfoFilename), e.getMessage());
+        LOGGER.error("write '" + tvShow.getPathNIO().resolve(nfoFilename) + "'", e);
         MessageManager.instance
             .pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.nfo.writeerror", new String[] { ":", e.getLocalizedMessage() }));
       }
@@ -580,7 +576,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         root.appendChild(episodeguide);
       }
       catch (Exception e) {
-        getLogger().warn("could not set episodeguide");
+        LOGGER.warn("could not set episodeguide");
       }
     }
   }
@@ -831,7 +827,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
           root.appendChild(document.importNode(unsupported.getFirstChild(), true));
         }
         catch (Exception e) {
-          getLogger().error("import unsupported tags: {}", e.getMessage());
+          LOGGER.error("import unsupported tags: {}", e.getMessage());
         }
       }
     }

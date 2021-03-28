@@ -37,6 +37,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaFileType;
@@ -66,6 +67,7 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class MovieGenericXmlConnector implements IMovieConnector {
+  private static final Logger   LOGGER               = LoggerFactory.getLogger(MovieGenericXmlConnector.class);
   protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
   protected final Movie         movie;
@@ -77,13 +79,6 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
   protected MovieGenericXmlConnector(Movie movie) {
     this.movie = movie;
   }
-
-  /**
-   * get the logger for the impl. class
-   *
-   * @return the logger
-   */
-  protected abstract Logger getLogger();
 
   /**
    * write own tag which are not covered by this generic connector
@@ -200,14 +195,14 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
           Utils.writeStringToFile(f, xml);
         }
         else {
-          getLogger().trace("NFO did not change - do not write it!");
+          LOGGER.trace("NFO did not change - do not write it!");
         }
         MediaFile mf = new MediaFile(f);
         mf.gatherMediaInformation(true); // force to update filedate
         newNfos.add(mf);
       }
       catch (Exception e) {
-        getLogger().error("write {}: {}", movie.getPathNIO().resolve(nfoFilename), e);
+        LOGGER.error("write '" + movie.getPathNIO().resolve(nfoFilename) + "'", e);
         MessageManager.instance
             .pushMessage(new Message(Message.MessageLevel.ERROR, movie, "message.nfo.writeerror", new String[] { ":", e.getLocalizedMessage() }));
       }
@@ -483,7 +478,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       }
     }
     catch (Exception e) {
-      getLogger().trace("could not store tmdb collection id: {}", e.getMessage());
+      LOGGER.trace("could not store tmdb collection id: {}", e.getMessage());
     }
     root.appendChild(tmdbCollectionId);
   }
@@ -781,7 +776,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
           root.appendChild(document.importNode(unsupported.getFirstChild(), true));
         }
         catch (Exception e) {
-          getLogger().error("import unsupported tags: {}", e.getMessage());
+          LOGGER.error("import unsupported tags: {}", e.getMessage());
         }
       }
     }
