@@ -17,7 +17,6 @@ package org.tinymediamanager.ui.panels;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Panel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +43,7 @@ public class RatingPanel extends JPanel {
 
   public RatingPanel() {
     setLayout(new FlowLayout(FlowLayout.LEFT, 15, 5));
+    setOpaque(false);
   }
 
   public void setRatings(Map<String, MediaRating> newRatings) {
@@ -130,11 +130,14 @@ public class RatingPanel extends JPanel {
       add(new RatingContainer(MediaMetadata.EMPTY_RATING));
     }
 
-    // invalidate();
+    revalidate();
+    repaint();
   }
 
-  private class RatingContainer extends Panel {
+  private class RatingContainer extends JPanel {
     public RatingContainer(MediaRating rating) {
+      setOpaque(false);
+
       JLabel logo = null;
       JLabel text = null;
 
