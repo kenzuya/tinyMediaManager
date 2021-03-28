@@ -116,7 +116,7 @@ public class RatingUtil {
     }
   }
 
-  public static void shutdown() {
+  public synchronized static void shutdown() {
     if (mvStore != null) {
       mvStore.compactMoveChunks();
       mvStore.close();

@@ -169,15 +169,19 @@ public class TvShowModuleManager implements ITmmModule {
   }
 
   @Override
-  public void shutDown() throws Exception {
+  public synchronized void shutDown() throws Exception {
+    if (!isEnabled()) {
+      return;
+    }
+
+    enabled = false;
+
     databaseTimer.cancel();
     // write pending changes
     writePendingChanges(true);
 
     mvStore.compactMoveChunks();
     mvStore.close();
-
-    enabled = false;
 
     if (Globals.settings.isDeleteTrashOnExit()) {
       for (String ds : SETTINGS.getTvShowDataSource()) {
