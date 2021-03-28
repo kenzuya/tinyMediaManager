@@ -74,7 +74,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
   protected Document            document;
   protected Element             root;
 
-  public MovieGenericXmlConnector(Movie movie) {
+  protected MovieGenericXmlConnector(Movie movie) {
     this.movie = movie;
   }
 

@@ -68,7 +68,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
   protected Document                  document;
   protected Element                   root;
 
-  public TvShowEpisodeGenericXmlConnector(List<TvShowEpisode> episodes) {
+  protected TvShowEpisodeGenericXmlConnector(List<TvShowEpisode> episodes) {
     this.episodes = episodes;
   }
 

@@ -26,6 +26,7 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -82,7 +83,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   protected Document            document;
   protected Element             root;
 
-  public TvShowGenericXmlConnector(TvShow tvShow) {
+  protected TvShowGenericXmlConnector(TvShow tvShow) {
     this.tvShow = tvShow;
   }
 
@@ -810,7 +811,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
 
       for (String unsupportedString : parser.unsupportedElements) {
         try {
-          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes("UTF-8")));
+          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes(StandardCharsets.UTF_8)));
           root.appendChild(document.importNode(unsupported.getFirstChild(), true));
         }
         catch (Exception e) {
