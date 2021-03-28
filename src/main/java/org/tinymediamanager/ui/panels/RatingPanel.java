@@ -42,7 +42,7 @@ public class RatingPanel extends JPanel {
   private final Locale defaultLocale = Locale.getDefault();
 
   public RatingPanel() {
-    setLayout(new FlowLayout(FlowLayout.LEFT, 15, 5));
+    setLayout(new FlowLayout(FlowLayout.LEFT, 15, 0));
     setOpaque(false);
   }
 
