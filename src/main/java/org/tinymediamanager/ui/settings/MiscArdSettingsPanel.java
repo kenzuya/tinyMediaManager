@@ -73,6 +73,12 @@ public class MiscArdSettingsPanel extends JPanel {
       entry.getValue().addItemListener(checkBoxListener);
     }
 
+    if (settings.isArdRoundUp()) {
+      rdbtnRoundUpToNext.setSelected(true);
+    } else {
+      rdbtnRoundNearest.setSelected(true);
+    }
+
     boolean isAccurate = sliderDetectionMode.getValue() == 2;
     previousMFMode = settings.getArdMFMode();
     rdbtnMFDisabled.addChangeListener(e -> { if (rdbtnMFDisabled.isSelected()) settings.setArdMFMode(0); });
@@ -175,14 +181,6 @@ public class MiscArdSettingsPanel extends JPanel {
 
   private void initDataBindings() {
     Property jCheckBoxBeanProperty = BeanProperty.create("selected");
-
-    // round nearest
-    Property ardRoundNearestBeanProperty = BeanProperty.create("ardRoundNearest");
-    AutoBinding autoBinding_ard_roundNearest = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings,
-      ardRoundNearestBeanProperty,
-      rdbtnRoundNearest,
-      jCheckBoxBeanProperty);
-    autoBinding_ard_roundNearest.bind();
 
     // round up
     Property ardRoundUpBeanProperty = BeanProperty.create("ardRoundUp");
