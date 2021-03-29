@@ -83,21 +83,19 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long           serialVersionUID = 5889203009864512935L;
+  private static final long serialVersionUID = 5889203009864512935L;
 
+  private final TvShowList  tvShowList       = TvShowList.getInstance();
 
+  private int               rowcount;
+  private long              rowcountLastUpdate;
 
-  private TvShowList                  tvShowList       = TvShowList.getInstance();
-
-  private int                         rowcount;
-  private long                        rowcountLastUpdate;
-
-  private TmmTreeTable                tree;
-  private JLabel                      lblEpisodeCountFiltered;
-  private JLabel                      lblEpisodeCountTotal;
-  private JLabel                      lblTvShowCountFiltered;
-  private JLabel                      lblTvShowCountTotal;
-  private JButton                     btnFilter;
+  private TmmTreeTable      tree;
+  private JLabel            lblEpisodeCountFiltered;
+  private JLabel            lblEpisodeCountTotal;
+  private JLabel            lblTvShowCountFiltered;
+  private JLabel            lblTvShowCountTotal;
+  private JButton           btnFilter;
 
   public TvShowTreePanel(TvShowSelectionModel selectionModel) {
     initComponents();
@@ -331,21 +329,23 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
   private void updateFilterIndicator() {
     boolean active = false;
-    for (ITmmTreeFilter<TmmTreeNode> filter : tree.getFilters()) {
-      if (filter instanceof ITmmUIFilter) {
-        ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
-        switch (uiFilter.getFilterState()) {
-          case ACTIVE:
-          case ACTIVE_NEGATIVE:
-            active = true;
-            break;
+    if (tree.isFiltersActive()) {
+      for (ITmmTreeFilter<TmmTreeNode> filter : tree.getFilters()) {
+        if (filter instanceof ITmmUIFilter) {
+          ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+          switch (uiFilter.getFilterState()) {
+            case ACTIVE:
+            case ACTIVE_NEGATIVE:
+              active = true;
+              break;
 
-          default:
-            break;
-        }
+            default:
+              break;
+          }
 
-        if (active) {
-          break;
+          if (active) {
+            break;
+          }
         }
       }
     }

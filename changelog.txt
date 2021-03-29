@@ -17,6 +17,7 @@ x (TV show) fixed bug when writing TV show NFO
 x re-aligned new rating logos to do not take up that much vertical space
 x (TV show) prevent rating panel from flickering
 x do not draw the rating panel over popups #1265
+x change filter indicator if all filters are deactivated #1268
 
 
 Version 4.1.2
