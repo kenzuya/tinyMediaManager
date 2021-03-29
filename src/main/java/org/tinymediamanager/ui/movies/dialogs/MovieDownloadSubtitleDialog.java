@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.movies.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -73,8 +74,6 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       cbLanguage = new TmmCheckComboBox<>(MediaLanguages.valuesSorted());
       panelScraper.add(cbLanguage, "cell 1 1,growx");
 
-      cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage());
-
       JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("movie.download.subtitles.hint"));
       taHint.setOpaque(false);
       panelScraper.add(taHint, "cell 0 3 2 1,grow");
@@ -111,7 +110,7 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       cbSubtitleScraper.setSelectedItems(selectedSubtitleScrapers);
     }
 
-    cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage());
+    cbLanguage.setSelectedItems(Collections.singletonList(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage()));
   }
 
   /**

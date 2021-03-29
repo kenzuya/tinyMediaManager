@@ -156,6 +156,8 @@ public class TvShowSettings extends AbstractSettings {
   private DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
   private MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
   private boolean                                        nfoWriteEpisodeguide                   = true;
+  private boolean                                        nfoWriteDateEnded                      = false;
+  private boolean                                        nfoWriteAllActors                      = false;
 
   // renamer
   private boolean                                        renameAfterScrape                      = false;
@@ -219,7 +221,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        showTvShowTableTooltips                = true;
   private boolean                                        seasonArtworkFallback                  = false;
   private boolean                                        storeUiFilters                         = false;
-  private List<UIFilters>                                uiFilters                              = new ArrayList<>();
+  private final List<UIFilters>                          uiFilters                              = new ArrayList<>();
 
   public TvShowSettings() {
     super();
@@ -1325,6 +1327,26 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.nfoWriteEpisodeguide;
     this.nfoWriteEpisodeguide = newValue;
     firePropertyChange("nfoWriteEpisodeguide", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteDateEnded() {
+    return nfoWriteDateEnded;
+  }
+
+  public void setNfoWriteDateEnded(boolean newValue) {
+    boolean oldValue = this.nfoWriteDateEnded;
+    this.nfoWriteDateEnded = newValue;
+    firePropertyChange("nfoWriteDateEnded", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteAllActors() {
+    return nfoWriteAllActors;
+  }
+
+  public void setNfoWriteAllActors(boolean newValue) {
+    boolean oldValue = this.nfoWriteAllActors;
+    this.nfoWriteAllActors = newValue;
+    firePropertyChange("nfoWriteAllActors", oldValue, newValue);
   }
 
   public String getPreferredRating() {

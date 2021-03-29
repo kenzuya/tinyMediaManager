@@ -40,11 +40,6 @@ public class TvShowToXbmcConnector extends TvShowGenericXmlConnector {
   }
 
   @Override
-  protected Logger getLogger() {
-    return LOGGER;
-  }
-
-  @Override
   protected void addOwnTags() {
   }
 

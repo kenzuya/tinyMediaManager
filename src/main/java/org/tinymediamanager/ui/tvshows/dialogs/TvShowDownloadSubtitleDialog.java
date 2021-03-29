@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -71,8 +72,6 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
       cbLanguage = new TmmCheckComboBox<>(MediaLanguages.valuesSorted());
       panelCenter.add(cbLanguage, "cell 1 1,growx");
 
-      cbLanguage.setSelectedItem(TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage());
-
       JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("tvshow.download.subtitles.hint"));
       taHint.setOpaque(false);
       panelCenter.add(taHint, "cell 0 3 2 1,growx");
@@ -106,6 +105,9 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
     if (!selectedSubtitleScrapers.isEmpty()) {
       cbSubtitleScraper.setSelectedItems(selectedSubtitleScrapers);
     }
+
+    // language
+    cbLanguage.setSelectedItems(Collections.singletonList(TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage()));
   }
 
   /**

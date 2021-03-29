@@ -209,6 +209,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
                 ep.setSeason(me.getSeasonNumber());
                 ep.setDvdEpisode(me.getDvdEpisodeNumber());
                 ep.setDvdSeason(me.getDvdSeasonNumber());
+                ep.setFirstAired(me.getReleaseDate());
                 ep.setTitle(me.getTitle());
                 ep.setOriginalTitle(me.getOriginalTitle());
                 ep.setPlot(me.getPlot());
