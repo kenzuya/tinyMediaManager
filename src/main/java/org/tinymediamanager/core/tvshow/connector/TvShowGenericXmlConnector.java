@@ -657,7 +657,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_CREATION_DATE) {
       MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
           .stream()
-          .filter(mf -> mf.getType() == MediaFileType.VIDEO)
+          .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateCreated() != null)
           .min(Comparator.comparing(MediaFile::getDateCreated))
           .orElse(null);
       if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
@@ -667,7 +667,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_LAST_MODIFIED_DATE) {
       MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
           .stream()
-          .filter(mf -> mf.getType() == MediaFileType.VIDEO)
+          .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateLastModified() != null)
           .min(Comparator.comparing(MediaFile::getDateLastModified))
           .orElse(null);
       if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {

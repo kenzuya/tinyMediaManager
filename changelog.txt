@@ -13,6 +13,10 @@ x check write access to the tinyMediaManager folder on startup
 x (TV shows) added columns for music theme and video bitrate
 x (TV shows) do not mix in a missing episode on media file exchange
 x (movies/TV shows) fixed creation of trailer folder while muxing
+x (TV show) fixed bug when writing TV show NFO
+x re-aligned new rating logos to do not take up that much vertical space
+x (TV show) prevent rating panel from flickering
+x do not draw the rating panel over popups #1265
 
 
 Version 4.1.2
