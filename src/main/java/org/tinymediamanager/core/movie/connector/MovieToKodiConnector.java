@@ -55,11 +55,6 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   }
 
   @Override
-  protected Logger getLogger() {
-    return LOGGER;
-  }
-
-  @Override
   protected void addOwnTags() {
     addEpbookmark();
     addTop250();

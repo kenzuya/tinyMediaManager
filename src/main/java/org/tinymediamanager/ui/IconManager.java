@@ -72,15 +72,15 @@ public class IconManager {
   // rating icons
   public static final ImageIcon              STAR_FILLED                  = createSVGIcon("star-filled.svg", new Dimension(24, 24), true);
   public static final ImageIcon              STAR_EMPTY                   = createSVGIcon("star-empty.svg", new Dimension(24, 24), true);
-  public static final ImageIcon              RATING_NEUTRAL               = createSVGIcon("rating.svg", new Dimension(42, 42), true);
-  public static final ImageIcon              RATING_EMTPY                 = createSVGIcon("rating-empty.svg", new Dimension(42, 42), true);
-  public static final ImageIcon              RATING_USER                  = createSVGIcon("rating-user.svg", new Dimension(42, 42), true);
-  public static final ImageIcon              RATING_IMDB                  = createSVGIcon("rating-imdb.svg", new Dimension(42, 42), true);
-  public static final ImageIcon              RATING_TMDB                  = createSVGIcon("rating-tmdb.svg", new Dimension(42, 42), true);
-  public static final ImageIcon              RATING_ROTTEN_TOMATOES       = createSVGIcon("rating-rottentomatoes.svg", new Dimension(42, 42), true);
-  public static final ImageIcon              RATING_METACRITIC            = createSVGIcon("rating-metacritic.svg", new Dimension(42, 42), true);
-  public static final ImageIcon              RATING_THETVDB               = createSVGIcon("rating-thetvdb.svg", new Dimension(62, 42), true);
-  public static final ImageIcon              RATING_TRAKTTV               = createSVGIcon("rating-trakttv.svg", new Dimension(42, 42), true);
+  public static final ImageIcon              RATING_NEUTRAL               = createSVGIcon("rating.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_EMTPY                 = createSVGIcon("rating-empty.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_USER                  = createSVGIcon("rating-user.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_IMDB                  = createSVGIcon("rating-imdb.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_TMDB                  = createSVGIcon("rating-tmdb.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_ROTTEN_TOMATOES       = createSVGIcon("rating-rottentomatoes.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_METACRITIC            = createSVGIcon("rating-metacritic.svg", new Dimension(36, 36), true);
+  public static final ImageIcon              RATING_THETVDB               = createSVGIcon("rating-thetvdb.svg", new Dimension(53, 36), true);
+  public static final ImageIcon              RATING_TRAKTTV               = createSVGIcon("rating-trakttv.svg", new Dimension(36, 36), true);
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
@@ -169,6 +169,7 @@ public class IconManager {
   public static final ImageIcon              IMDB                         = createTextIcon("IMDb", 0.9);
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
   public static final ImageIcon              METASCORE                    = createTextIcon("MS", 0.9);
+  public static final ImageIcon              MUSIC_HEADER                 = createTableHeaderIcon("music.svg");
   public static final ImageIcon              NEW                          = createTableHeaderIcon("plus-circle.svg");
   public static final ImageIcon              NFO                          = createTableHeaderIcon("file-alt.svg");
   public static final ImageIcon              RATING                       = createTableHeaderIcon("star.svg");

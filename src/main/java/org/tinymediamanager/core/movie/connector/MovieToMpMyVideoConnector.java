@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -37,15 +35,9 @@ import org.w3c.dom.Element;
  * @author Manuel Laggner
  */
 public class MovieToMpMyVideoConnector extends MovieGenericXmlConnector {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MovieToMpMyVideoConnector.class);
 
   public MovieToMpMyVideoConnector(Movie movie) {
     super(movie);
-  }
-
-  @Override
-  protected Logger getLogger() {
-    return LOGGER;
   }
 
   @Override

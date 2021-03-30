@@ -113,6 +113,7 @@ public class MovieFilterDialog extends TmmDialog {
 
   private final JTabbedPane                      tabbedPane;
   private JComboBox<String>                      cbPreset;
+  private JCheckBox                              chkbxEnableAll;
 
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
     super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieFilter");
@@ -126,12 +127,12 @@ public class MovieFilterDialog extends TmmDialog {
 
     ActionListener actionListener = e -> {
       SwingUtilities.invokeLater(() -> {
-      String filterName = (String) cbPreset.getSelectedItem();
-      if (StringUtils.isNotBlank(filterName)) {
-        selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getMovieUiFilterPresets().get(filterName));
-      }
-      else {
-        selectionModel.setFilterValues(Collections.emptyList());
+        String filterName = (String) cbPreset.getSelectedItem();
+        if (StringUtils.isNotBlank(filterName)) {
+          selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getMovieUiFilterPresets().get(filterName));
+        }
+        else {
+          selectionModel.setFilterValues(Collections.emptyList());
         }
       });
     };
@@ -210,7 +211,7 @@ public class MovieFilterDialog extends TmmDialog {
         JLabel lblEnableAllT = new TmmLabel(TmmResourceBundle.getString("filter.enableall"));
         panelFilterPreset.add(lblEnableAllT, "cell 1 2, alignx trailing");
 
-        JCheckBox chkbxEnableAll = new JCheckBox();
+        chkbxEnableAll = new JCheckBox();
         chkbxEnableAll.setSelected(true);
         chkbxEnableAll.addActionListener(e -> selectionModel.setFiltersActive(chkbxEnableAll.isSelected()));
         panelFilterPreset.add(chkbxEnableAll, "cell 2 2");
@@ -340,19 +341,22 @@ public class MovieFilterDialog extends TmmDialog {
   private void filterChanged() {
     for (Map.Entry<JPanel, Set<IMovieUIFilter>> entry : filterMap.entrySet()) {
       boolean active = false;
-      for (IMovieUIFilter filter : entry.getValue()) {
-        switch (filter.getFilterState()) {
-          case ACTIVE:
-          case ACTIVE_NEGATIVE:
-            active = true;
-            break;
 
-          default:
-            break;
-        }
+      if (chkbxEnableAll.isSelected()) {
+        for (IMovieUIFilter filter : entry.getValue()) {
+          switch (filter.getFilterState()) {
+            case ACTIVE:
+            case ACTIVE_NEGATIVE:
+              active = true;
+              break;
 
-        if (active) {
-          break;
+            default:
+              break;
+          }
+
+          if (active) {
+            break;
+          }
         }
       }
 

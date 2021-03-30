@@ -20,6 +20,7 @@ import static org.tinymediamanager.core.Constants.FANART;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.POSTER;
+import static org.tinymediamanager.core.Constants.RATING;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -210,6 +211,9 @@ public class TvShowInformationPanel extends JPanel {
 
       if ("selectedTvShow".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
         panelLogos.setMediaInformationSource(tvShow);
+      }
+
+      if ("selectedTvShow".equals(property) || RATING.equals(property)) {
         setRating(tvShow);
       }
 

@@ -96,6 +96,15 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
   }
 
   /**
+   * check whether all filters are active or not
+   *
+   * @return true if not all filters are deaktivates
+   */
+  public boolean isFiltersActive() {
+    return filtersActive;
+  }
+
+  /**
    * re-filter the list
    */
   private void updateFiltering() {

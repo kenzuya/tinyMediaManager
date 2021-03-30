@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.tvshows.panels.episode;
 import static org.tinymediamanager.core.Constants.MEDIA_FILES;
 import static org.tinymediamanager.core.Constants.MEDIA_INFORMATION;
 import static org.tinymediamanager.core.Constants.POSTER;
+import static org.tinymediamanager.core.Constants.RATING;
 import static org.tinymediamanager.core.Constants.SEASON_POSTER;
 import static org.tinymediamanager.core.Constants.THUMB;
 
@@ -145,6 +146,9 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
       if ("selectedTvShowEpisode".equals(property) || MEDIA_FILES.equals(property) || MEDIA_INFORMATION.equals(property)) {
         panelLogos.setMediaInformationSource(episode);
+      }
+
+      if ("selectedTvShowEpisode".equals(property) || RATING.equals(property)) {
         setRating(episode);
       }
     };
@@ -158,7 +162,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
           TmmUIHelper.openFile(mf.getFileAsPath());
         }
         catch (Exception ex) {
-          LOGGER.error("open file", e);
+          LOGGER.error("open file - '{}'", e);
           MessageManager.instance
               .pushMessage(new Message(Message.MessageLevel.ERROR, mf, "message.erroropenfile", new String[] { ":", ex.getLocalizedMessage() }));
         }
