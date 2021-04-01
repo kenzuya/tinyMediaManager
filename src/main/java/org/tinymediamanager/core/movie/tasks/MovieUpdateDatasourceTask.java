@@ -1110,6 +1110,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (cancel) {
         break;
       }
+
       Movie movie = movieList.getMovies().get(i);
       boolean dirty = false;
 
@@ -1144,17 +1145,14 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
 
-        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-          LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
-          moviesToRemove.add(movie);
-        }
-
-        if (dirty) {
+        if (dirty && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
           movie.saveToDb();
         }
       }
-      else {
-        LOGGER.info("Movie ({}) is new - no need for cleanup", movie.getTitle());
+
+      if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+        LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
+        moviesToRemove.add(movie);
       }
     }
     movieList.removeMovies(moviesToRemove);
@@ -1202,17 +1200,15 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
             dirty = true;
           }
         }
-        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-          LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
-          moviesToRemove.add(movie);
-        }
 
-        if (dirty) {
+        if (dirty && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
           movie.saveToDb();
         }
       }
-      else {
-        LOGGER.info("Movie ({}) is new - no need for cleanup", movie.getTitle());
+
+      if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
+        LOGGER.debug("Movie ({}) without VIDEO files detected, removing from DB...", movie.getTitle());
+        moviesToRemove.add(movie);
       }
     }
     movieList.removeMovies(moviesToRemove);
