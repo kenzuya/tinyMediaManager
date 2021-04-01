@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -342,5 +343,21 @@ public class TvShowEpisodeNfoParserTest {
       e.printStackTrace();
       Assertions.fail(e.getMessage());
     }
+  }
+
+  @Test
+  public void testNetpvrXml() throws Exception {
+    TvShowEpisodeNfoParser parser = TvShowEpisodeNfoParser.parseNfo(Paths.get("target/test-classes/tvshowepisode_nfo/nextpvr.xml"));
+
+    List<TvShowEpisodeNfoParser.Episode> episodes = parser.episodes;
+    assertThat(episodes.size()).isEqualTo(1);
+
+    TvShowEpisodeNfoParser.Episode episode = episodes.get(0);
+
+    assertThat(episode.title).isEqualTo("Hartes Training");
+    assertThat(episode.plot).isEqualTo(
+        "Aang versucht, das Erdbändigen von Toph zu lernen, aber es will einfach nicht klappen. Er fragt sich, ob er das Problem bei sich oder bei seiner Lehrerin suchen soll. Währenddessen gerät Sokka in die Klemme.");
+    assertThat(episode.certification).isEqualTo(MediaCertification.DE_FSK6);
+    assertThat(episode.releaseDate).isEqualTo("2005-01-01");
   }
 }

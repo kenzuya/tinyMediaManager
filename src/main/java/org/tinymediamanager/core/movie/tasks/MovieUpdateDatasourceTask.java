@@ -568,6 +568,23 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
     }
 
+    // just try XML files too
+    if (movie == null) {
+      for (MediaFile mf : mfs) {
+        if ("xml".equalsIgnoreCase(mf.getExtension())) {
+          try {
+            MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(mf.getFileAsPath());
+            if (StringUtils.isNotBlank(movieNfoParser.title)) {
+              movie = movieNfoParser.toMovie();
+            }
+          }
+          catch (Exception e) {
+            // ignored
+          }
+        }
+      }
+    }
+
     return movie;
   }
 

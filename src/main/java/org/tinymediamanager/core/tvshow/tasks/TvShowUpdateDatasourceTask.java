@@ -38,6 +38,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -583,10 +584,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             }
           }
 
-          // not adding unknown MFs to list....
-          if (mf.getType() != MediaFileType.UNKNOWN) {
-            mfs.add(mf);
-          }
+          mfs.add(mf);
         }
       }
       allFiles.clear();
@@ -728,6 +726,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           // ******************************
           // STEP 2.1.1 - parse EP NFO (has precedence over files)
           // ******************************
+
+          // meta data from VSMETA files
           MediaFile meta = getMediaFile(epFiles, MediaFileType.VSMETA);
           TvShowEpisode vsMetaEP = null;
           if (meta != null) {
@@ -735,6 +735,26 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             vsmeta.parseFile();
             vsMetaEP = vsmeta.getTvShowEpisode();
           }
+
+          // meta data from XML files
+          TvShowEpisode xmlEP = null;
+          for (MediaFile xmlMf : epFiles) {
+            if ("xml".equalsIgnoreCase(xmlMf.getExtension())) {
+              try {
+                TvShowEpisodeNfoParser nfoParser = TvShowEpisodeNfoParser.parseNfo(xmlMf.getFileAsPath());
+                List<TvShowEpisode> epsInXml = nfoParser.toTvShowEpisodes();
+                if (!epsInXml.isEmpty()) {
+                  xmlEP = epsInXml.get(0);
+                }
+              }
+              catch (Exception e) {
+                // ignored
+              }
+            }
+          }
+
+          // drop all unknown EP files
+          epFiles = epFiles.stream().filter(mediaFile -> mediaFile.getType() != MediaFileType.UNKNOWN).collect(Collectors.toList());
 
           MediaFile epNfo = getMediaFile(epFiles, MediaFileType.NFO);
           if (epNfo != null) {
@@ -790,6 +810,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                   episode.setMultiEpisode(false);
                 }
                 episode.merge(vsMetaEP); // merge VSmeta infos
+                episode.merge(xmlEP); // merge XML infos
 
                 episode.saveToDb();
                 tvShow.addEpisode(episode);
@@ -881,6 +902,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 episode.setMultiEpisode(false);
               }
               episode.merge(vsMetaEP); // merge VSmeta infos
+
+              // force title from xml
+              if (xmlEP != null && StringUtils.isNotBlank(xmlEP.getTitle())) {
+                episode.merge(xmlEP); // merge XML infos
+                episode.setTitle(xmlEP.getTitle());
+              }
+
               episode.saveToDb();
               tvShow.addEpisode(episode);
             }
@@ -925,6 +953,13 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             }
 
             episode.merge(vsMetaEP); // merge VSmeta infos
+
+            // force title from xml
+            if (xmlEP != null && StringUtils.isNotBlank(xmlEP.getTitle())) {
+              episode.merge(xmlEP); // merge XML infos
+              episode.setTitle(xmlEP.getTitle());
+            }
+
             episode.saveToDb();
             tvShow.addEpisode(episode);
           }

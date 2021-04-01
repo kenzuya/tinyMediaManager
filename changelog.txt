@@ -1,4 +1,4 @@
-Upcoming version
+Version 4.1.4
 =======================
 + Emby compatibility enhancements
   - (TV shows) proper trailer naming for Emby
@@ -6,6 +6,7 @@ Upcoming version
   - (TV shows) added option to write <enddate> to the TV show NFO
   - (TV shows) added option to write all actors/guests into the TV show NFO
 + (TV shows) added vote count column
++ basic support for nextpvr recording XML parsing #1252
 x added shutdown hook to prevent database corruption
 x (TV shows) also fetch imdb ratings for episodes
 x (movies) catch occasional errors in movie set sorting
