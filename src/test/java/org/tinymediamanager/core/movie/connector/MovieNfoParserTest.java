@@ -780,4 +780,12 @@ public class MovieNfoParserTest extends BasicTest {
       Assertions.fail(e.getMessage());
     }
   }
+
+  @Test
+  public void testNetpvrXml() throws Exception {
+    MovieNfoParser parser = MovieNfoParser.parseNfo(Paths.get("target/test-classes/movie_nfo/nextpvr.xml"));
+
+    assertThat(parser.title).isEqualTo("Gran Torino");
+    assertThat(parser.plot).isEqualTo("Gran Torino\\nDrama, USA 2008\\nAltersfreigabe: ab 12");
+  }
 }

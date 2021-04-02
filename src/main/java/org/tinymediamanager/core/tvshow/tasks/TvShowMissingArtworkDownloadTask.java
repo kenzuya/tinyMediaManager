@@ -82,7 +82,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
   protected void doInBackground() {
     LOGGER.info("Getting missing artwork");
 
-    initThreadPool(3, "scrapeMissingMovieArtwork");
+    initThreadPool(3, "scrapeMissingTvShowArtwork");
     start();
 
     for (TvShow show : tvShows) {
