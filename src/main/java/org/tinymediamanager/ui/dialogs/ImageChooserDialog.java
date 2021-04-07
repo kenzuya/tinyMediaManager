@@ -26,6 +26,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.InterruptedIOException;
 import java.nio.file.Path;
@@ -468,6 +470,14 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.insets = new Insets(5, 5, 5, 5);
 
     JToggleButton button = new JToggleButton();
+    button.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() >= 2 && e.getButton() == MouseEvent.BUTTON1) {
+          new OkAction().actionPerformed(new ActionEvent(e.getSource(), e.getID(), "OK"));
+        }
+      }
+    });
     button.setBackground(Color.white);
     button.setMargin(new Insets(10, 10, 10, 10));
     if (artwork.isAnimated()) {
