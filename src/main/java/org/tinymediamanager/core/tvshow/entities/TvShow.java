@@ -87,20 +87,22 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.threading.TmmTaskChain;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.connector.ITvShowConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
+import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowActorImageFetcherTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
@@ -974,10 +976,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
-    // rename the TV show if that has been chosen in the settings
-    if (TvShowModuleManager.SETTINGS.isRenameAfterScrape()) {
-      TvShowRenamer.renameTvShow(this); // rename root and season artwork and update ShowMFs
-    }
+    postProcess();
   }
 
   /**
@@ -1039,6 +1038,22 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     connector.write(nfoNamings);
 
     firePropertyChange(HAS_NFO_FILE, false, true);
+  }
+
+  private void postProcess() {
+    TmmTaskChain taskChain = new TmmTaskChain();
+
+    // detect AR of the TV show if that has been chosen in the settings
+    if (TvShowModuleManager.SETTINGS.isArdAfterScrape()) {
+      taskChain.add(new TvShowARDetectorTask(this.episodes));
+    }
+
+    // rename the TV show if that has been chosen in the settings
+    if (TvShowModuleManager.SETTINGS.isRenameAfterScrape()) {
+      taskChain.add(new TvShowRenameTask(Collections.singletonList(this), null, true));
+    }
+
+    taskChain.run();
   }
 
   /**

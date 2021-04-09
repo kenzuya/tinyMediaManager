@@ -161,6 +161,7 @@ public class TvShowSettings extends AbstractSettings {
 
   // renamer
   private boolean                                        renameAfterScrape                      = false;
+  private boolean                                        ardAfterScrape                         = false;
   private boolean                                        updateOnStart                          = false;
   private String                                         renamerTvShowFoldername                = DEFAULT_RENAMER_FOLDER_PATTERN;
   private String                                         renamerSeasonFoldername                = DEFAULT_RENAMER_SEASON_PATTERN;
@@ -1377,6 +1378,16 @@ public class TvShowSettings extends AbstractSettings {
 
   public boolean isRenameAfterScrape() {
     return this.renameAfterScrape;
+  }
+
+  public void setArdAfterScrape(boolean newValue) {
+    boolean oldValue = this.ardAfterScrape;
+    this.ardAfterScrape = newValue;
+    firePropertyChange("ardAfterScrape", oldValue, newValue);
+  }
+
+  public boolean isArdAfterScrape() {
+    return this.ardAfterScrape;
   }
 
   public int getImageExtraFanartCount() {

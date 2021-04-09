@@ -70,6 +70,7 @@ class TvShowSettingsPanel extends JPanel {
   private JButton                      btnPresetPlex;
   private AutocompleteComboBox<String> cbRating;
   private JCheckBox                    chckbxRenameAfterScrape;
+  private JCheckBox                    chckbxARDAfterScrape;
   private JCheckBox                    chckbxAutoUpdateOnStart;
   private JCheckBox                    chckbxShowMissingSpecials;
   private JCheckBox                    chckbxTvShowTableTooltips;
@@ -326,27 +327,34 @@ class TvShowSettingsPanel extends JPanel {
         lblAutomaticRenameHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.automaticrename.desc"));
         panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0 2 1");
 
+        chckbxARDAfterScrape = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.automaticard"));
+        panelAutomaticTasks.add(chckbxARDAfterScrape, "cell 1 1 2 1");
+
+        JLabel lblAutomaticARDHint = new JLabel(IconManager.HINT);
+        lblAutomaticARDHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.automaticard.desc"));
+        panelAutomaticTasks.add(lblAutomaticARDHint, "cell 1 1 2 1");
+
         chckbxTraktTv = new JCheckBox(TmmResourceBundle.getString("Settings.trakt"));
-        panelAutomaticTasks.add(chckbxTraktTv, "cell 1 1 2 1");
+        panelAutomaticTasks.add(chckbxTraktTv, "cell 1 2 2 1");
 
         btnClearTraktTvShows = new JButton(TmmResourceBundle.getString("Settings.trakt.cleartvshows"));
-        panelAutomaticTasks.add(btnClearTraktTvShows, "cell 1 1 2 1");
+        panelAutomaticTasks.add(btnClearTraktTvShows, "cell 1 2 2 1");
 
         chckbxTraktCollection = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.collection"));
-        panelAutomaticTasks.add(chckbxTraktCollection, "cell 2 2");
+        panelAutomaticTasks.add(chckbxTraktCollection, "cell 2 4");
 
         chckbxTraktWatched = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.watched"));
-        panelAutomaticTasks.add(chckbxTraktWatched, "cell 2 3");
+        panelAutomaticTasks.add(chckbxTraktWatched, "cell 2 4");
 
         chckbxTraktRating = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.rating"));
-        panelAutomaticTasks.add(chckbxTraktRating, "cell 2 4");
+        panelAutomaticTasks.add(chckbxTraktRating, "cell 2 5");
 
         chckbxAutoUpdateOnStart = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.automaticupdate"));
-        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 6 2 1");
+        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 7 2 1");
 
         JLabel lblAutomaticUpdateHint = new JLabel(IconManager.HINT);
         lblAutomaticUpdateHint.setToolTipText(TmmResourceBundle.getString("Settings.tvshow.automaticupdate.desc"));
-        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 6 2 1");
+        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 7 2 1");
       }
     }
     {
@@ -555,5 +563,10 @@ class TvShowSettingsPanel extends JPanel {
     AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_4, chckbxStoreFilter,
         jCheckBoxBeanProperty);
     autoBinding_5.bind();
+    //
+    Property tvShowSettingsBeanProperty_20 = BeanProperty.create("ardAfterScrape");
+    AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_20, chckbxARDAfterScrape,
+      jCheckBoxBeanProperty);
+    autoBinding_20.bind();
   }
 }
