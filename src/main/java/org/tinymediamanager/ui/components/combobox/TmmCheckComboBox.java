@@ -512,6 +512,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
               listener.selectionChanged(index);
             }
             TmmCheckComboBox.this.update();
+            TmmCheckComboBox.this.setSelectedIndex(-1); // clear selection
           }
         }
       });
