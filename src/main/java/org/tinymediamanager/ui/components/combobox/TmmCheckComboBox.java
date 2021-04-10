@@ -43,7 +43,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -190,7 +189,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
   }
 
   /**
-   * get an array of all checked items
+   * get a {@link List} of all checked items
    * 
    * @return an array of all checked items
    */
@@ -204,6 +203,23 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
     }
 
     return selected;
+  }
+
+  /**
+   * get a {@link List} of all items
+   *
+   * @return an array of all checked items
+   */
+  public List<E> getItems() {
+    List<E> items = new ArrayList<>();
+
+    for (TmmCheckComboBoxItem<E> item : checkComboBoxItems) {
+      if (item.getUserObject() != null) {
+        items.add(item.getUserObject());
+      }
+    }
+
+    return items;
   }
 
   /**
@@ -267,12 +283,6 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
   protected void update() {
     // force the JComboBox to re-calculate the size
-    if (editor != null) {
-      SwingUtilities.invokeLater(() -> {
-        editor.firePropertyChange("border", true, false);
-        editor.revalidate();
-      });
-    }
     revalidate();
     repaint();
 
