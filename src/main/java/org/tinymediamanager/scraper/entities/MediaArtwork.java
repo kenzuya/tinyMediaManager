@@ -36,7 +36,6 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class MediaArtwork {
 
-
   /**
    * The different types of artwork we know
    * 
@@ -76,8 +75,8 @@ public class MediaArtwork {
     MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~342x513px", 2),
     SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~185x277px", 1);
 
-    private String text;
-    private int    order;
+    private final String text;
+    private final int    order;
 
     PosterSizes(String text, int order) {
       this.text = text;
@@ -106,8 +105,8 @@ public class MediaArtwork {
     MEDIUM(TmmResourceBundle.getString("Settings.image.medium") + ": ~1280x720px", 2),
     SMALL(TmmResourceBundle.getString("Settings.image.small") + ": ~300x168px", 1);
 
-    private String text;
-    private int    order;
+    private final String text;
+    private final int    order;
 
     FanartSizes(String text, int order) {
       this.text = text;
@@ -124,20 +123,21 @@ public class MediaArtwork {
     }
   }
 
-  private String                imdbId;
-  private int                   tmdbId;
-  private int                   season      = -1;
-  private String                previewUrl  = "";
-  private String                defaultUrl  = "";
-  private String                originalUrl = "";
-  private String                language    = "";
-  private String                providerId;
-  private MediaArtworkType      type;
-  private int                   sizeOrder   = 0;
-  private int                   likes       = 0;
-  private boolean               animated    = false;
+  private final String                providerId;
+  private final MediaArtworkType      type;
 
-  private List<ImageSizeAndUrl> imageSizes  = new ArrayList<>();
+  private String                      imdbId;
+  private int                         tmdbId;
+  private int                         season      = -1;
+  private String                      previewUrl  = "";
+  private String                      defaultUrl  = "";
+  private String                      originalUrl = "";
+  private String                      language    = "";
+  private int                         sizeOrder   = 0;
+  private int                         likes       = 0;
+  private boolean                     animated    = false;
+
+  private final List<ImageSizeAndUrl> imageSizes  = new ArrayList<>();
 
   /**
    * Create a new instance of MediaArtwork for the given provider and type
@@ -477,9 +477,9 @@ public class MediaArtwork {
    * @since 1.0
    */
   public static class ImageSizeAndUrl implements Comparable<ImageSizeAndUrl> {
-    private int    width  = 0;
-    private int    height = 0;
-    private String url    = "";
+    private final int    width;
+    private final int    height;
+    private final String url;
 
     public ImageSizeAndUrl(int width, int height, String url) {
       this.width = width;
@@ -501,7 +501,7 @@ public class MediaArtwork {
 
     @Override
     public int compareTo(ImageSizeAndUrl obj) {
-      return width - obj.width;
+      return width * height - obj.width * obj.height;
     }
 
     @Override

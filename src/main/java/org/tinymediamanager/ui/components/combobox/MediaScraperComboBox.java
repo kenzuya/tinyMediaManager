@@ -45,7 +45,6 @@ import org.tinymediamanager.ui.images.TmmSvgIcon;
 public class MediaScraperComboBox extends JComboBox<MediaScraper> {
   private static final long   serialVersionUID = 7845502706645523958L;
   private Map<URI, ImageIcon> imageCache;
-  private boolean             layingOut        = false;
   private int                 listWidth        = 0;
 
   public MediaScraperComboBox() {
@@ -79,9 +78,7 @@ public class MediaScraperComboBox extends JComboBox<MediaScraper> {
   @Override
   public Dimension getSize() {
     Dimension dim = super.getSize();
-    if (!layingOut) {
-      dim.width = Math.max(dim.width, getPreferredPopupSize().width);
-    }
+    dim.width = Math.max(dim.width, getPreferredPopupSize().width);
     return dim;
   }
 
