@@ -63,7 +63,6 @@ public class ImagePreviewDialog extends TmmDialog {
   private String              imageUrl;
   private String              imagePath;
 
-  // private JLabel image;
   private byte[]              originalImageBytes;
 
   public ImagePreviewDialog(String urlToImage) {
@@ -87,27 +86,6 @@ public class ImagePreviewDialog extends TmmDialog {
     {
       imagePanel.setLayout(new MigLayout("", "[300lp,grow]", "[300lp,grow]"));
       getContentPane().add(imagePanel);
-
-      // image = new JLabel();
-      // image.setHorizontalAlignment(SwingConstants.CENTER);
-      //
-      // image.addMouseListener(new MouseAdapter() {
-      // @Override
-      // public void mousePressed(MouseEvent mouseEvent) {
-      // if (mouseEvent.isPopupTrigger()) {
-      // popupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
-      // }
-      // }
-      //
-      // @Override
-      // public void mouseReleased(MouseEvent mouseEvent) {
-      // if (mouseEvent.isPopupTrigger()) {
-      // popupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
-      // }
-      // }
-      // });
-      //
-      // imagePanel.add(image, "cell 0 0, grow, center");
     }
     {
       JButton closeButton = new JButton(TmmResourceBundle.getString("Button.close"));
@@ -144,16 +122,8 @@ public class ImagePreviewDialog extends TmmDialog {
           }
 
           if (originalImageBytes.length > 0) {
-            // ImageIcon imageIcon = new ImageIcon(originalImageBytes);
-            // int width = imageIcon.getImage().getWidth(null);
-            // int height = imageIcon.getImage().getHeight(null);
-            // image.setIcon(imageIcon);
             try {
               imgViewer.setImage(ImageLoader.createImage(originalImageBytes));
-              // imagePanel.removeAll();
-              // imagePanel.add(imgViewer.getComponent(), "cell 0 0, center, grow");
-              // imagePanel.revalidate();
-              // imagePanel.repaint();
               imagePanel.removeAll();
               imagePanel.add(imgViewer.getComponent(), "cell 0 0, center, grow");
               imagePanel.invalidate();
