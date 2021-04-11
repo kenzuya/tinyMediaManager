@@ -4,6 +4,7 @@ Version 4.1.4
 + re-added various zoom options to the image preview window #1094
 + added filter options for the image chooser #1253
 + (movie sets) some UI enhancements: show IMDB id, show artwork files, show year in search dialog #1285 #1280
+x (macOS) re-compiled the launcher with golang 1.15 to support macOS 10.11 #1278
 x fixed occasional crash on startup of the TV show module #1283
 
 
