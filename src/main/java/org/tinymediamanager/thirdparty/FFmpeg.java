@@ -31,7 +31,7 @@ import org.tinymediamanager.addon.FFmpegAddon;
 
 /**
  * the class {@link FFmpeg} is used to access FFmpeg
- * 
+ *
  * @author Manuel Laggner/Wolfgang Janes
  */
 public class FFmpeg {
@@ -43,7 +43,7 @@ public class FFmpeg {
 
   /**
    * create a still of the given video file to the given path. The still is being taken at the given second of the video file
-   * 
+   *
    * @param videoFile
    *          the video file to extract the still from
    * @param stillFile
@@ -95,17 +95,43 @@ public class FFmpeg {
     return cmdList;
   }
 
-  public static String scanSample(int start, int duration, Path videoFile) throws IOException, InterruptedException {
-    return executeCommand(createCommandForScanSample(start, duration, videoFile));
+  public static String scanDarkLevel(float position, Path videoFile) throws IOException, InterruptedException {
+    return executeCommand(createCommandForScanDarkLevel(position, videoFile));
   }
 
-  private static List<String> createCommandForScanSample(int start, int duration, Path videoFile) {
+  private static List<String> createCommandForScanDarkLevel(float position, Path videoFile) {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-hide_banner");
     cmdList.add("-an");
     cmdList.add("-dn");
     cmdList.add("-sn");
+    cmdList.add("-ss");
+    cmdList.add(Float.toString(position));
+    cmdList.add("-i");
+    cmdList.add(videoFile.toAbsolutePath().toString());
+    cmdList.add("-vf");
+    cmdList.add("signalstats,metadata=print");
+    cmdList.add("-vframes");
+    cmdList.add("1");
+    cmdList.add("-f");
+    cmdList.add("null");
+    cmdList.add("pipe:1");
+    return cmdList;
+  }
+
+  public static String scanSample(int start, int duration, int darkLevel, Path videoFile) throws IOException, InterruptedException {
+    return executeCommand(createCommandForScanSample(start, duration, darkLevel, videoFile));
+  }
+
+  private static List<String> createCommandForScanSample(int start, int duration, int darkLevel, Path videoFile) {
+    List<String> cmdList = new ArrayList<>();
+    cmdList.add(getFfmpegExecutable());
+    cmdList.add("-hide_banner");
+    cmdList.add("-an");
+    cmdList.add("-dn");
+    cmdList.add("-sn");
+    cmdList.add("-noaccurate_seek");
     cmdList.add("-t");
     cmdList.add(Integer.toString(duration));
     cmdList.add("-ss");
@@ -113,7 +139,7 @@ public class FFmpeg {
     cmdList.add("-i");
     cmdList.add(videoFile.toAbsolutePath().toString());
     cmdList.add("-vf");
-    cmdList.add("cropdetect=0.07:2:0");
+    cmdList.add("cropdetect=" + Integer.toString(darkLevel) + ":2:0");
     cmdList.add("-f");
     cmdList.add("null");
     cmdList.add("pipe:1");

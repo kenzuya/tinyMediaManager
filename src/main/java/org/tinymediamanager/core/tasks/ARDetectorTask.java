@@ -20,6 +20,7 @@ public abstract class ARDetectorTask extends TmmTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ARDetectorTask.class);
 
+  private final Pattern patternSampleDarkLevel = Pattern.compile("lavfi.signalstats.YLOW=([0-9]*)");
   private final Pattern patternSample = Pattern.compile("x1:([0-9]*)\\sx2:([0-9]*)\\sy1:([0-9]*)\\sy2:([0-9]*)\\sw:([0-9]*)\\sh:([0-9]*)\\sx:");
 
   private final Settings settings = Settings.getInstance();
@@ -42,6 +43,9 @@ public abstract class ARDetectorTask extends TmmTask {
 
   protected int multiFormatMode = 0;
   private float multiFormatThresholdPct = 6f;
+
+  private float darkLevelPct = 7f;
+  private float darkLevelMaxPct = 13f;
 
   protected final List<Float> arCustomList = new LinkedList<>();
 
@@ -92,19 +96,24 @@ public abstract class ARDetectorTask extends TmmTask {
     try {
       VideoInfo videoInfo = getPrefilledVideoInfo(mediaFile);
 
-      LOGGER.info("Filename: {}", mediaFile.getFileAsPath());
-      LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, Duration: {}",
-        videoInfo.width, videoInfo.height,
-        mediaFile.getAspectRatio(),
-        videoInfo.arSample,
-        mediaFile.getDurationHHMMSS());
-
       int start = (int)(videoInfo.duration * this.ignoreBeginningPct / 100f);
       int end = (int)(videoInfo.duration * (1f - (this.ignoreEndPct / 100f)));
 
       float increment = (end - start) / (this.sampleMinNumber + 1f);
-
       float seconds = start + increment;
+
+      String result = FFmpeg.scanDarkLevel(0, mediaFile.getFile());        // frist video frame (which is often black)
+      parseDarkLevel(result, videoInfo);
+      if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.BitDepth) > darkLevelMaxPct) videoInfo.darkLevel = getDarkLevel(videoInfo);
+
+      LOGGER.info("Filename: {}", mediaFile.getFileAsPath());
+      LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, BitDepth: {}, DarkLevel: {}, Duration: {}",
+        videoInfo.width, videoInfo.height,
+        mediaFile.getAspectRatio(),
+        videoInfo.arSample,
+        videoInfo.BitDepth,
+        videoInfo.darkLevel,
+        mediaFile.getDurationHHMMSS());
 
       if (increment > this.sampleMaxGap) {
         increment = this.sampleMaxGap;
@@ -115,13 +124,14 @@ public abstract class ARDetectorTask extends TmmTask {
         try {
           int iSec = Math.round(seconds);
           int iInc = Math.round(increment);
-          String result = FFmpeg.scanSample(iSec, sampleDuration, mediaFile.getFile());
+          result = FFmpeg.scanSample(iSec, sampleDuration, videoInfo.darkLevel, mediaFile.getFile());
           parseSample(result, iSec, iInc, videoInfo);
         } catch (Exception ex) {
           LOGGER.warn("Error scanning sample", ex);
         }
 
         seconds += increment - videoInfo.sampleSkipAdjustement;
+        if (seconds < start) seconds = Math.round(start + 0.5f * videoInfo.sampleSkipAdjustement);
 
         if (this.cancel) {
           return;
@@ -193,11 +203,28 @@ public abstract class ARDetectorTask extends TmmTask {
       }
     }
 
+    videoInfo.BitDepth = mediaFile.getBitDepth();
+    if (videoInfo.BitDepth < 8) videoInfo.BitDepth = 8;
     videoInfo.duration = mediaFile.getDuration();
     videoInfo.arSample = getSampleAR(mediaFile);
     if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
 
     return videoInfo;
+  }
+
+  protected int getDarkLevel(VideoInfo videoInfo) {
+    return (int)(Math.round(Math.pow(2, videoInfo.BitDepth) * (darkLevelPct / 100)));
+  }
+
+  protected void parseDarkLevel(String result, VideoInfo videoInfo) {
+    videoInfo.darkLevel = 9999;
+    if (StringUtils.isNotEmpty(result)) {
+      Matcher matcher = patternSampleDarkLevel.matcher(result);
+      if (matcher.find()) {
+        String ylow = matcher.group(1);
+        videoInfo.darkLevel = Integer.valueOf(ylow) + (int)(Math.pow(2, videoInfo.BitDepth - 7));
+      }
+    }
   }
 
   protected void parseSample(String result, int seconds, int increment, VideoInfo videoInfo) {
@@ -245,7 +272,7 @@ public abstract class ARDetectorTask extends TmmTask {
                                  int seconds, int increment,
                                  VideoInfo videoInfo) {
     if ((Math.abs(blackLeft - blackRight)) > (videoInfo.width * this.plausiWidthDeltaPct / 100d)) {
-      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: More than {}% difference between left and right black bar",
+      LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between left and right black bar",
                   this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, this.plausiWidthDeltaPct);
       if (videoInfo.sampleSkipAdjustement == 0) {
@@ -254,7 +281,7 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if (Math.abs(blackTop - blackBottom) > (videoInfo.height * this.plausiHeightDeltaPct / 100d)) {
-      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
+      LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: More than {}% difference between top and bottom black bar",
                   this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, this.plausiHeightDeltaPct);
       if (videoInfo.sampleSkipAdjustement == 0) {
@@ -263,7 +290,7 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if ((videoInfo.width * this.plausiWidthPct / 100d) >= width) {
-      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
+      LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped width ({}px) is less than {}% of video width ({}px)",
                   this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, width, this.plausiWidthPct, videoInfo.width);
       if (videoInfo.sampleSkipAdjustement == 0) {
@@ -272,7 +299,7 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.sampleSkipAdjustement = 0;
       }
     } else if ((videoInfo.height * this.plausiHeightPct / 100d) >= height) {
-      LOGGER.debug("Analyzing {}s @ {} => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
+      LOGGER.debug("Analyzing {}s near {} => bars: {} => Sample skipped: Cropped height ({}px) is less than {}% of video height ({}px)",
                   this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, height, this.plausiHeightPct, videoInfo.height);
       if (videoInfo.sampleSkipAdjustement == 0) {
@@ -298,7 +325,7 @@ public abstract class ARDetectorTask extends TmmTask {
         videoInfo.widthMap.put(width, videoInfo.widthMap.get(width) + 1);
       }
       videoInfo.sampleCount++;
-      LOGGER.debug("Analyzing {}s @ {} => bars: {} crop: {}x{} ({}) * SAR => AR_Calculated = {}",
+      LOGGER.debug("Analyzing {}s near {} => bars: {} crop: {}x{} ({}) * SAR => AR_Calculated = {}",
                   this.sampleDuration, String.format("%-8s", LocalTime.MIN.plusSeconds(seconds).toString()),
                   barstxt, width, height,
                   String.format("%.5f", videoInfo.arMeasured), String.format("%.5f", videoInfo.arCalculated));
@@ -497,6 +524,8 @@ public abstract class ARDetectorTask extends TmmTask {
     int width;
     int height;
     int duration;
+    int BitDepth;
+    int darkLevel;
 
     int sampleCount = 0;
 
