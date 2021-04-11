@@ -3,6 +3,7 @@ Version 4.1.4
 + added possibility to double click the image in the image chooser to select the artwork #1094
 + re-added various zoom options to the image preview window #1094
 + added filter options for the image chooser #1253
+x fixed occasional crash on startup of the TV show module #1283
 
 
 Version 4.1.3

@@ -49,12 +49,14 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
  * @author Manuel Laggner
  */
 public class TvShowSeason extends AbstractModelObject implements Comparable<TvShowSeason> {
-  private int                    season      = -1;
-  private String                 title       = "";
-  private TvShow                 tvShow;
-  private List<TvShowEpisode>    episodes    = new CopyOnWriteArrayList<>();
-  private Date                   lastWatched = null;
-  private PropertyChangeListener listener;
+
+  private final TvShow                 tvShow;
+  private final List<TvShowEpisode>    episodes    = new CopyOnWriteArrayList<>();
+  private final PropertyChangeListener listener;
+
+  private int                          season      = -1;
+  private String                       title       = "";
+  private Date                         lastWatched = null;
 
   public TvShowSeason(int season, TvShow tvShow) {
     this.season = season;
@@ -105,7 +107,7 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
 
   public synchronized void addEpisode(TvShowEpisode episode) {
     // do not add twice
-    if (episodes.contains(episode)) {
+    if (episode == null || episodes.contains(episode)) {
       return;
     }
 
