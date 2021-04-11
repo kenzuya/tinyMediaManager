@@ -102,16 +102,16 @@ public abstract class ARDetectorTask extends TmmTask {
       float increment = (end - start) / (this.sampleMinNumber + 1f);
       float seconds = start + increment;
 
-      String result = FFmpeg.scanDarkLevel(0, mediaFile.getFile());        // frist video frame (which is often black)
+      String result = FFmpeg.scanDarkLevel(0, mediaFile.getFile());        // first video frame (which is often black)
       parseDarkLevel(result, videoInfo);
-      if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.BitDepth) > darkLevelMaxPct) videoInfo.darkLevel = getDarkLevel(videoInfo);
+      if (videoInfo.darkLevel * 100f / Math.pow(2, videoInfo.bitDepth) > darkLevelMaxPct) videoInfo.darkLevel = getDarkLevel(videoInfo);
 
       LOGGER.info("Filename: {}", mediaFile.getFileAsPath());
       LOGGER.info("Metadata: Encoded size: {}x{}px, Encoded AR: {}, SAR: {}, BitDepth: {}, DarkLevel: {}, Duration: {}",
         videoInfo.width, videoInfo.height,
         mediaFile.getAspectRatio(),
         videoInfo.arSample,
-        videoInfo.BitDepth,
+        videoInfo.bitDepth,
         videoInfo.darkLevel,
         mediaFile.getDurationHHMMSS());
 
@@ -203,8 +203,8 @@ public abstract class ARDetectorTask extends TmmTask {
       }
     }
 
-    videoInfo.BitDepth = mediaFile.getBitDepth();
-    if (videoInfo.BitDepth < 8) videoInfo.BitDepth = 8;
+    videoInfo.bitDepth = mediaFile.getBitDepth();
+    if (videoInfo.bitDepth < 8) videoInfo.bitDepth = 8;
     videoInfo.duration = mediaFile.getDuration();
     videoInfo.arSample = getSampleAR(mediaFile);
     if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
@@ -213,7 +213,7 @@ public abstract class ARDetectorTask extends TmmTask {
   }
 
   protected int getDarkLevel(VideoInfo videoInfo) {
-    return (int)(Math.round(Math.pow(2, videoInfo.BitDepth) * (darkLevelPct / 100)));
+    return (int)(Math.round(Math.pow(2, videoInfo.bitDepth) * (darkLevelPct / 100)));
   }
 
   protected void parseDarkLevel(String result, VideoInfo videoInfo) {
@@ -222,7 +222,7 @@ public abstract class ARDetectorTask extends TmmTask {
       Matcher matcher = patternSampleDarkLevel.matcher(result);
       if (matcher.find()) {
         String ylow = matcher.group(1);
-        videoInfo.darkLevel = Integer.valueOf(ylow) + (int)(Math.pow(2, videoInfo.BitDepth - 7));
+        videoInfo.darkLevel = Integer.valueOf(ylow) + (int)(Math.pow(2, videoInfo.bitDepth - 7));
       }
     }
   }
@@ -524,7 +524,7 @@ public abstract class ARDetectorTask extends TmmTask {
     int width;
     int height;
     int duration;
-    int BitDepth;
+    int bitDepth;
     int darkLevel;
 
     int sampleCount = 0;
