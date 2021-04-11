@@ -16,8 +16,6 @@
 package org.tinymediamanager.ui.moviesets;
 
 import java.awt.FontMetrics;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -372,25 +370,11 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private String getYear(TmmTreeNode node) {
     Object userobject = node.getUserObject();
-    List<Integer> years = new ArrayList<>();
 
     if (userobject instanceof MovieSet) {
-      List<Movie> movies = ((MovieSet) userobject).getMovies();
-      for (Movie movie : movies) {
-        years.add(movie.getYear());
-      }
-
-      Collections.sort(years);
-      if (!years.isEmpty() && years.size() >= 2) {
-        if (years.get(0).equals(years.get(years.size() - 1))) {
-          return String.valueOf(years.get(0));
-        }
-        else {
-          return years.get(0) + " - " + (years.get(years.size() - 1));
-        }
-      }
-      else if (years.size() == 1) {
-        return String.valueOf(years.get(0));
+      String years = ((MovieSet) userobject).getYears();
+      if (StringUtils.isNotBlank(years)) {
+        return years;
       }
     }
 

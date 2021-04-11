@@ -70,6 +70,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
   private MediaSearchResult                  result         = null;
   private MediaMetadata                      metadata       = null;
   private String                             name           = "";
+  private int                                year           = 0;
   private String                             posterUrl      = "";
   private String                             fanartUrl      = "";
   private String                             overview       = "";
@@ -222,6 +223,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
           for (MediaMetadata item : info.getSubItems()) {
             MovieInSet movie = new MovieInSet(item.getTitle());
+            movie.setYear(item.getYear());
             try {
               movie.setTmdbId(Integer.parseInt(item.getId(MediaMetadata.TMDB).toString()));
             }
@@ -352,6 +354,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
     private int    tmdbId      = 0;
     private String imdbId      = "";
     private String releaseDate = "";
+    private int    year        = 0;
     private Movie  movie       = null;
 
     public MovieInSet(String name) {
@@ -360,6 +363,10 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
     public String getName() {
       return name;
+    }
+
+    public int getYear() {
+      return year;
     }
 
     public int getTmdbId() {
@@ -376,6 +383,10 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
     public Movie getMovie() {
       return movie;
+    }
+
+    public void setYear(int year) {
+      this.year = year;
     }
 
     public void setTmdbId(int tmdbId) {
