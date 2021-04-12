@@ -1949,16 +1949,23 @@ public class TvShowRenamer {
   }
 
   public static class TvShowNamedFirstCharacterRenderer implements NamedRenderer {
+    private static final Pattern FIRST_ALPHANUM_PATTERN = Pattern.compile("[\\p{L}\\d]");
 
     @Override
     public String render(Object o, String s, Locale locale, Map<String, Object> map) {
       if (o instanceof String && StringUtils.isNotBlank((String) o)) {
         String source = StrgUtils.convertToAscii((String) o, false);
-        String first = source.trim().substring(0, 1);
-        if (first.matches("[\\p{L}]")) {
-          return first.toUpperCase(Locale.ROOT);
+        Matcher matcher = FIRST_ALPHANUM_PATTERN.matcher(source);
+        if (matcher.find()) {
+          String first = matcher.group();
+
+          if (first.matches("\\p{L}")) {
+            return first.toUpperCase(Locale.ROOT);
+          }
+          else {
+            return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
+          }
         }
-        return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       if (o instanceof Number) {
         return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
