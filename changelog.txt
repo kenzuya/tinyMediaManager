@@ -6,6 +6,7 @@ Version 4.1.4
 + (movie sets) some UI enhancements: show IMDB id, show artwork files, show year in search dialog #1285 #1280
 x (macOS) re-compiled the launcher with golang 1.15 to support macOS 10.11 #1278
 x fixed occasional crash on startup of the TV show module #1283
+x (TV show) support more than 9 extrafanarts in the renamer #1286
 x (TV show) also respect the trailer filename settings in the TV show renamer #1287
 
 
