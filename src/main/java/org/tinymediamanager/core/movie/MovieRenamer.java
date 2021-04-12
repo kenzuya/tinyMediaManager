@@ -634,7 +634,6 @@ public class MovieRenamer {
     movie.removeAllMediaFiles();
     movie.addToMediaFiles(needed);
     movie.setPath(newPathname);
-    movie.saveToDb();
 
     // cleanup & rename subtitle files
     renameSubtitles(movie);
@@ -645,8 +644,6 @@ public class MovieRenamer {
     if (MovieModuleManager.SETTINGS.getMovieConnector() == MovieConnectors.MP && (posterRenamed || fanartRenamed)) {
       movie.writeNFO();
     }
-
-    movie.saveToDb();
 
     // ######################################################################
     // ## CLEANUP - delete all files marked for cleanup, which are not "needed"
@@ -710,6 +707,8 @@ public class MovieRenamer {
       // also trigger a download of actor images
       movie.writeActorImages();
     }
+
+    movie.saveToDb();
   }
 
   /**
