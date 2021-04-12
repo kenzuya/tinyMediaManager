@@ -84,6 +84,9 @@ public abstract class ARDetectorTask extends TmmTask {
     this.plausiHeightPct = settings.getArdPlausiHeightPct();
     this.plausiWidthDeltaPct = settings.getArdPlausiWidthDeltaPct();
     this.plausiHeightDeltaPct = settings.getArdPlausiHeightDeltaPct();
+
+    this.darkLevelPct = settings.getArdDarkLevelPct();
+    this.darkLevelMaxPct = settings.getArdDarkLevelMaxPct();
   }
 
   protected void analyze(MediaFile mediaFile) {

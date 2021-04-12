@@ -131,6 +131,8 @@ public class Settings extends AbstractSettings {
   private float                 ardPlausiWidthDeltaPct      = 1.5f;
   private float                 ardPlausiHeightDeltaPct     = 2f;
   private float                 ardSecondaryDelta           = 0.15f;
+  private float                 ardDarkLevelPct             = 7f;
+  private float                 ardDarkLevelMaxPct          = 13f;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -1226,6 +1228,26 @@ public class Settings extends AbstractSettings {
 
   public float getArdMFThresholdPct() {
     return this.ardMFThresholdPct;
+  }
+
+  public void setArdDarkLevelPct(float newValue) {
+    float oldValue = this.ardDarkLevelPct;
+    this.ardDarkLevelPct = newValue;
+    firePropertyChange("ardDarkLevelPct", oldValue, newValue);
+  }
+
+  public float getArdDarkLevelPct() {
+    return this.ardDarkLevelPct;
+  }
+
+  public void setArdDarkLevelMaxPct(float newValue) {
+    float oldValue = this.ardDarkLevelMaxPct;
+    this.ardDarkLevelMaxPct = newValue;
+    firePropertyChange("ardDarkLevelMaxPct", oldValue, newValue);
+  }
+
+  public float getArdDarkLevelMaxPct() {
+    return this.ardDarkLevelMaxPct;
   }
 
   public Map<ArdMode, ARDSampleSetting> getArdSampleSettings() {
