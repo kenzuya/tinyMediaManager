@@ -70,7 +70,6 @@ public class MovieSetChooserModel extends AbstractModelObject {
   private MediaSearchResult                  result         = null;
   private MediaMetadata                      metadata       = null;
   private String                             name           = "";
-  private int                                year           = 0;
   private String                             posterUrl      = "";
   private String                             fanartUrl      = "";
   private String                             overview       = "";
@@ -195,7 +194,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
         options.setTmdbId(result.getIdAsInt(result.getProviderId()));
         options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
 
-        MediaMetadata info = null;
+        MediaMetadata info;
 
         try {
           info = ((IMovieSetMetadataProvider) scraper.getMediaProvider()).getMetadata(options);
@@ -350,12 +349,13 @@ public class MovieSetChooserModel extends AbstractModelObject {
   }
 
   public static class MovieInSet extends AbstractModelObject implements Comparable<MovieInSet> {
-    private String name        = "";
-    private int    tmdbId      = 0;
-    private String imdbId      = "";
-    private String releaseDate = "";
-    private int    year        = 0;
-    private Movie  movie       = null;
+    private final String name;
+
+    private int          tmdbId      = 0;
+    private String       imdbId      = "";
+    private String       releaseDate = "";
+    private int          year        = 0;
+    private Movie        movie       = null;
 
     public MovieInSet(String name) {
       this.name = name;
