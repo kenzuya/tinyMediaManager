@@ -10,6 +10,7 @@ x (TV show) support more than 9 extrafanarts in the renamer #1286
 x (TV show) also respect the trailer filename settings in the TV show renamer #1287
 x (movies/TV shows) respect first alphanumeric character for the "first" renderer
 x (TV show) embed episode details into a scroll pane #1289
+x (FFmpeg) suppress unnecessary error logs #1284
 
 
 Version 4.1.3
