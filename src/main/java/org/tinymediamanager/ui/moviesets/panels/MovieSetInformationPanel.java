@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
@@ -51,6 +52,8 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.ColumnLayout;
@@ -59,6 +62,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
+import org.tinymediamanager.ui.components.LinkTextArea;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -94,6 +98,8 @@ public class MovieSetInformationPanel extends JPanel {
   private JTextPane                    taOverview;
   private JLabel                       lblYear;
   private LinkLabel                    lblTmdbid;
+  private LinkTextArea                 taArtworkPath1;
+  private LinkTextArea                 taArtworkPath2;
 
   public MovieSetInformationPanel(MovieSetSelectionModel setSelectionModel) {
     this.selectionModel = setSelectionModel;
@@ -118,11 +124,14 @@ public class MovieSetInformationPanel extends JPanel {
 
       MovieSet movieSet = selectionModel.getSelectedMovieSet();
 
-      if (SELECTED_MOVIE_SET.equals(property) || MEDIA_FILES.equals(property) || Constants.ADDED_MOVIE.equals(property)
-          || Constants.REMOVED_MOVIE.equals(property)) {
+      if (SELECTED_MOVIE_SET.equals(property) || Constants.ADDED_MOVIE.equals(property) || Constants.REMOVED_MOVIE.equals(property)) {
         movieEventList.clear();
         movieEventList.addAll(movieSet.getMovies());
         lblYear.setText(movieSet.getYears());
+      }
+
+      if (SELECTED_MOVIE_SET.equals(property) || MEDIA_FILES.equals(property)) {
+        setArtworkPath(movieSet);
       }
 
       if (SELECTED_MOVIE_SET.equals(property) || POSTER.equals(property)) {
@@ -147,6 +156,40 @@ public class MovieSetInformationPanel extends JPanel {
         LOGGER.error("browse to tmdbid", e);
         MessageManager.instance
             .pushMessage(new Message(Message.MessageLevel.ERROR, url, "message.erroropenurl", new String[] { ":", e.getLocalizedMessage() }));
+      }
+    });
+    taArtworkPath1.addActionListener(arg0 -> {
+      if (!StringUtils.isEmpty(taArtworkPath1.getText())) {
+        // get the location from the label
+        Path path = Paths.get(taArtworkPath1.getText());
+        try {
+          // check whether this location exists
+          if (Files.exists(path)) {
+            TmmUIHelper.openFile(path);
+          }
+        }
+        catch (Exception ex) {
+          LOGGER.error("open filemanager", ex);
+          MessageManager.instance
+              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+        }
+      }
+    });
+    taArtworkPath2.addActionListener(arg0 -> {
+      if (!StringUtils.isEmpty(taArtworkPath2.getText())) {
+        // get the location from the label
+        Path path = Paths.get(taArtworkPath2.getText());
+        try {
+          // check whether this location exists
+          if (Files.exists(path)) {
+            TmmUIHelper.openFile(path);
+          }
+        }
+        catch (Exception ex) {
+          LOGGER.error("open filemanager", ex);
+          MessageManager.instance
+              .pushMessage(new Message(Message.MessageLevel.ERROR, path, "message.erroropenfolder", new String[] { ":", ex.getLocalizedMessage() }));
+        }
       }
     });
   }
@@ -223,6 +266,20 @@ public class MovieSetInformationPanel extends JPanel {
         scrollPaneOverview.setViewportView(taOverview);
       }
       {
+        JPanel panelBottom = new JPanel();
+        panelRight.add(panelBottom, "cell 0 6,grow");
+        panelBottom.setLayout(new MigLayout("insets 0, hidemode 3", "[][grow]", "[]"));
+
+        JLabel lblArtworkT = new TmmLabel(TmmResourceBundle.getString("metatag.artwork"));
+        panelBottom.add(lblArtworkT, "cell 0 0,aligny top");
+
+        taArtworkPath1 = new LinkTextArea();
+        panelBottom.add(taArtworkPath1, "flowy,cell 1 0,growx,wmin 0");
+
+        taArtworkPath2 = new LinkTextArea();
+        panelBottom.add(taArtworkPath2, "cell 1 0,growx,wmin 0");
+      }
+      {
         panelRight.add(new JSeparator(), "cell 0 7,growx");
       }
       {
@@ -272,6 +329,53 @@ public class MovieSetInformationPanel extends JPanel {
       else {
         lblFanartSize.setText(TmmResourceBundle.getString("mediafiletype.fanart"));
       }
+    }
+  }
+
+  private void setArtworkPath(MovieSet movieSet) {
+    String artworkPath = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
+    if (StringUtils.isBlank(artworkPath)) {
+      taArtworkPath1.setVisible(false);
+      taArtworkPath2.setVisible(false);
+      return;
+    }
+
+    String artworkPath1 = "";
+    String artworkPath2 = "";
+
+    for (MediaFile mediaFile : movieSet.getMediaFiles()) {
+      if (!mediaFile.isGraphic()) {
+        continue;
+      }
+
+      String mfPath = mediaFile.getFileAsPath().getParent().toAbsolutePath().toString();
+
+      if (mfPath.startsWith(artworkPath)) {
+        if (StringUtils.isBlank(artworkPath1)) {
+          artworkPath1 = mfPath;
+          continue;
+        }
+        if (StringUtils.isBlank(artworkPath2) && !mfPath.equals(artworkPath1)) {
+          artworkPath2 = mfPath;
+          break;
+        }
+      }
+    }
+
+    if (StringUtils.isNotBlank(artworkPath1)) {
+      taArtworkPath1.setVisible(true);
+      taArtworkPath1.setText(artworkPath1);
+    }
+    else {
+      taArtworkPath1.setVisible(false);
+    }
+
+    if (StringUtils.isNotBlank(artworkPath2)) {
+      taArtworkPath2.setVisible(true);
+      taArtworkPath2.setText(artworkPath2);
+    }
+    else {
+      taArtworkPath2.setVisible(false);
     }
   }
 
