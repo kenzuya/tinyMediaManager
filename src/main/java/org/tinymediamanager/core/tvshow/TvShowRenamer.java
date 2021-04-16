@@ -442,8 +442,12 @@ public class TvShowRenamer {
   private static List<MediaFile> copyTvShowMediaFile(TvShow tvShow, MediaFile original, List<? extends IFileNaming> fileNamings) {
     List<MediaFile> neededMediaFiles = new ArrayList<>();
 
+    boolean spaceSubstitution = SETTINGS.isRenamerFilenameSpaceSubstitution();
+    String spaceReplacement = SETTINGS.getRenamerFilenameSpaceReplacement();
+    String cleanedShowTitle = cleanupDestination(tvShow.getTitle(), spaceSubstitution, spaceReplacement);
+
     for (IFileNaming name : fileNamings) {
-      String newFilename = name.getFilename(tvShow.getTitle(), getMediaFileExtension(original));
+      String newFilename = name.getFilename(cleanedShowTitle, getMediaFileExtension(original));
 
       if (StringUtils.isNotBlank(newFilename)) {
         MediaFile newMediaFile = new MediaFile(original);
