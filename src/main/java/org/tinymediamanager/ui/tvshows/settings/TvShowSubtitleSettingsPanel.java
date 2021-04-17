@@ -24,13 +24,11 @@ import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
@@ -41,6 +39,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
@@ -50,10 +49,12 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -78,6 +79,7 @@ class TvShowSubtitleSettingsPanel extends JPanel {
   private JPanel                     panelScraperOptions;
   private JComboBox                  cbScraperLanguage;
   private JComboBox<LanguageStyle>   cbLanguageStyle;
+  private JHintCheckBox              chckbxForceBestMatch;
 
   TvShowSubtitleSettingsPanel() {
     // data init
@@ -192,7 +194,7 @@ class TvShowSubtitleSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][]")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
@@ -203,55 +205,57 @@ class TvShowSubtitleSettingsPanel extends JPanel {
         panelOptions.add(lblScraperLanguage, "cell 1 0 2 1");
 
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
-        panelOptions.add(cbScraperLanguage, "cell 1 0");
+        panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
+
+        chckbxForceBestMatch = new JHintCheckBox(TmmResourceBundle.getString("subtitle.download.force"));
+        chckbxForceBestMatch.setToolTipText(TmmResourceBundle.getString("subtitle.download.force.desc"));
+        chckbxForceBestMatch.setHintIcon(IconManager.HINT);
+        panelOptions.add(chckbxForceBestMatch, "cell 1 1 2 1");
 
         JLabel lblLanguageStyle = new JLabel(TmmResourceBundle.getString("Settings.renamer.language"));
-        panelOptions.add(lblLanguageStyle, "cell 1 1 2 1");
+        panelOptions.add(lblLanguageStyle, "cell 1 3 2 1");
 
         cbLanguageStyle = new JComboBox(LanguageStyle.values());
-        panelOptions.add(cbLanguageStyle, "cell 1 1");
+        panelOptions.add(cbLanguageStyle, "cell 1 3 2 1");
       }
     }
   }
 
   protected void initDataBindings() {
-    JTableBinding<ScraperInTable, List<ScraperInTable>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers,
-        tableScraper);
+    JTableBinding jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers, tableScraper);
     //
-    BeanProperty<ScraperInTable, Boolean> subtitleScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty)
-        .setColumnName(TmmResourceBundle.getString("Settings.active"))
-        .setColumnClass(Boolean.class);
+    Property subtitleScraperBeanProperty = BeanProperty.create("active");
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty).setColumnName("Aktiv").setColumnClass(Boolean.class);
     //
-    BeanProperty<ScraperInTable, Icon> subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1)
-        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
-        .setEditable(false)
-        .setColumnClass(ImageIcon.class);
+    Property subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
     //
-    BeanProperty<ScraperInTable, String> subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2)
-        .setColumnName(TmmResourceBundle.getString("metatag.name"))
-        .setEditable(false)
-        .setColumnClass(String.class);
+    Property subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
     //
     jTableBinding.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
-    BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
-    AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraper, jTableBeanProperty,
-        tpScraperDescription, jTextPaneBeanProperty);
+    Property jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
+    Property jTextPaneBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraper, jTableBeanProperty, tpScraperDescription,
+        jTextPaneBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<TvShowSettings, MediaLanguages> tvShowSettingsBeanProperty = BeanProperty.create("subtitleScraperLanguage");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<TvShowSettings, MediaLanguages, JComboBox, Object> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty, cbScraperLanguage, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty = BeanProperty.create("subtitleScraperLanguage");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty, cbScraperLanguage,
+        jComboBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<TvShowSettings, LanguageStyle> tvShowSettingsBeanProperty_1 = BeanProperty.create("subtitleLanguageStyle");
-    AutoBinding<TvShowSettings, LanguageStyle, JComboBox, Object> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        tvShowSettingsBeanProperty_1, cbLanguageStyle, jComboBoxBeanProperty);
+    Property tvShowSettingsBeanProperty_1 = BeanProperty.create("subtitleLanguageStyle");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_1, cbLanguageStyle,
+        jComboBoxBeanProperty);
     autoBinding_2.bind();
+    //
+    Property tvShowSettingsBeanProperty_2 = BeanProperty.create("subtitleForceBestMatch");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_2, chckbxForceBestMatch,
+        jCheckBoxBeanProperty);
+    autoBinding_3.bind();
   }
 }

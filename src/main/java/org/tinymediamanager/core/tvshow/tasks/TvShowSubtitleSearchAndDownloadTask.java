@@ -18,6 +18,7 @@ package org.tinymediamanager.core.tvshow.tasks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +45,9 @@ import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowSubtitleProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MediaIdUtil;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
  * The class TvShowSubtitleSearchAndDownloadTask is used to search and download subtitles by hash
@@ -57,6 +60,8 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private final List<TvShowEpisode> episodes;
   private final List<MediaScraper>  subtitleScrapers;
   private final MediaLanguages      language;
+
+  private boolean                   forceBestMatch;
 
   public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, MediaLanguages language) {
     super(TmmResourceBundle.getString("tvshow.download.subtitles"));
@@ -72,6 +77,10 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
     this.episodes = episodes;
     this.subtitleScrapers = subtitleScrapers;
     this.language = language;
+  }
+
+  public void setForceBestMatch(boolean forceBestMatch) {
+    this.forceBestMatch = forceBestMatch;
   }
 
   @Override
@@ -139,8 +148,9 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
             Collections.sort(searchResults);
             Collections.reverse(searchResults);
 
-            SubtitleSearchResult firstResult = searchResults.get(0);
-            if (firstResult.getScore() < 1.0f || StringUtils.isBlank(firstResult.getUrl())) {
+            SubtitleSearchResult result = getBestResult(searchResults);
+            if (result == null) {
+              // do not continue without a valid result
               continue;
             }
 
@@ -151,8 +161,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
             }
 
             String filename = FilenameUtils.getBaseName(mf.getFilename()) + "." + lang;
-            TmmTaskManager.getInstance()
-                .addDownloadTask(new SubtitleDownloadTask(firstResult.getUrl(), episode.getPathNIO().resolve(filename), episode));
+            TmmTaskManager.getInstance().addDownloadTask(new SubtitleDownloadTask(result.getUrl(), episode.getPathNIO().resolve(filename), episode));
           }
           catch (MissingIdException ignored) {
           }
@@ -168,6 +177,52 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
         MessageManager.instance.pushMessage(
             new Message(MessageLevel.ERROR, "SubtitleDownloader", "message.scrape.threadcrashed", new String[] { ":", e.getLocalizedMessage() }));
       }
+    }
+
+    private SubtitleSearchResult getBestResult(List<SubtitleSearchResult> searchResults) {
+      if (ListUtils.isEmpty(searchResults)) {
+        return null;
+      }
+
+      SubtitleSearchResult hashMatch = searchResults.stream()
+          .filter(result -> result.getScore() == 1 && StringUtils.isNotBlank(result.getUrl()))
+          .findFirst()
+          .orElse(null);
+      // if not forceBestMatch, we take only 100% (hash matched) results
+      if (hashMatch != null || !forceBestMatch) {
+        return hashMatch;
+      }
+
+      // otherwise we try to get the best result
+      // 1. filter out all subtitles with a different stack size (we only decide between stacked an non stacked)
+      List<SubtitleSearchResult> filteredResults = searchResults.stream().filter(result -> {
+        if (episode.isStacked() && result.getStackCount() > 1) {
+          return true;
+        }
+        else if (!episode.isStacked() && result.getStackCount() == 1) {
+          return true;
+        }
+        return false;
+      }).collect(Collectors.toList());
+
+      if (filteredResults.isEmpty()) {
+        return null;
+      }
+
+      // now compare the release names (if available in the movie)
+      // if there is a > 80% match, we take it
+      if (StringUtils.isNotBlank(episode.getOriginalFilename())) {
+        String basename = FilenameUtils.getBaseName(episode.getOriginalFilename());
+        for (SubtitleSearchResult result : filteredResults) {
+          float score = MetadataUtil.calculateScore(result.getReleaseName(), basename);
+          if (score > 0.8f) {
+            return result;
+          }
+        }
+      }
+
+      // last but not least take the first result
+      return filteredResults.get(0);
     }
   }
 }

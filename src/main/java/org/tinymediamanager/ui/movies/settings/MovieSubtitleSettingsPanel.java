@@ -24,14 +24,12 @@ import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
@@ -42,6 +40,7 @@ import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
@@ -51,10 +50,12 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.ScraperInTable;
 import org.tinymediamanager.ui.TableColumnResizer;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -80,6 +81,7 @@ class MovieSubtitleSettingsPanel extends JPanel {
   private JComboBox                  cbScraperLanguage;
   private JComboBox<LanguageStyle>   cbSubtitleLanguageStyle;
   private JCheckBox                  chckbxSuppressLanguageTag;
+  private JHintCheckBox              chckbxForceBestMatch;
 
   MovieSubtitleSettingsPanel() {
     // data init
@@ -194,7 +196,7 @@ class MovieSubtitleSettingsPanel extends JPanel {
     }
     {
       JPanel panelOptions = new JPanel();
-      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][10lp!][][]")); // 16lp ~ width of the
 
       JLabel lblOptionsT = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelOptions, lblOptionsT, true);
@@ -207,62 +209,63 @@ class MovieSubtitleSettingsPanel extends JPanel {
         cbScraperLanguage = new JComboBox(MediaLanguages.valuesSorted());
         panelOptions.add(cbScraperLanguage, "cell 1 0 2 1");
 
+        chckbxForceBestMatch = new JHintCheckBox(TmmResourceBundle.getString("subtitle.download.force"));
+        chckbxForceBestMatch.setToolTipText(TmmResourceBundle.getString("subtitle.download.force.desc"));
+        chckbxForceBestMatch.setHintIcon(IconManager.HINT);
+        panelOptions.add(chckbxForceBestMatch, "cell 1 1 2 1");
+
         JLabel lblSubtitleLanguageStyle = new JLabel(TmmResourceBundle.getString("Settings.renamer.language"));
-        panelOptions.add(lblSubtitleLanguageStyle, "cell 1 1 2 1");
+        panelOptions.add(lblSubtitleLanguageStyle, "cell 1 3 2 1");
 
         cbSubtitleLanguageStyle = new JComboBox(LanguageStyle.values());
-        panelOptions.add(cbSubtitleLanguageStyle, "cell 1 1 2 1");
+        panelOptions.add(cbSubtitleLanguageStyle, "cell 1 3 2 1");
       }
 
       chckbxSuppressLanguageTag = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.withoutlanguagetag"));
-      panelOptions.add(chckbxSuppressLanguageTag, "cell 2 2, grow, wmin 0");
+      panelOptions.add(chckbxSuppressLanguageTag, "cell 2 4,wmin 0,grow");
     }
   }
 
   protected void initDataBindings() {
-    JTableBinding<ScraperInTable, List<ScraperInTable>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers,
-        tableScraper);
+    JTableBinding jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, scrapers, tableScraper);
     //
-    BeanProperty<ScraperInTable, Boolean> subtitleScraperBeanProperty = BeanProperty.create("active");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty)
-        .setColumnName(TmmResourceBundle.getString("Settings.active"))
-        .setColumnClass(Boolean.class);
+    Property subtitleScraperBeanProperty = BeanProperty.create("active");
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty).setColumnName("Aktiv").setColumnClass(Boolean.class);
     //
-    BeanProperty<ScraperInTable, Icon> subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1)
-        .setColumnName(TmmResourceBundle.getString("mediafiletype.logo"))
-        .setEditable(false)
-        .setColumnClass(ImageIcon.class);
+    Property subtitleScraperBeanProperty_1 = BeanProperty.create("scraperLogo");
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_1).setColumnName("Logo").setEditable(false).setColumnClass(ImageIcon.class);
     //
-    BeanProperty<ScraperInTable, String> subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
-    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2)
-        .setColumnName(TmmResourceBundle.getString("metatag.name"))
-        .setEditable(false)
-        .setColumnClass(String.class);
+    Property subtitleScraperBeanProperty_2 = BeanProperty.create("scraperName");
+    jTableBinding.addColumnBinding(subtitleScraperBeanProperty_2).setColumnName("Name").setEditable(false).setColumnClass(String.class);
     //
     jTableBinding.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
-    BeanProperty<JTextPane, String> jTextPaneBeanProperty = BeanProperty.create("text");
-    AutoBinding<JTable, String, JTextPane, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraper, jTableBeanProperty,
-        tpScraperDescription, jTextPaneBeanProperty);
+    Property jTableBeanProperty = BeanProperty.create("selectedElement.scraperDescription");
+    Property jTextPaneBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableScraper, jTableBeanProperty, tpScraperDescription,
+        jTextPaneBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<MovieSettings, MediaLanguages> movieScraperBeanProperty = BeanProperty.create("subtitleScraperLanguage");
-    BeanProperty<JComboBox, Object> jComboBoxBeanProperty = BeanProperty.create("selectedItem");
-    AutoBinding<MovieSettings, MediaLanguages, JComboBox, Object> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieScraperBeanProperty, cbScraperLanguage, jComboBoxBeanProperty);
+    Property movieScraperBeanProperty = BeanProperty.create("subtitleScraperLanguage");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieScraperBeanProperty, cbScraperLanguage,
+        jComboBoxBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<MovieSettings, LanguageStyle> movieScraperBeanProperty_1 = BeanProperty.create("subtitleLanguageStyle");
-    AutoBinding<MovieSettings, LanguageStyle, JComboBox, Object> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieScraperBeanProperty_1, cbSubtitleLanguageStyle, jComboBoxBeanProperty);
+    Property movieScraperBeanProperty_1 = BeanProperty.create("subtitleLanguageStyle");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieScraperBeanProperty_1, cbSubtitleLanguageStyle,
+        jComboBoxBeanProperty);
     autoBinding_2.bind();
     //
-    BeanProperty<MovieSettings, Boolean> movieSettingsBeanProperty = BeanProperty.create("subtitleWithoutLanguageTag");
-    BeanProperty<JCheckBox, Boolean> jCheckBoxBeanProperty = BeanProperty.create("selected");
-    AutoBinding<MovieSettings, Boolean, JCheckBox, Boolean> autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings,
-        movieSettingsBeanProperty, chckbxSuppressLanguageTag, jCheckBoxBeanProperty);
+    Property movieSettingsBeanProperty = BeanProperty.create("subtitleWithoutLanguageTag");
+    Property jCheckBoxBeanProperty = BeanProperty.create("selected");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, chckbxSuppressLanguageTag,
+        jCheckBoxBeanProperty);
     autoBinding_3.bind();
+    //
+    Property movieSettingsBeanProperty_1 = BeanProperty.create("subtitleForceBestMatch");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, chckbxForceBestMatch,
+        jCheckBoxBeanProperty);
+    autoBinding_4.bind();
   }
 }

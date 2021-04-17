@@ -202,6 +202,7 @@ public class TvShowSettings extends AbstractSettings {
   // subtitle scraper
   private MediaLanguages                                 subtitleScraperLanguage                = MediaLanguages.en;
   private LanguageStyle                                  subtitleLanguageStyle                  = LanguageStyle.ISO3T;
+  private boolean                                        subtitleForceBestMatch                 = false;
 
   // misc
   private boolean                                        buildImageCacheOnImport                = false;
@@ -862,6 +863,16 @@ public class TvShowSettings extends AbstractSettings {
     LanguageStyle oldValue = this.subtitleLanguageStyle;
     this.subtitleLanguageStyle = newValue;
     firePropertyChange("subtitleLanguageStyle", oldValue, newValue);
+  }
+
+  public boolean getSubtitleForceBestMatch() {
+    return subtitleForceBestMatch;
+  }
+
+  public void setSubtitleForceBestMatch(boolean newValue) {
+    boolean oldValue = this.subtitleForceBestMatch;
+    this.subtitleForceBestMatch = newValue;
+    firePropertyChange("subtitleForceBestMatch", oldValue, newValue);
   }
 
   public Map<String, List<UIFilters>> getUiFilterPresets() {

@@ -1,5 +1,6 @@
 Version 4.1.4
 =======================
++ (movies/TV shows) added "force best match" to automatic subtitle downloads (rather than only download file hash matches)
 + added possibility to double click the image in the image chooser to select the artwork #1094
 + re-added various zoom options to the image preview window #1094
 + added filter options for the image chooser #1253

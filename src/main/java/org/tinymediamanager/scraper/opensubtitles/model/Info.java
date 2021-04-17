@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.opensubtitles.model;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -25,9 +26,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Myron Boyle
  */
 public class Info {
-  private double               seconds;
-  private String               status;
-  private ArrayList<MovieInfo> movieInfo = new ArrayList<>();
+  private final double          seconds;
+  private final String          status;
+  private final List<MovieInfo> movieInfo = new ArrayList<>();
 
   public Info(Map<String, Object> response) throws Exception {
     this.seconds = (Double) response.get("seconds");
@@ -35,13 +36,13 @@ public class Info {
 
     Object[] data = (Object[]) response.get("data");
     if (data != null) {
-      for (int i = 0; i < data.length; i++) {
-        movieInfo.add(new MovieInfo(data[i]));
+      for (Object datum : data) {
+        movieInfo.add(new MovieInfo(datum));
       }
     }
   }
 
-  public ArrayList<MovieInfo> getMovieInfo() {
+  public List<MovieInfo> getMovieInfo() {
     return movieInfo;
   }
 
@@ -59,30 +60,37 @@ public class Info {
   }
 
   public static class MovieInfo {
-    public String id               = "";
-    public String movieKind        = "";
-    public String movieTitle       = "";
-    public String movieReleaseName = "";
-    public String subFormat        = "";
-    public String subDownloadLink  = "";
-    public Float  subRating        = 0f;
-    public String zipDownloadLink  = "";
-    public String season           = "";
-    public String episode          = "";
+    public final String id;
+    public final String movieHash;
+    public final double score;
+
+    public final String movieKind;
+    public final String movieTitle;
+    public final String movieReleaseName;
+    public final String subFormat;
+    public final String subDownloadLink;
+    public final int    subSumCD;
+    public final Float  subRating;
+    public final String zipDownloadLink;
+    public final String season;
+    public final String episode;
 
     @SuppressWarnings("unchecked")
     public MovieInfo(Object data) throws Exception {
       Map<String, Object> values = (Map<String, Object>) data;
-      this.id = (String) values.get("IDSubtitleFile");
-      this.movieKind = (String) values.get("MovieKind");
-      this.movieTitle = (String) values.get("MovieName");
-      this.movieReleaseName = (String) values.get("MovieReleaseName");
-      this.subFormat = (String) values.get("SubFormat");
-      this.subDownloadLink = (String) values.get("SubDownloadLink");
-      this.subRating = Float.parseFloat((String) values.get("SubRating"));
-      this.zipDownloadLink = (String) values.get("ZipDownloadLink");
-      this.season = (String) values.get("SeriesSeason");
-      this.episode = (String) values.get("SeriesEpisode");
+      id = (String) values.get("IDSubtitleFile");
+      movieHash = (String) values.get("MovieHash");
+      score = (Double) values.get("Score");
+      movieKind = (String) values.get("MovieKind");
+      movieTitle = (String) values.get("MovieName");
+      movieReleaseName = (String) values.get("MovieReleaseName");
+      subFormat = (String) values.get("SubFormat");
+      subDownloadLink = (String) values.get("SubDownloadLink");
+      subSumCD = Integer.parseInt((String) values.get("SubSumCD"));
+      subRating = Float.parseFloat((String) values.get("SubRating"));
+      zipDownloadLink = (String) values.get("ZipDownloadLink");
+      season = (String) values.get("SeriesSeason");
+      episode = (String) values.get("SeriesEpisode");
     }
 
     @Override

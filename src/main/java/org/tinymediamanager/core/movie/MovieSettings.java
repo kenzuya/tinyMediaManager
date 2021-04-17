@@ -211,6 +211,7 @@ public class MovieSettings extends AbstractSettings {
   private MediaLanguages                         subtitleScraperLanguage                = MediaLanguages.en;
   private LanguageStyle                          subtitleLanguageStyle                  = LanguageStyle.ISO3T;
   private boolean                                subtitleWithoutLanguageTag             = false;
+  private boolean                                subtitleForceBestMatch                 = false;
 
   // misc
   private boolean                                runtimeFromMediaInfo                   = false;
@@ -1363,6 +1364,16 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = this.subtitleWithoutLanguageTag;
     this.subtitleWithoutLanguageTag = newValue;
     firePropertyChange("subtitleWithoutLanguageTag", oldValue, newValue);
+  }
+
+  public boolean isSubtitleForceBestMatch() {
+    return subtitleForceBestMatch;
+  }
+
+  public void setSubtitleForceBestMatch(boolean newValue) {
+    boolean oldValue = this.subtitleForceBestMatch;
+    this.subtitleForceBestMatch = newValue;
+    firePropertyChange("subtitleForceBestMatch", oldValue, newValue);
   }
 
   public List<MovieScraperMetadataConfig> getScraperMetadataConfig() {
