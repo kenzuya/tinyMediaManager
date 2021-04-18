@@ -501,6 +501,9 @@ public class MediaArtwork {
 
     @Override
     public int compareTo(ImageSizeAndUrl obj) {
+      if (obj == null) {
+        return 1;
+      }
       return width * height - obj.width * obj.height;
     }
 

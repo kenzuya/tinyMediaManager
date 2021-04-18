@@ -633,6 +633,10 @@ public class ImageChooserDialog extends TmmDialog {
       MediaArtwork artwork1 = (MediaArtwork) obj1;
       MediaArtwork artwork2 = (MediaArtwork) obj2;
 
+      if (artwork1.getBiggestArtwork() == null || artwork2.getBiggestArtwork() == null) {
+        return 0;
+      }
+
       return artwork2.getBiggestArtwork().compareTo(artwork1.getBiggestArtwork());
     });
 
