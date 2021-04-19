@@ -164,6 +164,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         addPlaycount();
         addGenres();
         addStudios();
+        addCountry();
         addTags();
         addActors();
         addTrailer();
@@ -729,6 +730,18 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       Element studio = document.createElement("studio");
       studio.setTextContent(s);
       root.appendChild(studio);
+    }
+  }
+
+  /**
+   * add the country in <country>xxx</country> (multiple)
+   */
+  protected void addCountry() {
+    String[] countries = tvShow.getCountry().split("\\s*[,\\/]\\s*"); // split on , or / and remove whitespace around
+    for (String c : countries) {
+      Element country = document.createElement("country");
+      country.setTextContent(c);
+      root.appendChild(country);
     }
   }
 

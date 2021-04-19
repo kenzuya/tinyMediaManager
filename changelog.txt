@@ -12,6 +12,7 @@ x (TV show) also respect the trailer filename settings in the TV show renamer #1
 x (movies/TV shows) respect first alphanumeric character for the "first" renderer
 x (TV show) embed episode details into a scroll pane #1289
 x (FFmpeg) suppress unnecessary error logs #1284
+x (TV show) write/read country tag to/from NFO files
 
 
 Version 4.1.3
