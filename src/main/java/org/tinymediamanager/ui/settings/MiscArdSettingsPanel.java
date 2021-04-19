@@ -137,7 +137,7 @@ public class MiscArdSettingsPanel extends JPanel {
       JCheckBox checkBox = new JCheckBox(customAR.getValue());
       customARCheckBoxes.put(customAR.getKey().toString(), checkBox);
 
-      if (customAR.getKey() < 2.0f) {
+      if (customAR.getKey() < 1.9f) {
         gbc.gridx = 0;
         gbc.gridy = yOne++;
       } else {
