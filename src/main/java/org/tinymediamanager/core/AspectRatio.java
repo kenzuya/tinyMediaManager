@@ -19,6 +19,8 @@ public class AspectRatio {
     predefinedValues.put(2.20f, "70mm (2.20:1)");
     predefinedValues.put(2.35f, "Anamorphic (2.35:1)");
     predefinedValues.put(2.40f, "Anamorphic widescreen (2.39:1 & 12:5)");
+    predefinedValues.put(2.55f, "CinemaScope 55 (2.55:1)");
+    predefinedValues.put(2.76f, "Ultra Panavision 70 (2.76:1)");
     return predefinedValues;
   }
 

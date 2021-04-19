@@ -127,17 +127,22 @@ public class MiscArdSettingsPanel extends JPanel {
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.anchor = GridBagConstraints.LINE_START;
-    gbc.ipadx = 10;
+    gbc.ipadx = 30;
     add(panelCustomAspectRatios, "cell 1 " + row + ", span");
 
     Map<Float, String> customAspectRatios = AspectRatio.getDefaultValues();
+    int yOne = 0;
+    int yTwo = 0;
     for (Map.Entry<Float, String> customAR : customAspectRatios.entrySet()) {
       JCheckBox checkBox = new JCheckBox(customAR.getValue());
       customARCheckBoxes.put(customAR.getKey().toString(), checkBox);
 
-      if (gbc.gridx >= 4) {
+      if (customAR.getKey() < 2.0f) {
         gbc.gridx = 0;
-        gbc.gridy++;
+        gbc.gridy = yOne++;
+      } else {
+        gbc.gridx = 1;
+        gbc.gridy = yTwo++;
       }
       panelCustomAspectRatios.add(checkBox, gbc);
       gbc.gridx++;
