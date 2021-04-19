@@ -31,7 +31,7 @@ import org.tinymediamanager.addon.FFmpegAddon;
 
 /**
  * the class {@link FFmpeg} is used to access FFmpeg
- *
+ * 
  * @author Manuel Laggner/Wolfgang Janes
  */
 public class FFmpeg {
@@ -43,7 +43,7 @@ public class FFmpeg {
 
   /**
    * create a still of the given video file to the given path. The still is being taken at the given second of the video file
-   *
+   * 
    * @param videoFile
    *          the video file to extract the still from
    * @param stillFile
@@ -146,42 +146,36 @@ public class FFmpeg {
     return cmdList;
   }
 
-  private static String executeCommand(List<String> cmdline) throws InterruptedException {
+  private static String executeCommand(List<String> cmdline) throws IOException, InterruptedException {
     LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 
-    try {
-      ProcessBuilder pb = new ProcessBuilder(cmdline.toArray(new String[0])).redirectErrorStream(true);
-      final Process process = pb.start();
+    ProcessBuilder pb = new ProcessBuilder(cmdline.toArray(new String[0])).redirectErrorStream(true);
+    final Process process = pb.start();
 
-      try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-        new Thread(() -> {
-          try {
-            IOUtils.copy(process.getInputStream(), outputStream);
-          }
-          catch (IOException e) {
-            LOGGER.debug("could not get output from the process", e);
-          }
-        }).start();
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+      new Thread(() -> {
+        try {
+          IOUtils.copy(process.getInputStream(), outputStream);
+        }
+        catch (IOException e) {
+          LOGGER.debug("could not get output from the process", e);
+        }
+      }).start();
 
-        int processValue = process.waitFor();
-        if (processValue != 0) {
-          LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
-          throw new IOException("could not create the still - code '" + processValue + "'");
-        }
-        return outputStream.toString(StandardCharsets.UTF_8);
+      int processValue = process.waitFor();
+      if (processValue != 0) {
+        LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
+        throw new IOException("error running FFmpeg - code '" + processValue + "'");
       }
-      finally {
-        if (process != null) {
-          process.destroy();
-          // Process must be destroyed before closing streams, can't use try-with-resources,
-          // as resources are closing when leaving try block, before finally
-          IOUtils.close(process.getErrorStream());
-        }
-      }
+      return outputStream.toString(StandardCharsets.UTF_8);
     }
-    catch (IOException e) {
-      LOGGER.error("could not run FFmpeg", e);
-      throw new RuntimeException("Failed to start process.", e);
+    finally {
+      if (process != null) {
+        process.destroy();
+        // Process must be destroyed before closing streams, can't use try-with-resources,
+        // as resources are closing when leaving try block, before finally
+        IOUtils.close(process.getErrorStream());
+      }
     }
   }
 

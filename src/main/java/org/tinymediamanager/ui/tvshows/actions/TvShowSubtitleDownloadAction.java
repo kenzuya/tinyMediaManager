@@ -64,6 +64,7 @@ public class TvShowSubtitleDownloadAction extends TmmAction {
     if (dialog.shouldStartDownload()) {
       for (MediaLanguages language : dialog.getLanguages()) {
         TvShowSubtitleSearchAndDownloadTask task = new TvShowSubtitleSearchAndDownloadTask(episodes, dialog.getSubtitleScrapers(), language);
+        task.setForceBestMatch(dialog.isForceBestMatch());
         TmmTaskManager.getInstance().addMainTask(task);
       }
     }

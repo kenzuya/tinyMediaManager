@@ -90,6 +90,10 @@ public class Globals {
     settings = Settings.getInstance();
   }
 
+  private Globals() {
+    throw new IllegalAccessError();
+  }
+
   /**
    * are we in our internal debug mode?
    * 

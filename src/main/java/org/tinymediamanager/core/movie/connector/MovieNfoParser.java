@@ -133,15 +133,29 @@ public class MovieNfoParser {
    *          the document returned by JSOUP.parse()
    */
   private MovieNfoParser(Document document) {
+    document.outputSettings().prettyPrint(false);
+
     // first check if there is a valid root object
     Elements elements = document.select("movie");
-    if (elements.isEmpty()) {
+
+    if (!elements.isEmpty()) {
+      // parse Kodi/XBMC style
+      parseKodiNfo(elements.get(0));
       return;
     }
 
-    document.outputSettings().prettyPrint(false);
+    // nextpvr
+    elements = document.select("recording");
+    if (!elements.isEmpty()) {
+      // parse nextpvr style
+      parseNextpvrXml(elements.get(0));
+      return;
+    }
 
-    this.root = elements.get(0);
+  }
+
+  private void parseKodiNfo(Element root) {
+    this.root = root;
 
     // parse all supported fields
     parseTag(MovieNfoParser::parseTitle);
@@ -186,6 +200,14 @@ public class MovieNfoParser {
 
     // MUST BE THE LAST ONE!
     parseTag(MovieNfoParser::findUnsupportedElements);
+  }
+
+  private void parseNextpvrXml(Element root) {
+    this.root = root;
+
+    parseTag(MovieNfoParser::parseTitle);
+    parseTag(MovieNfoParser::parseDescription);
+    parseTag(MovieNfoParser::parseCertificationInRating);
   }
 
   /**
@@ -530,6 +552,20 @@ public class MovieNfoParser {
   }
 
   /**
+   * the plot could also come in a description tag (nextpvr)
+   */
+  private Void parseDescription() {
+    supportedElements.add("description");
+
+    Element element = getSingleElement(root, "description");
+    if (element != null) {
+      plot = element.wholeText();
+    }
+
+    return null;
+  }
+
+  /**
    * the outline usually comes in the outline tag as an integer (or empty)
    */
   private Void parseOutline() {
@@ -690,6 +726,20 @@ public class MovieNfoParser {
     if (element == null || StringUtils.isBlank(element.ownText())) {
       element = getSingleElement(root, "mpaa");
     }
+    if (element != null) {
+      certification = MovieHelpers.parseCertificationStringForMovieSetupCountry(element.ownText());
+    }
+
+    return null;
+  }
+
+  /**
+   * certification from nextpvr can come in a rating tag which breaks handling of Kodi ratings - so handle this alone
+   */
+  private Void parseCertificationInRating() {
+    supportedElements.add("rating");
+
+    Element element = getSingleElement(root, "rating");
     if (element != null) {
       certification = MovieHelpers.parseCertificationStringForMovieSetupCountry(element.ownText());
     }

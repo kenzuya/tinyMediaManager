@@ -62,7 +62,7 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisodeConnector {
-  private static final Logger         LOGGER               = LoggerFactory.getLogger(TvShowEpisodeToKodiConnector.class);
+  private static final Logger         LOGGER               = LoggerFactory.getLogger(TvShowEpisodeGenericXmlConnector.class);
 
   protected static final String       ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 

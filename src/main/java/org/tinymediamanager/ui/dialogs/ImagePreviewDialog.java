@@ -19,20 +19,13 @@ import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -45,10 +38,12 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.scraper.http.Url;
+import org.tinymediamanager.thirdparty.ImageLoader;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.actions.TmmAction;
+import org.tinymediamanager.ui.thirdparty.imageviewer.ImageViewer;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -58,15 +53,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImagePreviewDialog extends TmmDialog {
-  private static final long           serialVersionUID = -7479476493187235867L;
-  
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ImagePreviewDialog.class);
+  private static final long   serialVersionUID = -7479476493187235867L;
 
-  private String                      imageUrl;
-  private String                      imagePath;
+  private static final Logger LOGGER           = LoggerFactory.getLogger(ImagePreviewDialog.class);
 
-  private JLabel                      image;
-  private byte[]                      originalImageBytes;
+  private final JPanel        imagePanel       = new JPanel();
+  private final ImageViewer   imgViewer        = new ImageViewer();
+
+  private String              imageUrl;
+  private String              imagePath;
+
+  private byte[]              originalImageBytes;
 
   public ImagePreviewDialog(String urlToImage) {
     super(TmmResourceBundle.getString("image.show"), "imagePreview");
@@ -83,35 +80,12 @@ public class ImagePreviewDialog extends TmmDialog {
   }
 
   private void init() {
-    JPopupMenu popupMenu = new JPopupMenu();
-    popupMenu.add(new SaveToDiskAction());
+    imgViewer.getPopupMenu().addSeparator();
+    imgViewer.getPopupMenu().add(new SaveToDiskAction());
 
     {
-      JPanel imagePanel = new JPanel();
       imagePanel.setLayout(new MigLayout("", "[300lp,grow]", "[300lp,grow]"));
-      JScrollPane scrollPane = new JScrollPane(imagePanel);
-      getContentPane().add(scrollPane);
-
-      image = new JLabel();
-      image.setHorizontalAlignment(SwingConstants.CENTER);
-
-      image.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mousePressed(MouseEvent mouseEvent) {
-          if (mouseEvent.isPopupTrigger()) {
-            popupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
-          }
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent mouseEvent) {
-          if (mouseEvent.isPopupTrigger()) {
-            popupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
-          }
-        }
-      });
-
-      imagePanel.add(image, "cell 0 0, grow, center");
+      getContentPane().add(imagePanel);
     }
     {
       JButton closeButton = new JButton(TmmResourceBundle.getString("Button.close"));
@@ -148,13 +122,19 @@ public class ImagePreviewDialog extends TmmDialog {
           }
 
           if (originalImageBytes.length > 0) {
-            ImageIcon imageIcon = new ImageIcon(originalImageBytes);
-            int width = imageIcon.getImage().getWidth(null);
-            int height = imageIcon.getImage().getHeight(null);
-            image.setIcon(imageIcon);
+            try {
+              imgViewer.setImage(ImageLoader.createImage(originalImageBytes));
+              imagePanel.removeAll();
+              imagePanel.add(imgViewer.getComponent(), "cell 0 0, center, grow");
+              imagePanel.invalidate();
+              imagePanel.repaint();
 
-            if (width > 0 && height > 0) {
-              setTitle(TmmResourceBundle.getString("image.show") + " - " + width + "x" + height);
+              if (width > 0 && height > 0) {
+                setTitle(TmmResourceBundle.getString("image.show") + " - " + width + "x" + height);
+              }
+            }
+            catch (Exception e) {
+              LOGGER.error("could not load image - '{}'", e.getMessage());
             }
           }
 
@@ -193,7 +173,8 @@ public class ImagePreviewDialog extends TmmDialog {
         else if (StringUtils.isNotBlank(imageUrl)) {
           filename = FilenameUtils.getBaseName(imageUrl);
         }
-        file = TmmUIHelper.saveFile(TmmResourceBundle.getString("image.savetodisk"), "", filename, new FileNameExtensionFilter("Image files", ".jpg", ".png"));
+        file = TmmUIHelper.saveFile(TmmResourceBundle.getString("image.savetodisk"), "", filename,
+            new FileNameExtensionFilter("Image files", ".jpg", ".png"));
         if (file != null) {
           try (FileOutputStream os = new FileOutputStream(file.toFile())) {
             IOUtils.write(originalImageBytes, os);

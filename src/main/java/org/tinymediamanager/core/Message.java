@@ -31,13 +31,12 @@ public class Message {
     SEVERE
   }
 
-  private MessageLevel messageLevel;
-  private String       messageId;
-  private String[]     messageIdParams;
-  private Object       messageSender;
-  private String[]     messageSenderParams;
-  private Date         messageDate;
-  private Throwable    throwable;
+  private final MessageLevel messageLevel;
+  private final String       messageId;
+  private final String[]     messageIdParams;
+  private final Object       messageSender;
+  private final String[]     messageSenderParams;
+  private final Date         messageDate;
 
   /**
    * Instantiates a new message.
@@ -79,7 +78,7 @@ public class Message {
    *          get an extra processing, as on other objects there is simple a .toString() used. If a string is passed here, also a lookup in the bundle
    *          will happen
    * @param senderParams
-   *          the sender params are an array of string to contain replacements for localizeable messages
+   *          the sender params are an array of string to contain replacements for localized messages
    * @param id
    *          the message id from the bundle (or a string which will not be localized)
    */

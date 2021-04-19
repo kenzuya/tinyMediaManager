@@ -339,7 +339,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
         JButton btnHelp = new JButton(TmmResourceBundle.getString("tmm.help"));
         btnHelp.addActionListener(e -> {
-          String url = StringEscapeUtils.unescapeHtml4("https://gitlab.com/tinyMediaManager/tinyMediaManager/wikis/TV-Show-Settings#renamer");
+          String url = StringEscapeUtils.unescapeHtml4("https://www.tinymediamanager.org/docs/tvshows/renamer");
           try {
             TmmUIHelper.browseUrl(url);
           }

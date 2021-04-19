@@ -309,7 +309,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
         JButton btnHelp = new JButton(TmmResourceBundle.getString("tmm.help"));
         btnHelp.addActionListener(e -> {
-          String url = StringEscapeUtils.unescapeHtml4("https://gitlab.com/tinyMediaManager/tinyMediaManager/wikis/Movie-Settings#renamer");
+          String url = StringEscapeUtils.unescapeHtml4("https://www.tinymediamanager.org/docs/movies/renamer");
           try {
             TmmUIHelper.browseUrl(url);
           }

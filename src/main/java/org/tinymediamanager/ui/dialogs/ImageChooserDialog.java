@@ -26,12 +26,19 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.InterruptedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -78,21 +85,27 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.ImageSizeAndUrl;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.interfaces.IMediaArtworkProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.WrapLayout;
+import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.SquareIconButton;
+import org.tinymediamanager.ui.components.TmmLabel;
+import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
+import org.tinymediamanager.ui.components.combobox.TmmCheckComboBox;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -102,37 +115,44 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImageChooserDialog extends TmmDialog {
-  private static final long         serialVersionUID = 8193355920006275933L;
-  private static final Logger       LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
-  private static final String       DIALOG_ID        = "imageChooser";
+  private static final long                 serialVersionUID = 8193355920006275933L;
+  private static final Logger               LOGGER           = LoggerFactory.getLogger(ImageChooserDialog.class);
+  private static final String               DIALOG_ID        = "imageChooser";
 
-  private final Map<String, Object> ids;
-  private final MediaArtworkType    type;
-  private final MediaType           mediaType;
-  private final ImageLabel          imageLabel;
-  private final List<MediaScraper>  artworkScrapers;
+  private final Map<String, Object>         ids;
+  private final MediaArtworkType            type;
+  private final MediaType                   mediaType;
+  private final ImageLabel                  imageLabel;
+  private final List<MediaScraper>          artworkScrapers;
 
-  private final ButtonGroup         buttonGroup      = new ButtonGroup();
-  private final List<JToggleButton> buttons          = new ArrayList<>();
+  private final ButtonGroup                 buttonGroup      = new ButtonGroup();
+  private final List<JToggleButton>         buttons          = new ArrayList<>();
+  private final List<JPanel>                imagePanels      = new ArrayList<>();
+  private final ActionListener              filterListener;
 
-  private JProgressBar              progressBar;
-  private JLabel                    lblProgressAction;
-  private JPanel                    panelImages;
-  private LockableViewPort          viewport;
-  private JTextField                tfImageUrl;
+  private JProgressBar                      progressBar;
+  private JLabel                            lblProgressAction;
+  private JScrollPane                       scrollPane;
+  private JPanel                            panelImages;
+  private LockableViewPort                  viewport;
+  private JTextField                        tfImageUrl;
 
-  private String                    openFolderPath   = null;
-  private List<String>              extraThumbs      = null;
-  private List<String>              extraFanarts     = null;
-  private DownloadTask              task;
+  private String                            openFolderPath   = null;
+  private List<String>                      extraThumbs      = null;
+  private List<String>                      extraFanarts     = null;
+  private DownloadTask                      task;
 
-  private JLabel                    labelThumbs;
-  private JButton                   btnMarkExtrathumbs;
-  private JButton                   btnUnMarkExtrathumbs;
+  private MediaScraperCheckComboBox         cbScraper;
+  private TmmCheckComboBox<ImageSizeAndUrl> cbSize;
+  private TmmCheckComboBox<MediaLanguages>  cbLanguage;
 
-  private JLabel                    labelFanart;
-  private JButton                   btnMarkExtrafanart;
-  private JButton                   btnUnMarkExtrafanart;
+  private JLabel                            labelThumbs;
+  private JButton                           btnMarkExtrathumbs;
+  private JButton                           btnUnMarkExtrathumbs;
+
+  private JLabel                            labelFanart;
+  private JButton                           btnMarkExtrafanart;
+  private JButton                           btnUnMarkExtrafanart;
 
   /**
    * Instantiates a new image chooser dialog.
@@ -159,7 +179,14 @@ public class ImageChooserDialog extends TmmDialog {
     this.mediaType = mediaType;
     this.ids = ids;
     this.artworkScrapers = artworkScrapers;
+
+    filterListener = e -> SwingUtilities.invokeLater(this::filterChanged);
+
     init();
+
+    cbScraper.addActionListener(filterListener);
+    cbSize.addActionListener(filterListener);
+    cbLanguage.addActionListener(filterListener);
   }
 
   private void init() {
@@ -238,13 +265,40 @@ public class ImageChooserDialog extends TmmDialog {
     /* UI components */
     JPanel contentPanel = new JPanel();
     getContentPane().add(contentPanel, BorderLayout.CENTER);
-    contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[500lp,grow][shrink 0][][][]"));
+    contentPanel.setLayout(new MigLayout("hidemode 1", "[850lp,grow][]", "[][][500lp,grow][shrink 0][][][]"));
     {
-      JScrollPane scrollPane = new NoBorderScrollPane();
+      JPanel panelFilter = new JPanel();
+      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelFilter, new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")),
+          true, true);
+
+      contentPanel.add(collapsiblePanel, "cell 0 0 2 1,grow, wmin 0");
+      panelFilter.setLayout(new MigLayout("insets 0", "[][grow]", "[][][]"));
+
+      JLabel lblScraperT = new JLabel(TmmResourceBundle.getString("scraper.artwork"));
+      panelFilter.add(lblScraperT, "cell 0 0,alignx right");
+
+      cbScraper = new MediaScraperCheckComboBox(artworkScrapers);
+      panelFilter.add(cbScraper, "cell 1 0,growx, wmin 0");
+
+      JLabel lblDimensionT = new JLabel(TmmResourceBundle.getString("metatag.size"));
+      panelFilter.add(lblDimensionT, "cell 0 1,alignx right");
+
+      cbSize = new TmmCheckComboBox();
+      panelFilter.add(cbSize, "cell 1 1,growx, wmin 0");
+
+      JLabel lblLanguageT = new JLabel(TmmResourceBundle.getString("metatag.language"));
+      panelFilter.add(lblLanguageT, "cell 0 2,alignx trailing");
+
+      cbLanguage = new TmmCheckComboBox();
+      panelFilter.add(cbLanguage, "cell 1 2, wmin 0");
+    }
+    {
+      scrollPane = new NoBorderScrollPane();
       viewport = new LockableViewPort();
+
       scrollPane.setViewport(viewport);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-      contentPanel.add(scrollPane, "cell 0 0 2 1,grow");
+      contentPanel.add(scrollPane, "cell 0 2 2 1,grow");
       {
         panelImages = new JPanel();
         viewport.setView(panelImages);
@@ -254,11 +308,11 @@ public class ImageChooserDialog extends TmmDialog {
     }
     {
       JSeparator separator = new JSeparator();
-      contentPanel.add(separator, "cell 0 1 2 1,growx");
+      contentPanel.add(separator, "cell 0 3 2 1,growx");
     }
     {
       tfImageUrl = new EnhancedTextField(TmmResourceBundle.getString("image.inserturl"));
-      contentPanel.add(tfImageUrl, "cell 0 2,growx");
+      contentPanel.add(tfImageUrl, "cell 0 4,growx");
       tfImageUrl.setColumns(10);
       JButton btnAddImage = new JButton(TmmResourceBundle.getString("image.downloadimage"));
       btnAddImage.addActionListener(e -> {
@@ -266,7 +320,7 @@ public class ImageChooserDialog extends TmmDialog {
           downloadAndPreviewImage(tfImageUrl.getText());
         }
       });
-      contentPanel.add(btnAddImage, "cell 1 2");
+      contentPanel.add(btnAddImage, "cell 1 4");
 
     }
 
@@ -423,7 +477,6 @@ public class ImageChooserDialog extends TmmDialog {
     progressBar.setIndeterminate(false);
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   private void addImage(BufferedImage originalImage, final MediaArtwork artwork) {
     Point size = null;
 
@@ -468,6 +521,14 @@ public class ImageChooserDialog extends TmmDialog {
     gbc.insets = new Insets(5, 5, 5, 5);
 
     JToggleButton button = new JToggleButton();
+    button.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() >= 2 && e.getButton() == MouseEvent.BUTTON1) {
+          new OkAction().actionPerformed(new ActionEvent(e.getSource(), e.getID(), "OK"));
+        }
+      }
+    });
     button.setBackground(Color.white);
     button.setMargin(new Insets(10, 10, 10, 10));
     if (artwork.isAnimated()) {
@@ -559,10 +620,174 @@ public class ImageChooserDialog extends TmmDialog {
       imagePanel.add(chkbx, gbc);
     }
 
-    panelImages.add(imagePanel);
+    imagePanel.putClientProperty("MediaArtwork", artwork);
+    imagePanels.add(imagePanel);
+    imagePanels.sort((o1, o2) -> {
+      Object obj1 = o1.getClientProperty("MediaArtwork");
+      Object obj2 = o2.getClientProperty("MediaArtwork");
+
+      if (!(obj1 instanceof MediaArtwork) || !(obj2 instanceof MediaArtwork)) {
+        return 0;
+      }
+
+      MediaArtwork artwork1 = (MediaArtwork) obj1;
+      MediaArtwork artwork2 = (MediaArtwork) obj2;
+
+      if (artwork1.getBiggestArtwork() == null || artwork2.getBiggestArtwork() == null) {
+        return 0;
+      }
+
+      return artwork2.getBiggestArtwork().compareTo(artwork1.getBiggestArtwork());
+    });
+
+    // update filters
+    updateSizeCombobox(artwork.getImageSizes());
+    updateLanguageCombobox(artwork.getLanguage());
+
+    filterChanged();
+  }
+
+  private void updateSizeCombobox(List<ImageSizeAndUrl> newSizes) {
+    cbSize.removeActionListener(filterListener);
+
+    List<ImageSizeAndUrl> selectedItems = cbSize.getSelectedItems();
+    List<ImageSizeAndUrl> allItems = cbSize.getItems();
+
+    // build a Set of all distinct sizes
+    Set<String> sizes = new HashSet<>();
+
+    for (ImageSizeAndUrl sizeAndUrl : allItems) {
+      sizes.add(sizeAndUrl.toString());
+    }
+
+    for (ImageSizeAndUrl sizeAndUrl : ListUtils.nullSafe(newSizes)) {
+      if (!sizes.contains(sizeAndUrl.toString())) {
+        allItems.add(sizeAndUrl);
+        sizes.add(sizeAndUrl.toString());
+      }
+    }
+
+    allItems.sort(ImageSizeAndUrl::compareTo);
+    allItems.sort(Collections.reverseOrder());
+
+    cbSize.setItems(allItems);
+    cbSize.setSelectedItems(selectedItems);
+
+    cbSize.addActionListener(filterListener);
+  }
+
+  private void updateLanguageCombobox(String language) {
+    cbLanguage.removeActionListener(filterListener);
+
+    List<MediaLanguages> selectedItems = cbLanguage.getSelectedItems();
+    List<MediaLanguages> allItems = cbLanguage.getItems();
+
+    if (StringUtils.isBlank(language)) {
+      if (!allItems.contains(MediaLanguages.none)) {
+        allItems.add(MediaLanguages.none);
+      }
+    }
+    else {
+      MediaLanguages mediaLanguages = MediaLanguages.get(language);
+      if (!allItems.contains(mediaLanguages)) {
+        allItems.add(mediaLanguages);
+      }
+    }
+
+    // and add them in the right order
+    List<MediaLanguages> newValues = new ArrayList<>();
+
+    for (MediaLanguages mediaLanguages : MediaLanguages.valuesSorted()) {
+      if (allItems.contains(mediaLanguages)) {
+        newValues.add(mediaLanguages);
+      }
+    }
+
+    cbLanguage.setItems(newValues);
+    cbLanguage.setSelectedItems(selectedItems);
+
+    cbLanguage.addActionListener(filterListener);
+  }
+
+  private void filterChanged() {
+    panelImages.removeAll();
+
+    for (JPanel panel : imagePanels) {
+      Object obj = panel.getClientProperty("MediaArtwork");
+      if (!(obj instanceof MediaArtwork)) {
+        continue;
+      }
+
+      MediaArtwork artwork = (MediaArtwork) obj;
+
+      if (cbScraper.getSelectedItems().isEmpty() && cbSize.getSelectedItems().isEmpty() && cbLanguage.getSelectedItems().isEmpty()) {
+        // nothing selected - add all
+        panelImages.add(panel);
+      }
+      else {
+        // filter
+        boolean scraperMatch = true;
+        boolean sizeMatch = true;
+        boolean languageMatch = true;
+
+        // on scraper
+        if (!cbScraper.getSelectedItems().isEmpty()) {
+          scraperMatch = false;
+
+          for (MediaScraper scraper : cbScraper.getSelectedItems()) {
+            if (scraper.getId().equals(artwork.getProviderId())) {
+              scraperMatch = true;
+              break;
+            }
+          }
+        }
+
+        // on size
+        if (!cbSize.getSelectedItems().isEmpty()) {
+          sizeMatch = false;
+          List<String> sizes = new ArrayList<>();
+
+          for (ImageSizeAndUrl sizeAndUrl : cbSize.getSelectedItems()) {
+            sizes.add(sizeAndUrl.toString());
+          }
+
+          for (ImageSizeAndUrl imageSizeAndUrl : artwork.getImageSizes()) {
+            if (sizes.contains(imageSizeAndUrl.toString())) {
+              sizeMatch = true;
+              break;
+            }
+          }
+        }
+
+        // on language
+        if (!cbLanguage.getSelectedItems().isEmpty()) {
+          languageMatch = false;
+          List<String> languages = new ArrayList<>();
+
+          for (MediaLanguages mediaLanguages : cbLanguage.getSelectedItems()) {
+            if (mediaLanguages == MediaLanguages.none) {
+              languages.add("");
+            }
+            else {
+              languages.add(mediaLanguages.getLanguage().toLowerCase(Locale.ROOT));
+            }
+          }
+
+          if (languages.contains(artwork.getLanguage())) {
+            languageMatch = true;
+          }
+        }
+
+        if (scraperMatch && sizeMatch && languageMatch) {
+          panelImages.add(panel);
+        }
+      }
+    }
 
     viewport.setLocked(true);
-    ImageChooserDialog.this.revalidate();
+    panelImages.revalidate();
+    scrollPane.repaint();
+
     SwingUtilities.invokeLater(() -> viewport.setLocked(false));
   }
 

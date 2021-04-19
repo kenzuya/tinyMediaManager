@@ -5,7 +5,7 @@
 
     <groupId>org.tinymediamanager</groupId>
     <artifactId>tinyMediaManager</artifactId>
-    <version>4.1.3-SNAPSHOT</version>
+    <version>4.1.4-SNAPSHOT</version>
 
     <name>tinyMediaManager</name>
     <description>a media management tool written in Java</description>
@@ -88,7 +88,7 @@
         <slf4j.version>1.7.30</slf4j.version>
         <release.version>2.5.3</release.version>
         <jre.version>15.0.2-hotspot</jre.version>
-        <launcher.version>1.0.15</launcher.version>
+        <launcher.version>1.0.16</launcher.version>
         <jackson.version>2.11.2</jackson.version>
     </properties>
 
@@ -306,7 +306,7 @@
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
-            <version>1.1</version>
+            <version>1.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.formdev</groupId>

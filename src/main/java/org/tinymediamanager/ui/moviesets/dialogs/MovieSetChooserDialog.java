@@ -58,6 +58,7 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.BindingGroup;
 import org.jdesktop.beansbinding.Bindings;
+import org.jdesktop.beansbinding.Property;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
@@ -114,7 +115,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
   private JLabel                                                            lblProgressAction;
   private JProgressBar                                                      progressBar;
   private JTextField                                                        tfMovieSetName;
-  private JTable                                                            tableMovieSets;
+  private TmmTable                                                          tableMovieSets;
   private JLabel                                                            lblMovieSetName;
   private ImageLabel                                                        lblMovieSetPoster;
   private TmmTable                                                          tableMovies;
@@ -170,11 +171,13 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
           tableMovieSets = new TmmTable();
           panelSearchResults.setViewportView(tableMovieSets);
           tableMovieSets.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+          tableMovieSets.configureScrollPane(panelSearchResults);
           ListSelectionModel rowSM = tableMovieSets.getSelectionModel();
           rowSM.addListSelectionListener(e -> {
             // Ignore extra messages.
-            if (e.getValueIsAdjusting())
+            if (e.getValueIsAdjusting()) {
               return;
+            }
 
             ListSelectionModel lsm = (ListSelectionModel) e.getSource();
             if (!lsm.isSelectionEmpty()) {
@@ -185,7 +188,6 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
                 if (model != MovieSetChooserModel.EMPTY_RESULT && !model.isScraped()) {
                   ScrapeTask task = new ScrapeTask(model);
                   task.execute();
-
                 }
               }
               catch (Exception ex) {
@@ -229,6 +231,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
           panelSearchDetail.add(scrollPane, "cell 0 2 2 1,grow");
 
           tableMovies = new TmmTable();
+          tableMovies.configureScrollPane(scrollPane);
           scrollPane.setViewportView(tableMovies);
         }
         {
@@ -342,6 +345,10 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
         if (!movieSetsFound.isEmpty()) {
           tableMovieSets.setRowSelectionInterval(0, 0); // select first row
+          // adjust columns - dirty hack, but unless we refactor everything here, the column model is known from here on
+          tableMovies.getColumnModel()
+              .getColumn(1)
+              .setMaxWidth((int) (tableMovies.getFontMetrics(tableMovies.getFont()).stringWidth("2000") * 1.5f + 10));
         }
       }
       catch (Exception e1) {
@@ -595,42 +602,45 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
   }
 
   protected BindingGroup initDataBindings() {
-    JTableBinding<MovieSetChooserModel, List<MovieSetChooserModel>, JTable> jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ,
-        movieSetsFound, tableMovieSets);
+    JTableBinding jTableBinding = SwingBindings.createJTableBinding(UpdateStrategy.READ, movieSetsFound, tableMovieSets);
     //
-    BeanProperty<MovieSetChooserModel, String> movieSetChooserModelBeanProperty = BeanProperty.create("name");
+    Property movieSetChooserModelBeanProperty = BeanProperty.create("name");
     jTableBinding.addColumnBinding(movieSetChooserModelBeanProperty).setEditable(false);
     //
     jTableBinding.bind();
     //
-    BeanProperty<JTable, List<MovieInSet>> jTableBeanProperty = BeanProperty.create("selectedElement.movies");
-    JTableBinding<MovieInSet, JTable, JTable> jTableBinding_1 = SwingBindings.createJTableBinding(UpdateStrategy.READ, tableMovieSets,
-        jTableBeanProperty, tableMovies);
+    Property jTableBeanProperty = BeanProperty.create("selectedElement.movies");
+    JTableBinding jTableBinding_1 = SwingBindings.createJTableBinding(UpdateStrategy.READ, tableMovieSets, jTableBeanProperty, tableMovies);
     //
-    BeanProperty<MovieInSet, String> movieInSetBeanProperty = BeanProperty.create("name");
-    jTableBinding_1.addColumnBinding(movieInSetBeanProperty).setColumnName("Movie").setEditable(false);
+    Property movieInSetBeanProperty = BeanProperty.create("name");
+    jTableBinding_1.addColumnBinding(movieInSetBeanProperty).setColumnName(TmmResourceBundle.getString("metatag.title")).setEditable(false);
     //
-    BeanProperty<MovieInSet, String> movieInSetBeanProperty_2 = BeanProperty.create("movie.title");
-    jTableBinding_1.addColumnBinding(movieInSetBeanProperty_2).setColumnName("matched movie").setEditable(false);
+    Property movieInSetBeanProperty_1 = BeanProperty.create("year");
+    jTableBinding_1.addColumnBinding(movieInSetBeanProperty_1).setColumnName(TmmResourceBundle.getString("metatag.year")).setEditable(false);
+    //
+    Property movieInSetBeanProperty_2 = BeanProperty.create("movie.title");
+    jTableBinding_1.addColumnBinding(movieInSetBeanProperty_2)
+        .setColumnName(TmmResourceBundle.getString("movieset.movie.matched"))
+        .setEditable(false);
     //
     jTableBinding_1.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty_1 = BeanProperty.create("selectedElement.name");
-    BeanProperty<JLabel, String> jLabelBeanProperty = BeanProperty.create("text");
-    AutoBinding<JTable, String, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableMovieSets, jTableBeanProperty_1,
-        lblMovieSetName, jLabelBeanProperty);
+    Property jTableBeanProperty_1 = BeanProperty.create("selectedElement.name");
+    Property jLabelBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, tableMovieSets, jTableBeanProperty_1, lblMovieSetName,
+        jLabelBeanProperty);
     autoBinding.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty_2 = BeanProperty.create("selectedElement.posterUrl");
-    BeanProperty<ImageLabel, String> imageLabelBeanProperty = BeanProperty.create("imageUrl");
-    AutoBinding<JTable, String, ImageLabel, String> autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tableMovieSets,
-        jTableBeanProperty_2, lblMovieSetPoster, imageLabelBeanProperty);
+    Property jTableBeanProperty_2 = BeanProperty.create("selectedElement.posterUrl");
+    Property imageLabelBeanProperty = BeanProperty.create("imageUrl");
+    AutoBinding autoBinding_1 = Bindings.createAutoBinding(UpdateStrategy.READ, tableMovieSets, jTableBeanProperty_2, lblMovieSetPoster,
+        imageLabelBeanProperty);
     autoBinding_1.bind();
     //
-    BeanProperty<JTable, String> jTableBeanProperty_3 = BeanProperty.create("selectedElement.overview");
-    BeanProperty<JTextPane, String> readOnlyTextPaneBeanProperty = BeanProperty.create("text");
-    AutoBinding<JTable, String, JTextPane, String> autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, tableMovieSets,
-        jTableBeanProperty_3, tpPlot, readOnlyTextPaneBeanProperty);
+    Property jTableBeanProperty_3 = BeanProperty.create("selectedElement.overview");
+    Property readOnlyTextPaneBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, tableMovieSets, jTableBeanProperty_3, tpPlot,
+        readOnlyTextPaneBeanProperty);
     autoBinding_2.bind();
     //
     BindingGroup bindingGroup = new BindingGroup();

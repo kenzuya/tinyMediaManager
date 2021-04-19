@@ -35,8 +35,11 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -64,6 +67,7 @@ import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.components.LinkTextArea;
+import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.converter.RatingConverter;
@@ -99,6 +103,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private JLabel                             lblEpisodeThumbSize;
   private JLabel                             lblOriginalTitle;
   private JButton                            btnPlay;
+  private JScrollPane                        scrollPane;
   private JLabel                             lblSeason;
   private JLabel                             lblEpisode;
   private JLabel                             lblAired;
@@ -150,6 +155,10 @@ public class TvShowEpisodeInformationPanel extends JPanel {
 
       if ("selectedTvShowEpisode".equals(property) || RATING.equals(property)) {
         setRating(episode);
+      }
+
+      if ("selectedTvShowEpisode".equals(property)) {
+        SwingUtilities.invokeLater(() -> scrollPane.getVerticalScrollBar().setValue(0));
       }
     };
 
@@ -306,7 +315,11 @@ public class TvShowEpisodeInformationPanel extends JPanel {
     {
       JPanel panelRight = new JPanel();
       panelRight.setLayout(new MigLayout("insets n 0 n n, hidemode 2", "[grow]", "[][shrink 0][][shrink 0][][shrink 0][][][][]"));
-      add(panelRight, "cell 1 1,grow");
+
+      scrollPane = new NoBorderScrollPane(panelRight);
+      scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+      scrollPane.getVerticalScrollBar().setUnitIncrement(8);
+      add(scrollPane, "cell 1 1,grow, wmin 0");
       {
         JPanel panelTopDetails = new JPanel();
         panelTopDetails.setLayout(new MigLayout("insets 0", "[][][40lp!][][]", "[]2lp[][][][]"));
