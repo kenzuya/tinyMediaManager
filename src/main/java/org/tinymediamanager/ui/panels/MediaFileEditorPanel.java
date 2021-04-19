@@ -192,7 +192,7 @@ public class MediaFileEditorPanel extends JPanel {
         {
           btnARD = new JButton(new ScanAspectRationAction());
           MediaFile mf = MediaFileEditorPanel.this.mediaFiles.get(0).mediaFile;
-          btnARD.setEnabled(videoTypes.contains(mf.getType()) && FFmpeg.isAvailable());
+          btnARD.setEnabled(videoTypes.contains(mf.getType()));
           panelDetails.add(btnARD, "cell 7 1");
         }
         {
