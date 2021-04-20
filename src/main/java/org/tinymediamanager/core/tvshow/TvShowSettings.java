@@ -158,6 +158,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        nfoWriteEpisodeguide                   = true;
   private boolean                                        nfoWriteDateEnded                      = false;
   private boolean                                        nfoWriteAllActors                      = false;
+  private boolean                                        nfoWriteSingleStudio                   = false;
 
   // renamer
   private boolean                                        renameAfterScrape                      = false;
@@ -1358,6 +1359,16 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.nfoWriteAllActors;
     this.nfoWriteAllActors = newValue;
     firePropertyChange("nfoWriteAllActors", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteSingleStudio() {
+    return nfoWriteSingleStudio;
+  }
+
+  public void setNfoWriteSingleStudio(boolean newValue) {
+    boolean oldValue = nfoWriteSingleStudio;
+    nfoWriteSingleStudio = newValue;
+    firePropertyChange("nfoWriteSingleStudio", oldValue, newValue);
   }
 
   public String getPreferredRating() {
