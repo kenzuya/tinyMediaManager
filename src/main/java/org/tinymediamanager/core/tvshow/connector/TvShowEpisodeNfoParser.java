@@ -824,10 +824,10 @@ public class TvShowEpisodeNfoParser {
      * the release date is usually in the premiered tag
      */
     private Void parseReleaseDate() {
-      supportedElements.add("premiered");
       supportedElements.add("aired");
+      supportedElements.add("premiered");
 
-      Element element = getSingleElement(root, "premiered");
+      Element element = getSingleElement(root, "aired");
       if (element != null) {
         // parse a date object out of the string
         try {
@@ -839,9 +839,9 @@ public class TvShowEpisodeNfoParser {
         catch (ParseException ignored) {
         }
       }
-      // also look if there is an aired date
+      // also look if there is an premiered date
       if (releaseDate == null) {
-        element = getSingleElement(root, "aired");
+        element = getSingleElement(root, "premiered");
         if (element != null) {
           // parse a date object out of the string
           try {
