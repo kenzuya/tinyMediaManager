@@ -48,6 +48,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -537,6 +538,11 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       Element studio = document.createElement("studio");
       studio.setTextContent(s);
       root.appendChild(studio);
+
+      // break here if we just want to write one studio
+      if (TvShowSettings.getInstance().isNfoWriteSingleStudio()) {
+        break;
+      }
     }
   }
 

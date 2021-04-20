@@ -56,6 +56,9 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = 4999827736720726395L;
 
   private final TvShowSettings                 settings         = TvShowModuleManager.SETTINGS;
+  private final ItemListener                   checkBoxListener;
+  private final ItemListener                   comboBoxListener;
+
   private JComboBox<TvShowConnectors>          cbNfoFormat;
   private JComboBox<CertificationStyleWrapper> cbCertificationStyle;
   private JCheckBox                            chckbxWriteCleanNfo;
@@ -63,12 +66,10 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
   private JComboBox<DateField>                 cbDatefield;
   private JCheckBox                            chckbxEpisodeNfo1;
   private JCheckBox                            chckbxTvShowNfo1;
-
-  private final ItemListener                   checkBoxListener;
-  private final ItemListener                   comboBoxListener;
   private JCheckBox                            chckbxWriteEpisodeguide;
   private JCheckBox                            chckbxWriteDateEnded;
   private JCheckBox                            chckbxEmbedAllActors;
+  private JCheckBox                            chckbxFirstStudio;
 
   /**
    * Instantiates a new movie scraper settings panel.
@@ -100,7 +101,7 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     {
       JPanel panelNfo = new JPanel();
       // 16lp ~ width of the checkbox
-      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][][][10lp!][][][][10lp!][]"));
+      panelNfo.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][][][][10lp!][][][][][10lp!][]"));
       JLabel lblNfoT = new TmmLabel(TmmResourceBundle.getString("Settings.nfo"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelNfo, lblNfoT, true);
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#nfo-settings"));
@@ -163,8 +164,11 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
         chckbxEmbedAllActors = new JCheckBox(TmmResourceBundle.getString("Settings.nfo.includeallactors"));
         panelNfo.add(chckbxEmbedAllActors, "cell 1 11 2 1");
 
+        chckbxFirstStudio = new JCheckBox(TmmResourceBundle.getString("Settings.singlestudio"));
+        panelNfo.add(chckbxFirstStudio, "cell 1 12 2 1");
+
         chckbxWriteCleanNfo = new JCheckBox(TmmResourceBundle.getString("Settings.writecleannfo"));
-        panelNfo.add(chckbxWriteCleanNfo, "cell 1 13 2 1");
+        panelNfo.add(chckbxWriteCleanNfo, "cell 1 14 2 1");
       }
     }
   }
@@ -283,5 +287,10 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
     AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_6, chckbxEmbedAllActors,
         jCheckBoxBeanProperty);
     autoBinding_6.bind();
+    //
+    Property tvShowSettingsBeanProperty_7 = BeanProperty.create("nfoWriteSingleStudio");
+    AutoBinding autoBinding_7 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_7, chckbxFirstStudio,
+        jCheckBoxBeanProperty);
+    autoBinding_7.bind();
   }
 }
