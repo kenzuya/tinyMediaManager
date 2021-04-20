@@ -207,8 +207,18 @@ public abstract class ARDetectorTask extends TmmTask {
     }
 
     videoInfo.bitDepth = mediaFile.getBitDepth();
+    String bitDepth = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "BitDepth");
+    if (NumberUtils.isParsable(bitDepth)) {
+      videoInfo.bitDepth = Integer.parseInt(bitDepth);
+    }
     if (videoInfo.bitDepth < 8) videoInfo.bitDepth = 8;
+
     videoInfo.duration = mediaFile.getDuration();
+    String duration = MediaFileHelper.getMediaInfoDirect(mediaFile, MediaInfo.StreamKind.Video, 0, "Duration");
+    if (NumberUtils.isParsable(duration)) {
+      videoInfo.duration = Math.round(Float.parseFloat(duration) / 1000f);
+    }
+
     videoInfo.arSample = getSampleAR(mediaFile);
     if (videoInfo.arSample <= 0.5f) videoInfo.arSample = 1f;
 
