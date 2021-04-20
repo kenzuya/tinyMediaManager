@@ -202,11 +202,13 @@ public class TvShowRenamer {
     // rename the TV show folder
     renameTvShowRoot(tvShow);
 
-    // rename TV show artwork
-    renameTvShowArtwork(tvShow);
+    // rename TV show media files
+    renameTvShowMediaFiles(tvShow);
 
     // rename the season artwork
     renameSeasonArtwork(tvShow);
+
+    tvShow.saveToDb();
   }
 
   /**
@@ -254,8 +256,6 @@ public class TvShowRenamer {
               episode.updateMediaFilePath(srcDir, destDir);
             }
 
-            show.saveToDb();
-
             // ######################################################################
             // ## build up image cache
             // ######################################################################
@@ -281,7 +281,7 @@ public class TvShowRenamer {
    * @param tvShow
    *          the TV show to rename the artwork for
    */
-  private static void renameTvShowArtwork(TvShow tvShow) {
+  private static void renameTvShowMediaFiles(TvShow tvShow) {
     // all the good & needed mediafiles
     List<MediaFile> needed = new ArrayList<>();
     List<MediaFile> cleanup = new ArrayList<>(tvShow.getMediaFiles());
@@ -360,6 +360,10 @@ public class TvShowRenamer {
           needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getKeyartFilenames()));
           break;
 
+        case TRAILER:
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getTrailerFilenames()));
+          break;
+
         default:
           needed.add(mf);
       }
@@ -420,13 +424,13 @@ public class TvShowRenamer {
       }
     }
 
-    tvShow.addToMediaFiles(new ArrayList<>(needed));
-    tvShow.saveToDb();
+    tvShow.removeAllMediaFiles();
+    tvShow.addToMediaFiles(needed);
   }
 
   /**
    * copy the given {@link TvShow} {@link MediaFile} for the given {@link IFileNaming}
-   * 
+   *
    * @param tvShow
    *          the {@link TvShow} to copy the {@link MediaFile} for
    * @param original
@@ -438,8 +442,12 @@ public class TvShowRenamer {
   private static List<MediaFile> copyTvShowMediaFile(TvShow tvShow, MediaFile original, List<? extends IFileNaming> fileNamings) {
     List<MediaFile> neededMediaFiles = new ArrayList<>();
 
+    boolean spaceSubstitution = SETTINGS.isRenamerFilenameSpaceSubstitution();
+    String spaceReplacement = SETTINGS.getRenamerFilenameSpaceReplacement();
+    String cleanedShowTitle = cleanupDestination(tvShow.getTitle(), spaceSubstitution, spaceReplacement);
+
     for (IFileNaming name : fileNamings) {
-      String newFilename = name.getFilename("", getArtworkExtension(original));
+      String newFilename = name.getFilename(cleanedShowTitle, getMediaFileExtension(original));
 
       if (StringUtils.isNotBlank(newFilename)) {
         MediaFile newMediaFile = new MediaFile(original);
@@ -476,11 +484,11 @@ public class TvShowRenamer {
       // too
       TvShowExtraFanartNaming name = fileNamings.get(0);
 
-      String newFilename = name.getFilename("", getArtworkExtension(original));
+      String newFilename = name.getFilename("", getMediaFileExtension(original));
       if (StringUtils.isNotBlank(newFilename)) {
 
         String basename = FilenameUtils.getBaseName(newFilename);
-        newFilename = basename + index + "." + getArtworkExtension(original);
+        newFilename = basename + index + "." + getMediaFileExtension(original);
 
         // create an empty extrafanarts folder if the right naming has been chosen
         Path folder;
@@ -634,7 +642,6 @@ public class TvShowRenamer {
     }
 
     tvShow.addToMediaFiles(new ArrayList<>(needed));
-    tvShow.saveToDb();
   }
 
   /**
@@ -659,7 +666,7 @@ public class TvShowRenamer {
       return;
     }
 
-    LOGGER.info("Renaming TvShow '{}', Episode {}", episode.getTvShow().getTitle(), episode.getEpisode());
+    LOGGER.debug("Renaming TvShow '{}', Episode {}", episode.getTvShow().getTitle(), episode.getEpisode());
 
     if (episode.isDisc()) {
       renameEpisodeAsDisc(episode);
@@ -823,7 +830,7 @@ public class TvShowRenamer {
     // ######################################################################
     // ## CLEANUP - delete all files marked for cleanup, which are not "needed"
     // ######################################################################
-    LOGGER.info("Cleanup...");
+    LOGGER.debug("Cleanup...");
     for (int i = cleanup.size() - 1; i >= 0; i--) {
       // cleanup files which are not needed
       if (!needed.contains(cleanup.get(i))) {
@@ -1081,7 +1088,7 @@ public class TvShowRenamer {
       ////////////////////////////////////////////////////////////////////////
       case THUMB:
         for (TvShowEpisodeThumbNaming thumbNaming : SETTINGS.getEpisodeThumbFilenames()) {
-          String thumbFilename = thumbNaming.getFilename(newFilename, getArtworkExtension(mf));
+          String thumbFilename = thumbNaming.getFilename(newFilename, getMediaFileExtension(mf));
           MediaFile thumb = new MediaFile(mf);
           thumb.setFile(seasonFolder.resolve(thumbFilename));
           newFiles.add(thumb);
@@ -1167,7 +1174,7 @@ public class TvShowRenamer {
       ////////////////////////////////////////////////////////////////////////
       case FANART:
         MediaFile fanart = new MediaFile(mf);
-        fanart.setFile(seasonFolder.resolve(newFilename + "-fanart." + getArtworkExtension(mf)));
+        fanart.setFile(seasonFolder.resolve(newFilename + "-fanart." + getMediaFileExtension(mf)));
         newFiles.add(fanart);
         break;
 
@@ -1758,7 +1765,7 @@ public class TvShowRenamer {
     return matcher.find();
   }
 
-  private static String getArtworkExtension(MediaFile mf) {
+  private static String getMediaFileExtension(MediaFile mf) {
     String ext = mf.getExtension().replace("jpeg", "jpg"); // we only have one constant and only write jpg
     if (ext.equalsIgnoreCase("tbn")) {
       String cont = mf.getContainerFormat();
@@ -1946,16 +1953,23 @@ public class TvShowRenamer {
   }
 
   public static class TvShowNamedFirstCharacterRenderer implements NamedRenderer {
+    private static final Pattern FIRST_ALPHANUM_PATTERN = Pattern.compile("[\\p{L}\\d]");
 
     @Override
     public String render(Object o, String s, Locale locale, Map<String, Object> map) {
       if (o instanceof String && StringUtils.isNotBlank((String) o)) {
         String source = StrgUtils.convertToAscii((String) o, false);
-        String first = source.trim().substring(0, 1);
-        if (first.matches("[\\p{L}]")) {
-          return first.toUpperCase(Locale.ROOT);
+        Matcher matcher = FIRST_ALPHANUM_PATTERN.matcher(source);
+        if (matcher.find()) {
+          String first = matcher.group();
+
+          if (first.matches("\\p{L}")) {
+            return first.toUpperCase(Locale.ROOT);
+          }
+          else {
+            return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
+          }
         }
-        return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
       }
       if (o instanceof Number) {
         return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();

@@ -158,6 +158,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        nfoWriteEpisodeguide                   = true;
   private boolean                                        nfoWriteDateEnded                      = false;
   private boolean                                        nfoWriteAllActors                      = false;
+  private boolean                                        nfoWriteSingleStudio                   = false;
 
   // renamer
   private boolean                                        renameAfterScrape                      = false;
@@ -202,6 +203,7 @@ public class TvShowSettings extends AbstractSettings {
   // subtitle scraper
   private MediaLanguages                                 subtitleScraperLanguage                = MediaLanguages.en;
   private LanguageStyle                                  subtitleLanguageStyle                  = LanguageStyle.ISO3T;
+  private boolean                                        subtitleForceBestMatch                 = false;
 
   // misc
   private boolean                                        buildImageCacheOnImport                = false;
@@ -864,6 +866,16 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange("subtitleLanguageStyle", oldValue, newValue);
   }
 
+  public boolean getSubtitleForceBestMatch() {
+    return subtitleForceBestMatch;
+  }
+
+  public void setSubtitleForceBestMatch(boolean newValue) {
+    boolean oldValue = this.subtitleForceBestMatch;
+    this.subtitleForceBestMatch = newValue;
+    firePropertyChange("subtitleForceBestMatch", oldValue, newValue);
+  }
+
   public Map<String, List<UIFilters>> getUiFilterPresets() {
     return uiFilterPresets;
   }
@@ -1347,6 +1359,16 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.nfoWriteAllActors;
     this.nfoWriteAllActors = newValue;
     firePropertyChange("nfoWriteAllActors", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteSingleStudio() {
+    return nfoWriteSingleStudio;
+  }
+
+  public void setNfoWriteSingleStudio(boolean newValue) {
+    boolean oldValue = nfoWriteSingleStudio;
+    nfoWriteSingleStudio = newValue;
+    firePropertyChange("nfoWriteSingleStudio", oldValue, newValue);
   }
 
   public String getPreferredRating() {

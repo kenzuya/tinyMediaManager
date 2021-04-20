@@ -590,6 +590,14 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
         ma.setPreviewUrl(ARTWORK_URL + ep.filename);
         ma.setDefaultUrl(ARTWORK_URL + ep.filename);
         ma.setOriginalUrl(ARTWORK_URL + ep.filename);
+        if (StringUtils.isNoneBlank(ep.thumbWidth, ep.thumbHeight)) {
+          try {
+            ma.addImageSize(Integer.parseInt(ep.thumbWidth), Integer.parseInt(ep.thumbHeight), ARTWORK_URL + ep.filename);
+          }
+          catch (Exception e) {
+            ma.addImageSize(0, 0, ARTWORK_URL + ep.filename);
+          }
+        }
         episode.addMediaArt(ma);
       }
 

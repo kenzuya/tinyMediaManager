@@ -818,7 +818,7 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void addToMediaFiles(List<MediaFile> mediaFiles) {
-    for (MediaFile mediaFile : mediaFiles) {
+    for (MediaFile mediaFile : ListUtils.nullSafe(mediaFiles)) {
       addToMediaFiles(mediaFile);
     }
   }

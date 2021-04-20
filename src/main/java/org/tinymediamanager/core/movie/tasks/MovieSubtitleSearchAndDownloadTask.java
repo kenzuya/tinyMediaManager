@@ -20,6 +20,7 @@ import static org.tinymediamanager.scraper.entities.MediaType.MOVIE;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,8 @@ import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieSubtitleProvider;
+import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 
 /**
  * The class MovieSubtitleSearchAndDownloadTask is used to search and download subtitles by hash
@@ -57,6 +60,8 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
   private final List<Movie>        movies;
   private final List<MediaScraper> subtitleScrapers;
   private final MediaLanguages     language;
+
+  private boolean                  forceBestMatch;
 
   public MovieSubtitleSearchAndDownloadTask(List<Movie> movies, MediaLanguages language) {
     super(TmmResourceBundle.getString("movie.download.subtitles"));
@@ -78,6 +83,10 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
     this.movies = movies;
     this.subtitleScrapers = subtitleScrapers;
     this.language = language;
+  }
+
+  public void setForceBestMatch(boolean forceBestMatch) {
+    this.forceBestMatch = forceBestMatch;
   }
 
   @Override
@@ -108,7 +117,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private class Worker implements Runnable {
-    private Movie movie;
+    private final Movie movie;
 
     public Worker(Movie movie) {
       this.movie = movie;
@@ -136,8 +145,9 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
             Collections.sort(searchResults);
             Collections.reverse(searchResults);
 
-            SubtitleSearchResult firstResult = searchResults.get(0);
-            if (firstResult.getScore() < 1.0f || StringUtils.isBlank(firstResult.getUrl())) {
+            SubtitleSearchResult result = getBestResult(searchResults);
+            if (result == null) {
+              // do not continue without a valid result
               continue;
             }
 
@@ -149,7 +159,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
 
             String filename = FilenameUtils.getBaseName(mf.getFilename()) + "." + lang;
 
-            TmmTaskManager.getInstance().addDownloadTask(new SubtitleDownloadTask(firstResult.getUrl(), movie.getPathNIO().resolve(filename), movie));
+            TmmTaskManager.getInstance().addDownloadTask(new SubtitleDownloadTask(result.getUrl(), movie.getPathNIO().resolve(filename), movie));
           }
           catch (MissingIdException ignored) {
             // no need to log here
@@ -168,5 +178,50 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
       }
     }
 
+    private SubtitleSearchResult getBestResult(List<SubtitleSearchResult> searchResults) {
+      if (ListUtils.isEmpty(searchResults)) {
+        return null;
+      }
+
+      SubtitleSearchResult hashMatch = searchResults.stream()
+          .filter(result -> result.getScore() == 1 && StringUtils.isNotBlank(result.getUrl()))
+          .findFirst()
+          .orElse(null);
+      // if not forceBestMatch, we take only 100% (hash matched) results
+      if (hashMatch != null || !forceBestMatch) {
+        return hashMatch;
+      }
+
+      // otherwise we try to get the best result
+      // 1. filter out all subtitles with a different stack size (we only decide between stacked an non stacked)
+      List<SubtitleSearchResult> filteredResults = searchResults.stream().filter(result -> {
+        if (movie.isStacked() && result.getStackCount() > 1) {
+          return true;
+        }
+        else if (!movie.isStacked() && result.getStackCount() == 1) {
+          return true;
+        }
+        return false;
+      }).collect(Collectors.toList());
+
+      if (filteredResults.isEmpty()) {
+        return null;
+      }
+
+      // now compare the release names (if available in the movie)
+      // if there is a > 80% match, we take it
+      if (StringUtils.isNotBlank(movie.getOriginalFilename())) {
+        String basename = FilenameUtils.getBaseName(movie.getOriginalFilename());
+        for (SubtitleSearchResult result : filteredResults) {
+          float score = MetadataUtil.calculateScore(result.getReleaseName(), basename);
+          if (score > 0.8f) {
+            return result;
+          }
+        }
+      }
+
+      // last but not least take the first result
+      return filteredResults.get(0);
+    }
   }
 }

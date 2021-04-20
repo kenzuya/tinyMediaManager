@@ -65,6 +65,7 @@ public class MovieSubtitleDownloadAction extends TmmAction {
     if (dialog.shouldStartDownload()) {
       for (MediaLanguages language : dialog.getLanguages()) {
         MovieSubtitleSearchAndDownloadTask task = new MovieSubtitleSearchAndDownloadTask(selectedMovies, dialog.getSubtitleScrapers(), language);
+        task.setForceBestMatch(dialog.isForceBestMatch());
         TmmTaskManager.getInstance().addMainTask(task);
       }
     }

@@ -15,14 +15,18 @@
  */
 package org.tinymediamanager.ui.plaf;
 
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.LayoutManager;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import com.formdev.flatlaf.ui.FlatComboBoxUI;
+import com.formdev.flatlaf.ui.FlatUIUtils;
 
 /**
  * Provides the Flat LaF UI delegate for {@link javax.swing.JComboBox}.
@@ -76,6 +80,21 @@ public class TmmComboBoxUI extends FlatComboBoxUI {
     Dimension minimumSize = super.getMinimumSize(c);
     minimumSize.width += 3;
     return minimumSize;
+  }
+
+  @Override
+  protected LayoutManager createLayoutManager() {
+    return new BasicComboBoxUI.ComboBoxLayoutManager() {
+      @Override
+      public void layoutContainer(Container parent) {
+        super.layoutContainer(parent);
+
+        if (editor != null && padding != null) {
+          // fix editor bounds by subtracting padding
+          editor.setBounds(FlatUIUtils.subtractInsets(editor.getBounds(), padding));
+        }
+      }
+    };
   }
 
   private class TmmComboBoxButton extends FlatComboBoxButton {

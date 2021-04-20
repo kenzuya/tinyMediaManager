@@ -83,6 +83,16 @@ public class ImageLoader {
     }
   }
 
+  public static BufferedImage createImage(byte[] bytes) {
+    try {
+      return createImage(Toolkit.getDefaultToolkit().createImage(bytes));
+    }
+    catch (RuntimeException e) {
+      LOGGER.debug("could not create image: {}", e.getMessage());
+      throw e;
+    }
+  }
+
   /**
    * This returns an ARGB BufferedImage depicting the argument <code>i</code>.
    * <P>

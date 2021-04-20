@@ -47,16 +47,15 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Manuel Laggner
  */
 public class TvShowScraperMetadataPanel extends JPanel {
-  private static final long                                  serialVersionUID = 2417066912659769559L;
-  private static final int                                   COL_COUNT        = 5;
+  private static final long                                        serialVersionUID = 2417066912659769559L;
+  private static final int                                         COL_COUNT        = 5;
   /**
    * @wbp.nls.resourceBundle messages
    */
 
-
-  private TvShowSettings                                     settings         = TvShowModuleManager.SETTINGS;
-  private Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowCheckboxes;
-  private Map<TvShowEpisodeScraperMetadataConfig, JCheckBox> episodeCheckboxes;
+  private final TvShowSettings                                     settings         = TvShowModuleManager.SETTINGS;
+  private final Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowCheckboxes;
+  private final Map<TvShowEpisodeScraperMetadataConfig, JCheckBox> episodeCheckboxes;
 
   public TvShowScraperMetadataPanel() {
     this.tvShowCheckboxes = new LinkedHashMap<>();

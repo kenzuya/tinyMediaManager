@@ -78,7 +78,7 @@ import org.tinymediamanager.thirdparty.VSMeta;
  */
 public class TvShowArtworkHelper {
   private static final Logger  LOGGER        = LoggerFactory.getLogger(TvShowArtworkHelper.class);
-  private static final Pattern INDEX_PATTERN = Pattern.compile(".*(\\d+)$");
+  private static final Pattern INDEX_PATTERN = Pattern.compile(".*?(\\d+)$");
 
   private TvShowArtworkHelper() {
     // use private constructor for utility classes

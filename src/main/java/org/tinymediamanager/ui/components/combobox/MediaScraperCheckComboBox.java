@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.components.combobox;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.FontMetrics;
 import java.net.URI;
@@ -51,6 +52,8 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
 
   private Map<URI, ImageIcon> imageCache;
 
+  private int                 listWidth        = 0;
+
   public MediaScraperCheckComboBox(final List<MediaScraper> scrapers) {
     super(scrapers);
     if (getRenderer() instanceof MediaScraperCheckBoxRenderer) {
@@ -83,6 +86,26 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
     }
 
     return selectedItems;
+  }
+
+  @Override
+  public Dimension getSize() {
+    Dimension dim = super.getSize();
+    dim.width = Math.max(dim.width, getPreferredPopupSize().width);
+    return dim;
+  }
+
+  /**
+   * get the preferred popup size (width of the contents in the popup)
+   *
+   * @return the preferred popup size
+   */
+  private Dimension getPreferredPopupSize() {
+    Dimension dimension = getPreferredSize();
+    if (listWidth > 0) {
+      dimension.width = listWidth;
+    }
+    return dimension;
   }
 
   private class MediaScraperCheckBoxRenderer extends CheckBoxRenderer {
@@ -175,6 +198,11 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
           label.setEnabled(true);
         }
 
+        Dimension preferredSize = panel.getPreferredSize();
+        if (listWidth < preferredSize.width) {
+          listWidth = preferredSize.width;
+        }
+
         return panel;
       }
 
@@ -190,6 +218,12 @@ public class MediaScraperCheckComboBox extends TmmCheckComboBox<MediaScraper> {
         }
         str = strs.toString();
       }
+
+      Dimension preferredSize = panel.getPreferredSize();
+      if (listWidth < preferredSize.width) {
+        listWidth = preferredSize.width;
+      }
+
       return defaultRenderer.getListCellRendererComponent(list, str, index, isSelected, cellHasFocus);
     }
 

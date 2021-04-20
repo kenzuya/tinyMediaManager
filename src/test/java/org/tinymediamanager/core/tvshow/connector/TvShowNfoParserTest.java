@@ -119,6 +119,7 @@ public class TvShowNfoParserTest {
       for (String studio : parser.studios) {
         assertThat(studio).isNotEmpty();
       }
+      assertThat(parser.countries).contains("US", "CA");
 
       assertThat(parser.actors).hasSize(10);
       assertThat(parser.actors.get(0).thumb).isNotEmpty();
@@ -212,6 +213,7 @@ public class TvShowNfoParserTest {
       for (String studio : parser.studios) {
         assertThat(studio).isNotEmpty();
       }
+      assertThat(parser.countries).contains("US", "CA");
 
       assertThat(parser.actors).hasSize(10);
       assertThat(parser.actors.get(0).thumb).isNotEmpty();
