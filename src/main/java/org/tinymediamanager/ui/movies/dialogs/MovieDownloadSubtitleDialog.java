@@ -18,9 +18,11 @@ package org.tinymediamanager.ui.movies.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -45,12 +47,13 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieDownloadSubtitleDialog extends TmmDialog {
-  private static final long         serialVersionUID = 3826984454317879241L;
+  private static final long                      serialVersionUID = 3826984454317879241L;
 
   private final MediaScraperCheckComboBox        cbSubtitleScraper;
   private final TmmCheckComboBox<MediaLanguages> cbLanguage;
+  private final JCheckBox                        chckbxForceBestSubtitle;
 
-  private boolean                   startDownload    = false;
+  private boolean                                startDownload    = false;
 
   public MovieDownloadSubtitleDialog(String title) {
     super(title, "downloadSubtitle");
@@ -59,25 +62,26 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
 
       JPanel panelScraper = new JPanel();
       getContentPane().add(panelScraper, BorderLayout.CENTER);
-      panelScraper.setLayout(new MigLayout("", "[][300lp]", "[][][20lp:n][]"));
+      panelScraper.setLayout(new MigLayout("", "[16lp!][][300lp:300lp,grow]", "[][][][10lp:n][]"));
 
       JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
-      panelScraper.add(lblScraper, "cell 0 0,alignx right");
+      panelScraper.add(lblScraper, "cell 0 0 2 1,alignx right");
 
       cbSubtitleScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableSubtitleScrapers());
-      panelScraper.add(cbSubtitleScraper, "cell 1 0,growx");
+      panelScraper.add(cbSubtitleScraper, "cell 2 0,growx,wmin 0");
 
       JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
-      panelScraper.add(lblLanguage, "cell 0 1,alignx right");
+      panelScraper.add(lblLanguage, "cell 0 1 2 1,alignx right");
 
-      cbLanguage = new TmmCheckComboBox<>(MediaLanguages.valuesSorted());
-      panelScraper.add(cbLanguage, "cell 1 1,growx");
-
-      cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage());
+      cbLanguage = new TmmCheckComboBox(MediaLanguages.valuesSorted());
+      panelScraper.add(cbLanguage, "cell 2 1,growx,wmin 0");
 
       JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("movie.download.subtitles.hint"));
-      taHint.setOpaque(false);
-      panelScraper.add(taHint, "cell 0 3 2 1,grow");
+      panelScraper.add(taHint, "cell 1 2 2 1,wmin 0,grow");
+
+      chckbxForceBestSubtitle = new JCheckBox(TmmResourceBundle.getString("subtitle.download.force"));
+      chckbxForceBestSubtitle.setToolTipText(TmmResourceBundle.getString("subtitle.download.force.desc"));
+      panelScraper.add(chckbxForceBestSubtitle, "cell 1 4 2 1");
     }
 
     {
@@ -111,7 +115,9 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       cbSubtitleScraper.setSelectedItems(selectedSubtitleScrapers);
     }
 
-    cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage());
+    cbLanguage.setSelectedItems(Collections.singletonList(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage()));
+
+    chckbxForceBestSubtitle.setSelected(MovieModuleManager.SETTINGS.isSubtitleForceBestMatch());
   }
 
   /**
@@ -131,6 +137,15 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
    */
   public List<MediaLanguages> getLanguages() {
     return cbLanguage.getSelectedItems();
+  }
+
+  /**
+   * Should we force the best match if there is no hash-match?
+   *
+   * @return true/false
+   */
+  public boolean isForceBestMatch() {
+    return chckbxForceBestSubtitle.isSelected();
   }
 
   /**

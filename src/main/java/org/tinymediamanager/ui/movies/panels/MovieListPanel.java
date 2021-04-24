@@ -75,19 +75,17 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
-  private static final long           serialVersionUID = -1681460428331929420L;
+  private static final long serialVersionUID = -1681460428331929420L;
 
+  MovieSelectionModel       selectionModel;
 
+  private MovieList         movieList;
 
-  MovieSelectionModel                 selectionModel;
-
-  private MovieList                   movieList;
-
-  private JTextField                  searchField;
-  private TmmTable                    movieTable;
-  private JLabel                      lblMovieCountFiltered;
-  private JLabel                      lblMovieCountTotal;
-  private JButton                     btnExtendedFilter;
+  private JTextField        searchField;
+  private TmmTable          movieTable;
+  private JLabel            lblMovieCountFiltered;
+  private JLabel            lblMovieCountTotal;
+  private JButton           btnExtendedFilter;
 
   public MovieListPanel() {
     initComponents();
@@ -169,19 +167,21 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
   private void updateFilterIndicator() {
     boolean active = false;
-    for (IMovieUIFilter filter : selectionModel.getMatcherEditor().getFilters()) {
-      switch (filter.getFilterState()) {
-        case ACTIVE:
-        case ACTIVE_NEGATIVE:
-          active = true;
-          break;
+    if (selectionModel.isFiltersActive()) {
+      for (IMovieUIFilter filter : selectionModel.getMatcherEditor().getFilters()) {
+        switch (filter.getFilterState()) {
+          case ACTIVE:
+          case ACTIVE_NEGATIVE:
+            active = true;
+            break;
 
-        default:
-          break;
-      }
+          default:
+            break;
+        }
 
-      if (active) {
-        break;
+        if (active) {
+          break;
+        }
       }
     }
 

@@ -39,9 +39,12 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
   private static final String RATIO_1_78 = "16:9 (1.78:1)";
   private static final String RATIO_1_85 = "Widescreen (1.85:1)";
   private static final String RATIO_1_90 = "Digital IMAX (1.90:1)";
+  private static final String RATIO_2_00 = "18:9 (2.00:1)";
   private static final String RATIO_2_20 = "70mm (2.20:1)";
   private static final String RATIO_2_35 = "Anamorphic (2.35:1)";
   private static final String RATIO_2_40 = "Anamorphic widescreen (2.39:1 & 12:5)";
+  private static final String RATIO_2_55 = "CinemaScope 55 (2.55:1)";
+  private static final String RATIO_2_76 = "Ultra Panavision 70 (2.76:1)";
 
   private final String        others;
 
@@ -50,8 +53,9 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
     checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     others = TmmResourceBundle.getString("filter.others");
 
-    setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90, RATIO_2_20, RATIO_2_35, RATIO_2_40,
-        others);
+    setValues(RATIO_1_33, RATIO_1_37, RATIO_1_43, RATIO_1_56, RATIO_1_66, RATIO_1_78, RATIO_1_85, RATIO_1_90,
+              RATIO_2_00, RATIO_2_20, RATIO_2_35, RATIO_2_40, RATIO_2_55, RATIO_2_76,
+              others);
   }
 
   @Override
@@ -111,6 +115,11 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
           return true;
         }
       }
+      else if (aspectRatio == 2.00F) {
+        if (ratios.equals(RATIO_2_00)) {
+          return true;
+        }
+      }
       else if (aspectRatio == 2.20F) {
         if (ratios.equals(RATIO_2_20)) {
           return true;
@@ -123,6 +132,16 @@ public class MovieAspectRatioFilter extends AbstractCheckComboBoxMovieUIFilter<S
       }
       else if (aspectRatio == 2.39F || aspectRatio == 2.40F) {
         if (ratios.equals(RATIO_2_40)) {
+          return true;
+        }
+      }
+      else if (aspectRatio == 2.55F) {
+        if (ratios.equals(RATIO_2_55)) {
+          return true;
+        }
+      }
+      else if (aspectRatio == 2.76F) {
+        if (ratios.equals(RATIO_2_76)) {
           return true;
         }
       }

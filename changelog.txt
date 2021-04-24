@@ -1,9 +1,31 @@
-Upcoming version
+Version 4.1.4
+=======================
++ (movies/TV shows) added "force best match" to automatic subtitle downloads (rather than only download file hash matches)
++ added possibility to double click the image in the image chooser to select the artwork #1094
++ re-added various zoom options to the image preview window #1094
++ added filter options for the image chooser #1253
++ (movie sets) some UI enhancements: show IMDB id, show artwork files, show year in search dialog #1285 #1280
++ (TV shows) option to only include the first studio in the NFO
+x (macOS) re-compiled the launcher with golang 1.15 to support macOS 10.11 #1278
+x fixed occasional crash on startup of the TV show module #1283
+x (TV show) support more than 9 extrafanarts in the renamer #1286
+x (TV show) also respect the trailer filename settings in the TV show renamer #1287
+x (movies/TV shows) respect first alphanumeric character for the "first" renderer
+x (TV show) embed episode details into a scroll pane #1289
+x (FFmpeg) suppress unnecessary error logs #1284
+x (TV show) write/read country tag to/from NFO files
+x (TV show) parse aired tag before the premiered tag for episode NFOs #1295
+
+
+Version 4.1.3
 =======================
 + Emby compatibility enhancements
   - (TV shows) proper trailer naming for Emby
   - (TV shows) added tmdbid to the NFO
+  - (TV shows) added option to write <enddate> to the TV show NFO
+  - (TV shows) added option to write all actors/guests into the TV show NFO
 + (TV shows) added vote count column
++ basic support for nextpvr recording XML parsing #1252
 x added shutdown hook to prevent database corruption
 x (TV shows) also fetch imdb ratings for episodes
 x (movies) catch occasional errors in movie set sorting
@@ -11,6 +33,11 @@ x check write access to the tinyMediaManager folder on startup
 x (TV shows) added columns for music theme and video bitrate
 x (TV shows) do not mix in a missing episode on media file exchange
 x (movies/TV shows) fixed creation of trailer folder while muxing
+x (TV show) fixed bug when writing TV show NFO
+x re-aligned new rating logos to do not take up that much vertical space
+x (TV show) prevent rating panel from flickering
+x do not draw the rating panel over popups #1265
+x change filter indicator if all filters are deactivated #1268
 
 
 Version 4.1.2

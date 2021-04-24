@@ -155,7 +155,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowEmptyFilter(), panelMain);
         addFilter(new TvShowUncategorizedEpisodesFilter(), panelMain);
         addFilter(new TvShowMissingEpisodesFilter(), panelMain);
-        addFilter(new TvShowNoteFilter(),panelMain);
+        addFilter(new TvShowNoteFilter(), panelMain);
       }
 
       {
@@ -329,19 +329,21 @@ public class TvShowFilterDialog extends TmmDialog {
   private void filterChanged() {
     for (Map.Entry<JPanel, Set<ITvShowUIFilter<?>>> entry : filterMap.entrySet()) {
       boolean active = false;
-      for (ITvShowUIFilter<?> filter : entry.getValue()) {
-        switch (filter.getFilterState()) {
-          case ACTIVE:
-          case ACTIVE_NEGATIVE:
-            active = true;
-            break;
+      if (treeTable.isFiltersActive()) {
+        for (ITvShowUIFilter<?> filter : entry.getValue()) {
+          switch (filter.getFilterState()) {
+            case ACTIVE:
+            case ACTIVE_NEGATIVE:
+              active = true;
+              break;
 
-          default:
-            break;
-        }
+            default:
+              break;
+          }
 
-        if (active) {
-          break;
+          if (active) {
+            break;
+          }
         }
       }
 

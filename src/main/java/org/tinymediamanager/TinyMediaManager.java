@@ -31,7 +31,6 @@ import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
@@ -41,14 +40,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.swing.JOptionPane;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
-import org.apache.commons.io.IOUtils;
 import org.jdesktop.beansbinding.ELProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,10 +268,7 @@ public class TinyMediaManager {
           TmmModuleManager.getInstance().startUp();
 
           // register the shutdown handler
-          Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            TmmModuleManager.getInstance().shutDown();
-            shutdownLogger();
-          }));
+          Runtime.getRuntime().addShutdownHook(new Thread(() -> TmmModuleManager.getInstance().shutDown()));
 
           TmmModuleManager.getInstance().registerModule(MovieModuleManager.getInstance());
           TmmModuleManager.getInstance().enableModule(MovieModuleManager.getInstance());
@@ -408,6 +401,10 @@ public class TinyMediaManager {
               TmmModuleManager.getInstance().saveSettings();
               // hard kill
               TmmTaskManager.getInstance().shutdownNow();
+              // close dabatbases
+              TmmModuleManager.getInstance().shutDown();
+              // shutdown the logger
+              shutdownLogger();
             }
             catch (Exception ex) {
               LOGGER.warn(ex.getMessage());
@@ -465,23 +462,6 @@ public class TinyMediaManager {
         g2.setColor(new Color(134, 134, 134));
         g2.fillRoundRect(51, 400, 227 * progress / 100, 6, 6, 6);
         LOGGER.debug("Startup (" + progress + "%) " + text);
-
-        // Object oldAAValue = g2.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
-        // g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        // g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-        // g2.setComposite(AlphaComposite.Clear);
-        // g2.fillRect(20, 200, 480, 305);
-        // g2.setPaintMode();
-        //
-        // g2.setColor(new Color(51, 153, 255));
-        // g2.fillRect(22, 272, 452 * progress / 100, 21);
-        //
-        // g2.setColor(Color.black);
-        // g2.drawString(text + "...", 23, 310);
-        // int l = g2.getFontMetrics().stringWidth(ReleaseInfo.getRealVersion()); // bound right
-        // g2.drawString(ReleaseInfo.getRealVersion(), 480 - l, 325);
-        // g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, oldAAValue);
-        // LOGGER.debug("Startup (" + progress + "%) " + text);
       }
 
       /**
@@ -540,26 +520,6 @@ public class TinyMediaManager {
 
   public static void shutdownLogger() {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-
-    // dump the traces into a file tmm_trace.zip
-    Appender appender = loggerContext.getLogger("ROOT").getAppender("INMEMORY");
-    if (appender instanceof InMemoryAppender) {
-      File file = new File("logs/tmm_trace.zip");
-      try (FileOutputStream os = new FileOutputStream(file);
-          ZipOutputStream zos = new ZipOutputStream(os);
-          InputStream is = new ByteArrayInputStream(((InMemoryAppender) appender).getLog().getBytes())) {
-
-        ZipEntry ze = new ZipEntry("trace.log");
-        zos.putNextEntry(ze);
-
-        IOUtils.copy(is, zos);
-        zos.closeEntry();
-      }
-      catch (Exception e) {
-        LOGGER.warn("could not store traces log file: {}", e.getMessage());
-      }
-    }
-
     loggerContext.stop();
   }
 

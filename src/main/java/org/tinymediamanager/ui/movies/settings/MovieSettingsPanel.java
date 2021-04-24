@@ -70,6 +70,7 @@ public class MovieSettingsPanel extends JPanel {
   private JButton                      btnClearTraktData;
   private JCheckBox                    chckbxTraktSync;
   private JCheckBox                    chckbxRenameAfterScrape;
+  private JCheckBox                    chckbxARDAfterScrape;
   private JCheckBox                    chckbxAutoUpdateOnStart;
   private JCheckBox                    chckbxBuildImageCache;
   private JCheckBox                    chckbxExtractArtworkFromVsmeta;
@@ -391,27 +392,34 @@ public class MovieSettingsPanel extends JPanel {
         lblAutomaticRenameHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticrename.desc"));
         panelAutomaticTasks.add(lblAutomaticRenameHint, "cell 1 0 2 1");
 
+        chckbxARDAfterScrape = new JCheckBox(TmmResourceBundle.getString("Settings.movie.automaticard"));
+        panelAutomaticTasks.add(chckbxARDAfterScrape, "cell 1 1 2 1");
+
+        JLabel lblAutomaticARDHint = new JLabel(IconManager.HINT);
+        lblAutomaticARDHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticard.desc"));
+        panelAutomaticTasks.add(lblAutomaticARDHint, "cell 1 1 2 1");
+
         chckbxTraktSync = new JCheckBox(TmmResourceBundle.getString("Settings.trakt"));
-        panelAutomaticTasks.add(chckbxTraktSync, "cell 1 1 2 1");
+        panelAutomaticTasks.add(chckbxTraktSync, "cell 1 2 2 1");
 
         btnClearTraktData = new JButton(TmmResourceBundle.getString("Settings.trakt.clearmovies"));
-        panelAutomaticTasks.add(btnClearTraktData, "cell 1 1 2 1");
+        panelAutomaticTasks.add(btnClearTraktData, "cell 1 2 2 1");
 
         chckbxTraktSyncCollection = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.collection"));
-        panelAutomaticTasks.add(chckbxTraktSyncCollection, "cell 2 2");
+        panelAutomaticTasks.add(chckbxTraktSyncCollection, "cell 2 3");
 
         chckbxTraktSyncWatched = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.watched"));
-        panelAutomaticTasks.add(chckbxTraktSyncWatched, "cell 2 3");
+        panelAutomaticTasks.add(chckbxTraktSyncWatched, "cell 2 4");
 
         chckbxTraktSyncRating = new JCheckBox(TmmResourceBundle.getString("Settings.trakt.rating"));
-        panelAutomaticTasks.add(chckbxTraktSyncRating, "cell 2 4");
+        panelAutomaticTasks.add(chckbxTraktSyncRating, "cell 2 5");
 
         chckbxAutoUpdateOnStart = new JCheckBox(TmmResourceBundle.getString("Settings.movie.automaticupdate"));
-        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 6 2 1");
+        panelAutomaticTasks.add(chckbxAutoUpdateOnStart, "cell 1 7 2 1");
 
         JLabel lblAutomaticUpdateHint = new JLabel(IconManager.HINT);
         lblAutomaticUpdateHint.setToolTipText(TmmResourceBundle.getString("Settings.movie.automaticupdate.desc"));
-        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 6 2 1");
+        panelAutomaticTasks.add(lblAutomaticUpdateHint, "cell 1 7 2 1");
 
       }
     }
@@ -620,5 +628,10 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_21 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_19, chckbxStoreFilter,
         jCheckBoxBeanProperty);
     autoBinding_21.bind();
+    //
+    Property movieSettingsBeanProperty_22 = BeanProperty.create("ardAfterScrape");
+    AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_22, chckbxARDAfterScrape,
+      jCheckBoxBeanProperty);
+    autoBinding_22.bind();
   }
 }

@@ -17,9 +17,11 @@ package org.tinymediamanager.ui.tvshows.dialogs;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -48,6 +50,7 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
 
   private final MediaScraperCheckComboBox        cbSubtitleScraper;
   private final TmmCheckComboBox<MediaLanguages> cbLanguage;
+  private final JCheckBox                        chckbxForceBestSubtitle;
 
   private boolean                                startDownload    = false;
 
@@ -57,25 +60,26 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
     {
       JPanel panelCenter = new JPanel();
       getContentPane().add(panelCenter, BorderLayout.CENTER);
-      panelCenter.setLayout(new MigLayout("", "[][300lp]", "[][][20lp:n][]"));
+      panelCenter.setLayout(new MigLayout("", "[16lp!][][300lp:300lp,grow]", "[][][][10lp:n][]"));
 
       JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
-      panelCenter.add(lblScraper, "cell 0 0");
+      panelCenter.add(lblScraper, "cell 0 0 2 1");
 
       cbSubtitleScraper = new MediaScraperCheckComboBox(TvShowList.getInstance().getAvailableSubtitleScrapers());
-      panelCenter.add(cbSubtitleScraper, "cell 1 0,growx");
+      panelCenter.add(cbSubtitleScraper, "cell 2 0,growx,wmin 0");
 
       JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
-      panelCenter.add(lblLanguage, "cell 0 1");
+      panelCenter.add(lblLanguage, "cell 0 1 2 1");
 
-      cbLanguage = new TmmCheckComboBox<>(MediaLanguages.valuesSorted());
-      panelCenter.add(cbLanguage, "cell 1 1,growx");
-
-      cbLanguage.setSelectedItem(TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage());
+      cbLanguage = new TmmCheckComboBox(MediaLanguages.valuesSorted());
+      panelCenter.add(cbLanguage, "cell 2 1,growx,wmin 0");
 
       JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("tvshow.download.subtitles.hint"));
-      taHint.setOpaque(false);
-      panelCenter.add(taHint, "cell 0 3 2 1,growx");
+      panelCenter.add(taHint, "cell 1 2 2 1,growx,wmin 0");
+
+      chckbxForceBestSubtitle = new JCheckBox(TmmResourceBundle.getString("subtitle.download.force"));
+      chckbxForceBestSubtitle.setToolTipText(TmmResourceBundle.getString("subtitle.download.force.desc"));
+      panelCenter.add(chckbxForceBestSubtitle, "cell 1 4 2 1");
     }
     {
       JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
@@ -106,6 +110,11 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
     if (!selectedSubtitleScrapers.isEmpty()) {
       cbSubtitleScraper.setSelectedItems(selectedSubtitleScrapers);
     }
+
+    // language
+    cbLanguage.setSelectedItems(Collections.singletonList(TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage()));
+
+    chckbxForceBestSubtitle.setSelected(TvShowModuleManager.SETTINGS.getSubtitleForceBestMatch());
   }
 
   /**
@@ -125,6 +134,15 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
    */
   public List<MediaLanguages> getLanguages() {
     return cbLanguage.getSelectedItems();
+  }
+
+  /**
+   * Should we force the best match if there is no hash-match?
+   *
+   * @return true/false
+   */
+  public boolean isForceBestMatch() {
+    return chckbxForceBestSubtitle.isSelected();
   }
 
   /**

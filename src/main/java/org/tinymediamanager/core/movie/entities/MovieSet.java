@@ -550,6 +550,29 @@ public class MovieSet extends MediaEntity {
     return MediaMetadata.EMPTY_RATING;
   }
 
+  public String getYears() {
+    List<Integer> years = new ArrayList<>();
+
+    for (Movie movie : movies) {
+      years.add(movie.getYear());
+    }
+
+    Collections.sort(years);
+    if (!years.isEmpty() && years.size() >= 2) {
+      if (years.get(0).equals(years.get(years.size() - 1))) {
+        return String.valueOf(years.get(0));
+      }
+      else {
+        return years.get(0) + " - " + (years.get(years.size() - 1));
+      }
+    }
+    else if (years.size() == 1) {
+      return String.valueOf(years.get(0));
+    }
+
+    return "";
+  }
+
   /*******************************************************************************
    * helper classses
    *******************************************************************************/
@@ -606,11 +629,6 @@ public class MovieSet extends MediaEntity {
 
     @Override
     public void writeActorImages() {
-      // do nothing here
-    }
-
-    @Override
-    public void rename() {
       // do nothing here
     }
 

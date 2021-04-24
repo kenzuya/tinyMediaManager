@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,6 +102,7 @@ public class TvShowNfoParser {
   public List<String>               fanarts             = new ArrayList<>();
   public List<MediaGenres>          genres              = new ArrayList<>();
   public List<String>               studios             = new ArrayList<>();
+  public List<String>               countries           = new ArrayList<>();
   public List<String>               tags                = new ArrayList<>();
   public List<Person>               actors              = new ArrayList<>();
 
@@ -115,6 +117,7 @@ public class TvShowNfoParser {
   public String                     code                = "";
   public Date                       dateadded           = null;
   public String                     episodeguide        = "";
+  public String                     enddate             = "";
 
   /**
    * create a new instance by parsing the document
@@ -162,6 +165,7 @@ public class TvShowNfoParser {
     parseTag(TvShowNfoParser::parseWatchedAndPlaycount);
     parseTag(TvShowNfoParser::parseGenres);
     parseTag(TvShowNfoParser::parseStudios);
+    parseTag(TvShowNfoParser::parseCountries);
     parseTag(TvShowNfoParser::parseTags);
     parseTag(TvShowNfoParser::parseActors);
     parseTag(TvShowNfoParser::parseTrailer);
@@ -172,6 +176,7 @@ public class TvShowNfoParser {
     parseTag(TvShowNfoParser::parseCode);
     parseTag(TvShowNfoParser::parseDateadded);
     parseTag(TvShowNfoParser::parseEpisodeguide);
+    parseTag(TvShowNfoParser::parseEnddate);
     parseTag(TvShowNfoParser::parseUserNote);
 
     // MUST BE THE LAST ONE!
@@ -1173,6 +1178,33 @@ public class TvShowNfoParser {
   }
 
   /**
+   * countries usually come a county tag
+   */
+  private Void parseCountries() {
+    supportedElements.add("country");
+
+    Elements elements = root.select(root.tagName() + " > country");
+    // if there is exactly one country tag, split the countries at the comma
+    if (elements.size() == 1) {
+      try {
+        countries.addAll(Arrays.asList(elements.get(0).ownText().split("\\s*[,\\/]\\s*"))); // split on , or / and remove whitespace around)
+      }
+      catch (Exception ignored) {
+        // ignored
+      }
+    }
+    else {
+      for (Element element : elements) {
+        if (StringUtils.isNotBlank(element.ownText())) {
+          countries.add(element.ownText());
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * tags usually come in a tag tag
    */
   private Void parseTags() {
@@ -1351,6 +1383,20 @@ public class TvShowNfoParser {
   }
 
   /**
+   * find enddate for emby related nfos
+   */
+  private Void parseEnddate() {
+    supportedElements.add("enddate");
+
+    Element element = getSingleElement(root, "enddate");
+    if (element != null) {
+      enddate = element.ownText();
+    }
+
+    return null;
+  }
+
+  /**
    * find and store all unsupported tags
    */
   private Void findUnsupportedElements() {
@@ -1473,12 +1519,10 @@ public class TvShowNfoParser {
     }
 
     String studio = StringUtils.join(studios, " / ");
-    if (studio == null) {
-      show.setProductionCompany("");
-    }
-    else {
-      show.setProductionCompany(studio);
-    }
+    show.setProductionCompany(Objects.requireNonNullElse(studio, ""));
+
+    String country = StringUtils.join(countries, " / ");
+    show.setCountry(Objects.requireNonNullElse(country, ""));
 
     show.setCertification(certification);
     show.setStatus(status);

@@ -15,12 +15,9 @@
  */
 package org.tinymediamanager.core;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -56,6 +53,7 @@ public class Settings extends AbstractSettings {
   private static final String   SUBTITLE_FILE_TYPE          = "subtitleFileType";
   private static final String   CLEANUP_FILE_TYPE           = "cleanupFileType";
   private static final String   WOL_DEVICES                 = "wolDevices";
+  private static final String   CUSTOM_ASPECT_RATIOS        = "customAspectRatios";
 
   /**
    * statics
@@ -71,6 +69,7 @@ public class Settings extends AbstractSettings {
   private final List<String>    subtitleFileTypes           = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>    cleanupFileTypes            = ObservableCollections.observableList(new ArrayList<>());
   private final List<WolDevice> wolDevices                  = ObservableCollections.observableList(new ArrayList<>());
+  private final List<String>    customAspectRatios          = ObservableCollections.observableList(new ArrayList<>());
 
   private String                version                     = "";
 
@@ -117,6 +116,23 @@ public class Settings extends AbstractSettings {
   private boolean               ignoreSSLProblems           = true;
 
   private boolean               writeMediaInfoXml           = false;
+
+  // aspect ratio detector
+  private ArdMode               ardMode                     = ArdMode.DEFAULT;
+  private Map<ArdMode, ARDSampleSetting> ardSampleSettings  = defaultARDSampleSettings();
+  private float                 ardIgnoreBeginningPct       = 2f;
+  private float                 ardIgnoreEndPct             = 8f;
+  private boolean               ardRoundUp                  = false;
+  private float                 ardRoundUpThresholdPct      = 4f;
+  private int                   ardMFMode                   = 0;
+  private float                 ardMFThresholdPct           = 6f;
+  private float                 ardPlausiWidthPct           = 50f;
+  private float                 ardPlausiHeightPct          = 60f;
+  private float                 ardPlausiWidthDeltaPct      = 1.5f;
+  private float                 ardPlausiHeightDeltaPct     = 2f;
+  private float                 ardSecondaryDelta           = 0.15f;
+  private float                 ardDarkLevelPct             = 7f;
+  private float                 ardDarkLevelMaxPct          = 13f;
 
   static {
     if (System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("windows")) {
@@ -172,6 +188,16 @@ public class Settings extends AbstractSettings {
     Collections.sort(subtitleFileTypes);
     firePropertyChange(SUBTITLE_FILE_TYPE, null, subtitleFileTypes);
 
+    // default custom aspect ratios
+    customAspectRatios.clear();
+    customAspectRatios.addAll(AspectRatio.getDefaultValues()
+                                         .keySet()
+                                         .stream()
+                                         .map(ar -> ar.toString())
+                                         .collect(Collectors.toList()));
+    Collections.sort(customAspectRatios);
+    firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
+
     // default title prefix
     titlePrefixes.clear();
     addTitlePrefix("A");
@@ -203,6 +229,8 @@ public class Settings extends AbstractSettings {
     addCleanupFileType(".url$");
     addCleanupFileType(".html$");
     Collections.sort(cleanupFileTypes);
+
+    ardSampleSettings = defaultARDSampleSettings();
 
     setProxyFromSystem();
 
@@ -1055,5 +1083,240 @@ public class Settings extends AbstractSettings {
     boolean oldValue = this.writeMediaInfoXml;
     this.writeMediaInfoXml = newValue;
     firePropertyChange("writeMediaInfoXml", oldValue, newValue);
+  }
+
+  // aspect ratio detector
+  public void setArdMode(ArdMode newValue) {
+    ArdMode oldValue = this.ardMode;
+    this.ardMode = newValue;
+    firePropertyChange("ardMode", oldValue, newValue);
+  }
+
+  public ArdMode getArdMode() {
+    return this.ardMode;
+  }
+
+  public void setArdIgnoreBeginningPct(float newValue) {
+    float oldValue = this.ardIgnoreBeginningPct;
+    this.ardIgnoreBeginningPct = newValue;
+    firePropertyChange("ardIgnoreBeginningPct", oldValue, newValue);
+  }
+
+  public float getArdIgnoreBeginningPct() {
+    return this.ardIgnoreBeginningPct;
+  }
+
+  public void setArdIgnoreEndPct(float newValue) {
+    float oldValue = this.ardIgnoreEndPct;
+    this.ardIgnoreEndPct = newValue;
+    firePropertyChange("ardIgnoreEndPct", oldValue, newValue);
+  }
+
+  public float getArdIgnoreEndPct() {
+    return this.ardIgnoreEndPct;
+  }
+
+  public void setArdPlausiWidthPct(float newValue) {
+    float oldValue = this.ardPlausiWidthPct;
+    this.ardPlausiWidthPct = newValue;
+    firePropertyChange("ardPlausiWidthPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiWidthPct() {
+    return this.ardPlausiWidthPct;
+  }
+
+  public void setArdPlausiHeightPct(float newValue) {
+    float oldValue = this.ardPlausiHeightPct;
+    this.ardPlausiHeightPct = newValue;
+    firePropertyChange("ardPlausiHeightPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiHeightPct() {
+    return this.ardPlausiHeightPct;
+  }
+
+  public void setArdPlausiWidthDeltaPct(float newValue) {
+    float oldValue = this.ardPlausiWidthDeltaPct;
+    this.ardPlausiWidthDeltaPct = newValue;
+    firePropertyChange("ardPlausiWidthDeltaPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiWidthDeltaPct() {
+    return this.ardPlausiWidthDeltaPct;
+  }
+
+  public void setArdPlausiHeightDeltaPct(float newValue) {
+    float oldValue = this.ardPlausiHeightDeltaPct;
+    this.ardPlausiHeightDeltaPct = newValue;
+    firePropertyChange("ardPlausiHeightDeltaPct", oldValue, newValue);
+  }
+
+  public float getArdPlausiHeightDeltaPct() {
+    return this.ardPlausiHeightDeltaPct;
+  }
+
+  public void setArdSecondaryDelta(float newValue) {
+    float oldValue = this.ardSecondaryDelta;
+    this.ardSecondaryDelta = newValue;
+    firePropertyChange("ardSecondaryDelta", oldValue, newValue);
+  }
+
+  public float getArdSecondaryDelta() {
+    return this.ardSecondaryDelta;
+  }
+
+  public void setArdRoundUp(boolean newValue) {
+    boolean oldValue = this.ardRoundUp;
+    this.ardRoundUp = newValue;
+    firePropertyChange("ardRoundUp", oldValue, newValue);
+  }
+
+  public boolean isArdRoundUp() {
+    return this.ardRoundUp;
+  }
+
+  public void setArdRoundUpThresholdPct(float newValue) {
+    float oldValue = this.ardRoundUpThresholdPct;
+    this.ardRoundUpThresholdPct = newValue;
+    firePropertyChange("ardRoundUpThresholdPct", oldValue, newValue);
+  }
+
+  public float getArdRoundUpThresholdPct() {
+    return this.ardRoundUpThresholdPct;
+  }
+
+  public void addCustomAspectRatios(String aspectRatio) {
+    try {
+      if (!customAspectRatios.contains(aspectRatio)) {
+        customAspectRatios.add(aspectRatio);
+        firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
+      }
+    } catch (Exception ex) {}
+  }
+
+  public void removeCustomAspectRatios(String aspectRatio) {
+    customAspectRatios.remove(aspectRatio);
+    firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
+  }
+
+  public void setCustomAspectRatios(List<String> newValues) {
+    customAspectRatios.clear();
+    customAspectRatios.addAll(newValues);
+    firePropertyChange(CUSTOM_ASPECT_RATIOS, null, customAspectRatios);
+  }
+
+  public List<String> getCustomAspectRatios() {
+    return customAspectRatios;
+  }
+
+  public void setArdMFMode(int newValue) {
+    int oldValue = this.ardMFMode;
+    this.ardMFMode = newValue;
+    firePropertyChange("ardMFMode", oldValue, newValue);
+  }
+
+  public int getArdMFMode() {
+    return this.ardMFMode;
+  }
+
+  public void setArdMFThresholdPct(float newValue) {
+    float oldValue = this.ardMFThresholdPct;
+    this.ardMFThresholdPct = newValue;
+    firePropertyChange("ardMFThresholdPct", oldValue, newValue);
+  }
+
+  public float getArdMFThresholdPct() {
+    return this.ardMFThresholdPct;
+  }
+
+  public void setArdDarkLevelPct(float newValue) {
+    float oldValue = this.ardDarkLevelPct;
+    this.ardDarkLevelPct = newValue;
+    firePropertyChange("ardDarkLevelPct", oldValue, newValue);
+  }
+
+  public float getArdDarkLevelPct() {
+    return this.ardDarkLevelPct;
+  }
+
+  public void setArdDarkLevelMaxPct(float newValue) {
+    float oldValue = this.ardDarkLevelMaxPct;
+    this.ardDarkLevelMaxPct = newValue;
+    firePropertyChange("ardDarkLevelMaxPct", oldValue, newValue);
+  }
+
+  public float getArdDarkLevelMaxPct() {
+    return this.ardDarkLevelMaxPct;
+  }
+
+  public Map<ArdMode, ARDSampleSetting> getArdSampleSettings() {
+    return ardSampleSettings;
+  }
+
+  public ARDSampleSetting getArdSetting(ArdMode mode) {
+    return ardSampleSettings.get(mode);
+  }
+
+  private Map<ArdMode, ARDSampleSetting> defaultARDSampleSettings() {
+    Map<ArdMode, ARDSampleSetting> settings = new HashMap<>();
+
+    ARDSampleSetting settingFast = new ARDSampleSetting();
+    settingFast.duration = 1;
+    settingFast.minNumber = 4;
+    settingFast.maxGap = 1800;
+
+    ARDSampleSetting settingDefault = new ARDSampleSetting();
+    settingDefault.duration = 2;
+    settingDefault.minNumber = 6;
+    settingDefault.maxGap = 900;
+
+    ARDSampleSetting settingAccurate = new ARDSampleSetting();
+    settingAccurate.duration = 2;
+    settingAccurate.minNumber = 30;
+    settingAccurate.maxGap = 900;
+
+    settings.put(ArdMode.FAST, settingFast);
+    settings.put(ArdMode.DEFAULT, settingDefault);
+    settings.put(ArdMode.ACCURATE, settingAccurate);
+
+    return settings;
+  }
+
+  public enum ArdMode {
+    FAST,
+    DEFAULT,
+    ACCURATE
+  }
+
+  public static class ARDSampleSetting implements Serializable {
+
+    private int duration = 2;
+    private int minNumber = 6;
+    private int maxGap = 900;
+
+    public int getDuration() {
+      return duration;
+    }
+
+    public void setDuration(int ardSampleDuration) {
+      this.duration = ardSampleDuration;
+    }
+
+    public int getMinNumber() {
+      return minNumber;
+    }
+
+    public void setMinNumber(int ardSampleMinNumber) {
+      this.minNumber = ardSampleMinNumber;
+    }
+
+    public int getMaxGap() {
+      return maxGap;
+    }
+
+    public void setMaxGap(int ardSampleMaxGap) {
+      this.maxGap = ardSampleMaxGap;
+    }
   }
 }

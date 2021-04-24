@@ -129,7 +129,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.EPISODES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
-    col.setMinWidth((int) (fontMetrics.stringWidth("999") * 1.2f));
+    col.setMinWidth((int) (fontMetrics.stringWidth("999") * 1.2f + 10));
     col.setColumnComparator(integerComparator);
     addColumn(col);
 

@@ -53,6 +53,7 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetToggleWatchedFlagAction
 import org.tinymediamanager.ui.moviesets.dialogs.MovieSetFilterDialog;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetArtworkPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetInformationPanel;
+import org.tinymediamanager.ui.moviesets.panels.MovieSetMediaInformationPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetMissingMovieInformationPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetTreePanel;
 import org.tinymediamanager.ui.moviesets.settings.MovieSetSettingsNode;
@@ -102,6 +103,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     };
 
     movieSetDetailPanel.addTab(TmmResourceBundle.getString("metatag.details"), new MovieSetInformationPanel(selectionModel));
+    movieSetDetailPanel.addTab(TmmResourceBundle.getString("metatag.mediafiles"), new MovieSetMediaInformationPanel(selectionModel));
     movieSetDetailPanel.addTab(TmmResourceBundle.getString("metatag.artwork"), new MovieSetArtworkPanel(selectionModel));
     dataPanel.add(movieSetDetailPanel, "movieSet");
 

@@ -77,6 +77,7 @@ import com.uwetrottmann.tmdb2.entities.ContentRating;
 import com.uwetrottmann.tmdb2.entities.CrewMember;
 import com.uwetrottmann.tmdb2.entities.FindResults;
 import com.uwetrottmann.tmdb2.entities.Genre;
+import com.uwetrottmann.tmdb2.entities.Image;
 import com.uwetrottmann.tmdb2.entities.TvEpisode;
 import com.uwetrottmann.tmdb2.entities.TvSeason;
 import com.uwetrottmann.tmdb2.entities.TvShow;
@@ -669,7 +670,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
         if (episode != null) {
           Response<TvEpisode> episodeResponse = api.tvEpisodesService()
               .episode(tmdbId, MetadataUtil.unboxInteger(episode.season_number, -1), MetadataUtil.unboxInteger(episode.episode_number, -1), language,
-                  new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS))
+                  new AppendToResponse(AppendToResponseItem.EXTERNAL_IDS, AppendToResponseItem.TRANSLATIONS, AppendToResponseItem.CREDITS,
+                      AppendToResponseItem.IMAGES))
               .execute();
 
           if (!episodeResponse.isSuccessful()) {
@@ -825,12 +827,35 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       md.addCastMember(cm);
     }
 
-    // Thumb
-    if (StringUtils.isNotBlank(episode.still_path)) {
+    // Thumbs
+    if (episode.images != null && ListUtils.isNotEmpty(episode.images.stills)) {
+      for (Image image : episode.images.stills) {
+        MediaArtwork ma = new MediaArtwork(getId(), MediaArtworkType.THUMB);
+        ma.setPreviewUrl(artworkBaseUrl + "w300" + image.file_path);
+        ma.setDefaultUrl(artworkBaseUrl + "original" + image.file_path);
+        ma.setOriginalUrl(artworkBaseUrl + "original" + image.file_path);
+
+        // add different sizes
+        // original (most of the time 1920x1080)
+        ma.addImageSize(image.width, image.height, artworkBaseUrl + "original" + image.file_path);
+        // 1280x720
+        if (1280 < image.width) {
+          ma.addImageSize(1280, image.height * 1280 / image.width, artworkBaseUrl + "w1280" + image.file_path);
+        }
+        // w300
+        if (300 < image.width) {
+          ma.addImageSize(300, image.height * 300 / image.width, artworkBaseUrl + "w300" + image.file_path);
+        }
+
+        md.addMediaArt(ma);
+      }
+    }
+    else if (StringUtils.isNotBlank(episode.still_path)) {
       MediaArtwork ma = new MediaArtwork(getId(), MediaArtworkType.THUMB);
       ma.setPreviewUrl(artworkBaseUrl + "w300" + episode.still_path);
       ma.setDefaultUrl(artworkBaseUrl + "original" + episode.still_path);
       ma.setOriginalUrl(artworkBaseUrl + "original" + episode.still_path);
+      ma.addImageSize(1920, 1080, artworkBaseUrl + "original" + episode.still_path);
       md.addMediaArt(ma);
     }
 

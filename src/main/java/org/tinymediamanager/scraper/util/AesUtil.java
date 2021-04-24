@@ -15,7 +15,7 @@
  */
 package org.tinymediamanager.scraper.util;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 
@@ -50,25 +50,15 @@ public class AesUtil {
   }
 
   public String encrypt(String salt, String iv, String passphrase, String plaintext) {
-    try {
-      SecretKey key = generateKey(salt, passphrase);
-      byte[] encrypted = doFinal(Cipher.ENCRYPT_MODE, key, iv, plaintext.getBytes("UTF-8"));
-      return base64(encrypted);
-    }
-    catch (UnsupportedEncodingException e) {
-      throw fail(e);
-    }
+    SecretKey key = generateKey(salt, passphrase);
+    byte[] encrypted = doFinal(Cipher.ENCRYPT_MODE, key, iv, plaintext.getBytes(StandardCharsets.UTF_8));
+    return base64(encrypted);
   }
 
   public String decrypt(String salt, String iv, String passphrase, String ciphertext) {
-    try {
-      SecretKey key = generateKey(salt, passphrase);
-      byte[] decrypted = doFinal(Cipher.DECRYPT_MODE, key, iv, base64(ciphertext));
-      return new String(decrypted, "UTF-8");
-    }
-    catch (UnsupportedEncodingException e) {
-      throw fail(e);
-    }
+    SecretKey key = generateKey(salt, passphrase);
+    byte[] decrypted = doFinal(Cipher.DECRYPT_MODE, key, iv, base64(ciphertext));
+    return new String(decrypted, StandardCharsets.UTF_8);
   }
 
   private byte[] doFinal(int encryptMode, SecretKey key, String iv, byte[] bytes) {

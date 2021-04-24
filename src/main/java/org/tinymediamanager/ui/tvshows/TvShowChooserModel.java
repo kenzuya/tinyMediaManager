@@ -29,6 +29,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
+import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
@@ -263,9 +264,14 @@ public class TvShowChooserModel extends AbstractModelObject {
         ep.setSeason(me.getSeasonNumber());
         ep.setDvdEpisode(me.getDvdEpisodeNumber());
         ep.setDvdSeason(me.getDvdSeasonNumber());
+        ep.setFirstAired(me.getReleaseDate());
         ep.setTitle(me.getTitle());
         ep.setOriginalTitle(me.getOriginalTitle());
         ep.setPlot(me.getPlot());
+        ep.setActors(me.getCastMembers(Person.Type.ACTOR));
+        ep.setDirectors(me.getCastMembers(Person.Type.DIRECTOR));
+        ep.setWriters(me.getCastMembers(Person.Type.WRITER));
+
         episodes.add(ep);
       }
     }

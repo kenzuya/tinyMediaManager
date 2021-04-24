@@ -38,10 +38,12 @@ import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.SubtitleSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.SubtitleSearchResult;
+import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.opensubtitles.model.Info;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.Similarity;
 
 /**
@@ -63,7 +65,7 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
   private String                   username        = "";
   private String                   password        = "";
 
-  public OpenSubtitlesSubtitleProvider() {
+  protected OpenSubtitlesSubtitleProvider() {
     providerInfo = createMediaProviderInfo();
   }
 
@@ -130,66 +132,63 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
     List<SubtitleSearchResult> results = new ArrayList<>();
 
     // first try: search with moviehash & filesize
-    if (options.getFile() != null) {
+    if (options.getFile() != null && options.getFile().exists() && options.getFile().length() > 0) {
       File file = options.getFile();
-      if (file.exists() && file.length() > 0) {
-        long fileSize = file.length();
-        String hash = computeOpenSubtitlesHash(file);
+      long fileSize = file.length();
+      String hash = computeOpenSubtitlesHash(file);
 
-        getLogger().debug("searching subtitle for {}", file);
-        getLogger().debug("moviebytesize: {}; moviehash: {}", fileSize, hash);
+      getLogger().debug("searching subtitle for {}", file);
+      getLogger().debug("moviebytesize: {}; moviehash: {}", fileSize, hash);
 
-        Map<String, Object> mapQuery = new HashMap<>();
-        mapQuery.put("moviebytesize", fileSize);
-        mapQuery.put("moviehash", hash);
-        mapQuery.put("sublanguageid", getLanguageCode(options.getLanguage().toLocale()));
-        try {
-          OpenSubtitlesConnectionCounter.trackConnections();
-          Object[] arrayQuery = { mapQuery };
-          Info info = new Info((Map<String, Object>) methodCall("SearchSubtitles", arrayQuery));
+      Map<String, Object> mapQuery = new HashMap<>();
+      mapQuery.put("moviebytesize", fileSize);
+      mapQuery.put("moviehash", hash);
+      mapQuery.put("sublanguageid", getLanguageCode(options.getLanguage().toLocale()));
+      try {
+        OpenSubtitlesConnectionCounter.trackConnections();
+        Object[] arrayQuery = { mapQuery };
+        Info info = new Info((Map<String, Object>) methodCall("SearchSubtitles", arrayQuery));
 
-          for (Info.MovieInfo movieInfo : info.getMovieInfo()) {
-            // hash search will give a 100% perfect match
-            SubtitleSearchResult result = new SubtitleSearchResult(providerInfo.getId(), 1.0f);
-            result.setId(movieInfo.id);
-            result.setTitle(movieInfo.movieTitle);
-            result.setReleaseName(movieInfo.movieReleaseName);
-            result.setUrl(movieInfo.zipDownloadLink);
-            result.setRating(movieInfo.subRating);
+        for (Info.MovieInfo movieInfo : info.getMovieInfo()) {
+          // hash search will give a 100% perfect match
+          SubtitleSearchResult result = new SubtitleSearchResult(providerInfo.getId(), 1.0f);
+          result.setId(movieInfo.id);
+          result.setTitle(movieInfo.movieTitle);
+          result.setReleaseName(movieInfo.movieReleaseName);
+          result.setUrl(movieInfo.zipDownloadLink);
+          result.setRating(movieInfo.subRating);
+          result.setScore(1.0f);
+          result.setStackCount(movieInfo.subSumCD);
 
-            results.add(result);
-          }
-
-          getLogger().debug("found {} results", info.getMovieInfo().size());
+          results.add(result);
         }
-        catch (TmmXmlRpcException e) {
-          switch (e.statusCode) {
-            // forbidden/unauthorized
-            case HttpURLConnection.HTTP_FORBIDDEN:
-            case HttpURLConnection.HTTP_UNAUTHORIZED:
-              throw new ScrapeException(new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
 
-            // rate limit exceeded?
-            case 429:
-            case 407:
-              throw new ScrapeException(new Exception("Rate limit exceeded (HTTP " + e.statusCode + ")"));
+        getLogger().debug("found {} results", info.getMovieInfo().size());
+      }
+      catch (TmmXmlRpcException e) {
+        switch (e.statusCode) {
+          // forbidden/unauthorized
+          case HttpURLConnection.HTTP_FORBIDDEN:
+          case HttpURLConnection.HTTP_UNAUTHORIZED:
+            throw new ScrapeException(new Exception("Access to Opensubtitles was not successfull (HTTP " + e.statusCode + ")"));
 
-            // unspecified error:
-            default:
-              throw new ScrapeException(e.getCause());
-          }
-        }
-        catch (Exception e) {
-          getLogger().error("Could not search subtitle - {}", e.getMessage());
+          // rate limit exceeded?
+          case 429:
+          case 407:
+            throw new ScrapeException(new Exception("Rate limit exceeded (HTTP " + e.statusCode + ")"));
+
+          // unspecified error:
+          default:
+            throw new ScrapeException(e.getCause());
         }
       }
-      else {
-        getLogger().warn("file does not exist or is zero byte: {}", file);
+      catch (Exception e) {
+        getLogger().error("Could not search subtitle - {}", e.getMessage());
       }
     }
 
     // second try: search by IMDB Id
-    if (results.isEmpty() && StringUtils.isNotBlank(options.getImdbId())) {
+    if (results.isEmpty() && MetadataUtil.isValidImdbId(options.getImdbId())) {
       Map<String, Object> mapQuery = new HashMap<>();
 
       getLogger().debug("searching subtitle for imdb id: {}", options.getImdbId());
@@ -217,6 +216,8 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
           result.setReleaseName(movieInfo.movieReleaseName);
           result.setUrl(movieInfo.zipDownloadLink);
           result.setRating(movieInfo.subRating);
+          result.setStackCount(movieInfo.subSumCD);
+          result.setScore((float) movieInfo.score);
 
           results.add(result);
         }
@@ -234,6 +235,10 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
           case 429:
           case 407:
             throw new ScrapeException(new Exception("Rate limit exceeded (HTTP " + e.statusCode + ")"));
+
+          // service unavailable
+          case 503:
+            throw new ScrapeException(new HttpException(503, "Service unavailable (HTTP 503))"));
 
           // unspecified error:
           default:
@@ -266,6 +271,8 @@ abstract class OpenSubtitlesSubtitleProvider implements IMediaProvider {
           result.setReleaseName(movieInfo.movieReleaseName);
           result.setUrl(movieInfo.zipDownloadLink);
           result.setRating(movieInfo.subRating);
+          result.setStackCount(movieInfo.subSumCD);
+          result.setScore((float) movieInfo.score);
 
           results.add(result);
         }

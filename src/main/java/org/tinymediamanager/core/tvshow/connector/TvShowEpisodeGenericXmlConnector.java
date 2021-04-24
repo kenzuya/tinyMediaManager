@@ -37,6 +37,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaFileType;
@@ -47,6 +48,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -61,6 +63,8 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisodeConnector {
+  private static final Logger         LOGGER               = LoggerFactory.getLogger(TvShowEpisodeGenericXmlConnector.class);
+
   protected static final String       ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
   protected final List<TvShowEpisode> episodes;
@@ -68,16 +72,9 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
   protected Document                  document;
   protected Element                   root;
 
-  public TvShowEpisodeGenericXmlConnector(List<TvShowEpisode> episodes) {
+  protected TvShowEpisodeGenericXmlConnector(List<TvShowEpisode> episodes) {
     this.episodes = episodes;
   }
-
-  /**
-   * get the logger for the impl. class
-   *
-   * @return the logger
-   */
-  protected abstract Logger getLogger();
 
   /**
    * write own tag which are not covered by this generic connector
@@ -219,7 +216,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
           Utils.writeStringToFile(f, xml);
         }
         else {
-          getLogger().debug("NFO did not change - do not write it!");
+          LOGGER.debug("NFO did not change - do not write it!");
         }
 
         MediaFile mf = new MediaFile(f);
@@ -227,7 +224,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
         newNfos.add(mf);
       }
       catch (Exception e) {
-        getLogger().error("write {}: {}", firstEpisode.getPathNIO().resolve(nfoFilename), e.getMessage());
+        LOGGER.error("write '" + firstEpisode.getPathNIO().resolve(nfoFilename) + "'", e);
         MessageManager.instance.pushMessage(
             new Message(Message.MessageLevel.ERROR, firstEpisode, "message.nfo.writeerror", new String[] { ":", e.getLocalizedMessage() }));
       }
@@ -541,6 +538,11 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       Element studio = document.createElement("studio");
       studio.setTextContent(s);
       root.appendChild(studio);
+
+      // break here if we just want to write one studio
+      if (TvShowSettings.getInstance().isNfoWriteSingleStudio()) {
+        break;
+      }
     }
   }
 
@@ -685,7 +687,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
           root.appendChild(document.importNode(unsupported.getFirstChild(), true));
         }
         catch (Exception e) {
-          getLogger().error("import unsupported tags: {}", e.getMessage());
+          LOGGER.error("import unsupported tags: {}", e.getMessage());
         }
       }
     }

@@ -277,21 +277,23 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
 
   private void updateFilterIndicator() {
     boolean active = false;
-    for (ITmmTreeFilter<TmmTreeNode> filter : tree.getFilters()) {
-      if (filter instanceof ITmmUIFilter) {
-        ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
-        switch (uiFilter.getFilterState()) {
-          case ACTIVE:
-          case ACTIVE_NEGATIVE:
-            active = true;
-            break;
+    if (tree.isFiltersActive()) {
+      for (ITmmTreeFilter<TmmTreeNode> filter : tree.getFilters()) {
+        if (filter instanceof ITmmUIFilter) {
+          ITmmUIFilter uiFilter = (ITmmUIFilter) filter;
+          switch (uiFilter.getFilterState()) {
+            case ACTIVE:
+            case ACTIVE_NEGATIVE:
+              active = true;
+              break;
 
-          default:
-            break;
-        }
+            default:
+              break;
+          }
 
-        if (active) {
-          break;
+          if (active) {
+            break;
+          }
         }
       }
     }

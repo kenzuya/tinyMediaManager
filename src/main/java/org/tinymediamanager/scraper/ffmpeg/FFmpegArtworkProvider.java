@@ -19,12 +19,12 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.addon.FFmpegAddon;
-import org.tinymediamanager.core.EmptyFileException;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -88,8 +88,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
     }
 
     MediaFile mediaFile = (MediaFile) mf;
-    if (mediaFile.getDuration() == 0) {
-      throw new ScrapeException(new EmptyFileException(mediaFile.getFile()));
+    if (mediaFile.isISO() || mediaFile.getDuration() == 0) {
+      return Collections.emptyList();
     }
 
     // take the runtime
@@ -117,8 +117,8 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
 
         MediaArtwork still = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.THUMB);
         still.addImageSize(mediaFile.getVideoWidth(), mediaFile.getVideoHeight(), "file:/" + tempFile.toAbsolutePath().toString());
-        still.setDefaultUrl("file:/" + tempFile.toAbsolutePath().toString());
-        still.setOriginalUrl("file:/" + tempFile.toAbsolutePath().toString());
+        still.setDefaultUrl("file:/" + tempFile.toAbsolutePath());
+        still.setOriginalUrl("file:/" + tempFile.toAbsolutePath());
         artworks.add(still);
 
       }

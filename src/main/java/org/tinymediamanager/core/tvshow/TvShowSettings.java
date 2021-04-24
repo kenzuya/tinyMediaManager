@@ -156,9 +156,13 @@ public class TvShowSettings extends AbstractSettings {
   private DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
   private MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
   private boolean                                        nfoWriteEpisodeguide                   = true;
+  private boolean                                        nfoWriteDateEnded                      = false;
+  private boolean                                        nfoWriteAllActors                      = false;
+  private boolean                                        nfoWriteSingleStudio                   = false;
 
   // renamer
   private boolean                                        renameAfterScrape                      = false;
+  private boolean                                        ardAfterScrape                         = false;
   private boolean                                        updateOnStart                          = false;
   private String                                         renamerTvShowFoldername                = DEFAULT_RENAMER_FOLDER_PATTERN;
   private String                                         renamerSeasonFoldername                = DEFAULT_RENAMER_SEASON_PATTERN;
@@ -200,6 +204,7 @@ public class TvShowSettings extends AbstractSettings {
   // subtitle scraper
   private MediaLanguages                                 subtitleScraperLanguage                = MediaLanguages.en;
   private LanguageStyle                                  subtitleLanguageStyle                  = LanguageStyle.ISO3T;
+  private boolean                                        subtitleForceBestMatch                 = false;
 
   // misc
   private boolean                                        buildImageCacheOnImport                = false;
@@ -219,7 +224,7 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        showTvShowTableTooltips                = true;
   private boolean                                        seasonArtworkFallback                  = false;
   private boolean                                        storeUiFilters                         = false;
-  private List<UIFilters>                                uiFilters                              = new ArrayList<>();
+  private final List<UIFilters>                          uiFilters                              = new ArrayList<>();
 
   public TvShowSettings() {
     super();
@@ -862,6 +867,16 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange("subtitleLanguageStyle", oldValue, newValue);
   }
 
+  public boolean getSubtitleForceBestMatch() {
+    return subtitleForceBestMatch;
+  }
+
+  public void setSubtitleForceBestMatch(boolean newValue) {
+    boolean oldValue = this.subtitleForceBestMatch;
+    this.subtitleForceBestMatch = newValue;
+    firePropertyChange("subtitleForceBestMatch", oldValue, newValue);
+  }
+
   public Map<String, List<UIFilters>> getUiFilterPresets() {
     return uiFilterPresets;
   }
@@ -1327,6 +1342,36 @@ public class TvShowSettings extends AbstractSettings {
     firePropertyChange("nfoWriteEpisodeguide", oldValue, newValue);
   }
 
+  public boolean isNfoWriteDateEnded() {
+    return nfoWriteDateEnded;
+  }
+
+  public void setNfoWriteDateEnded(boolean newValue) {
+    boolean oldValue = this.nfoWriteDateEnded;
+    this.nfoWriteDateEnded = newValue;
+    firePropertyChange("nfoWriteDateEnded", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteAllActors() {
+    return nfoWriteAllActors;
+  }
+
+  public void setNfoWriteAllActors(boolean newValue) {
+    boolean oldValue = this.nfoWriteAllActors;
+    this.nfoWriteAllActors = newValue;
+    firePropertyChange("nfoWriteAllActors", oldValue, newValue);
+  }
+
+  public boolean isNfoWriteSingleStudio() {
+    return nfoWriteSingleStudio;
+  }
+
+  public void setNfoWriteSingleStudio(boolean newValue) {
+    boolean oldValue = nfoWriteSingleStudio;
+    nfoWriteSingleStudio = newValue;
+    firePropertyChange("nfoWriteSingleStudio", oldValue, newValue);
+  }
+
   public String getPreferredRating() {
     return preferredRating;
   }
@@ -1355,6 +1400,16 @@ public class TvShowSettings extends AbstractSettings {
 
   public boolean isRenameAfterScrape() {
     return this.renameAfterScrape;
+  }
+
+  public void setArdAfterScrape(boolean newValue) {
+    boolean oldValue = this.ardAfterScrape;
+    this.ardAfterScrape = newValue;
+    firePropertyChange("ardAfterScrape", oldValue, newValue);
+  }
+
+  public boolean isArdAfterScrape() {
+    return this.ardAfterScrape;
   }
 
   public int getImageExtraFanartCount() {

@@ -79,6 +79,7 @@ public class MovieSetFilterDialog extends TmmDialog {
 
   private final JTabbedPane                            tabbedPane;
   private JComboBox<String>                            cbPreset;
+  private JCheckBox                                    chkbxEnableAll;
 
   public MovieSetFilterDialog(TmmTreeTable treeTable) {
     super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieSetFilter");
@@ -130,7 +131,7 @@ public class MovieSetFilterDialog extends TmmDialog {
       JLabel lblEnableAllT = new TmmLabel(TmmResourceBundle.getString("filter.enableall"));
       panelFilterPreset.add(lblEnableAllT, "cell 1 2, alignx trailing");
 
-      JCheckBox chkbxEnableAll = new JCheckBox();
+      chkbxEnableAll = new JCheckBox();
       chkbxEnableAll.setSelected(true);
       chkbxEnableAll.addActionListener(e -> treeTable.setFiltersActive(chkbxEnableAll.isSelected()));
       panelFilterPreset.add(chkbxEnableAll, "cell 2 2");
@@ -259,19 +260,21 @@ public class MovieSetFilterDialog extends TmmDialog {
   private void filterChanged() {
     for (Map.Entry<JPanel, Set<IMovieSetUIFilter<?>>> entry : filterMap.entrySet()) {
       boolean active = false;
-      for (IMovieSetUIFilter<?> filter : entry.getValue()) {
-        switch (filter.getFilterState()) {
-          case ACTIVE:
-          case ACTIVE_NEGATIVE:
-            active = true;
-            break;
+      if (treeTable.isFiltersActive()) {
+        for (IMovieSetUIFilter<?> filter : entry.getValue()) {
+          switch (filter.getFilterState()) {
+            case ACTIVE:
+            case ACTIVE_NEGATIVE:
+              active = true;
+              break;
 
-          default:
-            break;
-        }
+            default:
+              break;
+          }
 
-        if (active) {
-          break;
+          if (active) {
+            break;
+          }
         }
       }
 

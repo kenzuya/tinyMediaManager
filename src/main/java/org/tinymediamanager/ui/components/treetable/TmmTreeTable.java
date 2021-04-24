@@ -564,6 +564,20 @@ public class TmmTreeTable extends TmmTable {
   }
 
   /**
+   * check whether all filters are active or not
+   *
+   * @return true if not all filters are deaktivates
+   */
+  public boolean isFiltersActive() {
+    final TreeModel model = treeTableModel.getTreeModel();
+    if (model instanceof TmmTreeModel) {
+      return ((TmmTreeModel<?>) model).getDataProvider().isFiltersActive();
+    }
+
+    return true;
+  }
+
+  /**
    * provide table cell tooltips via our table model
    *
    * @param e

@@ -224,8 +224,9 @@ public class ITOpensubtitlesMetadataProviderTest extends BasicTest {
       // }
       mapQuery = new HashMap<>();
       mapQuery.put("query", "The Matrix");
-      mapQuery.put("moviebytesize", 1475618924);
-      mapQuery.put("moviehash", "c00e59454d238c53");
+      mapQuery.put("moviebytesize", 1475618927);
+      mapQuery.put("moviehash", "c00e59454d238c52");
+      mapQuery.put("imdbid", "0103064");
       mapQuery.put("sublanguageid", "ger");
 
       arrayQuery = new Object[] { mapQuery };

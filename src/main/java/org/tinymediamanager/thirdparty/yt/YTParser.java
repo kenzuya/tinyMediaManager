@@ -332,12 +332,13 @@ class YTParser implements Parser, TmmFeature {
       br = new BufferedReader(new InputStreamReader(channelLink.openStream()));
       String line;
       while ((line = br.readLine()) != null) {
-        Scanner scan = new Scanner(line);
-        scan.useDelimiter("list=");
-        while (scan.hasNext()) {
-          String pId = scan.next();
-          if (pId.startsWith("UU")) {
-            return pId.substring(0, 24);
+        try (Scanner scan = new Scanner(line)) {
+          scan.useDelimiter("list=");
+          while (scan.hasNext()) {
+            String pId = scan.next();
+            if (pId.startsWith("UU")) {
+              return pId.substring(0, 24);
+            }
           }
         }
       }
