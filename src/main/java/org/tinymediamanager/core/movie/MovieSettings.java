@@ -162,6 +162,7 @@ public class MovieSettings extends AbstractSettings {
 
   // renamer
   private boolean                                renameAfterScrape                      = false;
+  private boolean                                ardAfterScrape                         = false;
   private boolean                                updateOnStart                          = false;
   private String                                 renamerPathname                        = DEFAULT_RENAMER_FOLDER_PATTERN;
   private String                                 renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
@@ -211,6 +212,7 @@ public class MovieSettings extends AbstractSettings {
   private MediaLanguages                         subtitleScraperLanguage                = MediaLanguages.en;
   private LanguageStyle                          subtitleLanguageStyle                  = LanguageStyle.ISO3T;
   private boolean                                subtitleWithoutLanguageTag             = false;
+  private boolean                                subtitleForceBestMatch                 = false;
 
   // misc
   private boolean                                runtimeFromMediaInfo                   = false;
@@ -805,6 +807,16 @@ public class MovieSettings extends AbstractSettings {
     return this.renameAfterScrape;
   }
 
+  public void setArdAfterScrape(boolean newValue) {
+    boolean oldValue = this.ardAfterScrape;
+    this.ardAfterScrape = newValue;
+    firePropertyChange("ardAfterScrape", oldValue, newValue);
+  }
+
+  public boolean isArdAfterScrape() {
+    return this.ardAfterScrape;
+  }
+
   public boolean isUpdateOnStart() {
     return this.updateOnStart;
   }
@@ -1363,6 +1375,16 @@ public class MovieSettings extends AbstractSettings {
     boolean oldValue = this.subtitleWithoutLanguageTag;
     this.subtitleWithoutLanguageTag = newValue;
     firePropertyChange("subtitleWithoutLanguageTag", oldValue, newValue);
+  }
+
+  public boolean isSubtitleForceBestMatch() {
+    return subtitleForceBestMatch;
+  }
+
+  public void setSubtitleForceBestMatch(boolean newValue) {
+    boolean oldValue = this.subtitleForceBestMatch;
+    this.subtitleForceBestMatch = newValue;
+    firePropertyChange("subtitleForceBestMatch", oldValue, newValue);
   }
 
   public List<MovieScraperMetadataConfig> getScraperMetadataConfig() {

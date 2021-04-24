@@ -30,6 +30,7 @@ public class SubtitleSearchResult implements Comparable<SubtitleSearchResult> {
   private String id          = "";
   private String title       = "";
   private String releaseName = "";
+  private int    stackCount  = 0;
   private String url         = "";
   private float  score       = 0f;
   private float  rating      = 0f;
@@ -186,6 +187,25 @@ public class SubtitleSearchResult implements Comparable<SubtitleSearchResult> {
    */
   public void setRating(float rating) {
     this.rating = rating;
+  }
+
+  /**
+   * get the stack count
+   * 
+   * @return the stack count
+   */
+  public int getStackCount() {
+    return stackCount;
+  }
+
+  /**
+   * set the stack count
+   * 
+   * @param stackCount
+   *          the stack count
+   */
+  public void setStackCount(int stackCount) {
+    this.stackCount = stackCount;
   }
 
   @Override

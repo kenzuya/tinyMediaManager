@@ -70,18 +70,34 @@ public class TvShowEpisodeNfoParser {
    *          the document returned by JSOUP.parse()
    */
   private TvShowEpisodeNfoParser(Document document) {
+    document.outputSettings().prettyPrint(false);
+
     // first check if there is a valid root object
     Elements elements = document.select("episodedetails");
-    if (elements.isEmpty()) {
+    if (!elements.isEmpty()) {
+      // parse Kodi style
+      for (Element element : elements) {
+        Episode episode = new Episode(element);
+        if (StringUtils.isNotBlank(episode.title)) {
+          episodes.add(episode);
+        }
+      }
+
       return;
     }
 
-    document.outputSettings().prettyPrint(false);
+    elements = document.select("recording");
+    if (!elements.isEmpty()) {
+      // parse nextpvr style
+      Episode episode = new Episode(elements.get(0));
 
-    for (Element element : elements) {
-      Episode episode = new Episode(element);
-      episodes.add(episode);
+      if (StringUtils.isNotBlank(episode.title)) {
+        episodes.add(episode);
+      }
+
+      return;
     }
+
   }
 
   /**
@@ -195,6 +211,15 @@ public class TvShowEpisodeNfoParser {
     private Episode(Element root) {
       this.root = root;
 
+      if ("episodedetails".equalsIgnoreCase(root.tagName())) {
+        parseKodiStyle();
+      }
+      else if ("recording".equalsIgnoreCase(root.tagName())) {
+        parseNextpvrStyle();
+      }
+    }
+
+    private void parseKodiStyle() {
       // parse all supported fields
       parseTag(Episode::parseTitle);
       parseTag(Episode::parseOriginalTitle);
@@ -236,6 +261,13 @@ public class TvShowEpisodeNfoParser {
       parseTag(Episode::findUnsupportedElements);
     }
 
+    private void parseNextpvrStyle() {
+      parseTag(Episode::parseSubtitle);
+      parseTag(Episode::parseDescription);
+      parseTag(Episode::parseCertificationInRating);
+      parseTag(Episode::parseOriginalAirDate);
+    }
+
     /**
      * parse the tag in a save way
      *
@@ -268,6 +300,20 @@ public class TvShowEpisodeNfoParser {
       supportedElements.add("title");
 
       Element element = getSingleElement(root, "title");
+      if (element != null) {
+        title = element.ownText();
+      }
+
+      return null;
+    }
+
+    /**
+     * the title in the nextpvr xml comes in the subtitle tag
+     */
+    private Void parseSubtitle() {
+      supportedElements.add("subtitle");
+
+      Element element = getSingleElement(root, "subtitle");
       if (element != null) {
         title = element.ownText();
       }
@@ -539,6 +585,20 @@ public class TvShowEpisodeNfoParser {
     }
 
     /**
+     * the plot could also come in a description tag (nextpvr)
+     */
+    private Void parseDescription() {
+      supportedElements.add("description");
+
+      Element element = getSingleElement(root, "description");
+      if (element != null) {
+        plot = element.wholeText();
+      }
+
+      return null;
+    }
+
+    /**
      * the outline usually comes in the outline tag as an integer (or empty)
      */
     private Void parseOutline() {
@@ -611,6 +671,20 @@ public class TvShowEpisodeNfoParser {
       if (element == null || StringUtils.isBlank(element.ownText())) {
         element = getSingleElement(root, "mpaa");
       }
+      if (element != null) {
+        certification = MovieHelpers.parseCertificationStringForMovieSetupCountry(element.ownText());
+      }
+
+      return null;
+    }
+
+    /**
+     * certification from nextpvr can come in a rating tag which breaks handling of Kodi ratings - so handle this alone
+     */
+    private Void parseCertificationInRating() {
+      supportedElements.add("rating");
+
+      Element element = getSingleElement(root, "rating");
       if (element != null) {
         certification = MovieHelpers.parseCertificationStringForMovieSetupCountry(element.ownText());
       }
@@ -750,10 +824,10 @@ public class TvShowEpisodeNfoParser {
      * the release date is usually in the premiered tag
      */
     private Void parseReleaseDate() {
-      supportedElements.add("premiered");
       supportedElements.add("aired");
+      supportedElements.add("premiered");
 
-      Element element = getSingleElement(root, "premiered");
+      Element element = getSingleElement(root, "aired");
       if (element != null) {
         // parse a date object out of the string
         try {
@@ -765,9 +839,9 @@ public class TvShowEpisodeNfoParser {
         catch (ParseException ignored) {
         }
       }
-      // also look if there is an aired date
+      // also look if there is an premiered date
       if (releaseDate == null) {
-        element = getSingleElement(root, "aired");
+        element = getSingleElement(root, "premiered");
         if (element != null) {
           // parse a date object out of the string
           try {
@@ -778,6 +852,29 @@ public class TvShowEpisodeNfoParser {
           }
           catch (ParseException ignored) {
           }
+        }
+      }
+
+      return null;
+    }
+
+    /**
+     * the release date from nextpvr is in an original_air_date tag
+     */
+    private Void parseOriginalAirDate() {
+      supportedElements.add("original_air_date");
+
+      Element element = getSingleElement(root, "original_air_date");
+      if (element != null) {
+        // parse a date object out of the string
+        try {
+          Date date = StrgUtils.parseDate(element.ownText());
+          if (date != null) {
+            releaseDate = date;
+          }
+        }
+        catch (ParseException ignored) {
+          // ignored
         }
       }
 

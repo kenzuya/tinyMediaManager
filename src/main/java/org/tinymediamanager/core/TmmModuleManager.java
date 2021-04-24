@@ -104,13 +104,11 @@ public class TmmModuleManager {
 
     // shutdown modules
     for (ITmmModule module : modules) {
-      if (module.isEnabled()) {
-        try {
-          module.shutDown();
-        }
-        catch (Exception e) {
-          LOGGER.error("problem shutting down '{}' - {}", module.getModuleTitle(), e.getMessage());
-        }
+      try {
+        module.shutDown();
+      }
+      catch (Exception e) {
+        LOGGER.error("problem shutting down '{}' - {}", module.getModuleTitle(), e.getMessage());
       }
     }
 

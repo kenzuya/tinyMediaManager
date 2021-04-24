@@ -69,7 +69,7 @@ public abstract class AbstractSettings extends AbstractModelObject {
   @JsonIgnore
   protected Map<String, Object> unknownFields;
 
-  public AbstractSettings() {
+  protected AbstractSettings() {
     unknownFields = new HashMap<>();
     objectWriter = createObjectWriter();
   }
@@ -131,12 +131,12 @@ public abstract class AbstractSettings extends AbstractModelObject {
   /**
    * create the object writer for the settings instance
    */
-  abstract protected ObjectWriter createObjectWriter();
+  protected abstract ObjectWriter createObjectWriter();
 
   /**
    * write the default settings values
    */
-  abstract protected void writeDefaultSettings();
+  protected abstract void writeDefaultSettings();
 
   /**
    * gets the actual settings folder (used in the getInstance method)
@@ -152,14 +152,14 @@ public abstract class AbstractSettings extends AbstractModelObject {
    * 
    * @return the actual config filename
    */
-  abstract public String getConfigFilename();
+  public abstract String getConfigFilename();
 
   /**
    * gets a logger for that class
    * 
    * @return the logger
    */
-  abstract protected Logger getLogger();
+  protected abstract Logger getLogger();
 
   /**
    * save the settings to a JSON file

@@ -56,7 +56,10 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = -299825914193235308L;
 
-  private MovieSettings                        settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings                  settings         = MovieModuleManager.SETTINGS;
+  private final ItemListener                   checkBoxListener;
+  private final ItemListener                   comboBoxListener;
+
   private JComboBox<MovieConnectors>           cbNfoFormat;
   private JCheckBox                            cbMovieNfoFilename1;
   private JCheckBox                            cbMovieNfoFilename2;
@@ -67,9 +70,6 @@ class MovieScraperNfoSettingsPanel extends JPanel {
   private JHintCheckBox                        chckbxCreateOutline;
   private JCheckBox                            chckbxOutlineFirstSentence;
   private JCheckBox                            chckbxSingleStudio;
-
-  private ItemListener                         checkBoxListener;
-  private ItemListener                         comboBoxListener;
 
   /**
    * Instantiates a new movie scraper settings panel.

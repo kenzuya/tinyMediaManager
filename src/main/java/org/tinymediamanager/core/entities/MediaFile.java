@@ -1050,8 +1050,11 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     else if (ar < 1.8748f) { // sqrt(1.85*1.90)
       ret = 1.85F;
     }
-    else if (ar < 2.0445f) { // sqrt(1.90*2.20)
+    else if (ar < 1.9494f) { // sqrt(1.90*2.00)
       ret = 1.90F;
+    }
+    else if (ar < 2.0976f) { // sqrt(2.00*2.20)
+      ret = 2.00F;
     }
     else if (ar < 2.2738f) { // sqrt(2.20*2.35)
       ret = 2.20F;

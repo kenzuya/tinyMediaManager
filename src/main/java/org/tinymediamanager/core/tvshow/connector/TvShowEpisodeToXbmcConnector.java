@@ -18,8 +18,6 @@ package org.tinymediamanager.core.tvshow.connector;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -34,15 +32,9 @@ import org.w3c.dom.Element;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeToXbmcConnector extends TvShowEpisodeGenericXmlConnector {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowEpisodeToXbmcConnector.class);
 
   public TvShowEpisodeToXbmcConnector(List<TvShowEpisode> episodes) {
     super(episodes);
-  }
-
-  @Override
-  protected Logger getLogger() {
-    return LOGGER;
   }
 
   @Override

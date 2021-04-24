@@ -194,7 +194,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
         options.setTmdbId(result.getIdAsInt(result.getProviderId()));
         options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
 
-        MediaMetadata info = null;
+        MediaMetadata info;
 
         try {
           info = ((IMovieSetMetadataProvider) scraper.getMediaProvider()).getMetadata(options);
@@ -222,6 +222,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
           for (MediaMetadata item : info.getSubItems()) {
             MovieInSet movie = new MovieInSet(item.getTitle());
+            movie.setYear(item.getYear());
             try {
               movie.setTmdbId(Integer.parseInt(item.getId(MediaMetadata.TMDB).toString()));
             }
@@ -348,11 +349,13 @@ public class MovieSetChooserModel extends AbstractModelObject {
   }
 
   public static class MovieInSet extends AbstractModelObject implements Comparable<MovieInSet> {
-    private String name        = "";
-    private int    tmdbId      = 0;
-    private String imdbId      = "";
-    private String releaseDate = "";
-    private Movie  movie       = null;
+    private final String name;
+
+    private int          tmdbId      = 0;
+    private String       imdbId      = "";
+    private String       releaseDate = "";
+    private int          year        = 0;
+    private Movie        movie       = null;
 
     public MovieInSet(String name) {
       this.name = name;
@@ -360,6 +363,10 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
     public String getName() {
       return name;
+    }
+
+    public int getYear() {
+      return year;
     }
 
     public int getTmdbId() {
@@ -376,6 +383,10 @@ public class MovieSetChooserModel extends AbstractModelObject {
 
     public Movie getMovie() {
       return movie;
+    }
+
+    public void setYear(int year) {
+      this.year = year;
     }
 
     public void setTmdbId(int tmdbId) {

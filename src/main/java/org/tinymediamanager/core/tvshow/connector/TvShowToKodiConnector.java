@@ -17,17 +17,27 @@
 package org.tinymediamanager.core.tvshow.connector;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
+import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
+import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
@@ -37,17 +47,12 @@ import org.w3c.dom.Element;
  * @author Manuel Laggner
  */
 public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowToKodiConnector.class);
-  private static final Pattern HD_TRAILERS_PATTERN      = Pattern
+  private static final Logger  LOGGER              = LoggerFactory.getLogger(TvShowToKodiConnector.class);
+  private static final Pattern HD_TRAILERS_PATTERN = Pattern
       .compile("https?://.*(apple.com|yahoo-redir|yahoo.com|youtube.com|moviefone.com|ign.com|hd-trailers.net|aol.com).*");
 
   public TvShowToKodiConnector(TvShow tvShow) {
     super(tvShow);
-  }
-
-  @Override
-  protected Logger getLogger() {
-    return LOGGER;
   }
 
   /**
@@ -100,7 +105,39 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
   }
 
   @Override
+  protected void addActors() {
+    if (TvShowModuleManager.SETTINGS.isNfoWriteAllActors()) {
+      // combine base cast and guests
+      Map<String, Person> actors = new LinkedHashMap<>();
+
+      for (Person person : tvShow.getActors()) {
+        if (StringUtils.isNotBlank(person.getName())) {
+          actors.putIfAbsent(person.getName(), person);
+        }
+      }
+
+      for (TvShowEpisode episode : tvShow.getEpisodes()) {
+        for (Person guest : episode.getGuests()) {
+          if (StringUtils.isNotBlank(guest.getName())) {
+            actors.putIfAbsent(guest.getName(), guest);
+          }
+        }
+      }
+
+      for (Person additionalActor : actors.values()) {
+        addActor(additionalActor);
+      }
+    }
+    else {
+      // write only base cast
+      super.addActors();
+    }
+  }
+
+  @Override
   protected void addOwnTags() {
+    // emby special tag for the end date
+    addEnddate();
   }
 
   @Override
@@ -132,7 +169,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
     matcher = HD_TRAILERS_PATTERN.matcher(trailer.getUrl());
     if (matcher.matches()) {
       try {
-        return "plugin://plugin.video.hdtrailers_net/video/" + matcher.group(1) + "/" + URLEncoder.encode(trailer.getUrl(), "UTF-8");
+        return "plugin://plugin.video.hdtrailers_net/video/" + matcher.group(1) + "/" + URLEncoder.encode(trailer.getUrl(), StandardCharsets.UTF_8);
       }
       catch (Exception e) {
         LOGGER.debug("failed to escape {} - {}", trailer.getUrl(), e.getMessage());
@@ -140,5 +177,35 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
     }
     // everything else is stored directly
     return trailer.getUrl();
+  }
+
+  /**
+   * write the <enddate> tag for Emby<br />
+   * This will only be set if the status of the TV show is ENDED
+   */
+  protected void addEnddate() {
+    if (!TvShowModuleManager.SETTINGS.isNfoWriteDateEnded() || tvShow.getStatus() != MediaAiredStatus.ENDED) {
+      return;
+    }
+
+    Date latestAiredDate = null;
+
+    for (TvShowEpisode episode : tvShow.getEpisodes()) {
+      if (episode.getFirstAired() != null && (latestAiredDate == null || latestAiredDate.before(episode.getFirstAired()))) {
+        latestAiredDate = episode.getFirstAired();
+      }
+    }
+
+    for (TvShowEpisode episode : tvShow.getDummyEpisodes()) {
+      if (episode.getFirstAired() != null && (latestAiredDate == null || latestAiredDate.before(episode.getFirstAired()))) {
+        latestAiredDate = episode.getFirstAired();
+      }
+    }
+
+    if (latestAiredDate != null) {
+      Element enddate = document.createElement("enddate");
+      enddate.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(latestAiredDate));
+      root.appendChild(enddate);
+    }
   }
 }

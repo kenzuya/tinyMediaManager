@@ -199,7 +199,7 @@ class UiSettingsPanel extends JPanel {
         panelLanguage.add(lblLanguageHint, "cell 1 1 2 1");
       }
       {
-        lblLinkTranslate = new LinkTextArea("https://forum.kodi.tv/showthread.php?tid=174987");
+        lblLinkTranslate = new LinkTextArea("https://www.reddit.com/r/tinyMediaManager/comments/kt2iyq/basic_information/");
         panelLanguage.add(lblLinkTranslate, "cell 1 2 2 1, grow, wmin 0");
       }
       {

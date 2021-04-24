@@ -48,8 +48,8 @@ public class MovieScraperMetadataPanel extends JPanel {
    */
 
 
-  private MovieSettings                              settings         = MovieModuleManager.SETTINGS;
-  private Map<MovieScraperMetadataConfig, JCheckBox> checkboxes;
+  private final MovieSettings                              settings         = MovieModuleManager.SETTINGS;
+  private final Map<MovieScraperMetadataConfig, JCheckBox> checkboxes;
 
   public MovieScraperMetadataPanel() {
     this.checkboxes = new LinkedHashMap<>();

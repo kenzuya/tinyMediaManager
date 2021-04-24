@@ -510,7 +510,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the Trakt ID
-   * 
+   *
    * @return the Trakt ID
    */
   public String getTraktTvId() {
@@ -519,7 +519,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * get the IMDB ID
-   * 
+   *
    * @return IMDB ID
    */
   public String getImdbId() {
@@ -528,7 +528,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
   /**
    * Get the TMDB ID
-   * 
+   *
    * @return the TMDB ID
    */
   public String getTmdbId() {
@@ -1179,13 +1179,12 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return filesToCache;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
   @Override
   public int compareTo(TvShowEpisode otherTvShowEpisode) {
+    if (otherTvShowEpisode == null) {
+      return 0;
+    }
+
     if (getTvShow() != otherTvShowEpisode.getTvShow()) {
       return getTvShow().getTitle().compareTo(otherTvShowEpisode.getTvShow().getTitle());
     }

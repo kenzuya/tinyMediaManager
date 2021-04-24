@@ -26,6 +26,7 @@ import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkTyp
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -47,6 +48,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
@@ -60,6 +62,7 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -74,6 +77,8 @@ import org.w3c.dom.NodeList;
  * @author Manuel Laggner
  */
 public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
+  private static final Logger   LOGGER               = LoggerFactory.getLogger(TvShowGenericXmlConnector.class);
+
   protected static final String ORACLE_IS_STANDALONE = "http://www.oracle.com/xml/is-standalone";
 
   protected final TvShow        tvShow;
@@ -82,16 +87,9 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   protected Document            document;
   protected Element             root;
 
-  public TvShowGenericXmlConnector(TvShow tvShow) {
+  protected TvShowGenericXmlConnector(TvShow tvShow) {
     this.tvShow = tvShow;
   }
-
-  /**
-   * get the logger for the impl. class
-   *
-   * @return the logger
-   */
-  protected abstract Logger getLogger();
 
   /**
    * write own tag which are not covered by this generic connector
@@ -167,6 +165,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         addPlaycount();
         addGenres();
         addStudios();
+        addCountry();
         addTags();
         addActors();
         addTrailer();
@@ -206,14 +205,14 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
           Utils.writeStringToFile(f, xml);
         }
         else {
-          getLogger().debug("NFO did not change - do not write it!");
+          LOGGER.debug("NFO did not change - do not write it!");
         }
         MediaFile mf = new MediaFile(f);
         mf.gatherMediaInformation(true); // force to update filedate
         newNfos.add(mf);
       }
       catch (Exception e) {
-        getLogger().error("write {}: {}", tvShow.getPathNIO().resolve(nfoFilename), e.getMessage());
+        LOGGER.error("write '" + tvShow.getPathNIO().resolve(nfoFilename) + "'", e);
         MessageManager.instance
             .pushMessage(new Message(Message.MessageLevel.ERROR, tvShow, "message.nfo.writeerror", new String[] { ":", e.getLocalizedMessage() }));
       }
@@ -579,7 +578,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         root.appendChild(episodeguide);
       }
       catch (Exception e) {
-        getLogger().warn("could not set episodeguide");
+        LOGGER.warn("could not set episodeguide");
       }
     }
   }
@@ -658,15 +657,21 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       }
     }
     else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_CREATION_DATE) {
-      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles().stream().filter(mf -> mf.getType() == MediaFileType.VIDEO)
-          .min(Comparator.comparing(MediaFile::getDateCreated)).orElse(null);
+      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
+          .stream()
+          .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateCreated() != null)
+          .min(Comparator.comparing(MediaFile::getDateCreated))
+          .orElse(null);
       if (mainMediaFile != null && mainMediaFile.getDateCreated() != null) {
         dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
       }
     }
     else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_LAST_MODIFIED_DATE) {
-      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles().stream().filter(mf -> mf.getType() == MediaFileType.VIDEO)
-          .min(Comparator.comparing(MediaFile::getDateLastModified)).orElse(null);
+      MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
+          .stream()
+          .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateLastModified() != null)
+          .min(Comparator.comparing(MediaFile::getDateLastModified))
+          .orElse(null);
       if (mainMediaFile != null && mainMediaFile.getDateLastModified() != null) {
         dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateLastModified()));
       }
@@ -726,6 +731,23 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       Element studio = document.createElement("studio");
       studio.setTextContent(s);
       root.appendChild(studio);
+
+      // break here if we just want to write one studio
+      if (TvShowSettings.getInstance().isNfoWriteSingleStudio()) {
+        break;
+      }
+    }
+  }
+
+  /**
+   * add the country in <country>xxx</country> (multiple)
+   */
+  protected void addCountry() {
+    String[] countries = tvShow.getCountry().split("\\s*[,\\/]\\s*"); // split on , or / and remove whitespace around
+    for (String c : countries) {
+      Element country = document.createElement("country");
+      country.setTextContent(c);
+      root.appendChild(country);
     }
   }
 
@@ -745,46 +767,56 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    */
   protected void addActors() {
     for (Person tvShowActor : tvShow.getActors()) {
-      Element actor = document.createElement("actor");
-
-      Element name = document.createElement("name");
-      name.setTextContent(tvShowActor.getName());
-      actor.appendChild(name);
-
-      Element role = document.createElement("role");
-      role.setTextContent(tvShowActor.getRole());
-      actor.appendChild(role);
-
-      Element thumb = document.createElement("thumb");
-      thumb.setTextContent(tvShowActor.getThumbUrl());
-      actor.appendChild(thumb);
-
-      Element profile = document.createElement("profile");
-      profile.setTextContent(tvShowActor.getProfileUrl());
-      actor.appendChild(profile);
-
-      // Element type = document.createElement("type");
-      // type.setTextContent("Actor");
-      // actor.appendChild(type);
-
-      // TMDB id
-      int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
-      if (tmdbid > 0) {
-        Element id = document.createElement("tmdbid");
-        id.setTextContent(String.valueOf(tmdbid));
-        actor.appendChild(id);
-      }
-
-      // IMDB id
-      String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
-      if (StringUtils.isNotBlank(imdbid)) {
-        Element id = document.createElement("imdbid");
-        id.setTextContent(imdbid);
-        actor.appendChild(id);
-      }
-
-      root.appendChild(actor);
+      addActor(tvShowActor);
     }
+  }
+
+  /**
+   * add the given {@link Person} as an own <actor> tag
+   * 
+   * @param tvShowActor
+   *          the {@link Person} to add
+   */
+  protected void addActor(Person tvShowActor) {
+    Element actor = document.createElement("actor");
+
+    Element name = document.createElement("name");
+    name.setTextContent(tvShowActor.getName());
+    actor.appendChild(name);
+
+    Element role = document.createElement("role");
+    role.setTextContent(tvShowActor.getRole());
+    actor.appendChild(role);
+
+    Element thumb = document.createElement("thumb");
+    thumb.setTextContent(tvShowActor.getThumbUrl());
+    actor.appendChild(thumb);
+
+    Element profile = document.createElement("profile");
+    profile.setTextContent(tvShowActor.getProfileUrl());
+    actor.appendChild(profile);
+
+    // Element type = document.createElement("type");
+    // type.setTextContent("Actor");
+    // actor.appendChild(type);
+
+    // TMDB id
+    int tmdbid = tvShowActor.getIdAsInt(MediaMetadata.TMDB);
+    if (tmdbid > 0) {
+      Element id = document.createElement("tmdbid");
+      id.setTextContent(String.valueOf(tmdbid));
+      actor.appendChild(id);
+    }
+
+    // IMDB id
+    String imdbid = tvShowActor.getIdAsString(MediaMetadata.IMDB);
+    if (StringUtils.isNotBlank(imdbid)) {
+      Element id = document.createElement("imdbid");
+      id.setTextContent(imdbid);
+      actor.appendChild(id);
+    }
+
+    root.appendChild(actor);
   }
 
   /**
@@ -810,11 +842,11 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
 
       for (String unsupportedString : parser.unsupportedElements) {
         try {
-          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes("UTF-8")));
+          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes(StandardCharsets.UTF_8)));
           root.appendChild(document.importNode(unsupported.getFirstChild(), true));
         }
         catch (Exception e) {
-          getLogger().error("import unsupported tags: {}", e.getMessage());
+          LOGGER.error("import unsupported tags: {}", e.getMessage());
         }
       }
     }

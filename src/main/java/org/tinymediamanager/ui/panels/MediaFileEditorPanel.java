@@ -42,8 +42,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,12 +54,20 @@ import org.jdesktop.beansbinding.Property;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.AspectRatio;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.tasks.ARDetectorTask;
+import org.tinymediamanager.core.tasks.MediaFileARDetectorTask;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
+import org.tinymediamanager.core.threading.TmmTaskListener;
+import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.thirdparty.FFmpeg;
 import org.tinymediamanager.ui.DoubleInputVerifier;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.IntegerInputVerifier;
@@ -86,6 +92,7 @@ public class MediaFileEditorPanel extends JPanel {
 
   private final Set<Binding>              bindings         = new HashSet<>();
 
+  private TmmTask                         ardTask;
   private List<MediaFileContainer>        mediaFiles;
   private TmmTable                        tableMediaFiles;
   private JLabel                          lblFilename;
@@ -106,14 +113,17 @@ public class MediaFileEditorPanel extends JPanel {
   private JTextField                      tfHdrFormat;
   private JTextField                      tfVideoBitrate;
   private JTextField                      tfRuntime;
+  private JButton                         btnARD;
 
   public MediaFileEditorPanel(List<MediaFile> mediaFiles) {
+
     this.mediaFiles = ObservableCollections.observableList(new ArrayList<>());
     for (MediaFile mediaFile : mediaFiles) {
       MediaFileContainer container = new MediaFileContainer(mediaFile);
       this.mediaFiles.add(container);
     }
 
+    Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
     Float[] aspectRatios = ASPECT_RATIOS.keySet().toArray(new Float[0]);
 
     // predefined 3D Formats
@@ -178,6 +188,12 @@ public class MediaFileEditorPanel extends JPanel {
           tfHeight.setInputVerifier(new IntegerInputVerifier());
           panelDetails.add(tfHeight, "cell 4 2,growx");
           tfHeight.setColumns(10);
+        }
+        {
+          btnARD = new JButton(new ScanAspectRationAction());
+          MediaFile mf = MediaFileEditorPanel.this.mediaFiles.get(0).mediaFile;
+          btnARD.setEnabled(videoTypes.contains(mf.getType()));
+          panelDetails.add(btnARD, "cell 7 1");
         }
         {
           JLabel lblAspectT = new TmmLabel(TmmResourceBundle.getString("metatag.aspect"));
@@ -295,48 +311,32 @@ public class MediaFileEditorPanel extends JPanel {
     }
 
     // add selection listener to disable editing when needed
-    tableMediaFiles.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-      private final Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
-
-      @Override
-      public void valueChanged(ListSelectionEvent arg0) {
-        if (!arg0.getValueIsAdjusting()) {
-          int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
-          if (selectedRow > -1) {
-            MediaFile mf = MediaFileEditorPanel.this.mediaFiles.get(selectedRow).mediaFile;
-            // codec should not be enabled for NFOs
-            tfCodec.setEnabled(!(mf.getType() == NFO));
-            // audio streams and subtitles should not be enabled for anything except VIDEOS/TRAILER/SAMPLES
-            btnAddAudioStream.setEnabled(videoTypes.contains(mf.getType()));
-            btnRemoveAudioStream.setEnabled(videoTypes.contains(mf.getType()));
-            btnAddSubtitle.setEnabled(videoTypes.contains(mf.getType()));
-            btnRemoveSubtitle.setEnabled(videoTypes.contains(mf.getType()));
-            // 3D is only available for video types
-            cb3dFormat.setEnabled(videoTypes.contains(mf.getType()));
-            // runtime is also only available for video types
-            tfRuntime.setEnabled(videoTypes.contains(mf.getType()));
-          }
+    tableMediaFiles.getSelectionModel().addListSelectionListener(listener -> {
+      if (!listener.getValueIsAdjusting()) {
+        int selectedRow = tableMediaFiles.convertRowIndexToModel(tableMediaFiles.getSelectedRow());
+        if (selectedRow > -1) {
+          MediaFile mf = MediaFileEditorPanel.this.mediaFiles.get(selectedRow).mediaFile;
+          // codec should not be enabled for NFOs
+          tfCodec.setEnabled(!(mf.getType() == NFO));
+          // audio streams and subtitles should not be enabled for anything except VIDEOS/TRAILER/SAMPLES
+          btnAddAudioStream.setEnabled(videoTypes.contains(mf.getType()));
+          btnRemoveAudioStream.setEnabled(videoTypes.contains(mf.getType()));
+          btnAddSubtitle.setEnabled(videoTypes.contains(mf.getType()));
+          btnRemoveSubtitle.setEnabled(videoTypes.contains(mf.getType()));
+          // 3D is only available for video types
+          cb3dFormat.setEnabled(videoTypes.contains(mf.getType()));
+          // runtime is also only available for video types
+          tfRuntime.setEnabled(videoTypes.contains(mf.getType()));
+          btnARD.setEnabled(videoTypes.contains(mf.getType()) && FFmpeg.isAvailable());
         }
       }
-
     });
   }
 
   private static Map<Float, String> createAspectRatios() {
     LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
     predefinedValues.put(0f, "calculated");
-    predefinedValues.put(1.33f, "4:3 (1.33:1)");
-    predefinedValues.put(1.37f, "11:8 (1.37:1)");
-    predefinedValues.put(1.43f, "IMAX (1.43:1)");
-    predefinedValues.put(1.56f, "14:9 (1.56:1)");
-    predefinedValues.put(1.66f, "5:3 (1.66:1)");
-    predefinedValues.put(1.78f, "16:9 (1.78:1)");
-    predefinedValues.put(1.85f, "Widescreen (1.85:1)");
-    predefinedValues.put(1.90f, "Digital IMAX (1.90:1)");
-    predefinedValues.put(2.20f, "70mm (2.20:1)");
-    predefinedValues.put(2.35f, "Anamorphic (2.35:1)");
-    predefinedValues.put(2.40f, "Anamorphic widescreen (2.39:1 & 12:5)");
+    predefinedValues.putAll(AspectRatio.getDefaultValues());
     return predefinedValues;
   }
 
@@ -424,6 +424,38 @@ public class MediaFileEditorPanel extends JPanel {
             mf.removeSubtitle(row);
           }
         }
+      }
+    }
+  }
+
+  private class ScanAspectRationAction extends AbstractAction implements TmmTaskListener {
+    private static final long serialVersionUID = 8777310652284455423L;
+
+    public ScanAspectRationAction() {
+      putValue(NAME, TmmResourceBundle.getString("task.ard"));
+      putValue(SMALL_ICON, IconManager.SEARCH);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      int mediaFileRow = tableMediaFiles.getSelectedRow();
+      if (mediaFileRow > -1) {
+        mediaFileRow = tableMediaFiles.convertRowIndexToModel(mediaFileRow);
+        MediaFileContainer mf = mediaFiles.get(mediaFileRow);
+
+        ARDetectorTask task = new MediaFileARDetectorTask(mf.getMediaFile());
+        task.addListener(this);
+        TmmTaskManager.getInstance().addUnnamedTask(task);
+        MediaFileEditorPanel.this.ardTask = task;
+      }
+    }
+
+    @Override
+    public void processTaskEvent(TmmTaskHandle task) {
+      if (TmmTaskHandle.TaskState.QUEUED.equals(task.getState())) {
+        btnARD.setEnabled(false);
+      } else if (TmmTaskHandle.TaskState.FINISHED.equals(task.getState())) {
+        btnARD.setEnabled(true);
       }
     }
   }
@@ -662,5 +694,12 @@ public class MediaFileEditorPanel extends JPanel {
     AutoBinding autoBinding_11 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_5, tfRuntime,
         jTextFieldBeanProperty_7);
     autoBinding_11.bind();
+  }
+
+  public void cancelTask() {
+    if (this.ardTask != null) {
+      this.ardTask.cancel();
+      this.ardTask = null;
+    }
   }
 }

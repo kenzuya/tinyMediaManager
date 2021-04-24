@@ -990,18 +990,16 @@ public class MovieSetArtworkHelper {
     }
 
     private void writeImage(byte[] bytes, Path pathAndFilename) throws IOException {
-      FileOutputStream outputStream = new FileOutputStream(pathAndFilename.toFile());
-      InputStream is = new ByteArrayInputStream(bytes);
-      IOUtils.copy(is, outputStream);
-      outputStream.flush();
-      try {
-        outputStream.getFD().sync(); // wait until file has been completely written
+      try (FileOutputStream outputStream = new FileOutputStream(pathAndFilename.toFile()); InputStream is = new ByteArrayInputStream(bytes)) {
+        IOUtils.copy(is, outputStream);
+        outputStream.flush();
+        try {
+          outputStream.getFD().sync(); // wait until file has been completely written
+        }
+        catch (Exception e) {
+          // empty here -> just not let the thread crash
+        }
       }
-      catch (Exception e) {
-        // empty here -> just not let the thread crash
-      }
-      outputStream.close();
-      is.close();
     }
   }
 

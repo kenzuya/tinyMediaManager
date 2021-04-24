@@ -243,6 +243,16 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
    */
   public void setFiltersActive(boolean filtersActive) {
     matcherEditor.setFiltersActive(filtersActive);
+    firePropertyChange("filterChanged", null, matcherEditor.getFilters());
+  }
+
+  /**
+   * check whether all filters are active or not
+   * 
+   * @return true if not all filters are deactivated
+   */
+  public boolean isFiltersActive() {
+    return matcherEditor.isFiltersActive();
   }
 
   /**
