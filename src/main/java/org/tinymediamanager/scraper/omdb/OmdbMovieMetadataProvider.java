@@ -65,10 +65,15 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions query) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions query) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", query);
 
     initAPI();
+
+    if (query.getSearchResult() != null && query.getSearchResult().getMediaMetadata() != null
+        && getId().equals(query.getSearchResult().getMediaMetadata().getProviderId())) {
+      return query.getSearchResult().getMediaMetadata();
+    }
 
     MediaMetadata metadata = new MediaMetadata(getId());
 
@@ -279,6 +284,32 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     initAPI();
 
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
+
+    // if the imdb id is given, directly fetch the result
+    if (MetadataUtil.isValidImdbId(query.getImdbId())) {
+      try {
+        MediaMetadata md = getMetadata(query);
+
+        // create the search result from the metadata
+        MediaSearchResult result = new MediaSearchResult(getId(), MediaType.MOVIE);
+        result.setMetadata(md);
+        result.setTitle(md.getTitle());
+        result.setIMDBId(query.getImdbId());
+        result.setYear(md.getYear());
+
+        for (MediaArtwork artwork : md.getMediaArt(MediaArtwork.MediaArtworkType.POSTER)) {
+          result.setPosterUrl(artwork.getPreviewUrl());
+        }
+
+        result.setScore(1);
+        mediaResult.add(result);
+
+        return mediaResult;
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not fetch data with imdb id - '{}'", e.getMessage());
+      }
+    }
 
     MediaSearch resultList;
     try {
