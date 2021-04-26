@@ -17,6 +17,7 @@ x (FFmpeg) suppress unnecessary error logs #1284
 x (TV show) write/read country tag to/from NFO files
 x (TV show) parse aired tag before the premiered tag for episode NFOs #1295
 x repackaged the linux distributable to only contain one root folder #1257
+x do not crash the scrape if imdb ratings cannot the loaded #1299
 
 
 Version 4.1.3
