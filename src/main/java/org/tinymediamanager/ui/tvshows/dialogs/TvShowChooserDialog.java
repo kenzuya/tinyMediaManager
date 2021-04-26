@@ -93,6 +93,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
@@ -230,7 +231,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         // also attach the actionlistener to the textfield to trigger the search on enter in the textfield
         ActionListener searchAction = arg0 -> searchTvShow(textFieldSearchString.getText(), false);
 
-        textFieldSearchString = new JTextField();
+        textFieldSearchString = new EnhancedTextField(TmmResourceBundle.getString("tvshowchooser.search.hint"));
+        textFieldSearchString.setToolTipText(TmmResourceBundle.getString("tvshowchooser.search.hint"));
         textFieldSearchString.addActionListener(searchAction);
         panelSearchField.add(textFieldSearchString, "cell 2 0,growx");
         textFieldSearchString.setColumns(10);

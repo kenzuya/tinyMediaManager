@@ -330,6 +330,7 @@ public class StrgUtils {
             case '\u00df':
               result.append("ss");
               break;
+
             /* Handling of capital and lowercase umlauts */
             case 'A':
             case 'O':
@@ -344,6 +345,7 @@ public class StrgUtils {
                 skip = true;
               }
               break;
+
             default:
               Replacement rep = REPLACEMENTS.get(Integer.valueOf(c));
               if (rep != null) {

@@ -430,7 +430,8 @@ public class ParserUtils {
   public static List<String> split(String source) {
     List<String> result = new ArrayList<>();
 
-    for (String string : source.split("\\s*[;,\\/|]\\s*")) {
+    for (String string : source.split("[;,\\/|]")) {
+      string = string.trim();
       if (StringUtils.isNotBlank(string)) {
         result.add(string);
       }

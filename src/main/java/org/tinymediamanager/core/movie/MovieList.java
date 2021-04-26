@@ -611,8 +611,27 @@ public class MovieList extends AbstractModelObject {
     }
 
     if (!searchTerm.isEmpty()) {
-      if (MetadataUtil.isValidImdbId(searchTerm)) {
-        options.setImdbId(searchTerm);
+      String query = searchTerm.toLowerCase(Locale.ROOT);
+
+      if (MetadataUtil.isValidImdbId(query)) {
+        options.setImdbId(query);
+      }
+      else if (query.startsWith("imdb:")) {
+        String imdbId = query.replace("imdb:", "");
+        if (MetadataUtil.isValidImdbId(imdbId)) {
+          options.setImdbId(imdbId);
+        }
+      }
+      else if (query.startsWith("tmdb:")) {
+        try {
+          int tmdbId = Integer.parseInt(query.replace("tmdb:", ""));
+          if (tmdbId > 0) {
+            options.setTmdbId(tmdbId);
+          }
+        }
+        catch (Exception e) {
+          // ignored
+        }
       }
       options.setSearchQuery(searchTerm);
     }
