@@ -252,7 +252,7 @@ public class MovieModuleManager implements ITmmModule {
       }
 
       if (dirty) {
-        mvStore.compactFile(100);
+        mvStore.compact(95, 16 * 1024 * 1024);
       }
     }
     finally {
