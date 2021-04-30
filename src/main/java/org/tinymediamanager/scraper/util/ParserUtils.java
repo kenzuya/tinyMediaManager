@@ -15,6 +15,14 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.w3c.tidy.Tidy;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -24,14 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.WordUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.Utils;
-import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.w3c.tidy.Tidy;
 
 /**
  * Various parses methods to get a clean and workable name out of weird filenames
@@ -43,18 +43,18 @@ public class ParserUtils {
   private static final Logger  LOGGER     = LoggerFactory.getLogger(ParserUtils.class);
   private static final String  DELIMITER  = "[\\[\\](){} _,.-]";
 
-  public static final String[] STOPWORDS  = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "720", "720i", "720p",
-      "ac3", "ac3ld", "ac3md", "aoe", "atmos", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip", "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6",
-      "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8", "disc9", "divx",
-      "divx5", "dl", "docu", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8",
-      "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment", "fs", "fps", "german", "h264", "hd", "hddvd",
-      "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "ma", "md", "multi", "multisubs", "nfo", "nfofix",
-      "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd",
-      "screener", "se", "subbed", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip",
-      "webdl", "webrip", "workprint", "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
+  protected static final String[] STOPWORDS = {"1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "720", "720i", "720p",
+          "ac3", "ac3ld", "ac3md", "aoe", "atmos", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip", "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6",
+          "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8", "disc9", "divx",
+          "divx5", "dl", "docu", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8",
+          "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment", "fs", "fps", "german", "h264", "hd", "hddvd",
+          "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "ma", "md", "multi", "multisubs", "nfo", "nfofix",
+          "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd",
+          "screener", "se", "subbed", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip",
+          "webdl", "webrip", "workprint", "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit"};
 
   // clean before splitting (needs delimiter in front!)
-  public static final String[] CLEANWORDS = { "24\\.000", "23\\.976", "23\\.98", "24\\.00" };
+  protected static final String[] CLEANWORDS = {"24\\.000", "23\\.976", "23\\.98", "24\\.00"};
 
   private ParserUtils() {
     // private constructor for utility classes
@@ -86,10 +86,10 @@ public class ParserUtils {
     // remove extension (if found) and split (keep var)
     String fname = filename.replaceFirst("\\.\\w{2,4}$", "");
     // replaces any resolution 1234x1234 (must start and end with a non-word (else too global)
-    fname = fname.replaceFirst("(?i)\\W\\d{3,4}x\\d{3,4}", " ");
+    fname = fname.replaceFirst("(?i)" + DELIMITER + "\\d{3,4}x\\d{3,4}" + "(" + DELIMITER + "|$)", " ");
     // replace FPS specific words (must start with a non-word (else too global)
     for (String cw : CLEANWORDS) {
-      fname = fname.replaceFirst("(?i)\\W" + cw, " ");
+      fname = fname.replaceFirst("(?i)" + DELIMITER + cw + "(" + DELIMITER + "|$)", " ");
     }
 
     LOGGER.trace("--------------------");
@@ -250,10 +250,10 @@ public class ParserUtils {
     String before = filename;
 
     // replaces any resolution 1234x1234 (must start with a non-word (else too global)
-    filename = filename.replaceFirst("(?i)\\W\\d{3,4}x\\d{3,4}", " ");
+    filename = filename.replaceFirst("(?i)" + DELIMITER + "\\d{3,4}x\\d{3,4}" + "(" + DELIMITER + "|$)", " ");
 
     for (String s : STOPWORDS) {
-      filename = filename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV stop words must start AND END with a non-word (else too global) or line
+      filename = filename.replaceAll("(?i)" + DELIMITER + s + "(" + DELIMITER + "|$)", " ");  // TV stop words must start AND END with a non-word (else too global) or line
                                                                       // end
       if (LOGGER.isTraceEnabled() && filename.length() != before.length()) {
         LOGGER.trace("Removed some TV stopword (" + s + "): " + before + " -> " + filename);
@@ -263,7 +263,7 @@ public class ParserUtils {
 
     // also remove bad words
     for (String s : TvShowModuleManager.SETTINGS.getBadWord()) {
-      filename = filename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV bad words must start AND END with a non-word (else too global) or line end
+      filename = filename.replaceAll("(?i)" + DELIMITER + s + "(" + DELIMITER + "|$)", " ");  // TV bad words must start AND END with a non-word (else too global) or line end
       if (LOGGER.isTraceEnabled() && filename.length() != before.length()) {
         LOGGER.trace("Removed some TV bad word (" + s + "): " + before + " -> " + filename);
         before = filename;

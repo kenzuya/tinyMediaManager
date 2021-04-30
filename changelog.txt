@@ -1,3 +1,8 @@
+Version 3.1.15
+=======================
+x enhanced cleaning of filenames on import #950
+
+
 Version 3.1.14
 =======================
 x (macOS) fixed JVM discovery on Big Sur
