@@ -255,7 +255,7 @@ public class TvShowModuleManager implements ITmmModule {
       }
 
       if (dirty) {
-        mvStore.compactFile(100);
+        mvStore.compact(95, 16 * 1024 * 1024);
       }
     }
     finally {
@@ -269,7 +269,7 @@ public class TvShowModuleManager implements ITmmModule {
   }
 
   /**
-   * dumps a whole tvshow to logfile
+   * dumps a whole TV show to logfile
    * 
    * @param tvshow
    *          the TV show to dump the data for
