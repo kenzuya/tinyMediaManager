@@ -89,7 +89,7 @@ public class ParserUtils {
     fname = fname.replaceFirst("(?i)" + DELIMITER + "\\d{3,4}x\\d{3,4}" + "(" + DELIMITER + "|$)", " ");
     // replace FPS specific words (must start with a non-word (else too global)
     for (String cw : CLEANWORDS) {
-      fname = fname.replaceFirst("(?i)" + DELIMITER + cw + "(" + DELIMITER + "|$)", " ");
+      fname = fname.replaceFirst("(?i)" + DELIMITER + cw, " ");
     }
 
     LOGGER.trace("--------------------");
