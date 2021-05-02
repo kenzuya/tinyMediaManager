@@ -1,5 +1,6 @@
 Version 3.1.15
 =======================
++ updated libmediainfo to 21.03 #1309
 x enhanced cleaning of filenames on import #950
 
 
