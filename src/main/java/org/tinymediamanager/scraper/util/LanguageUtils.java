@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.scraper.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -24,8 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * This is a helper class for language related tasks
@@ -38,7 +38,7 @@ public class LanguageUtils {
   public static final LinkedHashMap<String, Locale> KEY_TO_LOCALE_MAP;
   public static final LinkedHashMap<String, Locale> KEY_TO_COUNTRY_LOCALE_MAP;
 
-  private static final Map<Locale, String>          ISO_639_2B_EXCEPTIONS;
+  private static final Map<Locale, String> ISO_639_2B_EXCEPTIONS;
 
   static {
     ISO_639_2B_EXCEPTIONS = createIso6392BExceptions();
@@ -100,8 +100,7 @@ public class LanguageUtils {
       langArray.putIfAbsent(base.getDisplayLanguage(intl).toLowerCase(Locale.ROOT), base);
       try {
         langArray.putIfAbsent(base.getDisplayLanguage(intl).substring(0, 3).toLowerCase(Locale.ROOT), base); // eg German -> Ger, where iso3=deu
-      }
-      catch (Exception ignore) {
+      } catch (Exception ignore) {
         // nothing to be done here
       }
 
@@ -112,12 +111,16 @@ public class LanguageUtils {
           if (!alternativeLanguage.isEmpty()) {
             langArray.putIfAbsent(alternativeLanguage.toLowerCase(Locale.ROOT), base);
           }
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
           // nothing to be done here
         }
       }
     }
+
+    // also add "special" languages
+    langArray.put("zxx", new Locale("zxx"));
+    langArray.put("pob", new Locale("pt", "BR"));
+    langArray.put("pt-br", new Locale("pt", "BR"));
 
     // also sort in all language tags from available locales
     for (Locale locale : Locale.getAvailableLocales()) {
@@ -155,8 +158,7 @@ public class LanguageUtils {
           if (!alternativeLanguage.isEmpty()) {
             langArray.putIfAbsent(alternativeLanguage, l);
           }
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
           // nothing to be done here
         }
       }
@@ -181,9 +183,8 @@ public class LanguageUtils {
 
   /**
    * Get the ISO 639-2/B 3 letter code
-   * 
-   * @param locale
-   *          the locale to get the code for
+   *
+   * @param locale the locale to get the code for
    * @return the 3 letter code
    * @since 2.0
    */
@@ -191,14 +192,17 @@ public class LanguageUtils {
     if (ISO_639_2B_EXCEPTIONS.containsKey(locale)) {
       return ISO_639_2B_EXCEPTIONS.get(locale);
     }
+    // special handling for pt-BR since Java handles this is por instead of pob
+    if ("pt-BR".equals(locale.toLanguageTag())) {
+      return "pob";
+    }
     return locale.getISO3Language();
   }
 
   /**
    * Get the ISO 639-2/B 3 letter code
-   * 
-   * @param language
-   *          the 2 letter ISO code to get the 3 letter code for
+   *
+   * @param language the 2 letter ISO code to get the 3 letter code for
    * @return the 3 letter code
    * @since 2.0
    */
@@ -209,14 +213,17 @@ public class LanguageUtils {
   /**
    * uses our localized language mapping table, to get the iso3 code
    *
-   * @param text
-   *          the language (as string) to get the iso3 code for
+   * @param text the language (as string) to get the iso3 code for
    * @return 3 chars or empty string
    * @since 2.0
    */
   public static String getIso3LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
     if (l != null) {
+      // special handling for pt-BR since Java handles this is por instead of pob
+      if ("pt-BR".equals(l.toLanguageTag())) {
+        return "pob";
+      }
       return l.getISO3Language();
     }
     return "";
@@ -225,8 +232,7 @@ public class LanguageUtils {
   /**
    * uses our localized language mapping table, to get the iso3B code
    *
-   * @param text
-   *          the language (as string) to get the iso3B code for
+   * @param text the language (as string) to get the iso3B code for
    * @return 3 chars or empty string
    * @since 2.0
    */
@@ -241,14 +247,17 @@ public class LanguageUtils {
   /**
    * uses our localized language mapping table, to get the iso2 code
    *
-   * @param text
-   *          the language (as string) to get the iso2 code for
+   * @param text the language (as string) to get the iso2 code for
    * @return 2 chars or empty string
    * @since 2.0
    */
   public static String getIso2LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
     if (l != null) {
+      // special handling for pt-BR since Java handles this is por instead of pob
+      if ("pt-BR".equals(l.toLanguageTag())) {
+        return "pt-BR";
+      }
       return l.getLanguage();
     }
     return "";
@@ -257,8 +266,7 @@ public class LanguageUtils {
   /**
    * uses our localized language mapping table, to get the english language name
    *
-   * @param text
-   *          the language (as string) to get the language name for
+   * @param text the language (as string) to get the language name for
    * @return the english language name or empty string
    * @since 2.0
    */
@@ -273,8 +281,7 @@ public class LanguageUtils {
   /**
    * uses our localized language mapping table, to get the localized language name
    *
-   * @param text
-   *          the language (as string) to get the language name for
+   * @param text the language (as string) to get the language name for
    * @return the localized language name or the untranslated string 1:1
    * @since 2.0
    */
@@ -285,10 +292,8 @@ public class LanguageUtils {
   /**
    * uses our localized language mapping table, to get the localized language name in given language
    *
-   * @param language
-   *          the locale to which we translate the language (as string) to get the language name for
-   * @param text
-   *          the language (as string) to get the language name for
+   * @param language the locale to which we translate the language (as string) to get the language name for
+   * @param text     the language (as string) to get the language name for
    * @return the localized language name or empty string
    * @since 2.0
    */
@@ -314,9 +319,8 @@ public class LanguageUtils {
 
   /**
    * tries to get local (JVM language) COUNTRY name for given parameters/variants
-   * 
-   * @param countries
-   *          all possible names or iso codes
+   *
+   * @param countries all possible names or iso codes
    * @return localized country name, or first country param 1:1 if we cannot translate
    */
   public static String getLocalizedCountry(String... countries) {
@@ -325,9 +329,8 @@ public class LanguageUtils {
 
   /**
    * tries to get localized COUNTRY name (in given language) for given parameters/variants
-   * 
-   * @param countries
-   *          all possible names or iso codes
+   *
+   * @param countries all possible names or iso codes
    * @return localized country name, or first country param 1:1 if we cannot translate
    */
   public static String getLocalizedCountryForLanguage(String language, String... countries) {
@@ -337,9 +340,8 @@ public class LanguageUtils {
 
   /**
    * tries to get localized COUNTRY name (in given language) for given parameters/variants
-   * 
-   * @param countries
-   *          all possible names or iso codes
+   *
+   * @param countries all possible names or iso codes
    * @return localized country name, or first country param 1:1 if we cannot translate
    */
   public static String getLocalizedCountryForLanguage(Locale language, String... countries) {
@@ -364,11 +366,9 @@ public class LanguageUtils {
 
   /**
    * checks whether the given string matches or ends with the given language
-   * 
-   * @param string
-   *          the string to check
-   * @param language
-   *          the language to check
+   *
+   * @param string   the string to check
+   * @param language the language to check
    * @return true/false
    */
   public static boolean doesStringEndWithLanguage(String string, String language) {
@@ -377,9 +377,8 @@ public class LanguageUtils {
 
   /**
    * parse the language from a given String
-   * 
-   * @param string
-   *          the string to parse
+   *
+   * @param string the string to parse
    * @return the language or an empty string
    */
   public static String parseLanguageFromString(String string) {
@@ -395,8 +394,7 @@ public class LanguageUtils {
         if (LanguageUtils.doesStringEndWithLanguage(string, s)) {// ends with lang + delimiter prefix
           return LanguageUtils.getIso3LanguageFromLocalizedString(s);
         }
-      }
-      catch (Exception ignored) {
+      } catch (Exception ignored) {
         // no need to log
       }
     }

@@ -16,12 +16,6 @@
 
 package org.tinymediamanager.core.mediainfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,6 +28,12 @@ import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.tinymediamanager.thirdparty.MediaInfoUtils;
+
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.Locale;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MediaInfoTest extends BasicTest {
 
@@ -471,6 +471,7 @@ public class MediaInfoTest extends BasicTest {
     compareSubtitle("moviename.eng_sdh.srt", "eng");
     compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "deu");
     compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "deu");
+    compareSubtitle("movie.name.year.pt-br.srt", "pob");
   }
 
   /**
