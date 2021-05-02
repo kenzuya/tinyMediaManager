@@ -953,9 +953,6 @@ public class MovieNfoParser {
     if (element != null) {
       try {
         playcount = MetadataUtil.parseInt(element.ownText());
-        if (playcount > 0 && !watched) {
-          watched = true;
-        }
       }
       catch (Exception ignored) {
         // ignored
@@ -1690,9 +1687,7 @@ public class MovieNfoParser {
     movie.setCertification(certification);
 
     movie.setWatched(watched);
-    if (playcount > 0) {
-      movie.setWatched(true);
-    }
+    movie.setPlaycount(playcount);
     movie.setSpokenLanguages(languages);
     movie.setMediaSource(source);
     movie.setEdition(edition);
