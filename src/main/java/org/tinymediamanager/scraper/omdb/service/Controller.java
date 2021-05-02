@@ -130,6 +130,27 @@ public class Controller {
     return getService().movieScrapeById(apiKey, id, type, null, plotStyle,true).execute().body();
   }
 
+  /**
+   * call the scrape service via title search
+   *
+   * @param title
+   *          the title to search for
+   * @param type
+   *          the entity type to search for (movie/series)
+   * @param full
+   *          scrape full info
+   * @return the {@link MediaEntity} item
+   * @throws IOException
+   *           any exception that could occur
+   */
+  public MediaEntity getScrapeDataByTitle(String title, String type, boolean full) throws IOException {
+    String plotStyle = "short";
+    if (full) {
+      plotStyle = "full";
+    }
+    return getService().movieScrapeByTitle(apiKey, title, type, null, plotStyle, true).execute().body();
+  }
+
   public SeasonEntity getSeasonById(String id, String type, int season) throws IOException {
     return getService().seasonScrapeById(apiKey, id, type, season).execute().body();
   }
