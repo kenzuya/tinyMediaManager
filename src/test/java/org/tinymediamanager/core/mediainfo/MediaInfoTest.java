@@ -483,6 +483,7 @@ public class MediaInfoTest extends BasicTest {
     compareSubtitle("moviename.eng_sdh.srt", "eng");
     compareSubtitle("movie.name.year.GERMAN.dTV.XViD.srt", "deu");
     compareSubtitle("movietitle.year.NLPS.XviD.DTS.3CD-WAF.German.waf.com.cn.hk.srt", "deu");
+    compareSubtitle("movie.name.year.pt-br.srt", "pob");
   }
 
   /**

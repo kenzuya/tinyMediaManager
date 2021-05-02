@@ -20,6 +20,7 @@ x (TV show) parse aired tag before the premiered tag for episode NFOs #1295
 x repackaged the linux distributable to only contain one root folder #1257
 x do not crash the scrape if imdb ratings cannot the loaded #1299
 x enhanced cleaning of filenames on import #950
+x some fixes for detecting/handling pt-BR subtitles
 
 
 Version 4.1.3
