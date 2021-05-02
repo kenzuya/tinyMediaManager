@@ -38,7 +38,7 @@ public class LanguageUtils {
   public static final Map<String, Locale>  KEY_TO_LOCALE_MAP;
   public static final Map<String, Locale>  KEY_TO_COUNTRY_LOCALE_MAP;
 
-  private static final Map<Locale, String>          ISO_639_2B_EXCEPTIONS;
+  private static final Map<Locale, String> ISO_639_2B_EXCEPTIONS;
 
   static {
     ISO_639_2B_EXCEPTIONS = createIso6392BExceptions();
@@ -121,6 +121,8 @@ public class LanguageUtils {
 
     // also add "special" languages
     langArray.put("zxx", new Locale("zxx"));
+    langArray.put("pob", new Locale("pt", "BR"));
+    langArray.put("pt-br", new Locale("pt", "BR"));
 
     // also sort in all language tags from available locales
     for (Locale locale : Locale.getAvailableLocales()) {
@@ -194,6 +196,10 @@ public class LanguageUtils {
     if (ISO_639_2B_EXCEPTIONS.containsKey(locale)) {
       return ISO_639_2B_EXCEPTIONS.get(locale);
     }
+    // special handling for pt-BR since Java handles this is por instead of pob
+    if ("pt-BR".equals(locale.toLanguageTag())) {
+      return "pob";
+    }
     return locale.getISO3Language();
   }
 
@@ -220,6 +226,10 @@ public class LanguageUtils {
   public static String getIso3LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
     if (l != null) {
+      // special handling for pt-BR since Java handles this is por instead of pob
+      if ("pt-BR".equals(l.toLanguageTag())) {
+        return "pob";
+      }
       return l.getISO3Language();
     }
     return "";
@@ -252,6 +262,10 @@ public class LanguageUtils {
   public static String getIso2LanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
     if (l != null) {
+      // special handling for pt-BR since Java handles this is por instead of pob
+      if ("pt-BR".equals(l.toLanguageTag())) {
+        return "pt-BR";
+      }
       return l.getLanguage();
     }
     return "";

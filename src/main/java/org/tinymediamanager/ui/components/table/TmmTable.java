@@ -250,7 +250,7 @@ public class TmmTable extends JTable {
 
         scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
 
-        if (getModel() instanceof TmmTableModel) {
+        if (useColumnConfigurator()) {
           final JButton b = new FlatButton(IconManager.CONFIGURE) {
             @Override
             public void updateUI() {
@@ -284,6 +284,10 @@ public class TmmTable extends JTable {
         }
       }
     }
+  }
+
+  protected boolean useColumnConfigurator() {
+    return getModel() instanceof TmmTableModel;
   }
 
   public void configureScrollPane(JScrollPane scrollPane) {

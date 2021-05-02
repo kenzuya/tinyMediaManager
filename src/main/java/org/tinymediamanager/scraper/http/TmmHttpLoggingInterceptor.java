@@ -132,7 +132,12 @@ public class TmmHttpLoggingInterceptor implements Interceptor {
       ResponseBody responseBody = response.body();
       long contentLength = responseBody.contentLength();
       String bodySize = contentLength != -1 ? contentLength + "-byte" : "unknown-length";
-      String logUrl = response.request().url().toString().replaceAll("api_key=\\w+", "api_key=<API_KEY>").replaceAll("api/\\d+\\w+", "api/<API_KEY>");
+      String logUrl = response.request()
+          .url()
+          .toString()
+          .replaceAll("api_key=\\w+", "api_key=<API_KEY>")
+          .replaceAll("api/\\d+\\w+", "api/<API_KEY>")
+          .replaceAll("apikey=\\w+", "apikey=<API_KEY>");
       LOGGER.debug("<-- " + response.code() + (response.message().isEmpty() ? "" : ' ' + response.message()) + ' ' + logUrl + " (" + tookMs + "ms"
           + ", " + bodySize + " body" + ')');
 

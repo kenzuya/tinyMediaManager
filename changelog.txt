@@ -1,5 +1,6 @@
 Version 4.1.3
 =======================
++ updated libmediainfo to 21.03
 + (movies/TV shows) added "force best match" to automatic subtitle downloads (rather than only download file hash matches)
 + added possibility to double click the image in the image chooser to select the artwork #1094
 + re-added various zoom options to the image preview window #1094
@@ -20,6 +21,8 @@ x (TV show) parse aired tag before the premiered tag for episode NFOs #1295
 x repackaged the linux distributable to only contain one root folder #1257
 x do not crash the scrape if imdb ratings cannot the loaded #1299
 x enhanced cleaning of filenames on import #950
+x some fixes for detecting/handling pt-BR subtitles
+x reuse the playcount from pre-existing NFO files when writing new NFO files #1296
 
 
 Version 4.1.3
