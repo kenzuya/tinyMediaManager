@@ -21,6 +21,7 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -314,6 +315,15 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
     MediaSearch resultList;
     try {
       resultList = controller.getMovieSearchInfo(query.getSearchQuery(), "movie", null);
+
+      if (resultList == null || ListUtils.isEmpty(resultList.search)) {
+        // nothing found - try via direct lookup
+        MediaEntity result = controller.getScrapeDataByTitle(query.getSearchQuery(), "movie", false);
+        if ("true".equalsIgnoreCase(result.response)) {
+          resultList = new MediaSearch();
+          resultList.search = Collections.singletonList(result);
+        }
+      }
     }
     catch (Exception e) {
       LOGGER.error("error searching: {}", e.getMessage());

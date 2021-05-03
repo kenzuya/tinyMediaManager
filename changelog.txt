@@ -23,6 +23,7 @@ x do not crash the scrape if imdb ratings cannot the loaded #1299
 x enhanced cleaning of filenames on import #950
 x some fixes for detecting/handling pt-BR subtitles
 x reuse the playcount from pre-existing NFO files when writing new NFO files #1296
+x (OMDb API) enhanced searching of movies with short titles like "21" #1310
 
 
 Version 4.1.3

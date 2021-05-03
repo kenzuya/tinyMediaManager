@@ -121,7 +121,11 @@ public class LanguageUtils {
 
     // also add "special" languages
     langArray.put("zxx", new Locale("zxx"));
+
+    // inoffical pt-BR codes
+    langArray.put("pb", new Locale("pt", "BR"));
     langArray.put("pob", new Locale("pt", "BR"));
+    langArray.put("ptb", new Locale("pt", "BR"));
     langArray.put("pt-br", new Locale("pt", "BR"));
 
     // also sort in all language tags from available locales
@@ -264,7 +268,7 @@ public class LanguageUtils {
     if (l != null) {
       // special handling for pt-BR since Java handles this is por instead of pob
       if ("pt-BR".equals(l.toLanguageTag())) {
-        return "pt-BR";
+        return "pb";
       }
       return l.getLanguage();
     }

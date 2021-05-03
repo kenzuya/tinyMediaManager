@@ -85,6 +85,16 @@ public class ITOmdbMetadataProviderTest extends BasicTest {
       assertThat(resultList.get(0).getMediaType()).isEqualTo(MediaType.MOVIE);
       assertThat(resultList.get(0).getPosterUrl()).isNotEmpty();
 
+      // 21
+      options.setSearchQuery("21");
+      resultList = new ArrayList<>(mp.search(options));
+      assertNotNull(resultList);
+      assertThat(resultList.size()).isGreaterThan(0);
+      assertThat(resultList.get(0).getTitle()).isEqualTo("21");
+      assertThat(resultList.get(0).getYear()).isEqualTo(2008);
+      assertThat(resultList.get(0).getIMDBId()).isEqualTo("tt0478087");
+      assertThat(resultList.get(0).getMediaType()).isEqualTo(MediaType.MOVIE);
+      assertThat(resultList.get(0).getPosterUrl()).isNotEmpty();
     }
     catch (Exception e) {
       e.printStackTrace();

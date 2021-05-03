@@ -24,6 +24,7 @@ import java.io.InterruptedIOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -513,6 +514,14 @@ public class OmdbTvShowMetadataProvider extends OmdbMetadataProvider implements 
     MediaSearch resultList = null;
     try {
       resultList = controller.getMovieSearchInfo(options.getSearchQuery(), "series", null);
+      if (resultList == null || ListUtils.isEmpty(resultList.search)) {
+        // nothing found - try via direct lookup
+        MediaEntity result = controller.getScrapeDataByTitle(options.getSearchQuery(), "series", false);
+        if ("true".equalsIgnoreCase(result.response)) {
+          resultList = new MediaSearch();
+          resultList.search = Collections.singletonList(result);
+        }
+      }
     }
     catch (InterruptedIOException e) {
       // do not swallow these Exceptions
