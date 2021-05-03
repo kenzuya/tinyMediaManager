@@ -1,4 +1,4 @@
-Version 4.1.3
+Version 4.1.4
 =======================
 + updated libmediainfo to 21.03
 + (movies/TV shows) added "force best match" to automatic subtitle downloads (rather than only download file hash matches)
