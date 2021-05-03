@@ -1,5 +1,6 @@
 Version 4.1.5
 =======================
+x fixed loading of license module on UNC paths #1227
 
 
 Version 4.1.4
