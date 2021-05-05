@@ -104,7 +104,7 @@ public class MovieModuleManager implements ITmmModule {
     // configure database
     Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), MOVIE_DB);
     try {
-      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
+      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
     }
     catch (Exception e) {
       // look if the file is locked by another process (rethrow rather than delete the db file)
@@ -118,7 +118,7 @@ public class MovieModuleManager implements ITmmModule {
       try {
         Utils.deleteFileSafely(Paths.get(MOVIE_DB + ".corrupted"));
         Utils.moveFileSafe(databaseFile, Paths.get(MOVIE_DB + ".corrupted"));
-        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
+        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
 
         // inform user that the DB could not be loaded
         startupMessages.add(TmmResourceBundle.getString("movie.loaddb.failed"));
@@ -212,8 +212,6 @@ public class MovieModuleManager implements ITmmModule {
 
       long now = System.currentTimeMillis();
 
-      boolean dirty = false;
-
       for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
         if (force || entry.getValue() < (now - COMMIT_DELAY)) {
           try {
@@ -226,7 +224,6 @@ public class MovieModuleManager implements ITmmModule {
               String newValue = movieObjectWriter.writeValueAsString(movie);
               if (!StringUtils.equals(oldValue, newValue)) {
                 movieMap.put(movie.getDbId(), newValue);
-                dirty = true;
               }
             }
             else if (entry.getKey() instanceof MovieSet) {
@@ -238,7 +235,6 @@ public class MovieModuleManager implements ITmmModule {
               String newValue = movieSetObjectWriter.writeValueAsString(movieSet);
               if (!StringUtils.equals(oldValue, newValue)) {
                 movieSetMap.put(movieSet.getDbId(), newValue);
-                dirty = true;
               }
             }
           }
@@ -249,10 +245,6 @@ public class MovieModuleManager implements ITmmModule {
             pendingChanges.remove(entry.getKey());
           }
         }
-      }
-
-      if (dirty) {
-        mvStore.compact(95, 16 * 1024 * 1024);
       }
     }
     finally {
