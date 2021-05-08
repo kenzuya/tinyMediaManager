@@ -189,6 +189,11 @@ public class TmmTreeTable extends TmmTable {
     }
   }
 
+  @Override
+  protected boolean useColumnConfigurator() {
+    return getModel() instanceof TmmTreeTableModel;
+  }
+
   public void expandRow(int row) {
     expandPath(treeTableModel.getLayout().getPathForRow(row));
   }

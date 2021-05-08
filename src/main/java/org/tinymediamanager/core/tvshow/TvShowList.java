@@ -60,6 +60,7 @@ import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -699,8 +700,38 @@ public class TvShowList extends AbstractModelObject {
     }
 
     if (!searchTerm.isEmpty()) {
-      if (MetadataUtil.isValidImdbId(searchTerm)) {
-        options.setImdbId(searchTerm);
+      String query = searchTerm.toLowerCase(Locale.ROOT);
+
+      if (MetadataUtil.isValidImdbId(query)) {
+        options.setImdbId(query);
+      }
+      else if (query.startsWith("imdb:")) {
+        String imdbId = query.replace("imdb:", "");
+        if (MetadataUtil.isValidImdbId(imdbId)) {
+          options.setImdbId(imdbId);
+        }
+      }
+      else if (query.startsWith("tmdb:")) {
+        try {
+          int tmdbId = Integer.parseInt(query.replace("tmdb:", ""));
+          if (tmdbId > 0) {
+            options.setTmdbId(tmdbId);
+          }
+        }
+        catch (Exception e) {
+          // ignored
+        }
+      }
+      else if (query.startsWith("tvdb:")) {
+        try {
+          int tvdbId = Integer.parseInt(query.replace("tvdb:", ""));
+          if (tvdbId > 0) {
+            options.setId(MediaMetadata.TVDB, tvdbId);
+          }
+        }
+        catch (Exception e) {
+          // ignored
+        }
       }
       options.setSearchQuery(searchTerm);
     }

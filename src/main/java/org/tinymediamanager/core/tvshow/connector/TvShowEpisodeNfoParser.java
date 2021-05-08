@@ -901,9 +901,6 @@ public class TvShowEpisodeNfoParser {
       if (element != null) {
         try {
           playcount = MetadataUtil.parseInt(element.ownText());
-          if (playcount > 0 && !watched) {
-            watched = true;
-          }
         }
         catch (Exception ignored) {
         }
@@ -1466,9 +1463,7 @@ public class TvShowEpisodeNfoParser {
       }
 
       episode.setWatched(watched);
-      if (playcount > 0) {
-        episode.setWatched(true);
-      }
+      episode.setPlaycount(playcount);
       episode.setMediaSource(source);
 
       List<org.tinymediamanager.core.entities.Person> newActors = new ArrayList<>();

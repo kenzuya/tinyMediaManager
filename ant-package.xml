@@ -244,8 +244,8 @@
         <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
         <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
         <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_linux.tar.gz">
-            <tarfileset dir="${dist.dir}/linux" excludes="tinyMediaManager"/>
-            <tarfileset filemode="755" dir="${dist.dir}/linux" includes="tinyMediaManager"/>
+            <tarfileset prefix="tinyMediaManager/" dir="${dist.dir}/linux" excludes="tinyMediaManager"/>
+            <tarfileset prefix="tinyMediaManager/" filemode="755" dir="${dist.dir}/linux" includes="tinyMediaManager"/>
         </tar>
 
         <!-- ===================================================== -->
@@ -257,8 +257,9 @@
         <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
         <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
         <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_arm.tar.gz">
-            <tarfileset dir="${dist.dir}/arm" excludes="tinyMediaManager-arm"/>
-            <tarfileset filemode="755" dir="${dist.dir}/arm" includes="tinyMediaManager-arm"/>
+            <tarfileset prefix="tinyMediaManager/" dir="${dist.dir}/arm" excludes="tinyMediaManager-arm"/>
+            <tarfileset prefix="tinyMediaManager/" filemode="755" dir="${dist.dir}/arm"
+                        includes="tinyMediaManager-arm"/>
         </tar>
 
         <!-- done, move build dir -->

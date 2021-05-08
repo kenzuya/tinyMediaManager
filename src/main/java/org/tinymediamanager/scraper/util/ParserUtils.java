@@ -40,21 +40,21 @@ import org.w3c.tidy.Tidy;
  */
 public class ParserUtils {
 
-  private static final Logger  LOGGER     = LoggerFactory.getLogger(ParserUtils.class);
-  private static final String  DELIMITER  = "[\\[\\](){} _,.-]";
+  private static final Logger     LOGGER     = LoggerFactory.getLogger(ParserUtils.class);
+  private static final String     DELIMITER  = "[\\[\\](){} _,.-]";
 
-  public static final String[] STOPWORDS  = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "720", "720i", "720p",
-      "ac3", "ac3ld", "ac3md", "aoe", "atmos", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip", "cam", "cd1", "cd2", "cd3", "cd4", "cd5", "cd6",
-      "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8", "disc9", "divx",
-      "divx5", "dl", "docu", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7", "dvd8",
-      "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment", "fs", "fps", "german", "h264", "hd", "hddvd",
-      "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "ma", "md", "multi", "multisubs", "nfo", "nfofix",
-      "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs", "rsvcd",
-      "screener", "se", "subbed", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs", "vhsrip",
-      "webdl", "webrip", "workprint", "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
+  protected static final String[] STOPWORDS  = { "1080", "1080i", "1080p", "2160p", "2160i", "3d", "480i", "480p", "576i", "576p", "720", "720i",
+      "720p", "ac3", "ac3ld", "ac3md", "aoe", "atmos", "bd5", "bdrip", "bdrip", "blueray", "bluray", "brrip", "cam", "cd1", "cd2", "cd3", "cd4",
+      "cd5", "cd6", "cd7", "cd8", "cd9", "complete", "custom", "dc", "disc1", "disc2", "disc3", "disc4", "disc5", "disc6", "disc7", "disc8", "disc9",
+      "divx", "divx5", "dl", "docu", "dsr", "dsrip", "dts", "dtv", "dubbed", "dutch", "dvd", "dvd1", "dvd2", "dvd3", "dvd4", "dvd5", "dvd6", "dvd7",
+      "dvd8", "dvd9", "dvdivx", "dvdrip", "dvdscr", "dvdscreener", "emule", "etm", "extended", "fragment", "fs", "fps", "german", "h264", "hd",
+      "hddvd", "hdrip", "hdtv", "hdtvrip", "hevc", "hrhd", "hrhdtv", "ind", "internal", "ld", "limited", "ma", "md", "multi", "multisubs", "nfo",
+      "nfofix", "ntg", "ntsc", "ogg", "ogm", "pal", "pdtv", "proper", "pso", "r3", "r5", "read", "repack", "rerip", "remux", "retail", "roor", "rs",
+      "rsvcd", "screener", "se", "subbed", "svcd", "swedish", "tc", "telecine", "telesync", "ts", "truehd", "uhd", "uncut", "unrated", "vcf", "vhs",
+      "vhsrip", "webdl", "webrip", "workprint", "ws", "www", "x264", "xf", "xvid", "xvidvd", "xxx", "8bit", "10bit", "12bit" };
 
   // clean before splitting (needs delimiter in front!)
-  public static final String[] CLEANWORDS = { "24\\.000", "23\\.976", "23\\.98", "24\\.00" };
+  protected static final String[] CLEANWORDS = { "24\\.000", "23\\.976", "23\\.98", "24\\.00" };
 
   private ParserUtils() {
     // private constructor for utility classes
@@ -86,10 +86,10 @@ public class ParserUtils {
     // remove extension (if found) and split (keep var)
     String fname = filename.replaceFirst("\\.\\w{2,4}$", "");
     // replaces any resolution 1234x1234 (must start and end with a non-word (else too global)
-    fname = fname.replaceFirst("(?i)\\W\\d{3,4}x\\d{3,4}", " ");
+    fname = fname.replaceFirst("(?i)" + DELIMITER + "\\d{3,4}x\\d{3,4}" + "(" + DELIMITER + "|$)", " ");
     // replace FPS specific words (must start with a non-word (else too global)
     for (String cw : CLEANWORDS) {
-      fname = fname.replaceFirst("(?i)\\W" + cw, " ");
+      fname = fname.replaceFirst("(?i)" + DELIMITER + cw, " ");
     }
 
     LOGGER.trace("--------------------");
@@ -252,11 +252,12 @@ public class ParserUtils {
     String basename = before;
 
     // replaces any resolution 1234x1234 (must start with a non-word (else too global)
-    basename = basename.replaceFirst("(?i)\\W\\d{3,4}x\\d{3,4}", " ");
+    basename = basename.replaceFirst("(?i)" + DELIMITER + "\\d{3,4}x\\d{3,4}" + "(" + DELIMITER + "|$)", " ");
 
     for (String s : STOPWORDS) {
-      basename = basename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV stop words must start AND END with a non-word (else too global) or line
-                                                                      // end
+      basename = basename.replaceAll("(?i)" + DELIMITER + s + "(" + DELIMITER + "|$)", " "); // TV stop words must start AND END with a non-word (else
+                                                                                             // too global) or line
+      // end
       if (LOGGER.isTraceEnabled() && basename.length() != before.length()) {
         LOGGER.trace("Removed some TV stopword (" + s + "): " + before + " -> " + basename);
         before = basename;
@@ -265,7 +266,8 @@ public class ParserUtils {
 
     // also remove bad words
     for (String s : TvShowModuleManager.SETTINGS.getBadWord()) {
-      basename = basename.replaceAll("(?i)\\W" + s + "(\\W|$)", " "); // TV bad words must start AND END with a non-word (else too global) or line end
+      basename = basename.replaceAll("(?i)" + DELIMITER + s + "(" + DELIMITER + "|$)", " "); // TV bad words must start AND END with a non-word (else
+                                                                                             // too global) or line end
       if (LOGGER.isTraceEnabled() && basename.length() != before.length()) {
         LOGGER.trace("Removed some TV bad word (" + s + "): " + before + " -> " + basename);
         before = basename;
@@ -430,7 +432,8 @@ public class ParserUtils {
   public static List<String> split(String source) {
     List<String> result = new ArrayList<>();
 
-    for (String string : source.split("\\s*[;,\\/|]\\s*")) {
+    for (String string : source.split("[;,\\/|]")) {
+      string = string.trim();
       if (StringUtils.isNotBlank(string)) {
         result.add(string);
       }
