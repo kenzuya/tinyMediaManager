@@ -54,6 +54,11 @@ public class RatingUtil {
       initImdbRatings();
     }
 
+    if (ratingMap == null) {
+      // still null? we obviously have a problem opening the cache - so just ignore that
+      return null;
+    }
+
     String line = ratingMap.get(imdbId);
     if (StringUtils.isNotBlank(line)) {
       String[] cols = line.split("\t");

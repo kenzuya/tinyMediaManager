@@ -616,7 +616,7 @@ public class MovieNfoParserTest extends BasicTest {
       assertThat(parser.ids).contains(entry("imdb", "tt0472033"), entry("tmdb", 12244), entry("trakt", 7146));
       assertThat(parser.countries).hasSize(1);
       assertThat(parser.releaseDate).hasSameTimeAs("2009-08-19");
-      assertThat(parser.watched).isEqualTo(true);
+      assertThat(parser.watched).isEqualTo(false);
       assertThat(parser.playcount).isEqualTo(1);
       assertThat(parser.genres).contains(MediaGenres.ANIMATION, MediaGenres.ACTION, MediaGenres.SCIENCE_FICTION, MediaGenres.ADVENTURE,
           MediaGenres.THRILLER);

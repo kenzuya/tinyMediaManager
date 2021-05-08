@@ -19,6 +19,7 @@ package org.tinymediamanager.core.tvshow.connector;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -52,6 +53,7 @@ import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -533,8 +535,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    * add studios in <studio>xxx</studio> tags (multiple)
    */
   protected void addStudios(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
-    String[] studios = episode.getProductionCompany().split("\\s*[,\\/]\\s*"); // split on , or / and remove whitespace around
-    for (String s : studios) {
+    for (String s : ParserUtils.split(episode.getProductionCompany())) {
       Element studio = document.createElement("studio");
       studio.setTextContent(s);
       root.appendChild(studio);
@@ -683,7 +684,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
 
       for (String unsupportedString : parser.unsupportedElements) {
         try {
-          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes("UTF-8")));
+          Document unsupported = factory.newDocumentBuilder().parse(new ByteArrayInputStream(unsupportedString.getBytes(StandardCharsets.UTF_8)));
           root.appendChild(document.importNode(unsupported.getFirstChild(), true));
         }
         catch (Exception e) {

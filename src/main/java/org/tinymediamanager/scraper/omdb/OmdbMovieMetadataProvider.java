@@ -21,6 +21,7 @@ import static org.tinymediamanager.core.entities.Person.Type.WRITER;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -65,10 +66,15 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
   }
 
   @Override
-  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions query) throws ScrapeException, MissingIdException, NothingFoundException {
+  public MediaMetadata getMetadata(MovieSearchAndScrapeOptions query) throws ScrapeException {
     LOGGER.debug("getMetadata(): {}", query);
 
     initAPI();
+
+    if (query.getSearchResult() != null && query.getSearchResult().getMediaMetadata() != null
+        && getId().equals(query.getSearchResult().getMediaMetadata().getProviderId())) {
+      return query.getSearchResult().getMediaMetadata();
+    }
 
     MediaMetadata metadata = new MediaMetadata(getId());
 
@@ -280,9 +286,44 @@ public class OmdbMovieMetadataProvider extends OmdbMetadataProvider implements I
 
     SortedSet<MediaSearchResult> mediaResult = new TreeSet<>();
 
+    // if the imdb id is given, directly fetch the result
+    if (MetadataUtil.isValidImdbId(query.getImdbId())) {
+      try {
+        MediaMetadata md = getMetadata(query);
+
+        // create the search result from the metadata
+        MediaSearchResult result = new MediaSearchResult(getId(), MediaType.MOVIE);
+        result.setMetadata(md);
+        result.setTitle(md.getTitle());
+        result.setIMDBId(query.getImdbId());
+        result.setYear(md.getYear());
+
+        for (MediaArtwork artwork : md.getMediaArt(MediaArtwork.MediaArtworkType.POSTER)) {
+          result.setPosterUrl(artwork.getPreviewUrl());
+        }
+
+        result.setScore(1);
+        mediaResult.add(result);
+
+        return mediaResult;
+      }
+      catch (Exception e) {
+        LOGGER.debug("could not fetch data with imdb id - '{}'", e.getMessage());
+      }
+    }
+
     MediaSearch resultList;
     try {
       resultList = controller.getMovieSearchInfo(query.getSearchQuery(), "movie", null);
+
+      if (resultList == null || ListUtils.isEmpty(resultList.search)) {
+        // nothing found - try via direct lookup
+        MediaEntity result = controller.getScrapeDataByTitle(query.getSearchQuery(), "movie", false);
+        if ("true".equalsIgnoreCase(result.response)) {
+          resultList = new MediaSearch();
+          resultList.search = Collections.singletonList(result);
+        }
+      }
     }
     catch (Exception e) {
       LOGGER.error("error searching: {}", e.getMessage());

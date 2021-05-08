@@ -68,7 +68,6 @@ import net.miginfocom.swing.MigLayout;
 public class TmmTable extends JTable {
   private static final long            serialVersionUID = 6150939811851709115L;
 
-
   private TmmTableComparatorChooser<?> tableComparatorChooser;
 
   public TmmTable() {
@@ -251,38 +250,44 @@ public class TmmTable extends JTable {
 
         scrollPane.setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
 
-        final JButton b = new FlatButton(IconManager.CONFIGURE) {
-          @Override
-          public void updateUI() {
-            super.updateUI();
-            setBorder(BorderFactory.createMatteBorder(0, 1, 1, 0, UIManager.getColor("TableHeader.bottomSeparatorColor")));
-          }
-        };
-        b.setContentAreaFilled(false);
-        b.setToolTipText(TmmResourceBundle.getString("Button.selectvisiblecolumns"));
-        b.updateUI();
+        if (useColumnConfigurator()) {
+          final JButton b = new FlatButton(IconManager.CONFIGURE) {
+            @Override
+            public void updateUI() {
+              super.updateUI();
+              setBorder(BorderFactory.createMatteBorder(0, 1, 1, 0, UIManager.getColor("TableHeader.bottomSeparatorColor")));
+            }
+          };
+          b.setContentAreaFilled(false);
+          b.setToolTipText(TmmResourceBundle.getString("Button.selectvisiblecolumns"));
+          b.updateUI();
 
-        b.addActionListener(evt -> TmmTableColumnSelectionPopup.showColumnSelectionPopup(b, TmmTable.this));
-        b.addMouseListener(new MouseAdapter() {
-          @Override
-          public void mouseEntered(MouseEvent e) {
-            scrollPane.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-          }
+          b.addActionListener(evt -> TmmTableColumnSelectionPopup.showColumnSelectionPopup(b, TmmTable.this));
+          b.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+              scrollPane.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
 
-          @Override
-          public void mouseExited(MouseEvent e) {
-            scrollPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-          }
+            @Override
+            public void mouseExited(MouseEvent e) {
+              scrollPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            }
 
-          @Override
-          public void mouseClicked(MouseEvent me) {
-            TmmTableColumnSelectionPopup.showColumnSelectionPopup(b, TmmTable.this);
-          }
-        });
-        b.setFocusable(false);
-        scrollPane.setCorner(UPPER_RIGHT_CORNER, b);
+            @Override
+            public void mouseClicked(MouseEvent me) {
+              TmmTableColumnSelectionPopup.showColumnSelectionPopup(b, TmmTable.this);
+            }
+          });
+          b.setFocusable(false);
+          scrollPane.setCorner(UPPER_RIGHT_CORNER, b);
+        }
       }
     }
+  }
+
+  protected boolean useColumnConfigurator() {
+    return getModel() instanceof TmmTableModel;
   }
 
   public void configureScrollPane(JScrollPane scrollPane) {

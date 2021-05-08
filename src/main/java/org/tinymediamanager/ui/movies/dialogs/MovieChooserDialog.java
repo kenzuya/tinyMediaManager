@@ -91,6 +91,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
@@ -125,19 +126,20 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
   private static final Logger                                            LOGGER                = LoggerFactory.getLogger(MovieChooserDialog.class);
 
-  private MovieList                                                      movieList             = MovieList.getInstance();
-  private Movie                                                          movieToScrape;
-  private MediaScraper                                                   mediaScraper;
-  private List<MediaScraper>                                             artworkScrapers;
-  private List<MediaScraper>                                             trailerScrapers;
-  private boolean                                                        continueQueue         = true;
-  private boolean                                                        navigateBack          = false;
+  private final MovieList                                                movieList             = MovieList.getInstance();
+  private final Movie                                                    movieToScrape;
+  private final List<MediaScraper>                                       artworkScrapers;
+  private final List<MediaScraper>                                       trailerScrapers;
 
+  private MediaScraper                                                   mediaScraper;
   private SortedList<MovieChooserModel>                                  searchResultEventList = null;
   private EventList<Person>                                              castMemberEventList   = null;
   private MovieChooserModel                                              selectedResult        = null;
 
   private SearchTask                                                     activeSearchTask;
+
+  private boolean                                                        continueQueue         = true;
+  private boolean                                                        navigateBack          = false;
 
   /**
    * UI components
@@ -171,7 +173,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
    */
   public MovieChooserDialog(Movie movie, int queueIndex, int queueSize) {
     super(TmmResourceBundle.getString("moviechooser.search") + (queueSize > 1 ? " " + (queueIndex + 1) + "/" + queueSize : ""), "movieChooser");
-
+    movieToScrape = movie;
     mediaScraper = movieList.getDefaultMediaScraper();
     artworkScrapers = movieList.getDefaultArtworkScrapers();
     trailerScrapers = movieList.getDefaultTrailerScrapers();
@@ -239,7 +241,8 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         // also attach the actionlistener to the textfield to trigger the search on enter in the textfield
         ActionListener searchAction = arg0 -> searchMovie(textFieldSearchString.getText(), false);
 
-        textFieldSearchString = new JTextField();
+        textFieldSearchString = new EnhancedTextField(TmmResourceBundle.getString("moviechooser.search.hint"));
+        textFieldSearchString.setToolTipText(TmmResourceBundle.getString("moviechooser.search.hint"));
         textFieldSearchString.addActionListener(searchAction);
         panelSearchField.add(textFieldSearchString, "cell 2 0,growx");
         textFieldSearchString.setColumns(10);
@@ -456,7 +459,6 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
     });
 
     {
-      movieToScrape = movie;
       progressBar.setVisible(false);
       cbScraperConfig.setSelectedItems(MovieModuleManager.SETTINGS.getScraperMetadataConfig());
 

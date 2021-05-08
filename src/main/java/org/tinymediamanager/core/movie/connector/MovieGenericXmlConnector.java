@@ -510,7 +510,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    * add the country in <country>xxx</country> (multiple)
    */
   protected void addCountry() {
-    String[] countries = movie.getCountry().split("\\s*[,\\/]\\s*"); // split on , or / and remove whitespace around
+    List<String> countries = ParserUtils.split(movie.getCountry());
     for (String c : countries) {
       Element country = document.createElement("country");
       country.setTextContent(c);

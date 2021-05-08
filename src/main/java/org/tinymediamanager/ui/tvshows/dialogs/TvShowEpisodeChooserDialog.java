@@ -50,6 +50,7 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmFontHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
@@ -280,10 +281,22 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
         }
 
         // with ep title
-        if (index == 0) {
+        if (index < 0) {
           for (int i = 0; i < sortedEpisodes.size(); i++) {
             TvShowEpisodeChooserModel model = sortedEpisodes.get(i);
             if (equals(TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(episode.getTitle(), episode.getTvShow().getTitle()), model.getTitle())) {
+              index = i;
+              break;
+            }
+          }
+        }
+
+        // some sort of fuzzy search
+        if (index < 0) {
+          for (int i = 0; i < sortedEpisodes.size(); i++) {
+            TvShowEpisodeChooserModel model = sortedEpisodes.get(i);
+            if (MetadataUtil.calculateScore(TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(episode.getTitle(), episode.getTvShow().getTitle()),
+                model.getTitle()) > 0.8) {
               index = i;
               break;
             }
