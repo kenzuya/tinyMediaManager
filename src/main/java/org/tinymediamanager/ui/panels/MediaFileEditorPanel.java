@@ -433,7 +433,7 @@ public class MediaFileEditorPanel extends JPanel {
 
     public ScanAspectRationAction() {
       putValue(NAME, TmmResourceBundle.getString("task.ard"));
-      putValue(SMALL_ICON, IconManager.SEARCH);
+      putValue(SMALL_ICON, IconManager.ASPECT_RATIO);
     }
 
     @Override

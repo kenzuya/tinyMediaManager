@@ -15,7 +15,6 @@
  */
 package org.tinymediamanager.core;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -118,8 +117,8 @@ public class Settings extends AbstractSettings {
   private boolean               writeMediaInfoXml           = false;
 
   // aspect ratio detector
-  private ArdMode               ardMode                     = ArdMode.DEFAULT;
-  private Map<ArdMode, ARDSampleSetting> ardSampleSettings  = defaultARDSampleSettings();
+  private ArdSettings.Mode      ardMode                     = ArdSettings.Mode.DEFAULT;
+  private Map<ArdSettings.Mode, ArdSettings.SampleSetting> ardSampleSettings  = ArdSettings.defaultSampleSettings();
   private float                 ardIgnoreBeginningPct       = 2f;
   private float                 ardIgnoreEndPct             = 8f;
   private boolean               ardRoundUp                  = false;
@@ -230,7 +229,7 @@ public class Settings extends AbstractSettings {
     addCleanupFileType(".html$");
     Collections.sort(cleanupFileTypes);
 
-    ardSampleSettings = defaultARDSampleSettings();
+    ardSampleSettings = ArdSettings.defaultSampleSettings();
 
     setProxyFromSystem();
 
@@ -1086,13 +1085,13 @@ public class Settings extends AbstractSettings {
   }
 
   // aspect ratio detector
-  public void setArdMode(ArdMode newValue) {
-    ArdMode oldValue = this.ardMode;
+  public void setArdMode(ArdSettings.Mode newValue) {
+    ArdSettings.Mode oldValue = this.ardMode;
     this.ardMode = newValue;
     firePropertyChange("ardMode", oldValue, newValue);
   }
 
-  public ArdMode getArdMode() {
+  public ArdSettings.Mode getArdMode() {
     return this.ardMode;
   }
 
@@ -1250,73 +1249,12 @@ public class Settings extends AbstractSettings {
     return this.ardDarkLevelMaxPct;
   }
 
-  public Map<ArdMode, ARDSampleSetting> getArdSampleSettings() {
+  public Map<ArdSettings.Mode, ArdSettings.SampleSetting> getArdSampleSettings() {
     return ardSampleSettings;
   }
 
-  public ARDSampleSetting getArdSetting(ArdMode mode) {
+  public ArdSettings.SampleSetting getArdSampleSetting(ArdSettings.Mode mode) {
     return ardSampleSettings.get(mode);
   }
 
-  private Map<ArdMode, ARDSampleSetting> defaultARDSampleSettings() {
-    Map<ArdMode, ARDSampleSetting> settings = new HashMap<>();
-
-    ARDSampleSetting settingFast = new ARDSampleSetting();
-    settingFast.duration = 1;
-    settingFast.minNumber = 4;
-    settingFast.maxGap = 1800;
-
-    ARDSampleSetting settingDefault = new ARDSampleSetting();
-    settingDefault.duration = 2;
-    settingDefault.minNumber = 6;
-    settingDefault.maxGap = 900;
-
-    ARDSampleSetting settingAccurate = new ARDSampleSetting();
-    settingAccurate.duration = 2;
-    settingAccurate.minNumber = 30;
-    settingAccurate.maxGap = 900;
-
-    settings.put(ArdMode.FAST, settingFast);
-    settings.put(ArdMode.DEFAULT, settingDefault);
-    settings.put(ArdMode.ACCURATE, settingAccurate);
-
-    return settings;
-  }
-
-  public enum ArdMode {
-    FAST,
-    DEFAULT,
-    ACCURATE
-  }
-
-  public static class ARDSampleSetting implements Serializable {
-
-    private int duration = 2;
-    private int minNumber = 6;
-    private int maxGap = 900;
-
-    public int getDuration() {
-      return duration;
-    }
-
-    public void setDuration(int ardSampleDuration) {
-      this.duration = ardSampleDuration;
-    }
-
-    public int getMinNumber() {
-      return minNumber;
-    }
-
-    public void setMinNumber(int ardSampleMinNumber) {
-      this.minNumber = ardSampleMinNumber;
-    }
-
-    public int getMaxGap() {
-      return maxGap;
-    }
-
-    public void setMaxGap(int ardSampleMaxGap) {
-      this.maxGap = ardSampleMaxGap;
-    }
-  }
 }
