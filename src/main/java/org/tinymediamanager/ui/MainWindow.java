@@ -27,8 +27,6 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -75,16 +73,15 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainWindow extends JFrame {
 
+  private static final Logger     LOGGER           = LoggerFactory.getLogger(MainWindow.class);
+  private static final long       serialVersionUID = 1L;
 
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(MainWindow.class);
-  private static final long           serialVersionUID = 1L;
+  public static final List<Image> LOGOS            = createLogos();
 
-  public static final List<Image>     LOGOS            = createLogos();
+  private static MainWindow       instance;
 
-  private static MainWindow           instance;
-
-  private JTabbedPane                 tabbedPane;
-  private JPanel                      detailPanel;
+  private JTabbedPane             tabbedPane;
+  private JPanel                  detailPanel;
 
   /**
    * Gets the active instance.
@@ -120,15 +117,9 @@ public class MainWindow extends JFrame {
    * @return a list of all predefined logos
    */
   private static List<Image> createLogos() {
-    List<Image> logos = new ArrayList<>();
 
-    logos.add(new LogoCircle(48).getImage());
-    logos.add(new LogoCircle(64).getImage());
-    logos.add(new LogoCircle(96).getImage());
-    logos.add(new LogoCircle(128).getImage());
-    logos.add(new LogoCircle(256).getImage());
-
-    return Collections.unmodifiableList(logos);
+    return List.of(new LogoCircle(48).getImage(), new LogoCircle(64).getImage(), new LogoCircle(96).getImage(), new LogoCircle(128).getImage(),
+        new LogoCircle(256).getImage());
   }
 
   /**
@@ -137,7 +128,7 @@ public class MainWindow extends JFrame {
   private void initialize() {
     // set the logo
     setIconImages(LOGOS);
-    setBounds(5, 5, 1100, 727);
+    setBounds(5, 5, 1100, 720);
     // do nothing, we have our own windowClosing() listener
     setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -167,6 +158,7 @@ public class MainWindow extends JFrame {
       @Override
       public void updateUI() {
         putClientProperty("rightBorder", "half");
+        putClientProperty("roundEdge", Boolean.FALSE);
         super.updateUI();
       }
     };
@@ -249,8 +241,8 @@ public class MainWindow extends JFrame {
     // if there are some threads running, display exit confirmation
     if (TmmTaskManager.getInstance().poolRunning()) {
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-      confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.exit.runningtasks"), TmmResourceBundle.getString("tmm.exit.confirmation"),
-          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null); // $NON-NLS-1$
+      confirm = JOptionPane.showOptionDialog(null, TmmResourceBundle.getString("tmm.exit.runningtasks"),
+          TmmResourceBundle.getString("tmm.exit.confirmation"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null); // $NON-NLS-1$
     }
     if (confirm == JOptionPane.YES_OPTION) {
       LOGGER.info("bye bye");

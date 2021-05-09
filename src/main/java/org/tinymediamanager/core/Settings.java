@@ -109,7 +109,7 @@ public class Settings extends AbstractSettings {
   private DateField             dateField                   = DateField.DATE_ADDED;
 
   private boolean               deleteTrashOnExit           = false;
-  private boolean               showMemory                  = false;
+  private boolean               showMemory                  = true;
 
   private boolean               upnpShareLibrary            = false;
   private boolean               upnpRemotePlay              = false;

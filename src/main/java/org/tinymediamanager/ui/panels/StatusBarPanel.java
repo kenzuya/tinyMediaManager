@@ -22,6 +22,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Taskbar;
@@ -36,7 +38,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.UIManager;
 
 import org.tinymediamanager.core.Constants;
@@ -63,13 +64,12 @@ import net.miginfocom.swing.MigLayout;
 public class StatusBarPanel extends JPanel implements TmmTaskListener {
   private static final long        serialVersionUID = -6375900257553323558L;
 
-
   private final Set<TmmTaskHandle> taskSet;
 
   private TmmTaskHandle            activeTask;
 
   private JButton                  btnNotifications;
-  private JLabel                   lblMemory;
+  private JPanel                   memoryUsagePanel;
 
   private JLabel                   taskLabel;
   private JProgressBar             taskProgressBar;
@@ -91,22 +91,12 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
 
     // memory indication
     final Settings settings = Settings.getInstance();
-    final Timer m = new Timer(1000, null);
-    m.addActionListener(evt -> lblMemory.setText(getMemory()));
 
-    if (settings.isShowMemory()) {
-      m.start();
-    }
+    memoryUsagePanel.setVisible(settings.isShowMemory());
     // listener for settings change
 
     settings.addPropertyChangeListener(evt -> {
-      if (settings.isShowMemory()) {
-        m.start();
-      }
-      else {
-        lblMemory.setText("");
-        m.stop();
-      }
+      memoryUsagePanel.setVisible(settings.isShowMemory());
     });
 
     // message notifications
@@ -146,18 +136,8 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     TaskListDialog.getInstance();
   }
 
-  @Override
-  public void updateUI() {
-    super.updateUI();
-    setBackground(UIManager.getColor("Panel.tmmAlternateBackground"));
-  }
-
   private void initComponents() {
-    setLayout(new MigLayout("insets 0 n 0 n, hidemode 3", "[][50lp:n][grow][100lp][15lp:n][]", "[22lp:n]"));
-    {
-      lblMemory = new JLabel("");
-      add(lblMemory, "cell 0 0");
-    }
+    setLayout(new MigLayout("insets 0 n 0 0, hidemode 3", "[][50lp:n][grow][100lp][15lp:n][][]", "[22lp:n]"));
 
     {
       taskLabel = new JLabel("XYZ");
@@ -165,7 +145,6 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     }
     {
       taskProgressBar = new JProgressBar();
-      taskProgressBar.setBackground(UIManager.getColor("Panel.background"));
       taskProgressBar.addMouseListener(new MListener());
       add(taskProgressBar, "cell 3 0");
     }
@@ -193,22 +172,21 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
       btnNotifications.setToolTipText(TmmResourceBundle.getString("notifications.new"));
       add(btnNotifications, "cell 5 0");
     }
+    {
+      memoryUsagePanel = new MemoryUsagePanel();
+      add(memoryUsagePanel, "cell 6 0");
+    }
   }
 
-  private String getMemory() {
-    Runtime rt = Runtime.getRuntime();
-    long totalMem = rt.totalMemory();
-    long maxMem = rt.maxMemory(); // = Xmx
-    long freeMem = rt.freeMemory();
-    long megs = 1048576;
+  @Override
+  protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
 
-    // see http://stackoverflow.com/a/18375641
-    long used = totalMem - freeMem;
-    long free = maxMem - used;
-
-    String phys = "";
-    return TmmResourceBundle.getString("tmm.memoryused") + " " + used / megs + " MiB  /  " + TmmResourceBundle.getString("tmm.memoryfree") + " "
-        + free / megs + " MiB  /  " + TmmResourceBundle.getString("tmm.memorymax") + " " + maxMem / megs + " MiB" + phys;
+    // draw top border
+    Graphics2D graphics2D = (Graphics2D) g.create();
+    graphics2D.setColor(UIManager.getColor("Panel.tmmAlternateBackground"));
+    graphics2D.drawLine(0, 0, getWidth(), 0);
+    graphics2D.dispose();
   }
 
   @Override

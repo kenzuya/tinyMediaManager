@@ -122,7 +122,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("insets n n 0 n", "[200lp:n,grow][100lp:n,fill]", "[][200lp:n,grow]0[][][]"));
+    setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:n,grow]0[][][]"));
 
     final TmmTreeTextFilter<TmmTreeNode> searchField = new TvShowTreeTextFilter<>();
     add(searchField, "cell 0 0,growx");
