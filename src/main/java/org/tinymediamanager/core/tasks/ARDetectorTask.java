@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 - 2021 Manuel Laggner
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.tinymediamanager.core.tasks;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +31,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+
+/**
+ * Core aspect ratio detector class.
+ * Calculates real aspect ratio by scanning video files and detecting contained black bars.
+ *
+ * @author Alex Bruns, Kai Werner
+ */
 public abstract class ARDetectorTask extends TmmTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ARDetectorTask.class);
@@ -25,7 +47,7 @@ public abstract class ARDetectorTask extends TmmTask {
 
   private final Settings settings = Settings.getInstance();
 
-  protected Settings.ArdMode mode = Settings.ArdMode.DEFAULT;
+  protected ArdSettings.Mode mode = ArdSettings.Mode.DEFAULT;
   protected int sampleDuration = 2;
   protected int sampleMinNumber = 6;
   protected int sampleMaxGap = 900;
@@ -56,9 +78,9 @@ public abstract class ARDetectorTask extends TmmTask {
 
   protected void init() {
     this.mode = settings.getArdMode();
-    Settings.ARDSampleSetting modeSettings = settings.getArdSetting(this.mode);
+    ArdSettings.SampleSetting modeSettings = settings.getArdSampleSetting(this.mode);
     if (modeSettings == null) {
-      modeSettings = settings.getArdSetting(Settings.ArdMode.DEFAULT);
+      modeSettings = settings.getArdSampleSetting(ArdSettings.Mode.DEFAULT);
     }
     this.sampleDuration = modeSettings.getDuration();
     this.sampleMinNumber = modeSettings.getMinNumber();
@@ -74,7 +96,7 @@ public abstract class ARDetectorTask extends TmmTask {
     this.roundUp = settings.isArdRoundUp();
     this.roundUpThresholdPct = settings.getArdRoundUpThresholdPct();
     this.multiFormatMode = settings.getArdMFMode();
-    if (!Settings.ArdMode.ACCURATE.equals(this.mode)) {
+    if (!ArdSettings.Mode.ACCURATE.equals(this.mode)) {
       this.multiFormatMode = 0;
     }
     this.multiFormatThresholdPct = settings.getArdMFThresholdPct();

@@ -127,15 +127,6 @@ class MiscSettingsPanel extends JPanel {
         panelMisc.add(chckbxMediaInfoXml, "cell 1 7 2 1");
       }
     }
-    {
-      // Aspect Ratio Detector
-      JPanel panelArd = new MiscArdSettingsPanel();
-
-      JLabel lblARDT = new TmmLabel(TmmResourceBundle.getString("Settings.ard"), H3);
-      CollapsiblePanel collapsiblePanelARD = new CollapsiblePanel(panelArd, lblARDT, true);
-      collapsiblePanelARD.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
-      add(collapsiblePanelARD, "cell 0 2,growx, wmin 0");
-    }
   }
 
   protected void initDataBindings() {
