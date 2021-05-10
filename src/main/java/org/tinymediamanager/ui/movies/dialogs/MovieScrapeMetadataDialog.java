@@ -28,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -168,7 +169,13 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
     }
 
     // pre-set config
-    cbScraperConfig.setSelectedItems(MovieModuleManager.SETTINGS.getScraperMetadataConfig());
+    List<MovieScraperMetadataConfig> configs = MovieModuleManager.SETTINGS.getScraperMetadataConfig();
+    // if automatic artwork scrape is not wanted, strip out artwork options
+    if (!MovieModuleManager.SETTINGS.isScrapeBestImage()) {
+      configs.removeAll(MovieScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
+    }
+
+    cbScraperConfig.setSelectedItems(configs);
   }
 
   /**
