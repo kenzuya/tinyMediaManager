@@ -57,10 +57,10 @@ abstract class AbstractMovieSetUIFilter extends AbstractTmmUIFilter<TmmTreeNode>
     if (userObject instanceof MovieSet) {
       MovieSet movieSet = (MovieSet) userObject;
       if (getFilterState() == FilterState.ACTIVE) {
-        return accept(movieSet, new ArrayList<>(movieSet.getMovies()));
+        return accept(movieSet, new ArrayList<>(movieSet.getMoviesForDisplay()));
       }
       else if (getFilterState() == FilterState.ACTIVE_NEGATIVE) {
-        return !accept(movieSet, new ArrayList<>(movieSet.getMovies()));
+        return !accept(movieSet, new ArrayList<>(movieSet.getMoviesForDisplay()));
       }
     }
     else if (userObject instanceof Movie) {
