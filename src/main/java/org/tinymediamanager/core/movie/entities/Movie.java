@@ -99,7 +99,6 @@ import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
@@ -111,8 +110,11 @@ import org.tinymediamanager.core.movie.connector.MovieToMpMyVideoConnector;
 import org.tinymediamanager.core.movie.connector.MovieToXbmcConnector;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
+import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
-import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
+import org.tinymediamanager.core.tasks.ImageCacheTask;
+import org.tinymediamanager.core.threading.*;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
@@ -913,8 +915,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
-    // rename the movie if that has been chosen in the settings
-    rename();
+    postProcess();
 
     // write actor images after possible rename (to have a good folder structure)
     if (ScraperMetadataConfig.containsAnyCast(config)) {
@@ -1271,16 +1272,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
       connector.write(nfonames);
       firePropertyChange(HAS_NFO_FILE, false, true);
-    }
-  }
-
-  public void rename() {
-    // rename the movie if that has been chosen in the settings
-    if (MovieModuleManager.SETTINGS.isRenameAfterScrape()) {
-      MovieRenamer.renameMovie(this);
-
-      // re-build the image cache afterwards in an own thread
-      cacheImages();
     }
   }
 
@@ -2610,6 +2601,24 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
+  }
+
+  private void postProcess() {
+    TmmTaskChain taskChain = new TmmTaskChain();
+
+    if (MovieModuleManager.SETTINGS.isArdAfterScrape()) {
+      taskChain.add(new MovieARDetectorTask(Collections.singletonList(this)));
+    }
+    if (MovieModuleManager.SETTINGS.isRenameAfterScrape()) {
+      taskChain.add(new MovieRenameTask(Collections.singletonList(this)));
+
+      List<MediaFile> imageFiles = getImagesToCache();
+      if (!imageFiles.isEmpty()) {
+        taskChain.add(new ImageCacheTask(imageFiles));
+      }
+    }
+
+    taskChain.run();
   }
 
   @Override
