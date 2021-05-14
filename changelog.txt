@@ -1,7 +1,12 @@
 Version 4.1.5
 =======================
++ added a filter for movie sets containing missing movies #1279
 x fixed loading of license module on UNC paths #1227
 x partly reverted changes to the database management #1315 #1316 #1291 #1306
+x reworked memory usage visualization in the status bar
+x do not pre-set artwork types in the (background) scrape dialogs, when automatic artwork download is disabled
+x allow more season/episode variants to be detected #1302
+x enhanced check for missing artwork to extrafanart/extrathumbs too #1320
 
 
 Version 4.1.4

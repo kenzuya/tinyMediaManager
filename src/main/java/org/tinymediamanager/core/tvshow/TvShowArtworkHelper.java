@@ -335,6 +335,11 @@ public class TvShowArtworkHelper {
         && tvShow.getMediaFiles(MediaFileType.KEYART).isEmpty()) {
       return true;
     }
+    if (config.contains(TvShowScraperMetadataConfig.EXTRAFANART) && TvShowModuleManager.SETTINGS.isImageExtraFanart()
+        && !TvShowModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty() && tvShow.getMediaFiles(MediaFileType.EXTRAFANART).isEmpty()) {
+      return true;
+    }
+
     for (TvShowSeason season : tvShow.getSeasons()) {
       if (config.contains(TvShowScraperMetadataConfig.SEASON_POSTER) && !TvShowModuleManager.SETTINGS.getSeasonPosterFilenames().isEmpty()
           && StringUtils.isBlank(season.getArtworkFilename(SEASON_POSTER))) {

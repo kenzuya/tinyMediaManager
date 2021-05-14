@@ -118,7 +118,7 @@ public class MovieFilterDialog extends TmmDialog {
   public MovieFilterDialog(MovieSelectionModel selectionModel) {
     super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieFilter");
     setModalityType(ModalityType.MODELESS);
-    setMinimumSize(new Dimension(400, 0));
+    setMinimumSize(new Dimension(500, 400));
 
     this.selectionModel = selectionModel;
     this.filterMap = new HashMap<>();

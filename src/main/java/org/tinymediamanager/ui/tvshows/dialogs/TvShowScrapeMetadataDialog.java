@@ -217,6 +217,10 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
       if (artworkOnly) {
         config = config.stream().filter(ScraperMetadataConfig::isArtwork).collect(Collectors.toList());
       }
+      // if automatic artwork scrape is not wanted, strip out artwork options
+      if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {
+        config.removeAll(TvShowScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
+      }
       cbTvShowScraperConfig.setSelectedItems(config);
     }
     if (cbEpisodeScraperConfig != null) {
@@ -224,6 +228,10 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
       // only take artwork if only artwork has been requested
       if (artworkOnly) {
         config = config.stream().filter(ScraperMetadataConfig::isArtwork).collect(Collectors.toList());
+      }
+      // if automatic artwork scrape is not wanted, strip out artwork options
+      if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {
+        config.removeAll(TvShowEpisodeScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
       }
       cbEpisodeScraperConfig.setSelectedItems(config);
     }
