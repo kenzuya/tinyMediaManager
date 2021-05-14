@@ -1267,9 +1267,11 @@ public class MovieEditorDialog extends TmmDialog {
       }
 
       JButton cancelButton = new JButton(new DiscardAction());
+      cancelButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addButton(cancelButton);
 
       JButton okButton = new JButton(new ChangeMovieAction());
+      okButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addDefaultButton(okButton);
     }
   }

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -58,7 +59,7 @@ public class FFmpeg {
     executeCommand(createCommandforStill(videoFile, stillFile, second));
   }
 
-  private static String[] createCommandforStill(Path videoFile, Path stillFile, int second) {
+  private static List<String> createCommandforStill(Path videoFile, Path stillFile, int second) {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
@@ -72,14 +73,14 @@ public class FFmpeg {
     cmdList.add("2");
     cmdList.add(stillFile.toAbsolutePath().toString());
 
-    return cmdList.toArray(new String[0]);
+    return cmdList;
   }
 
   public static void muxVideoAndAudio(Path videoFile, Path audioFile, Path muxedFile) throws IOException, InterruptedException {
     executeCommand(createCommandforMux(videoFile, audioFile, muxedFile));
   }
 
-  private static String[] createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) {
+  private static List<String> createCommandforMux(Path videoFile, Path audioFile, Path muxedFile) {
     List<String> cmdList = new ArrayList<>();
     cmdList.add(getFfmpegExecutable());
     cmdList.add("-y");
@@ -91,13 +92,64 @@ public class FFmpeg {
     cmdList.add("copy");
     cmdList.add(muxedFile.toAbsolutePath().toString());
 
-    return cmdList.toArray(new String[0]);
+    return cmdList;
   }
 
-  private static void executeCommand(String[] cmdline) throws IOException, InterruptedException {
+  public static String scanDarkLevel(float position, Path videoFile) throws IOException, InterruptedException {
+    return executeCommand(createCommandForScanDarkLevel(position, videoFile));
+  }
+
+  private static List<String> createCommandForScanDarkLevel(float position, Path videoFile) {
+    List<String> cmdList = new ArrayList<>();
+    cmdList.add(getFfmpegExecutable());
+    cmdList.add("-hide_banner");
+    cmdList.add("-an");
+    cmdList.add("-dn");
+    cmdList.add("-sn");
+    cmdList.add("-ss");
+    cmdList.add(Float.toString(position));
+    cmdList.add("-i");
+    cmdList.add(videoFile.toAbsolutePath().toString());
+    cmdList.add("-vf");
+    cmdList.add("signalstats,metadata=print");
+    cmdList.add("-vframes");
+    cmdList.add("1");
+    cmdList.add("-f");
+    cmdList.add("null");
+    cmdList.add("pipe:1");
+    return cmdList;
+  }
+
+  public static String scanSample(int start, int duration, int darkLevel, Path videoFile) throws IOException, InterruptedException {
+    return executeCommand(createCommandForScanSample(start, duration, darkLevel, videoFile));
+  }
+
+  private static List<String> createCommandForScanSample(int start, int duration, int darkLevel, Path videoFile) {
+    List<String> cmdList = new ArrayList<>();
+    cmdList.add(getFfmpegExecutable());
+    cmdList.add("-hide_banner");
+    cmdList.add("-an");
+    cmdList.add("-dn");
+    cmdList.add("-sn");
+    cmdList.add("-noaccurate_seek");
+    cmdList.add("-t");
+    cmdList.add(Integer.toString(duration));
+    cmdList.add("-ss");
+    cmdList.add(Integer.toString(start));
+    cmdList.add("-i");
+    cmdList.add(videoFile.toAbsolutePath().toString());
+    cmdList.add("-vf");
+    cmdList.add("cropdetect=" + Integer.toString(darkLevel) + ":2:0");
+    cmdList.add("-f");
+    cmdList.add("null");
+    cmdList.add("pipe:1");
+    return cmdList;
+  }
+
+  private static String executeCommand(List<String> cmdline) throws IOException, InterruptedException {
     LOGGER.debug("Running command: {}", String.join(" ", cmdline));
 
-    ProcessBuilder pb = new ProcessBuilder(cmdline).redirectErrorStream(true);
+    ProcessBuilder pb = new ProcessBuilder(cmdline.toArray(new String[0])).redirectErrorStream(true);
     final Process process = pb.start();
 
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -113,8 +165,9 @@ public class FFmpeg {
       int processValue = process.waitFor();
       if (processValue != 0) {
         LOGGER.debug("error at FFmpeg: '{}", outputStream.toString(StandardCharsets.UTF_8));
-        throw new IOException("could not create the still - code '" + processValue + "'");
+        throw new IOException("error running FFmpeg - code '" + processValue + "'");
       }
+      return outputStream.toString(StandardCharsets.UTF_8);
     }
     finally {
       if (process != null) {
@@ -126,6 +179,11 @@ public class FFmpeg {
     }
   }
 
+  public static boolean isAvailable() {
+    FFmpegAddon fFmpegAddon = new FFmpegAddon();
+    return ((Globals.settings.isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) ||
+            StringUtils.isNotEmpty(Globals.settings.getMediaFramework()));
+  }
   private static String getFfmpegExecutable() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
 

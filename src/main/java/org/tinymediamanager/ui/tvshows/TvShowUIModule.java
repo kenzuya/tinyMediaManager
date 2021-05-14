@@ -43,6 +43,7 @@ import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowAspectRatioDetectAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowBulkEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeDatasourceAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeSeasonArtworkAction;
@@ -293,6 +294,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
     popupMenu.add(enhancedEditMenu);
 
     popupMenu.addSeparator();
