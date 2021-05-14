@@ -2,6 +2,7 @@ Version 4.1.5
 =======================
 + added an enhanced aspect ratio detector (thx @icebaer72)
 + added a filter for movie sets containing missing movies #1279
++ (movie) added year to the bulk editor
 x fixed loading of license module on UNC paths #1227
 x partly reverted changes to the database management #1315 #1316 #1291 #1306
 x reworked memory usage visualization in the status bar
