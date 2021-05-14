@@ -633,11 +633,6 @@ public class MovieSet extends MediaEntity {
     }
 
     @Override
-    public void rename() {
-      // do nothing here
-    }
-
-    @Override
     public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config) {
       // do not set movie set assignment since that could create new movie sets in the DB
       config.remove(MovieScraperMetadataConfig.COLLECTION);

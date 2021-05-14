@@ -65,15 +65,15 @@ class MiscSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][]"));
     {
       JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][20lp][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
-      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
-      collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
-      add(collapsiblePanel, "cell 0 0,growx, wmin 0");
+      CollapsiblePanel collapsiblePanelMisc = new CollapsiblePanel(panelMisc, lblMiscT, true);
+      collapsiblePanelMisc.addExtraTitleComponent(new DocsButton("/settings#misc-settings-2"));
+      add(collapsiblePanelMisc, "cell 0 0,growx, wmin 0");
       {
         chckbxImageCache = new JCheckBox(TmmResourceBundle.getString("Settings.imagecache"));
         panelMisc.add(chckbxImageCache, "cell 1 0 2 1");

@@ -643,9 +643,11 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       }
 
       JButton cancelButton = new JButton(new DiscardAction());
+      cancelButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addButton(cancelButton);
 
       JButton okButton = new JButton(new ChangeEpisodeAction());
+      okButton.addActionListener(e -> mediaFilesPanel.cancelTask());
       addDefaultButton(okButton);
     }
   }
