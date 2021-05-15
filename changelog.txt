@@ -9,6 +9,7 @@ x reworked memory usage visualization in the status bar
 x do not pre-set artwork types in the (background) scrape dialogs, when automatic artwork download is disabled
 x allow more season/episode variants to be detected #1302
 x enhanced check for missing artwork to extrafanart/extrathumbs too #1320
+x (TMDB) enhanced language fallback for es_MX, pt_BR and fr_CA #1326
 
 
 Version 4.1.4
