@@ -81,6 +81,7 @@ public class SplitUri {
   public SplitUri(String datasource, String file, String label, String ipForLocal) {
     this.datasource = datasource;
     this.file = file;
+    this.label = label;
 
     try {
       URI dsuri = parseToUri(datasource);

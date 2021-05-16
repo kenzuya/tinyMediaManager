@@ -15,6 +15,12 @@
  */
 package org.tinymediamanager.ui.tvshows.actions;
 
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tasks.ARDetectorTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -27,19 +33,14 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-
 public class TvShowAspectRatioDetectAction extends TmmAction {
 
   private static final long           serialVersionUID = 1537573685063738415L;
 
   public TvShowAspectRatioDetectAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.ard"));
-    putValue(LARGE_ICON_KEY, IconManager.ASPECT_RATIO);
-    putValue(SMALL_ICON, IconManager.ASPECT_RATIO);
+    putValue(LARGE_ICON_KEY, IconManager.ASPECT_RATIO_BLUE);
+    putValue(SMALL_ICON, IconManager.ASPECT_RATIO_BLUE);
   }
 
   @Override

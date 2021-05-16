@@ -41,8 +41,8 @@ public class MovieKodiRefreshNfoAction extends TmmAction {
   private static final long serialVersionUID = -6731682301579049379L;
 
   public MovieKodiRefreshNfoAction() {
-    putValue(LARGE_ICON_KEY, IconManager.NFO);
-    putValue(SMALL_ICON, IconManager.NFO);
+    putValue(LARGE_ICON_KEY, IconManager.MEDIAINFO);
+    putValue(SMALL_ICON, IconManager.MEDIAINFO);
     putValue(NAME, TmmResourceBundle.getString("kodi.rpc.refreshnfo"));
   }
 

@@ -84,15 +84,20 @@ public class IconManager {
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
+  public static final ImageIcon              ASPECT_RATIO_BLUE            = createMenuIcon("ruler-combined-solid.svg");
   public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
+  public static final ImageIcon              CLEAN                        = createMenuIcon("broom.svg");
+  public static final ImageIcon              CONNECT                      = createMenuIcon("link.svg");
   public static final ImageIcon              DELETE                       = createMenuIcon("times.svg");
   public static final ImageIcon              DELETE_FOREVER               = createMenuIcon("trash-alt.svg");
+  public static final ImageIcon              DISCONNECT                   = createMenuIcon("unlink.svg");
   public static final ImageIcon              DOWNLOAD                     = createMenuIcon("download.svg");
   public static final ImageIcon              FEEDBACK                     = createMenuIcon("envelope.svg");
   public static final ImageIcon              EDIT                         = createMenuIcon("edit.svg");
   public static final ImageIcon              EXPORT                       = createMenuIcon("share-square.svg");
   public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
+  public static final ImageIcon              KODI                         = createMenuIcon("kodi.svg");
   public static final ImageIcon              MEDIAINFO                    = createMenuIcon("info.svg");
   public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
   public static final ImageIcon              MOVIE                        = createMenuIcon("film.svg");
@@ -105,6 +110,7 @@ public class IconManager {
   public static final ImageIcon              SUBTITLE                     = createMenuIcon("comments.svg");
   public static final ImageIcon              SYNC                         = createMenuIcon("sync.svg");
   public static final ImageIcon              THUMB                        = createMenuIcon("photo-video.svg");
+  public static final ImageIcon              VOLUME                       = createMenuIcon("volume.svg");
   public static final ImageIcon              WATCHED_MENU                 = createMenuIcon("play.svg");
 
   // font awesome icons for the table/tree
@@ -155,7 +161,8 @@ public class IconManager {
   public static final ImageIcon              STOP_INV                     = createButtonIcon("stop-circle.svg");
 
   // font awesome icons - column headers
-  public static final ImageIcon              AUDIO                        = createTableHeaderIcon("volume-up.svg");
+  public static final ImageIcon              AUDIO                        = createTableHeaderIcon("volume.svg");
+  public static final ImageIcon              ASPECT_RATIO                 = createTableHeaderIcon("ruler-combined-solid.svg");
   public static final ImageIcon              CERTIFICATION                = createTableHeaderIcon("universal-access.svg");
   public static final ImageIcon              COUNT                        = createTableHeaderIcon("hashtag.svg");
   public static final ImageIcon              DATE_ADDED                   = createTableHeaderIcon("calendar-plus.svg");
@@ -165,6 +172,7 @@ public class IconManager {
   public static final ImageIcon              EDIT_HEADER                  = createTableHeaderIcon("edit.svg");
   public static final ImageIcon              EPISODES                     = createTextIcon("E", 1.5);
   public static final ImageIcon              FILE_SIZE                    = createTableHeaderIcon("save.svg");
+  public static final ImageIcon              HDR                          = createTableHeaderIcon("delicious-brands.svg");
   public static final ImageIcon              IMAGES                       = createTableHeaderIcon("images.svg");
   public static final ImageIcon              IMDB                         = createTextIcon("IMDb", 0.9);
   public static final ImageIcon              IDCARD                       = createTableHeaderIcon("id-card.svg");
@@ -187,8 +195,6 @@ public class IconManager {
   public static final ImageIcon              VIDEO_CODEC                  = createTableHeaderIcon("file-video-o.svg");
   public static final ImageIcon              VOTES                        = createTableHeaderIcon("thumbs-up.svg");
   public static final ImageIcon              WATCHED                      = createTableHeaderIcon("play.svg");
-  public static final ImageIcon              ASPECT_RATIO                 = createTableHeaderIcon("ruler-combined-solid.svg");
-  public static final ImageIcon              HDR                          = createTableHeaderIcon("delicious-brands.svg");
 
   // sort icons for glazedlists
   public static final ImageIcon              SORT_UP_PRIMARY              = createSVGIcon("chevron-up.svg", 0.833);

@@ -237,7 +237,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     traktMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSyncSelectedRatingTraktTvAction.class));
     popupMenu.add(traktMenu);
-    JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickMovies();
+
+    JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickMovies();
     popupMenu.add(kodiRPCMenu);
 
     popupMenu.addSeparator();
@@ -259,7 +260,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-        if (KodiRPC.getInstance().isConnected()) {
+        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
           kodiRPCMenu.setEnabled(true);
         }
         else {

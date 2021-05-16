@@ -297,7 +297,7 @@ public class ToolbarPanel extends JPanel {
       menu.add(debugMenu);
     }
 
-    final JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuTop();
+    final JMenu kodiRPCMenu = KodiRPCMenu.createKodiMenuTop();
     menu.add(kodiRPCMenu);
 
     // activate/deactivate menu items based on some status

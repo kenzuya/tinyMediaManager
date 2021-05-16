@@ -309,7 +309,6 @@ public class TinyMediaManager {
             u.startWebServer();
           }
           try {
-            // TODO: async?
             KodiRPC.getInstance().connect();
           }
           catch (Exception e) {

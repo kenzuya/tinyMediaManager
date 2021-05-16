@@ -16,12 +16,16 @@
 
 package org.tinymediamanager.ui.thirdparty;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.thirdparty.KodiRPC;
@@ -30,133 +34,332 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.movies.actions.MovieKodiRefreshNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowKodiRefreshNfoAction;
 
+/**
+ * the class {@link KodiRPCMenu} is used to build the menu for the Kodi RPC
+ * 
+ * @author Myron Boyle, Manuel Laggner
+ */
 public class KodiRPCMenu {
   protected static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages");
 
   private KodiRPCMenu() {
-    // private constructor for utility classes
+    throw new IllegalAccessError();
   }
 
   /**
    * Adds Kodi RPC menu structure in right-click popup
    * 
-   * @return
+   * @return the {@link JMenu} for the movie popup menu
    */
-  public static JMenu KodiMenuRightClickMovies() {
+  public static JMenu createMenuKodiMenuRightClickMovies() {
     String version = KodiRPC.getInstance().getVersion();
     JMenu m = new JMenu(version);
-    m.setIcon(IconManager.MENU);
+    m.setIcon(IconManager.KODI);
+
     m.add(new MovieKodiRefreshNfoAction());
+
+    m.addSeparator();
+
+    JMenuItem connectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.connect"), IconManager.CONNECT);
+    connectMenuItem.addActionListener(e -> KodiRPC.getInstance().connect());
+    m.add(connectMenuItem);
+
+    JMenuItem disconnectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.disconnect"), IconManager.DISCONNECT);
+    disconnectMenuItem.addActionListener(e -> KodiRPC.getInstance().disconnect());
+    m.add(disconnectMenuItem);
+
+    m.addSeparator();
+
+    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.updatemappings"), IconManager.SYNC);
+    i.addActionListener(e -> KodiRPC.getInstance().updateMovieMappings());
+    m.add(i);
+
+    m.addSeparator();
+
+    m.add(createMenuApplication());
+    m.add(createMenuSystem());
+    m.add(createMenuVideoDatasources());
+    m.add(createMenuAudioDatasources());
+
+    m.addMenuListener(new MenuListener() {
+      @Override
+      public void menuSelected(MenuEvent e) {
+        for (Component component : m.getMenuComponents()) {
+          if (component instanceof JSeparator) {
+            continue;
+          }
+
+          if (KodiRPC.getInstance().isConnected()) {
+            if (component == connectMenuItem) {
+              component.setEnabled(false);
+            }
+            else {
+              component.setEnabled(true);
+            }
+          }
+          else {
+            if (component == connectMenuItem) {
+              component.setEnabled(true);
+            }
+            else {
+              component.setEnabled(false);
+            }
+          }
+        }
+      }
+
+      @Override
+      public void menuDeselected(MenuEvent e) {
+        // not needed
+      }
+
+      @Override
+      public void menuCanceled(MenuEvent e) {
+        // not needed
+      }
+    });
+
     return m;
   }
 
   /**
    * Adds Kodi RPC menu structure in right-click popup
    * 
-   * @return
+   * @return the {@link JMenu} for the TV show popup menu
    */
-  public static JMenu KodiMenuRightClickTvShows() {
+  public static JMenu createMenuKodiMenuRightClickTvShows() {
     String version = KodiRPC.getInstance().getVersion();
     JMenu m = new JMenu(version);
-    m.setIcon(IconManager.MENU);
+    m.setIcon(IconManager.KODI);
+
     m.add(new TvShowKodiRefreshNfoAction());
+
+    m.addSeparator();
+
+    JMenuItem connectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.connect"), IconManager.CONNECT);
+    connectMenuItem.addActionListener(e -> KodiRPC.getInstance().connect());
+    m.add(connectMenuItem);
+
+    JMenuItem disconnectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.disconnect"), IconManager.DISCONNECT);
+    disconnectMenuItem.addActionListener(e -> KodiRPC.getInstance().disconnect());
+    m.add(disconnectMenuItem);
+
+    m.addSeparator();
+
+    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.updatemappings"), IconManager.SYNC);
+    i.addActionListener(e -> KodiRPC.getInstance().updateMovieMappings());
+    m.add(i);
+
+    m.addSeparator();
+
+    m.add(createMenuApplication());
+    m.add(createMenuSystem());
+    m.add(createMenuVideoDatasources());
+    m.add(createMenuAudioDatasources());
+
+    m.addMenuListener(new MenuListener() {
+      @Override
+      public void menuSelected(MenuEvent e) {
+        for (Component component : m.getMenuComponents()) {
+          if (component instanceof JSeparator) {
+            continue;
+          }
+
+          if (KodiRPC.getInstance().isConnected()) {
+            if (component == connectMenuItem) {
+              component.setEnabled(false);
+            }
+            else {
+              component.setEnabled(true);
+            }
+          }
+          else {
+            if (component == connectMenuItem) {
+              component.setEnabled(true);
+            }
+            else {
+              component.setEnabled(false);
+            }
+          }
+        }
+      }
+
+      @Override
+      public void menuDeselected(MenuEvent e) {
+        // not needed
+      }
+
+      @Override
+      public void menuCanceled(MenuEvent e) {
+        // not needed
+      }
+    });
+
     return m;
   }
 
   /**
    * Adds Kodi RPC menu structure in top bar
    * 
-   * @return
+   * @return the {@link JMenu} for the tools popup menu
    */
-  public static JMenu KodiMenuTop() {
+  public static JMenu createKodiMenuTop() {
     String version = KodiRPC.getInstance().getVersion();
     JMenu m = new JMenu(version);
-    m.add(Application());
-    m.add(System());
-    m.add(VideoDatasources());
-    m.add(AudioDatasources());
+    m.setIcon(IconManager.KODI);
+
+    JMenuItem connectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.connect"), IconManager.CONNECT);
+    connectMenuItem.addActionListener(e -> KodiRPC.getInstance().connect());
+    m.add(connectMenuItem);
+
+    JMenuItem disconnectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.disconnect"), IconManager.DISCONNECT);
+    disconnectMenuItem.addActionListener(e -> KodiRPC.getInstance().disconnect());
+    m.add(disconnectMenuItem);
+
+    m.addSeparator();
+
+    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.updatemappings"), IconManager.SYNC);
+    i.addActionListener(e -> {
+      KodiRPC.getInstance().updateMovieMappings();
+      KodiRPC.getInstance().updateTvShowMappings();
+    });
+    m.add(i);
+
+    m.addSeparator();
+
+    m.add(createMenuApplication());
+    m.add(createMenuSystem());
+    m.add(createMenuVideoDatasources());
+    m.add(createMenuAudioDatasources());
+
+    m.addMenuListener(new MenuListener() {
+      @Override
+      public void menuSelected(MenuEvent e) {
+        for (Component component : m.getMenuComponents()) {
+          if (component instanceof JSeparator) {
+            continue;
+          }
+
+          if (KodiRPC.getInstance().isConnected()) {
+            if (component == connectMenuItem) {
+              component.setEnabled(false);
+            }
+            else {
+              component.setEnabled(true);
+            }
+          }
+          else {
+            if (component == connectMenuItem) {
+              component.setEnabled(true);
+            }
+            else {
+              component.setEnabled(false);
+            }
+          }
+        }
+      }
+
+      @Override
+      public void menuDeselected(MenuEvent e) {
+        // not needed
+      }
+
+      @Override
+      public void menuCanceled(MenuEvent e) {
+        // not needed
+      }
+    });
+
     return m;
   }
 
-  private static JMenu Application() {
+  private static JMenu createMenuApplication() {
     JMenu m = new JMenu(TmmResourceBundle.getString("kodi.rpc.application"));
+    m.setIcon(IconManager.MENU);
 
     JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.quit"));
-    i.addActionListener(e -> KodiRPC.getInstance().ApplicationQuit());
+    i.addActionListener(e -> KodiRPC.getInstance().quitApplication());
     m.add(i);
 
     i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.mute"));
-    i.addActionListener(e -> KodiRPC.getInstance().ApplicationMute());
+    i.addActionListener(e -> KodiRPC.getInstance().muteApplication());
     m.add(i);
 
-    m.add(Volume());
+    m.add(createMenuVolume());
 
     return m;
   }
 
-  private static JMenu VideoDatasources() {
+  private static JMenu createMenuVideoDatasources() {
     JMenu m = new JMenu(TmmResourceBundle.getString("kodi.rpc.videolibrary"));
+    m.setIcon(IconManager.MOVIE);
 
-    JMenuItem cleanLibraryMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.cleanvideo"));
-    cleanLibraryMenuItem.addActionListener(new CleanVideoLibraryListener());
+    JMenuItem cleanLibraryMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.cleanvideo"), IconManager.CLEAN);
+    cleanLibraryMenuItem.setToolTipText(TmmResourceBundle.getString("kodi.rpc.cleanvideo.desc"));
+    cleanLibraryMenuItem.addActionListener(event -> KodiRPC.getInstance().cleanVideoLibrary());
     m.add(cleanLibraryMenuItem);
 
-    JMenu m2 = new JMenu(TmmResourceBundle.getString("kodi.rpc.scan"));
-    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.all"));
-    i.addActionListener(new VideoDatasourceScanListener(null));
+    m.addSeparator();
+
+    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.all"), IconManager.REFRESH);
+    i.addActionListener(event -> KodiRPC.getInstance().scanVideoLibrary());
     i.setEnabled(false);
-    m2.add(i);
+    m.add(i);
     if (!KodiRPC.getInstance().getVideoDataSources().isEmpty()) {
       i.setEnabled(true);
       for (SplitUri ds : KodiRPC.getInstance().getVideoDataSources()) {
-        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")");
+        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")", IconManager.REFRESH);
         if ("UPNP".equals(ds.type)) {
           // cannot "scan" UPNP - always directly fetched and not in library
-          i.setEnabled(false);
+          continue;
         }
         else {
-          i.addActionListener(new VideoDatasourceScanListener(ds.file));
+          i.addActionListener(event -> KodiRPC.getInstance().scanVideoLibrary(ds.file));
         }
-        m2.add(i);
+        m.add(i);
       }
     }
-    m.add(m2);
+
     return m;
   }
 
-  private static JMenu AudioDatasources() {
+  private static JMenu createMenuAudioDatasources() {
     JMenu m = new JMenu(TmmResourceBundle.getString("kodi.rpc.audiolibrary"));
+    m.setIcon(IconManager.MUSIC);
 
-    JMenuItem cleanLibraryMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.cleanaudio"));
-    cleanLibraryMenuItem.addActionListener(new CleanAudioLibraryListener());
+    JMenuItem cleanLibraryMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.cleanaudio"), IconManager.CLEAN);
+    cleanLibraryMenuItem.setToolTipText(TmmResourceBundle.getString("kodi.rpc.cleanaudio.desc"));
+    cleanLibraryMenuItem.addActionListener(event -> KodiRPC.getInstance().cleanAudioLibrary());
     m.add(cleanLibraryMenuItem);
 
-    JMenu m2 = new JMenu(TmmResourceBundle.getString("kodi.rpc.scan"));
-    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.all"));
-    i.addActionListener(new AudioDatasourceScanListener(null));
+    m.addSeparator();
+
+    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.all"), IconManager.REFRESH);
+    i.addActionListener(event -> KodiRPC.getInstance().scanAudioLibrary());
     i.setEnabled(false);
-    m2.add(i);
+    m.add(i);
+
     if (!KodiRPC.getInstance().getAudioDataSources().isEmpty()) {
       i.setEnabled(true);
       for (SplitUri ds : KodiRPC.getInstance().getAudioDataSources()) {
-        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")");
+        i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.scan.item") + " " + ds.label + "  (" + ds.type + ")", IconManager.REFRESH);
         if ("UPNP".equals(ds.type)) {
           // cannot "scan" UPNP - always directly fetched and not in library
-          i.setEnabled(false);
+          continue;
         }
         else {
-          i.addActionListener(new AudioDatasourceScanListener(ds.file));
+          i.addActionListener(event -> KodiRPC.getInstance().scanAudioLibrary(ds.file));
         }
-        m2.add(i);
+        m.add(i);
       }
     }
-    m.add(m2);
 
     return m;
   }
 
-  private static JMenu Volume() {
+  private static JMenu createMenuVolume() {
     JMenu m = new JMenu(TmmResourceBundle.getString("kodi.rpc.volume"));
+    m.setIcon(IconManager.VOLUME);
 
     JMenuItem i = new JMenuItem("100%");
     i.addActionListener(new ApplicationVolumeListener(100));
@@ -193,55 +396,20 @@ public class KodiRPCMenu {
   }
 
   private static class ApplicationVolumeListener implements ActionListener {
-    private int vol;
+    private final int vol;
 
     public ApplicationVolumeListener(int vol) {
       this.vol = vol;
     }
 
     public void actionPerformed(ActionEvent e) {
-      KodiRPC.getInstance().ApplicationVolume(vol);
+      KodiRPC.getInstance().setVolume(vol);
     }
   }
 
-  private static class CleanAudioLibraryListener implements ActionListener {
-    public void actionPerformed(ActionEvent e) {
-      KodiRPC.getInstance().LibraryAudioClean();
-    }
-  }
-
-  private static class CleanVideoLibraryListener implements ActionListener {
-    public void actionPerformed(ActionEvent e) {
-      KodiRPC.getInstance().LibraryVideoClean();
-    }
-  }
-
-  private static class VideoDatasourceScanListener implements ActionListener {
-    private String datasource;
-
-    public VideoDatasourceScanListener(String datasource) {
-      this.datasource = datasource;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      KodiRPC.getInstance().LibraryVideoScan(datasource);
-    }
-  }
-
-  private static class AudioDatasourceScanListener implements ActionListener {
-    private String datasource;
-
-    public AudioDatasourceScanListener(String datasource) {
-      this.datasource = datasource;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      KodiRPC.getInstance().LibraryAudioScan(datasource);
-    }
-  }
-
-  private static JMenu System() {
+  private static JMenu createMenuSystem() {
     JMenu m = new JMenu(TmmResourceBundle.getString("kodi.rpc.system"));
+    m.setIcon(IconManager.MENU);
 
     JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.hibernate"));
     i.addActionListener(e -> KodiRPC.getInstance().SystemHibernate());
