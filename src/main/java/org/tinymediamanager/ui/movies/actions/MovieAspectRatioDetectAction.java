@@ -15,6 +15,12 @@
  */
 package org.tinymediamanager.ui.movies.actions;
 
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
@@ -25,19 +31,14 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.movies.MovieUIModule;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-
 public class MovieAspectRatioDetectAction extends TmmAction {
 
   private static final long           serialVersionUID = 2040242768614719459L;
 
   public MovieAspectRatioDetectAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.ard"));
-    putValue(LARGE_ICON_KEY, IconManager.ASPECT_RATIO);
-    putValue(SMALL_ICON, IconManager.ASPECT_RATIO);
+    putValue(LARGE_ICON_KEY, IconManager.ASPECT_RATIO_BLUE);
+    putValue(SMALL_ICON, IconManager.ASPECT_RATIO_BLUE);
   }
 
   @Override

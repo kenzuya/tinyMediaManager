@@ -163,11 +163,22 @@ abstract class TmdbMetadataProvider implements IMediaProvider {
 
       if (ret == null) {
         // did not find exact translation, check again with language OR country
-        for (Translation tr : translations.translations) {
-          if (tr.iso_639_1.equals(locale.getLanguage()) || tr.iso_3166_1.equals(locale.getCountry())) {
-            ret = tr;
+        switch (locale.toString()) {
+          // exceptions are here es_MX, pt_BR and fr_CA which are completely different
+          case "es_MX":
+          case "pt_BR":
+          case "fr_CA":
+            // do nothing
             break;
-          }
+
+          default:
+            for (Translation tr : translations.translations) {
+              if (tr.iso_639_1.equals(locale.getLanguage()) || tr.iso_3166_1.equals(locale.getCountry())) {
+                ret = tr;
+                break;
+              }
+            }
+            break;
         }
       }
     }

@@ -45,8 +45,8 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
   private static final long serialVersionUID = -3911290901017607679L;
 
   public TvShowKodiRefreshNfoAction() {
-    putValue(LARGE_ICON_KEY, IconManager.NFO);
-    putValue(SMALL_ICON, IconManager.NFO);
+    putValue(LARGE_ICON_KEY, IconManager.MEDIAINFO);
+    putValue(SMALL_ICON, IconManager.MEDIAINFO);
     putValue(NAME, TmmResourceBundle.getString("kodi.rpc.refreshnfo"));
   }
 

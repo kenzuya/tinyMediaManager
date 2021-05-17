@@ -1,6 +1,6 @@
 package org.tinymediamanager.thirdparty;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -41,7 +41,7 @@ public class ITKodiRPCTest {
 
   @Test
   public void getAllMoviesSYNC() {
-    ArrayList<MovieDetail> movies = KodiRPC.getInstance().getAllMoviesSYNC();
+    List<MovieDetail> movies = KodiRPC.getInstance().getAllMoviesSYNC();
     if (movies == null) {
       LOGGER.error("no movies found");
     }

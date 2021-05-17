@@ -318,7 +318,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedRatingTraktTvAction.class));
     popupMenu.add(traktMenu);
-    JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickTvShows();
+    JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickTvShows();
     popupMenu.add(kodiRPCMenu);
 
     popupMenu.addSeparator();

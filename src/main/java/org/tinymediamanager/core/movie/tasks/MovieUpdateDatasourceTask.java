@@ -76,6 +76,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
+import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.VSMeta;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 
@@ -281,6 +282,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       // cleanup
       cleanup(ds);
+
+      // map Kodi entries
+      if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+        KodiRPC.getInstance().updateMovieMappings();
+      }
 
       // mediainfo
       gatherMediainfo(ds);

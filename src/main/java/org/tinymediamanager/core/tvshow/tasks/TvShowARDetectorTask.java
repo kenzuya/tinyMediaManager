@@ -15,6 +15,8 @@
  */
 package org.tinymediamanager.core.tvshow.tasks;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileType;
@@ -22,11 +24,14 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.ARDetectorTask;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
-import java.util.List;
-
+/**
+ * the class {@link TvShowARDetectorTask} is used to detect aspect ratios for episodes
+ *
+ * @author Alex Bruns, Kai Werner
+ */
 public class TvShowARDetectorTask extends ARDetectorTask {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvShowARDetectorTask.class);
+  private static final Logger       LOGGER = LoggerFactory.getLogger(TvShowARDetectorTask.class);
 
   private final List<TvShowEpisode> episodes;
 
@@ -41,10 +46,7 @@ public class TvShowARDetectorTask extends ARDetectorTask {
       return;
     }
 
-    int filesTotal = this.episodes.stream()
-                                  .map(episode -> episode.getMediaFiles(MediaFileType.VIDEO).size())
-                                  .reduce(Integer::sum)
-                                  .orElse(0);
+    int filesTotal = this.episodes.stream().map(episode -> episode.getMediaFiles(MediaFileType.VIDEO).size()).reduce(Integer::sum).orElse(0);
 
     if (filesTotal > 0) {
       setWorkUnits(filesTotal * 100);
