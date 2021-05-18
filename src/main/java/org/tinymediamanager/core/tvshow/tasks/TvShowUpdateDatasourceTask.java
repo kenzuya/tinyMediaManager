@@ -73,6 +73,7 @@ import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
+import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.VSMeta;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 
@@ -280,11 +281,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           if (cancel) {
             break;
           }
-        } // end forech datasource
+        } // end foreach datasource
       }
-      else
-
-      {
+      else {
         initThreadPool(3, "update");
         // update selected TV shows
         for (Path path : tvShowFolders) {
@@ -318,6 +317,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
       if (cancel) {
         return;
+      }
+
+      // map Kodi entries
+      if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+        KodiRPC.getInstance().updateTvShowMappings();
       }
 
       LOGGER.info("getting Mediainfo...");

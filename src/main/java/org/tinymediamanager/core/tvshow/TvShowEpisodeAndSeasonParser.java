@@ -49,7 +49,7 @@ public class TvShowEpisodeAndSeasonParser {
   private static Pattern      date2               = Pattern.compile("([0-9]{2})[.-]([0-9]{2})[.-]([0-9]{4})", Pattern.CASE_INSENSITIVE);
 
   // new parsing logic
-  public static Pattern       SEASON_PATTERN      = Pattern.compile("(staffel|season|series)[\\s_.-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
+  public static Pattern       SEASON_PATTERN      = Pattern.compile("(s|staffel|season|series)[\\s_.-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static Pattern      episodePattern      = Pattern.compile("[epx_-]+(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static Pattern      episodePattern2     = Pattern.compile("(?:episode|ep)[\\. _-]*(\\d{1,4})", Pattern.CASE_INSENSITIVE);
   private static Pattern      romanPattern        = Pattern.compile("(part|pt)[\\._\\s]+([MDCLXVI]+)", Pattern.CASE_INSENSITIVE);

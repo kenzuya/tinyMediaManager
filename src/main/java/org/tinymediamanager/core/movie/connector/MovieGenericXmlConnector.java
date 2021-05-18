@@ -573,10 +573,17 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addPlaycount() {
     Element playcount = document.createElement("playcount");
+    int playCountFromNFO = parser != null ? parser.playcount : 0;
+
+    // take the higher value (tmm DB vs NFO)
+    playCountFromNFO = Math.max(movie.getPlaycount(), playCountFromNFO);
+
+    // if watched, make sure at least having a playcount of 1
     if (movie.isWatched()) {
-      int playCountFromNFO = parser != null ? parser.playcount : 0;
-      playcount.setTextContent(Integer.toString(Math.max(Math.max(movie.getPlaycount(), playCountFromNFO), 1)));
+      playCountFromNFO = Math.max(playCountFromNFO, 1);
     }
+
+    playcount.setTextContent(Integer.toString(playCountFromNFO));
     root.appendChild(playcount);
   }
 

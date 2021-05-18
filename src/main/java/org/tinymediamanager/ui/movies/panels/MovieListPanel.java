@@ -99,7 +99,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
         new MovieComparator());
     sortedMovies.setMode(SortedList.AVOID_MOVING_ELEMENTS);
 
-    setLayout(new MigLayout("insets n n 0 n", "[200lp:n,grow][100lp:n,fill]", "[][200lp:300lp,grow]0[][]"));
+    setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:300lp,grow]0[][]"));
 
     searchField = EnhancedTextField.createSearchTextField();
     add(searchField, "cell 0 0,growx");

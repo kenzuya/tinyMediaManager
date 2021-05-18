@@ -373,6 +373,14 @@ public class MovieArtworkHelper {
         && movie.getMediaFiles(MediaFileType.KEYART).isEmpty()) {
       return true;
     }
+    if (config.contains(MovieScraperMetadataConfig.EXTRAFANART) && MovieModuleManager.SETTINGS.isImageExtraFanart()
+        && !MovieModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty() && movie.getMediaFiles(MediaFileType.EXTRAFANART).isEmpty()) {
+      return true;
+    }
+    if (config.contains(MovieScraperMetadataConfig.EXTRATHUMB) && MovieModuleManager.SETTINGS.isImageExtraThumbs()
+        && movie.getMediaFiles(MediaFileType.EXTRATHUMB).isEmpty()) {
+      return true;
+    }
 
     return false;
   }

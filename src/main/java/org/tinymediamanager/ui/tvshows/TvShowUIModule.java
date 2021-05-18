@@ -43,6 +43,7 @@ import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowAspectRatioDetectAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowBulkEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeDatasourceAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeSeasonArtworkAction;
@@ -140,6 +141,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
       public void updateUI() {
         putClientProperty("leftBorder", "half");
         putClientProperty("bottomBorder", Boolean.FALSE);
+        putClientProperty("roundEdge", Boolean.FALSE);
         super.updateUI();
       }
     };
@@ -292,6 +294,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(TvShowRewriteEpisodeNfoAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToDvdOrderAction.class));
     enhancedEditMenu.add(createAndRegisterAction(TvShowChangeToAiredOrderAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(TvShowAspectRatioDetectAction.class));
     popupMenu.add(enhancedEditMenu);
 
     popupMenu.addSeparator();
@@ -315,7 +318,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(TvShowSyncSelectedRatingTraktTvAction.class));
     popupMenu.add(traktMenu);
-    JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickTvShows();
+    JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickTvShows();
     popupMenu.add(kodiRPCMenu);
 
     popupMenu.addSeparator();

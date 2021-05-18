@@ -15,7 +15,8 @@
  */
 package org.tinymediamanager.core.movie;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
@@ -66,11 +67,9 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   EXTRAFANART(Type.ARTWORK),
   EXTRATHUMB(Type.ARTWORK);
 
-
-
-  private Type                        type;
-  private String                      description;
-  private String                      tooltip;
+  private Type   type;
+  private String description;
+  private String tooltip;
 
   MovieScraperMetadataConfig(Type type) {
     this(type, null, null);
@@ -132,11 +131,21 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   }
 
   /**
-   * get all artwork types
-   * 
-   * @return an array with all artwork types
+   * get a {@link List} of all {@link MovieScraperMetadataConfig} for the given {@link org.tinymediamanager.core.ScraperMetadataConfig.Type}
+   *
+   * @param type
+   *          the {@link org.tinymediamanager.core.ScraperMetadataConfig.Type} to get all {@link MovieScraperMetadataConfig}s for
+   * @return a {@link List} with all matching {@link MovieScraperMetadataConfig}s
    */
-  public static MovieScraperMetadataConfig[] getArtworkTypes() {
-    return Arrays.stream(values()).filter(ScraperMetadataConfig::isArtwork).toArray(MovieScraperMetadataConfig[]::new);
+  public static List<MovieScraperMetadataConfig> valuesForType(Type type) {
+    List<MovieScraperMetadataConfig> values = new ArrayList<>();
+
+    for (MovieScraperMetadataConfig config : values()) {
+      if (config.type == type) {
+        values.add(config);
+      }
+    }
+
+    return values;
   }
 }

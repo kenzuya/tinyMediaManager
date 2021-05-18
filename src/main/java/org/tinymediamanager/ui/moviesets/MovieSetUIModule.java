@@ -98,6 +98,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
       public void updateUI() {
         putClientProperty("leftBorder", "half");
         putClientProperty("bottomBorder", Boolean.FALSE);
+        putClientProperty("roundEdge", Boolean.FALSE);
         super.updateUI();
       }
     };

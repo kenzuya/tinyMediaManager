@@ -107,7 +107,7 @@ public class TvShowModuleManager implements ITmmModule {
     // configure database
     Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), TV_SHOW_DB);
     try {
-      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
+      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
     }
     catch (Exception e) {
       // look if the file is locked by another process (rethrow rather than delete the db file)
@@ -121,7 +121,7 @@ public class TvShowModuleManager implements ITmmModule {
       try {
         Utils.deleteFileSafely(Paths.get(TV_SHOW_DB + ".corrupted"));
         Utils.moveFileSafe(databaseFile, Paths.get(TV_SHOW_DB + ".corrupted"));
-        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).autoCompactFillRate(0).open();
+        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
 
         // inform user that the DB could not be loaded
         startupMessages.add(TmmResourceBundle.getString("tvshow.loaddb.failed"));
@@ -215,8 +215,6 @@ public class TvShowModuleManager implements ITmmModule {
 
       long now = System.currentTimeMillis();
 
-      boolean dirty = false;
-
       for (Map.Entry<MediaEntity, Long> entry : pending.entrySet()) {
         if (force || entry.getValue() < (now - COMMIT_DELAY)) {
           try {
@@ -229,7 +227,6 @@ public class TvShowModuleManager implements ITmmModule {
               String newValue = tvShowObjectWriter.writeValueAsString(tvShow);
               if (!StringUtils.equals(oldValue, newValue)) {
                 tvShowMap.put(tvShow.getDbId(), newValue);
-                dirty = true;
               }
             }
             else if (entry.getKey() instanceof TvShowEpisode) {
@@ -241,7 +238,6 @@ public class TvShowModuleManager implements ITmmModule {
               String newValue = episodeObjectWriter.writeValueAsString(episode);
               if (!StringUtils.equals(oldValue, newValue)) {
                 episodeMap.put(episode.getDbId(), newValue);
-                dirty = true;
               }
             }
           }
@@ -252,10 +248,6 @@ public class TvShowModuleManager implements ITmmModule {
             pendingChanges.remove(entry.getKey());
           }
         }
-      }
-
-      if (dirty) {
-        mvStore.compact(95, 16 * 1024 * 1024);
       }
     }
     finally {

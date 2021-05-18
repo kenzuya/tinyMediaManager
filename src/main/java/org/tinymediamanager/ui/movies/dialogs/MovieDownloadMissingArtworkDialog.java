@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -84,7 +85,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
         JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.select"));
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0");
 
-        cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.getArtworkTypes());
+        cbScraperConfig = new ScraperMetadataConfigCheckComboBox(MovieScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
         cbScraperConfig.enableFilter(
             (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbScraperConfig, "cell 0 1 ,wmin 0,grow");

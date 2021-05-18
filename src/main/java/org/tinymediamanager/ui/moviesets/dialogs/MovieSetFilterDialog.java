@@ -19,6 +19,7 @@ package org.tinymediamanager.ui.moviesets.dialogs;
 import static org.tinymediamanager.ui.TmmFontHelper.L1;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.moviesets.filters.IMovieSetUIFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetDatasourceFilter;
+import org.tinymediamanager.ui.moviesets.filters.MovieSetMissingMoviesFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetNewMoviesFilter;
 import org.tinymediamanager.ui.moviesets.filters.MovieSetWithMoreThanOneMovieFilter;
 
@@ -84,6 +86,7 @@ public class MovieSetFilterDialog extends TmmDialog {
   public MovieSetFilterDialog(TmmTreeTable treeTable) {
     super(TmmResourceBundle.getString("movieextendedsearch.options"), "movieSetFilter");
     setModalityType(ModalityType.MODELESS);
+    setMinimumSize(new Dimension(400, 300));
 
     this.treeTable = treeTable;
 
@@ -117,6 +120,7 @@ public class MovieSetFilterDialog extends TmmDialog {
         addFilter(new MovieSetNewMoviesFilter(), panelMain);
         addFilter(new MovieSetWithMoreThanOneMovieFilter(), panelMain);
         addFilter(new MovieSetDatasourceFilter(), panelMain);
+        addFilter(new MovieSetMissingMoviesFilter(), panelMain);
       }
     }
 

@@ -38,6 +38,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
+import org.tinymediamanager.ui.movies.actions.MovieAspectRatioDetectAction;
 import org.tinymediamanager.ui.movies.actions.MovieAssignMovieSetAction;
 import org.tinymediamanager.ui.movies.actions.MovieBulkEditAction;
 import org.tinymediamanager.ui.movies.actions.MovieChangeDatasourceAction;
@@ -126,6 +127,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
       public void updateUI() {
         putClientProperty("leftBorder", "half");
         putClientProperty("bottomBorder", Boolean.FALSE);
+        putClientProperty("roundEdge", Boolean.FALSE);
         super.updateUI();
       }
     };
@@ -210,6 +212,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     enhancedEditMenu.add(createAndRegisterAction(MovieAssignMovieSetAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieChangeDatasourceAction.class));
     enhancedEditMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
+    enhancedEditMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
     popupMenu.add(enhancedEditMenu);
 
     popupMenu.addSeparator();
@@ -234,7 +237,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
     traktMenu.add(createAndRegisterAction(MovieSyncSelectedWatchedTraktTvAction.class));
     traktMenu.add(createAndRegisterAction(MovieSyncSelectedRatingTraktTvAction.class));
     popupMenu.add(traktMenu);
-    JMenu kodiRPCMenu = KodiRPCMenu.KodiMenuRightClickMovies();
+
+    JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickMovies();
     popupMenu.add(kodiRPCMenu);
 
     popupMenu.addSeparator();
@@ -256,7 +260,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-        if (KodiRPC.getInstance().isConnected()) {
+        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
           kodiRPCMenu.setEnabled(true);
         }
         else {
