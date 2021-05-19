@@ -68,8 +68,13 @@ public class MovieKodiRefreshNfoAction extends TmmAction {
                   kodiRPC.refreshFromNfo(entity);
                   publishState(++i);
                   if (cancel) {
-                    break;
+                    return;
                   }
+                }
+
+                // if we have updated at least one movie, we need to re-match the movies
+                if (progressDone > 0) {
+                  kodiRPC.updateMovieMappings();
                 }
               }
             });
