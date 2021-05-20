@@ -118,7 +118,7 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
 
                 // if we have updated at least one movie, we need to re-match the movies
                 if (progressDone > 0) {
-                  kodiRPC.updateMovieMappings();
+                  kodiRPC.updateTvShowMappings();
                 }
               }
             });
