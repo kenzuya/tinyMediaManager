@@ -37,13 +37,13 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * 
  * @author Myron Boyle
  */
-public class MovieKodiRefreshNfoAction extends TmmAction {
+public class MovieKodiGetWatchedAction extends TmmAction {
   private static final long serialVersionUID = -6731682301579049379L;
 
-  public MovieKodiRefreshNfoAction() {
-    putValue(LARGE_ICON_KEY, IconManager.MEDIAINFO);
-    putValue(SMALL_ICON, IconManager.MEDIAINFO);
-    putValue(NAME, TmmResourceBundle.getString("kodi.rpc.refreshnfo"));
+  public MovieKodiGetWatchedAction() {
+    putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
+    putValue(SMALL_ICON, IconManager.WATCHED_MENU);
+    putValue(NAME, TmmResourceBundle.getString("kodi.rpc.getwatched"));
   }
 
   @Override
@@ -57,7 +57,7 @@ public class MovieKodiRefreshNfoAction extends TmmAction {
 
     TmmTaskManager.getInstance()
         .addUnnamedTask(
-            new TmmTask(TmmResourceBundle.getString("kodi.rpc.refreshnfo"), selectedMovies.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+            new TmmTask(TmmResourceBundle.getString("kodi.rpc.getwatched"), selectedMovies.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
 
               @Override
               protected void doInBackground() {
@@ -65,16 +65,11 @@ public class MovieKodiRefreshNfoAction extends TmmAction {
                 int i = 0;
 
                 for (Movie movie : selectedMovies) {
-                  kodiRPC.refreshFromNfo(movie);
+                  kodiRPC.readWatchedState(movie);
                   publishState(++i);
                   if (cancel) {
                     return;
                   }
-                }
-
-                // if we have updated at least one movie, we need to re-match the movies
-                if (progressDone > 0) {
-                  kodiRPC.updateMovieMappings();
                 }
               }
             });
