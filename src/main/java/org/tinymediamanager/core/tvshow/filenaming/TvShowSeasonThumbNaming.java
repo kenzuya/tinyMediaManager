@@ -34,7 +34,10 @@ public enum TvShowSeasonThumbNaming implements ITvShowSeasonFileNaming {
   SEASON_THUMB {
     @Override
     public String getFilename(TvShow tvShow, int season, String extension) {
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        return "season-all-thumb." + extension;
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         return "season-specials-thumb." + extension;
       }
       else if (season > -1) {
@@ -50,7 +53,10 @@ public enum TvShowSeasonThumbNaming implements ITvShowSeasonFileNaming {
   SEASON_LANDSCAPE {
     @Override
     public String getFilename(TvShow tvShow, int season, String extension) {
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        return "season-all-landscape." + extension;
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         return "season-specials-landscape." + extension;
       }
       else if (season > -1) {
@@ -76,7 +82,10 @@ public enum TvShowSeasonThumbNaming implements ITvShowSeasonFileNaming {
 
       String filename = seasonFoldername + File.separator;
 
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        filename += "season-all-thumb";
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         filename += "season-specials-thumb";
       }
       else if (season > -1) {
@@ -103,7 +112,10 @@ public enum TvShowSeasonThumbNaming implements ITvShowSeasonFileNaming {
 
       String filename = seasonFoldername + File.separator;
 
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        filename += "season-all-landscape";
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         filename += "season-specials-landscape";
       }
       else if (season > -1) {

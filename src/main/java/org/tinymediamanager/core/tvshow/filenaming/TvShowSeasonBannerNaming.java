@@ -34,7 +34,10 @@ public enum TvShowSeasonBannerNaming implements ITvShowSeasonFileNaming {
   SEASON_BANNER {
     @Override
     public String getFilename(TvShow tvShow, int season, String extension) {
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        return "season-all-banner." + extension;
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         return "season-specials-banner." + extension;
       }
       else if (season > -1) {
@@ -60,7 +63,10 @@ public enum TvShowSeasonBannerNaming implements ITvShowSeasonFileNaming {
 
       String filename = seasonFoldername + File.separator;
 
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        filename += "season-all-banner";
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         filename += "season-specials-banner";
       }
       else if (season > -1) {

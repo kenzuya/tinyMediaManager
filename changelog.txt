@@ -15,6 +15,7 @@ x enhanced check for missing artwork to extrafanart/extrathumbs too #1320
 x (TMDB) enhanced language fallback for es_MX, pt_BR and fr_CA #1326
 x reverted splitting playcount from watched state #1296
 x (movies/TV shows) make sure the actors folder exists prior to moving files #1331
+x (TV shows) do not remove "season-all-*" artwork on rename #1327
 
 
 Version 4.1.4
