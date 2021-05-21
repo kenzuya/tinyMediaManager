@@ -70,7 +70,6 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -431,9 +430,9 @@ public class TvShowList extends AbstractModelObject {
   /**
    * Load tv shows from database.
    */
-  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, ObjectMapper objectMapper) {
+  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap) {
     // load all TV shows from the database
-    ObjectReader tvShowObjectReader = objectMapper.readerFor(TvShow.class);
+    ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
 
     for (UUID uuid : new ArrayList<>(tvShowMap.keyList())) {
       String json = "";
@@ -457,11 +456,11 @@ public class TvShowList extends AbstractModelObject {
   /**
    * Load episodes from database.
    */
-  void loadEpisodesFromDatabase(MVMap<UUID, String> episodesMap, ObjectMapper objectMapper) {
+  void loadEpisodesFromDatabase(MVMap<UUID, String> episodesMap) {
     List<UUID> orphanedEpisodes = new ArrayList<>();
 
     // load all episodes from the database
-    ObjectReader episodeObjectReader = objectMapper.readerFor(TvShowEpisode.class);
+    ObjectReader episodeObjectReader = TvShowModuleManager.getInstance().getEpisodeObjectReader();
     int episodeCount = 0;
 
     for (UUID uuid : new ArrayList<>(episodesMap.keyList())) {
