@@ -122,18 +122,19 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
       return;
     }
 
-    // create actors dir if needed
     Path actorsDir = mediaEntity.getPathNIO().resolve(Person.ACTOR_DIR);
-    if (!Files.isDirectory(actorsDir)) {
-      Files.createDirectory(actorsDir);
-    }
-
     Path actorImage = actorsDir.resolve(actorImageFilename);
 
     if (StringUtils.isNotEmpty(person.getThumbUrl())) {
       Path cache = ImageCache.getCachedFile(person.getThumbUrl());
       if (cache != null) {
         LOGGER.debug("using cached version of: {}", person.getThumbUrl());
+
+        // create the actors dir if needed
+        if (!Files.isDirectory(actorsDir)) {
+          Files.createDirectory(actorsDir);
+        }
+
         Utils.copyFileSafe(cache, actorImage, true);
         // last but not least clean/rebuild the image cache for the new file
         ImageCache.cacheImageSilently(actorImage);

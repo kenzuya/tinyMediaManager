@@ -77,7 +77,9 @@ import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.Utils;
@@ -87,7 +89,9 @@ import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
@@ -976,7 +980,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
-    postProcess();
+    postProcess(config);
   }
 
   /**
@@ -1040,7 +1044,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     firePropertyChange(HAS_NFO_FILE, false, true);
   }
 
-  private void postProcess() {
+  private void postProcess(List<TvShowScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     // detect AR of the TV show if that has been chosen in the settings
@@ -1051,6 +1055,16 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     // rename the TV show if that has been chosen in the settings
     if (TvShowModuleManager.SETTINGS.isRenameAfterScrape()) {
       taskChain.add(new TvShowRenameTask(Collections.singletonList(this), null, true));
+    }
+
+    // write actor images after possible rename (to have a good folder structure)
+    if (ScraperMetadataConfig.containsAnyCast(config) && TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+      taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        @Override
+        protected void doInBackground() {
+          writeActorImages();
+        }
+      });
     }
 
     taskChain.run();
@@ -1969,6 +1983,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *
    * @return the images to cache
    */
+  @Override
   public List<MediaFile> getImagesToCache() {
     // get files to cache
     List<MediaFile> filesToCache = new ArrayList<>();
