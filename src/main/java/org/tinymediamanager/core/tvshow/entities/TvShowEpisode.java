@@ -1548,6 +1548,16 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     return df.format(getMainVideoFile().getAspectRatio()).replaceAll("\\.", "");
   }
 
+  public String getMediaInfoARSecondaryAsString() {
+    float arSecondary = getMainVideoFile().getArSecondary();
+    String formatedValue = "";
+    if (arSecondary > 0f) {
+      DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
+      formatedValue = df.format(arSecondary).replaceAll("\\.", "");
+    }
+    return formatedValue;
+  }
+
   @Override
   public String getMediaInfoAudioCodec() {
     return getMainVideoFile().getAudioCodec();

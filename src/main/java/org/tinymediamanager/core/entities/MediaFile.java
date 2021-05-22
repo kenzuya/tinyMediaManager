@@ -83,6 +83,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private float                      aspectRatio       = 0f;
   @JsonProperty
+  private float                      arSecondary       = 0f;
+  @JsonProperty
   private int                        videoBitRate      = 0;
   @JsonProperty
   private int                        overallBitRate    = 0;
@@ -134,6 +136,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoHeight = clone.videoHeight;
     this.videoWidth = clone.videoWidth;
     this.aspectRatio = clone.aspectRatio;
+    this.arSecondary = clone.arSecondary;
     this.overallBitRate = clone.overallBitRate;
     this.bitDepth = clone.bitDepth;
     this.frameRate = clone.frameRate;
@@ -1012,6 +1015,22 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     float ar = (float) this.videoWidth / (float) this.videoHeight;
     return getCommonAspectRatio(ar);
+  }
+
+  /**
+   * sets the video bit rate for this file (in kbps).
+   *
+   * @param newValue
+   *          the new video bit rate
+   */
+  public void setArSecondary(float newValue) {
+    int oldValue = this.videoBitRate;
+    this.arSecondary = newValue;
+    firePropertyChange("arSecondary", oldValue, newValue);
+  }
+
+  public float getArSecondary() {
+    return this.arSecondary;
   }
 
   /**

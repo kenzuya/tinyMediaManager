@@ -191,10 +191,13 @@ public abstract class ARDetectorTask extends TmmTask {
       LOGGER.debug("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
 
       mediaFile.setAspectRatio(videoInfo.arPrimary);
+      mediaFile.setArSecondary(videoInfo.arSecondary);
       mediaFile.setVideoHeight(videoInfo.height);
       mediaFile.setVideoWidth(videoInfo.width);
 
-      LOGGER.info("Detected: {}x{} AR: {}", videoInfo.width, videoInfo.height, String.format("%.2f", videoInfo.arPrimary));
+      LOGGER.info("Detected: {}x{} AR: {}{}", videoInfo.width, videoInfo.height,
+          String.format("%.2f", videoInfo.arPrimary),
+          videoInfo.arSecondary > 0f ? (" (AR2: " + String.format("%.2f", videoInfo.arSecondary)) + ")" : "");
     }
     catch (Exception ex) {
       LOGGER.error("Error detecting aspect ratio", ex);
