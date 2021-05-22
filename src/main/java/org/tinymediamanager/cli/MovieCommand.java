@@ -33,6 +33,7 @@ import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieScrapeTask;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
@@ -91,6 +92,9 @@ class MovieCommand implements Runnable {
   @CommandLine.Option(names = { "-w", "--rewriteNFO" }, description = "Rewrite NFO files of all movies")
   boolean                     rewriteNFO;
 
+  @CommandLine.ArgGroup
+  AspectRatioDetect           ard;
+
   @Override
   public void run() {
     // update data sources
@@ -103,6 +107,10 @@ class MovieCommand implements Runnable {
     // scrape movies
     if (scrape != null) {
       scrapeMovies(moviesToScrape);
+    }
+
+    if (ard != null) {
+      detectAspectRatio();
     }
 
     // download trailer
@@ -183,6 +191,21 @@ class MovieCommand implements Runnable {
           Thread.currentThread().interrupt();
         }
       }
+    }
+  }
+
+  private void detectAspectRatio() {
+    List<Movie> moviesToDetect = new ArrayList<>();
+    if (ard.ardAll) {
+      moviesToDetect = MovieList.getInstance().getMovies();
+    }
+    else if (ard.ardNew) {
+      moviesToDetect = MovieList.getInstance().getNewMovies();
+    }
+
+    if (!moviesToDetect.isEmpty()) {
+      TmmTask task = new MovieARDetectorTask(moviesToDetect);
+      task.run();
     }
   }
 
@@ -297,6 +320,14 @@ class MovieCommand implements Runnable {
 
     @CommandLine.Option(names = { "--scrapeAll", }, description = "Scrape all movies")
     boolean scrapeAll;
+  }
+
+  static class AspectRatioDetect {
+    @CommandLine.Option(names = { "-ard", "--ardNew", }, description = "Detect aspect ratio of new movies (found with the update options)")
+    boolean ardNew;
+
+    @CommandLine.Option(names = { "--ardAll", }, description = "Detect aspect ratio of all movies")
+    boolean ardAll;
   }
 
   static class Subtitle {
