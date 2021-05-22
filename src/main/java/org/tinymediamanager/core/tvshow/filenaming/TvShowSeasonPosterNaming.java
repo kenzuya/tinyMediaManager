@@ -34,7 +34,10 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
   SEASON_POSTER {
     @Override
     public String getFilename(TvShow tvShow, int season, String extension) {
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        return "season-all-poster." + extension;
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         return "season-specials-poster." + extension;
       }
       else if (season > -1) {
@@ -60,7 +63,10 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
 
       String filename = seasonFoldername + File.separator;
 
-      if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      if (season == -1) {
+        filename += "season-all";
+      }
+      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
         filename += "season-specials";
       }
       else if (season > -1) {

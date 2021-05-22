@@ -75,7 +75,6 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -389,9 +388,9 @@ public class MovieList extends AbstractModelObject {
   /**
    * Load movies from database.
    */
-  void loadMoviesFromDatabase(MVMap<UUID, String> movieMap, ObjectMapper objectMapper) {
+  void loadMoviesFromDatabase(MVMap<UUID, String> movieMap) {
     // load movies
-    ObjectReader movieObjectReader = objectMapper.readerFor(Movie.class);
+    ObjectReader movieObjectReader = MovieModuleManager.getInstance().getMovieObjectReader();
 
     for (UUID uuid : new ArrayList<>(movieMap.keyList())) {
       String json = "";
@@ -419,9 +418,9 @@ public class MovieList extends AbstractModelObject {
     LOGGER.info("found {} movies in database", movieList.size());
   }
 
-  void loadMovieSetsFromDatabase(MVMap<UUID, String> movieSetMap, ObjectMapper objectMapper) {
+  void loadMovieSetsFromDatabase(MVMap<UUID, String> movieSetMap) {
     // load movie sets
-    ObjectReader movieSetObjectReader = objectMapper.readerFor(MovieSet.class);
+    ObjectReader movieSetObjectReader = MovieModuleManager.getInstance().getMovieSetObjectReader();
 
     for (UUID uuid : new ArrayList<>(movieSetMap.keyList())) {
       try {
