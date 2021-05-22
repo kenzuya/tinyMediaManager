@@ -285,7 +285,12 @@ public class SplitUri {
       return true;
     }
 
-    // 4: did not match? return false
+    // 4: same path between DS and file
+    if (file.equals(other.file)) {
+      return true;
+    }
+
+    // 5: did not match? return false
     return false;
   }
 

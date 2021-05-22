@@ -953,6 +953,10 @@ public class MovieNfoParser {
     if (element != null) {
       try {
         playcount = MetadataUtil.parseInt(element.ownText());
+        if (playcount > 0) {
+          // tests have proven that Kodi is setting the playcount only, if the movie has been watched
+          watched = true;
+        }
       }
       catch (Exception ignored) {
         // ignored

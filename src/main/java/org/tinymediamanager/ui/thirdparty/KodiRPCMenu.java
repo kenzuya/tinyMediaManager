@@ -31,7 +31,9 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.SplitUri;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.movies.actions.MovieKodiGetWatchedAction;
 import org.tinymediamanager.ui.movies.actions.MovieKodiRefreshNfoAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowKodiGetWatchedAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowKodiRefreshNfoAction;
 
 /**
@@ -57,6 +59,7 @@ public class KodiRPCMenu {
     m.setIcon(IconManager.KODI);
 
     m.add(new MovieKodiRefreshNfoAction());
+    m.add(new MovieKodiGetWatchedAction());
 
     m.addSeparator();
 
@@ -133,6 +136,7 @@ public class KodiRPCMenu {
     m.setIcon(IconManager.KODI);
 
     m.add(new TvShowKodiRefreshNfoAction());
+    m.add(new TvShowKodiGetWatchedAction());
 
     m.addSeparator();
 

@@ -20,7 +20,6 @@ import java.io.InterruptedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
@@ -54,15 +53,10 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
     // try/catch block in the root of the thread to log crashes
     try {
 
-      // check if actors folder exists
-      Path actorsDir = mediaEntity.getPathNIO().resolve(Person.ACTOR_DIR);
-      if (!Files.isDirectory(actorsDir)) {
-        Files.createDirectory(actorsDir);
-      }
-
       // first - check which actors images can be deleted (images for actors which are not in this ME)
+      Path actorsDir = mediaEntity.getPathNIO().resolve(Person.ACTOR_DIR);
       // only if the actors folder is not a symbolic link
-      if (cleanup && !Files.isSymbolicLink(actorsDir)) {
+      if (cleanup && Files.exists(actorsDir) && !Files.isSymbolicLink(actorsDir)) {
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(actorsDir)) {
           for (Path path : directoryStream) {
             // has tmm been shut down?
@@ -128,12 +122,19 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
       return;
     }
 
-    Path actorImage = Paths.get(mediaEntity.getPath(), Person.ACTOR_DIR, actorImageFilename);
+    Path actorsDir = mediaEntity.getPathNIO().resolve(Person.ACTOR_DIR);
+    Path actorImage = actorsDir.resolve(actorImageFilename);
 
     if (StringUtils.isNotEmpty(person.getThumbUrl())) {
       Path cache = ImageCache.getCachedFile(person.getThumbUrl());
       if (cache != null) {
         LOGGER.debug("using cached version of: {}", person.getThumbUrl());
+
+        // create the actors dir if needed
+        if (!Files.isDirectory(actorsDir)) {
+          Files.createDirectory(actorsDir);
+        }
+
         Utils.copyFileSafe(cache, actorImage, true);
         // last but not least clean/rebuild the image cache for the new file
         ImageCache.cacheImageSilently(actorImage);

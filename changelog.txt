@@ -1,9 +1,12 @@
 Version 4.1.5
 =======================
-+ added an enhanced aspect ratio detector (thx @icebaer72)
++ added an enhanced aspect ratio detector (thx @icebaer72 and @All-Ex)
 + heavily reworked the Kodi integration #335, #966, #971, #1151, #1303
 + added a filter for movie sets containing missing movies #1279
 + (movie) added year to the bulk editor
++ automatically restore a backup if a damaged database has been detected on startup
++ support for scraping adult TV shows #1307
+x new macOS icon that matches the BigSur style #1333 (thx @titanicbobo)
 x fixed loading of license module on UNC paths #1227
 x partly reverted changes to the database management #1315 #1316 #1291 #1306
 x reworked memory usage visualization in the status bar
@@ -11,7 +14,9 @@ x do not pre-set artwork types in the (background) scrape dialogs, when automati
 x allow more season/episode variants to be detected #1302
 x enhanced check for missing artwork to extrafanart/extrathumbs too #1320
 x (TMDB) enhanced language fallback for es_MX, pt_BR and fr_CA #1326
-x separated playcount from watched flag when writing new NFO files #1296
+x reverted splitting playcount from watched state #1296
+x (movies/TV shows) make sure the actors folder exists prior to moving files #1331
+x (TV shows) do not remove "season-all-*" artwork on rename #1327
 
 
 Version 4.1.4

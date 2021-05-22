@@ -68,7 +68,7 @@ public class TvShowEpisodeNfoParserTest {
       assertThat(episode.certification).isEqualTo(MediaCertification.US_TVPG);
       assertThat(episode.ids).contains(entry("tvdb", 250800));
       assertThat(episode.releaseDate).isEqualTo("1987-04-12");
-      assertThat(episode.watched).isEqualTo(false);
+      assertThat(episode.watched).isEqualTo(true);
       assertThat(episode.playcount).isEqualTo(1);
       assertThat(episode.genres).contains(MediaGenres.ACTION, MediaGenres.ADVENTURE, MediaGenres.DRAMA);
       assertThat(episode.studios).hasSize(1);

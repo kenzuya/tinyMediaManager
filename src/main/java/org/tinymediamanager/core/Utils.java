@@ -1412,10 +1412,9 @@ public class Utils {
         ZipArchiveEntry entry = new ZipArchiveEntry(entryName);
         archive.putArchiveEntry(entry);
 
-        BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
-
-        IOUtils.copy(input, archive);
-        input.close();
+        try (FileInputStream fis = new FileInputStream(file); BufferedInputStream input = new BufferedInputStream(fis)) {
+          IOUtils.copy(input, archive);
+        }
         archive.closeArchiveEntry();
       }
       archive.finish();
@@ -1452,8 +1451,12 @@ public class Utils {
    *          the directory to unzip to
    * @throws IOException
    */
-  public static void unzip(Path zipFile, final Path destDir) {
+  public static void unzip(final Path zipFile, final Path destDir) {
     Map<String, String> env = new HashMap<>();
+
+    if (!Files.exists(zipFile)) {
+      return;
+    }
 
     try {
       // if the destination doesn't exist, create it
@@ -1461,8 +1464,8 @@ public class Utils {
         Files.createDirectories(destDir);
       }
 
-      // check if file exists
-      env.put("create", String.valueOf(!Files.exists(zipFile)));
+      env.put("create", "false");
+
       // use a Zip filesystem URI
       URI fileUri = zipFile.toUri(); // here
       URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
@@ -1471,7 +1474,7 @@ public class Utils {
         final Path root = zipfs.getPath("/");
 
         // walk the zip file tree and copy files to the destination
-        Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             final Path destFile = Paths.get(destDir.toString(), file.toString());
@@ -1487,6 +1490,62 @@ public class Utils {
               LOGGER.debug("Creating directory {}", dirToCreate);
               Files.createDirectory(dirToCreate);
             }
+            return FileVisitResult.CONTINUE;
+          }
+        });
+      }
+    }
+    catch (Exception e) {
+      LOGGER.error("Failed to create zip file: {}", e.getMessage()); // NOSONAR
+    }
+  }
+
+  /**
+   * Unzips the specified file from the given zip file to the specified destination filename. Replaces if the destination already exist.
+   *
+   * @param zipFile
+   *          the name of the zip file to extract
+   * @param fileToExtract
+   *          the name of the file to extract
+   * @param destFile
+   *          the directory to unzip to
+   * @throws IOException
+   */
+  public static void unzipFile(final Path zipFile, final Path fileToExtract, final Path destFile) {
+    Map<String, String> env = new HashMap<>();
+
+    if (!Files.exists(zipFile)) {
+      return;
+    }
+
+    try {
+      // if the destination doesn't exist, create it
+      if (!Files.exists(destFile.getParent())) {
+        Files.createDirectories(destFile.getParent());
+      }
+
+      // use a Zip filesystem URI
+      URI fileUri = zipFile.toUri(); // here
+      URI zipUri = new URI("jar:" + fileUri.getScheme(), fileUri.getPath(), null);
+
+      env.put("create", "false");
+
+      try (FileSystem zipfs = FileSystems.newFileSystem(zipUri, env)) {
+        final Path root = zipfs.getPath("/");
+
+        // walk the zip file tree and copy files to the destination
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (file.toString().equals(fileToExtract.toString())) {
+              LOGGER.debug("Extracting file {} to {}", file, destFile);
+              Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
             return FileVisitResult.CONTINUE;
           }
         });

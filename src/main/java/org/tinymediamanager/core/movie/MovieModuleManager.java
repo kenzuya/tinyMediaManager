@@ -18,6 +18,7 @@ package org.tinymediamanager.core.movie;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 /**
@@ -73,7 +75,9 @@ public class MovieModuleManager implements ITmmModule {
   private boolean                      enabled;
   private MVStore                      mvStore;
   private ObjectWriter                 movieObjectWriter;
+  private ObjectReader                 movieObjectReader;
   private ObjectWriter                 movieSetObjectWriter;
+  private ObjectReader                 movieSetObjectReader;
 
   private MVMap<UUID, String>          movieMap;
   private MVMap<UUID, String>          movieSetMap;
@@ -101,37 +105,6 @@ public class MovieModuleManager implements ITmmModule {
 
   @Override
   public void startUp() {
-    // configure database
-    Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), MOVIE_DB);
-    try {
-      mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
-    }
-    catch (Exception e) {
-      // look if the file is locked by another process (rethrow rather than delete the db file)
-      if (e instanceof IllegalStateException && e.getMessage().contains("file is locked")) {
-        throw e;
-      }
-
-      LOGGER.error("Could not open database file: {}", e.getMessage());
-      LOGGER.info("starting over with an empty database file");
-
-      try {
-        Utils.deleteFileSafely(Paths.get(MOVIE_DB + ".corrupted"));
-        Utils.moveFileSafe(databaseFile, Paths.get(MOVIE_DB + ".corrupted"));
-        mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
-
-        // inform user that the DB could not be loaded
-        startupMessages.add(TmmResourceBundle.getString("movie.loaddb.failed"));
-      }
-      catch (Exception e1) {
-        LOGGER.error("could not move old database file and create a new one: {}", e1.getMessage());
-      }
-    }
-    mvStore.setAutoCommitDelay(2000); // 2 sec
-    mvStore.setRetentionTime(0);
-    mvStore.setReuseSpace(true);
-    mvStore.setCacheSize(8);
-
     // configure JSON
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
@@ -145,14 +118,12 @@ public class MovieModuleManager implements ITmmModule {
     objectMapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer());
 
     movieObjectWriter = objectMapper.writerFor(Movie.class);
+    movieObjectReader = objectMapper.readerFor(Movie.class);
     movieSetObjectWriter = objectMapper.writerFor(MovieSet.class);
+    movieSetObjectReader = objectMapper.readerFor(MovieSet.class);
 
-    movieMap = mvStore.openMap("movies");
-    movieSetMap = mvStore.openMap("movieSets");
-
-    MovieList.getInstance().loadMoviesFromDatabase(movieMap, objectMapper);
-    MovieList.getInstance().loadMovieSetsFromDatabase(movieSetMap, objectMapper);
-    MovieList.getInstance().initDataAfterLoading();
+    // open database
+    openDatabaseAndLoadMovies();
     enabled = true;
 
     TimerTask databaseWriteTask = new TimerTask() {
@@ -163,6 +134,99 @@ public class MovieModuleManager implements ITmmModule {
     };
     databaseTimer = new Timer();
     databaseTimer.schedule(databaseWriteTask, COMMIT_DELAY, COMMIT_DELAY);
+  }
+
+  /**
+   * open the database<BR/>
+   * 1. try to open the actual one<BR/>
+   * 2. try to open from backups<BR/>
+   * 3. open a new one
+   */
+  private void openDatabaseAndLoadMovies() {
+    Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), MOVIE_DB);
+    try {
+      loadDatabase(databaseFile);
+      return;
+    }
+    catch (Exception e) {
+      // look if the file is locked by another process (rethrow rather than delete the db file)
+      if (e instanceof IllegalStateException && e.getMessage().contains("file is locked")) {
+        throw e;
+      }
+
+      if (mvStore != null && !mvStore.isClosed()) {
+        mvStore.close();
+      }
+      LOGGER.error("Could not open database file: {}", e.getMessage());
+    }
+
+    try {
+      Utils.deleteFileSafely(Paths.get(Globals.BACKUP_FOLDER, MOVIE_DB + ".corrupted"));
+      Utils.moveFileSafe(databaseFile, Paths.get(Globals.BACKUP_FOLDER, MOVIE_DB + ".corrupted"));
+    }
+    catch (Exception e) {
+      LOGGER.error("Could not move corrupted database to '{}' - '{}", MOVIE_DB + ".corrupted", e.getMessage());
+    }
+
+    LOGGER.info("try to restore the database from the backups");
+
+    // get backups
+    List<Path> backups = Utils.listFiles(Paths.get(Globals.BACKUP_FOLDER));
+    backups.sort(Comparator.reverseOrder());
+
+    // load movies.db from the backup
+    boolean first = true;
+    for (Path backup : backups) {
+      if (!backup.getFileName().toString().startsWith("data.")) {
+        continue;
+      }
+
+      // but not the first one which contains the damaged database
+      if (first) {
+        first = false;
+        continue;
+      }
+
+      try {
+        Utils.unzipFile(backup, Paths.get("/", "data", MOVIE_DB), databaseFile);
+        loadDatabase(databaseFile);
+        startupMessages.add(TmmResourceBundle.getString("movie.loaddb.failed.restore"));
+
+        return;
+      }
+      catch (Exception e) {
+        if (mvStore != null && !mvStore.isClosed()) {
+          mvStore.close();
+        }
+        LOGGER.error("Could not open database file from backup: {}", e.getMessage());
+      }
+    }
+
+    LOGGER.info("starting over with an empty database file");
+
+    try {
+      Utils.deleteFileSafely(databaseFile);
+      loadDatabase(databaseFile);
+      startupMessages.add(TmmResourceBundle.getString("movie.loaddb.failed"));
+    }
+    catch (Exception e1) {
+      LOGGER.error("could not move old database file and create a new one: {}", e1.getMessage());
+    }
+  }
+
+  private void loadDatabase(Path databaseFile) {
+    mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
+    mvStore.setAutoCommitDelay(2000); // 2 sec
+    mvStore.setRetentionTime(0);
+    mvStore.setReuseSpace(true);
+    mvStore.setCacheSize(8);
+
+    movieMap = mvStore.openMap("movies");
+    movieSetMap = mvStore.openMap("movieSets");
+
+    MovieList.getInstance().loadMoviesFromDatabase(movieMap);
+    MovieList.getInstance().loadMovieSetsFromDatabase(movieSetMap);
+    MovieList.getInstance().initDataAfterLoading();
   }
 
   @Override
@@ -349,5 +413,13 @@ public class MovieModuleManager implements ITmmModule {
   @Override
   public List<String> getStartupMessages() {
     return startupMessages;
+  }
+
+  ObjectReader getMovieObjectReader() {
+    return movieObjectReader;
+  }
+
+  ObjectReader getMovieSetObjectReader() {
+    return movieSetObjectReader;
   }
 }

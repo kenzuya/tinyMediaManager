@@ -98,6 +98,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
     MediaProviderInfo info = super.createMediaProviderInfo();
 
     info.getConfig().addText("apiKey", "", true);
+    info.getConfig().addBoolean("includeAdultShows", false);
     info.getConfig().addBoolean("scrapeLanguageNames", true);
     info.getConfig().addBoolean("titleFallback", false);
     info.getConfig().addSelect("titleFallbackLanguage", PT, "en-US");
@@ -144,6 +145,8 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
 
     int tmdbId = options.getTmdbId();
     int tvdbId = options.getIdAsInt(TVDB);
+
+    boolean adult = getProviderInfo().getConfig().getValueAsBool("includeAdultShows");
 
     String language = getRequestLanguage(options.getLanguage());
 
@@ -216,7 +219,7 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
 
         // get all result pages
         do {
-          Response<TvShowResultsPage> httpResponse = api.searchService().tv(searchString, page, language, null).execute();
+          Response<TvShowResultsPage> httpResponse = api.searchService().tv(searchString, page, language, null, adult).execute();
           if (!httpResponse.isSuccessful() || httpResponse.body() == null) {
             throw new HttpException(httpResponse.code(), httpResponse.message());
           }

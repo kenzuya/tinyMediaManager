@@ -901,6 +901,10 @@ public class TvShowEpisodeNfoParser {
       if (element != null) {
         try {
           playcount = MetadataUtil.parseInt(element.ownText());
+          if (playcount > 0) {
+            // tests have proven that Kodi is setting the playcount only, if the episode has been watched
+            watched = true;
+          }
         }
         catch (Exception ignored) {
         }
