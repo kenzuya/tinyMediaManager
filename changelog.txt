@@ -1,6 +1,6 @@
 Version 4.1.5
 =======================
-+ added an enhanced aspect ratio detector (thx @icebaer72)
++ added an enhanced aspect ratio detector (thx @icebaer72 and @All-Ex)
 + heavily reworked the Kodi integration #335, #966, #971, #1151, #1303
 + added a filter for movie sets containing missing movies #1279
 + (movie) added year to the bulk editor
