@@ -59,7 +59,7 @@ public class WhatsNewDialog extends TmmDialog {
     {
       JPanel panelContent = new JPanel();
       getContentPane().add(panelContent, BorderLayout.CENTER);
-      panelContent.setLayout(new MigLayout("", "[600lp,grow]", "[400lp,grow][]"));
+      panelContent.setLayout(new MigLayout("", "[700lp,grow]", "[400lp,grow][]"));
 
       JScrollPane scrollPane = new NoBorderScrollPane();
       panelContent.add(scrollPane, "cell 0 0,grow");
