@@ -215,7 +215,62 @@ public class MovieModuleManager implements ITmmModule {
   }
 
   private void loadDatabase(Path databaseFile) {
-    mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
+    Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
+      private int counter = 0;
+
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        if (e instanceof IllegalStateException) {
+          // wait up to 10 times, then try to recover
+          if (counter < 10) {
+            counter++;
+            return;
+          }
+
+          LOGGER.error("database corruption detected - try to recover");
+
+          // try to in-memory fix the DB
+          mvStore.close();
+
+          try {
+            Utils.deleteFileSafely(Paths.get(Globals.BACKUP_FOLDER, MOVIE_DB + ".corrupted"));
+            Utils.moveFileSafe(databaseFile, Paths.get(Globals.BACKUP_FOLDER, MOVIE_DB + ".corrupted"));
+          }
+          catch (Exception e1) {
+            LOGGER.error("Could not move corrupted database to '{}' - '{}", MOVIE_DB + ".corrupted", e1.getMessage());
+          }
+
+          mvStore = new MVStore.Builder().fileName(databaseFile.toString())
+              .compressHigh()
+              .autoCommitBufferSize(512)
+              .backgroundExceptionHandler(this)
+              .open();
+          mvStore.setAutoCommitDelay(2000); // 2 sec
+          mvStore.setRetentionTime(0);
+          mvStore.setReuseSpace(true);
+          mvStore.setCacheSize(8);
+
+          movieMap = mvStore.openMap("movies");
+          movieSetMap = mvStore.openMap("movieSets");
+
+          for (Movie movie : MovieList.getInstance().getMovies()) {
+            persistMovie(movie);
+          }
+
+          for (MovieSet movieSet : MovieList.getInstance().getMovieSetList()) {
+            persistMovieSet(movieSet);
+          }
+
+          counter = 0;
+        }
+      }
+    };
+
+    mvStore = new MVStore.Builder().fileName(databaseFile.toString())
+        .compressHigh()
+        .autoCommitBufferSize(512)
+        .backgroundExceptionHandler(exceptionHandler)
+        .open();
     mvStore.setAutoCommitDelay(2000); // 2 sec
     mvStore.setRetentionTime(0);
     mvStore.setReuseSpace(true);
@@ -260,6 +315,10 @@ public class MovieModuleManager implements ITmmModule {
   }
 
   private synchronized void writePendingChanges(boolean force) {
+    if (mvStore == null || mvStore.isClosed()) {
+      return;
+    }
+
     if (force) {
       // force write - wait until the lock is released
       lock.writeLock().lock();

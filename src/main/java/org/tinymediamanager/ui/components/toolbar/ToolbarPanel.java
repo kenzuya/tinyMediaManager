@@ -81,22 +81,22 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ToolbarPanel extends JPanel {
-  private static final long           serialVersionUID = 7969400170662870244L;
-  
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
+  private static final long   serialVersionUID = 7969400170662870244L;
 
-  private ToolbarButton               btnSearch;
-  private ToolbarButton               btnEdit;
-  private ToolbarButton               btnUpdate;
-  private ToolbarButton               btnRename;
-  private ToolbarButton               btnUnlock;
+  private static final Logger LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
-  private ToolbarMenu                 menuUpdate;
-  private ToolbarMenu                 menuSearch;
-  private ToolbarMenu                 menuEdit;
-  private ToolbarMenu                 menuRename;
+  private ToolbarButton       btnSearch;
+  private ToolbarButton       btnEdit;
+  private ToolbarButton       btnUpdate;
+  private ToolbarButton       btnRename;
+  private ToolbarButton       btnUnlock;
 
-  private ToolbarLabel                lblUnlock;
+  private ToolbarMenu         menuUpdate;
+  private ToolbarMenu         menuSearch;
+  private ToolbarMenu         menuEdit;
+  private ToolbarMenu         menuRename;
+
+  private ToolbarLabel        lblUnlock;
 
   public ToolbarPanel() {
     setLayout(new BorderLayout());
@@ -267,36 +267,6 @@ public class ToolbarPanel extends JPanel {
     });
     menu.add(menuWakeOnLan);
 
-    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) != true) {
-      menu.addSeparator();
-      menu.add(new CheckForUpdateAction());
-    }
-
-    // debug menu
-    if (Globals.isDebug()) {
-      final JMenu debugMenu = new JMenu("Debug");
-
-      JMenuItem trace = new JMenuItem("set Console Logger to TRACE");
-      trace.addActionListener(arg0 -> {
-        System.setProperty("tmm.consoleloglevel", "TRACE");
-        TinyMediaManager.setConsoleLogLevel();
-        MessageManager.instance.pushMessage(new Message("Trace levels set!", "Test"));
-        LOGGER.trace("if you see that, we're now on TRACE logging level ;)");
-      });
-      debugMenu.add(trace);
-
-      JMenuItem traceLogs = new JMenuItem("Show all logs from this session");
-      debugMenu.add(traceLogs);
-      traceLogs.addActionListener(arg0 -> {
-        JDialog logDialog = new FullLogDialog();
-        logDialog.setLocationRelativeTo(MainWindow.getInstance());
-        logDialog.setVisible(true);
-      });
-
-      menu.addSeparator();
-      menu.add(debugMenu);
-    }
-
     final JMenu kodiRPCMenu = KodiRPCMenu.createKodiMenuTop();
     menu.add(kodiRPCMenu);
 
@@ -328,6 +298,39 @@ public class ToolbarPanel extends JPanel {
       public void popupMenuCanceled(PopupMenuEvent e) {
       }
     });
+
+    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) || Globals.isDebug()) {
+      menu.addSeparator();
+    }
+
+    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
+      menu.add(new CheckForUpdateAction());
+    }
+
+    // debug menu
+    if (Globals.isDebug()) {
+      final JMenu debugMenu = new JMenu("Debug");
+
+      JMenuItem trace = new JMenuItem("set Console Logger to TRACE");
+      trace.addActionListener(arg0 -> {
+        System.setProperty("tmm.consoleloglevel", "TRACE");
+        TinyMediaManager.setConsoleLogLevel();
+        MessageManager.instance.pushMessage(new Message("Trace levels set!", "Test"));
+        LOGGER.trace("if you see that, we're now on TRACE logging level ;)");
+      });
+      debugMenu.add(trace);
+
+      JMenuItem traceLogs = new JMenuItem("Show all logs from this session");
+      debugMenu.add(traceLogs);
+      traceLogs.addActionListener(arg0 -> {
+        JDialog logDialog = new FullLogDialog();
+        logDialog.setLocationRelativeTo(MainWindow.getInstance());
+        logDialog.setVisible(true);
+      });
+
+      menu.addSeparator();
+      menu.add(debugMenu);
+    }
 
     menu.addSeparator();
     menu.add(new BugReportAction());

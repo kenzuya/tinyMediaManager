@@ -1,6 +1,12 @@
+Version 4.1.5.1
+=======================
+x added an in memory recovery function for database recovery
+  this kicks in if tinyMediaManager detects an actual corruption while running
+
+
 Version 4.1.5
 =======================
-+ added an enhanced aspect ratio detector (thx @icebaer72)
++ added an enhanced aspect ratio detector (thx @icebaer72 and @All-Ex)
 + heavily reworked the Kodi integration #335, #966, #971, #1151, #1303
 + added a filter for movie sets containing missing movies #1279
 + (movie) added year to the bulk editor
