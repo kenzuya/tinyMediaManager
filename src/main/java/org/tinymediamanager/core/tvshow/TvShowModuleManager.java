@@ -218,7 +218,62 @@ public class TvShowModuleManager implements ITmmModule {
   }
 
   private void loadDatabase(Path databaseFile) {
-    mvStore = new MVStore.Builder().fileName(databaseFile.toString()).compressHigh().autoCommitBufferSize(512).open();
+    Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
+      private int counter = 0;
+
+      @Override
+      public void uncaughtException(Thread t, Throwable e) {
+        if (e instanceof IllegalStateException) {
+          // wait up to 10 times, then try to recover
+          if (counter < 10) {
+            counter++;
+            return;
+          }
+
+          LOGGER.error("database corruption detected - try to recover");
+
+          // try to in-memory fix the DB
+          mvStore.close();
+
+          try {
+            Utils.deleteFileSafely(Paths.get(Globals.BACKUP_FOLDER, TV_SHOW_DB + ".corrupted"));
+            Utils.moveFileSafe(databaseFile, Paths.get(Globals.BACKUP_FOLDER, TV_SHOW_DB + ".corrupted"));
+          }
+          catch (Exception e1) {
+            LOGGER.error("Could not move corrupted database to '{}' - '{}", TV_SHOW_DB + ".corrupted", e1.getMessage());
+          }
+
+          mvStore = new MVStore.Builder().fileName(databaseFile.toString())
+              .compressHigh()
+              .autoCommitBufferSize(512)
+              .backgroundExceptionHandler(this)
+              .open();
+          mvStore.setAutoCommitDelay(2000); // 2 sec
+          mvStore.setRetentionTime(0);
+          mvStore.setReuseSpace(true);
+          mvStore.setCacheSize(8);
+
+          tvShowMap = mvStore.openMap("tvshows");
+          episodeMap = mvStore.openMap("episodes");
+
+          for (TvShow tvShow : TvShowList.getInstance().getTvShows()) {
+            persistTvShow(tvShow);
+
+            for (TvShowEpisode episode : tvShow.getEpisodes()) {
+              persistEpisode(episode);
+            }
+          }
+
+          counter = 0;
+        }
+      }
+    };
+
+    mvStore = new MVStore.Builder().fileName(databaseFile.toString())
+        .compressHigh()
+        .autoCommitBufferSize(512)
+        .backgroundExceptionHandler(exceptionHandler)
+        .open();
     mvStore.setAutoCommitDelay(2000); // 2 sec
     mvStore.setRetentionTime(0);
     mvStore.setReuseSpace(true);
