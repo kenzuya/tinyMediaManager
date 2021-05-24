@@ -2163,6 +2163,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   @Override
+  public float getMediaInfoAspectRatio2() {
+    return 0;
+  }
+
+  @Override
   public String getMediaInfoVideoCodec() {
     return "";
   }

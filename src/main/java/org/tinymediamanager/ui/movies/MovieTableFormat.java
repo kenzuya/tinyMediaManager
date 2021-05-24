@@ -348,10 +348,12 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * multiformat (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.multiformat"), "multiformat", movie -> getCheckIcon(movie.isMultiFormat()), ImageIcon.class);
-    col.setColumnComparator(imageComparator);
+    col = new Column(TmmResourceBundle.getString("metatag.aspectratio2"), "aspectratio2", Movie::getMediaInfoAspectRatio2, Float.class);
+    col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.MULTI_FORMAT);
+    col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
+    col.setMinWidth((int) (fontMetrics.stringWidth("1.78") * 1.2f + 10));
     col.setDefaultHidden(true);
     addColumn(col);
 

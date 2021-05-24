@@ -2352,18 +2352,18 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return df.format(getMainVideoFile().getAspectRatio()).replaceAll("\\.", "");
   }
 
-  public boolean isMultiFormat() {
-    return getMainVideoFile().getArSecondary() > 0f;
+  @Override
+  public float getMediaInfoAspectRatio2() {
+    return getMainVideoFile().getAspectRatio2();
   }
 
-  public String getMediaInfoARSecondaryAsString() {
-    float arSecondary = getMainVideoFile().getArSecondary();
-    String formatedValue = "";
-    if (arSecondary > 0f) {
-      DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
-      formatedValue = df.format(arSecondary).replaceAll("\\.", "");
-    }
-    return formatedValue;
+  public String getMediaInfoAspectRatio2AsString() {
+    DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
+    return df.format(getMainVideoFile().getAspectRatio2()).replaceAll("\\.", "");
+  }
+
+  public boolean isMultiFormat() {
+    return getMainVideoFile().getAspectRatio2() > 0f;
   }
 
   @Override
