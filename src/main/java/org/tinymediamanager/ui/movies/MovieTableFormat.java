@@ -346,7 +346,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * arSecondary (hidden per default)
+     * multiformat (hidden per default)
      */
     col = new Column(TmmResourceBundle.getString("metatag.multiformat"), "multiformat", movie -> getCheckIcon(movie.isMultiFormat()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
