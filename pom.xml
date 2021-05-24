@@ -89,7 +89,7 @@
         <release.version>2.5.3</release.version>
         <jre.version>15.0.2-hotspot</jre.version>
         <launcher.version>1.0.16</launcher.version>
-        <jackson.version>2.11.2</jackson.version>
+        <jackson.version>2.12.3</jackson.version>
     </properties>
 
     <dependencies>
