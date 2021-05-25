@@ -132,6 +132,13 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
     addElement();
   }
 
+  /**
+   * class initialization
+   */
+  public static void init() {
+    // just to load all values into the memory
+  }
+
   @Override
   public String toString() {
     return getLocalizedName();
@@ -215,16 +222,15 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
   }
 
   /**
-   * Gets the genre.
+   * Gets the genre by a localized name.
    * 
    * @param name
    *          the name
    * @return the genre
    */
-  @JsonCreator
   public static synchronized MediaGenres getGenre(String name) {
     String cleanedName = name.replaceAll("[._-]", " ");
-    for (MediaGenres genre : values()) {
+    for (MediaGenres genre : values(MediaGenres.class)) {
       // check if the "enum" name matches
       if (genre.name().equals(name)) {
         return genre;
@@ -258,7 +264,27 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
     }
 
     // dynamically create new one
-    return new MediaGenres(name, values().length, name);
+    return new MediaGenres(name, values(MediaGenres.class).length, name);
+  }
+
+  /**
+   * Gets the genre by the enum Name.
+   *
+   * @param name
+   *          the name
+   * @return the genre
+   */
+  @JsonCreator
+  public static synchronized MediaGenres getGenreByEnumName(String name) {
+    for (MediaGenres genre : values(MediaGenres.class)) {
+      // check if the "enum" name matches
+      if (genre.name().equals(name)) {
+        return genre;
+      }
+    }
+
+    // dynamically create new one
+    return new MediaGenres(name, values(MediaGenres.class).length, name);
   }
 
   /**
