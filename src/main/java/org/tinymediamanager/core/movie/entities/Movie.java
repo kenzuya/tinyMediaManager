@@ -2354,6 +2354,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
 
   @Override
   public float getMediaInfoAspectRatio2() {
+    LOGGER.debug("getMediaInfoAspectRatio2: {}", String.format("%.2f", getMainVideoFile().getAspectRatio2()));
     return getMainVideoFile().getAspectRatio2();
   }
 

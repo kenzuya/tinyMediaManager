@@ -372,6 +372,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     setExactVideoFormat("");
     setContainerFormat("");
     setAspectRatio(0);
+    setAspectRatio2(0);
     setVideo3DFormat("");
     setHdrFormat("");
     setAnimatedGraphic(false);
@@ -1018,18 +1019,20 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
-   * sets the video bit rate for this file (in kbps).
+   * sets the aspect ratio 2 for this file.
    *
    * @param newValue
-   *          the new video bit rate
+   *          the new aspect ratio 2
    */
   public void setAspectRatio2(float newValue) {
     float oldValue = this.aspectRatio2;
     this.aspectRatio2 = newValue;
+    LOGGER.debug("setAspectRatio2 oldValue: {} newValue: {}", oldValue, newValue);
     firePropertyChange("aspectRatio2", oldValue, newValue);
   }
 
   public float getAspectRatio2() {
+    LOGGER.debug("getAspectRatio2: {}", String.format("%.2f", this.aspectRatio2));
     return this.aspectRatio2;
   }
 
