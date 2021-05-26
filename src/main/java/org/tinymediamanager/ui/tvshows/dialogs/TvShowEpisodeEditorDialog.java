@@ -230,7 +230,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       cbMediaSource.setSelectedItem(episodeToEdit.getMediaSource());
       tfNote.setText(episodeToEdit.getNote());
 
-      for (Person origCast : episodeToEdit.getGuests()) {
+      for (Person origCast : episodeToEdit.getActors()) {
         guests.add(new Person(origCast));
       }
       for (Person director : episodeToEdit.getDirectors()) {

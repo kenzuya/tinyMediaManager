@@ -232,7 +232,7 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
       assertThat(newEpisode.getTags()).isEqualTo(episode.getTags());
 
       // since we do not write show actors to the episodes, we need to adopt this test
-      for (Person person : newEpisode.getGuests()) {
+      for (Person person : newEpisode.getActors()) {
         assertThat(episode.getActors()).contains(person);
         assertThat(newEpisode.getTvShow().getActors()).doesNotContain(person);
       }

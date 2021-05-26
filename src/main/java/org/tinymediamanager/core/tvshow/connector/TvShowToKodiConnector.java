@@ -117,7 +117,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
       }
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
-        for (Person guest : episode.getGuests()) {
+        for (Person guest : episode.getActors()) {
           if (StringUtils.isNotBlank(guest.getName())) {
             actors.putIfAbsent(guest.getName(), guest);
           }

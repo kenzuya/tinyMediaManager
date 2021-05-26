@@ -891,20 +891,6 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the actors of this episode
    */
   public List<Person> getActors() {
-    List<Person> allActors = new ArrayList<>();
-    if (tvShow != null) {
-      allActors.addAll(tvShow.getActors());
-    }
-    allActors.addAll(actors);
-    return allActors;
-  }
-
-  /**
-   * get all guests in this episode
-   * 
-   * @return a list of all guests
-   */
-  public List<Person> getGuests() {
     return actors;
   }
 
@@ -916,16 +902,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   @JsonSetter
   public void setActors(List<Person> newActors) {
-    // do not add actors which are in the TV show itself
-
-    // tvShow is null while loading
-    if (getTvShow() != null) {
-      newActors.removeAll(getTvShow().getActors());
-    }
-
     // two way sync of actors
-    ListUtils.mergeLists(actors, newActors);
-    // mergePersons(actors, newActors);
+    mergePersons(actors, newActors);
     firePropertyChange(ACTORS, null, this.getActors());
   }
 

@@ -1,6 +1,8 @@
-Version 4.1.6
+Version 4.2
 =======================
 + (movies/TV shows) "add a new data source" has been added to the "update data sources" menu
+x (TV shows) do not mix in TV show actors to the episode cast #1219
+  since this is no more accurate (e.g. in Black Mirror) and scrapers like TMDB/IMDB provide detailed data for episode cast
 
 
 Version 4.1.5.1
