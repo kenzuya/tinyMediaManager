@@ -330,6 +330,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));

@@ -2163,8 +2163,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   @Override
-  public float getMediaInfoAspectRatio2() {
-    return 0;
+  public Float getMediaInfoAspectRatio2() {
+    return null;
   }
 
   @Override

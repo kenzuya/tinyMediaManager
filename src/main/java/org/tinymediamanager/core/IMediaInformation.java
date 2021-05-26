@@ -80,7 +80,7 @@ public interface IMediaInformation {
    *
    * @return the 2nd aspect ratio
    */
-  float getMediaInfoAspectRatio2();
+  Float getMediaInfoAspectRatio2();
 
   /**
    * gets the media info video codec (e.g. divx)

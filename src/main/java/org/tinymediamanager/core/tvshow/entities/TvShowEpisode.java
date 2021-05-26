@@ -1549,7 +1549,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   @Override
-  public float getMediaInfoAspectRatio2() {
+  public Float getMediaInfoAspectRatio2() {
     return getMainVideoFile().getAspectRatio2();
   }
 

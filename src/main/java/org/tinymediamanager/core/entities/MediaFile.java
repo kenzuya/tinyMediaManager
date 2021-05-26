@@ -1027,12 +1027,10 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   public void setAspectRatio2(float newValue) {
     float oldValue = this.aspectRatio2;
     this.aspectRatio2 = newValue;
-    LOGGER.debug("setAspectRatio2 oldValue: {} newValue: {}", oldValue, newValue);
     firePropertyChange("aspectRatio2", oldValue, newValue);
   }
 
   public float getAspectRatio2() {
-    LOGGER.debug("getAspectRatio2: {}", String.format("%.2f", this.aspectRatio2));
     return this.aspectRatio2;
   }
 

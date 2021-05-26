@@ -86,10 +86,6 @@ import net.miginfocom.swing.MigLayout;
 public class MediaFileEditorPanel extends JPanel {
   private static final long               serialVersionUID = -2416409052145301941L;
 
-  
-
-  private static final Map<Float, String> ASPECT_RATIOS    = createAspectRatios();
-
   private final Set<Binding>              bindings         = new HashSet<>();
 
   private TmmTask                         ardTask;
@@ -108,6 +104,7 @@ public class MediaFileEditorPanel extends JPanel {
   private JButton                         btnRemoveSubtitle;
   private JComboBox<String>               cb3dFormat;
   private JComboBox                       cbAspectRatio;
+  private JComboBox                       cbAspectRatio2;
   private JTextField                      tfFrameRate;
   private JTextField                      tfBitDepth;
   private JTextField                      tfHdrFormat;
@@ -124,7 +121,6 @@ public class MediaFileEditorPanel extends JPanel {
     }
 
     Set<MediaFileType> videoTypes = new HashSet<>(Arrays.asList(VIDEO, SAMPLE, TRAILER));
-    Float[] aspectRatios = ASPECT_RATIOS.keySet().toArray(new Float[0]);
 
     // predefined 3D Formats
     String[] threeDFormats = { "", MediaFileHelper.VIDEO_3D, MediaFileHelper.VIDEO_3D_SBS, MediaFileHelper.VIDEO_3D_HSBS,
@@ -149,7 +145,7 @@ public class MediaFileEditorPanel extends JPanel {
         JPanel panelDetails = new JPanel();
         splitPane.setRightComponent(panelDetails);
         panelDetails
-            .setLayout(new MigLayout("", "[][75lp:n][20lp:n][][75lp:n][20lp:n][][75lp:n][50lp:n,grow]", "[][][][][][100lp:150lp][100lp:150lp]"));
+            .setLayout(new MigLayout("", "[][75lp:n][20lp:n][][75lp:n][20lp:n][][75lp:n][50lp:n,grow]", "[][][][][][][100lp:150lp][100lp:150lp]"));
         {
           lblFilename = new JLabel("");
           TmmFontHelper.changeFont(lblFilename, 1.167, Font.BOLD);
@@ -199,12 +195,12 @@ public class MediaFileEditorPanel extends JPanel {
           JLabel lblAspectT = new TmmLabel(TmmResourceBundle.getString("metatag.aspect"));
           panelDetails.add(lblAspectT, "cell 6 2,alignx right");
 
-          cbAspectRatio = new JComboBox(aspectRatios);
+          cbAspectRatio = new JComboBox(getAspectRatios().keySet().toArray(new Float[0]));
           cbAspectRatio.setEditable(true);
           cbAspectRatio.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-              String text = ASPECT_RATIOS.get(value);
+              String text = getAspectRatios().get(value);
               if (StringUtils.isBlank(text)) {
                 text = String.valueOf(text);
               }
@@ -212,6 +208,24 @@ public class MediaFileEditorPanel extends JPanel {
             }
           });
           panelDetails.add(cbAspectRatio, "cell 7 2");
+        }
+        {
+          JLabel lblAspectT = new TmmLabel(TmmResourceBundle.getString("metatag.aspect2"));
+          panelDetails.add(lblAspectT, "cell 6 3,alignx right");
+
+          cbAspectRatio2 = new JComboBox(getAspectRatios2().keySet().toArray(new Float[0]));
+          cbAspectRatio2.setEditable(true);
+          cbAspectRatio2.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+              String text = getAspectRatios2().get(value);
+              if (StringUtils.isBlank(text)) {
+                text = String.valueOf(text);
+              }
+              return super.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
+            }
+          });
+          panelDetails.add(cbAspectRatio2, "cell 7 3");
         }
         {
           JLabel lblFrameRate = new TmmLabel(TmmResourceBundle.getString("metatag.framerate"));
@@ -225,19 +239,12 @@ public class MediaFileEditorPanel extends JPanel {
         {
           JLabel lblVideoBitrate = new TmmLabel(TmmResourceBundle.getString("metatag.bitrate"));
           panelDetails.add(lblVideoBitrate, "cell 3 3,alignx trailing");
-        }
 
-        tfVideoBitrate = new JTextField();
-        panelDetails.add(tfVideoBitrate, "cell 4 3");
-        tfVideoBitrate.setColumns(10);
-        tfVideoBitrate.setInputVerifier(new IntegerInputVerifier());
-        {
-          JLabel lbl3d = new TmmLabel("3D Format");
-          panelDetails.add(lbl3d, "cell 6 3,alignx right");
+          tfVideoBitrate = new JTextField();
+          panelDetails.add(tfVideoBitrate, "cell 4 3");
+          tfVideoBitrate.setColumns(10);
+          tfVideoBitrate.setInputVerifier(new IntegerInputVerifier());
         }
-
-        cb3dFormat = new JComboBox(threeDFormats);
-        panelDetails.add(cb3dFormat, "cell 7 3");
         {
           JLabel lblBitDepthT = new TmmLabel(TmmResourceBundle.getString("metatag.videobitdepth"));
           panelDetails.add(lblBitDepthT, "cell 0 4,alignx trailing");
@@ -257,48 +264,55 @@ public class MediaFileEditorPanel extends JPanel {
         }
         {
           JLabel lblRuntimeT = new TmmLabel(TmmResourceBundle.getString("metatag.runtime"));
-          panelDetails.add(lblRuntimeT, "cell 6 4,alignx trailing");
+          panelDetails.add(lblRuntimeT, "cell 0 5,alignx trailing");
 
           tfRuntime = new JTextField();
-          panelDetails.add(tfRuntime, "cell 7 4");
+          panelDetails.add(tfRuntime, "cell 1 5");
           tfRuntime.setColumns(5);
           tfRuntime.setInputVerifier(new IntegerInputVerifier());
         }
         {
+          JLabel lbl3d = new TmmLabel("3D Format");
+          panelDetails.add(lbl3d, "cell 3 5,alignx right");
+
+          cb3dFormat = new JComboBox(threeDFormats);
+          panelDetails.add(cb3dFormat, "cell 4 5");
+        }
+        {
           JLabel lblAudiostreams = new TmmLabel("AudioStreams");
-          panelDetails.add(lblAudiostreams, "flowy,cell 0 5,alignx right,aligny top");
+          panelDetails.add(lblAudiostreams, "flowy,cell 0 6,alignx right,aligny top");
 
           JScrollPane scrollPane = new JScrollPane();
-          panelDetails.add(scrollPane, "cell 1 5 8 1,grow");
+          panelDetails.add(scrollPane, "cell 1 6 8 1,grow");
 
           tableAudioStreams = new TmmTable();
           tableAudioStreams.configureScrollPane(scrollPane);
         }
         {
           JLabel lblSubtitles = new TmmLabel("Subtitles");
-          panelDetails.add(lblSubtitles, "flowy,cell 0 6,alignx right,aligny top");
+          panelDetails.add(lblSubtitles, "flowy,cell 0 7,alignx right,aligny top");
 
           JScrollPane scrollPane = new JScrollPane();
-          panelDetails.add(scrollPane, "cell 1 6 8 1,grow");
+          panelDetails.add(scrollPane, "cell 1 7 8 1,grow");
 
           tableSubtitles = new TmmTable();
           tableSubtitles.configureScrollPane(scrollPane);
         }
         {
           btnAddAudioStream = new SquareIconButton(new AddAudioStreamAction());
-          panelDetails.add(btnAddAudioStream, "cell 0 5,alignx right,aligny top");
+          panelDetails.add(btnAddAudioStream, "cell 0 6,alignx right,aligny top");
         }
         {
           btnRemoveAudioStream = new SquareIconButton(new RemoveAudioStreamAction());
-          panelDetails.add(btnRemoveAudioStream, "cell 0 5,alignx right,aligny top");
+          panelDetails.add(btnRemoveAudioStream, "cell 0 6,alignx right,aligny top");
         }
         {
           btnAddSubtitle = new SquareIconButton(new AddSubtitleAction());
-          panelDetails.add(btnAddSubtitle, "cell 0 6,alignx right,aligny top");
+          panelDetails.add(btnAddSubtitle, "cell 0 7,alignx right,aligny top");
         }
         {
           btnRemoveSubtitle = new SquareIconButton(new RemoveSubtitleAction());
-          panelDetails.add(btnRemoveSubtitle, "cell 0 6,alignx right,aligny top");
+          panelDetails.add(btnRemoveSubtitle, "cell 0 7,alignx right,aligny top");
         }
       }
     }
@@ -333,9 +347,16 @@ public class MediaFileEditorPanel extends JPanel {
     });
   }
 
-  private static Map<Float, String> createAspectRatios() {
+  private static Map<Float, String> getAspectRatios() {
     LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
-    predefinedValues.put(0f, "calculated");
+    predefinedValues.put(0f, TmmResourceBundle.getString("aspectratio.calculated"));
+    predefinedValues.putAll(AspectRatio.getDefaultValues());
+    return predefinedValues;
+  }
+
+  private static Map<Float, String> getAspectRatios2() {
+    LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
+    predefinedValues.put(0f, TmmResourceBundle.getString("aspectratio.nomultiformat"));
     predefinedValues.putAll(AspectRatio.getDefaultValues());
     return predefinedValues;
   }
@@ -547,6 +568,9 @@ public class MediaFileEditorPanel extends JPanel {
           if (mfEditor.getAspectRatio() != mfOriginal.getAspectRatio()) {
             mfOriginal.setAspectRatio(mfEditor.getAspectRatio());
           }
+          if (mfEditor.getAspectRatio2() != mfOriginal.getAspectRatio2()) {
+            mfOriginal.setAspectRatio2(mfEditor.getAspectRatio2());
+          }
           if (mfEditor.getFrameRate() != mfOriginal.getFrameRate()) {
             mfOriginal.setFrameRate(mfEditor.getFrameRate());
           }
@@ -664,6 +688,11 @@ public class MediaFileEditorPanel extends JPanel {
     AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty, cbAspectRatio,
         jComboBoxBeanProperty);
     autoBinding_4.bind();
+    //
+    Property tmmTableBeanProperty_6 = BeanProperty.create("selectedElement.mediaFile.aspectRatio2");
+    AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_6, cbAspectRatio2,
+        jComboBoxBeanProperty);
+    autoBinding_12.bind();
     //
     Property tmmTableBeanProperty_1 = BeanProperty.create("selectedElement.mediaFile.frameRate");
     Property jFormattedTextFieldBeanProperty = BeanProperty.create("text");

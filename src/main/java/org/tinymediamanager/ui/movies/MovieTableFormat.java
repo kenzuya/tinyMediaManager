@@ -336,7 +336,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     /*
      * aspect ratio (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.aspectratio"), "aspectratio", Movie::getMediaInfoAspectRatio, Float.class);
+    col = new Column(TmmResourceBundle.getString("metatag.aspectratio"), "aspectRatio", Movie::getMediaInfoAspectRatio, Float.class);
     col.setColumnComparator(floatComparator);
     col.setHeaderIcon(IconManager.ASPECT_RATIO);
     col.setCellRenderer(new RightAlignTableCellRenderer());
@@ -346,11 +346,11 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * multiformat (hidden per default)
+     * 2nd aspect ratio (hidden per default)
      */
-    col = new Column(TmmResourceBundle.getString("metatag.aspectratio2"), "aspectratio2", Movie::getMediaInfoAspectRatio2, Float.class);
+    col = new Column(TmmResourceBundle.getString("metatag.aspectratio2"), "aspectRatio2", Movie::getMediaInfoAspectRatio2, Float.class);
     col.setColumnComparator(floatComparator);
-    col.setHeaderIcon(IconManager.MULTI_FORMAT);
+    col.setHeaderIcon(IconManager.ASPECT_RATIO_2);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
     col.setMinWidth((int) (fontMetrics.stringWidth("1.78") * 1.2f + 10));
