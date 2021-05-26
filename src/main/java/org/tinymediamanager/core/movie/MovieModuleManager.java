@@ -242,7 +242,7 @@ public class MovieModuleManager implements ITmmModule {
 
           mvStore = new MVStore.Builder().fileName(databaseFile.toString())
               .compressHigh()
-              .autoCommitBufferSize(512)
+              .autoCommitBufferSize(2048)
               .backgroundExceptionHandler(this)
               .open();
           mvStore.setAutoCommitDelay(2000); // 2 sec
@@ -268,7 +268,7 @@ public class MovieModuleManager implements ITmmModule {
 
     mvStore = new MVStore.Builder().fileName(databaseFile.toString())
         .compressHigh()
-        .autoCommitBufferSize(512)
+        .autoCommitBufferSize(2048)
         .backgroundExceptionHandler(exceptionHandler)
         .open();
     mvStore.setAutoCommitDelay(2000); // 2 sec
