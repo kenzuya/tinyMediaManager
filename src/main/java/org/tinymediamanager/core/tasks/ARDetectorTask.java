@@ -191,11 +191,11 @@ public abstract class ARDetectorTask extends TmmTask {
       mediaFile.setAspectRatio(videoInfo.arPrimary);
       LOGGER.debug("AR_Primary:        {}", String.format("%.2f", videoInfo.arPrimary));
 
-      if (videoInfo.arSecondary > 0f) {
+      if (videoInfo.arSecondary > 0f && ArdSettings.Mode.ACCURATE.equals(this.mode)) {
         videoInfo.arSecondary = roundAR(videoInfo.arSecondary);
+        mediaFile.setAspectRatio2(videoInfo.arSecondary);
         LOGGER.debug("AR_Secondary:      {}", String.format("%.2f", videoInfo.arSecondary));
       }
-      mediaFile.setAspectRatio2(videoInfo.arSecondary);
 
       mediaFile.setVideoHeight(videoInfo.height);
       mediaFile.setVideoWidth(videoInfo.width);
