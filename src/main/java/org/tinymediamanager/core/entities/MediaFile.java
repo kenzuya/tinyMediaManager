@@ -1034,6 +1034,20 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     return this.aspectRatio2;
   }
 
+  public void setAspectRatio2AsString(String newValue) {
+    float oldValue = this.aspectRatio2;
+    try {
+      this.aspectRatio2 = Float.parseFloat(newValue);
+    } catch (NumberFormatException ex) {
+      this.aspectRatio2 = 0f;
+    }
+    firePropertyChange("aspectRatio2", oldValue, newValue);
+  }
+
+  public String getAspectRatio2AsString() {
+    return this.aspectRatio2 > 0f ? String.valueOf(this.aspectRatio2) : "";
+  }
+
   /**
    * get the "common" (nearest) aspect ratio
    *

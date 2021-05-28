@@ -213,7 +213,7 @@ public class MediaFileEditorPanel extends JPanel {
           JLabel lblAspectT = new TmmLabel(TmmResourceBundle.getString("metatag.aspect2"));
           panelDetails.add(lblAspectT, "cell 6 3,alignx right");
 
-          cbAspectRatio2 = new JComboBox(getAspectRatios2().keySet().toArray(new Float[0]));
+          cbAspectRatio2 = new JComboBox(getAspectRatios2().keySet().toArray(new String[0]));
           cbAspectRatio2.setEditable(true);
           cbAspectRatio2.setRenderer(new DefaultListCellRenderer() {
             @Override
@@ -354,10 +354,12 @@ public class MediaFileEditorPanel extends JPanel {
     return predefinedValues;
   }
 
-  private static Map<Float, String> getAspectRatios2() {
-    LinkedHashMap<Float, String> predefinedValues = new LinkedHashMap<>();
-    predefinedValues.put(0f, TmmResourceBundle.getString("aspectratio.nomultiformat"));
-    predefinedValues.putAll(AspectRatio.getDefaultValues());
+  private static Map<String, String> getAspectRatios2() {
+    LinkedHashMap<String, String> predefinedValues = new LinkedHashMap<>();
+    predefinedValues.put("", TmmResourceBundle.getString("aspectratio.nomultiformat"));
+    for (Map.Entry<Float, String> entry : AspectRatio.getDefaultValues().entrySet()) {
+      predefinedValues.put(String.valueOf(entry.getKey()), entry.getValue());
+    }
     return predefinedValues;
   }
 
@@ -689,7 +691,7 @@ public class MediaFileEditorPanel extends JPanel {
         jComboBoxBeanProperty);
     autoBinding_4.bind();
     //
-    Property tmmTableBeanProperty_6 = BeanProperty.create("selectedElement.mediaFile.aspectRatio2");
+    Property tmmTableBeanProperty_6 = BeanProperty.create("selectedElement.mediaFile.aspectRatio2AsString");
     AutoBinding autoBinding_12 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, tableMediaFiles, tmmTableBeanProperty_6, cbAspectRatio2,
         jComboBoxBeanProperty);
     autoBinding_12.bind();
