@@ -38,7 +38,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
  * @author Manuel Laggner
  */
 class CalendarPanel extends JPanel implements PropertyChangeListener {
-  private static final long           serialVersionUID = -1214699062624370112L;
+  private static final long serialVersionUID = 2214699062624370112L;
 
 
   private Calendar                    calendar;
@@ -47,10 +47,6 @@ class CalendarPanel extends JPanel implements PropertyChangeListener {
   MonthComboBox                       monthComboBox;
   YearSpinner                         yearSpinner;
   DayPanel                            dayPanel;
-
-  public CalendarPanel() {
-    this(null);
-  }
 
   public CalendarPanel(Date date) {
     setLayout(new BorderLayout());
@@ -167,6 +163,7 @@ class CalendarPanel extends JPanel implements PropertyChangeListener {
       // setDate(null); // WILL throw NPE
       return;
     }
+
     Calendar oldCalendar = calendar;
     calendar = newCalendar;
 

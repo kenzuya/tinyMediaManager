@@ -40,16 +40,17 @@ import org.tinymediamanager.ui.components.SquareIconButton;
  * @author Manuel Laggner
  */
 public class DatePicker extends JPanel implements PropertyChangeListener {
-  private static final long serialVersionUID = -2806415143740677890L;
+  private static final long   serialVersionUID = -2806415143740677890L;
 
-  private DateTextField     dateEditor;
-  private JButton           calendarButton;
-  private CalendarPanel     calendarPanel;
-  protected JPopupMenu      popup;
+  private final DateTextField dateEditor;
+  private final JButton       calendarButton;
+  private final CalendarPanel calendarPanel;
 
-  private boolean           dateSelected;
+  protected JPopupMenu        popup;
 
-  private ChangeListener    changeListener;
+  private boolean             dateSelected;
+
+  private ChangeListener      changeListener;
 
   /**
    * Creates a new DatePicker with no date set

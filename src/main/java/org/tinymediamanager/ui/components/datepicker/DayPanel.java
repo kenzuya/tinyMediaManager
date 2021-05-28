@@ -39,19 +39,19 @@ import javax.swing.UIManager;
 class DayPanel extends JPanel implements ActionListener {
   private static final long serialVersionUID = -4247612348953136350L;
 
+  private final Calendar    today;
+  private final JButton[]   days;
+  private final Color       transparentBackgroundColor;
+  private final Color       selectedColor;
+  private final Color       sundayForeground;
+  private final Color       weekdayForeground;
+  private final Color       decorationBackgroundColor;
+
   private int               day;
   private Calendar          calendar;
-  private Calendar          today;
   private Locale            locale;
 
-  private JButton[]         days;
   private JButton           selectedDay;
-
-  private Color             transparentBackgroundColor;
-  private Color             selectedColor;
-  private Color             sundayForeground;
-  private Color             weekdayForeground;
-  private Color             decorationBackgroundColor;
 
   DayPanel() {
     setBackground(Color.blue);
@@ -345,6 +345,7 @@ class DayPanel extends JPanel implements ActionListener {
 
     @Override
     public synchronized void addMouseListener(MouseListener l) {
+      // not needed
     }
   }
 }

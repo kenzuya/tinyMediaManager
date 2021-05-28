@@ -70,6 +70,7 @@ import org.tinymediamanager.ui.movies.filters.MovieCountAudioStreamFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountSubtitleFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountryFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDatasourceFilter;
+import org.tinymediamanager.ui.movies.filters.MovieDateAddedFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDecadesFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDifferentRuntimeFilter;
 import org.tinymediamanager.ui.movies.filters.MovieDuplicateFilter;
@@ -151,6 +152,7 @@ public class MovieFilterDialog extends TmmDialog {
         panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
 
         addFilter(new MovieNewMoviesFilter(), panelMain);
+        addFilter(new MovieDateAddedFilter(), panelMain);
         addFilter(new MovieDuplicateFilter(), panelMain);
         addFilter(new MovieWatchedFilter(), panelMain);
         addFilter(new MovieGenreFilter(), panelMain);
