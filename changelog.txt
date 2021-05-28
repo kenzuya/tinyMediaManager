@@ -1,6 +1,8 @@
 Version 4.1.6
 =======================
 + (movies/TV shows) "add a new data source" has been added to the "update data sources" menu
+x (movies/TV shows) reduced CPU usage of MVStore
+x (movies/TV shows) reduced loading time of the databases
 
 
 Version 4.1.5.1

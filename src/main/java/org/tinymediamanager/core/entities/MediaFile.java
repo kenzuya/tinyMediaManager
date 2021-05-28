@@ -249,6 +249,37 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
+   * is this a music theme file?
+   * 
+   * @return true/false
+   */
+  public boolean isMusicTheme() {
+    switch (type) {
+      case THEME:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * is this a text file?
+   * 
+   * @return true/false
+   */
+  public boolean isTextual() {
+    switch (type) {
+      case NFO:
+      case TEXT:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  /**
    * Is this a graphic file?.
    *
    * @return true/false
