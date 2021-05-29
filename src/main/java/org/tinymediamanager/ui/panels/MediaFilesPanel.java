@@ -128,7 +128,7 @@ public abstract class MediaFilesPanel extends JPanel {
           return IconManager.MUSIC;
         }
         if (mediaFile.isTextual()) {
-          return IconManager.NFO;
+          return IconManager.NFO_BLUE;
         }
         return null;
       }, ImageIcon.class);
@@ -248,7 +248,7 @@ public abstract class MediaFilesPanel extends JPanel {
             JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingfound"));
             return;
           }
-          JDialog textDialog = new TextDialog(text);
+          JDialog textDialog = new TextDialog(mf.getFilename(), text);
           textDialog.setLocationRelativeTo(MainWindow.getInstance());
           textDialog.setVisible(true);
         }
