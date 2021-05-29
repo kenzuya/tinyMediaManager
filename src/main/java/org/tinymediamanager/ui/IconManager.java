@@ -125,6 +125,7 @@ public class IconManager {
   public static final ImageIcon              CLEAR_GREY                   = createSVGIcon("times-circle.svg");
   public static final ImageIcon              COLLAPSED                    = createSVGIcon("chevron-square-down.svg");
   public static final ImageIcon              CONFIGURE                    = createSVGIcon("wrench.svg");
+  public static final ImageIcon              DATE_PICKER                  = createSVGIcon("calendar-alt.svg");
   public static final ImageIcon              DELETE_GRAY                  = createSVGIcon("trash-alt.svg");
   public static final ImageIcon              ERROR                        = createSVGIcon("times-circle.svg");
   public static final ImageIcon              EXPANDED                     = createSVGIcon("chevron-square-right.svg");
@@ -150,7 +151,6 @@ public class IconManager {
   public static final ImageIcon              CHECK_ALL                    = createButtonIcon("check-square.svg");
   public static final ImageIcon              CLEAR_ALL                    = createButtonIcon("square.svg");
   public static final ImageIcon              COPY_INV                     = createButtonIcon("clone.svg");
-  public static final ImageIcon              DATE_PICKER                  = createButtonIcon("calendar-alt.svg");
   public static final ImageIcon              DELETE_INV                   = createButtonIcon("trash-alt.svg");
   public static final ImageIcon              EXCHANGE                     = createButtonIcon("exchange.svg");
   public static final ImageIcon              FILE_OPEN_INV                = createButtonIcon("folder-open.svg");

@@ -25,6 +25,7 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.MenuElement;
 import javax.swing.MenuSelectionManager;
 import javax.swing.SwingUtilities;
@@ -32,7 +33,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.tinymediamanager.ui.IconManager;
-import org.tinymediamanager.ui.components.SquareIconButton;
 
 /**
  * The class DatePicker is used to provide a HTML like date picker
@@ -41,6 +41,7 @@ import org.tinymediamanager.ui.components.SquareIconButton;
  */
 public class DatePicker extends JPanel implements PropertyChangeListener {
   private static final long   serialVersionUID = -2806415143740677890L;
+  private static final String uiClassID        = "DatePickerUI";
 
   private final DateTextField dateEditor;
   private final JButton       calendarButton;
@@ -88,7 +89,7 @@ public class DatePicker extends JPanel implements PropertyChangeListener {
 
     setDate(date);
 
-    calendarButton = new SquareIconButton(IconManager.DATE_PICKER);
+    calendarButton = new JButton(IconManager.DATE_PICKER);
     calendarButton.setFocusable(false);
     calendarButton.addActionListener(e -> {
       int x = -dateEditor.getWidth();
@@ -142,6 +143,21 @@ public class DatePicker extends JPanel implements PropertyChangeListener {
       }
     };
     MenuSelectionManager.defaultManager().addChangeListener(changeListener);
+
+    updateUI();
+  }
+
+  @Override
+  public String getUIClassID() {
+    return uiClassID;
+  }
+
+  public JTextField getDateEditor() {
+    return dateEditor;
+  }
+
+  public JButton getCalendarButton() {
+    return calendarButton;
   }
 
   @Override

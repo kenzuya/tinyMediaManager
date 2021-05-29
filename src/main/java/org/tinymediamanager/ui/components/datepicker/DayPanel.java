@@ -17,18 +17,19 @@ package org.tinymediamanager.ui.components.datepicker;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import javax.swing.JButton;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 /**
@@ -36,28 +37,48 @@ import javax.swing.UIManager;
  * 
  * @author Manuel Laggner
  */
-class DayPanel extends JPanel implements ActionListener {
+class DayPanel extends JPanel {
   private static final long serialVersionUID = -4247612348953136350L;
 
   private final Calendar    today;
-  private final JButton[]   days;
+  private final JLabel[]    dayNames;
+  private final JLabel[]    days;
   private final Color       transparentBackgroundColor;
   private final Color       selectedColor;
   private final Color       sundayForeground;
   private final Color       weekdayForeground;
-  private final Color       decorationBackgroundColor;
 
   private int               day;
   private Calendar          calendar;
   private Locale            locale;
 
-  private JButton           selectedDay;
+  private JLabel            selectedDay;
 
   DayPanel() {
     setBackground(Color.blue);
 
+    MouseAdapter mouseAdapter = new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        JLabel label = (JLabel) e.getSource();
+        String buttonText = label.getText();
+        setDay(Integer.parseInt(buttonText));
+      }
+
+      @Override
+      public void mouseEntered(MouseEvent e) {
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+      }
+
+      @Override
+      public void mouseExited(MouseEvent e) {
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+      }
+    };
+
     locale = Locale.getDefault();
-    days = new JButton[49];
+    dayNames = new JLabel[7];
+    days = new JLabel[42];
     selectedDay = null;
     calendar = Calendar.getInstance(locale);
     today = (Calendar) calendar.clone();
@@ -69,25 +90,27 @@ class DayPanel extends JPanel implements ActionListener {
 
     sundayForeground = new Color(164, 0, 0);
     weekdayForeground = UIManager.getColor("Component.linkColor");
-    decorationBackgroundColor = new Color(210, 228, 238);
-    selectedColor = new Color(160, 160, 160);
+    Color decorationBackgroundColor = UIManager.getColor("DatePicker.headerBackground");
+    selectedColor = UIManager.getColor("Component.focusColor");
     transparentBackgroundColor = new Color(255, 255, 255, 0);
 
-    for (int row = 0; row < 7; row++) {
+    for (int i = 0; i < 7; i++) {
+      dayNames[i] = new JLabel("");
+      dayNames[i].setHorizontalAlignment(SwingConstants.CENTER);
+      dayNames[i].setOpaque(true);
+      dayNames[i].setBackground(decorationBackgroundColor);
+      dayNames[i].setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+      dayPanel.add(dayNames[i]);
+    }
+
+    for (int row = 0; row < 6; row++) {
       for (int column = 0; column < 7; column++) {
         int index = column + (7 * row);
 
-        if (row == 0) {
-          days[index] = new DecoratorButton();
-        }
-        else {
-          days[index] = new JButton();
-          days[index].setBorderPainted(false);
-          days[index].addActionListener(this);
-        }
-
-        days[index].setMargin(new Insets(0, 0, 0, 0));
-        days[index].setFocusPainted(false);
+        days[index] = new JLabel("");
+        days[index].setHorizontalAlignment(SwingConstants.CENTER);
+        days[index].addMouseListener(mouseAdapter);
+        days[index].setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
         dayPanel.add(days[index]);
       }
     }
@@ -123,13 +146,13 @@ class DayPanel extends JPanel implements ActionListener {
     int day = firstDayOfWeek;
 
     for (int i = 0; i < 7; i++) {
-      days[i].setText(dayNames[day]);
+      this.dayNames[i].setText(dayNames[day]);
 
       if (day == 1) {
-        days[i].setForeground(sundayForeground);
+        this.dayNames[i].setForeground(sundayForeground);
       }
       else {
-        days[i].setForeground(weekdayForeground);
+        this.dayNames[i].setForeground(weekdayForeground);
       }
 
       if (day < 7) {
@@ -167,9 +190,9 @@ class DayPanel extends JPanel implements ActionListener {
 
     int i;
     for (i = 0; i < firstDay; i++) {
-      days[i + 7].setEnabled(false);
-      days[i + 7].setText(Integer.toString(lastDayOfPreviousMonth - firstDay + i + 1));
-      days[i + 7].setVisible(true);
+      days[i].setEnabled(false);
+      days[i].setText(Integer.toString(lastDayOfPreviousMonth - firstDay + i + 1));
+      days[i].setVisible(true);
     }
 
     tmpCalendar.add(Calendar.MONTH, 1);
@@ -181,28 +204,22 @@ class DayPanel extends JPanel implements ActionListener {
     Color foregroundColor = getForeground();
 
     while (day.before(firstDayInNextMonth)) {
-      days[i + n + 7].setText(Integer.toString(n + 1));
-      days[i + n + 7].setVisible(true);
+      days[i + n].setText(Integer.toString(n + 1));
+      days[i + n].setVisible(true);
 
       if ((tmpCalendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR))
           && (tmpCalendar.get(Calendar.YEAR) == today.get(Calendar.YEAR))) {
-        days[i + n + 7].setForeground(sundayForeground);
+        days[i + n].setForeground(sundayForeground);
+      }
+      else if ((n + 1) == this.day) {
+        days[i + n].setForeground(selectedColor);
+        selectedDay = days[i + n];
       }
       else {
-        days[i + n + 7].setForeground(foregroundColor);
+        days[i + n].setForeground(foregroundColor);
       }
 
-      if ((n + 1) == this.day) {
-        days[i + n + 7].setBackground(selectedColor);
-        days[i + n + 7].setBorderPainted(true);
-        selectedDay = days[i + n + 7];
-      }
-      else {
-        days[i + n + 7].setBackground(transparentBackgroundColor);
-        days[i + n + 7].setBorderPainted(false);
-      }
-
-      days[i + n + 7].setEnabled(true);
+      days[i + n].setEnabled(true);
 
       n++;
       tmpCalendar.add(Calendar.DATE, 1);
@@ -212,14 +229,14 @@ class DayPanel extends JPanel implements ActionListener {
     // fill up the last row with the days from the next month
     int actualDays = n;
     while ((n + i) % 7 != 0) {
-      days[i + n + 7].setText(Integer.toString(n + 1 - actualDays));
-      days[i + n + 7].setEnabled(false);
-      days[i + n + 7].setVisible(true);
+      days[i + n].setText(Integer.toString(n + 1 - actualDays));
+      days[i + n].setEnabled(false);
+      days[i + n].setVisible(true);
       n++;
     }
 
     // and hide the last line if it has not been started
-    for (int k = n + i + 7; k < 49; k++) {
+    for (int k = n + i; k < 42; k++) {
       days[k].setVisible(false);
       days[k].setText("");
     }
@@ -262,15 +279,13 @@ class DayPanel extends JPanel implements ActionListener {
 
     if (selectedDay != null) {
       selectedDay.setBackground(transparentBackgroundColor);
-      selectedDay.setBorderPainted(false);
       selectedDay.repaint();
     }
 
-    for (int i = 7; i < 49; i++) {
+    for (int i = 0; i < 42; i++) {
       if (days[i].getText().equals(Integer.toString(day))) {
         selectedDay = days[i];
-        selectedDay.setBackground(selectedColor);
-        selectedDay.setBorderPainted(true);
+        selectedDay.setForeground(selectedColor);
         break;
       }
     }
@@ -324,28 +339,5 @@ class DayPanel extends JPanel implements ActionListener {
   public void setCalendar(Calendar calendar) {
     this.calendar = calendar;
     drawDays();
-  }
-
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    JButton button = (JButton) e.getSource();
-    String buttonText = button.getText();
-    int day = Integer.parseInt(buttonText);
-    setDay(day);
-  }
-
-  private class DecoratorButton extends JButton {
-    private static final long serialVersionUID = -5306477668406547496L;
-
-    DecoratorButton() {
-      setBackground(decorationBackgroundColor);
-      setBorderPainted(false);
-      setFocusable(false);
-    }
-
-    @Override
-    public synchronized void addMouseListener(MouseListener l) {
-      // not needed
-    }
   }
 }

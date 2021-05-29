@@ -27,6 +27,7 @@ import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpinnerNumberModel;
 
@@ -40,13 +41,12 @@ import org.tinymediamanager.core.TmmResourceBundle;
 class CalendarPanel extends JPanel implements PropertyChangeListener {
   private static final long serialVersionUID = 2214699062624370112L;
 
+  private Calendar          calendar;
+  protected Locale          locale;
 
-  private Calendar                    calendar;
-  protected Locale                    locale;
-
-  MonthComboBox                       monthComboBox;
-  YearSpinner                         yearSpinner;
-  DayPanel                            dayPanel;
+  MonthComboBox             monthComboBox;
+  YearSpinner               yearSpinner;
+  DayPanel                  dayPanel;
 
   public CalendarPanel(Date date) {
     setLayout(new BorderLayout());
@@ -99,12 +99,15 @@ class CalendarPanel extends JPanel implements PropertyChangeListener {
     JButton noDateButton = new JButton();
     noDateButton.addActionListener(e -> firePropertyChange("day", 0, -1));
 
-    specialButtonPanel.setLayout(new GridLayout(1, 2));
+    specialButtonPanel.setLayout(new GridLayout(1, 3));
     todayButton.setText(TmmResourceBundle.getString("Button.today"));
     specialButtonPanel.add(todayButton);
 
+    specialButtonPanel.add(new JLabel(""));
+
     noDateButton.setText(TmmResourceBundle.getString("Button.nodate"));
     specialButtonPanel.add(noDateButton);
+
     add(specialButtonPanel, BorderLayout.SOUTH);
 
     if (date != null) {
