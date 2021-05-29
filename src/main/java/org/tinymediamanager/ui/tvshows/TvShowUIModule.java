@@ -126,11 +126,9 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     listPanel = new TvShowTreePanel(tvShowSelectionModel);
 
     detailPanel = new JPanel();
-    detailPanel.setOpaque(false);
     detailPanel.setLayout(new MigLayout("insets 0", "[grow]", "[grow]"));
 
     dataPanel = new JPanel();
-    dataPanel.setOpaque(false);
     dataPanel.setLayout(new CardLayout());
     detailPanel.add(dataPanel, "cell 0 0, grow");
 

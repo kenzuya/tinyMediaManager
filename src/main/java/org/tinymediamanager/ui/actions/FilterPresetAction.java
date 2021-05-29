@@ -15,29 +15,19 @@
  */
 package org.tinymediamanager.ui.actions;
 
-import java.awt.Dialog;
-import java.awt.event.ActionEvent;
-
-import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.dialogs.AboutDialog;
+import org.tinymediamanager.ui.IconManager;
 
 /**
- * The AboutAction to display the aboutbox
+ * the class {@link FilterPresetAction} is used to trigger the filter presets from the dropdown menu
  * 
  * @author Manuel Laggner
  */
-public class AboutAction extends TmmAction {
-  private static final long serialVersionUID = -6578562721885387890L;
+public abstract class FilterPresetAction extends TmmAction {
+  protected final String presetName;
 
-  public AboutAction() {
-    putValue(NAME, TmmResourceBundle.getString("tmm.about"));
-  }
-
-  @Override
-  protected void processAction(ActionEvent e) {
-    Dialog aboutDialog = new AboutDialog();
-    aboutDialog.setLocationRelativeTo(MainWindow.getInstance());
-    aboutDialog.setVisible(true);
+  public FilterPresetAction(String presetName) {
+    putValue(NAME, presetName);
+    putValue(SMALL_ICON, IconManager.FILTER);
+    this.presetName = presetName;
   }
 }

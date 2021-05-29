@@ -82,11 +82,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     treePanel = new MovieSetTreePanel(selectionModel);
 
     detailPanel = new JPanel();
-    detailPanel.setOpaque(false);
     detailPanel.setLayout(new CardLayout());
 
     dataPanel = new JPanel();
-    dataPanel.setOpaque(false);
     dataPanel.setLayout(new CardLayout());
     detailPanel.add(dataPanel, "cell 0 0, grow");
 

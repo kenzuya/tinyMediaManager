@@ -15,29 +15,18 @@
  */
 package org.tinymediamanager.ui.actions;
 
-import java.awt.Dialog;
-import java.awt.event.ActionEvent;
-
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.ui.MainWindow;
-import org.tinymediamanager.ui.dialogs.AboutDialog;
+import org.tinymediamanager.ui.IconManager;
 
 /**
- * The AboutAction to display the aboutbox
+ * the class {@link ClearFilterPresetAction} is used to remove all active filters
  * 
  * @author Manuel Laggner
  */
-public class AboutAction extends TmmAction {
-  private static final long serialVersionUID = -6578562721885387890L;
+public abstract class ClearFilterPresetAction extends TmmAction {
 
-  public AboutAction() {
-    putValue(NAME, TmmResourceBundle.getString("tmm.about"));
-  }
-
-  @Override
-  protected void processAction(ActionEvent e) {
-    Dialog aboutDialog = new AboutDialog();
-    aboutDialog.setLocationRelativeTo(MainWindow.getInstance());
-    aboutDialog.setVisible(true);
+  public ClearFilterPresetAction() {
+    putValue(NAME, TmmResourceBundle.getString("filter.reset"));
+    putValue(SMALL_ICON, IconManager.DELETE_FOREVER);
   }
 }

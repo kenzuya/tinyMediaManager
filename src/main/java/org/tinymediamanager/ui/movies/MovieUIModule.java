@@ -111,12 +111,10 @@ public class MovieUIModule extends AbstractTmmUIModule {
     selectionModel = listPanel.getSelectionModel();
 
     detailPanel = new JPanel();
-    detailPanel.setOpaque(false);
     detailPanel.setLayout(new MigLayout("insets 0", "[grow]", "[grow]"));
 
     // need this panel for layouting
     JPanel dataPanel = new JPanel();
-    dataPanel.setOpaque(false);
     dataPanel.setLayout(new CardLayout());
     detailPanel.add(dataPanel, "cell 0 0, grow");
 
