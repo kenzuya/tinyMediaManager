@@ -35,6 +35,7 @@ public class TmmTableColumnModel extends DefaultTableColumnModel {
    * list.
    */
   protected List<TableColumn> hiddenColumns         = new ArrayList<>();
+  protected boolean           disableColumnEvents   = false;
 
   List<Integer>               hiddenColumnsPosition = new ArrayList<>();
 
@@ -197,7 +198,9 @@ public class TmmTableColumnModel extends DefaultTableColumnModel {
 
           // Post columnAdded event notification. (JTable and JTableHeader
           // listens so they can adjust size and redraw)
-          fireColumnRemoved(new TableColumnModelEvent(this, columnIndex, 0));
+          if (!disableColumnEvents) {
+            fireColumnRemoved(new TableColumnModelEvent(this, columnIndex, 0));
+          }
         }
       }
     }
@@ -244,15 +247,15 @@ public class TmmTableColumnModel extends DefaultTableColumnModel {
   }
 
   public void setHiddenColumns(List<String> columnIdentifiers) {
+    disableColumnEvents = true;
+
     for (TableColumn col : getAllColumns()) {
       if (columnIdentifiers.contains(col.getIdentifier())) {
         setColumnHidden(col, true);
       }
     }
-  }
 
-  public void setDefaultHiddenColumns() {
-
+    disableColumnEvents = false;
   }
 
   public List<TableColumn> getHiddenColumns() {
