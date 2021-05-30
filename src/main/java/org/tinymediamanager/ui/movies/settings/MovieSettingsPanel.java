@@ -105,6 +105,7 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxOriginalTitle;
   private JCheckBox                    chckbxSortableOriginalTitle;
   private JCheckBox                    chckbxSortTitle;
+  private JCheckBox                    chckbxNote;
 
   private final ItemListener           checkBoxListener;
   private JCheckBox                    chckbxTraktSyncWatched;
@@ -331,6 +332,9 @@ public class MovieSettingsPanel extends JPanel {
 
         chckbxSortTitle = new JCheckBox(MovieTextMatcherList.SORTED_TITLE.toString());
         panelUiSettings.add(chckbxSortTitle, "cell 2 1");
+
+        chckbxNote = new JCheckBox(MovieTextMatcherList.NOTE.toString());
+        panelUiSettings.add(chckbxNote,"cell 2 1");
       }
       {
         chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
@@ -581,6 +585,11 @@ public class MovieSettingsPanel extends JPanel {
     AutoBinding autoBinding_17 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_17, chckbxSortTitle,
         jCheckBoxBeanProperty);
     autoBinding_17.bind();
+    //
+    Property movieSettingsBeanProperty_23 = BeanProperty.create("note");
+    AutoBinding autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE,settings, movieSettingsBeanProperty_23, chckbxNote,
+            jCheckBoxBeanProperty);
+    autoBinding_23.bind();
     //
     Property movieSettingsBeanProperty = BeanProperty.create("ratingSources");
     JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, listRatings);

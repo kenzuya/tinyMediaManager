@@ -114,6 +114,12 @@ public class MovieTextMatcherEditor extends AbstractMatcherEditor<Movie> {
           return true;
         }
       }
+      if (StringUtils.isNotBlank(movie.getNote()) && settings.getNote()) {
+        java.util.regex.Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getNote()));
+        if (matcher.find()) {
+          return true;
+        }
+      }
 
       return false;
     }

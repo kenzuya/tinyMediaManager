@@ -229,6 +229,7 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                originalTitle                          = false;
   private boolean                                sortableOriginalTitle                  = false;
   private boolean                                sortTitle                              = false;
+  private boolean                                note                                   = false;
 
   // ui
   private boolean                                showMovieTableTooltips                 = true;
@@ -1143,6 +1144,12 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("sortTitle", oldValue, newValue);
   }
 
+  public void setNote(boolean newValue) {
+    boolean oldValue = this.note;
+    this.note = newValue;
+    firePropertyChange("note",oldValue,newValue);
+  }
+
   public boolean getTitle() {
     return this.title;
   }
@@ -1161,6 +1168,10 @@ public class MovieSettings extends AbstractSettings {
 
   public boolean getSortTitle() {
     return this.sortTitle;
+  }
+
+  public boolean getNote() {
+    return this.note;
   }
 
   public boolean isIncludeExternalAudioStreams() {
