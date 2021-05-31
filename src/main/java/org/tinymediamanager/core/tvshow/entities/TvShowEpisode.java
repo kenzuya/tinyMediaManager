@@ -1554,9 +1554,9 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   }
 
   public String getMediaInfoAspectRatio2AsString() {
-    float aspectRatio2 = getMainVideoFile().getAspectRatio2();
+    Float aspectRatio2 = getMainVideoFile().getAspectRatio2();
     String formatedValue = "";
-    if (aspectRatio2 > 0f) {
+    if (aspectRatio2 != null) {
       DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
       formatedValue = df.format(aspectRatio2).replaceAll("\\.", "");
     }

@@ -83,7 +83,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private float                      aspectRatio       = 0f;
   @JsonProperty
-  private float                      aspectRatio2      = 0f;
+  private Float                      aspectRatio2      = null;
   @JsonProperty
   private int                        videoBitRate      = 0;
   @JsonProperty
@@ -403,7 +403,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     setExactVideoFormat("");
     setContainerFormat("");
     setAspectRatio(0);
-    setAspectRatio2(0);
+    setAspectRatio2(null);
     setVideo3DFormat("");
     setHdrFormat("");
     setAnimatedGraphic(false);
@@ -1034,7 +1034,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    *
    * @return the aspect ratio
    */
-  public float getAspectRatio() {
+  public Float getAspectRatio() {
 
     // check whether the aspect ratio has been overridden
     if (aspectRatio > 0) {
@@ -1055,28 +1055,14 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @param newValue
    *          the new aspect ratio 2
    */
-  public void setAspectRatio2(float newValue) {
-    float oldValue = this.aspectRatio2;
+  public void setAspectRatio2(Float newValue) {
+    Float oldValue = this.aspectRatio2;
     this.aspectRatio2 = newValue;
     firePropertyChange("aspectRatio2", oldValue, newValue);
   }
 
-  public float getAspectRatio2() {
+  public Float getAspectRatio2() {
     return this.aspectRatio2;
-  }
-
-  public void setAspectRatio2AsString(String newValue) {
-    float oldValue = this.aspectRatio2;
-    try {
-      this.aspectRatio2 = Float.parseFloat(newValue);
-    } catch (NumberFormatException ex) {
-      this.aspectRatio2 = 0f;
-    }
-    firePropertyChange("aspectRatio2", oldValue, newValue);
-  }
-
-  public String getAspectRatio2AsString() {
-    return this.aspectRatio2 > 0f ? String.valueOf(this.aspectRatio2) : "";
   }
 
   /**
