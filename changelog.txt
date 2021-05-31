@@ -1,8 +1,11 @@
 Version 4.1.6
 =======================
 + (movies/TV shows) "add a new data source" has been added to the "update data sources" menu
++ (movies/TV shows) view NFO files and play music theme files in the mediafiles tab
++ (TV shows) added IMDB id to the TV show renamer #1344
 x (movies/TV shows) reduced CPU usage of MVStore
 x (movies/TV shows) reduced loading time of the databases
+x (movies/TV shows) eager creation of .actors folder #1343
 
 
 Version 4.1.5.1

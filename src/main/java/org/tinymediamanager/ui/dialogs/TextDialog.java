@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.dialogs;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -30,13 +29,13 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Dialog Class for showing a text
+ * 
+ * @author Wolfgang Janes
  */
 public class TextDialog extends TmmDialog {
 
-  private JTextArea taText;
-
-  public TextDialog(String text) {
-    super(TmmResourceBundle.getString("mediafiletype.text"), "text");
+  public TextDialog(String title, String text) {
+    super(title, "text");
     setBounds(5, 5, 1000, 590);
 
     JPanel panelContent = new JPanel();
@@ -46,16 +45,16 @@ public class TextDialog extends TmmDialog {
     JScrollPane scrollPane = new NoBorderScrollPane();
     panelContent.add(scrollPane, "cell 0 0,grow");
 
-    taText = new JTextArea();
+    JTextArea taText = new JTextArea();
     scrollPane.setViewportView(taText);
     taText.setEditable(false);
     taText.setWrapStyleWord(true);
     taText.setLineWrap(true);
     taText.setText(text);
+    taText.setCaretPosition(0);
 
-      JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
-      btnClose.addActionListener(arg0 -> setVisible(false));
-      addDefaultButton(btnClose);
-    }
+    JButton btnClose = new JButton(TmmResourceBundle.getString("Button.close"));
+    btnClose.addActionListener(arg0 -> setVisible(false));
+    addDefaultButton(btnClose);
   }
-
+}
