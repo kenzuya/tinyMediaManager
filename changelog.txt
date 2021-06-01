@@ -6,3 +6,4 @@ Version 4.2
 x (TV shows) do not mix in TV show actors to the episode cast #1219
   since this is no more accurate (e.g. in Black Mirror) and scrapers like TMDB/IMDB provide detailed data for episode cast
 + (movie) added quickfilter for notes
++ (TV shows) added customizeable Quickfilters

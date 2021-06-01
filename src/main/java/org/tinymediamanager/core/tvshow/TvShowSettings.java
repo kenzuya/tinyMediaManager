@@ -113,6 +113,11 @@ public class TvShowSettings extends AbstractSettings {
   private static final String                            SEASON_CHECK_IMAGES                    = "seasonCheckImages";
   private static final String                            TVSHOW_CHECK_IMAGES                    = "TvShowCheckImages";
 
+  private static final String                            NODE                                   = "node";
+  private static final String                            TITLE                                  = "title";
+  private static final String                            ORIGINAL_TITLE                         = "originalTitle";
+  private static final String                            NOTE                                   = "note";
+
   private final List<String>                             tvShowDataSources                      = ObservableCollections
       .observableList(new ArrayList<>());
   private final List<String>                             badWords                               = ObservableCollections
@@ -225,6 +230,12 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        seasonArtworkFallback                  = false;
   private boolean                                        storeUiFilters                         = false;
   private final List<UIFilters>                          uiFilters                              = new ArrayList<>();
+
+  // Quick Search filter
+  private boolean                                        node                                   = true;
+  private boolean                                        title                                  = true;
+  private boolean                                        originalTitle                          = true;
+  private boolean                                        note                                   = false;
 
   public TvShowSettings() {
     super();
@@ -905,6 +916,46 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.displayMissingSpecials;
     this.displayMissingSpecials = newValue;
     firePropertyChange("displayMissingSpecials", oldValue, newValue);
+  }
+
+  public void setNode(boolean newValue) {
+    boolean oldValue = this.node;
+    this.node = newValue;
+    firePropertyChange(NODE, oldValue, newValue);
+  }
+
+  public boolean getNode() {
+    return this.node;
+  }
+
+  public void setTitle(boolean newValue) {
+    boolean oldValue = this.node;
+    this.node = newValue;
+    firePropertyChange(TITLE, oldValue, newValue);
+  }
+
+  public boolean getTitle() {
+    return this.title;
+  }
+
+  public void setOriginalTitle(boolean newValue) {
+    boolean oldValue = this.originalTitle;
+    this.originalTitle = newValue;
+    firePropertyChange(ORIGINAL_TITLE, oldValue, newValue);
+  }
+
+  public boolean getOriginalTitle() {
+    return this.originalTitle;
+  }
+
+  public void setNote(boolean newValue) {
+    boolean oldValue = this.note;
+    this.note = newValue;
+    firePropertyChange(NOTE, oldValue, newValue);
+  }
+
+  public boolean getNote() {
+    return this.note;
   }
 
   /**
