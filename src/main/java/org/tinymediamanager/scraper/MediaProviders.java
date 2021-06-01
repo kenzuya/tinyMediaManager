@@ -43,6 +43,7 @@ import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowSubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 import org.tinymediamanager.scraper.kodi.KodiMetadataProvider;
 import org.tinymediamanager.scraper.moviemeter.MovieMeterMovieMetadataProvider;
 import org.tinymediamanager.scraper.mpdbtv.MpdbMovieArtworkMetadataProvider;
@@ -204,7 +205,7 @@ public class MediaProviders {
     loadProvider(TmdbTvShowTrailerProvider.class);
 
     // addons
-    loadAddonsForInterface(addons, IMovieTrailerProvider.class);
+    loadAddonsForInterface(addons, ITvShowTrailerProvider.class);
 
     /////////////////////////////////////////////
     // TV SHOW SUBTITLES
