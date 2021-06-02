@@ -32,7 +32,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
@@ -149,7 +148,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
    * Match with existing movies.
    */
   public void matchWithExistingMovies() {
-    List<Movie> moviesFromMovieList = MovieList.getInstance().getMovies();
+    List<Movie> moviesFromMovieList = MovieModuleManager.getInstance().getMovieList().getMovies();
     for (MovieInSet mis : movies) {
       // try to match via tmdbid
       if (mis.tmdbId > 0) {
@@ -192,7 +191,7 @@ public class MovieSetChooserModel extends AbstractModelObject {
         MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
         options.setSearchResult(result);
         options.setTmdbId(result.getIdAsInt(result.getProviderId()));
-        options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+        options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
 
         MediaMetadata info;
 
@@ -312,12 +311,12 @@ public class MovieSetChooserModel extends AbstractModelObject {
       catch (Exception e) {
         options.setTmdbId(0);
       }
-      options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-      options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-      options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+      options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
       // scrape providers till one artwork has been found
-      for (MediaScraper artworkScraper : MovieList.getInstance().getDefaultArtworkScrapers()) {
+      for (MediaScraper artworkScraper : MovieModuleManager.getInstance().getMovieList().getDefaultArtworkScrapers()) {
         IMovieArtworkProvider artworkProvider = (IMovieArtworkProvider) artworkScraper.getMediaProvider();
         try {
           artwork.addAll(artworkProvider.getArtwork(options));

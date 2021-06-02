@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
@@ -42,18 +42,16 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRebuildImageCacheAction extends TmmAction {
-  private static final long           serialVersionUID = 3452373237085274937L;
-  
+  private static final long serialVersionUID = 3452373237085274937L;
 
   public TvShowRebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.rebuildimagecache"));
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("tvshow.rebuildimagecache"));
-
   }
 
   @Override
   protected void processAction(ActionEvent e) {
-    if (!Globals.settings.isImageCache()) {
+    if (!Settings.getInstance().isImageCache()) {
       JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.imagecache.notactivated"));
       return;
     }

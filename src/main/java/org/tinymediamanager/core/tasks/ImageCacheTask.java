@@ -22,9 +22,9 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.EmptyFileException;
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.threading.TmmThreadPool;
@@ -51,7 +51,7 @@ public class ImageCacheTask extends TmmThreadPool {
 
   @Override
   protected void doInBackground() {
-    if (!Globals.settings.isImageCache()) {
+    if (!Settings.getInstance().isImageCache()) {
       return;
     }
 

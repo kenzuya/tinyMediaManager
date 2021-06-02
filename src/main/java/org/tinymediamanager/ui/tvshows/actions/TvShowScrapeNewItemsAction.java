@@ -30,7 +30,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
@@ -64,7 +64,7 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
     Map<TvShow, List<TvShowEpisode>> newEpisodes = new HashMap<>();
 
     // all new TV shows
-    for (TvShow tvShow : new ArrayList<>(TvShowList.getInstance().getTvShows())) {
+    for (TvShow tvShow : new ArrayList<>(TvShowModuleManager.getInstance().getTvShowList().getTvShows())) {
       // if there is at least one new episode and no scraper id we assume the TV show is new
       if (tvShow.isNewlyAdded() && !tvShow.isScraped()) {
         newTvShows.add(tvShow);

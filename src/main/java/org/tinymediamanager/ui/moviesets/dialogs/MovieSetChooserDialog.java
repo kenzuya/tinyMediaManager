@@ -69,7 +69,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
@@ -328,7 +327,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
           MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
           options.setSearchQuery(searchTerm);
-          options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+          options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
 
           List<MediaSearchResult> movieSets = mp.search(options);
           movieSetsFound.clear();
@@ -436,7 +435,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
           // get images?
           if (ScraperMetadataConfig.containsAnyArtwork(scraperConfig)) {
             // let the user choose the images
-            if (!MovieModuleManager.SETTINGS.isScrapeBestImageMovieSet()) {
+            if (!MovieModuleManager.getInstance().getSettings().isScrapeBestImageMovieSet()) {
               if (scraperConfig.contains(MovieSetScraperMetadataConfig.POSTER)) {
                 chooseArtwork(MediaFileType.POSTER);
               }
@@ -484,56 +483,56 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     switch (mediaFileType) {
       case POSTER:
-        if (MovieModuleManager.SETTINGS.getMovieSetPosterFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetPosterFilenames().isEmpty()) {
           return;
         }
         imageType = POSTER;
         break;
 
       case FANART:
-        if (MovieModuleManager.SETTINGS.getMovieSetFanartFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetFanartFilenames().isEmpty()) {
           return;
         }
         imageType = BACKGROUND;
         break;
 
       case BANNER:
-        if (MovieModuleManager.SETTINGS.getMovieSetBannerFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetBannerFilenames().isEmpty()) {
           return;
         }
         imageType = BANNER;
         break;
 
       case LOGO:
-        if (MovieModuleManager.SETTINGS.getMovieSetLogoFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetLogoFilenames().isEmpty()) {
           return;
         }
         imageType = LOGO;
         break;
 
       case CLEARLOGO:
-        if (MovieModuleManager.SETTINGS.getMovieSetClearlogoFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetClearlogoFilenames().isEmpty()) {
           return;
         }
         imageType = CLEARLOGO;
         break;
 
       case CLEARART:
-        if (MovieModuleManager.SETTINGS.getMovieSetClearartFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetClearartFilenames().isEmpty()) {
           return;
         }
         imageType = CLEARART;
         break;
 
       case DISC:
-        if (MovieModuleManager.SETTINGS.getMovieSetDiscartFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetDiscartFilenames().isEmpty()) {
           return;
         }
         imageType = DISC;
         break;
 
       case THUMB:
-        if (MovieModuleManager.SETTINGS.getMovieSetThumbFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getMovieSetThumbFilenames().isEmpty()) {
           return;
         }
         imageType = THUMB;
@@ -544,8 +543,9 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
     }
 
     Map<String, Object> newIds = new HashMap<>(movieSetToScrape.getIds());
-    String imageUrl = ImageChooserDialog.chooseImage(this, newIds, imageType, MovieList.getInstance().getDefaultArtworkScrapers(),
-        MediaType.MOVIE_SET, MovieModuleManager.SETTINGS.getMovieSetArtworkFolder());
+    String imageUrl = ImageChooserDialog.chooseImage(this, newIds, imageType,
+        MovieModuleManager.getInstance().getMovieList().getDefaultArtworkScrapers(), MediaType.MOVIE_SET,
+        MovieModuleManager.getInstance().getSettings().getMovieSetArtworkFolder());
 
     movieSetToScrape.setArtworkUrl(imageUrl, mediaFileType);
   }

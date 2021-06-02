@@ -65,7 +65,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
@@ -86,11 +86,10 @@ import ca.odell.glazedlists.ObservableElementList;
  * 
  * @author Manuel Laggner
  */
-public class MovieList extends AbstractModelObject {
+public final class MovieList extends AbstractModelObject {
   private static final Logger                            LOGGER             = LoggerFactory.getLogger(MovieList.class);
   private static MovieList                               instance;
 
-  private final MovieSettings                            movieSettings;
   private final List<Movie>                              movieList;
   private final List<MovieSet>                           movieSetList;
 
@@ -181,8 +180,6 @@ public class MovieList extends AbstractModelObject {
           break;
       }
     };
-
-    movieSettings = MovieModuleManager.SETTINGS;
   }
 
   /**
@@ -190,7 +187,7 @@ public class MovieList extends AbstractModelObject {
    * 
    * @return single instance of MovieList
    */
-  public static synchronized MovieList getInstance() {
+  static synchronized MovieList getInstance() {
     if (MovieList.instance == null) {
       MovieList.instance = new MovieList();
     }
@@ -568,7 +565,7 @@ public class MovieList extends AbstractModelObject {
    */
   public List<MediaSearchResult> searchMovie(String searchTerm, int year, Map<String, Object> ids, MediaScraper metadataScraper)
       throws ScrapeException {
-    return searchMovie(searchTerm, year, ids, metadataScraper, movieSettings.getScraperLanguage());
+    return searchMovie(searchTerm, year, ids, metadataScraper, MovieModuleManager.getInstance().getSettings().getScraperLanguage());
   }
 
   /**
@@ -601,8 +598,8 @@ public class MovieList extends AbstractModelObject {
     // set what we have, so the provider could chose from all :)
     MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
     options.setLanguage(language);
-    options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-    options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+    options.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+    options.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
     options.setMetadataScraper(mediaScraper);
 
     if (ids != null) {
@@ -646,7 +643,7 @@ public class MovieList extends AbstractModelObject {
     sr.addAll(provider.search(options));
 
     // if result is empty, try all scrapers
-    if (sr.isEmpty() && movieSettings.isScraperFallback()) {
+    if (sr.isEmpty() && MovieModuleManager.getInstance().getSettings().isScraperFallback()) {
       for (MediaScraper ms : getAvailableMediaScrapers()) {
         if (provider.getProviderInfo().equals(ms.getMediaProvider().getProviderInfo())
             || ms.getMediaProvider().getProviderInfo().getName().startsWith("Kodi") || !ms.getMediaProvider().isActive()) {
@@ -681,7 +678,7 @@ public class MovieList extends AbstractModelObject {
   }
 
   public MediaScraper getDefaultMediaScraper() {
-    MediaScraper scraper = MediaScraper.getMediaScraperById(movieSettings.getMovieScraper(), ScraperType.MOVIE);
+    MediaScraper scraper = MediaScraper.getMediaScraperById(MovieModuleManager.getInstance().getSettings().getMovieScraper(), ScraperType.MOVIE);
     if (scraper == null || !scraper.isEnabled()) {
       scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.MOVIE);
     }
@@ -733,7 +730,7 @@ public class MovieList extends AbstractModelObject {
    * @return the specified artwork scrapers
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
-    List<MediaScraper> defaultScrapers = getArtworkScrapers(movieSettings.getArtworkScrapers());
+    List<MediaScraper> defaultScrapers = getArtworkScrapers(MovieModuleManager.getInstance().getSettings().getArtworkScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -755,7 +752,7 @@ public class MovieList extends AbstractModelObject {
    * @return the specified trailer scrapers
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
-    List<MediaScraper> defaultScrapers = getTrailerScrapers(movieSettings.getTrailerScrapers());
+    List<MediaScraper> defaultScrapers = getTrailerScrapers(MovieModuleManager.getInstance().getSettings().getTrailerScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -799,7 +796,7 @@ public class MovieList extends AbstractModelObject {
    * @return the specified subtitle scrapers
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
-    List<MediaScraper> defaultScrapers = getSubtitleScrapers(movieSettings.getSubtitleScrapers());
+    List<MediaScraper> defaultScrapers = getSubtitleScrapers(MovieModuleManager.getInstance().getSettings().getSubtitleScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -1335,7 +1332,7 @@ public class MovieList extends AbstractModelObject {
    */
   public void addOfflineMovie(String title, String datasource, MediaSource mediaSource) {
     // first crosscheck if the data source is in our settings
-    if (!movieSettings.getMovieDataSource().contains(datasource)) {
+    if (!MovieModuleManager.getInstance().getSettings().getMovieDataSource().contains(datasource)) {
       return;
     }
 
@@ -1394,7 +1391,7 @@ public class MovieList extends AbstractModelObject {
    */
   public List<String> getTvShowTitles() {
     List<String> tvShowTitles = new ArrayList<>();
-    TvShowList.getInstance().getTvShows().forEach(tvShow -> tvShowTitles.add(tvShow.getTitle()));
+    TvShowModuleManager.getInstance().getTvShowList().getTvShows().forEach(tvShow -> tvShowTitles.add(tvShow.getTitle()));
     tvShowTitles.sort(Comparator.naturalOrder());
     return tvShowTitles;
   }

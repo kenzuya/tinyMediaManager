@@ -16,22 +16,19 @@
 package org.tinymediamanager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.Settings;
 
 /**
  * The Class Globals. used to hold global information/fields for the whole application
  * 
  * @author Manuel Laggner
  */
-public class Globals {
+public final class Globals {
   private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("tmm.debug", "false"));
 
   public static final String   DATA_FOLDER;
   public static final String   CACHE_FOLDER;
   public static final String   BACKUP_FOLDER;
   public static final String   LOG_FOLDER;
-
-  public static final Settings settings;
 
   static {
     // first we look for a dedicated folder property
@@ -86,8 +83,6 @@ public class Globals {
     else {
       LOG_FOLDER = "logs";
     }
-
-    settings = Settings.getInstance();
   }
 
   private Globals() {

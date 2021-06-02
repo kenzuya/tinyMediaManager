@@ -63,7 +63,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowBulkEditorDialog extends TmmDialog {
   private static final long   serialVersionUID = 3527478264068979388L;
 
-  private TvShowList          tvShowList       = TvShowList.getInstance();
+  private TvShowList          tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
   private List<TvShow>        tvShowsToEdit;
   private List<TvShowEpisode> tvShowEpisodesToEdit;
   private boolean             episodesChanged  = false;
@@ -400,16 +400,16 @@ public class TvShowBulkEditorDialog extends TmmDialog {
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           }
 
-          if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
+          if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
             Set<TvShow> tvShows1 = new HashSet<>();
             for (TvShowEpisode episode : tvShowEpisodesToEdit) {
               tvShows1.add(episode.getTvShow());
             }
             tvShows1.addAll(tvShowsToEdit);
             TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows1));
-            task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
-            task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-            task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+            task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktCollection());
+            task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+            task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }

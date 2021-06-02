@@ -65,7 +65,7 @@ class TvShowDatasourceSettingsPanel extends JPanel {
 
 
 
-  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings settings         = TvShowModuleManager.getInstance().getSettings();
 
   private JCheckBox                   chckbxDvdOrder;
   private JTextField                  tfAddBadword;
@@ -135,15 +135,15 @@ class TvShowDatasourceSettingsPanel extends JPanel {
           JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
-        TvShowModuleManager.SETTINGS.addBadWord(tfAddBadword.getText());
+        TvShowModuleManager.getInstance().getSettings().addBadWord(tfAddBadword.getText());
         tfAddBadword.setText("");
       }
     });
     btnRemoveBadWord.addActionListener(arg0 -> {
       int row = listBadWords.getSelectedIndex();
       if (row != -1) {
-        String badWord = TvShowModuleManager.SETTINGS.getBadWord().get(row);
-        TvShowModuleManager.SETTINGS.removeBadWord(badWord);
+        String badWord = TvShowModuleManager.getInstance().getSettings().getBadWord().get(row);
+        TvShowModuleManager.getInstance().getSettings().removeBadWord(badWord);
       }
     });
     btnMoveUpDatasoure.addActionListener(arg0 -> {
@@ -169,13 +169,13 @@ class TvShowDatasourceSettingsPanel extends JPanel {
     btnExchangeDatasource.addActionListener(arg0 -> {
       int row = listDatasources.getSelectedIndex();
       if (row != -1) { // nothing selected
-        String path = TvShowModuleManager.SETTINGS.getTvShowDataSource().get(row);
+        String path = TvShowModuleManager.getInstance().getSettings().getTvShowDataSource().get(row);
         ExchangeDatasourceDialog dialog = new ExchangeDatasourceDialog(path);
         dialog.setVisible(true);
 
         if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          TvShowModuleManager.SETTINGS.exchangeTvShowDatasource(path, dialog.getNewDatasource());
+          TvShowModuleManager.getInstance().getSettings().exchangeTvShowDatasource(path, dialog.getNewDatasource());
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
       }

@@ -241,9 +241,9 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     @Override
     public Void doInBackground() {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
-      options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
-      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
+      options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+      options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
       options.setIds(episode.getTvShow().getIds());
 
       try {

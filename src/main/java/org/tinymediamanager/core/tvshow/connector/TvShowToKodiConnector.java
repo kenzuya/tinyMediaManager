@@ -106,7 +106,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
 
   @Override
   protected void addActors() {
-    if (TvShowModuleManager.SETTINGS.isNfoWriteAllActors()) {
+    if (TvShowModuleManager.getInstance().getSettings().isNfoWriteAllActors()) {
       // combine base cast and guests
       Map<String, Person> actors = new LinkedHashMap<>();
 
@@ -184,7 +184,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
    * This will only be set if the status of the TV show is ENDED
    */
   protected void addEnddate() {
-    if (!TvShowModuleManager.SETTINGS.isNfoWriteDateEnded() || tvShow.getStatus() != MediaAiredStatus.ENDED) {
+    if (!TvShowModuleManager.getInstance().getSettings().isNfoWriteDateEnded() || tvShow.getStatus() != MediaAiredStatus.ENDED) {
       return;
     }
 

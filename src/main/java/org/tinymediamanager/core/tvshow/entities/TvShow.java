@@ -95,7 +95,6 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -225,10 +224,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     // load dummy episodes
     for (TvShowEpisode episode : dummyEpisodes) {
       episode.setTvShow(this);
-      if (episode.getSeason() == 0 && !TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
+      if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
         continue;
       }
-      if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
+      if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
         addToSeason(episode);
       }
     }
@@ -439,7 +438,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    */
   @Override
   public MediaRating getRating() {
-    MediaRating mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
+    MediaRating mediaRating = ratings.get(TvShowModuleManager.getInstance().getSettings().getPreferredRating());
 
     if (mediaRating == null) {
       mediaRating = MediaMetadata.EMPTY_RATING;
@@ -484,11 +483,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     this.dummyEpisodes.addAll(dummyEpisodes);
 
     // also mix in the episodes if activated
-    if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
+    if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
       for (TvShowEpisode episode : dummyEpisodes) {
         episode.setTvShow(this);
 
-        if (episode.getSeason() == 0 && !TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
+        if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
           continue;
         }
 
@@ -530,7 +529,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     List<TvShowEpisode> episodes = new ArrayList<>(getEpisodes());
 
     // mix in unavailable episodes if the user wants to
-    if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
+    if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
       // build up a set which holds a string representing the S/E indicator
       Set<String> availableEpisodes = new HashSet<>();
 
@@ -540,7 +539,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
       // and now mix in unavailable ones
       for (TvShowEpisode episode : getDummyEpisodes()) {
-        if (episode.getSeason() == 0 && !TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
+        if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
           continue;
         }
         if (!availableEpisodes.contains(episode.getSeason() + "." + episode.getEpisode())) {
@@ -582,7 +581,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     for (TvShowSeason season : seasons) {
       for (TvShowEpisode episode : season.getEpisodesForDisplay()) {
         if (episode.isDummy()) {
-          if (episode.getSeason() == 0 && !TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
+          if (episode.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
             continue;
           }
           count++;
@@ -677,7 +676,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       for (int i = episodes.size() - 1; i >= 0; i--) {
         TvShowEpisode episode = episodes.get(i);
         removeEpisode(episode);
-        TvShowList.getInstance().removeEpisodeFromDb(episode);
+        TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
       }
     }
 
@@ -696,7 +695,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       episode.removePropertyChangeListener(propertyChangeListener);
       removeFromSeason(episode);
       episodes.remove(episode);
-      TvShowList.getInstance().removeEpisodeFromDb(episode);
+      TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
       saveToDb();
 
       firePropertyChange(REMOVED_EPISODE, null, episode);
@@ -704,9 +703,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
       // and mix in the dummy one again
       // check if there is no other episode available (e.g. exchanged media file)
-      if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes() && ListUtils.isEmpty(getEpisode(episode.getSeason(), episode.getEpisode()))) {
+      if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()
+          && ListUtils.isEmpty(getEpisode(episode.getSeason(), episode.getEpisode()))) {
         for (TvShowEpisode dummy : dummyEpisodes) {
-          if (dummy.getSeason() == 0 && !TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
+          if (dummy.getSeason() == 0 && !TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
             continue;
           }
           if (dummy.getSeason() == episode.getSeason() && dummy.getEpisode() == episode.getEpisode()) {
@@ -738,7 +738,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       episode.deleteFilesSafely();
       removeFromSeason(episode);
       episodes.remove(episode);
-      TvShowList.getInstance().removeEpisodeFromDb(episode);
+      TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
       saveToDb();
 
       firePropertyChange(REMOVED_EPISODE, null, episode);
@@ -882,7 +882,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (config.contains(TvShowScraperMetadataConfig.TITLE)) {
       // Capitalize first letter of original title if setting is set!
-      if (TvShowModuleManager.SETTINGS.getCapitalWordsInTitles()) {
+      if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
       }
       else {
@@ -892,7 +892,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
 
     if (config.contains(TvShowScraperMetadataConfig.ORIGINAL_TITLE)) {
       // Capitalize first letter of original title if setting is set!
-      if (TvShowModuleManager.SETTINGS.getCapitalWordsInTitles()) {
+      if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setOriginalTitle(WordUtils.capitalize(metadata.getOriginalTitle()));
       }
       else {
@@ -1023,12 +1023,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   public void writeNFO() {
     ITvShowConnector connector;
 
-    List<TvShowNfoNaming> nfoNamings = TvShowModuleManager.SETTINGS.getNfoFilenames();
+    List<TvShowNfoNaming> nfoNamings = TvShowModuleManager.getInstance().getSettings().getNfoFilenames();
     if (nfoNamings.isEmpty()) {
       return;
     }
 
-    switch (TvShowModuleManager.SETTINGS.getTvShowConnector()) {
+    switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
       case KODI:
         connector = new TvShowToKodiConnector(this);
         break;
@@ -1048,17 +1048,17 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     // detect AR of the TV show if that has been chosen in the settings
-    if (TvShowModuleManager.SETTINGS.isArdAfterScrape()) {
+    if (TvShowModuleManager.getInstance().getSettings().isArdAfterScrape()) {
       taskChain.add(new TvShowARDetectorTask(this.episodes));
     }
 
     // rename the TV show if that has been chosen in the settings
-    if (TvShowModuleManager.SETTINGS.isRenameAfterScrape()) {
+    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       taskChain.add(new TvShowRenameTask(Collections.singletonList(this), null, true));
     }
 
     // write actor images after possible rename (to have a good folder structure)
-    if (ScraperMetadataConfig.containsAnyCast(config) && TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+    if (ScraperMetadataConfig.containsAnyCast(config) && TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
       taskChain.add(new TmmTask(TmmResourceBundle.getString("tvshow.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
         @Override
         protected void doInBackground() {
@@ -1113,7 +1113,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @return the checks for images
    */
   public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.SETTINGS.getTvShowCheckImages()) {
+    for (MediaArtworkType type : TvShowModuleManager.getInstance().getSettings().getTvShowCheckImages()) {
       if (StringUtils.isBlank(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
         return false;
       }
@@ -1545,9 +1545,9 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     List<MediaTrailer> newItems = new ArrayList<>();
 
     // set preferred trailer
-    if (TvShowModuleManager.SETTINGS.isUseTrailerPreference()) {
-      TrailerQuality desiredQuality = TvShowModuleManager.SETTINGS.getTrailerQuality();
-      TrailerSources desiredSource = TvShowModuleManager.SETTINGS.getTrailerSource();
+    if (TvShowModuleManager.getInstance().getSettings().isUseTrailerPreference()) {
+      TrailerQuality desiredQuality = TvShowModuleManager.getInstance().getSettings().getTrailerQuality();
+      TrailerSources desiredSource = TvShowModuleManager.getInstance().getSettings().getTrailerSource();
 
       // search for quality and provider
       for (MediaTrailer trailer : trailers) {
@@ -1581,7 +1581,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
           }
         }
       }
-    } // end if MovieModuleManager.SETTINGS.isUseTrailerPreference()
+    } // end if MovieModuleManager.getInstance().getSettings().isUseTrailerPreference()
 
     // if not yet one has been found; sort by quality descending and take the first one
     if (preferredTrailer == null && !trailers.isEmpty()) {
@@ -1994,7 +1994,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+    if (TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
       filesToCache.addAll(listActorFiles());
     }
 
@@ -2012,13 +2012,13 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   @Override
   public void saveToDb() {
     // update/insert this TV show to the database
-    TvShowList.getInstance().persistTvShow(this);
+    TvShowModuleManager.getInstance().getTvShowList().persistTvShow(this);
   }
 
   @Override
   public void deleteFromDb() {
     // remove this TV show from the database
-    TvShowList.getInstance().removeTvShow(this);
+    TvShowModuleManager.getInstance().getTvShowList().removeTvShow(this);
   }
 
   public List<TvShowEpisode> getEpisode(final int season, final int episode) {
@@ -2065,7 +2065,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    */
   public void writeActorImages() {
     // check if actor images shall be written
-    if (!TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
       return;
     }
 

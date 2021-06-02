@@ -36,7 +36,6 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
@@ -94,15 +93,15 @@ class ExternalDevicesSettingsPanel extends JPanel {
       int row = tableWolDevices.getSelectedRow();
       row = tableWolDevices.convertRowIndexToModel(row);
       if (row != -1) {
-        WolDevice device = Globals.settings.getWolDevices().get(row);
-        Globals.settings.removeWolDevices(device);
+        WolDevice device = Settings.getInstance().getWolDevices().get(row);
+        Settings.getInstance().removeWolDevices(device);
       }
     });
     btnEditWolDevice.addActionListener(e -> {
       int row = tableWolDevices.getSelectedRow();
       row = tableWolDevices.convertRowIndexToModel(row);
       if (row != -1) {
-        WolDevice device = Globals.settings.getWolDevices().get(row);
+        WolDevice device = Settings.getInstance().getWolDevices().get(row);
         if (device != null) {
           WolDeviceDialog dialog = new WolDeviceDialog();
           dialog.setDevice(device);

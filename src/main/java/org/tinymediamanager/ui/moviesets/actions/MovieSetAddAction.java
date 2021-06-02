@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -32,8 +32,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * 
  */
 public class MovieSetAddAction extends TmmAction {
-  private static final long           serialVersionUID = 819724436270051906L;
-
+  private static final long serialVersionUID = 819724436270051906L;
 
   /**
    * Instantiates a new adds the movie set action.
@@ -47,11 +46,12 @@ public class MovieSetAddAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    String name = JOptionPane.showInputDialog(MainWindow.getInstance(), TmmResourceBundle.getString("movieset.title"), "", JOptionPane.QUESTION_MESSAGE);
+    String name = JOptionPane.showInputDialog(MainWindow.getInstance(), TmmResourceBundle.getString("movieset.title"), "",
+        JOptionPane.QUESTION_MESSAGE);
     if (StringUtils.isNotEmpty(name)) {
       MovieSet movieSet = new MovieSet(name);
       movieSet.saveToDb();
-      MovieList.getInstance().addMovieSet(movieSet);
+      MovieModuleManager.getInstance().getMovieList().addMovieSet(movieSet);
     }
   }
 }

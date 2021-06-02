@@ -65,7 +65,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -4173835431245178069L;
 
-  private final MovieSettings          settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings          settings         = MovieModuleManager.getInstance().getSettings();
 
   private JButton                      btnClearTraktData;
   private JCheckBox                    chckbxTraktSync;
@@ -139,7 +139,7 @@ public class MovieSettingsPanel extends JPanel {
       }
 
       if (selectedItem instanceof String && StringUtils.isNotBlank((String) selectedItem)) {
-        MovieModuleManager.SETTINGS.addRatingSource((String) selectedItem);
+        MovieModuleManager.getInstance().getSettings().addRatingSource((String) selectedItem);
 
         // set text combobox text input to ""
         if (editorComponent instanceof JTextField) {
@@ -156,7 +156,7 @@ public class MovieSettingsPanel extends JPanel {
       int row = listRatings.getSelectedIndex();
       if (row != -1) { // nothing selected
         String ratingSource = settings.getRatingSources().get(row);
-        MovieModuleManager.SETTINGS.removeRatingSource(ratingSource);
+        MovieModuleManager.getInstance().getSettings().removeRatingSource(ratingSource);
       }
     });
 

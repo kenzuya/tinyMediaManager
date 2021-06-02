@@ -128,15 +128,15 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
       }
     }
 
-    if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
+    if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
       Set<TvShow> tvShows = new HashSet<>();
       for (TvShowEpisode episode : episodes) {
         tvShows.add(episode.getTvShow());
       }
       TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows));
-      task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
-      task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-      task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+      task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktCollection());
+      task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+      task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }

@@ -27,10 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 
@@ -40,9 +38,7 @@ public class MovieNfoWriteTest extends BasicTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    // MediaInfoUtils.loadMediaInfo(); // unneeded here for UDS. does not work on buildserver
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Before
@@ -54,15 +50,13 @@ public class MovieNfoWriteTest extends BasicTest {
 
     // just a copy; we might have another movie test which uses these files
     FileUtils.copyDirectory(new File("target/test-classes/testmovies_nfo"), new File(getSettingsFolder(), "testmovies_nfo"));
-    MovieModuleManager.SETTINGS.addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies_nfo").toAbsolutePath().toString());
+    MovieModuleManager.getInstance().getSettings().addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies_nfo").toAbsolutePath().toString());
   }
 
   @After
   public void tearDownAfterTest() throws Exception {
     MovieModuleManager.getInstance().shutDown();
     TmmModuleManager.getInstance().shutDown();
-    Utils.deleteDirectoryRecursive(Paths.get(getSettingsFolder(), "testmovies_nfo"));
-    Files.delete(Paths.get(getSettingsFolder(), "movies.db"));
   }
 
   private void loadMovies() throws Exception {
@@ -78,10 +72,10 @@ public class MovieNfoWriteTest extends BasicTest {
     // load movies
     loadMovies();
 
-    assertThat(MovieList.getInstance().getMovies().size()).isEqualTo(NUMBER_OF_EXPECTED_MOVIES);
+    assertThat(MovieModuleManager.getInstance().getMovieList().getMovies().size()).isEqualTo(NUMBER_OF_EXPECTED_MOVIES);
 
     // just rewrite the NFO file
-    for (Movie movie : MovieList.getInstance().getMovies()) {
+    for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
       movie.writeNFO();
     }
 

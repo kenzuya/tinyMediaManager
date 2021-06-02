@@ -45,7 +45,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.IFileNaming;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.ImageUtils;
@@ -53,6 +52,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -109,39 +109,39 @@ public class TvShowArtworkHelper {
 
       switch (type) {
         case FANART:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getFanartFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getFanartFilenames());
           break;
 
         case POSTER:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getPosterFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getPosterFilenames());
           break;
 
         case BANNER:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getBannerFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getBannerFilenames());
           break;
 
         case LOGO:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getLogoFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getLogoFilenames());
           break;
 
         case CLEARLOGO:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getClearlogoFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getClearlogoFilenames());
           break;
 
         case CHARACTERART:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getCharacterartFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getCharacterartFilenames());
           break;
 
         case CLEARART:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getClearartFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getClearartFilenames());
           break;
 
         case THUMB:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getThumbFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getThumbFilenames());
           break;
 
         case KEYART:
-          fileNamings.addAll(TvShowModuleManager.SETTINGS.getKeyartFilenames());
+          fileNamings.addAll(TvShowModuleManager.getInstance().getSettings().getKeyartFilenames());
           break;
 
         default:
@@ -184,7 +184,7 @@ public class TvShowArtworkHelper {
    */
   public static void downloadMissingArtwork(TvShow tvShow, List<MediaArtwork> artwork) {
     // sort artwork once again (langu/rating)
-    artwork.sort(new MediaArtwork.MediaArtworkComparator(TvShowModuleManager.SETTINGS.getScraperLanguage().name()));
+    artwork.sort(new MediaArtwork.MediaArtworkComparator(TvShowModuleManager.getInstance().getSettings().getScraperLanguage().name()));
 
     // poster
     if (tvShow.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
@@ -295,61 +295,66 @@ public class TvShowArtworkHelper {
    * @return true/false
    */
   public static boolean hasMissingArtwork(TvShow tvShow, List<TvShowScraperMetadataConfig> config) {
-    if (config.contains(TvShowScraperMetadataConfig.POSTER) && !TvShowModuleManager.SETTINGS.getPosterFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.POSTER) && !TvShowModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.FANART) && !TvShowModuleManager.SETTINGS.getFanartFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.FANART) && !TvShowModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.FANART).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.BANNER) && !TvShowModuleManager.SETTINGS.getBannerFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.BANNER) && !TvShowModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.BANNER).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.DISCART) && !TvShowModuleManager.SETTINGS.getDiscartFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.DISCART) && !TvShowModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.DISC).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.LOGO) && !TvShowModuleManager.SETTINGS.getLogoFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.LOGO) && !TvShowModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.CLEARLOGO) && !TvShowModuleManager.SETTINGS.getClearlogoFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.CLEARLOGO) && !TvShowModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.CLEARLOGO).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.CLEARART) && !TvShowModuleManager.SETTINGS.getClearartFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.CLEARART) && !TvShowModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.CLEARART).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.THUMB) && !TvShowModuleManager.SETTINGS.getThumbFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.THUMB) && !TvShowModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.THUMB).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.CHARACTERART) && !TvShowModuleManager.SETTINGS.getCharacterartFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.CHARACTERART)
+        && !TvShowModuleManager.getInstance().getSettings().getCharacterartFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.CHARACTERART).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.KEYART) && !TvShowModuleManager.SETTINGS.getKeyartFilenames().isEmpty()
+    if (config.contains(TvShowScraperMetadataConfig.KEYART) && !TvShowModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty()
         && tvShow.getMediaFiles(MediaFileType.KEYART).isEmpty()) {
       return true;
     }
-    if (config.contains(TvShowScraperMetadataConfig.EXTRAFANART) && TvShowModuleManager.SETTINGS.isImageExtraFanart()
-        && !TvShowModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty() && tvShow.getMediaFiles(MediaFileType.EXTRAFANART).isEmpty()) {
+    if (config.contains(TvShowScraperMetadataConfig.EXTRAFANART) && TvShowModuleManager.getInstance().getSettings().isImageExtraFanart()
+        && !TvShowModuleManager.getInstance().getSettings().getExtraFanartFilenames().isEmpty()
+        && tvShow.getMediaFiles(MediaFileType.EXTRAFANART).isEmpty()) {
       return true;
     }
 
     for (TvShowSeason season : tvShow.getSeasons()) {
-      if (config.contains(TvShowScraperMetadataConfig.SEASON_POSTER) && !TvShowModuleManager.SETTINGS.getSeasonPosterFilenames().isEmpty()
+      if (config.contains(TvShowScraperMetadataConfig.SEASON_POSTER)
+          && !TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames().isEmpty()
           && StringUtils.isBlank(season.getArtworkFilename(SEASON_POSTER))) {
         return true;
       }
-      if (config.contains(TvShowScraperMetadataConfig.SEASON_BANNER) && !TvShowModuleManager.SETTINGS.getSeasonBannerFilenames().isEmpty()
+      if (config.contains(TvShowScraperMetadataConfig.SEASON_BANNER)
+          && !TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames().isEmpty()
           && StringUtils.isBlank(season.getArtworkFilename(SEASON_BANNER))) {
         return true;
       }
-      if (config.contains(TvShowScraperMetadataConfig.SEASON_THUMB) && !TvShowModuleManager.SETTINGS.getSeasonThumbFilenames().isEmpty()
+      if (config.contains(TvShowScraperMetadataConfig.SEASON_THUMB)
+          && !TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames().isEmpty()
           && StringUtils.isBlank(season.getArtworkFilename(SEASON_THUMB))) {
         return true;
       }
@@ -366,7 +371,8 @@ public class TvShowArtworkHelper {
    * @return true/false
    */
   public static boolean hasMissingArtwork(TvShowEpisode episode, List<TvShowEpisodeScraperMetadataConfig> config) {
-    return config.contains(TvShowEpisodeScraperMetadataConfig.THUMB) && !TvShowModuleManager.SETTINGS.getEpisodeThumbFilenames().isEmpty()
+    return config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
+        && !TvShowModuleManager.getInstance().getSettings().getEpisodeThumbFilenames().isEmpty()
         && episode.getMediaFiles(MediaFileType.THUMB).isEmpty();
   }
 
@@ -409,7 +415,7 @@ public class TvShowArtworkHelper {
       }
     }
 
-    for (TvShowSeasonPosterNaming seasonPosterNaming : TvShowModuleManager.SETTINGS.getSeasonPosterFilenames()) {
+    for (TvShowSeasonPosterNaming seasonPosterNaming : TvShowModuleManager.getInstance().getSettings().getSeasonPosterFilenames()) {
       String filename = seasonPosterNaming.getFilename(show, season, Utils.getArtworkExtensionFromUrl(seasonPosterUrl));
       if (StringUtils.isBlank(filename)) {
         LOGGER.warn("empty filename for artwork: {} - {}", seasonPosterNaming.name(), show); // NOSONAR
@@ -461,7 +467,7 @@ public class TvShowArtworkHelper {
       }
     }
 
-    for (TvShowSeasonBannerNaming seasonBannerNaming : TvShowModuleManager.SETTINGS.getSeasonBannerFilenames()) {
+    for (TvShowSeasonBannerNaming seasonBannerNaming : TvShowModuleManager.getInstance().getSettings().getSeasonBannerFilenames()) {
       String filename = seasonBannerNaming.getFilename(show, season, Utils.getArtworkExtensionFromUrl(seasonBannerUrl));
       if (StringUtils.isBlank(filename)) {
         LOGGER.warn("empty filename for artwork: {} - {}", seasonBannerNaming.name(), show);
@@ -513,7 +519,7 @@ public class TvShowArtworkHelper {
       }
     }
 
-    for (TvShowSeasonThumbNaming seasonThumbNaming : TvShowModuleManager.SETTINGS.getSeasonThumbFilenames()) {
+    for (TvShowSeasonThumbNaming seasonThumbNaming : TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames()) {
       String filename = seasonThumbNaming.getFilename(show, season, Utils.getArtworkExtensionFromUrl(seasonThumbUrl));
       if (StringUtils.isBlank(filename)) {
         LOGGER.warn("empty filename for artwork: {} - {}", seasonThumbNaming.name(), show);
@@ -783,12 +789,13 @@ public class TvShowArtworkHelper {
     // extrafanart
     if (config.contains(TvShowScraperMetadataConfig.EXTRAFANART)) {
       List<String> extrafanarts = new ArrayList<>();
-      if (TvShowModuleManager.SETTINGS.isImageExtraFanart() && TvShowModuleManager.SETTINGS.getImageExtraFanartCount() > 0) {
+      if (TvShowModuleManager.getInstance().getSettings().isImageExtraFanart()
+          && TvShowModuleManager.getInstance().getSettings().getImageExtraFanartCount() > 0) {
         for (MediaArtwork art : artwork) {
           // only get artwork in desired resolution
           if (art.getType() == MediaArtworkType.BACKGROUND) {
             extrafanarts.add(art.getDefaultUrl());
-            if (extrafanarts.size() >= TvShowModuleManager.SETTINGS.getImageExtraFanartCount()) {
+            if (extrafanarts.size() >= TvShowModuleManager.getInstance().getSettings().getImageExtraFanartCount()) {
               break;
             }
           }
@@ -849,12 +856,12 @@ public class TvShowArtworkHelper {
     if (mediaEntity instanceof TvShow) {
       switch (artworkType) {
         case POSTER:
-          fileNamings = TvShowModuleManager.SETTINGS.getPosterFilenames();
+          fileNamings = TvShowModuleManager.getInstance().getSettings().getPosterFilenames();
           bytes = vsmeta.getShowImageBytes();
           break;
 
         case BACKGROUND:
-          fileNamings = TvShowModuleManager.SETTINGS.getFanartFilenames();
+          fileNamings = TvShowModuleManager.getInstance().getSettings().getFanartFilenames();
           bytes = vsmeta.getBackdropBytes();
           break;
 
@@ -863,7 +870,7 @@ public class TvShowArtworkHelper {
       }
     }
     else if (mediaEntity instanceof TvShowEpisode && artworkType == THUMB) {
-      fileNamings = TvShowModuleManager.SETTINGS.getEpisodeThumbFilenames();
+      fileNamings = TvShowModuleManager.getInstance().getSettings().getEpisodeThumbFilenames();
       bytes = vsmeta.getPosterBytes();
     }
     else {
@@ -932,9 +939,9 @@ public class TvShowArtworkHelper {
     MediaFile mf = episode.getMainVideoFile();
 
     String fileType = "." + FilenameUtils.getExtension(mf.getFilename().toLowerCase(Locale.ROOT));
-    int seconds = (Globals.settings.getFfmpegPercentage() * mf.getDuration()) / 100;
+    int seconds = (Settings.getInstance().getFfmpegPercentage() * mf.getDuration()) / 100;
 
-    if (!Globals.settings.getAllSupportedFileTypes().contains(fileType)) {
+    if (!Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
       throw new UnsupportedOperationException("invalid video file for FFmpeg");
     }
 
@@ -947,7 +954,7 @@ public class TvShowArtworkHelper {
       String basename = FilenameUtils.getBaseName(mf.getFilename());
 
       // and copy it to all desired locations
-      for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.SETTINGS.getEpisodeThumbFilenames()) {
+      for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.getInstance().getSettings().getEpisodeThumbFilenames()) {
         Path thumb = episode.getPathNIO().resolve(thumbNaming.getFilename(basename, "jpg"));
 
         if (Files.exists(thumb)) {

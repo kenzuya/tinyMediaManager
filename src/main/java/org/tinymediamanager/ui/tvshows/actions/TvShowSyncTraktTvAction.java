@@ -19,7 +19,7 @@ import java.awt.event.ActionEvent;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.actions.TmmAction;
@@ -42,7 +42,7 @@ public class TvShowSyncTraktTvAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(TvShowList.getInstance().getTvShows());
+    TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
     task.setSyncCollection(true);
     task.setSyncWatched(true);
     task.setSyncRating(true);

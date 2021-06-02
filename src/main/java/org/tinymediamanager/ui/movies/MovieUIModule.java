@@ -28,8 +28,8 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
@@ -153,10 +153,10 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
   private void init() {
     // apply stored UI filters
-    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
+    if (MovieModuleManager.getInstance().getSettings().isStoreUiFilters()) {
       SwingUtilities.invokeLater(() -> {
-        MovieList.getInstance().searchDuplicates();
-        selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getUiFilters());
+        MovieModuleManager.getInstance().getMovieList().searchDuplicates();
+        selectionModel.setFilterValues(MovieModuleManager.getInstance().getSettings().getUiFilters());
       });
     }
 
@@ -259,14 +259,14 @@ public class MovieUIModule extends AbstractTmmUIModule {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
         kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+        if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
           kodiRPCMenu.setEnabled(true);
         }
         else {
           kodiRPCMenu.setEnabled(false);
         }
 
-        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Settings.getInstance().getTraktAccessToken())) {
           traktMenu.setEnabled(true);
         }
         else {
@@ -294,7 +294,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
         updatePopupMenu.removeAll();
         updatePopupMenu.add(createAndRegisterAction(MovieUpdateDatasourceAction.class));
         updatePopupMenu.addSeparator();
-        for (String ds : MovieModuleManager.SETTINGS.getMovieDataSource()) {
+        for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
           updatePopupMenu.add(new MovieUpdateSingleDatasourceAction(ds));
         }
         updatePopupMenu.addSeparator();

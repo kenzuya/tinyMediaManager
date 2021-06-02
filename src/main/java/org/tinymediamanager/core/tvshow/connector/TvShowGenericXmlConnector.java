@@ -49,12 +49,12 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -62,7 +62,6 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -100,7 +99,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   public void write(List<TvShowNfoNaming> nfoNames) {
     // first of all, get the data from a previous written NFO file,
     // if we do not want clean NFOs
-    if (!TvShowModuleManager.SETTINGS.isWriteCleanNfo()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isWriteCleanNfo()) {
       for (MediaFile mf : tvShow.getMediaFiles(MediaFileType.NFO)) {
         try {
           parser = TvShowNfoParser.parseNfo(mf.getFileAsPath());
@@ -128,7 +127,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         // tmm comment
         Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dat = formatter.format(new Date());
-        document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Globals.settings.getVersion()));
+        document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Settings.getInstance().getVersion()));
 
         root = document.createElement("tvshow");
         document.appendChild(root);
@@ -278,7 +277,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
 
     // the default rating
     Map<String, MediaRating> ratings = tvShow.getRatings();
-    MediaRating mainMediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
+    MediaRating mainMediaRating = ratings.get(TvShowModuleManager.getInstance().getSettings().getPreferredRating());
 
     // is there any rating which is not the user rating?
     if (mainMediaRating == null) {
@@ -515,7 +514,8 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     Element mpaa = document.createElement("mpaa");
 
     if (tvShow.getCertification() != null) {
-      mpaa.setTextContent(CertificationStyle.formatCertification(tvShow.getCertification(), TvShowModuleManager.SETTINGS.getCertificationStyle()));
+      mpaa.setTextContent(
+          CertificationStyle.formatCertification(tvShow.getCertification(), TvShowModuleManager.getInstance().getSettings().getCertificationStyle()));
     }
     root.appendChild(mpaa);
   }
@@ -527,7 +527,8 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
     Element certification = document.createElement("certification");
     if (tvShow.getCertification() != null) {
       certification
-          .setTextContent(CertificationStyle.formatCertification(tvShow.getCertification(), TvShowModuleManager.SETTINGS.getCertificationStyle()));
+          .setTextContent(CertificationStyle.formatCertification(tvShow.getCertification(),
+              TvShowModuleManager.getInstance().getSettings().getCertificationStyle()));
     }
     root.appendChild(certification);
   }
@@ -536,7 +537,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    * add the episode guide in <episodeguide>xxx</episodeguide>
    */
   protected void addEpisodeguide() {
-    if (!TvShowModuleManager.SETTINGS.isNfoWriteEpisodeguide()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isNfoWriteEpisodeguide()) {
       return;
     }
 
@@ -560,7 +561,8 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       Element episodeguide = document.createElement("episodeguide");
       Element url = document.createElement("url");
       url.setTextContent("http://api.themoviedb.org/3/tv/" + tvShow.getIdAsString(Constants.TMDB)
-          + "?api_key=6a5be4999abf74eba1f9a8311294c267&language=" + TvShowModuleManager.SETTINGS.getScraperLanguage().getLanguage());
+          + "?api_key=6a5be4999abf74eba1f9a8311294c267&language="
+          + TvShowModuleManager.getInstance().getSettings().getScraperLanguage().getLanguage());
       episodeguide.appendChild(url);
       root.appendChild(episodeguide);
     }
@@ -651,12 +653,12 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
    */
   protected void addDateAdded() {
     Element dateadded = document.createElement("dateadded");
-    if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == DATE_ADDED) {
+    if (TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField() == DATE_ADDED) {
       if (tvShow.getDateAdded() != null) {
         dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tvShow.getDateAdded()));
       }
     }
-    else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_CREATION_DATE) {
+    else if (TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField() == FILE_CREATION_DATE) {
       MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
           .stream()
           .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateCreated() != null)
@@ -666,7 +668,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
         dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mainMediaFile.getDateCreated()));
       }
     }
-    else if (TvShowModuleManager.SETTINGS.getNfoDateAddedField() == FILE_LAST_MODIFIED_DATE) {
+    else if (TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField() == FILE_LAST_MODIFIED_DATE) {
       MediaFile mainMediaFile = tvShow.getEpisodesMediaFiles()
           .stream()
           .filter(mf -> mf.getType() == MediaFileType.VIDEO && mf.getDateLastModified() != null)
@@ -717,7 +719,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
   protected void addGenres() {
     for (MediaGenres mediaGenre : tvShow.getGenres()) {
       Element genre = document.createElement("genre");
-      genre.setTextContent(mediaGenre.getLocalizedName(TvShowModuleManager.SETTINGS.getNfoLanguage().toLocale()));
+      genre.setTextContent(mediaGenre.getLocalizedName(TvShowModuleManager.getInstance().getSettings().getNfoLanguage().toLocale()));
       root.appendChild(genre);
     }
   }
@@ -733,7 +735,7 @@ public abstract class TvShowGenericXmlConnector implements ITvShowConnector {
       root.appendChild(studio);
 
       // break here if we just want to write one studio
-      if (TvShowSettings.getInstance().isNfoWriteSingleStudio()) {
+      if (TvShowModuleManager.getInstance().getSettings().isNfoWriteSingleStudio()) {
         break;
       }
     }

@@ -126,7 +126,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
   private static final Logger                                            LOGGER                = LoggerFactory.getLogger(MovieChooserDialog.class);
 
-  private final MovieList                                                movieList             = MovieList.getInstance();
+  private final MovieList                                                movieList             = MovieModuleManager.getInstance().getMovieList();
   private final Movie                                                    movieToScrape;
   private final List<MediaScraper>                                       artworkScrapers;
   private final List<MediaScraper>                                       trailerScrapers;
@@ -256,7 +256,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
         JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
         panelSearchField.add(lblLanguage, "cell 0 1,alignx right");
         cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
-        cbLanguage.setSelectedItem(MovieModuleManager.SETTINGS.getScraperLanguage());
+        cbLanguage.setSelectedItem(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
         cbLanguage.addActionListener(e -> searchMovie(textFieldSearchString.getText(), false));
         panelSearchField.add(cbLanguage, "cell 1 1");
       }
@@ -460,7 +460,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     {
       progressBar.setVisible(false);
-      cbScraperConfig.setSelectedItems(MovieModuleManager.SETTINGS.getScraperMetadataConfig());
+      cbScraperConfig.setSelectedItems(MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig());
 
       textFieldSearchString.setText(movieToScrape.getTitle());
       lblPath.setText(movieToScrape.getPathNIO().resolve(movieToScrape.getMediaFiles(MediaFileType.VIDEO).get(0).getFilename()).toString());
@@ -490,7 +490,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           }
 
           // did the user want to choose the images?
-          if (!MovieModuleManager.SETTINGS.isScrapeBestImage()) {
+          if (!MovieModuleManager.getInstance().getSettings().isScrapeBestImage()) {
             md.clearMediaArt();
           }
 
@@ -505,7 +505,7 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           // get images?
           if (ScraperMetadataConfig.containsAnyArtwork(scraperConfig)) {
             // let the user choose the images
-            if (!MovieModuleManager.SETTINGS.isScrapeBestImage()) {
+            if (!MovieModuleManager.getInstance().getSettings().isScrapeBestImage()) {
               if (scraperConfig.contains(MovieScraperMetadataConfig.POSTER)) {
                 chooseArtwork(MediaFileType.POSTER);
               }
@@ -546,11 +546,11 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
           }
 
           // if configured - sync with trakt.tv
-          if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
+          if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
             MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(Collections.singletonList(movieToScrape));
-            task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
-            task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
-            task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
+            task.setSyncCollection(MovieModuleManager.getInstance().getSettings().getSyncTraktCollection());
+            task.setSyncWatched(MovieModuleManager.getInstance().getSettings().getSyncTraktWatched());
+            task.setSyncRating(MovieModuleManager.getInstance().getSettings().getSyncTraktRating());
 
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
@@ -587,69 +587,69 @@ public class MovieChooserDialog extends TmmDialog implements ActionListener {
 
     switch (mediaFileType) {
       case POSTER:
-        if (MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
           return;
         }
         imageType = POSTER;
         break;
 
       case FANART:
-        if (MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
           return;
         }
         imageType = BACKGROUND;
-        if (MovieModuleManager.SETTINGS.isImageExtraThumbs()) {
+        if (MovieModuleManager.getInstance().getSettings().isImageExtraThumbs()) {
           extrathumbs = new ArrayList<>();
         }
-        if (MovieModuleManager.SETTINGS.isImageExtraFanart()) {
+        if (MovieModuleManager.getInstance().getSettings().isImageExtraFanart()) {
           extrafanarts = new ArrayList<>();
         }
         break;
 
       case BANNER:
-        if (MovieModuleManager.SETTINGS.getBannerFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty()) {
           return;
         }
         imageType = BANNER;
         break;
 
       case LOGO:
-        if (MovieModuleManager.SETTINGS.getLogoFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
           return;
         }
         imageType = LOGO;
         break;
 
       case CLEARLOGO:
-        if (MovieModuleManager.SETTINGS.getClearlogoFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()) {
           return;
         }
         imageType = CLEARLOGO;
         break;
 
       case CLEARART:
-        if (MovieModuleManager.SETTINGS.getClearartFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty()) {
           return;
         }
         imageType = CLEARART;
         break;
 
       case DISC:
-        if (MovieModuleManager.SETTINGS.getDiscartFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty()) {
           return;
         }
         imageType = DISC;
         break;
 
       case THUMB:
-        if (MovieModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty()) {
           return;
         }
         imageType = THUMB;
         break;
 
       case KEYART:
-        if (MovieModuleManager.SETTINGS.getKeyartFilenames().isEmpty()) {
+        if (MovieModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty()) {
           return;
         }
         imageType = KEYART;

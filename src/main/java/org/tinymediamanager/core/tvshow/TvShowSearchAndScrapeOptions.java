@@ -44,19 +44,19 @@ public class TvShowSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
    */
   public void loadDefaults() {
     // language
-    language = TvShowModuleManager.SETTINGS.getScraperLanguage();
-    certificationCountry = TvShowModuleManager.SETTINGS.getCertificationCountry();
+    language = TvShowModuleManager.getInstance().getSettings().getScraperLanguage();
+    certificationCountry = TvShowModuleManager.getInstance().getSettings().getCertificationCountry();
 
     // metadata
-    metadataScraper = TvShowList.getInstance().getDefaultMediaScraper();
+    metadataScraper = TvShowModuleManager.getInstance().getTvShowList().getDefaultMediaScraper();
 
     // artwork
-    artworkScrapers.addAll(TvShowList.getInstance().getDefaultArtworkScrapers());
+    artworkScrapers.addAll(TvShowModuleManager.getInstance().getTvShowList().getDefaultArtworkScrapers());
 
     // trailer
-    trailerScrapers.addAll(TvShowList.getInstance().getDefaultTrailerScrapers());
+    trailerScrapers.addAll(TvShowModuleManager.getInstance().getTvShowList().getDefaultTrailerScrapers());
 
     // subtitle
-    subtitleScrapers.addAll(TvShowList.getInstance().getDefaultSubtitleScrapers());
+    subtitleScrapers.addAll(TvShowModuleManager.getInstance().getTvShowList().getDefaultSubtitleScrapers());
   }
 }

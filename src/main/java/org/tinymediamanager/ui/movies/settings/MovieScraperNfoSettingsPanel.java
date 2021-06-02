@@ -56,7 +56,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = -299825914193235308L;
 
-  private final MovieSettings                  settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings                  settings         = MovieModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
   private final ItemListener                   comboBoxListener;
 

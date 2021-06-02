@@ -43,6 +43,7 @@ import org.tinymediamanager.TinyMediaManager;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.WolDevice;
@@ -258,7 +259,7 @@ public class ToolbarPanel extends JPanel {
       @Override
       public void menuSelected(MenuEvent arg0) {
         menuWakeOnLan.removeAll();
-        for (final WolDevice device : Globals.settings.getWolDevices()) {
+        for (final WolDevice device : Settings.getInstance().getWolDevices()) {
           JMenuItem item = new JMenuItem(device.getName());
           item.addActionListener(arg01 -> Utils.sendWakeOnLanPacket(device.getMacAddress()));
           menuWakeOnLan.add(item);
@@ -274,7 +275,7 @@ public class ToolbarPanel extends JPanel {
     menu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        if (!Globals.settings.getWolDevices().isEmpty()) {
+        if (!Settings.getInstance().getWolDevices().isEmpty()) {
           menuWakeOnLan.setEnabled(true);
         }
         else {

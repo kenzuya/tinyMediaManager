@@ -55,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperOptionsSettingsPanel extends JPanel {
   private static final long         serialVersionUID = -299825914193235308L;
 
-  private final MovieSettings       settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings       settings         = MovieModuleManager.getInstance().getSettings();
 
   private JSlider                   sliderThreshold;
   private JCheckBox                 chckbxAutomaticallyScrapeImages;

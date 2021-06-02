@@ -131,9 +131,9 @@ public class MovieSetScrapeTask extends TmmThreadPool {
       options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
-      options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-      options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-      options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+      options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
       // scrape providers till one artwork has been found
       for (MediaScraper scraper : artworkScrapers) {

@@ -92,7 +92,7 @@ import com.floreysoft.jmte.token.Token;
  */
 public class TvShowRenamer {
   private static final Logger              LOGGER         = LoggerFactory.getLogger(TvShowRenamer.class);
-  private static final TvShowSettings      SETTINGS       = TvShowModuleManager.SETTINGS;
+  private static final TvShowSettings      SETTINGS       = TvShowModuleManager.getInstance().getSettings();
   private static final Map<String, String> TOKEN_MAP      = createTokenMap();
 
   private static final String[]            seasonNumbers  = { "seasonNr", "seasonNr2", "seasonNrDvd", "seasonNrDvd2", "episode.season",
@@ -299,7 +299,7 @@ public class TvShowRenamer {
     }
 
     if (nfo.getFiledate() > 0) { // one valid found? copy our NFO to all variants
-      needed.addAll(copyTvShowMediaFile(tvShow, nfo, TvShowModuleManager.SETTINGS.getNfoFilenames()));
+      needed.addAll(copyTvShowMediaFile(tvShow, nfo, TvShowModuleManager.getInstance().getSettings().getNfoFilenames()));
     }
     else {
       LOGGER.trace("No valid NFO found for this TV show");
@@ -317,51 +317,51 @@ public class TvShowRenamer {
 
       switch (mf.getType()) {
         case POSTER:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getPosterFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getPosterFilenames()));
           break;
 
         case FANART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getFanartFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getFanartFilenames()));
           break;
 
         case EXTRAFANART:
-          needed.addAll(copyExtraFanart(tvShow, mf, TvShowModuleManager.SETTINGS.getExtraFanartFilenames()));
+          needed.addAll(copyExtraFanart(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getExtraFanartFilenames()));
           break;
 
         case BANNER:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getBannerFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getBannerFilenames()));
           break;
 
         case LOGO:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getLogoFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getLogoFilenames()));
           break;
 
         case CLEARLOGO:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getClearlogoFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getClearlogoFilenames()));
           break;
 
         case CLEARART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getClearartFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getClearartFilenames()));
           break;
 
         case THUMB:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getThumbFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getThumbFilenames()));
           break;
 
         case DISC:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getDiscartFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getDiscartFilenames()));
           break;
 
         case CHARACTERART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getCharacterartFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getCharacterartFilenames()));
           break;
 
         case KEYART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getKeyartFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getKeyartFilenames()));
           break;
 
         case TRAILER:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getTrailerFilenames()));
+          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.getInstance().getSettings().getTrailerFilenames()));
           break;
 
         default:
@@ -1105,7 +1105,8 @@ public class TvShowRenamer {
           MediaFileSubtitle mfs = mf.getSubtitles().get(0);
           if (mfs != null) {
             if (!mfs.getLanguage().isEmpty()) {
-              String lang = LanguageStyle.getLanguageCodeForStyle(mfs.getLanguage(), TvShowModuleManager.SETTINGS.getSubtitleLanguageStyle());
+              String lang = LanguageStyle.getLanguageCodeForStyle(mfs.getLanguage(),
+                  TvShowModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
               if (StringUtils.isBlank(lang)) {
                 lang = mfs.getLanguage();
               }
@@ -1145,7 +1146,7 @@ public class TvShowRenamer {
           catch (Exception e) {
             e.printStackTrace();
           }
-          lang = LanguageStyle.getLanguageCodeForStyle(originalLang, TvShowModuleManager.SETTINGS.getSubtitleLanguageStyle());
+          lang = LanguageStyle.getLanguageCodeForStyle(originalLang, TvShowModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
           if (StringUtils.isBlank(lang)) {
             lang = originalLang;
           }
@@ -1307,7 +1308,7 @@ public class TvShowRenamer {
     }
 
     // season 0 = Specials
-    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+    if (tvShowSeason.getSeason() == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
       seasonFolderName = "Specials";
     }
     else {
@@ -1316,7 +1317,8 @@ public class TvShowRenamer {
     }
 
     // only allow empty season dir if the season is in the filename (aka recommended)
-    if (StringUtils.isBlank(seasonFolderName) && !TvShowRenamer.isRecommended(template, TvShowModuleManager.SETTINGS.getRenamerFilename())) {
+    if (StringUtils.isBlank(seasonFolderName)
+        && !TvShowRenamer.isRecommended(template, TvShowModuleManager.getInstance().getSettings().getRenamerFilename())) {
       seasonFolderName = "Season " + tvShowSeason.getSeason();
     }
 
@@ -1854,8 +1856,8 @@ public class TvShowRenamer {
    */
   private static String getStackingString(MediaFile mf) {
     String delimiter = ".";
-    if (TvShowModuleManager.SETTINGS.isRenamerFilenameSpaceSubstitution()) {
-      delimiter = TvShowModuleManager.SETTINGS.getRenamerFilenameSpaceReplacement();
+    if (TvShowModuleManager.getInstance().getSettings().isRenamerFilenameSpaceSubstitution()) {
+      delimiter = TvShowModuleManager.getInstance().getSettings().getRenamerFilenameSpaceReplacement();
     }
     if (!mf.getStackingMarker().isEmpty()) {
       return delimiter + mf.getStackingMarker();
@@ -1869,12 +1871,12 @@ public class TvShowRenamer {
   public static String replaceInvalidCharacters(String source) {
     String result = source;
 
-    if ("-".equals(TvShowModuleManager.SETTINGS.getRenamerColonReplacement())) {
+    if ("-".equals(TvShowModuleManager.getInstance().getSettings().getRenamerColonReplacement())) {
       result = result.replace(": ", " - "); // nicer
       result = result.replace(":", "-"); // nicer
     }
     else {
-      result = result.replace(":", TvShowModuleManager.SETTINGS.getRenamerColonReplacement());
+      result = result.replace(":", TvShowModuleManager.getInstance().getSettings().getRenamerColonReplacement());
     }
 
     return result.replaceAll("([\":<>|?*])", "");
@@ -1967,15 +1969,15 @@ public class TvShowRenamer {
             return first.toUpperCase(Locale.ROOT);
           }
           else {
-            return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
+            return TvShowModuleManager.getInstance().getSettings().getRenamerFirstCharacterNumberReplacement();
           }
         }
       }
       if (o instanceof Number) {
-        return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
+        return TvShowModuleManager.getInstance().getSettings().getRenamerFirstCharacterNumberReplacement();
       }
       if (o instanceof Date) {
-        return TvShowModuleManager.SETTINGS.getRenamerFirstCharacterNumberReplacement();
+        return TvShowModuleManager.getInstance().getSettings().getRenamerFirstCharacterNumberReplacement();
       }
       return "";
     }

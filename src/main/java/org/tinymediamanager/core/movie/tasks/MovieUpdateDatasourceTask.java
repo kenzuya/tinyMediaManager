@@ -51,7 +51,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractFileVisitor;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
@@ -59,6 +58,7 @@ import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -111,7 +111,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private final List<String>        dataSources;
   private final List<String>        skipFolders;
   private final List<Movie>         moviesToUpdate   = new ArrayList<>();
-  private final MovieList           movieList        = MovieList.getInstance();
+  private final MovieList           movieList        = MovieModuleManager.getInstance().getMovieList();
   private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
   private final List<Runnable>      miTasks          = Collections.synchronizedList(new ArrayList<>());
   private final List<Path>          existingMovies   = new ArrayList<>();
@@ -119,22 +119,22 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   public MovieUpdateDatasourceTask() {
     super(TmmResourceBundle.getString("update.datasource"));
-    dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
-    skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
+    dataSources = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
+    skipFolders = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getSkipFolder());
   }
 
   public MovieUpdateDatasourceTask(String datasource) {
     super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
-    skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
+    skipFolders = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getSkipFolder());
   }
 
   public MovieUpdateDatasourceTask(List<Movie> movies) {
     super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(0);
     moviesToUpdate.addAll(movies);
-    skipFolders = new ArrayList<>(MovieModuleManager.SETTINGS.getSkipFolder());
+    skipFolders = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getSkipFolder());
   }
 
   @Override
@@ -174,11 +174,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
 
-      if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
-        MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieList.getInstance().getMovies());
-        task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
-        task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
-        task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
+      if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
+        MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieModuleManager.getInstance().getMovieList().getMovies());
+        task.setSyncCollection(MovieModuleManager.getInstance().getSettings().getSyncTraktCollection());
+        task.setSyncWatched(MovieModuleManager.getInstance().getSettings().getSyncTraktWatched());
+        task.setSyncRating(MovieModuleManager.getInstance().getSettings().getSyncTraktRating());
 
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
@@ -284,7 +284,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       cleanup(ds);
 
       // map Kodi entries
-      if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+      if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
         KodiRPC.getInstance().updateMovieMappings();
       }
 
@@ -296,7 +296,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // build image cache on import
-      if (Globals.settings.isImageCache() && MovieModuleManager.SETTINGS.isBuildImageCacheOnImport()) {
+      if (Settings.getInstance().isImageCache() && MovieModuleManager.getInstance().getSettings().isBuildImageCacheOnImport()) {
         for (Movie movie : movieList.getMovies()) {
           if (!dsAsPath.equals(Paths.get(movie.getDataSource()))) {
             // check only movies matching datasource
@@ -675,7 +675,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     if (movie.getTitle().isEmpty()) {
       // get the "cleaner" name/year combo
-      String[] video = ParserUtils.detectCleanTitleAndYear(movieDir.getFileName().toString(), MovieModuleManager.SETTINGS.getBadWord());
+      String[] video = ParserUtils.detectCleanTitleAndYear(movieDir.getFileName().toString(),
+          MovieModuleManager.getInstance().getSettings().getBadWord());
       movie.setTitle(video[0]);
       if (!video[1].isEmpty()) {
         try {
@@ -803,14 +804,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     // if there is missing artwork AND we do have a VSMETA file, we probably can extract an artwork from there
-    if (MovieModuleManager.SETTINGS.isExtractArtworkFromVsmeta()) {
+    if (MovieModuleManager.getInstance().getSettings().isExtractArtworkFromVsmeta()) {
       List<MediaFile> vsmetas = movie.getMediaFiles(MediaFileType.VSMETA);
 
-      if (movie.getMediaFiles(MediaFileType.POSTER).isEmpty() && !vsmetas.isEmpty() && !MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+      if (movie.getMediaFiles(MediaFileType.POSTER).isEmpty() && !vsmetas.isEmpty()
+          && !MovieModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
         LOGGER.debug("extracting POSTERs from VSMETA for {}", movie.getMainFile().getFileAsPath());
         MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
       }
-      if (movie.getMediaFiles(MediaFileType.FANART).isEmpty() && !vsmetas.isEmpty() && !MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+      if (movie.getMediaFiles(MediaFileType.FANART).isEmpty() && !vsmetas.isEmpty()
+          && !MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
         LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
         MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
       }
@@ -901,7 +904,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           // still NULL, create new movie movie from file
           LOGGER.debug("| Create new movie from file: {}", mf);
           movie = new Movie();
-          String[] ty = ParserUtils.detectCleanTitleAndYear(basename, MovieModuleManager.SETTINGS.getBadWord());
+          String[] ty = ParserUtils.detectCleanTitleAndYear(basename, MovieModuleManager.getInstance().getSettings().getBadWord());
           movie.setTitle(ty[0]);
           if (!ty[1].isEmpty()) {
             try {
@@ -978,16 +981,16 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // if there is missing artwork AND we do have a VSMETA file, we probably can extract an artwork from there
-      if (MovieModuleManager.SETTINGS.isExtractArtworkFromVsmeta()) {
+      if (MovieModuleManager.getInstance().getSettings().isExtractArtworkFromVsmeta()) {
         List<MediaFile> vsmetas = movie.getMediaFiles(MediaFileType.VSMETA);
 
         if (movie.getMediaFiles(MediaFileType.POSTER).isEmpty() && !vsmetas.isEmpty()
-            && !MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+            && !MovieModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
           LOGGER.debug("extracting POSTERs from VSMETA for {}", movie.getMainFile().getFileAsPath());
           MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
         }
         if (movie.getMediaFiles(MediaFileType.FANART).isEmpty() && !vsmetas.isEmpty()
-            && !MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+            && !MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
           LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
           MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
         }
@@ -1493,7 +1496,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       incVisFile();
       if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
         // check for video?
-        if (Globals.settings.getVideoFileType().contains("." + FilenameUtils.getExtension(file.toString()).toLowerCase(Locale.ROOT))) {
+        if (Settings.getInstance().getVideoFileType().contains("." + FilenameUtils.getExtension(file.toString()).toLowerCase(Locale.ROOT))) {
           // check if file is a VIDEO type - only scan those folders (and not extras/trailer folders)!
           MediaFile mf = new MediaFile(file);
           if (mf.getType() == MediaFileType.VIDEO) {

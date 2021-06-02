@@ -44,7 +44,7 @@ public class MovieDownloadActorImagesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    if (!MovieModuleManager.SETTINGS.isWriteActorImages()) {
+    if (!MovieModuleManager.getInstance().getSettings().isWriteActorImages()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.downloadactorimages.activate"));
       return;
     }

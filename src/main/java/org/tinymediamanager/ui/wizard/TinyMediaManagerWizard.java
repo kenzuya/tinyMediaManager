@@ -190,18 +190,18 @@ public class TinyMediaManagerWizard extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       // fire events, that the wizard finished
-      MovieModuleManager.SETTINGS.firePropertyChange("wizard", false, true);
-      TvShowModuleManager.SETTINGS.firePropertyChange("wizard", false, true);
+      MovieModuleManager.getInstance().getSettings().firePropertyChange("wizard", false, true);
+      TvShowModuleManager.getInstance().getSettings().firePropertyChange("wizard", false, true);
 
       // close the wizard
       TinyMediaManagerWizard.this.setVisible(false);
 
       // trigger uds
-      if (!MovieModuleManager.SETTINGS.getMovieDataSource().isEmpty()) {
+      if (!MovieModuleManager.getInstance().getSettings().getMovieDataSource().isEmpty()) {
         TmmThreadPool task = new MovieUpdateDatasourceTask();
         TmmTaskManager.getInstance().addMainTask(task);
       }
-      if (!TvShowModuleManager.SETTINGS.getTvShowDataSource().isEmpty()) {
+      if (!TvShowModuleManager.getInstance().getSettings().getTvShowDataSource().isEmpty()) {
         TmmThreadPool task = new TvShowUpdateDatasourceTask();
         TmmTaskManager.getInstance().addMainTask(task);
       }

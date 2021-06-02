@@ -124,11 +124,11 @@ public class MovieScrapeTask extends TmmThreadPool {
       }
     }
 
-    if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
+    if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
       MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(moviesToScrape);
-      task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
-      task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
-      task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
+      task.setSyncCollection(MovieModuleManager.getInstance().getSettings().getSyncTraktCollection());
+      task.setSyncWatched(MovieModuleManager.getInstance().getSettings().getSyncTraktWatched());
+      task.setSyncRating(MovieModuleManager.getInstance().getSettings().getSyncTraktRating());
 
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
@@ -156,7 +156,7 @@ public class MovieScrapeTask extends TmmThreadPool {
     @Override
     public void run() {
       try {
-        movieList = MovieList.getInstance();
+        movieList = MovieModuleManager.getInstance().getMovieList();
         // set up scrapers
         MediaScraper mediaMetadataScraper = searchAndScrapeOptions.getMetadataScraper();
         List<MediaScraper> artworkScrapers = searchAndScrapeOptions.getArtworkScrapers();
@@ -260,7 +260,7 @@ public class MovieScrapeTask extends TmmThreadPool {
         }
 
         // get threshold from settings (default 0.75) - to minimize false positives
-        final double scraperTreshold = MovieModuleManager.SETTINGS.getScraperThreshold();
+        final double scraperTreshold = MovieModuleManager.getInstance().getSettings().getScraperThreshold();
         LOGGER.info("using treshold from settings of {}", scraperTreshold);
         if (result.getScore() < scraperTreshold) {
           LOGGER.info("score is lower than {} ({}) - ignore result", scraperTreshold, result.getScore());
@@ -286,9 +286,9 @@ public class MovieScrapeTask extends TmmThreadPool {
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
       options.setId("mediaFile", movie.getMainFile());
-      options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-      options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-      options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+      options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
       // scrape providers till one artwork has been found
       for (MediaScraper scraper : artworkScrapers) {

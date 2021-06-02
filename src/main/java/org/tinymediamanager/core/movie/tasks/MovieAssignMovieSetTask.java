@@ -71,7 +71,7 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
   }
 
   private class Worker implements Runnable {
-    private MovieList movieList = MovieList.getInstance();
+    private MovieList movieList = MovieModuleManager.getInstance().getMovieList();
     private Movie     movie;
 
     public Worker(Movie movie) {
@@ -88,9 +88,9 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
         MediaScraper movieSetScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE_SET);
 
         MovieSearchAndScrapeOptions movieOptions = new MovieSearchAndScrapeOptions();
-        movieOptions.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
-        movieOptions.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-        movieOptions.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+        movieOptions.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+        movieOptions.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+        movieOptions.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
         for (Entry<String, Object> entry : movie.getIds().entrySet()) {
           movieOptions.setId(entry.getKey(), entry.getValue().toString());
@@ -114,7 +114,7 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
             try {
               MovieSetSearchAndScrapeOptions movieSetOptions = new MovieSetSearchAndScrapeOptions();
               movieSetOptions.setTmdbId(collectionId);
-              movieSetOptions.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+              movieSetOptions.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
 
               MediaMetadata info = ((IMovieSetMetadataProvider) movieSetScraper.getMediaProvider()).getMetadata(movieSetOptions);
               if (info != null && StringUtils.isNotBlank(info.getTitle())) {

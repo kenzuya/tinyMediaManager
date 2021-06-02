@@ -208,8 +208,8 @@ public class TvShowChooserModel extends AbstractModelObject {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchResult(result);
       options.setLanguage(language);
-      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+      options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+      options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");
@@ -249,8 +249,8 @@ public class TvShowChooserModel extends AbstractModelObject {
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(language);
-    options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-    options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+    options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+    options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
     for (Entry<String, Object> entry : metadata.getIds().entrySet()) {
       options.setId(entry.getKey(), entry.getValue().toString());
@@ -332,9 +332,9 @@ public class TvShowChooserModel extends AbstractModelObject {
       options.setLanguage(language);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
-      options.setLanguage(TvShowModuleManager.SETTINGS.getImageScraperLanguage());
-      options.setFanartSize(TvShowModuleManager.SETTINGS.getImageFanartSize());
-      options.setPosterSize(TvShowModuleManager.SETTINGS.getImagePosterSize());
+      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
+      options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
 
       for (Entry<String, Object> entry : tvShowToScrape.getIds().entrySet()) {
         options.setId(entry.getKey(), entry.getValue().toString());

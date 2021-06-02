@@ -20,13 +20,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
 
 public class ITMediaInfoXmlTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   // @Test
   // public void getMediaInfo() throws Exception {

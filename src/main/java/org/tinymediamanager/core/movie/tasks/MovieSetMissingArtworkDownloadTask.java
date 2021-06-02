@@ -94,16 +94,16 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
     @Override
     public void run() {
       try {
-        MovieList movieList = MovieList.getInstance();
+        MovieList movieList = MovieModuleManager.getInstance().getMovieList();
         // set up scrapers
         List<MediaArtwork> artwork = new ArrayList<>();
         ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE_SET);
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtworkType.ALL);
         options.setIds(movieSet.getIds());
-        options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
-        options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-        options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+        options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+        options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+        options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
         // scrape providers till one artwork has been found
         for (MediaScraper scraper : movieList.getDefaultArtworkScrapers()) {

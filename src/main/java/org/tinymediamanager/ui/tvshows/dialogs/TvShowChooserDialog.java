@@ -126,7 +126,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
   private static final Logger                                                    LOGGER                = LoggerFactory
       .getLogger(TvShowChooserDialog.class);
 
-  private TvShowList                                                             tvShowList            = TvShowList.getInstance();
+  private TvShowList                                                             tvShowList            = TvShowModuleManager.getInstance()
+      .getTvShowList();
   private TvShow                                                                 tvShowToScrape;
   private SortedList<TvShowChooserModel>                                         searchResultEventList = null;
   private TvShowChooserModel                                                     selectedResult        = null;
@@ -250,7 +251,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
       {
         cbLanguage = new JComboBox<>();
         cbLanguage.setModel(new DefaultComboBoxModel<>(MediaLanguages.valuesSorted()));
-        cbLanguage.setSelectedItem(TvShowModuleManager.SETTINGS.getScraperLanguage());
+        cbLanguage.setSelectedItem(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
         cbLanguage.addActionListener(e -> searchTvShow(textFieldSearchString.getText(), false));
         panelSearchField.add(cbLanguage, "cell 1 1,growx");
       }
@@ -453,8 +454,8 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     {
       tvShowToScrape = tvShow;
       progressBar.setVisible(false);
-      cbTvShowScraperConfig.setSelectedItems(TvShowModuleManager.SETTINGS.getTvShowScraperMetadataConfig());
-      cbEpisodeScraperConfig.setSelectedItems(TvShowModuleManager.SETTINGS.getEpisodeScraperMetadataConfig());
+      cbTvShowScraperConfig.setSelectedItems(TvShowModuleManager.getInstance().getSettings().getTvShowScraperMetadataConfig());
+      cbEpisodeScraperConfig.setSelectedItems(TvShowModuleManager.getInstance().getSettings().getEpisodeScraperMetadataConfig());
 
       lblPath.setText(tvShowToScrape.getPathNIO().toString());
       textFieldSearchString.setText(tvShowToScrape.getTitle());
@@ -487,7 +488,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           }
 
           // did the user want to choose the images?
-          if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {
+          if (!TvShowModuleManager.getInstance().getSettings().isScrapeBestImage()) {
             md.clearMediaArt();
           }
 
@@ -497,7 +498,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
           // get the episode list for display?
-          if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
+          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
             tvShowToScrape.setDummyEpisodes(model.getEpisodesForDisplay());
             tvShowToScrape.saveToDb();
           }
@@ -507,7 +508,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           // get images?
           if (ScraperMetadataConfig.containsAnyArtwork(tvShowScraperMetadataConfig)) {
             // let the user choose the images
-            if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {
+            if (!TvShowModuleManager.getInstance().getSettings().isScrapeBestImage()) {
               if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.POSTER)) {
                 chooseArtwork(MediaFileType.POSTER);
               }
@@ -570,11 +571,11 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
-          if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
+          if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
             TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(Collections.singletonList(tvShowToScrape));
-            task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-            task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-            task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+            task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+            task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+            task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }
@@ -608,14 +609,14 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     switch (mediaFileType) {
       case POSTER:
-        if (TvShowModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
           return;
         }
         imageType = POSTER;
         break;
 
       case FANART:
-        if (TvShowModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
           return;
         }
         imageType = BACKGROUND;
@@ -623,49 +624,49 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         break;
 
       case BANNER:
-        if (TvShowModuleManager.SETTINGS.getBannerFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty()) {
           return;
         }
         imageType = BANNER;
         break;
 
       case LOGO:
-        if (TvShowModuleManager.SETTINGS.getLogoFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty()) {
           return;
         }
         imageType = LOGO;
         break;
 
       case CLEARLOGO:
-        if (TvShowModuleManager.SETTINGS.getClearlogoFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()) {
           return;
         }
         imageType = CLEARLOGO;
         break;
 
       case CLEARART:
-        if (TvShowModuleManager.SETTINGS.getClearartFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty()) {
           return;
         }
         imageType = CLEARART;
         break;
 
       case CHARACTERART:
-        if (TvShowModuleManager.SETTINGS.getCharacterartFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getCharacterartFilenames().isEmpty()) {
           return;
         }
         imageType = CHARACTERART;
         break;
 
       case THUMB:
-        if (TvShowModuleManager.SETTINGS.getThumbFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty()) {
           return;
         }
         imageType = THUMB;
         break;
 
       case KEYART:
-        if (TvShowModuleManager.SETTINGS.getKeyartFilenames().isEmpty()) {
+        if (TvShowModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty()) {
           return;
         }
         imageType = KEYART;

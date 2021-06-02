@@ -9,10 +9,9 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter.TemplateType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.movie.MovieExporter;
 import org.tinymediamanager.core.movie.MovieList;
@@ -27,8 +26,7 @@ public class JmteTest extends BasicTest {
 
   @BeforeClass
   public static void init() throws Exception {
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
 
     TmmModuleManager.getInstance().startUp();
     MovieModuleManager.getInstance().startUp();
@@ -52,7 +50,7 @@ public class JmteTest extends BasicTest {
 
   @Test
   public void testAllMovieTemplates() throws Exception {
-    MovieList ml = MovieList.getInstance();
+    MovieList ml = MovieModuleManager.getInstance().getMovieList();
     for (ExportTemplate t : MovieExporter.findTemplates(TemplateType.MOVIE)) {
       System.out.println("\nTEMPLATE: " + t.getPath());
       MovieExporter ex = new MovieExporter(Paths.get(t.getPath()));
@@ -62,7 +60,7 @@ public class JmteTest extends BasicTest {
 
   @Test
   public void testAllTvShowTemplates() throws Exception {
-    TvShowList tv = TvShowList.getInstance();
+    TvShowList tv = TvShowModuleManager.getInstance().getTvShowList();
     for (ExportTemplate t : TvShowExporter.findTemplates(TemplateType.TV_SHOW)) {
       System.out.println("\nTEMPLATE: " + t.getPath());
       TvShowExporter ex = new TvShowExporter(Paths.get(t.getPath()));

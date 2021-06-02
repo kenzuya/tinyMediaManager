@@ -10,9 +10,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -26,9 +25,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    // MediaInfoUtils.loadMediaInfo(); // unneeded here for UDS. does not work on buildserver
-    deleteSettingsFolder();
-    Settings.getInstance(FOLDER);
+    BasicTest.setup();
   }
 
   @Before
@@ -38,7 +35,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
     TmmModuleManager.getInstance().startUp();
     TvShowModuleManager.getInstance().startUp();
     Utils.copyDirectoryRecursive(Paths.get("target/test-classes/testtvshows"), Paths.get(FOLDER, "testtvshows"));
-    TvShowModuleManager.SETTINGS.addTvShowDataSources(FOLDER + "/testtvshows");
+    TvShowModuleManager.getInstance().getSettings().addTvShowDataSources(FOLDER + "/testtvshows");
   }
 
   @After
@@ -56,7 +53,7 @@ public class TvShowUpdateDatasourceTaskTest extends BasicTest {
   }
 
   private void check() throws Exception {
-    TvShowList tvShowList = TvShowList.getInstance();
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
     // wait until all TV shows have been added (let propertychanges finish)
     for (int i = 0; i < 20; i++) {

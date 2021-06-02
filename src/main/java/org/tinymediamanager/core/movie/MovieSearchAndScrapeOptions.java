@@ -43,20 +43,20 @@ public class MovieSearchAndScrapeOptions extends MediaSearchAndScrapeOptions {
    * Load default Settings.
    */
   public void loadDefaults() {
-    language = MovieModuleManager.SETTINGS.getScraperLanguage();
-    certificationCountry = MovieModuleManager.SETTINGS.getCertificationCountry();
-    releaseDateCountry = MovieModuleManager.SETTINGS.getReleaseDateCountry();
+    language = MovieModuleManager.getInstance().getSettings().getScraperLanguage();
+    certificationCountry = MovieModuleManager.getInstance().getSettings().getCertificationCountry();
+    releaseDateCountry = MovieModuleManager.getInstance().getSettings().getReleaseDateCountry();
 
     // metadata
-    metadataScraper = MovieList.getInstance().getDefaultMediaScraper();
+    metadataScraper = MovieModuleManager.getInstance().getMovieList().getDefaultMediaScraper();
 
     // artwork
-    artworkScrapers.addAll(MovieList.getInstance().getDefaultArtworkScrapers());
+    artworkScrapers.addAll(MovieModuleManager.getInstance().getMovieList().getDefaultArtworkScrapers());
 
     // trailer
-    trailerScrapers.addAll(MovieList.getInstance().getDefaultTrailerScrapers());
+    trailerScrapers.addAll(MovieModuleManager.getInstance().getMovieList().getDefaultTrailerScrapers());
 
     // subtitle
-    subtitleScrapers.addAll(MovieList.getInstance().getDefaultSubtitleScrapers());
+    subtitleScrapers.addAll(MovieModuleManager.getInstance().getMovieList().getDefaultSubtitleScrapers());
   }
 }

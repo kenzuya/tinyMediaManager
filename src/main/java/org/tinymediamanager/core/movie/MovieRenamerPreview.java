@@ -40,7 +40,7 @@ public class MovieRenamerPreview {
     Set<MediaFile> newFiles = new LinkedHashSet<>();
 
     String newVideoBasename = "";
-    if (MovieModuleManager.SETTINGS.getRenamerFilename().trim().isEmpty()) {
+    if (MovieModuleManager.getInstance().getSettings().getRenamerFilename().trim().isEmpty()) {
       // we are NOT renaming any files, so we keep the same name on renaming ;)
       newVideoBasename = movie.getVideoBasenameWithoutStacking();
     }
@@ -65,7 +65,7 @@ public class MovieRenamerPreview {
 
     // movie folder needs a rename?
     Path oldMovieFolder = movie.getPathNIO();
-    String pattern = MovieModuleManager.SETTINGS.getRenamerPathname();
+    String pattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
     if (pattern.isEmpty()) {
       // same
       container.newPath = Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());

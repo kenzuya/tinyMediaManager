@@ -123,7 +123,7 @@ public class TvShowFilterDialog extends TmmDialog {
     ActionListener actionListener = e -> {
       String filterName = (String) cbPreset.getSelectedItem();
       if (StringUtils.isNotBlank(filterName)) {
-        treeTable.setFilterValues(TvShowModuleManager.SETTINGS.getUiFilterPresets().get(filterName));
+        treeTable.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(filterName));
       }
       else {
         treeTable.setFilterValues(Collections.emptyList());
@@ -217,14 +217,15 @@ public class TvShowFilterDialog extends TmmDialog {
         btnSavePreset.addActionListener(e -> {
           Set<AbstractSettings.UIFilters> activeUiFilters = getActiveUiFilters();
           if (!activeUiFilters.isEmpty()) {
-            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(TvShowModuleManager.SETTINGS.getUiFilterPresets());
+            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(
+                TvShowModuleManager.getInstance().getSettings().getUiFilterPresets());
             FilterSaveDialog saveDialog = new FilterSaveDialog(TvShowFilterDialog.this, activeUiFilters, tvShowUiFilters);
             saveDialog.setVisible(true);
 
             String savedPreset = saveDialog.getSavedPreset();
             if (StringUtils.isNotBlank(savedPreset)) {
               cbPreset.removeActionListener(actionListener);
-              TvShowModuleManager.SETTINGS.setUiFilterPresets(tvShowUiFilters);
+              TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
               loadPresets();
               cbPreset.setSelectedItem(savedPreset);
               cbPreset.addActionListener(actionListener);
@@ -261,10 +262,11 @@ public class TvShowFilterDialog extends TmmDialog {
               return;
             }
 
-            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(TvShowModuleManager.SETTINGS.getUiFilterPresets());
+            Map<String, List<AbstractSettings.UIFilters>> tvShowUiFilters = new HashMap<>(
+                TvShowModuleManager.getInstance().getSettings().getUiFilterPresets());
             if (tvShowUiFilters.remove(filterName) != null) {
               cbPreset.removeActionListener(actionListener);
-              TvShowModuleManager.SETTINGS.setUiFilterPresets(tvShowUiFilters);
+              TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
               loadPresets();
               cbPreset.addActionListener(actionListener);
             }
@@ -293,7 +295,7 @@ public class TvShowFilterDialog extends TmmDialog {
 
     cbPreset.removeAllItems();
     cbPreset.addItem("");
-    TvShowModuleManager.SETTINGS.getUiFilterPresets().keySet().stream().sorted().forEach(key -> cbPreset.addItem(key));
+    TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().keySet().stream().sorted().forEach(key -> cbPreset.addItem(key));
 
     if (StringUtils.isNotBlank(preset)) {
       cbPreset.setSelectedItem(preset);

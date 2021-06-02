@@ -333,7 +333,7 @@ public class MovieSetInformationPanel extends JPanel {
   }
 
   private void setArtworkPath(MovieSet movieSet) {
-    String artworkPath = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
+    String artworkPath = MovieModuleManager.getInstance().getSettings().getMovieSetArtworkFolder();
     if (StringUtils.isBlank(artworkPath)) {
       taArtworkPath1.setVisible(false);
       taArtworkPath2.setVisible(false);

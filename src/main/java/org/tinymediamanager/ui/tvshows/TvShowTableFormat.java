@@ -530,7 +530,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     if (userObject instanceof TvShow) {
       TvShow tvShow = (TvShow) userObject;
       // if we untick to write episode file NFOs, we do not need to check for tree "problems"...
-      if (TvShowModuleManager.SETTINGS.getEpisodeNfoFilenames().isEmpty()) {
+      if (TvShowModuleManager.getInstance().getSettings().getEpisodeNfoFilenames().isEmpty()) {
         return getCheckIcon(tvShow.getHasNfoFile());
       }
       return getTriStateIcon(TRI_STATE.getState(tvShow.getHasNfoFile(), tvShow.getHasEpisodeNfoFiles()));
@@ -595,7 +595,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasNfoTooltip(TmmTreeNode node) {
-    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isShowTvShowTableTooltips()) {
       return null;
     }
 
@@ -609,7 +609,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasImageTooltip(TmmTreeNode node) {
-    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isShowTvShowTableTooltips()) {
       return null;
     }
 

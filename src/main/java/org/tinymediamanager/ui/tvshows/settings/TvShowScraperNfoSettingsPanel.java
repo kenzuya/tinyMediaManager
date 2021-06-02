@@ -55,7 +55,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = 4999827736720726395L;
 
-  private final TvShowSettings                 settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings                 settings         = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
   private final ItemListener                   comboBoxListener;
 

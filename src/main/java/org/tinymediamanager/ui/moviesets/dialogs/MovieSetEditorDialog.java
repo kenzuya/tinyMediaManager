@@ -99,7 +99,7 @@ public class MovieSetEditorDialog extends TmmDialog {
   private static final String ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String SPACER              = "        ";
 
-  private MovieList           movieList           = MovieList.getInstance();
+  private MovieList           movieList           = MovieModuleManager.getInstance().getMovieList();
   private MovieSet            movieSetToEdit;
   private List<Movie>         moviesInSet         = ObservableCollections.observableList(new ArrayList<>());
   private List<Movie>         removedMovies       = new ArrayList<>();
@@ -791,9 +791,9 @@ public class MovieSetEditorDialog extends TmmDialog {
             MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
             options.setTmdbId(movie.getTmdbId());
             options.setImdbId(movie.getImdbId());
-            options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
-            options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-            options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+            options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+            options.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+            options.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
             try {
               MediaMetadata md = mp.getMetadata(options);

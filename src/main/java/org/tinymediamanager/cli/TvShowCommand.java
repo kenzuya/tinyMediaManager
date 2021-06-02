@@ -36,7 +36,6 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowExporter;
 import org.tinymediamanager.core.tvshow.TvShowHelpers;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -148,7 +147,7 @@ class TvShowCommand implements Runnable {
       task.run(); // blocking
     }
     else {
-      List<String> dataSources = new ArrayList<>(TvShowModuleManager.SETTINGS.getTvShowDataSource());
+      List<String> dataSources = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getTvShowDataSource());
       if (ListUtils.isNotEmpty(dataSources)) {
         for (Integer i : datasource.indices) {
           if (dataSources.size() >= i - 1) {
@@ -158,8 +157,8 @@ class TvShowCommand implements Runnable {
         }
       }
     }
-    LOGGER.info("Found {} new TV shows / {} new episodes", TvShowList.getInstance().getNewTvShows().size(),
-        TvShowList.getInstance().getNewEpisodes().size());
+    LOGGER.info("Found {} new TV shows / {} new episodes", TvShowModuleManager.getInstance().getTvShowList().getNewTvShows().size(),
+        TvShowModuleManager.getInstance().getTvShowList().getNewEpisodes().size());
   }
 
   private void scrapeTvShows(List<TvShow> showsToScrape, List<TvShowEpisode> episodesToScrape) {
@@ -168,17 +167,17 @@ class TvShowCommand implements Runnable {
 
     if (scrape.scrapeAll) {
       LOGGER.info("scraping ALL tv shows/episodes...");
-      scrapeShow.addAll(TvShowList.getInstance().getTvShows());
+      scrapeShow.addAll(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
     }
     else if (scrape.scrapeNew) {
       LOGGER.info("scraping NEW tv shows/episodes...");
-      scrapeShow.addAll(TvShowList.getInstance().getNewTvShows());
-      scrapeEpisode.addAll(TvShowList.getInstance().getNewEpisodes());
+      scrapeShow.addAll(TvShowModuleManager.getInstance().getTvShowList().getNewTvShows());
+      scrapeEpisode.addAll(TvShowModuleManager.getInstance().getTvShowList().getNewEpisodes());
     }
     else if (scrape.scrapeUnscraped) {
       LOGGER.info("scraping UNSCRAPED tv shows/episodes...");
-      scrapeShow.addAll(TvShowList.getInstance().getUnscrapedTvShows());
-      scrapeEpisode.addAll(TvShowList.getInstance().getUnscrapedEpisodes());
+      scrapeShow.addAll(TvShowModuleManager.getInstance().getTvShowList().getUnscrapedTvShows());
+      scrapeEpisode.addAll(TvShowModuleManager.getInstance().getTvShowList().getUnscrapedEpisodes());
     }
 
     // if we scrape already the whole show, no need to scrape dedicated episodes for it
@@ -196,8 +195,12 @@ class TvShowCommand implements Runnable {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.loadDefaults();
 
-      List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig = TvShowModuleManager.SETTINGS.getTvShowScraperMetadataConfig();
-      List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.SETTINGS.getEpisodeScraperMetadataConfig();
+      List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig = TvShowModuleManager.getInstance()
+          .getSettings()
+          .getTvShowScraperMetadataConfig();
+      List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.getInstance()
+          .getSettings()
+          .getEpisodeScraperMetadataConfig();
 
       Runnable task = new TvShowScrapeTask(showsToScrape, true, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig);
       task.run(); // blocking
@@ -234,7 +237,9 @@ class TvShowCommand implements Runnable {
           options.setLanguage(MediaLanguages.valueOf(tvShow.getLastScrapeLanguage()));
         }
 
-        List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.SETTINGS.getEpisodeScraperMetadataConfig();
+        List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = TvShowModuleManager.getInstance()
+            .getSettings()
+            .getEpisodeScraperMetadataConfig();
 
         Runnable task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig);
         task.run(); // blocking
@@ -254,7 +259,10 @@ class TvShowCommand implements Runnable {
 
   private void downloadTrailer() {
     LOGGER.info("downloading missing trailers...");
-    List<TvShow> tvShowsWithoutTrailer = TvShowList.getInstance().getTvShows().stream()
+    List<TvShow> tvShowsWithoutTrailer = TvShowModuleManager.getInstance()
+        .getTvShowList()
+        .getTvShows()
+        .stream()
         .filter(tvShow -> tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty()).collect(Collectors.toList());
 
     for (TvShow tvShow : tvShowsWithoutTrailer) {
@@ -288,12 +296,12 @@ class TvShowCommand implements Runnable {
     }
     else {
       // download in "main" language
-      languages.add(TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage());
+      languages.add(TvShowModuleManager.getInstance().getSettings().getSubtitleScraperLanguage());
     }
 
     List<TvShowEpisode> episodesWithoutSubtitles = new ArrayList<>();
 
-    TvShowList.getInstance().getTvShows().forEach(tvShow -> tvShow.getEpisodes().forEach(episode -> {
+    TvShowModuleManager.getInstance().getTvShowList().getTvShows().forEach(tvShow -> tvShow.getEpisodes().forEach(episode -> {
       if (!episode.getHasSubtitles()) {
         episodesWithoutSubtitles.add(episode);
       }
@@ -316,7 +324,7 @@ class TvShowCommand implements Runnable {
     }
     else if (rename.renameAll) {
       LOGGER.info("renaming ALL tv shows...");
-      tvShowsToRename.addAll(TvShowList.getInstance().getTvShows());
+      tvShowsToRename.addAll(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
     }
 
     if (!tvShowsToRename.isEmpty()) {
@@ -341,7 +349,7 @@ class TvShowCommand implements Runnable {
         try {
           ex = new TvShowExporter(Paths.get(exportTemplate.getPath()));
 
-          List<TvShow> tvShows = TvShowList.getInstance().getTvShows();
+          List<TvShow> tvShows = TvShowModuleManager.getInstance().getTvShowList().getTvShows();
           tvShows.sort(new TvShowComparator());
           ex.export(tvShows, export.path);
         }
@@ -355,12 +363,12 @@ class TvShowCommand implements Runnable {
   }
 
   private void rewriteNfoFiles() {
-    if (TvShowModuleManager.SETTINGS.getNfoFilenames().isEmpty()) {
+    if (TvShowModuleManager.getInstance().getSettings().getNfoFilenames().isEmpty()) {
       LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
       return;
     }
 
-    for (TvShow tvShow : TvShowList.getInstance().getTvShows()) {
+    for (TvShow tvShow : TvShowModuleManager.getInstance().getTvShowList().getTvShows()) {
       tvShow.writeNFO();
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.writeNFO();

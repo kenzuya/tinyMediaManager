@@ -90,7 +90,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
   private static final long                          serialVersionUID = -3104541519073924724L;
   private static final Logger                        LOGGER           = LoggerFactory.getLogger(MovieSubtitleChooserDialog.class);
 
-  private final MovieList                            movieList        = MovieList.getInstance();
+  private final MovieList                            movieList        = MovieModuleManager.getInstance().getMovieList();
   private final Movie                                movieToScrape;
   private final MediaFile                            fileToScrape;
   private SearchTask                                 activeSearchTask = null;
@@ -130,8 +130,8 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
     // Subtitle scraper
     List<MediaScraper> selectedSubtitleScrapers = new ArrayList<>();
-    for (MediaScraper subtitleScraper : MovieList.getInstance().getAvailableSubtitleScrapers()) {
-      if (MovieModuleManager.SETTINGS.getSubtitleScrapers().contains(subtitleScraper.getId())) {
+    for (MediaScraper subtitleScraper : MovieModuleManager.getInstance().getMovieList().getAvailableSubtitleScrapers()) {
+      if (MovieModuleManager.getInstance().getSettings().getSubtitleScrapers().contains(subtitleScraper.getId())) {
         selectedSubtitleScrapers.add(subtitleScraper);
       }
     }
@@ -141,7 +141,7 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
     for (MediaLanguages language : MediaLanguages.valuesSorted()) {
       cbLanguage.addItem(language);
-      if (language == MovieModuleManager.SETTINGS.getSubtitleScraperLanguage()) {
+      if (language == MovieModuleManager.getInstance().getSettings().getSubtitleScraperLanguage()) {
         cbLanguage.setSelectedItem(language);
       }
     }
@@ -423,7 +423,8 @@ public class MovieSubtitleChooserDialog extends TmmDialog {
 
         if (StringUtils.isNotBlank(model.getDownloadUrl())) {
           // the right language tag from the renamer settings
-          String lang = LanguageStyle.getLanguageCodeForStyle(model.getLanguage().name(), MovieModuleManager.SETTINGS.getSubtitleLanguageStyle());
+          String lang = LanguageStyle.getLanguageCodeForStyle(model.getLanguage().name(),
+              MovieModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
           if (StringUtils.isBlank(lang)) {
             lang = model.getLanguage().name();
           }

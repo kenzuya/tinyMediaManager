@@ -27,7 +27,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -65,7 +64,7 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
       JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
       panelCenter.add(lblScraper, "cell 0 0 2 1");
 
-      cbSubtitleScraper = new MediaScraperCheckComboBox(TvShowList.getInstance().getAvailableSubtitleScrapers());
+      cbSubtitleScraper = new MediaScraperCheckComboBox(TvShowModuleManager.getInstance().getTvShowList().getAvailableSubtitleScrapers());
       panelCenter.add(cbSubtitleScraper, "cell 2 0,growx,wmin 0");
 
       JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
@@ -102,8 +101,8 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
 
     // Subtitle scraper
     List<MediaScraper> selectedSubtitleScrapers = new ArrayList<>();
-    for (MediaScraper subtitleScraper : TvShowList.getInstance().getAvailableSubtitleScrapers()) {
-      if (TvShowModuleManager.SETTINGS.getSubtitleScrapers().contains(subtitleScraper.getId())) {
+    for (MediaScraper subtitleScraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableSubtitleScrapers()) {
+      if (TvShowModuleManager.getInstance().getSettings().getSubtitleScrapers().contains(subtitleScraper.getId())) {
         selectedSubtitleScrapers.add(subtitleScraper);
       }
     }
@@ -112,9 +111,9 @@ public class TvShowDownloadSubtitleDialog extends TmmDialog {
     }
 
     // language
-    cbLanguage.setSelectedItems(Collections.singletonList(TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage()));
+    cbLanguage.setSelectedItems(Collections.singletonList(TvShowModuleManager.getInstance().getSettings().getSubtitleScraperLanguage()));
 
-    chckbxForceBestSubtitle.setSelected(TvShowModuleManager.SETTINGS.getSubtitleForceBestMatch());
+    chckbxForceBestSubtitle.setSelected(TvShowModuleManager.getInstance().getSettings().getSubtitleForceBestMatch());
   }
 
   /**

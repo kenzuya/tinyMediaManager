@@ -83,7 +83,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long serialVersionUID = 5889203009864512935L;
 
-  private final MovieList   movieList        = MovieList.getInstance();
+  private final MovieList   movieList        = MovieModuleManager.getInstance().getMovieList();
 
   private int               rowcount;
   private long              rowcountLastUpdate;
@@ -136,11 +136,11 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
         JPopupMenu popupMenu = btnFilter.getPopupMenu();
         popupMenu.removeAll();
 
-        for (String uiFilter : MovieModuleManager.SETTINGS.getMovieSetUiFilterPresets().keySet()) {
+        for (String uiFilter : MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().keySet()) {
           FilterPresetAction action = new FilterPresetAction(uiFilter) {
             @Override
             protected void processAction(ActionEvent e) {
-              tree.setFilterValues(MovieModuleManager.SETTINGS.getMovieSetUiFilterPresets().get(presetName));
+              tree.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().get(presetName));
             }
           };
           popupMenu.add(action);
@@ -176,7 +176,7 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     tree = new TmmTreeTable(new MovieSetTreeDataProvider(tableFormat), tableFormat) {
       @Override
       public void storeFilters() {
-        if (MovieModuleManager.SETTINGS.isStoreMovieSetUiFilters()) {
+        if (MovieModuleManager.getInstance().getSettings().isStoreMovieSetUiFilters()) {
           List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
           for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
             if (filter instanceof ITmmUIFilter) {
@@ -190,8 +190,8 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
               }
             }
           }
-          MovieModuleManager.SETTINGS.setMovieSetUiFilters(filterValues);
-          MovieModuleManager.SETTINGS.saveSettings();
+          MovieModuleManager.getInstance().getSettings().setMovieSetUiFilters(filterValues);
+          MovieModuleManager.getInstance().getSettings().saveSettings();
         }
       }
     };

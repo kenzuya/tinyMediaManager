@@ -546,7 +546,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   @Override
   public MediaRating getRating() {
-    MediaRating mediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
+    MediaRating mediaRating = ratings.get(TvShowModuleManager.getInstance().getSettings().getPreferredRating());
 
     if (mediaRating == null) {
       mediaRating = MediaMetadata.EMPTY_RATING;
@@ -609,7 +609,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       String basename = FilenameUtils.getBaseName(mf.getFilename());
 
       int i = 0;
-      for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.SETTINGS.getEpisodeThumbFilenames()) {
+      for (TvShowEpisodeThumbNaming thumbNaming : TvShowModuleManager.getInstance().getSettings().getEpisodeThumbFilenames()) {
         String filename = thumbNaming.getFilename(basename, Utils.getArtworkExtensionFromUrl(thumbUrl));
         if (StringUtils.isBlank(filename)) {
           continue;
@@ -676,7 +676,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.TITLE)) {
       // Capitalize first letter of original title if setting is set!
-      if (TvShowModuleManager.SETTINGS.getCapitalWordsInTitles()) {
+      if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
       }
       else {
@@ -686,7 +686,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.ORIGINAL_TITLE)) {
       // Capitalize first letter of original title if setting is set!
-      if (TvShowModuleManager.SETTINGS.getCapitalWordsInTitles()) {
+      if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setOriginalTitle(WordUtils.capitalize(metadata.getOriginalTitle()));
       }
       else {
@@ -768,7 +768,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     saveToDb();
 
     // rename the episode if that has been chosen in the settings
-    if (TvShowModuleManager.SETTINGS.isRenameAfterScrape()) {
+    if (TvShowModuleManager.getInstance().getSettings().isRenameAfterScrape()) {
       TvShowRenamer.renameEpisode(this);
     }
 
@@ -782,7 +782,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * Write nfo.
    */
   public void writeNFO() {
-    List<TvShowEpisodeNfoNaming> nfoNamings = TvShowModuleManager.SETTINGS.getEpisodeNfoFilenames();
+    List<TvShowEpisodeNfoNaming> nfoNamings = TvShowModuleManager.getInstance().getSettings().getEpisodeNfoFilenames();
     if (nfoNamings.isEmpty()) {
       return;
     }
@@ -803,7 +803,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
 
     ITvShowEpisodeConnector connector = null;
 
-    switch (TvShowModuleManager.SETTINGS.getTvShowConnector()) {
+    switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
       case KODI:
         connector = new TvShowEpisodeToKodiConnector(episodesInNfo);
         break;
@@ -837,7 +837,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @return the checks for images
    */
   public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.SETTINGS.getEpisodeCheckImages()) {
+    for (MediaArtworkType type : TvShowModuleManager.getInstance().getSettings().getEpisodeCheckImages()) {
       if (StringUtils.isBlank(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
         return false;
       }
@@ -1255,7 +1255,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     super.callbackForGatheredMediainformation(mediaFile);
 
     // did we get meta data via the video media file?
-    if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.SETTINGS.isUseMediainfoMetadata() && !isScraped()
+    if (mediaFile.getType() == MediaFileType.VIDEO && TvShowModuleManager.getInstance().getSettings().isUseMediainfoMetadata() && !isScraped()
         && !mediaFile.getExtraData().isEmpty()) {
       boolean dirty = false;
 
@@ -1310,13 +1310,13 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
   @Override
   public void saveToDb() {
     // update/insert this episode to the database
-    TvShowList.getInstance().persistEpisode(this);
+    TvShowModuleManager.getInstance().getTvShowList().persistEpisode(this);
   }
 
   @Override
   public void deleteFromDb() {
     // delete this episode from the database
-    TvShowList.getInstance().removeEpisodeFromDb(this);
+    TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(this);
   }
 
   /**
@@ -1715,7 +1715,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    */
   public void writeActorImages() {
     // check if actor images shall be written
-    if (!TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
       return;
     }
 

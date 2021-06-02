@@ -24,9 +24,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
 import org.fourthline.cling.model.meta.Device;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
@@ -97,7 +97,7 @@ public abstract class UpnpPlayButton extends JButton {
     @Override
     public void actionPerformed(ActionEvent e) {
       // do we want to play via UPNP?
-      if (!Globals.settings.isUpnpRemotePlay()) {
+      if (!Settings.getInstance().isUpnpRemotePlay()) {
         playLocal();
       }
       else {

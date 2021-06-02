@@ -62,7 +62,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.MovieSettings;
@@ -98,7 +97,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
   private static final Logger                  LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 
-  private final MovieSettings                  settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings                  settings         = MovieModuleManager.getInstance().getSettings();
   private final List<String>                   spaceReplacement = new ArrayList<>(Arrays.asList("_", ".", "-"));
   private final List<String>                   colonReplacement = new ArrayList<>(Arrays.asList(" ", "-", "_"));
   private final EventList<MovieRenamerExample> exampleEventList;
@@ -416,7 +415,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
 
   private void buildAndInstallMovieArray() {
     cbMovieForPreview.removeAllItems();
-    List<Movie> allMovies = new ArrayList<>(MovieList.getInstance().getMovies());
+    List<Movie> allMovies = new ArrayList<>(MovieModuleManager.getInstance().getMovieList().getMovies());
     allMovies.sort(new MovieComparator());
     for (Movie movie : allMovies) {
       MoviePreviewContainer container = new MoviePreviewContainer();

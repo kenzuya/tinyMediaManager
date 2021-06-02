@@ -9,8 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -31,9 +30,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    // MediaInfoUtils.loadMediaInfo(); // unneeded here for UDS. does not work on buildserver
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Before
@@ -45,7 +42,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
 
     // just a copy; we might have another movie test which uses these files
     FileUtils.copyDirectory(new File("target/test-classes/testmovies"), new File(getSettingsFolder(), "testmovies"));
-    MovieModuleManager.SETTINGS.addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies").toAbsolutePath().toString());
+    MovieModuleManager.getInstance().getSettings().addMovieDataSources(Paths.get(getSettingsFolder(), "/testmovies").toAbsolutePath().toString());
   }
 
   @After
@@ -67,7 +64,7 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
   private void showEntries() throws Exception {
     // wait until all movies have been added (let propertychanges finish)
     for (int i = 0; i < 20; i++) {
-      if (MovieList.getInstance().getMovieCount() == NUMBER_OF_EXPECTED_MOVIES) {
+      if (MovieModuleManager.getInstance().getMovieList().getMovieCount() == NUMBER_OF_EXPECTED_MOVIES) {
         break;
       }
 
@@ -76,11 +73,11 @@ public class MovieUpdateDatasourceTaskTest extends BasicTest {
       Thread.sleep(1000);
     }
 
-    assertEqual("Amount of movies does not match!", NUMBER_OF_EXPECTED_MOVIES, MovieList.getInstance().getMovieCount());
+    assertEqual("Amount of movies does not match!", NUMBER_OF_EXPECTED_MOVIES, MovieModuleManager.getInstance().getMovieList().getMovieCount());
 
     int stack = 0;
     int disc = 0;
-    for (Movie m : MovieList.getInstance().getMovies()) {
+    for (Movie m : MovieModuleManager.getInstance().getMovieList().getMovies()) {
       System.out.println(rpad(m.getTitle(), 30) + "(Disc:" + rpad(m.isDisc(), 5) + " Stack:" + rpad(m.isStacked(), 5) + " Multi:"
           + rpad(m.isMultiMovieDir(), 5) + ")\t" + m.getPathNIO());
       if (m.isStacked()) {

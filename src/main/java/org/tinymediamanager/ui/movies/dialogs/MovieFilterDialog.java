@@ -130,7 +130,7 @@ public class MovieFilterDialog extends TmmDialog {
       SwingUtilities.invokeLater(() -> {
         String filterName = (String) cbPreset.getSelectedItem();
         if (StringUtils.isNotBlank(filterName)) {
-          selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getMovieUiFilterPresets().get(filterName));
+          selectionModel.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().get(filterName));
         }
         else {
           selectionModel.setFilterValues(Collections.emptyList());
@@ -229,14 +229,14 @@ public class MovieFilterDialog extends TmmDialog {
         btnSavePreset.addActionListener(e -> {
           Set<UIFilters> activeUiFilters = getActiveUiFilters();
           if (!activeUiFilters.isEmpty()) {
-            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.SETTINGS.getMovieUiFilterPresets());
+            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
             FilterSaveDialog saveDialog = new FilterSaveDialog(MovieFilterDialog.this, activeUiFilters, movieUiFilters);
             saveDialog.setVisible(true);
 
             String savedPreset = saveDialog.getSavedPreset();
             if (StringUtils.isNotBlank(savedPreset)) {
               cbPreset.removeActionListener(actionListener);
-              MovieModuleManager.SETTINGS.setMovieUiFilterPresets(movieUiFilters);
+              MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(movieUiFilters);
               loadPresets();
               cbPreset.setSelectedItem(savedPreset);
               cbPreset.addActionListener(actionListener);
@@ -273,10 +273,10 @@ public class MovieFilterDialog extends TmmDialog {
               return;
             }
 
-            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.SETTINGS.getMovieUiFilterPresets());
+            Map<String, List<UIFilters>> movieUiFilters = new HashMap<>(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets());
             if (movieUiFilters.remove(filterName) != null) {
               cbPreset.removeActionListener(actionListener);
-              MovieModuleManager.SETTINGS.setMovieUiFilterPresets(movieUiFilters);
+              MovieModuleManager.getInstance().getSettings().setMovieUiFilterPresets(movieUiFilters);
               loadPresets();
               cbPreset.addActionListener(actionListener);
             }
@@ -305,7 +305,7 @@ public class MovieFilterDialog extends TmmDialog {
 
     cbPreset.removeAllItems();
     cbPreset.addItem("");
-    MovieModuleManager.SETTINGS.getMovieUiFilterPresets().keySet().stream().sorted().forEach(key -> cbPreset.addItem(key));
+    MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet().stream().sorted().forEach(key -> cbPreset.addItem(key));
 
     if (StringUtils.isNotBlank(preset)) {
       cbPreset.setSelectedItem(preset);

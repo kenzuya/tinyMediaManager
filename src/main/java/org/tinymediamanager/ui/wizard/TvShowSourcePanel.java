@@ -58,7 +58,7 @@ class TvShowSourcePanel extends JPanel {
 
 
 
-  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings settings         = TvShowModuleManager.getInstance().getSettings();
 
   private JList<String>               listDataSources;
   private JCheckBox                   cbDvdOrder;

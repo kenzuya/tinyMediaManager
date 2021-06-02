@@ -32,7 +32,6 @@ import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
@@ -87,14 +86,15 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     panelContent.add(lblLanguageT, "cell 0 0,alignx trailing");
 
     cbLanguage = new JComboBox(MediaLanguages.valuesSorted());
-    cbLanguage.setSelectedItem(TvShowModuleManager.SETTINGS.getScraperLanguage());
+    cbLanguage.setSelectedItem(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
     panelContent.add(cbLanguage, "cell 1 0,growx");
 
     if (!artworkOnly) {
       JLabel lblMetadataScraperT = new TmmLabel(TmmResourceBundle.getString("scraper.metadata"));
       panelContent.add(lblMetadataScraperT, "cell 0 1,alignx trailing");
 
-      cbMetadataScraper = new MediaScraperComboBox(TvShowList.getInstance()
+      cbMetadataScraper = new MediaScraperComboBox(TvShowModuleManager.getInstance()
+          .getTvShowList()
           .getAvailableMediaScrapers()
           .stream()
           .filter(scraper -> !(scraper.getMediaProvider() instanceof KodiTvShowMetadataProvider))
@@ -105,14 +105,14 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     JLabel lblArtworkScraper = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
     panelContent.add(lblArtworkScraper, "cell 0 2,alignx trailing");
 
-    cbArtworkScraper = new MediaScraperCheckComboBox(TvShowList.getInstance().getAvailableArtworkScrapers());
+    cbArtworkScraper = new MediaScraperCheckComboBox(TvShowModuleManager.getInstance().getTvShowList().getAvailableArtworkScrapers());
     panelContent.add(cbArtworkScraper, "cell 1 2,growx");
 
     if (!artworkOnly) {
       JLabel lblTrailerScraper = new TmmLabel(TmmResourceBundle.getString("scraper.trailer"));
       panelContent.add(lblTrailerScraper, "cell 0 3,alignx right");
 
-      cbTrailerScraper = new MediaScraperCheckComboBox(TvShowList.getInstance().getAvailableTrailerScrapers());
+      cbTrailerScraper = new MediaScraperCheckComboBox(TvShowModuleManager.getInstance().getTvShowList().getAvailableTrailerScrapers());
       panelContent.add(cbTrailerScraper, "cell 1 3,growx");
     }
     {
@@ -180,15 +180,15 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
 
     // metadataprovider
     if (cbMetadataScraper != null) {
-      MediaScraper defaultScraper = TvShowList.getInstance().getDefaultMediaScraper();
+      MediaScraper defaultScraper = TvShowModuleManager.getInstance().getTvShowList().getDefaultMediaScraper();
       cbMetadataScraper.setSelectedItem(defaultScraper);
     }
 
     // artwork scraper
     if (cbArtworkScraper != null) {
       List<MediaScraper> selectedArtworkScrapers = new ArrayList<>();
-      for (MediaScraper artworkScraper : TvShowList.getInstance().getAvailableArtworkScrapers()) {
-        if (TvShowModuleManager.SETTINGS.getArtworkScrapers().contains(artworkScraper.getId())) {
+      for (MediaScraper artworkScraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableArtworkScrapers()) {
+        if (TvShowModuleManager.getInstance().getSettings().getArtworkScrapers().contains(artworkScraper.getId())) {
           selectedArtworkScrapers.add(artworkScraper);
         }
       }
@@ -200,8 +200,8 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     // trailer scraper
     if (cbTrailerScraper != null) {
       List<MediaScraper> selectedTrailerScrapers = new ArrayList<>();
-      for (MediaScraper trailerScraper : TvShowList.getInstance().getAvailableTrailerScrapers()) {
-        if (TvShowModuleManager.SETTINGS.getTrailerScrapers().contains(trailerScraper.getId())) {
+      for (MediaScraper trailerScraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableTrailerScrapers()) {
+        if (TvShowModuleManager.getInstance().getSettings().getTrailerScrapers().contains(trailerScraper.getId())) {
           selectedTrailerScrapers.add(trailerScraper);
         }
       }
@@ -212,25 +212,26 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
 
     // pre-set configs
     if (cbTvShowScraperConfig != null) {
-      List<TvShowScraperMetadataConfig> config = new ArrayList<>(TvShowModuleManager.SETTINGS.getTvShowScraperMetadataConfig());
+      List<TvShowScraperMetadataConfig> config = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getTvShowScraperMetadataConfig());
       // only take artwork if only artwork has been requested
       if (artworkOnly) {
         config = config.stream().filter(ScraperMetadataConfig::isArtwork).collect(Collectors.toList());
       }
       // if automatic artwork scrape is not wanted, strip out artwork options
-      if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {
+      if (!TvShowModuleManager.getInstance().getSettings().isScrapeBestImage()) {
         config.removeAll(TvShowScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
       }
       cbTvShowScraperConfig.setSelectedItems(config);
     }
     if (cbEpisodeScraperConfig != null) {
-      List<TvShowEpisodeScraperMetadataConfig> config = new ArrayList<>(TvShowModuleManager.SETTINGS.getEpisodeScraperMetadataConfig());
+      List<TvShowEpisodeScraperMetadataConfig> config = new ArrayList<>(
+          TvShowModuleManager.getInstance().getSettings().getEpisodeScraperMetadataConfig());
       // only take artwork if only artwork has been requested
       if (artworkOnly) {
         config = config.stream().filter(ScraperMetadataConfig::isArtwork).collect(Collectors.toList());
       }
       // if automatic artwork scrape is not wanted, strip out artwork options
-      if (!TvShowModuleManager.SETTINGS.isScrapeBestImage()) {
+      if (!TvShowModuleManager.getInstance().getSettings().isScrapeBestImage()) {
         config.removeAll(TvShowEpisodeScraperMetadataConfig.valuesForType(ScraperMetadataConfig.Type.ARTWORK));
       }
       cbEpisodeScraperConfig.setSelectedItems(config);
@@ -252,8 +253,8 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
    */
   public TvShowSearchAndScrapeOptions getTvShowSearchAndScrapeOptions() {
     TvShowSearchAndScrapeOptions tvShowSearchAndScrapeConfig = new TvShowSearchAndScrapeOptions();
-    tvShowSearchAndScrapeConfig.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-    tvShowSearchAndScrapeConfig.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+    tvShowSearchAndScrapeConfig.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+    tvShowSearchAndScrapeConfig.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
     // language
     tvShowSearchAndScrapeConfig.setLanguage((MediaLanguages) cbLanguage.getSelectedItem());
@@ -283,8 +284,8 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
    */
   public TvShowEpisodeSearchAndScrapeOptions getTvShowEpisodeSearchAndScrapeOptions() {
     TvShowEpisodeSearchAndScrapeOptions episodeSearchAndScrapeOptions = new TvShowEpisodeSearchAndScrapeOptions();
-    episodeSearchAndScrapeOptions.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-    episodeSearchAndScrapeOptions.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+    episodeSearchAndScrapeOptions.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+    episodeSearchAndScrapeOptions.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
     // language
     episodeSearchAndScrapeOptions.setLanguage((MediaLanguages) cbLanguage.getSelectedItem());

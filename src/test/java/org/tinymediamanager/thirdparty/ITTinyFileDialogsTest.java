@@ -18,11 +18,18 @@ package org.tinymediamanager.thirdparty;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 
 import com.sun.jna.Platform;
 
-public class ITTinyFileDialogsTest {
+public class ITTinyFileDialogsTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   private void init() throws Exception {
     String nativepath = "native/";

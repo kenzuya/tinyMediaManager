@@ -23,9 +23,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaSource;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -128,20 +128,20 @@ public class TraktTv implements TmmFeature {
    * get a new accessToken with the refreshToken
    */
   public void refreshAccessToken() throws Exception {
-    if (StringUtils.isBlank(Globals.settings.getTraktRefreshToken())) {
+    if (StringUtils.isBlank(Settings.getInstance().getTraktRefreshToken())) {
       throw new IOException("no trakt.tv refresh token found");
     }
 
     initAPI();
 
-    Response<AccessToken> response = api.refreshToken(Globals.settings.getTraktRefreshToken())
-        .refreshAccessToken(Globals.settings.getTraktRefreshToken());
+    Response<AccessToken> response = api.refreshToken(Settings.getInstance().getTraktRefreshToken())
+        .refreshAccessToken(Settings.getInstance().getTraktRefreshToken());
 
     if (response.isSuccessful() && response.body() != null) {
       if (StringUtils.isNoneBlank(response.body().access_token, response.body().refresh_token)) {
-        Globals.settings.setTraktAccessToken(response.body().access_token);
-        Globals.settings.setTraktRefreshToken(response.body().refresh_token);
-        api.accessToken(Globals.settings.getTraktAccessToken());
+        Settings.getInstance().setTraktAccessToken(response.body().access_token);
+        Settings.getInstance().setTraktRefreshToken(response.body().refresh_token);
+        api.accessToken(Settings.getInstance().getTraktAccessToken());
       }
     }
     else {
@@ -159,9 +159,9 @@ public class TraktTv implements TmmFeature {
       return false;
     }
 
-    if (StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
+    if (StringUtils.isNoneBlank(Settings.getInstance().getTraktAccessToken(), Settings.getInstance().getTraktRefreshToken())) {
       // everything seems fine; also set the access token
-      api.accessToken(Globals.settings.getTraktAccessToken());
+      api.accessToken(Settings.getInstance().getTraktAccessToken());
       return true;
     }
 

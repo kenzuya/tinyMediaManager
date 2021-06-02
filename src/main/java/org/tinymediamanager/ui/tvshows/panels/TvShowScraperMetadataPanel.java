@@ -53,7 +53,7 @@ public class TvShowScraperMetadataPanel extends JPanel {
    * @wbp.nls.resourceBundle messages
    */
 
-  private final TvShowSettings                                     settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings                                     settings         = TvShowModuleManager.getInstance().getSettings();
   private final Map<TvShowScraperMetadataConfig, JCheckBox>        tvShowCheckboxes;
   private final Map<TvShowEpisodeScraperMetadataConfig, JCheckBox> episodeCheckboxes;
 
