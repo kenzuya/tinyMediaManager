@@ -35,6 +35,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -281,11 +282,12 @@ public class ToolbarPanel extends JPanel {
           menuWakeOnLan.setEnabled(false);
         }
 
-        kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-        if (KodiRPC.getInstance().isConnected()) {
+        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
           kodiRPCMenu.setEnabled(true);
         }
         else {
+          kodiRPCMenu.setText("Kodi");
           kodiRPCMenu.setEnabled(false);
         }
       }
