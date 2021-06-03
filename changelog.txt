@@ -1,5 +1,6 @@
 Version 4.2
 =======================
++ initial support for reading/writing movie set NFO files #1334
 + (movies/TV shows) "add a new data source" has been added to the "update data sources" menu
 + (movies/TV shows) added quick loading for filter presets #1267
 + (movies/TV shows) added a filter for date added

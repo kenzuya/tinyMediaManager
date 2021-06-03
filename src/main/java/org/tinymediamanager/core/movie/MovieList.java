@@ -314,7 +314,6 @@ public class MovieList extends AbstractModelObject {
     if (movies == null || movies.isEmpty()) {
       return;
     }
-    Set<MovieSet> modifiedMovieSets = new HashSet<>();
     int oldValue = movieList.size();
 
     // remove in inverse order => performance
@@ -325,7 +324,6 @@ public class MovieList extends AbstractModelObject {
         MovieSet movieSet = movie.getMovieSet();
 
         movieSet.removeMovie(movie, false);
-        modifiedMovieSets.add(movieSet);
         movie.setMovieSet(null);
       }
       try {
@@ -350,7 +348,6 @@ public class MovieList extends AbstractModelObject {
     if (movies == null || movies.isEmpty()) {
       return;
     }
-    Set<MovieSet> modifiedMovieSets = new HashSet<>();
     int oldValue = movieList.size();
 
     // remove in inverse order => performance
@@ -361,7 +358,6 @@ public class MovieList extends AbstractModelObject {
       if (movie.getMovieSet() != null) {
         MovieSet movieSet = movie.getMovieSet();
         movieSet.removeMovie(movie, false);
-        modifiedMovieSets.add(movieSet);
         movie.setMovieSet(null);
       }
       try {
@@ -1221,8 +1217,20 @@ public class MovieList extends AbstractModelObject {
     movieSet.removePropertyChangeListener(movieSetListener);
 
     try {
+      // remove NFO
+      for (MediaFile mf : movieSet.getMediaFiles(MediaFileType.NFO)) {
+        Utils.deleteFileSafely(mf.getFileAsPath());
+      }
+
       // remove artwork
       MovieSetArtworkHelper.removeMovieSetArtwork(movieSet);
+
+      // remove any empty movie set data folder
+      if (StringUtils.isNotBlank(MovieModuleManager.SETTINGS.getMovieSetDataFolder())) {
+        String movieSetName = movieSet.getTitleForStorage();
+        Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.SETTINGS.getMovieSetDataFolder(), movieSetName));
+      }
+
       movieSetList.remove(movieSet);
       MovieModuleManager.getInstance().removeMovieSetFromDb(movieSet);
     }

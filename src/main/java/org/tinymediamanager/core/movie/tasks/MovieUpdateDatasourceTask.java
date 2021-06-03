@@ -67,7 +67,9 @@ import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.connector.MovieNfoParser;
+import org.tinymediamanager.core.movie.connector.MovieSetNfoParser;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.tasks.MediaFileInformationFetcherTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -161,6 +163,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     try {
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
+
+      // fin movie set NFOs
+      updateMovieSets();
 
       if (moviesToUpdate.isEmpty()) {
         updateDatasource();
@@ -306,6 +311,76 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
     } // END datasource loop
+  }
+
+  private void updateMovieSets() {
+    if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getMovieSetDataFolder())) {
+      return;
+    }
+
+    LOGGER.info("Start UDS for movie sets");
+
+    Set<Path> movieSetFiles = getAllFilesRecursive(Paths.get(MovieModuleManager.SETTINGS.getMovieSetDataFolder()), Integer.MAX_VALUE);
+
+    for (Path path : movieSetFiles) {
+      if (FilenameUtils.isExtension(path.getFileName().toString(), "nfo")) {
+        try {
+          MovieSetNfoParser nfoParser = MovieSetNfoParser.parseNfo(path);
+          MovieSet movieSet = nfoParser.toMovieSet();
+
+          // look if that movie set is already in our database
+          MovieSet movieSetInDb = matchMovieSetInDb(path, movieSet);
+
+          if (movieSetInDb != null) {
+            // just add the media file if needed
+            movieSetInDb.addToMediaFiles(new MediaFile(path));
+          }
+          else {
+            // add this new one
+            movieSet.addToMediaFiles(new MediaFile(path));
+            MovieList.getInstance().addMovieSet(movieSet);
+          }
+        }
+        catch (Exception e) {
+          LOGGER.debug("Could not parse movie set NFO '{}' - '{}'", path.getFileName(), e.getMessage());
+        }
+      }
+    }
+  }
+
+  private MovieSet matchMovieSetInDb(Path nfoFile, MovieSet movieSetFromNfo) {
+    List<MovieSet> existingMovieSets = MovieList.getInstance().getMovieSetList();
+
+    // look if that movie set is already in our database
+
+    // match by media file
+    MediaFile foundNfo = new MediaFile(nfoFile);
+    for (MovieSet movieSetInDb : existingMovieSets) {
+      List<MediaFile> nfos = movieSetInDb.getMediaFiles(MediaFileType.NFO);
+      if (nfos.contains(foundNfo)) {
+        return movieSetInDb;
+      }
+    }
+
+    // match by id
+    int tmdbId = movieSetFromNfo.getTmdbId();
+    if (tmdbId > 0) {
+      for (MovieSet movieSetInDb : existingMovieSets) {
+        int id = movieSetInDb.getTmdbId();
+        if (id == tmdbId) {
+          return movieSetInDb;
+        }
+      }
+    }
+
+    // match by title
+    for (MovieSet movieSetInDb : existingMovieSets) {
+      if (movieSetFromNfo.getTitle().equals(movieSetInDb.getTitle())) {
+        return movieSetInDb;
+      }
+    }
+
+    return null;
   }
 
   private void updateMovies() {
@@ -624,7 +699,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     filesFound.addAll(allFiles); // our global cache
 
     // convert to MFs (we need it anyways at the end)
-    ArrayList<MediaFile> mfs = new ArrayList<>();
+    List<MediaFile> mfs = new ArrayList<>();
     for (Path file : allFiles) {
       mfs.add(new MediaFile(file));
     }

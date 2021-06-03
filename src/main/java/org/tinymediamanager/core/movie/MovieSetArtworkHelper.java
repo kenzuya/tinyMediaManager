@@ -229,7 +229,7 @@ public class MovieSetArtworkHelper {
    * @return the {@link Path} to the artwork folder or null
    */
   private static Path getArtworkFolder() {
-    String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
+    String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetDataFolder();
     if (StringUtils.isBlank(artworkFolder)) {
       return null;
     }
@@ -254,7 +254,7 @@ public class MovieSetArtworkHelper {
     }
 
     List<Path> paths = new ArrayList<>();
-    String movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
+    String movieSetName = movieSet.getTitleForStorage();
 
     for (IMovieSetFileNaming fileNaming : filenamings) {
       if (fileNaming.getFolderLocation() == IMovieSetFileNaming.Location.KODI_STYLE_FOLDER) {
@@ -304,7 +304,7 @@ public class MovieSetArtworkHelper {
         }
 
         // second, try the Kodi style
-        movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
+        movieSetName = movieSet.getTitleForStorage();
 
         if (isMediaFileInArtworkFolder(movieSetName, artworkFolder, fileNaming, mediaFile)) {
           return mediaFile;
@@ -346,7 +346,7 @@ public class MovieSetArtworkHelper {
    *          the movie set to search artwork for
    */
   private static void findArtworkInArtworkFolder(MovieSet movieSet) {
-    String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
+    String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetDataFolder();
     if (StringUtils.isBlank(artworkFolder)) {
       return;
     }
@@ -374,7 +374,7 @@ public class MovieSetArtworkHelper {
         }
 
         // Kodi style
-        movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
+        movieSetName = movieSet.getTitleForStorage();
 
         artworkFileName = movieSetName + "-" + type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         artworkFile = Paths.get(artworkFolder, artworkFileName);
@@ -406,7 +406,7 @@ public class MovieSetArtworkHelper {
         }
 
         // Kodi style
-        movieSetName = cleanMovieSetNameKodiStyle(movieSet.getTitle());
+        movieSetName = movieSet.getTitleForStorage();
 
         artworkFileName = type.name().toLowerCase(Locale.ROOT) + "." + fileType;
         artworkFile = Paths.get(artworkFolder, movieSetName, artworkFileName);
@@ -722,12 +722,12 @@ public class MovieSetArtworkHelper {
     }
 
     // and also remove any empty subfolders from the artwork folder
-    if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder())) {
+    if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getMovieSetDataFolder())) {
       return;
     }
 
     try {
-      Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder()));
+      Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.SETTINGS.getMovieSetDataFolder()));
     }
     catch (Exception e) {
       LOGGER.warn("could not clean empty subfolders: {}", e.getMessage());
@@ -1051,26 +1051,5 @@ public class MovieSetArtworkHelper {
     }
 
     return fileNamings;
-  }
-
-  /**
-   * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
-   * 
-   * @param movieSetTitle
-   *          the movie set title
-   * @return the cleaned movie set title
-   */
-  private static String cleanMovieSetNameKodiStyle(String movieSetTitle) {
-    String result = movieSetTitle.replace('/', '_');
-    result = result.replace('\\', '_');
-    result = result.replace('?', '_');
-    result = result.replace(':', '_');
-    result = result.replace('*', '_');
-    result = result.replace('\"', '_');
-    result = result.replace('<', '_');
-    result = result.replace('>', '_');
-    result = result.replace('|', '_');
-
-    return result;
   }
 }

@@ -15,46 +15,22 @@
  */
 package org.tinymediamanager.core.movie.connector;
 
-import java.nio.file.Path;
-
 /**
- * The Enum MovieConnectors.
+ * The Enum MovieSetConnectors.
  * 
  * @author Manuel Laggner
  */
-public enum MovieConnectors {
-  KODI("Kodi"),
-  XBMC("Kodi / XBMC < v16"),
-  MP("MediaPortal (legacy)"),
-  MP_MP("MediaPortal - Moving Pictures"),
-  MP_MV("MediaPortal - MyVideo");
+public enum MovieSetConnectors {
+  EMBY("Emby");
 
   private final String title;
 
-  MovieConnectors(String title) {
+  MovieSetConnectors(String title) {
     this.title = title;
   }
 
   @Override
   public String toString() {
     return this.title;
-  }
-
-  /**
-   * checks, if current NFO file is a valid XML<br>
-   * (by casting to all known XML formats)
-   * 
-   * @param nfo
-   *          the path to the NFO
-   * @return true/false
-   */
-  public static boolean isValidNFO(Path nfo) {
-    try {
-      MovieNfoParser movieNfoParser = MovieNfoParser.parseNfo(nfo);
-      return movieNfoParser.isValidNfo();
-    }
-    catch (Exception e) {
-      return false;
-    }
   }
 }

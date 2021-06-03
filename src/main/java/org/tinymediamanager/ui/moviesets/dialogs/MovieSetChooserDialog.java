@@ -545,7 +545,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     Map<String, Object> newIds = new HashMap<>(movieSetToScrape.getIds());
     String imageUrl = ImageChooserDialog.chooseImage(this, newIds, imageType, MovieList.getInstance().getDefaultArtworkScrapers(),
-        MediaType.MOVIE_SET, MovieModuleManager.SETTINGS.getMovieSetArtworkFolder());
+        MediaType.MOVIE_SET, MovieModuleManager.SETTINGS.getMovieSetDataFolder());
 
     movieSetToScrape.setArtworkUrl(imageUrl, mediaFileType);
   }
