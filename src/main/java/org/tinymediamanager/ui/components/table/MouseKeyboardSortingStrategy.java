@@ -39,17 +39,21 @@ public class MouseKeyboardSortingStrategy implements SortingStrategy {
   @Override
   public void columnClicked(SortingState sortingState, int column, int clicks, boolean shift, boolean control) {
     SortingState.SortingColumn sortingColumn = sortingState.getColumns().get(column);
-    if (sortingColumn.getComparators().isEmpty())
+    if (sortingColumn.getComparators().isEmpty()) {
       return;
+    }
+
     List<SortingState.SortingColumn> recentlyClickedColumns = sortingState.getRecentlyClickedColumns();
 
     // figure out which comparator and reverse state we were on before
     int comparatorIndexBefore = sortingColumn.getComparatorIndex();
     final int forwardReverseNoneBefore;
-    if (comparatorIndexBefore == -1)
+    if (comparatorIndexBefore == -1) {
       forwardReverseNoneBefore = NONE;
-    else
+    }
+    else {
       forwardReverseNoneBefore = sortingColumn.isReverse() ? REVERSE : FORWARD;
+    }
 
     // figure out which comparator and reverse state we shall go to
     int forwardReverseNoneAfter;
@@ -85,7 +89,13 @@ public class MouseKeyboardSortingStrategy implements SortingStrategy {
       recentlyClickedColumns.add(sortingColumn);
     }
 
+    finalHook(sortingState);
+
     // rebuild the sorting state
     sortingState.fireSortingChanged();
+  }
+
+  public void finalHook(SortingState sortingState) {
+    // hook for custom implementations
   }
 }

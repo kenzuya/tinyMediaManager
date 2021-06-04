@@ -105,10 +105,11 @@ public class KodiRPC {
   }
 
   public static synchronized KodiRPC getInstance() {
-    if (KodiRPC.instance == null) {
-      KodiRPC.instance = new KodiRPC();
+    if (instance == null) {
+      instance = new KodiRPC();
     }
-    return KodiRPC.instance;
+
+    return instance;
   }
 
   public boolean isConnected() {
@@ -124,10 +125,7 @@ public class KodiRPC {
    * @return Kodi XX (codename)
    */
   public String getVersion() {
-    if (kodiVersion.isEmpty() && isConnected()) {
-      getAndSetKodiVersion();
-    }
-    return (kodiVersion.isEmpty() || kodiVersion.contains("nknown")) ? "Kodi" : kodiVersion;
+    return (StringUtils.isBlank(kodiVersion) || kodiVersion.contains("nknown")) ? "Kodi" : kodiVersion;
   }
 
   private void getAndSetKodiVersion() {
@@ -135,6 +133,9 @@ public class KodiRPC {
     send(call);
     if (call.getResult() != null) {
       kodiVersion = call.getResult().getKodiVersion();
+    }
+    else {
+      kodiVersion = "";
     }
   }
 

@@ -346,7 +346,7 @@ public class Utils {
       if (prfx.matches(".*['`´]$")) { // ends with hand-picked delim, so no space between prefix and title
         delim = "";
       }
-      title = title.replaceAll("(?i)(.*), " + prfx + "$", prfx + delim + "$1");
+      title = title.replaceAll("(?i)(.*), " + Pattern.quote(prfx) + "$", prfx + delim + "$1");
     }
     return title.trim();
   }
