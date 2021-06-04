@@ -54,6 +54,7 @@ import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.actions.RequestFocusAction;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.TmmListPanel;
+import org.tinymediamanager.ui.components.table.MouseKeyboardSortingStrategy;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
 import org.tinymediamanager.ui.movies.MovieMatcherEditor;
@@ -67,6 +68,7 @@ import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
 import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.impl.gui.SortingState;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.GlazedListsSwing;
 import net.miginfocom.swing.MigLayout;
@@ -95,7 +97,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     setOpaque(false);
 
     movieList = MovieList.getInstance();
-    SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList) movieList.getMovies()),
+    SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList<Movie>) movieList.getMovies()),
         new MovieComparator());
     sortedMovies.setMode(SortedList.AVOID_MOVING_ELEMENTS);
 
@@ -119,7 +121,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     // build the table
     movieTable = new TmmTable(movieTableModel);
     movieTable.setName("movies.movieTable");
-    movieTable.installComparatorChooser(sortedMovies);
+    movieTable.installComparatorChooser(sortedMovies, new MovieTableSortingStrategy());
     movieTable.getTableComparatorChooser().appendComparator(0, 0, false);
 
     movieTable.adjustColumnPreferredWidths(3);
@@ -308,5 +310,16 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     AutoBinding<MovieList, Integer, JLabel, String> autoBinding = Bindings.createAutoBinding(UpdateStrategy.READ, movieList, movieListBeanProperty,
         lblMovieCountTotal, jLabelBeanProperty);
     autoBinding.bind();
+  }
+
+  private static class MovieTableSortingStrategy extends MouseKeyboardSortingStrategy {
+    @Override
+    public void finalHook(SortingState sortingState) {
+
+      // install sorting on title too if it is no yet selected
+      if (!sortingState.getSortingColumnIndexes().contains(0)) {
+        sortingState.appendComparator(0, 0, false);
+      }
+    }
   }
 }
