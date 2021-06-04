@@ -11,7 +11,7 @@ import retrofit2.http.Query;
 
 public interface TpdbService {
 
-    @GET("/scenes/")
+    @GET("/scenes")
     Call<SceneSearch> scenesSearch(@Header("Authorization") String apikey, @Query("parse") String query);
 
     @GET("/scenes/{id}")

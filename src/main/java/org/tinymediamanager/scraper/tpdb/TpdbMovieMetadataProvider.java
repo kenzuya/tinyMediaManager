@@ -22,6 +22,8 @@ import org.tinymediamanager.scraper.tpdb.entities.*;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements IMovieMetadataProvider, IMovieArtworkProvider, IMovieSetArtworkProvider, IMovieTrailerProvider {
@@ -37,6 +39,15 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
         return LOGGER;
     }
 
+    protected static final String BaseURL = "https://metadataapi.net/performers/";
+
+    protected static final String PerformerURL = BaseURL + "/performers/";
+
+    protected static final Pattern DateMatch = Pattern.compile("\\b[0-9]{4}[ -][0-9]{2}[ -][0-9]{2}\\b");
+    protected static final Pattern DateMatch2 = Pattern.compile("\\b[0-9]{2}[ -][0-9]{2}[ -][0-9]{2}\\b");
+
+    protected static final Pattern StripMatch = Pattern.compile("^\\W+|\\W+$");
+
     @Override
     public SortedSet<MediaSearchResult> search(MovieSearchAndScrapeOptions options) throws ScrapeException {
         LOGGER.debug("search(): {}", options);
@@ -45,15 +56,38 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
 
         SortedSet<MediaSearchResult> results = new TreeSet<>();
 
+        String query = options.getSearchQuery();
+
         SceneSearch search;
         try {
-            search = controller.getScenesFromTitle(options.getSearchQuery());
+            search = controller.getScenesFromTitle(query);
         } catch (Exception e) {
             LOGGER.error("error searching: {}", e.getMessage());
             throw new ScrapeException(e);
         }
 
-        if (search == null) {
+        if (search == null || search.data.isEmpty()) {
+            Matcher regex = DateMatch.matcher(query);
+            if (!regex.find()) {
+                regex = DateMatch2.matcher(query);
+            }
+
+            if (regex.find()) {
+                LOGGER.warn("no result found, but date found, trying without date");
+
+                query = regex.replaceAll("");
+                query = StripMatch.matcher(query).replaceAll("");
+
+                try {
+                    search = controller.getScenesFromTitle(query);
+                } catch (Exception e) {
+                    LOGGER.error("error searching: {}", e.getMessage());
+                    throw new ScrapeException(e);
+                }
+            }
+        }
+
+        if (search == null || search.data.isEmpty()) {
             LOGGER.warn("no result found");
             throw new NothingFoundException();
         }
@@ -65,13 +99,7 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
             data.setId(getId(), scene.id);
             data.setTitle(scene.title);
 
-            Date date = getDate(scene.date);
-            if (date != null) {
-                int year = getYear(date);
-                if (year > 0) {
-                    data.setYear(year);
-                }
-            }
+            data.setYear(getYear(getDate(scene.date)));
 
             data.setPosterUrl(scene.posters.small);
 
@@ -86,11 +114,15 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
     public MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException {
         LOGGER.debug("getMetadata(): {}", options);
 
-        SceneEntity scene;
-        try {
-            scene = getScene(options.getIdAsString(getId()));
-        } catch (Exception e) {
-            throw new ScrapeException(e);
+        SceneEntity scene = null;
+
+        String id = options.getIdAsString(getId());
+        if (id != null) {
+            try {
+                scene = getScene(id);
+            } catch (Exception e) {
+                throw new ScrapeException(e);
+            }
         }
 
         return setMediaMetadata(scene);
@@ -155,7 +187,7 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
             throw new ScrapeException(e);
         }
 
-        if (search == null) {
+        if (search == null || search.data == null) {
             LOGGER.warn("no result found");
             throw new NothingFoundException();
         }
@@ -165,6 +197,10 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
 
     private MediaMetadata setMediaMetadata(SceneEntity scene) {
         MediaMetadata result = new MediaMetadata(getId());
+
+        if (scene == null) {
+            return result;
+        }
 
         result.setId(getId(), scene.id);
         result.setCertifications(getCertifications());
@@ -177,14 +213,8 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
             LOGGER.error("error site: {}", e.getMessage());
         }
 
-        Date date = getDate(scene.date);
-        if (date != null) {
-            result.setReleaseDate(date);
-            int year = getYear(date);
-            if (year > 0) {
-                result.setYear(year);
-            }
-        }
+        result.setReleaseDate(getDate(scene.date));
+        result.setYear(getYear(result.getReleaseDate()));
 
         result.setCastMembers(getCastMembers(scene.performers));
         result.setTags(scene.tags.stream().map(o -> o.name).sorted().collect(Collectors.toList()));
@@ -194,23 +224,29 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
 
     private Date getDate(String date) {
         Date date_obj = null;
-        try {
-            date_obj = new SimpleDateFormat("yyyy-MM-dd").parse(date);
-        } catch (Exception e) {
-            LOGGER.error("error date: {}", e.getMessage());
+
+        if (date != null) {
+            try {
+                date_obj = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            } catch (Exception e) {
+                LOGGER.error("error date: {}", e.getMessage());
+            }
         }
 
         return date_obj;
     }
 
-    private int getYear(Date date) {
-        int year = 0;
-        try {
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTime(date);
-            year = calendar.get(Calendar.YEAR);
-        } catch (Exception e) {
-            LOGGER.error("error year: {}", e.getMessage());
+    private Integer getYear(Date date) {
+        Integer year = null;
+
+        if (date != null) {
+            try {
+                Calendar calendar = new GregorianCalendar();
+                calendar.setTime(date);
+                year = calendar.get(Calendar.YEAR);
+            } catch (Exception e) {
+                LOGGER.error("error year: {}", e.getMessage());
+            }
         }
 
         return year;
@@ -219,7 +255,7 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
     private List<MediaCertification> getCertifications() {
         List<MediaCertification> certifications = new ArrayList<>();
 
-        certifications.add(MediaCertification.US_R);
+        certifications.add(MediaCertification.UNKNOWN);
 
         return certifications;
     }
@@ -232,7 +268,7 @@ public class TpdbMovieMetadataProvider extends TpdbMetadataProvider implements I
             person.setType(Person.Type.ACTOR);
             person.setName(performer.name);
             person.setThumbUrl(performer.image);
-            person.setProfileUrl("https://metadataapi.net/performers/" + performer.slug);
+            person.setProfileUrl(PerformerURL + performer.slug);
 
             castMembers.add(person);
         }
