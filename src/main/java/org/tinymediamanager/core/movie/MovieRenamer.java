@@ -128,6 +128,8 @@ public class MovieRenamer {
     tokenMap.put("producers", "movie.producers");
     tokenMap.put("directors", "movie.directors");
     tokenMap.put("writers", "movie.writers");
+    tokenMap.put("productionCompany", "movie.productionCompany");
+    tokenMap.put("productionCompanyAsArray", "movie.productionCompanyAsArray");
 
     tokenMap.put("videoCodec", "movie.mediaInfoVideoCodec");
     tokenMap.put("videoFormat", "movie.mediaInfoVideoFormat");

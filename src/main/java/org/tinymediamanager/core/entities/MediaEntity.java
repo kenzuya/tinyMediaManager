@@ -36,6 +36,7 @@ import static org.tinymediamanager.core.Constants.PATH;
 import static org.tinymediamanager.core.Constants.PLOT;
 import static org.tinymediamanager.core.Constants.POSTER;
 import static org.tinymediamanager.core.Constants.PRODUCTION_COMPANY;
+import static org.tinymediamanager.core.Constants.PRODUCTION_COMPANY_AS_ARRAY;
 import static org.tinymediamanager.core.Constants.RATING;
 import static org.tinymediamanager.core.Constants.SCRAPED;
 import static org.tinymediamanager.core.Constants.TAGS;
@@ -115,6 +116,8 @@ public abstract class MediaEntity extends AbstractModelObject {
   protected Date                       dateAdded          = new Date();
   @JsonProperty
   protected String                     productionCompany  = "";
+  @JsonProperty
+  protected List<String>               productionCompanyAsArray  = new CopyOnWriteArrayList<>();
   @JsonProperty
   protected boolean                    scraped            = false;
   @JsonProperty
@@ -664,10 +667,24 @@ public abstract class MediaEntity extends AbstractModelObject {
     return productionCompany;
   }
 
+  /**
+   * Gets the productionCompany as array.
+   *
+   * @return the productionCompany as array.
+   */
+  public List<String> getProductionCompanyAsArray() {
+    List<String> arr = new ArrayList<>();
+    Collections.addAll(arr, productionCompany.split(", "));
+    return arr;
+  }
+
   public void setProductionCompany(String newValue) {
     String oldValue = this.productionCompany;
     this.productionCompany = newValue;
+    this.productionCompanyAsArray = getProductionCompanyAsArray();
+
     firePropertyChange(PRODUCTION_COMPANY, oldValue, newValue);
+    firePropertyChange(PRODUCTION_COMPANY_AS_ARRAY, oldValue, this.productionCompanyAsArray);
   }
 
   protected void setScraped(boolean newValue) {
