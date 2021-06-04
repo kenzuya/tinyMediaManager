@@ -35,9 +35,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
@@ -46,11 +49,15 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.MainWindow;
+import org.tinymediamanager.ui.components.MediaRatingTable;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
+import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
+import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -92,6 +99,9 @@ public class TvShowBulkEditorDialog extends TmmDialog {
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
     {
+      /********************
+       * TVShow Tab
+       ********************/
       JPanel panelContent = new JPanel();
       panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][grow]"));
       tabbedPane.add(TmmResourceBundle.getString("metatag.tvshow"), panelContent);
@@ -231,7 +241,56 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnTvShowNote, "cell 2 4");
       }
+      {
+        JLabel lblCertificationT = new TmmLabel(TmmResourceBundle.getString("metatag.certification"));
+        panelContent.add(lblCertificationT, "cell 0 5, alignx right");
+
+        JComboBox cbCertification = new JComboBox();
+        for (MediaCertification cert : MediaCertification.getCertificationsforCountry(TvShowModuleManager.SETTINGS.getCertificationCountry())) {
+          cbCertification.addItem(cert);
+        }
+        panelContent.add(cbCertification, "cell 1 5, growx");
+
+        JButton btnCertification = new SquareIconButton(IconManager.APPLY_INV);
+        btnCertification.addActionListener(e -> {
+          tvShowsChanged = true;
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          MediaCertification cert = (MediaCertification) cbCertification.getSelectedItem();
+          for (TvShow tvshow : tvShowsToEdit) {
+            tvshow.setCertification(cert);
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+        panelContent.add(btnCertification, "cell 2 5");
+      }
+      {
+        JButton btnAddRating = new JButton(TmmResourceBundle.getString("rating.add"));
+        panelContent.add(btnAddRating, "cell 1 6");
+        btnAddRating.addActionListener(e -> {
+          tvShowsChanged = true;
+          // Open Rating Dialog
+          MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
+          rating.maxValue = 10;
+          rating.votes = 1;
+
+          RatingEditorDialog dialog = new RatingEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("rating.add"), rating);
+          dialog.setVisible(true);
+
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShow tvShow : tvShowsToEdit) {
+            MediaRating mr = new MediaRating(rating.key);
+            mr.setVotes(rating.votes);
+            mr.setRating(rating.value);
+            mr.setMaxValue(rating.maxValue);
+            tvShow.setRating(mr);
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+      }
     }
+    /********************
+     * Episode Tab
+     ********************/
     {
       JPanel panelContent = new JPanel();
       panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][][grow]"));
@@ -374,6 +433,51 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
         panelContent.add(btnEpisodeNote, "cell 2 6");
+      }
+
+      {
+        JButton btnAddActors = new JButton(TmmResourceBundle.getString("cast.actor.add"));
+        panelContent.add(btnAddActors, "cell 1 7");
+        btnAddActors.addActionListener(e -> {
+          episodesChanged = true;
+          // Open Person Dialog
+          Person actor = new Person(Person.Type.ACTOR, TmmResourceBundle.getString("cast.actor.unknown"),
+              TmmResourceBundle.getString("cast.role.unknown"));
+          PersonEditorDialog dialog = new PersonEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("cast.actor.add"), actor);
+          dialog.setVisible(true);
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+
+            ArrayList<Person> actors = new ArrayList<>();
+            actors.add(actor);
+            episode.addToActors(actors);
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+
+      }
+      {
+        JButton btnAddRating = new JButton(TmmResourceBundle.getString("rating.add"));
+        panelContent.add(btnAddRating, "cell 1 7");
+        btnAddRating.addActionListener(e -> {
+          // Open Rating Dialog
+          MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
+          rating.maxValue = 10;
+          rating.votes = 1;
+
+          RatingEditorDialog dialog = new RatingEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("rating.add"), rating);
+          dialog.setVisible(true);
+
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+            MediaRating mr = new MediaRating(rating.key);
+            mr.setVotes(rating.votes);
+            mr.setRating(rating.value);
+            mr.setMaxValue(rating.maxValue);
+            episode.setRating(mr);
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
       }
 
       {
