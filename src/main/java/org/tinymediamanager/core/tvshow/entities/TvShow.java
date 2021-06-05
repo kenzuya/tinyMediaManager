@@ -1029,13 +1029,17 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     }
 
     switch (TvShowModuleManager.SETTINGS.getTvShowConnector()) {
-      case KODI:
-        connector = new TvShowToKodiConnector(this);
+      case XBMC:
+      case MEDIAPORTAL:
+        connector = new TvShowToXbmcConnector(this);
         break;
 
-      case XBMC:
+      case KODI:
+      case JELLYFIN:
+      case EMBY:
+      case PLEX:
       default:
-        connector = new TvShowToXbmcConnector(this);
+        connector = new TvShowToKodiConnector(this);
         break;
     }
 

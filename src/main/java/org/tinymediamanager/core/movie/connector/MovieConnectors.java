@@ -25,9 +25,13 @@ import java.nio.file.Path;
 public enum MovieConnectors {
   KODI("Kodi"),
   XBMC("Kodi / XBMC < v16"),
+  EMBY("Emby"),
+  JELLYFIN("Jellyfin"),
+  PLEX("Plex"),
   MP("MediaPortal (legacy)"),
   MP_MP("MediaPortal - Moving Pictures"),
-  MP_MV("MediaPortal - MyVideo");
+  MP_MV("MediaPortal - MyVideo"),
+  DVR_3("DVR-Provider 3");
 
   private final String title;
 

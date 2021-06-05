@@ -1251,13 +1251,18 @@ public class Movie extends MediaEntity implements IMediaInformation {
         connector = new MovieToMpMyVideoConnector(this);
         break;
 
-      case KODI:
-        connector = new MovieToKodiConnector(this);
+      case XBMC:
+        connector = new MovieToXbmcConnector(this);
         break;
 
-      case XBMC:
+      case KODI:
+      case EMBY:
+      case JELLYFIN:
+      case PLEX:
+      case DVR_3:
       default:
-        connector = new MovieToXbmcConnector(this);
+        connector = new MovieToKodiConnector(this);
+        break;
     }
 
     if (connector != null) {

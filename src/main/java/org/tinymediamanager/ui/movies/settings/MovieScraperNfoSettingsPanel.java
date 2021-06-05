@@ -21,6 +21,7 @@ import java.awt.event.ItemListener;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -175,6 +176,9 @@ class MovieScraperNfoSettingsPanel extends JPanel {
 
         cbNfoFormat = new JComboBox(MovieConnectors.values());
         panelNfo.add(cbNfoFormat, "cell 1 0 2 1");
+
+        JButton docsButton = new DocsButton("/movies/nfo-formats");
+        panelNfo.add(docsButton, "cell 1 0 2 1");
 
         {
           JPanel panelNfoFormat = new JPanel();
