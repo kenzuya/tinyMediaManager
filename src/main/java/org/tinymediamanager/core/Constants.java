@@ -85,7 +85,6 @@ public final class Constants {
   public static final String POSTER_URL             = "posterUrl";
   public static final String PRODUCERS              = "producers";
   public static final String PRODUCTION_COMPANY     = "productionCompany";
-  public static final String PRODUCTION_COMPANY_AS_ARRAY = "productionCompanyAsArray";
   public static final String RATING                 = "rating";
   public static final String RELEASE_DATE           = "releaseDate";
   public static final String RELEASE_DATE_AS_STRING = "releaseDateAsString";
