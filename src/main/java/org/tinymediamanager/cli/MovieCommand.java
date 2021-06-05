@@ -323,10 +323,10 @@ class MovieCommand implements Runnable {
   }
 
   static class AspectRatioDetect {
-    @CommandLine.Option(names = { "-ard", "--ardNew", }, description = "Detect aspect ratio of new movies (found with the update options)")
+    @CommandLine.Option(names = { "-d", "--ardNew", }, description = "Detect aspect ratio of new movies (found with the update options)")
     boolean ardNew;
 
-    @CommandLine.Option(names = { "--ardAll", }, description = "Detect aspect ratio of all movies")
+    @CommandLine.Option(names = { "-dA", "--ardAll", }, description = "Detect aspect ratio of all movies")
     boolean ardAll;
   }
 
