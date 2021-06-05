@@ -1768,9 +1768,11 @@ public class TvShowEditorDialog extends TmmDialog {
 
   @Override
   public void dispose() {
-    super.dispose();
+    if (dpPremiered != null) {
+      dpPremiered.cleanup();
+    }
 
-    dpPremiered.cleanup();
+    super.dispose();
   }
 
   public boolean isContinueQueue() {

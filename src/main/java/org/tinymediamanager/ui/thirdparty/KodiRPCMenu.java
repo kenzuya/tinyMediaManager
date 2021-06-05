@@ -87,12 +87,14 @@ public class KodiRPCMenu {
     m.addMenuListener(new MenuListener() {
       @Override
       public void menuSelected(MenuEvent e) {
+        boolean connected = KodiRPC.getInstance().isConnected();
+
         for (Component component : m.getMenuComponents()) {
           if (component instanceof JSeparator) {
             continue;
           }
 
-          if (KodiRPC.getInstance().isConnected()) {
+          if (connected) {
             if (component == connectMenuItem) {
               component.setEnabled(false);
             }
@@ -164,12 +166,14 @@ public class KodiRPCMenu {
     m.addMenuListener(new MenuListener() {
       @Override
       public void menuSelected(MenuEvent e) {
+        boolean connected = KodiRPC.getInstance().isConnected();
+
         for (Component component : m.getMenuComponents()) {
           if (component instanceof JSeparator) {
             continue;
           }
 
-          if (KodiRPC.getInstance().isConnected()) {
+          if (connected) {
             if (component == connectMenuItem) {
               component.setEnabled(false);
             }
@@ -239,12 +243,13 @@ public class KodiRPCMenu {
     m.addMenuListener(new MenuListener() {
       @Override
       public void menuSelected(MenuEvent e) {
+        boolean connected = KodiRPC.getInstance().isConnected();
         for (Component component : m.getMenuComponents()) {
           if (component instanceof JSeparator) {
             continue;
           }
 
-          if (KodiRPC.getInstance().isConnected()) {
+          if (connected) {
             if (component == connectMenuItem) {
               component.setEnabled(false);
             }

@@ -6,6 +6,11 @@ Version 4.1.6
 x (movies/TV shows) reduced CPU usage of MVStore
 x (movies/TV shows) reduced loading time of the databases
 x (movies/TV shows) eager creation of .actors folder #1343
+x (movies/TV shows) prevent errors when closing dialogs #1348
+x (movies) Subtitles: detect and rename hearing impaired SDH ones
+x (movies/TV shows) prevent custom sort prefixes from crashing TMDB searches #1349
+x (movies/TV shows) improved performance of displaying the Kodi menu
+x (movies) added sorting via title as second sort order
 
 
 Version 4.1.5.1

@@ -1015,10 +1015,14 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
 
   @Override
   public void dispose() {
-    super.dispose();
+    if (mediaFilesPanel != null) {
+      mediaFilesPanel.unbindBindings();
+    }
+    if (dpFirstAired != null) {
+      dpFirstAired.cleanup();
+    }
 
-    mediaFilesPanel.unbindBindings();
-    dpFirstAired.cleanup();
+    super.dispose();
   }
 
   private void setImageSizeAndCreateLink(LinkLabel lblSize, ImageLabel imageLabel, JButton buttonDelete, MediaFileType type) {

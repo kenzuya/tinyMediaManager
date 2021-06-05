@@ -340,11 +340,12 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-        if (KodiRPC.getInstance().isConnected()) {
+        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
           kodiRPCMenu.setEnabled(true);
         }
         else {
+          kodiRPCMenu.setText("Kodi");
           kodiRPCMenu.setEnabled(false);
         }
 
