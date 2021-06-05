@@ -16,56 +16,47 @@
 package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.movie.entities.MovieSet;
+import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.actions.TmmAction;
-import org.tinymediamanager.ui.movies.dialogs.MovieBulkEditorDialog;
 import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
 
 /**
- * The MovieSetBatchEditMovieAction - to start a bulk edit of movies
+ * The class {@link MovieSetSyncSelectedCollectionTraktTvAction}. To synchronize all selected movies with trakt.tv (collection)
  * 
  * @author Manuel Laggner
  */
-public class MovieSetBatchEditMovieAction extends TmmAction {
-  private static final long serialVersionUID = -3974602352019088416L;
+public class MovieSetSyncSelectedCollectionTraktTvAction extends TmmAction {
+  private static final long serialVersionUID = 6640292090443882545L;
 
-  public MovieSetBatchEditMovieAction() {
-    putValue(NAME, TmmResourceBundle.getString("movie.bulkedit"));
-    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.bulkedit.desc"));
-    putValue(SMALL_ICON, IconManager.EDIT);
-    putValue(LARGE_ICON_KEY, IconManager.EDIT);
-    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
+  public MovieSetSyncSelectedCollectionTraktTvAction() {
+    putValue(NAME, TmmResourceBundle.getString("movie.synctrakt.selected.collection"));
+    putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movie.synctrakt.selected.collection.desc"));
+    putValue(SMALL_ICON, IconManager.MOVIE);
+    putValue(LARGE_ICON_KEY, IconManager.MOVIE);
   }
 
   @Override
   protected void processAction(ActionEvent e) {
     List<Movie> selectedMovies = new ArrayList<>(MovieSetUIModule.getInstance().getSelectionModel().getSelectedMovies());
 
-    // filter out dummy movies
-    selectedMovies = selectedMovies.stream().filter(movie -> !(movie instanceof MovieSet.MovieSetMovie)).collect(Collectors.toList());
-
     if (selectedMovies.isEmpty()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingselected"));
       return;
     }
 
-    // get data of all files within all selected movies
-    MovieBulkEditorDialog editor = new MovieBulkEditorDialog(selectedMovies);
-    editor.setLocationRelativeTo(MainWindow.getInstance());
-    editor.pack();
-    editor.setVisible(true);
+    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(selectedMovies);
+    task.setSyncCollection(true);
+
+    TmmTaskManager.getInstance().addUnnamedTask(task);
   }
 }
