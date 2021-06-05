@@ -13,6 +13,7 @@ x (movies/TV shows) prevent custom sort prefixes from crashing TMDB searches #13
 x (movies/TV shows) improved performance of displaying the Kodi menu
 x (movies) added sorting via title as second sort order
 x (movies) set original file name for single movie folders too
+x (movies/TV shows) compare date added on the date part only
 
 
 Version 4.1.5.1
