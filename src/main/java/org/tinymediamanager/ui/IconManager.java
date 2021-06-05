@@ -104,6 +104,7 @@ public class IconManager {
   public static final ImageIcon              MENU                         = createMenuIcon("bars.svg");
   public static final ImageIcon              MOVIE                        = createMenuIcon("film.svg");
   public static final ImageIcon              MUSIC                        = createMenuIcon("music.svg");
+  public static final ImageIcon              NFO_BLUE                     = createMenuIcon("file-alt.svg");
   public static final ImageIcon              PLAY                         = createMenuIcon("play.svg");
   public static final ImageIcon              REFRESH                      = createMenuIcon("redo.svg");
   public static final ImageIcon              REMOVE                       = createMenuIcon("minus.svg");

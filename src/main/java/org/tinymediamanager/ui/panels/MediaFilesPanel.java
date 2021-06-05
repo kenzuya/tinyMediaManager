@@ -20,10 +20,13 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -37,6 +40,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.IconManager;
@@ -46,6 +50,7 @@ import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;
 import org.tinymediamanager.ui.components.table.TmmTableModel;
+import org.tinymediamanager.ui.dialogs.TextDialog;
 import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
 
 import ca.odell.glazedlists.EventList;
@@ -57,13 +62,12 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public abstract class MediaFilesPanel extends JPanel {
-  private static final long           serialVersionUID = -4929581173434859034L;
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
+  private static final long          serialVersionUID = -4929581173434859034L;
+  private static final Logger        LOGGER           = LoggerFactory.getLogger(MediaFilesPanel.class);
 
+  private TmmTable                   tableFiles;
 
-  private TmmTable                    tableFiles;
-
-  private final EventList<MediaFile>  mediaFileEventList;
+  private final EventList<MediaFile> mediaFileEventList;
 
   public MediaFilesPanel(EventList<MediaFile> mediaFiles) {
     this.mediaFileEventList = mediaFiles;
@@ -119,6 +123,12 @@ public abstract class MediaFilesPanel extends JPanel {
         }
         if (mediaFile.isGraphic()) {
           return IconManager.SEARCH;
+        }
+        if (mediaFile.isMusicTheme()) {
+          return IconManager.MUSIC;
+        }
+        if (mediaFile.isTextual()) {
+          return IconManager.NFO_BLUE;
         }
         return null;
       }, ImageIcon.class);
@@ -176,8 +186,8 @@ public abstract class MediaFilesPanel extends JPanel {
       /*
        * creation date
        */
-      col = new Column(TmmResourceBundle.getString("metatag.filecreationdate"), "filecreationdate", mediaFile -> formatDate(mediaFile.getDateCreated()),
-          String.class);
+      col = new Column(TmmResourceBundle.getString("metatag.filecreationdate"), "filecreationdate",
+          mediaFile -> formatDate(mediaFile.getDateCreated()), String.class);
       col.setColumnResizeable(false);
       addColumn(col);
 
@@ -213,7 +223,7 @@ public abstract class MediaFilesPanel extends JPanel {
         row = tableFiles.convertRowIndexToModel(row);
         MediaFile mf = mediaFileEventList.get(row);
         // open the video file in the desired player
-        if (mf.isVideo()) {
+        if (mf.isVideo() || mf.isMusicTheme()) {
           try {
             TmmUIHelper.openFile(mf.getFileAsPath());
           }
@@ -226,6 +236,21 @@ public abstract class MediaFilesPanel extends JPanel {
         // open the graphic in the lightbox
         if (mf.isGraphic()) {
           MainWindow.getInstance().createLightbox(mf.getFileAsPath().toString(), "");
+        }
+
+        // open TextFile in Dialog
+        if (mf.isTextual()) {
+          String text;
+          try {
+            text = Utils.readFileToString(mf.getFileAsPath());
+          }
+          catch (IOException e) {
+            JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.nothingfound"));
+            return;
+          }
+          JDialog textDialog = new TextDialog(mf.getFilename(), text);
+          textDialog.setLocationRelativeTo(MainWindow.getInstance());
+          textDialog.setVisible(true);
         }
       }
     }

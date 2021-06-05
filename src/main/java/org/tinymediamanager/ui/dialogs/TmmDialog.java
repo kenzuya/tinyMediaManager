@@ -249,8 +249,8 @@ public abstract class TmmDialog extends JDialog {
 
   @Override
   public void dispose() {
-    super.dispose();
     unbind();
+    super.dispose();
   }
 
   /**

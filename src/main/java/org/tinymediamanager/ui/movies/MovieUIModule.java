@@ -258,11 +258,12 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
         if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
           kodiRPCMenu.setEnabled(true);
         }
         else {
+          kodiRPCMenu.setText("Kodi");
           kodiRPCMenu.setEnabled(false);
         }
 

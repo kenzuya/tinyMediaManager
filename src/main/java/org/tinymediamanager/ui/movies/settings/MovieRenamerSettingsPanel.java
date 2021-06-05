@@ -197,6 +197,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${title;first}"));
     exampleEventList.add(new MovieRenamerExample("${title[0,2]}"));
     exampleEventList.add(new MovieRenamerExample("${titleSortable}"));
+    exampleEventList.add(new MovieRenamerExample("${releaseDate}"));
     exampleEventList.add(new MovieRenamerExample("${year}"));
     exampleEventList.add(new MovieRenamerExample("${movieSet.title}"));
     exampleEventList.add(new MovieRenamerExample("${movieSet.titleSortable}"));
@@ -204,10 +205,13 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${imdb}"));
     exampleEventList.add(new MovieRenamerExample("${certification}"));
     exampleEventList.add(new MovieRenamerExample("${directors[0].name}"));
+    exampleEventList.add(new MovieRenamerExample("${actors[0].name}"));
     exampleEventList.add(new MovieRenamerExample("${genres[0]}"));
     exampleEventList.add(new MovieRenamerExample("${genres[0].name}"));
     exampleEventList.add(new MovieRenamerExample("${genresAsString}"));
     exampleEventList.add(new MovieRenamerExample("${tags[0]}"));
+    exampleEventList.add(new MovieRenamerExample("${productionCompany}"));
+    exampleEventList.add(new MovieRenamerExample("${productionCompanyAsArray[0]}"));
     exampleEventList.add(new MovieRenamerExample("${language}"));
     exampleEventList.add(new MovieRenamerExample("${videoResolution}"));
     exampleEventList.add(new MovieRenamerExample("${aspectRatio}"));

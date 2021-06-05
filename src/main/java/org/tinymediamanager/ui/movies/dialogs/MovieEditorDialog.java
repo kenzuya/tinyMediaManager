@@ -2247,10 +2247,14 @@ public class MovieEditorDialog extends TmmDialog {
 
   @Override
   public void dispose() {
-    super.dispose();
+    if (mediaFilesPanel != null) {
+      mediaFilesPanel.unbindBindings();
+    }
+    if (dpReleaseDate != null) {
+      dpReleaseDate.cleanup();
+    }
 
-    mediaFilesPanel.unbindBindings();
-    dpReleaseDate.cleanup();
+    super.dispose();
   }
 
   protected BindingGroup initDataBindings() {

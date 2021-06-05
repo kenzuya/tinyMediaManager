@@ -21,7 +21,9 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.nio.file.Path;
 import java.text.Collator;
+import java.text.DateFormat;
 import java.text.RuleBasedCollator;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -297,6 +299,8 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
   }
 
   public static class DateComparator implements Comparator<Date> {
+    DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+
     @Override
     public int compare(Date arg0, Date arg1) {
       if (arg0 == null) {
@@ -305,7 +309,11 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       if (arg1 == null) {
         return 1;
       }
-      return arg0.compareTo(arg1);
+
+      // compare date objects on the day only (not time)
+      String date0 = dateFormat.format(arg0);
+      String date1 = dateFormat.format(arg1);
+      return date0.compareTo(date1);
     }
   }
 

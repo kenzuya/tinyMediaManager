@@ -81,6 +81,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -664,9 +665,19 @@ public abstract class MediaEntity extends AbstractModelObject {
     return productionCompany;
   }
 
+  /**
+   * Gets the productionCompany as array.
+   *
+   * @return the productionCompany as array.
+   */
+  public List<String> getProductionCompanyAsArray() {
+    return ParserUtils.split(productionCompany);
+  }
+
   public void setProductionCompany(String newValue) {
     String oldValue = this.productionCompany;
     this.productionCompany = newValue;
+
     firePropertyChange(PRODUCTION_COMPANY, oldValue, newValue);
   }
 
