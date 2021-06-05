@@ -708,6 +708,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         if (matcher.find()) {
           movie.setVideoIn3D(true);
         }
+
+        // remember the filename the first time the movie gets added to tmm
+        if (StringUtils.isBlank(movie.getOriginalFilename())) {
+          movie.setOriginalFilename(vid.getFilename());
+        }
       }
 
       // get edition from name if no edition has been set via NFO
