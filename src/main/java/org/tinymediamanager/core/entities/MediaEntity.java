@@ -84,6 +84,7 @@ import org.tinymediamanager.scraper.util.MetadataUtil;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.tinymediamanager.scraper.util.ParserUtils;
 
 /**
  * The Class MediaEntity. The base class for all entities
@@ -664,9 +665,19 @@ public abstract class MediaEntity extends AbstractModelObject {
     return productionCompany;
   }
 
+  /**
+   * Gets the productionCompany as array.
+   *
+   * @return the productionCompany as array.
+   */
+  public List<String> getProductionCompanyAsArray() {
+    return ParserUtils.split(productionCompany);
+  }
+
   public void setProductionCompany(String newValue) {
     String oldValue = this.productionCompany;
     this.productionCompany = newValue;
+
     firePropertyChange(PRODUCTION_COMPANY, oldValue, newValue);
   }
 
