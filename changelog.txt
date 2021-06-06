@@ -14,6 +14,7 @@ x (movies/TV shows) improved performance of displaying the Kodi menu
 x (movies) added sorting via title as second sort order
 x (movies) set original file name for single movie folders too
 x (movies/TV shows) compare date added on the date part only
+x (movies/TV shows) fixed reading existing NFO files from disc folders
 
 
 Version 4.1.5.1
