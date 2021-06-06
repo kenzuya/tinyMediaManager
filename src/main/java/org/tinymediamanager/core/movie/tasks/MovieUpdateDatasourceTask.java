@@ -1511,9 +1511,29 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       incVisFile();
-      if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
-        fFound.add(file.toAbsolutePath());
+
+      String filename = file.getFileName().toString();
+      String path = file.getParent().getFileName().toString();
+
+      // in a disc folder we only accept NFO files
+      if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
+        if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
+          fFound.add(file.toAbsolutePath());
+        }
+        return CONTINUE;
       }
+
+      // check if we're in dirty disc folder
+      if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
+        fFound.add(file.toAbsolutePath());
+        return CONTINUE;
+      }
+
+      if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
+        fFound.add(file.toAbsolutePath());
+        return CONTINUE;
+      }
+
       return CONTINUE;
     }
 
@@ -1528,11 +1548,18 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
-      // if we're in a disc folder, don't walk further
+
+      // add the disc folder itself (clean disc folder)
       if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         fFound.add(dir.toAbsolutePath());
+        return CONTINUE;
+      }
+
+      // don't go below a disc folder
+      if (dir.getFileName() != null && dir.getParent() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
       }
+
       return CONTINUE;
     }
 

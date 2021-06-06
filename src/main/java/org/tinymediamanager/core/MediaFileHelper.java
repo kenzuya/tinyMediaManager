@@ -972,6 +972,20 @@ public class MediaFileHelper {
   }
 
   /**
+   * checks whether the given file is a main disc identifier file
+   * 
+   * @param filename
+   *          the filename to check
+   * @return true/false
+   */
+  public static boolean isMainDiscIdentifierFile(String filename) {
+    if (filename.equalsIgnoreCase("video_ts.ifo") || filename.equalsIgnoreCase("index.bdmv") || filename.equalsIgnoreCase("hv000i01.ifo")) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Bluray "disc file/folder"? (video_ts, vts...)
    *
    * @return true/false
