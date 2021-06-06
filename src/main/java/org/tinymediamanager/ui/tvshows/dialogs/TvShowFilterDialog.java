@@ -96,6 +96,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowVideoFormatFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowWatchedFilter;
 
 import net.miginfocom.swing.MigLayout;
+import org.tinymediamanager.ui.tvshows.filters.TvShowYearFilter;
 
 public class TvShowFilterDialog extends TmmDialog {
   private static final long                          serialVersionUID = 2298540526328945319L;
@@ -158,6 +159,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowUncategorizedEpisodesFilter(), panelMain);
         addFilter(new TvShowMissingEpisodesFilter(), panelMain);
         addFilter(new TvShowNoteFilter(), panelMain);
+        addFilter(new TvShowYearFilter(), panelMain);
       }
 
       {
