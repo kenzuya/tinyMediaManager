@@ -106,6 +106,8 @@ public class TvShowRenamer {
   private static final Pattern             epDelimiter    = Pattern.compile("(\\s?(folge|episode|[epx]+)\\s?)\\$\\{.*?\\}", Pattern.CASE_INSENSITIVE);
   private static final Pattern             seDelimiter    = Pattern.compile("((staffel|season|s)\\s?)\\$\\{.*?\\}", Pattern.CASE_INSENSITIVE);
 
+  private static final List<String>        DISC_FOLDERS   = Arrays.asList("bdmv", "video_ts", "hvdvd_ts");
+
   private TvShowRenamer() {
     throw new IllegalAccessError();
   }
@@ -176,7 +178,7 @@ public class TvShowRenamer {
 
   /**
    * get the token map in an unmodifiable variant
-   * 
+   *
    * @return the token map
    */
   public static Map<String, String> getTokenMap() {
@@ -185,7 +187,7 @@ public class TvShowRenamer {
 
   /**
    * add leadingZero if only 1 char
-   * 
+   *
    * @param num
    *          the number
    * @return the string with a leading 0
@@ -279,7 +281,7 @@ public class TvShowRenamer {
 
   /**
    * rename all artwork for this TV show
-   * 
+   *
    * @param tvShow
    *          the TV show to rename the artwork for
    */
@@ -301,7 +303,17 @@ public class TvShowRenamer {
     }
 
     if (nfo.getFiledate() > 0) { // one valid found? copy our NFO to all variants
-      needed.addAll(copyTvShowMediaFile(tvShow, nfo, TvShowModuleManager.SETTINGS.getNfoFilenames()));
+      List<MediaFile> newMFs = generateFilename(tvShow, nfo); // 1:N
+      for (MediaFile newMF : newMFs) {
+        boolean ok = copyFile(nfo.getFileAsPath(), newMF.getFileAsPath());
+        if (ok) {
+          needed.add(newMF);
+        }
+        else {
+          // FIXME: what to do? not copied/exception... keep it for now...
+          needed.add(nfo);
+        }
+      }
     }
     else {
       LOGGER.trace("No valid NFO found for this TV show");
@@ -316,58 +328,16 @@ public class TvShowRenamer {
       }
 
       LOGGER.trace("Rename 1:N {} {}", mf.getType(), mf.getFileAsPath());
-
-      switch (mf.getType()) {
-        case POSTER:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getPosterFilenames()));
-          break;
-
-        case FANART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getFanartFilenames()));
-          break;
-
-        case EXTRAFANART:
-          needed.addAll(copyExtraFanart(tvShow, mf, TvShowModuleManager.SETTINGS.getExtraFanartFilenames()));
-          break;
-
-        case BANNER:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getBannerFilenames()));
-          break;
-
-        case LOGO:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getLogoFilenames()));
-          break;
-
-        case CLEARLOGO:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getClearlogoFilenames()));
-          break;
-
-        case CLEARART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getClearartFilenames()));
-          break;
-
-        case THUMB:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getThumbFilenames()));
-          break;
-
-        case DISC:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getDiscartFilenames()));
-          break;
-
-        case CHARACTERART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getCharacterartFilenames()));
-          break;
-
-        case KEYART:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getKeyartFilenames()));
-          break;
-
-        case TRAILER:
-          needed.addAll(copyTvShowMediaFile(tvShow, mf, TvShowModuleManager.SETTINGS.getTrailerFilenames()));
-          break;
-
-        default:
+      List<MediaFile> newMFs = generateFilename(tvShow, mf); // 1:N
+      for (MediaFile newMF : newMFs) {
+        boolean ok = copyFile(mf.getFileAsPath(), newMF.getFileAsPath());
+        if (ok) {
+          needed.add(newMF);
+        }
+        else {
+          // FIXME: what to do? not copied/exception... keep it for now...
           needed.add(mf);
+        }
       }
     }
 
@@ -431,31 +401,88 @@ public class TvShowRenamer {
   }
 
   /**
-   * copy the given {@link TvShow} {@link MediaFile} for the given {@link IFileNaming}
-   *
+   * generate all possible file names (as {@link MediaFile}s) for the given {@link MediaFile} according to the settings
+   * 
    * @param tvShow
-   *          the {@link TvShow} to copy the {@link MediaFile} for
+   *          the {@link TvShow}
    * @param original
-   *          the original {@link MediaFile} to copy
-   * @param fileNamings
-   *          a {@link List} of all {@link IFileNaming}s to create the destination
-   * @return a {@link List} of all {@link MediaFile}s created while copying (or the original if no copy needed)
+   *          the original {@link MediaFile}
+   * @return a {@link List} of all {@link MediaFile}s which are needed according to the settings
    */
-  private static List<MediaFile> copyTvShowMediaFile(TvShow tvShow, MediaFile original, List<? extends IFileNaming> fileNamings) {
+  public static List<MediaFile> generateFilename(TvShow tvShow, MediaFile original) {
     List<MediaFile> neededMediaFiles = new ArrayList<>();
 
     boolean spaceSubstitution = SETTINGS.isRenamerFilenameSpaceSubstitution();
     String spaceReplacement = SETTINGS.getRenamerFilenameSpaceReplacement();
     String cleanedShowTitle = cleanupDestination(tvShow.getTitle(), spaceSubstitution, spaceReplacement);
 
-    for (IFileNaming name : fileNamings) {
-      String newFilename = name.getFilename(cleanedShowTitle, getMediaFileExtension(original));
+    List<? extends IFileNaming> filenamings = null;
 
-      if (StringUtils.isNotBlank(newFilename)) {
-        MediaFile newMediaFile = new MediaFile(original);
-        newMediaFile.setFile(tvShow.getPathNIO().resolve(newFilename));
-        boolean ok = copyFile(original.getFileAsPath(), newMediaFile.getFileAsPath());
-        if (ok) {
+    switch (original.getType()) {
+      case POSTER:
+        filenamings = TvShowModuleManager.SETTINGS.getPosterFilenames();
+        break;
+
+      case FANART:
+        filenamings = TvShowModuleManager.SETTINGS.getFanartFilenames();
+        break;
+
+      case BANNER:
+        filenamings = TvShowModuleManager.SETTINGS.getBannerFilenames();
+        break;
+
+      case LOGO:
+        filenamings = TvShowModuleManager.SETTINGS.getLogoFilenames();
+        break;
+
+      case CLEARLOGO:
+        filenamings = TvShowModuleManager.SETTINGS.getClearlogoFilenames();
+        break;
+
+      case CLEARART:
+        filenamings = TvShowModuleManager.SETTINGS.getClearartFilenames();
+        break;
+
+      case THUMB:
+        filenamings = TvShowModuleManager.SETTINGS.getThumbFilenames();
+        break;
+
+      case DISC:
+        filenamings = TvShowModuleManager.SETTINGS.getDiscartFilenames();
+        break;
+
+      case CHARACTERART:
+        filenamings = TvShowModuleManager.SETTINGS.getCharacterartFilenames();
+        break;
+
+      case KEYART:
+        filenamings = TvShowModuleManager.SETTINGS.getKeyartFilenames();
+        break;
+
+      case TRAILER:
+        filenamings = TvShowModuleManager.SETTINGS.getTrailerFilenames();
+        break;
+
+      case NFO:
+        filenamings = TvShowModuleManager.SETTINGS.getNfoFilenames();
+        break;
+
+      case EXTRAFANART:
+        neededMediaFiles.addAll(generateExtrafanartFilename(tvShow, original));
+        break;
+
+      default:
+        neededMediaFiles.add(original);
+        break;
+    }
+
+    if (filenamings != null) {
+      for (IFileNaming name : filenamings) {
+        String newFilename = name.getFilename(cleanedShowTitle, getMediaFileExtension(original));
+
+        if (StringUtils.isNotBlank(newFilename)) {
+          MediaFile newMediaFile = new MediaFile(original);
+          newMediaFile.setFile(tvShow.getPathNIO().resolve(newFilename));
           neededMediaFiles.add(newMediaFile);
         }
       }
@@ -466,17 +493,17 @@ public class TvShowRenamer {
 
   /**
    * copy the given extrafanarts
-   *
+   * 
    * @param tvShow
-   *          the {@link TvShow} to copy the {@link MediaFile} for
+   *          the {@link TvShow} to generate the extrafanart filenames for
+   * 
    * @param original
    *          the original {@link MediaFile} to copy
-   * @param fileNamings
-   *          a {@link List} of all {@link IFileNaming}s to create the destination
+   *
    * @return a {@link List} of all {@link MediaFile}s created while copying (or the original if no copy needed)
    */
-  private static List<MediaFile> copyExtraFanart(TvShow tvShow, MediaFile original, List<TvShowExtraFanartNaming> fileNamings) {
-    if (fileNamings.isEmpty()) {
+  private static List<MediaFile> generateExtrafanartFilename(TvShow tvShow, MediaFile original) {
+    if (TvShowModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty()) {
       return Collections.emptyList();
     }
 
@@ -484,7 +511,7 @@ public class TvShowRenamer {
     if (index > 0) {
       // at the moment, we just support 1 naming scheme here! if we decide to enhance that, we will need to enhance the TvShowExtraImageFetcherTask
       // too
-      TvShowExtraFanartNaming name = fileNamings.get(0);
+      TvShowExtraFanartNaming name = TvShowModuleManager.SETTINGS.getExtraFanartFilenames().get(0);
 
       String newFilename = name.getFilename("", getMediaFileExtension(original));
       if (StringUtils.isNotBlank(newFilename)) {
@@ -496,14 +523,6 @@ public class TvShowRenamer {
         Path folder;
         if (name == TvShowExtraFanartNaming.FOLDER_EXTRAFANART) {
           folder = tvShow.getPathNIO().resolve("extrafanart");
-          try {
-            if (!Files.exists(folder)) {
-              Files.createDirectory(folder);
-            }
-          }
-          catch (IOException e) {
-            LOGGER.error("could not create extrafanarts folder: {}", e.getMessage());
-          }
         }
         else {
           folder = tvShow.getPathNIO();
@@ -511,10 +530,7 @@ public class TvShowRenamer {
 
         MediaFile newMediaFile = new MediaFile(original);
         newMediaFile.setFile(folder.resolve(newFilename));
-        boolean ok = copyFile(original.getFileAsPath(), newMediaFile.getFileAsPath());
-        if (ok) {
-          return Collections.singletonList(newMediaFile);
-        }
+        return Collections.singletonList(newMediaFile);
       }
     }
 
@@ -895,12 +911,24 @@ public class TvShowRenamer {
       return;
     }
 
-    // \Season 1\S01E02E03\VIDEO_TS\VIDEO_TS.VOB
-    // ........ \epFolder \disc... \mf
-    Path disc = mf.getFileAsPath().getParent();
-    Path epFolder = disc.getParent();
-    if (!disc.getFileName().toString().equalsIgnoreCase("BDMV") && !disc.getFileName().toString().equalsIgnoreCase("VIDEO_TS")
-        && !disc.getFileName().toString().equalsIgnoreCase("HVDVD_TS")) {
+    Path disc;
+    Path epFolder;
+
+    if (DISC_FOLDERS.contains(mf.getFileAsPath().getFileName().toString().toLowerCase(Locale.ROOT))) {
+      // hit on new structure
+      // \Season 1\S01E02E03\VIDEO_TS
+      // ........ \epFolder \disc-mf
+      disc = mf.getFileAsPath();
+      epFolder = disc.getParent();
+    }
+    else if (DISC_FOLDERS.contains(mf.getFileAsPath().getParent().getFileName().toString().toLowerCase(Locale.ROOT))) {
+      // hit on old structure
+      // \Season 1\S01E02E03\VIDEO_TS\VIDEO_TS.VOB
+      // ........ \epFolder \disc... \mf
+      disc = mf.getFileAsPath().getParent();
+      epFolder = disc.getParent();
+    }
+    else {
       LOGGER.error("Episode is labeled as 'on BD/DVD', but structure seems not to match. Better exit and do nothing... o_O");
       return;
     }
@@ -1824,7 +1852,7 @@ public class TvShowRenamer {
    */
   private static boolean copyFile(Path oldFilename, Path newFilename) {
     if (!oldFilename.toAbsolutePath().toString().equals(newFilename.toAbsolutePath().toString())) {
-      LOGGER.info("copy file " + oldFilename + " to " + newFilename);
+      LOGGER.debug("copy file " + oldFilename + " to " + newFilename);
       if (oldFilename.equals(newFilename)) {
         // windows: name differs, but File() is the same!!!
         // use move in this case, which handles this

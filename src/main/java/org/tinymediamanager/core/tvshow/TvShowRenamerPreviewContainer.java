@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.tinymediamanager.core.movie;
+package org.tinymediamanager.core.tvshow;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,47 +21,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.tvshow.entities.TvShow;
 
 /**
- * The class MovieRenamerPreviewContainter. To hold all relevant data for the renamer preview
+ * The class {@link TvShowRenamerPreviewContainer}. To hold all relevant data for the renamer preview
  * 
  * @author Manuel Laggner
  */
-public class MovieRenamerPreviewContainer {
-  final Movie           movie;
+public class TvShowRenamerPreviewContainer {
+  final TvShow          tvShow;
   final Path            oldPath;
+  final List<MediaFile> oldMediaFiles;
   final List<MediaFile> newMediaFiles;
 
   Path                  newPath;
   boolean               needsRename = false;
 
-  public MovieRenamerPreviewContainer(Movie movie) {
-    this.movie = movie;
+  public TvShowRenamerPreviewContainer(TvShow tvShow) {
+    this.tvShow = tvShow;
     this.newMediaFiles = new ArrayList<>();
+    this.oldMediaFiles = new ArrayList<>();
 
-    if (movie != null && !movie.getDataSource().isEmpty()) {
-      this.oldPath = Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());
+    if (!tvShow.getDataSource().isEmpty()) {
+      this.oldPath = tvShow.getPathNIO();
     }
     else {
       this.oldPath = null;
     }
   }
 
-  public Movie getMovie() {
-    return movie;
+  public TvShow getTvShow() {
+    return tvShow;
   }
 
   public Path getOldPath() {
     return oldPath;
   }
 
+  public Path getOldPathRelative() {
+    return Paths.get(tvShow.getDataSource()).relativize(tvShow.getPathNIO());
+  }
+
   public Path getNewPath() {
     return newPath;
   }
 
+  public Path getNewPathRelative() {
+    return Paths.get(tvShow.getDataSource()).relativize(newPath);
+  }
+
   public List<MediaFile> getOldMediaFiles() {
-    return movie.getMediaFiles();
+    return oldMediaFiles;
   }
 
   public List<MediaFile> getNewMediaFiles() {

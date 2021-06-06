@@ -27,11 +27,15 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 
 /**
- * The class MovieRenamerPreview. To create a preview of the movie renamer (dry run)
+ * The class {@link MovieRenamerPreview}. To create a preview of the movie renamer (dry run)
  * 
  * @author Manuel Laggner / Myron Boyle
  */
 public class MovieRenamerPreview {
+
+  private MovieRenamerPreview() {
+    throw new IllegalAccessError();
+  }
 
   public static MovieRenamerPreviewContainer renameMovie(Movie movie) {
     MovieRenamerPreviewContainer container = new MovieRenamerPreviewContainer(movie);
