@@ -47,7 +47,7 @@ public class MovieDecadesFilter extends AbstractCheckComboBoxMovieUIFilter<Strin
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movie.decades"));
+    return new TmmLabel(BUNDLE.getString("metatag.decade"));
   }
 
   @Override

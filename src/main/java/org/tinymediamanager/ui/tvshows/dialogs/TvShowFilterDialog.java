@@ -70,6 +70,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowCertificationFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCountryFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDatasourceFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDateAddedFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowDecadeFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowDuplicateEpisodesFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowEmptyFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowFilenameFilter;
@@ -160,6 +161,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowMissingEpisodesFilter(), panelMain);
         addFilter(new TvShowNoteFilter(), panelMain);
         addFilter(new TvShowYearFilter(), panelMain);
+        addFilter(new TvShowDecadeFilter(),panelMain);
       }
 
       {

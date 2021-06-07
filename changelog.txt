@@ -8,5 +8,7 @@ Version 4.2
 + (movies) added quickfilter for notes
 + (TV shows) added customizable quickfilters
 + (movies/TV shows) added a better overview for compatible NFO consumers (media centers/other tools)
++ (TV shows) added filter for year and decade
++ (TV shows) added bulk editing for actors / ratings / certifications in episodes and shows
 x (TV shows) do not mix in TV show actors to the episode cast #1219
   since this is no more accurate (e.g. in Black Mirror) and scrapers like TMDB/IMDB provide detailed data for episode cast
