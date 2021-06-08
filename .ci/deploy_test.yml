@@ -35,8 +35,6 @@ build-installer:test:
     url: https://test.tinymediamanager.org
   needs:
     - build:test
-  depends:
-    - build:test
   tags:
     - docker # force running on gitlab
   script:
