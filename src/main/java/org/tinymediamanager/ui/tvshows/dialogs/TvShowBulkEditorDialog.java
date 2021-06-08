@@ -293,7 +293,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
      ********************/
     {
       JPanel panelContent = new JPanel();
-      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][][grow]"));
+      panelContent.setLayout(new MigLayout("", "[][200lp:350lp,grow][]", "[][][][][][][][][]"));
       tabbedPane.add(TmmResourceBundle.getString("metatag.episode"), panelContent);
 
       JTextArea textArea = new ReadOnlyTextArea(TmmResourceBundle.getString("tvshow.bulkedit.episodesfromshows"));
@@ -434,10 +434,28 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         });
         panelContent.add(btnEpisodeNote, "cell 2 6");
       }
+      {
+        JLabel lblEpisodePlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
+        panelContent.add(lblEpisodePlotT,"cell 0 7, alignx right");
+
+        JTextField tfEpisodePlot = new JTextField();
+        panelContent.add(tfEpisodePlot,"cell 1 7, growx");
+
+        JButton btnEpisodePlot = new SquareIconButton(IconManager.APPLY_INV);
+        btnEpisodePlot.addActionListener(e -> {
+          episodesChanged = true;
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+            episode.setPlot(tfEpisodePlot.getText());
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+        panelContent.add(btnEpisodePlot,"cell 2 7");
+      }
 
       {
         JButton btnAddActors = new JButton(TmmResourceBundle.getString("cast.actor.add"));
-        panelContent.add(btnAddActors, "cell 1 7");
+        panelContent.add(btnAddActors, "cell 1 8");
         btnAddActors.addActionListener(e -> {
           episodesChanged = true;
           // Open Person Dialog
@@ -458,7 +476,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
       {
         JButton btnAddRating = new JButton(TmmResourceBundle.getString("rating.add"));
-        panelContent.add(btnAddRating, "cell 1 7");
+        panelContent.add(btnAddRating, "cell 1 8");
         btnAddRating.addActionListener(e -> {
           // Open Rating Dialog
           MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
