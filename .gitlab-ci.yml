@@ -120,6 +120,9 @@ build-installer:nightly:
   environment:
     name: nightly
     url: https://nightly.tinymediamanager.org
+  only:
+    variables:
+      - $NIGHTLY_BUILD == "true"
   needs:
     - build:nightly
   tags:
@@ -139,8 +142,10 @@ build-installer:nightly:
 
 deploy:nightly:
   stage: deploy
+  only:
+    variables:
+      - $NIGHTLY_BUILD == "true"
   needs:
-    - build:nightly
     - build-installer:nightly
   trigger:
     project: tinyMediaManager/nightly.tinymediamanager.org
@@ -250,60 +255,10 @@ deploy:RELEASE:
 ##########################################
 # TEST
 ##########################################
-build:test:
-  stage: build
-  image: registry.gitlab.com/tinymediamanager/docker/packaging
-  environment:
-    name: test
-    url: https://test.tinymediamanager.org
-  when: manual
-  tags:
-    - docker # force running on gitlab
-  except:
-    - pushes                                          # do not run packaging on push-builds
-  script:
-    # generate changelog.txt for nightly builds
-    - ./generate_changelog.sh
-    # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
-
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/18118695/repository/files/v4_job_id.txt
-
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - build/
-      - dist/
-
-build-installer:test:
-  stage: package
-  image: registry.gitlab.com/tinymediamanager/docker/innosetup
-  environment:
-    name: test
-    url: https://test.tinymediamanager.org
-  needs:
-    - build:test
-  tags:
-    - docker # force running on gitlab
-  script:
-    - mkdir windows_installer
-    - cd windows_installer
-    - unzip ../dist/tmm_*_win.zip
-    - cp ../AppBundler/installer.iss .
-    - iscc installer.iss
-    - cp Output/tinyMediaManagerSetup.exe ../dist/
-
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - dist/tinyMediaManagerSetup.exe
-
 deploy:test:
   stage: deploy
-  needs:
-    - build:test
-    - build-installer:test
+  only:
+    variables:
+      - $TEST_BUILD == "true"
   trigger:
-    project: tinyMediaManager/test.tinymediamanager.org
-
+    include: .ci/deploy_test.yml
