@@ -1488,7 +1488,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // don't go below a disc folder
-      if (dir.getFileName() != null && dir.getParent() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+      if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
       }
 
