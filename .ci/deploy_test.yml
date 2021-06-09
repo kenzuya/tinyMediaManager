@@ -60,4 +60,5 @@ deploy:test:
     - build-installer:test
   trigger:
     project: tinyMediaManager/test.tinymediamanager.org
+    strategy: depend
 
