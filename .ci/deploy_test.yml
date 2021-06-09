@@ -3,7 +3,7 @@ stages:
   - package
   - deploy
 
-build:test:
+build:
   stage: build
   image: registry.gitlab.com/tinymediamanager/docker/packaging
   environment:
@@ -18,9 +18,6 @@ build:test:
     - ./generate_changelog.sh
     # package
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
-
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/18118695/repository/files/v4_job_id.txt
   after_script:
     - chmod 777 dist
   artifacts:
@@ -29,14 +26,15 @@ build:test:
       - build/
       - dist/
 
-build-installer:test:
+package-installer:
   stage: package
   image: registry.gitlab.com/tinymediamanager/docker/innosetup
   environment:
     name: test
     url: https://test.tinymediamanager.org
   needs:
-    - build:test
+    - build
+  allow_failure: true
   tags:
     - docker # force running on gitlab
   script:
@@ -47,18 +45,27 @@ build-installer:test:
     - cp ../AppBundler/tmm.ico .
     - iscc installer.iss
     - cp Output/tinyMediaManagerSetup.exe ../dist/
-
   artifacts:
     expire_in: 2 days
     paths:
       - dist/tinyMediaManagerSetup.exe
 
-deploy:test:
+deploy:
   stage: deploy
   needs:
-    - build:test
-    - build-installer:test
-  trigger:
-    project: tinyMediaManager/test.tinymediamanager.org
-    strategy: depend
+    - build
+    - package-installer
+  tags:
+    - docker
+  script:
+    # write the job ID to the repo
+    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/18118695/repository/files/v4_job_id.txt
 
+    # trigger the pipeline at tinyMediaManager/test.tinymediamanager.org
+    - curl -X POST -F "token=${NIGHTLY_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/18118695/trigger/pipeline
+
+  artifacts:
+    expire_in: 2 days
+    paths:
+      - build/
+      - dist/
