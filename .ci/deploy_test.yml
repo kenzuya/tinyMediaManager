@@ -21,6 +21,8 @@ build:test:
 
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/18118695/repository/files/v4_job_id.txt
+  after_script:
+    - chmod 777 dist
   artifacts:
     expire_in: 2 days
     paths:
