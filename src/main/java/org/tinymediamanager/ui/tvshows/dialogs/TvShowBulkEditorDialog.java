@@ -466,7 +466,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
 
-            ArrayList<Person> actors = new ArrayList<>();
+            List<Person> actors = new ArrayList<>();
             actors.add(actor);
             episode.addToActors(actors);
           }
@@ -475,8 +475,28 @@ public class TvShowBulkEditorDialog extends TmmDialog {
 
       }
       {
+        JButton btnAddDirectors = new JButton(TmmResourceBundle.getString("cast.director.add"));
+        panelContent.add(btnAddDirectors, "cell 1 8");
+        btnAddDirectors.addActionListener(e -> {
+          episodesChanged = true;
+          //Open Director Dialog
+          Person director = new Person(Person.Type.DIRECTOR,TmmResourceBundle.getString("director.name.unknown"), "Director");
+          PersonEditorDialog dialog = new PersonEditorDialog(MainWindow.getInstance(),TmmResourceBundle.getString("cast.director.add"),director);
+          dialog.setVisible(true);
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShowEpisode episode: tvShowEpisodesToEdit) {
+
+            List<Person> directors = new ArrayList<>();
+            directors.add(director);
+            episode.addToDirectors(directors);
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+      }
+
+      {
         JButton btnAddRating = new JButton(TmmResourceBundle.getString("rating.add"));
-        panelContent.add(btnAddRating, "cell 1 8");
+        panelContent.add(btnAddRating, "cell 1 9");
         btnAddRating.addActionListener(e -> {
           // Open Rating Dialog
           MediaRatingTable.Rating rating = new MediaRatingTable.Rating("");
