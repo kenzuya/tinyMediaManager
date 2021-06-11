@@ -36,7 +36,7 @@ build:
       - build/
       - dist/
 
-deploy:test:
+deploy:
   stage: deploy
   needs:
     - build
