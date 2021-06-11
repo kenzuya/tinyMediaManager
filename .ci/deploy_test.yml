@@ -15,16 +15,16 @@ build:
     - docker # force running on gitlab
   script:
     # generate changelog.txt for nightly builds
-    - ./generate_changelog.sh
+    - sh generate_changelog.sh
 
     # package archives
     - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
 
     # build windows installer
-    - AppBundler/create_windows_installer.sh
+    - sh AppBundler/create_windows_installer.sh
 
     # build macOS dmg file
-    - AppBundler/create_dmg.sh
+    - sh AppBundler/create_dmg.sh
 
     # write the job ID to the repo
     - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/18118695/repository/files/v4_job_id.txt
