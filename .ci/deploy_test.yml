@@ -39,7 +39,7 @@ build:
 deploy:test:
   stage: deploy
   needs:
-    - build:test
-    - build-installer:test
+    - build
+    - build-installer
   trigger:
     project: tinyMediaManager/test.tinymediamanager.org
