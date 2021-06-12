@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.h2.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +165,10 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
     }
 
     for (Image image : imageList) {
+      if (StringUtils.isBlank(image.type)) {
+        continue;
+      }
+
       switch (image.type) {
         case "poster":
           ma = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
@@ -248,7 +252,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       result.setId(MediaMetadata.TVDB, String.valueOf(shows.show.tvShowIds.thetvdb));
       result.setId("tvmaze", String.valueOf(shows.show.id));
       result.setOriginalLanguage(shows.show.language);
-      if (!StringUtils.isNullOrEmpty(shows.show.premiered)) {
+      if (StringUtils.isNotBlank(shows.show.premiered)) {
         try {
           result.setYear(parseYear(shows.show.premiered));
         }
@@ -257,7 +261,7 @@ public class TvMazeTvShowMetadataProvider extends TvMazeMetadataProvider impleme
       }
 
       // calculate score
-      if ((org.apache.commons.lang3.StringUtils.isNotBlank(options.getImdbId()) && options.getImdbId().equals(result.getIMDBId()))
+      if (StringUtils.isNotBlank(options.getImdbId()) && options.getImdbId().equals(result.getIMDBId())
           || String.valueOf(options.getTmdbId()).equals(result.getId())) {
         LOGGER.debug("perfect match by ID - set score to 1");
         result.setScore(1);
