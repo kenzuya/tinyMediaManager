@@ -16,6 +16,7 @@ x (movies) set original file name for single movie folders too
 x (movies/TV shows) compare date added on the date part only
 x (movies/TV shows) fixed reading existing NFO files from disc folders
 x (movies/TV shows) catch more errors on failed scrape
+x (movies/TV shows) exchange data source between windows and unix style #1364
 
 
 Version 4.1.5.1

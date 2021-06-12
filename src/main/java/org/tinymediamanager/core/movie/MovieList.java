@@ -24,6 +24,7 @@ import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.YEAR;
 
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -248,7 +249,16 @@ public class MovieList extends AbstractModelObject {
 
     for (Movie movie : moviesToChange) {
       Path oldMoviePath = movie.getPathNIO();
-      Path newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+      Path newMoviePath;
+
+      try {
+        // try to _cleanly_ calculate the relative path
+        newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+      }
+      catch (Exception e) {
+        // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
+        newMoviePath = Paths.get(newDatasource, movie.getPath().replace(movie.getDataSource() + File.separator, ""));
+      }
 
       movie.setDataSource(newDatasource);
       movie.setPath(newMoviePath.toAbsolutePath().toString());
