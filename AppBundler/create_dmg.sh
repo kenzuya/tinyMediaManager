@@ -2,7 +2,7 @@
 
 mkdir macos_dmg
 cd macos_dmg
-unzip -X ../dist/tmm_*_mac.zip -d tinyMediaManager
+unzip -X ../dist/tmm_*_macos*.zip -d tinyMediaManager
 OUTSIZE=$(du -s tinyMediaManager | cut -f1)
 dd if=/dev/zero of=temp.dmg bs=1124 count="${OUTSIZE}"
 mkfs.hfsplus -v "tinyMediaManager" temp.dmg
