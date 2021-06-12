@@ -2,7 +2,7 @@
 
 mkdir windows_installer
 cd windows_installer
-unzip ../dist/tmm_*_windows_*.zip
+unzip ../dist/tmm_*_windows*.zip
 cp ../AppBundler/installer.iss .
 cp ../AppBundler/tmm.ico .
 iscc installer.iss

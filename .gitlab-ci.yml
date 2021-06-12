@@ -260,6 +260,7 @@ deploy:test:
   only:
     variables:
       - $TEST_BUILD == "true"
+  when: manual
   trigger:
     include: .ci/deploy_test.yml
     strategy: depend

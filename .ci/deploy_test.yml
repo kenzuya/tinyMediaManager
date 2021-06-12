@@ -8,7 +8,6 @@ build:
   environment:
     name: test
     url: https://test.tinymediamanager.org
-  when: manual
   allow_failure: false
   tags:
     - docker # force running on gitlab
