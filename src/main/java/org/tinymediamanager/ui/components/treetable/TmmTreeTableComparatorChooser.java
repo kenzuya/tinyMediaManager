@@ -139,7 +139,7 @@ public class TmmTreeTableComparatorChooser {
         sortingStrategy.columnClicked(column, shift, control);
         treeTable.updateFiltering();
         // make sure the header also gets redrawn (this may not happen if the structure does not change)
-        treeTable.getTableHeader().invalidate();
+        treeTable.getTableHeader().repaint();
       }
     }
 

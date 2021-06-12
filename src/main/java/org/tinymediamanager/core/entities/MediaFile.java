@@ -380,12 +380,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    * @return
    */
   public boolean isMainDiscIdentifierFile() {
-
-    if (getFilename().equalsIgnoreCase("video_ts.ifo") || getFilename().equalsIgnoreCase("index.bdmv")
-        || getFilename().equalsIgnoreCase("hv000i01.ifo")) {
-      return true;
-    }
-    return false;
+    return MediaFileHelper.isMainDiscIdentifierFile(getFilename());
   }
 
   /**

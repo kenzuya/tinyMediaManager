@@ -212,7 +212,8 @@ public class MovieScrapeTask extends TmmThreadPool {
                   new Message(MessageLevel.ERROR, movie, "message.scrape.metadatamoviefailed", new String[] { ":", e.getLocalizedMessage() }));
             }
 
-            if (ScraperMetadataConfig.containsAnyMetadata(scraperMetadataConfig) || ScraperMetadataConfig.containsAnyCast(scraperMetadataConfig)) {
+            if (md != null && (ScraperMetadataConfig.containsAnyMetadata(scraperMetadataConfig)
+                || ScraperMetadataConfig.containsAnyCast(scraperMetadataConfig))) {
               movie.setMetadata(md, scraperMetadataConfig);
               movie.setLastScraperId(searchAndScrapeOptions.getMetadataScraper().getId());
               movie.setLastScrapeLanguage(searchAndScrapeOptions.getLanguage().name());
@@ -284,7 +285,9 @@ public class MovieScrapeTask extends TmmThreadPool {
       options.setDataFromOtherOptions(searchAndScrapeOptions);
       options.setArtworkType(MediaArtworkType.ALL);
       options.setMetadata(metadata);
-      options.setIds(metadata.getIds());
+      if (metadata != null) {
+        options.setIds(metadata.getIds());
+      }
       options.setId("mediaFile", movie.getMainFile());
       options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
@@ -315,7 +318,9 @@ public class MovieScrapeTask extends TmmThreadPool {
       TrailerSearchAndScrapeOptions options = new TrailerSearchAndScrapeOptions(MediaType.MOVIE);
       options.setDataFromOtherOptions(searchAndScrapeOptions);
       options.setMetadata(metadata);
-      options.setIds(metadata.getIds());
+      if (metadata != null) {
+        options.setIds(metadata.getIds());
+      }
 
       // scrape trailers
       for (MediaScraper trailerScraper : trailerScrapers) {
