@@ -708,6 +708,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         if (matcher.find()) {
           movie.setVideoIn3D(true);
         }
+
+        // remember the filename the first time the movie gets added to tmm
+        if (StringUtils.isBlank(movie.getOriginalFilename())) {
+          movie.setOriginalFilename(vid.getFilename());
+        }
       }
 
       // get edition from name if no edition has been set via NFO
@@ -1431,9 +1436,36 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       incVisFile();
-      if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
-        fFound.add(file.toAbsolutePath());
+
+      if (file.getFileName() == null) {
+        return CONTINUE;
       }
+
+      String filename = file.getFileName().toString();
+      String path = "";
+      if (file.getParent() != null && file.getParent().getFileName() != null) {
+        path = file.getParent().getFileName().toString();
+      }
+
+      // in a disc folder we only accept NFO files
+      if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
+        if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
+          fFound.add(file.toAbsolutePath());
+        }
+        return CONTINUE;
+      }
+
+      // check if we're in dirty disc folder
+      if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
+        fFound.add(file.toAbsolutePath());
+        return CONTINUE;
+      }
+
+      if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
+        fFound.add(file.toAbsolutePath());
+        return CONTINUE;
+      }
+
       return CONTINUE;
     }
 
@@ -1448,11 +1480,18 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
-      // if we're in a disc folder, don't walk further
+
+      // add the disc folder itself (clean disc folder)
       if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         fFound.add(dir.toAbsolutePath());
+        return CONTINUE;
+      }
+
+      // don't go below a disc folder
+      if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
       }
+
       return CONTINUE;
     }
 

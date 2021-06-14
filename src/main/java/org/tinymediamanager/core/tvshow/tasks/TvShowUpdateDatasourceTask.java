@@ -570,12 +570,12 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       filesFound.addAll(allFiles); // our global cache
 
       // convert to MFs (we need it anyways at the end)
-      ArrayList<MediaFile> mfs = new ArrayList<>();
+      List<MediaFile> mfs = new ArrayList<>();
       for (Path file : allFiles) {
         if (!file.getFileName().toString().matches(SKIP_REGEX)) {
           MediaFile mf = new MediaFile(file);
 
-          // now check posters: if the poster is in s subfolder of the TV show, we assume it is a seaon poster
+          // now check posters: if the poster is in s subfolder of the TV show, we assume it is a season poster
           // otherwise just add it as generic graphic
           if (mf.getType() == MediaFileType.POSTER && !mf.getFileAsPath().getParent().equals(showDir)) {
             if (mf.getFileAsPath().getParent().getParent().equals(showDir)) {
@@ -667,7 +667,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       // ******************************
       // STEP 2 - get all video MFs and get or create episodes
       // ******************************
-      HashSet<Path> discFolders = new HashSet<>();
+      Set<Path> discFolders = new HashSet<>();
       for (MediaFile mf : getMediaFiles(mfs, MediaFileType.VIDEO)) {
 
         // build an array of MFs, which might be in same episode
@@ -675,11 +675,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
         if (mf.isDiscFile()) {
           // find EP root folder, and do not walk lower than showDir!
-          Path discRoot = mf.getFileAsPath().getParent().toAbsolutePath(); // folder
-          String folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // relative
-          while (folder.contains(BDMV) || folder.contains(VIDEO_TS) || folder.contains(HVDVD_TS)) {
+          Path discRoot = mf.getFileAsPath().toAbsolutePath(); // folder
+          if (!discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
             discRoot = discRoot.getParent();
-            folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // reevaluate
           }
           if (discFolders.contains(discRoot)) {
             // we already parsed one disc file (which adds all other videos), so
@@ -798,13 +796,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                   episode.setDisc(true);
 
                   // set correct EP path in case of disc files
-                  Path discRoot = mf.getFileAsPath().getParent().toAbsolutePath(); // folder
-                  String folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // relative
-                  while (folder.contains(BDMV) || folder.contains(VIDEO_TS) || folder.contains(HVDVD_TS)) {
+                  Path discRoot = mf.getFileAsPath().toAbsolutePath(); // folder
+                  if (!discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
                     discRoot = discRoot.getParent();
-                    folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // reevaluate
                   }
-                  episode.setPath(discRoot.toAbsolutePath().toString());
+                  episode.setPath(discRoot.getParent().toString());
                 }
 
                 if (episodesInNfo.size() > 1) {
@@ -890,13 +886,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
                 episode.setDisc(true);
 
                 // set correct EP path in case of disc files
-                Path discRoot = mf.getFileAsPath().getParent().toAbsolutePath(); // folder
-                String folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // relative
-                while (folder.contains(BDMV) || folder.contains(VIDEO_TS) || folder.contains(HVDVD_TS)) {
+                Path discRoot = mf.getFileAsPath().toAbsolutePath(); // folder
+                if (!discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
                   discRoot = discRoot.getParent();
-                  folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // reevaluate
                 }
-                episode.setPath(discRoot.toAbsolutePath().toString());
+                episode.setPath(discRoot.getParent().toString());
               }
 
               if (result.episodes.size() > 1) {
@@ -932,13 +926,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
               episode.setDisc(true);
 
               // set correct EP path in case of disc files
-              Path discRoot = mf.getFileAsPath().getParent().toAbsolutePath(); // folder
-              String folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // relative
-              while (folder.contains(BDMV) || folder.contains(VIDEO_TS) || folder.contains(HVDVD_TS)) {
+              Path discRoot = mf.getFileAsPath().toAbsolutePath(); // folder
+              if (!discRoot.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
                 discRoot = discRoot.getParent();
-                folder = showDir.relativize(discRoot).toString().toUpperCase(Locale.ROOT); // reevaluate
               }
-              episode.setPath(discRoot.toAbsolutePath().toString());
+              episode.setPath(discRoot.getParent().toString());
             }
 
             episode.setTitle(TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(FilenameUtils.getBaseName(mf.getFilename()), tvShow.getTitle()));
@@ -1240,8 +1232,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private static class AllFilesRecursive extends AbstractFileVisitor {
-    private final HashSet<Path> fFound = new HashSet<>();
-    private final List<String>  skipFolders;
+    private final Set<Path>    fFound = new HashSet<>();
+    private final List<String> skipFolders;
 
     public AllFilesRecursive(List<String> skipFolders) {
       this.skipFolders = new ArrayList<>(skipFolders);
@@ -1250,9 +1242,36 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       incVisFile();
-      if (Utils.isRegularFile(attr) && !file.getFileName().toString().matches(SKIP_REGEX)) {
-        fFound.add(file.toAbsolutePath());
+
+      if (file.getFileName() == null) {
+        return CONTINUE;
       }
+
+      String filename = file.getFileName().toString();
+      String path = "";
+      if (file.getParent() != null && file.getParent().getFileName() != null) {
+        path = file.getParent().getFileName().toString();
+      }
+
+      // in a disc folder we only accept NFO files
+      if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
+        if (FilenameUtils.getExtension(filename).equalsIgnoreCase("nfo")) {
+          fFound.add(file.toAbsolutePath());
+        }
+        return CONTINUE;
+      }
+
+      // check if we're in dirty disc folder
+      if (MediaFileHelper.isMainDiscIdentifierFile(filename)) {
+        fFound.add(file.toAbsolutePath());
+        return CONTINUE;
+      }
+
+      if (Utils.isRegularFile(attr) && !filename.matches(SKIP_REGEX)) {
+        fFound.add(file.toAbsolutePath());
+        return CONTINUE;
+      }
+
       return CONTINUE;
     }
 
@@ -1267,11 +1286,18 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
-      // if we're in a disc folder, don't walk further
+
+      // add the disc folder itself (clean disc folder)
       if (dir.getFileName() != null && dir.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         fFound.add(dir.toAbsolutePath());
+        return CONTINUE;
+      }
+
+      // don't go below a disc folder
+      if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
       }
+
       return CONTINUE;
     }
 

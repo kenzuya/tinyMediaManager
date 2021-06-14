@@ -25,6 +25,7 @@ import static org.tinymediamanager.core.Constants.TV_SHOWS;
 import static org.tinymediamanager.core.Constants.TV_SHOW_COUNT;
 
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -291,7 +292,16 @@ public class TvShowList extends AbstractModelObject {
 
     for (TvShow tvShow : tvShowsToChange) {
       Path oldTvShowPath = tvShow.getPathNIO();
-      Path newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+      Path newTvShowPath;
+
+      try {
+        // try to _cleanly_ calculate the relative path
+        newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+      }
+      catch (Exception e) {
+        // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
+        newTvShowPath = Paths.get(newDatasource, tvShow.getPath().replace(tvShow.getDataSource() + File.separator, ""));
+      }
 
       tvShow.setDataSource(newDatasource);
       tvShow.setPath(newTvShowPath.toAbsolutePath().toString());
