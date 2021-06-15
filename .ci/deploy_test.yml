@@ -9,8 +9,6 @@ build:
     name: test
     url: https://test.tinymediamanager.org
   allow_failure: false
-  tags:
-    - docker # force running on gitlab
   script:
     # generate changelog.txt for nightly builds
     - sh generate_changelog.sh
