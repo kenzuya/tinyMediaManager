@@ -24,7 +24,6 @@ import static org.tinymediamanager.core.Constants.TAGS;
 import static org.tinymediamanager.core.Constants.YEAR;
 
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -257,7 +257,7 @@ public class MovieList extends AbstractModelObject {
       }
       catch (Exception e) {
         // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
-        newMoviePath = Paths.get(newDatasource, movie.getPath().replace(movie.getDataSource() + File.separator, ""));
+        newMoviePath = Paths.get(newDatasource, FilenameUtils.separatorsToSystem(movie.getPath().replace(movie.getDataSource(), "")));
       }
 
       movie.setDataSource(newDatasource);

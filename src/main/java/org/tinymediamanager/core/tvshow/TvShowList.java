@@ -25,7 +25,6 @@ import static org.tinymediamanager.core.Constants.TV_SHOWS;
 import static org.tinymediamanager.core.Constants.TV_SHOW_COUNT;
 
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -43,6 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -300,7 +300,7 @@ public class TvShowList extends AbstractModelObject {
       }
       catch (Exception e) {
         // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
-        newTvShowPath = Paths.get(newDatasource, tvShow.getPath().replace(tvShow.getDataSource() + File.separator, ""));
+        newTvShowPath = Paths.get(newDatasource, FilenameUtils.separatorsToSystem(tvShow.getPath().replace(tvShow.getDataSource(), "")));
       }
 
       tvShow.setDataSource(newDatasource);
