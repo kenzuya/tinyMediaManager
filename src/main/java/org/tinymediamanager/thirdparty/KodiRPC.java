@@ -745,7 +745,7 @@ public class KodiRPC {
         connectionManager.connect(config);
       }
       catch (ApiException e) {
-        LOGGER.error("Error connecting to Kodi", e);
+        LOGGER.error("Error connecting to Kodi - '{}'", e.getMessage());
         return;
       }
 
