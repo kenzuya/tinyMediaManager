@@ -497,7 +497,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         // also fire the event there was no episode for that dummy yet
         boolean found = false;
         for (TvShowEpisode e : season.getEpisodesForDisplay()) {
-          if (e.getSeason() == episode.getSeason() && e.getEpisode() == episode.getEpisode()) {
+          if ((e.getSeason() == episode.getSeason() && e.getEpisode() == episode.getEpisode())
+              || (e.getDvdSeason() == episode.getDvdSeason() && e.getDvdEpisode() == episode.getDvdEpisode())) {
             found = true;
             break;
           }
@@ -535,7 +536,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       Set<String> availableEpisodes = new HashSet<>();
 
       for (TvShowEpisode episode : episodes) {
-        availableEpisodes.add(episode.getSeason() + "." + episode.getEpisode());
+        if (episode.getSeason() > -1 && episode.getEpisode() > -1) {
+          availableEpisodes.add("A" + episode.getSeason() + "." + episode.getEpisode());
+        }
+        if (episode.getDvdSeason() > -1 && episode.getDvdEpisode() > -1) {
+          availableEpisodes.add("D" + episode.getSeason() + "." + episode.getEpisode());
+        }
       }
 
       // and now mix in unavailable ones
@@ -543,7 +549,8 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         if (episode.getSeason() == 0 && !TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
           continue;
         }
-        if (!availableEpisodes.contains(episode.getSeason() + "." + episode.getEpisode())) {
+        if (!availableEpisodes.contains("A" + episode.getSeason() + "." + episode.getEpisode())
+            && !availableEpisodes.contains("D" + episode.getDvdSeason() + "." + episode.getDvdEpisode())) {
           episodes.add(episode);
         }
       }
