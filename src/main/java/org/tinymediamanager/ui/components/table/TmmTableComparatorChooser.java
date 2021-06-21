@@ -57,6 +57,9 @@ import ca.odell.glazedlists.swing.SortableRenderer;
  */
 public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser<E> {
 
+  /** the sort icons to use */
+  private static final Icon[]        ICONS                = loadIcons();
+
   /**
    * the header renderer which decorates an underlying renderer (the table header's default renderer) with a sort arrow icon.
    */
@@ -73,9 +76,6 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
 
   /** listeners to sort change events */
   private ActionListener             sortListener;
-
-  /** the sort icons to use */
-  private static Icon[]              icons                = loadIcons();
 
   /** when somebody clicks on the header, update the sorting state */
   private final HeaderClickHandler   headerClickHandler;
@@ -254,9 +254,10 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
    *           if <code>strategy</code> is not an accepted value
    */
   private static void validateSortingStrategy(Object strategy) {
-    if (!(strategy instanceof SortingStrategy))
+    if (!(strategy instanceof SortingStrategy)) {
       throw new IllegalArgumentException("Unrecognized sorting strategy, \"" + strategy
           + "\", use one of AbstractTableComparatorChooser.SINGLE_COLUMN, AbstractTableComparatorChooser.MULTIPLE_COLUMN_MOUSE, or AbstractTableComparatorChooser.MULTIPLE_COLUMN_KEYBOARD");
+    }
   }
 
   /**
@@ -325,8 +326,9 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
     table.getTableHeader().repaint();
 
     // notify interested listeners that the sorting has changed
-    if (sortListener != null)
+    if (sortListener != null) {
       sortListener.actionPerformed(new ActionEvent(this, 0, "sort"));
+    }
   }
 
   /**
@@ -352,8 +354,9 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
    */
   protected boolean isSortingMouseEvent(MouseEvent e) {
     // skip the sort if it's not button 1
-    if (e.getButton() != MouseEvent.BUTTON1)
+    if (e.getButton() != MouseEvent.BUTTON1) {
       return false;
+    }
 
     // we have no reason to dislike this mouse event!
     return true;
@@ -379,8 +382,9 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
 
     // if the default renderer within the table header is our sort arrow renderer,
     // uninstall it by restoring the table header's original default renderer
-    if (table.getTableHeader().getDefaultRenderer() == sortArrowHeaderRenderer)
+    if (table.getTableHeader().getDefaultRenderer() == sortArrowHeaderRenderer) {
       table.getTableHeader().setDefaultRenderer(sortArrowHeaderRenderer.getDelegateRenderer());
+    }
 
     // remove our listeners from the table's header and model
     table.getModel().removeTableModelListener(tableModelHandler);
@@ -419,8 +423,9 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
       final AdvancedTableModel<E> newModel = evt.getNewValue() instanceof AdvancedTableModel ? (AdvancedTableModel<E>) evt.getNewValue() : null;
 
       // stop listening for TableModelEvents in the oldModel and start for the newModel, if possible
-      if (oldModel != null)
+      if (oldModel != null) {
         oldModel.removeTableModelListener(this);
+      }
       if (newModel != null) {
         newModel.addTableModelListener(this);
 
@@ -492,7 +497,7 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
       if (column < 0)
         return getDelegateTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-      final Icon sortIcon = icons[getSortingStyle(column)];
+      final Icon sortIcon = ICONS[getSortingStyle(column)];
       final Component rendered;
 
       // 1. look for our custom SortableRenderer interface
@@ -552,16 +557,19 @@ public class TmmTableComparatorChooser<E> extends AbstractTableComparatorChooser
     @Override
     public void mouseClicked(MouseEvent e) {
       // if the MouseEvent is popping up a context menu, do not sort
-      if (mouseEventIsPerformingPopupTrigger)
+      if (mouseEventIsPerformingPopupTrigger) {
         return;
+      }
 
       // if the cursor indicates we're resizing columns, do not sort
-      if (table.getTableHeader().getCursor() == Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR))
+      if (table.getTableHeader().getCursor() == Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR)) {
         return;
+      }
 
       // check if there is any other reason to ignore this MouseEvent
-      if (!isSortingMouseEvent(e))
+      if (!isSortingMouseEvent(e)) {
         return;
+      }
 
       final TableColumnModel columnModel = table.getColumnModel();
       final int viewColumn = columnModel.getColumnIndexAtX(e.getX());

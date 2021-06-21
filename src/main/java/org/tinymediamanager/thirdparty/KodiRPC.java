@@ -30,7 +30,6 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
-import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -49,6 +48,7 @@ import org.tinymediamanager.jsonrpc.api.call.VideoLibrary;
 import org.tinymediamanager.jsonrpc.api.model.FilesModel;
 import org.tinymediamanager.jsonrpc.api.model.GlobalModel;
 import org.tinymediamanager.jsonrpc.api.model.ListModel;
+import org.tinymediamanager.jsonrpc.api.model.VideoModel;
 import org.tinymediamanager.jsonrpc.api.model.VideoModel.EpisodeDetail;
 import org.tinymediamanager.jsonrpc.api.model.VideoModel.EpisodeFields;
 import org.tinymediamanager.jsonrpc.api.model.VideoModel.MovieDetail;
@@ -105,10 +105,11 @@ public class KodiRPC {
   }
 
   public static synchronized KodiRPC getInstance() {
-    if (KodiRPC.instance == null) {
-      KodiRPC.instance = new KodiRPC();
+    if (instance == null) {
+      instance = new KodiRPC();
     }
-    return KodiRPC.instance;
+
+    return instance;
   }
 
   public boolean isConnected() {
@@ -124,10 +125,7 @@ public class KodiRPC {
    * @return Kodi XX (codename)
    */
   public String getVersion() {
-    if (kodiVersion.isEmpty() && isConnected()) {
-      getAndSetKodiVersion();
-    }
-    return (kodiVersion.isEmpty() || kodiVersion.contains("nknown")) ? "Kodi" : kodiVersion;
+    return (StringUtils.isBlank(kodiVersion) || kodiVersion.contains("nknown")) ? "Kodi" : kodiVersion;
   }
 
   private void getAndSetKodiVersion() {
@@ -135,6 +133,9 @@ public class KodiRPC {
     send(call);
     if (call.getResult() != null) {
       kodiVersion = call.getResult().getKodiVersion();
+    }
+    else {
+      kodiVersion = "";
     }
   }
 
@@ -418,44 +419,102 @@ public class KodiRPC {
     return null;
   }
 
-  public void refreshFromNfo(MediaEntity entity) {
-    Integer kodiID = null;
-
-    if (entity instanceof Movie) {
-      kodiID = moviemappings.get(entity.getDbId());
-    }
-    else if (entity instanceof TvShow) {
-      kodiID = tvshowmappings.get(entity.getDbId());
-    }
-    else if (entity instanceof TvShowEpisode) {
-      kodiID = getEpisodeId((TvShowEpisode) entity);
-    }
+  public void refreshFromNfo(Movie movie) {
+    Integer kodiID = moviemappings.get(movie.getDbId());
 
     if (kodiID != null) {
-      List<MediaFile> nfo = entity.getMediaFiles(MediaFileType.NFO);
+      List<MediaFile> nfo = movie.getMediaFiles(MediaFileType.NFO);
       if (!nfo.isEmpty()) {
         LOGGER.info("Refreshing from NFO: {}", nfo.get(0).getFileAsPath());
       }
       else {
-        LOGGER.error("No NFO file found to refresh! {}", entity.getTitle());
+        LOGGER.error("No NFO file found to refresh! {}", movie.getTitle());
         // we do NOT return here, maybe Kodi will do something even w/o nfo...
       }
 
-      if (entity instanceof Movie) {
-        final VideoLibrary.RefreshMovie call = new VideoLibrary.RefreshMovie(kodiID, false); // always refresh from NFO
-        sendWoResponse(call);
+      final VideoLibrary.RefreshMovie call = new VideoLibrary.RefreshMovie(kodiID, false); // always refresh from NFO
+      sendWoResponse(call);
+    }
+    else {
+      LOGGER.error("Unable to refresh - could not map '{}' to Kodi library! {}", movie.getTitle(), movie.getDbId());
+    }
+  }
+
+  public void refreshFromNfo(TvShow tvShow) {
+    Integer kodiID = tvshowmappings.get(tvShow.getDbId());
+
+    if (kodiID != null) {
+      List<MediaFile> nfo = tvShow.getMediaFiles(MediaFileType.NFO);
+      if (!nfo.isEmpty()) {
+        LOGGER.info("Refreshing from NFO: {}", nfo.get(0).getFileAsPath());
       }
-      else if (entity instanceof TvShow) {
-        final VideoLibrary.RefreshTVShow call = new VideoLibrary.RefreshTVShow(kodiID, false, true); // always refresh from NFO, recursive
-        sendWoResponse(call);
+      else {
+        LOGGER.error("No NFO file found to refresh! {}", tvShow.getTitle());
+        // we do NOT return here, maybe Kodi will do something even w/o nfo...
       }
-      else if (entity instanceof TvShowEpisode) {
-        final VideoLibrary.RefreshEpisode call = new VideoLibrary.RefreshEpisode(kodiID, false); // always refresh from NFO
-        sendWoResponse(call);
+
+      final VideoLibrary.RefreshTVShow call = new VideoLibrary.RefreshTVShow(kodiID, false, true); // always refresh from NFO, recursive
+      sendWoResponse(call);
+    }
+    else {
+      LOGGER.error("Unable to refresh - could not map '{}' to Kodi library! {}", tvShow.getTitle(), tvShow.getDbId());
+    }
+  }
+
+  public void refreshFromNfo(TvShowEpisode episode) {
+    Integer kodiID = getEpisodeId(episode);
+
+    if (kodiID != null) {
+      List<MediaFile> nfo = episode.getMediaFiles(MediaFileType.NFO);
+      if (!nfo.isEmpty()) {
+        LOGGER.info("Refreshing from NFO: {}", nfo.get(0).getFileAsPath());
+      }
+      else {
+        LOGGER.error("No NFO file found to refresh! {}", episode.getTitle());
+        // we do NOT return here, maybe Kodi will do something even w/o nfo...
+      }
+
+      final VideoLibrary.RefreshEpisode call = new VideoLibrary.RefreshEpisode(kodiID, false); // always refresh from NFO
+      sendWoResponse(call);
+    }
+    else {
+      LOGGER.error("Unable to refresh - could not map '{}' to Kodi library! {}", episode.getTitle(), episode.getDbId());
+    }
+  }
+
+  public void readWatchedState(Movie movie) {
+    Integer kodiID = moviemappings.get(movie.getDbId());
+
+    if (kodiID != null) {
+      final VideoLibrary.GetMovieDetails call = new VideoLibrary.GetMovieDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      send(call);
+      if (call.getResult() != null && call.getResult().playcount != null) {
+        movie.setPlaycount(call.getResult().playcount);
+        if (call.getResult().playcount > 0) {
+          movie.setWatched(true);
+        }
       }
     }
     else {
-      LOGGER.error("Unable to refresh - could not map '{}' to Kodi library! {}", entity.getTitle(), entity.getDbId());
+      LOGGER.error("Unable get playcount - could not map '{}' to Kodi library! {}", movie.getTitle(), movie.getDbId());
+    }
+  }
+
+  public void readWatchedState(TvShowEpisode episode) {
+    Integer kodiID = moviemappings.get(episode.getDbId());
+
+    if (kodiID != null) {
+      final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
+      send(call);
+      if (call.getResult() != null && call.getResult().playcount != null) {
+        episode.setPlaycount(call.getResult().playcount);
+        if (call.getResult().playcount > 0) {
+          episode.setWatched(true);
+        }
+      }
+    }
+    else {
+      LOGGER.error("Unable get playcount - could not map '{}' to Kodi library! {}", episode.getTitle(), episode.getDbId());
     }
   }
 
@@ -686,7 +745,7 @@ public class KodiRPC {
         connectionManager.connect(config);
       }
       catch (ApiException e) {
-        LOGGER.error("Error connecting to Kodi", e);
+        LOGGER.error("Error connecting to Kodi - '{}'", e.getMessage());
         return;
       }
 

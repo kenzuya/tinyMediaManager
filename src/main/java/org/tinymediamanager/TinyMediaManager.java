@@ -53,6 +53,7 @@ import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
@@ -62,6 +63,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
+import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.thirdparty.upnp.Upnp;
 import org.tinymediamanager.ui.IconManager;
@@ -254,11 +256,15 @@ public class TinyMediaManager {
 
           // MediaInfo /////////////////////////////////////////////////////
           if (g2 != null) {
-            updateProgress(g2, "loading MediaInfo libs", 20);
+            updateProgress(g2, "loading internals", 20);
             splash.update();
           }
 
           MediaInfoUtils.loadMediaInfo();
+
+          // various initializations of classes
+          MediaGenres.init();
+          LanguageUtils.init();
 
           // load modules //////////////////////////////////////////////////
           if (g2 != null) {

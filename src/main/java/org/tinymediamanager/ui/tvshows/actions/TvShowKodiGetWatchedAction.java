@@ -16,7 +16,6 @@
 package org.tinymediamanager.ui.tvshows.actions;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,17 +36,17 @@ import org.tinymediamanager.ui.actions.TmmAction;
 import org.tinymediamanager.ui.tvshows.TvShowUIModule;
 
 /**
- * The Class TvShowEditAction. To edit TV shows/episodes
+ * The class {@link TvShowKodiGetWatchedAction}. To re-read the watched state from Kodi
  * 
  * @author Manuel Laggner
  */
-public class TvShowKodiRefreshNfoAction extends TmmAction {
-  private static final long serialVersionUID = -3911290901017607679L;
+public class TvShowKodiGetWatchedAction extends TmmAction {
+  private static final long serialVersionUID = 3112210911017607679L;
 
-  public TvShowKodiRefreshNfoAction() {
-    putValue(LARGE_ICON_KEY, IconManager.MEDIAINFO);
-    putValue(SMALL_ICON, IconManager.MEDIAINFO);
-    putValue(NAME, TmmResourceBundle.getString("kodi.rpc.refreshnfo"));
+  public TvShowKodiGetWatchedAction() {
+    putValue(LARGE_ICON_KEY, IconManager.WATCHED_MENU);
+    putValue(SMALL_ICON, IconManager.WATCHED_MENU);
+    putValue(NAME, TmmResourceBundle.getString("kodi.rpc.getwatched"));
   }
 
   @Override
@@ -59,15 +58,14 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
       return;
     }
 
-    List<TvShowEpisode> eps = new ArrayList<>();
-    Set<TvShow> shows = new HashSet<>();
+    Set<TvShowEpisode> eps = new HashSet<>();
 
     // if we specify show, we want it recursive for all episodes
     // so remove all single episode calls to not sent them twice...
     for (Object obj : selectedObjects) {
       if (obj instanceof TvShow) {
         TvShow show = (TvShow) obj;
-        shows.add(show);
+        eps.addAll(show.getEpisodes());
       }
       if (obj instanceof TvShowEpisode) {
         TvShowEpisode episode = (TvShowEpisode) obj;
@@ -79,48 +77,24 @@ public class TvShowKodiRefreshNfoAction extends TmmAction {
       }
     }
 
-    // remove all EPs, where we already have the show
-    for (int i = eps.size() - 1; i >= 0; i--) {
-      TvShowEpisode ep = eps.get(i);
-      if (shows.contains(ep.getTvShow())) {
-        eps.remove(i);
-      }
-    }
-
     TmmTaskManager.getInstance()
-        .addUnnamedTask(
-            new TmmTask(TmmResourceBundle.getString("kodi.rpc.refreshnfo"), shows.size() + eps.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        .addUnnamedTask(new TmmTask(TmmResourceBundle.getString("kodi.rpc.getwatched"), eps.size(), TmmTaskHandle.TaskType.BACKGROUND_TASK) {
 
-              @Override
-              protected void doInBackground() {
-                KodiRPC kodiRPC = KodiRPC.getInstance();
-                int i = 0;
+          @Override
+          protected void doInBackground() {
+            KodiRPC kodiRPC = KodiRPC.getInstance();
+            int i = 0;
 
-                // update show + all EPs
-                for (TvShow tvShow : shows) {
-                  kodiRPC.refreshFromNfo(tvShow);
+            // get watched state
+            for (TvShowEpisode episode : eps) {
+              kodiRPC.readWatchedState(episode);
 
-                  publishState(++i);
-                  if (cancel) {
-                    return;
-                  }
-                }
-
-                // update single EP only
-                for (TvShowEpisode episode : eps) {
-                  kodiRPC.refreshFromNfo(episode);
-
-                  publishState(++i);
-                  if (cancel) {
-                    return;
-                  }
-                }
-
-                // if we have updated at least one movie, we need to re-match the movies
-                if (progressDone > 0) {
-                  kodiRPC.updateTvShowMappings();
-                }
+              publishState(++i);
+              if (cancel) {
+                return;
               }
-            });
+            }
+          }
+        });
   }
 }

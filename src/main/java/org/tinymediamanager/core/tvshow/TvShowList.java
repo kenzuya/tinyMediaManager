@@ -42,6 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -70,7 +71,6 @@ import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -292,7 +292,16 @@ public class TvShowList extends AbstractModelObject {
 
     for (TvShow tvShow : tvShowsToChange) {
       Path oldTvShowPath = tvShow.getPathNIO();
-      Path newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+      Path newTvShowPath;
+
+      try {
+        // try to _cleanly_ calculate the relative path
+        newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+      }
+      catch (Exception e) {
+        // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
+        newTvShowPath = Paths.get(newDatasource, FilenameUtils.separatorsToSystem(tvShow.getPath().replace(tvShow.getDataSource(), "")));
+      }
 
       tvShow.setDataSource(newDatasource);
       tvShow.setPath(newTvShowPath.toAbsolutePath().toString());
@@ -431,9 +440,9 @@ public class TvShowList extends AbstractModelObject {
   /**
    * Load tv shows from database.
    */
-  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, ObjectMapper objectMapper) {
+  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap) {
     // load all TV shows from the database
-    ObjectReader tvShowObjectReader = objectMapper.readerFor(TvShow.class);
+    ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
 
     for (UUID uuid : new ArrayList<>(tvShowMap.keyList())) {
       String json = "";
@@ -457,11 +466,11 @@ public class TvShowList extends AbstractModelObject {
   /**
    * Load episodes from database.
    */
-  void loadEpisodesFromDatabase(MVMap<UUID, String> episodesMap, ObjectMapper objectMapper) {
+  void loadEpisodesFromDatabase(MVMap<UUID, String> episodesMap) {
     List<UUID> orphanedEpisodes = new ArrayList<>();
 
     // load all episodes from the database
-    ObjectReader episodeObjectReader = objectMapper.readerFor(TvShowEpisode.class);
+    ObjectReader episodeObjectReader = TvShowModuleManager.getInstance().getEpisodeObjectReader();
     int episodeCount = 0;
 
     for (UUID uuid : new ArrayList<>(episodesMap.keyList())) {

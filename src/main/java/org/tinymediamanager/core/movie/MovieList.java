@@ -44,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -75,7 +76,6 @@ import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import ca.odell.glazedlists.BasicEventList;
@@ -249,7 +249,16 @@ public class MovieList extends AbstractModelObject {
 
     for (Movie movie : moviesToChange) {
       Path oldMoviePath = movie.getPathNIO();
-      Path newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+      Path newMoviePath;
+
+      try {
+        // try to _cleanly_ calculate the relative path
+        newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+      }
+      catch (Exception e) {
+        // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
+        newMoviePath = Paths.get(newDatasource, FilenameUtils.separatorsToSystem(movie.getPath().replace(movie.getDataSource(), "")));
+      }
 
       movie.setDataSource(newDatasource);
       movie.setPath(newMoviePath.toAbsolutePath().toString());
@@ -389,9 +398,9 @@ public class MovieList extends AbstractModelObject {
   /**
    * Load movies from database.
    */
-  void loadMoviesFromDatabase(MVMap<UUID, String> movieMap, ObjectMapper objectMapper) {
+  void loadMoviesFromDatabase(MVMap<UUID, String> movieMap) {
     // load movies
-    ObjectReader movieObjectReader = objectMapper.readerFor(Movie.class);
+    ObjectReader movieObjectReader = MovieModuleManager.getInstance().getMovieObjectReader();
 
     for (UUID uuid : new ArrayList<>(movieMap.keyList())) {
       String json = "";
@@ -419,9 +428,9 @@ public class MovieList extends AbstractModelObject {
     LOGGER.info("found {} movies in database", movieList.size());
   }
 
-  void loadMovieSetsFromDatabase(MVMap<UUID, String> movieSetMap, ObjectMapper objectMapper) {
+  void loadMovieSetsFromDatabase(MVMap<UUID, String> movieSetMap) {
     // load movie sets
-    ObjectReader movieSetObjectReader = objectMapper.readerFor(MovieSet.class);
+    ObjectReader movieSetObjectReader = MovieModuleManager.getInstance().getMovieSetObjectReader();
 
     for (UUID uuid : new ArrayList<>(movieSetMap.keyList())) {
       try {

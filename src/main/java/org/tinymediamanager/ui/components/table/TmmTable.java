@@ -57,6 +57,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.FlatButton;
 
 import ca.odell.glazedlists.SortedList;
+import ca.odell.glazedlists.impl.gui.SortingStrategy;
 import ca.odell.glazedlists.swing.SortableRenderer;
 import net.miginfocom.swing.MigLayout;
 
@@ -113,23 +114,30 @@ public class TmmTable extends JTable {
 
       @Override
       public void columnMoved(TableColumnModelEvent e) {
+        // nothing to do
       }
 
       @Override
       public void columnMarginChanged(ChangeEvent e) {
+        // nothing to do
       }
 
       @Override
       public void columnSelectionChanged(ListSelectionEvent e) {
+        // nothing to do
       }
     });
   }
 
   public void installComparatorChooser(SortedList<?> sortedList) {
-    tableComparatorChooser = TmmTableComparatorChooser.install(this, sortedList, new MouseKeyboardSortingStrategy());
+    installComparatorChooser(sortedList, new MouseKeyboardSortingStrategy());
   }
 
-  public TmmTableComparatorChooser getTableComparatorChooser() {
+  public void installComparatorChooser(SortedList<?> sortedList, SortingStrategy sortingStrategy) {
+    tableComparatorChooser = TmmTableComparatorChooser.install(this, sortedList, sortingStrategy);
+  }
+
+  public TmmTableComparatorChooser<?> getTableComparatorChooser() {
     return tableComparatorChooser;
   }
 

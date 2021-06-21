@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -726,11 +727,26 @@ public class MovieSetArtworkHelper {
       return;
     }
 
-    try {
-      Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder()));
+    Path movieSetArtworkFolder = Paths.get(MovieModuleManager.SETTINGS.getMovieSetArtworkFolder());
+    List<Path> subfolders;
+    try (Stream<Path> stream = Files.walk(movieSetArtworkFolder, 1)) {
+      subfolders = stream.filter(Files::isDirectory).collect(Collectors.toList());
     }
     catch (Exception e) {
-      LOGGER.warn("could not clean empty subfolders: {}", e.getMessage());
+      LOGGER.warn("could not clean movie set artwork subfolders - '{}'", e.getMessage());
+      return;
+    }
+
+    for (Path path : subfolders) {
+      if (path.equals(movieSetArtworkFolder)) {
+        continue;
+      }
+      try {
+        Utils.deleteEmptyDirectoryRecursive(path);
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not clean empty subfolder '{}' - '{}'", path, e.getMessage());
+      }
     }
   }
 

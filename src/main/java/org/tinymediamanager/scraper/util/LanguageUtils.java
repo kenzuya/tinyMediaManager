@@ -50,6 +50,13 @@ public class LanguageUtils {
     throw new IllegalAccessError();
   }
 
+  /**
+   * class initialization
+   */
+  public static void init() {
+    // just to be called to initialize the class
+  }
+
   private static Map<Locale, String> createIso6392BExceptions() {
     Map<Locale, String> exceptions = new HashMap<>();
     exceptions.put(Locale.forLanguageTag("sq"), "alb");
@@ -136,7 +143,7 @@ public class LanguageUtils {
 
     // sort from long to short
     List<String> keys = new LinkedList<>(langArray.keySet());
-    Collections.sort(keys, (s1, s2) -> s2.length() - s1.length());
+    keys.sort((s1, s2) -> s2.length() - s1.length());
 
     for (String key : keys) {
       if (!key.isEmpty()) {

@@ -48,12 +48,14 @@ import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo.Flags;
 import org.tinymediamanager.core.mediainfo.MediaInfoFile;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.mediainfo.MediaInfoXMLParser;
 import org.tinymediamanager.core.mediainfo.MediaInfoXmlCreator;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.thirdparty.MediaInfo;
 
@@ -970,6 +972,20 @@ public class MediaFileHelper {
   }
 
   /**
+   * checks whether the given file is a main disc identifier file
+   * 
+   * @param filename
+   *          the filename to check
+   * @return true/false
+   */
+  public static boolean isMainDiscIdentifierFile(String filename) {
+    if (filename.equalsIgnoreCase("video_ts.ifo") || filename.equalsIgnoreCase("index.bdmv") || filename.equalsIgnoreCase("hv000i01.ifo")) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Bluray "disc file/folder"? (video_ts, vts...)
    *
    * @return true/false
@@ -1584,9 +1600,15 @@ public class MediaFileHelper {
 
     MediaFileSubtitle sub = new MediaFileSubtitle();
     String shortname = mediaFile.getBasename().toLowerCase(Locale.ROOT);
-    if (shortname.contains("forced")) {
+
+    List<String> splitted = ParserUtils.splitByPunctuation(shortname);
+    if (splitted.contains("forced")) {
       sub.setForced(true);
       shortname = shortname.replaceAll("\\p{Punct}*forced", "");
+    }
+    if (splitted.contains("sdh")) {
+      sub.set(Flags.FLAG_HEARING_IMPAIRED);
+      shortname = shortname.replaceAll("\\p{Punct}*sdh", "");
     }
     sub.setLanguage(parseLanguageFromString(shortname));
 

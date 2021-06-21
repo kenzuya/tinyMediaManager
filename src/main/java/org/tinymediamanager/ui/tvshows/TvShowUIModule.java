@@ -43,6 +43,7 @@ import org.tinymediamanager.ui.movies.panels.TrailerPanel;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
 import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 import org.tinymediamanager.ui.tvshows.actions.DebugDumpShowAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowAddDatasourceAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowAspectRatioDetectAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowBulkEditAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowChangeDatasourceAction;
@@ -339,11 +340,12 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-        if (KodiRPC.getInstance().isConnected()) {
+        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
           kodiRPCMenu.setEnabled(true);
         }
         else {
+          kodiRPCMenu.setText("Kodi");
           kodiRPCMenu.setEnabled(false);
         }
 
@@ -380,6 +382,8 @@ public class TvShowUIModule extends AbstractTmmUIModule {
         }
         updatePopupMenu.addSeparator();
         updatePopupMenu.add(new TvShowUpdateAction());
+        updatePopupMenu.addSeparator();
+        updatePopupMenu.add(createAndRegisterAction(TvShowAddDatasourceAction.class));
         updatePopupMenu.pack();
       }
 

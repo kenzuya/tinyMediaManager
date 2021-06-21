@@ -38,6 +38,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.MainTabbedPane;
 import org.tinymediamanager.ui.components.PopupMenuScroller;
 import org.tinymediamanager.ui.movies.actions.DebugDumpMovieAction;
+import org.tinymediamanager.ui.movies.actions.MovieAddDatasourceAction;
 import org.tinymediamanager.ui.movies.actions.MovieAspectRatioDetectAction;
 import org.tinymediamanager.ui.movies.actions.MovieAssignMovieSetAction;
 import org.tinymediamanager.ui.movies.actions.MovieBulkEditAction;
@@ -259,11 +260,12 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
         if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
           kodiRPCMenu.setEnabled(true);
         }
         else {
+          kodiRPCMenu.setText("Kodi");
           kodiRPCMenu.setEnabled(false);
         }
 
@@ -303,6 +305,8 @@ public class MovieUIModule extends AbstractTmmUIModule {
         updatePopupMenu.addSeparator();
         updatePopupMenu.add(createAndRegisterAction(MovieFindMissingAction.class));
         updatePopupMenu.add(createAndRegisterAction(MovieCreateOfflineAction.class));
+        updatePopupMenu.addSeparator();
+        updatePopupMenu.add(createAndRegisterAction(MovieAddDatasourceAction.class));
         updatePopupMenu.pack();
       }
 
@@ -330,6 +334,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));

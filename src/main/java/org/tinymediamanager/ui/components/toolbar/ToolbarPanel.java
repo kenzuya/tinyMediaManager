@@ -35,6 +35,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,22 +82,22 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ToolbarPanel extends JPanel {
-  private static final long           serialVersionUID = 7969400170662870244L;
-  
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
+  private static final long   serialVersionUID = 7969400170662870244L;
 
-  private ToolbarButton               btnSearch;
-  private ToolbarButton               btnEdit;
-  private ToolbarButton               btnUpdate;
-  private ToolbarButton               btnRename;
-  private ToolbarButton               btnUnlock;
+  private static final Logger LOGGER           = LoggerFactory.getLogger(ToolbarPanel.class); // $NON-NLS-1$
 
-  private ToolbarMenu                 menuUpdate;
-  private ToolbarMenu                 menuSearch;
-  private ToolbarMenu                 menuEdit;
-  private ToolbarMenu                 menuRename;
+  private ToolbarButton       btnSearch;
+  private ToolbarButton       btnEdit;
+  private ToolbarButton       btnUpdate;
+  private ToolbarButton       btnRename;
+  private ToolbarButton       btnUnlock;
 
-  private ToolbarLabel                lblUnlock;
+  private ToolbarMenu         menuUpdate;
+  private ToolbarMenu         menuSearch;
+  private ToolbarMenu         menuEdit;
+  private ToolbarMenu         menuRename;
+
+  private ToolbarLabel        lblUnlock;
 
   public ToolbarPanel() {
     setLayout(new BorderLayout());
@@ -267,8 +268,44 @@ public class ToolbarPanel extends JPanel {
     });
     menu.add(menuWakeOnLan);
 
-    if (Boolean.parseBoolean(System.getProperty("tmm.noupdate")) != true) {
+    final JMenu kodiRPCMenu = KodiRPCMenu.createKodiMenuTop();
+    menu.add(kodiRPCMenu);
+
+    // activate/deactivate menu items based on some status
+    menu.addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        if (!Globals.settings.getWolDevices().isEmpty()) {
+          menuWakeOnLan.setEnabled(true);
+        }
+        else {
+          menuWakeOnLan.setEnabled(false);
+        }
+
+        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+          kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
+          kodiRPCMenu.setEnabled(true);
+        }
+        else {
+          kodiRPCMenu.setText("Kodi");
+          kodiRPCMenu.setEnabled(false);
+        }
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+      }
+    });
+
+    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate")) || Globals.isDebug()) {
       menu.addSeparator();
+    }
+
+    if (!Boolean.parseBoolean(System.getProperty("tmm.noupdate"))) {
       menu.add(new CheckForUpdateAction());
     }
 
@@ -296,38 +333,6 @@ public class ToolbarPanel extends JPanel {
       menu.addSeparator();
       menu.add(debugMenu);
     }
-
-    final JMenu kodiRPCMenu = KodiRPCMenu.createKodiMenuTop();
-    menu.add(kodiRPCMenu);
-
-    // activate/deactivate menu items based on some status
-    menu.addPopupMenuListener(new PopupMenuListener() {
-      @Override
-      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        if (!Globals.settings.getWolDevices().isEmpty()) {
-          menuWakeOnLan.setEnabled(true);
-        }
-        else {
-          menuWakeOnLan.setEnabled(false);
-        }
-
-        kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
-        if (KodiRPC.getInstance().isConnected()) {
-          kodiRPCMenu.setEnabled(true);
-        }
-        else {
-          kodiRPCMenu.setEnabled(false);
-        }
-      }
-
-      @Override
-      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-      }
-
-      @Override
-      public void popupMenuCanceled(PopupMenuEvent e) {
-      }
-    });
 
     menu.addSeparator();
     menu.add(new BugReportAction());

@@ -85,6 +85,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmDateFormat;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.Utils;
@@ -114,7 +115,10 @@ import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
-import org.tinymediamanager.core.threading.*;
+import org.tinymediamanager.core.threading.TmmTask;
+import org.tinymediamanager.core.threading.TmmTaskChain;
+import org.tinymediamanager.core.threading.TmmTaskHandle;
+import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
@@ -915,12 +919,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     writeNFO();
     saveToDb();
 
-    postProcess();
-
-    // write actor images after possible rename (to have a good folder structure)
-    if (ScraperMetadataConfig.containsAnyCast(config)) {
-      writeActorImages();
-    }
+    postProcess(config);
   }
 
   /**
@@ -1492,7 +1491,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
   public void setMultiMovieDir(boolean multiDir) {
     this.multiMovieDir = multiDir;
   }
-
 
   /**
    * Gets the movie set.
@@ -2355,6 +2353,25 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   @Override
+  public Float getMediaInfoAspectRatio2() {
+    return getMainVideoFile().getAspectRatio2();
+  }
+
+  public String getMediaInfoAspectRatio2AsString() {
+    Float aspectRatio2 = getMediaInfoAspectRatio2();
+    String ar2AsString = "";
+    if (aspectRatio2 != null) {
+      DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
+      ar2AsString = df.format(getMainVideoFile().getAspectRatio2()).replaceAll("\\.", "");
+    }
+    return ar2AsString;
+  }
+
+  public boolean isMultiFormat() {
+    return getMainVideoFile().getAspectRatio2() != null;
+  }
+
+  @Override
   public String getMediaInfoAudioCodec() {
     return getMainVideoFile().getAudioCodec();
   }
@@ -2603,7 +2620,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
   }
 
-  private void postProcess() {
+  private void postProcess(List<MovieScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (MovieModuleManager.SETTINGS.isArdAfterScrape()) {
@@ -2616,6 +2633,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
       if (!imageFiles.isEmpty()) {
         taskChain.add(new ImageCacheTask(imageFiles));
       }
+    }
+
+    // write actor images after possible rename (to have a good folder structure)
+    if (ScraperMetadataConfig.containsAnyCast(config) && MovieModuleManager.SETTINGS.isWriteActorImages() && !isMultiMovieDir()) {
+      taskChain.add(new TmmTask(TmmResourceBundle.getString("movie.downloadactorimages"), 1, TmmTaskHandle.TaskType.BACKGROUND_TASK) {
+        @Override
+        protected void doInBackground() {
+          writeActorImages();
+        }
+      });
     }
 
     taskChain.run();

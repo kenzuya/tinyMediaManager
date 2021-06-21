@@ -49,7 +49,6 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
   protected void uninstallDefaults() {
     super.uninstallDefaults();
 
-    separatorColor = null;
     bottomSeparatorColor = null;
   }
 
@@ -95,7 +94,6 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
       // horizontal
       g2.setColor(this.bottomSeparatorColor);
       g2.fill(new Rectangle2D.Float(0.0F, (float) height - lineWidth, (float) width, lineWidth));
-      g2.setColor(this.separatorColor);
 
       // vertical
       int sepCount = columnCount - 1; // do not draw the rightmost vertical border
@@ -162,7 +160,6 @@ public class TmmTableHeaderUI extends FlatTableHeaderUI {
           FlatUIUtils.setRenderingHints(g2);
           g2.setColor(this.bottomSeparatorColor);
           g2.fill(new Rectangle2D.Float((float) r.x, (float) (r.y + r.height) - lineWidth, (float) r.width, lineWidth));
-          g2.setColor(this.separatorColor);
           g2.fill(new Rectangle2D.Float((float) r.x, topLineIndent, lineWidth, (float) r.height - bottomLineIndent));
           g2.fill(new Rectangle2D.Float((float) (r.x + r.width) - lineWidth, (float) r.y + topLineIndent, lineWidth,
               (float) r.height - bottomLineIndent));

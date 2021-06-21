@@ -30,9 +30,12 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
 
 import okhttp3.Cache;
+import okhttp3.CacheControl;
 import okhttp3.ConnectionPool;
 import okhttp3.Credentials;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
 
 /**
  * The class HttpClient. To construct our HTTP client for internet access
@@ -137,20 +140,49 @@ public class TmmHttpClient {
   }
 
   /**
-   * create a new OkHttpClient.Builder along with all our settings set
+   * create a new OkHttpClient.Builder WITH cache along with all our settings set
    * 
    * @param withCache
-   *          create the builder with a cache set
+   *          create the builder with a cache set, if the server allows to cache it
    * @return the newly created builder
    */
   public static OkHttpClient.Builder newBuilder(boolean withCache) {
     OkHttpClient.Builder builder = client.newBuilder();
 
     if (withCache) {
-      builder.cache(CACHE);
+      builder = builder.cache(CACHE);
     }
 
     return builder;
+  }
+
+  /**
+   * create a new OkHttpClient.Builder with a FORCED cache (overwriting any cache response headers of the HTTP request)
+   * 
+   * @param timeToLive
+   * @param timeUnit
+   * @return
+   */
+  public static OkHttpClient.Builder newBuilderWithForcedCache(final int timeToLive, final TimeUnit timeUnit) {
+    return newBuilder(true).addNetworkInterceptor(provideCacheInterceptor(timeToLive, timeUnit));
+  }
+
+  /**
+   * add an interceptor which sets the header field
+   * 
+   * @param timeToLive
+   *          the time to live in the cache
+   * @param timeUnit
+   *          the time unit
+   * @return the interceptor
+   */
+  private static Interceptor provideCacheInterceptor(final int timeToLive, final TimeUnit timeUnit) {
+    return chain -> {
+      Response response = chain.proceed(chain.request());
+      CacheControl cacheControl = new CacheControl.Builder().maxAge(timeToLive, timeUnit).build();
+
+      return response.newBuilder().header("Cache-Control", cacheControl.toString()).build();
+    };
   }
 
   /**

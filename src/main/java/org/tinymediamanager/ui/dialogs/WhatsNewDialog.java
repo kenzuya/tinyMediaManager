@@ -56,10 +56,11 @@ public class WhatsNewDialog extends TmmDialog {
 
   public WhatsNewDialog(String changelog) {
     super(TmmResourceBundle.getString("whatsnew.title"), "whatsnew");
+    setMinimumSize(new Dimension(800, 600));
     {
       JPanel panelContent = new JPanel();
       getContentPane().add(panelContent, BorderLayout.CENTER);
-      panelContent.setLayout(new MigLayout("", "[600lp,grow]", "[400lp,grow][]"));
+      panelContent.setLayout(new MigLayout("", "[700lp,grow]", "[400lp,grow][]"));
 
       JScrollPane scrollPane = new NoBorderScrollPane();
       panelContent.add(scrollPane, "cell 0 0,grow");
@@ -111,10 +112,19 @@ public class WhatsNewDialog extends TmmDialog {
   }
 
   private String prepareTextAsHtml(String originalText) {
+    // links
     Pattern pattern = Pattern.compile("(http[s]?://.*?)[\\n\\r\\s)]");
     Matcher matcher = pattern.matcher(originalText);
     while (matcher.find()) {
       originalText = originalText.replace(matcher.group(1), "<a href=\"" + matcher.group(1) + "\">" + matcher.group(1) + "</a>");
+    }
+
+    // issues
+    pattern = Pattern.compile("(#\\d{3,5})[\\n\\r\\s)]");
+    matcher = pattern.matcher(originalText);
+    while (matcher.find()) {
+      originalText = originalText.replace(matcher.group(1), "<a href=\"https://gitlab.com/tinyMediaManager/tinyMediaManager/-/issues/"
+          + matcher.group(1).replace("#", "") + "\">" + matcher.group(1) + "</a>");
     }
 
     // set the foreground color of the content

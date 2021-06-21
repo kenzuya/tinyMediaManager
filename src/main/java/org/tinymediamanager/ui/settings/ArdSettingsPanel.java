@@ -15,7 +15,25 @@
  */
 package org.tinymediamanager.ui.settings;
 
-import net.miginfocom.swing.MigLayout;
+import static org.tinymediamanager.ui.TmmFontHelper.H3;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
+
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
@@ -28,30 +46,24 @@ import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ItemListener;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.tinymediamanager.ui.TmmFontHelper.H3;
+import net.miginfocom.swing.MigLayout;
 
 public class ArdSettingsPanel extends JPanel {
 
-  private final Settings              settings              = Settings.getInstance();
+  private final Settings         settings             = Settings.getInstance();
 
-  private JSlider                     sliderDetectionMode;
-  private Map<String, JCheckBox>      customARCheckBoxes    = new LinkedHashMap<>();
-  private ButtonGroup                 buttonGroupRound      = new ButtonGroup();
-  private JRadioButton                rdbtnRoundNearest;
-  private JRadioButton                rdbtnRoundUpToNext;
-  private ButtonGroup                 buttonGroupARUseMode  = new ButtonGroup();
-  private JRadioButton                rdbtnMFDisabled;
-  private JRadioButton                rdbtnMFHigher;
-  private JRadioButton                rdbtnMFWider;
+  private JSlider                sliderDetectionMode;
+  private Map<String, JCheckBox> customARCheckBoxes   = new LinkedHashMap<>();
+  private ButtonGroup            buttonGroupRound     = new ButtonGroup();
+  private JRadioButton           rdbtnRoundNearest;
+  private JRadioButton           rdbtnRoundUpToNext;
+  private ButtonGroup            buttonGroupARUseMode = new ButtonGroup();
+  private JRadioButton rdbtnMFMost;
+  private JRadioButton           rdbtnMFHigher;
+  private JRadioButton           rdbtnMFWider;
 
-  private int                         previousMode          = -1;
-  private int                         previousMFMode        = -1;
+  private int                    previousMode         = -1;
+  private int                    previousMFMode       = -1;
 
   public ArdSettingsPanel() {
     initComponents();
@@ -64,18 +76,19 @@ public class ArdSettingsPanel extends JPanel {
         switch (sliderDetectionMode.getValue()) {
           case 0: // fast
           case 1: // default
-            rdbtnMFDisabled.setEnabled(false);
+            rdbtnMFMost.setEnabled(false);
             rdbtnMFWider.setEnabled(false);
             rdbtnMFHigher.setEnabled(false);
 
             this.previousMFMode = this.previousMode == 2 ? settings.getArdMFMode() : this.previousMFMode;
             buttonGroupARUseMode.clearSelection();
             break;
+
           case 2: // accurate
-            rdbtnMFDisabled.setEnabled(true);
+            rdbtnMFMost.setEnabled(true);
             rdbtnMFWider.setEnabled(true);
             rdbtnMFHigher.setEnabled(true);
-            rdbtnMFDisabled.setSelected(this.previousMFMode == 0);
+            rdbtnMFMost.setSelected(this.previousMFMode == 0);
             rdbtnMFHigher.setSelected(this.previousMFMode == 1);
             rdbtnMFWider.setSelected(this.previousMFMode == 2);
             break;
@@ -84,7 +97,6 @@ public class ArdSettingsPanel extends JPanel {
         this.previousMode = sliderDetectionMode.getValue();
       }
     });
-
 
     ItemListener checkBoxListener = e -> checkCustomARChanges();
     for (Map.Entry<String, JCheckBox> entry : customARCheckBoxes.entrySet()) {
@@ -96,19 +108,29 @@ public class ArdSettingsPanel extends JPanel {
 
     if (settings.isArdRoundUp()) {
       rdbtnRoundUpToNext.setSelected(true);
-    } else {
+    }
+    else {
       rdbtnRoundNearest.setSelected(true);
     }
 
     boolean isAccurate = sliderDetectionMode.getValue() == 2;
     previousMFMode = settings.getArdMFMode();
-    rdbtnMFDisabled.addChangeListener(e -> { if (rdbtnMFDisabled.isSelected()) settings.setArdMFMode(0); });
-    rdbtnMFDisabled.setSelected(isAccurate && settings.getArdMFMode() == 0);
-    rdbtnMFDisabled.setEnabled(isAccurate);
-    rdbtnMFHigher.addChangeListener(e -> { if (rdbtnMFHigher.isSelected()) settings.setArdMFMode(1); });
+    rdbtnMFMost.addChangeListener(e -> {
+      if (rdbtnMFMost.isSelected())
+        settings.setArdMFMode(0);
+    });
+    rdbtnMFMost.setSelected(isAccurate && settings.getArdMFMode() == 0);
+    rdbtnMFMost.setEnabled(isAccurate);
+    rdbtnMFHigher.addChangeListener(e -> {
+      if (rdbtnMFHigher.isSelected())
+        settings.setArdMFMode(1);
+    });
     rdbtnMFHigher.setSelected(isAccurate && settings.getArdMFMode() == 1);
     rdbtnMFHigher.setEnabled(isAccurate);
-    rdbtnMFWider.addChangeListener(e -> { if (rdbtnMFWider.isSelected()) settings.setArdMFMode(2); });
+    rdbtnMFWider.addChangeListener(e -> {
+      if (rdbtnMFWider.isSelected())
+        settings.setArdMFMode(2);
+    });
     rdbtnMFWider.setSelected(isAccurate && settings.getArdMFMode() == 2);
     rdbtnMFWider.setEnabled(isAccurate);
   }
@@ -116,12 +138,10 @@ public class ArdSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[]"));
 
-    JPanel panelArdSettings = new JPanel(new MigLayout("hidemode 1, insets 0",
-                                                       "[20lp!][20lp!][500lp][grow]",
-                                                       "[][10lp!][][][][][10lp!][][][][]"));
+    JPanel panelArdSettings = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][20lp!][500lp][grow]", "[][10lp!][][][][][10lp!][][][][]"));
     JLabel lblLanguageT = new TmmLabel(TmmResourceBundle.getString("Settings.ard"), H3);
     CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelArdSettings, lblLanguageT, true);
-    collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#ard"));
+    collapsiblePanel.addExtraTitleComponent(new DocsButton("/settings#aspect-ratio-detector"));
     add(collapsiblePanel, "cell 0 0,growx, wmin 0");
 
     {
@@ -168,7 +188,8 @@ public class ArdSettingsPanel extends JPanel {
         if (customAR.getKey() < 1.9f) {
           gbc.gridx = 0;
           gbc.gridy = yOne++;
-        } else {
+        }
+        else {
           gbc.gridx = 1;
           gbc.gridy = yTwo++;
         }
@@ -193,11 +214,11 @@ public class ArdSettingsPanel extends JPanel {
       JLabel lblMultiFormat = new JLabel(TmmResourceBundle.getString("Settings.ard.multiformat.hint"));
       panelArdSettings.add(lblMultiFormat, "cell 1 " + row + " 3 1");
 
-      // MF disabled
+      // MF most common
       row++;
-      rdbtnMFDisabled = new JRadioButton(TmmResourceBundle.getString("Settings.ard.multiformat.disabled"));
-      buttonGroupARUseMode.add(rdbtnMFDisabled);
-      panelArdSettings.add(rdbtnMFDisabled, "cell 1 " + row + ",growx");
+      rdbtnMFMost = new JRadioButton(TmmResourceBundle.getString("Settings.ard.multiformat.useMost"));
+      buttonGroupARUseMode.add(rdbtnMFMost);
+      panelArdSettings.add(rdbtnMFMost, "cell 1 " + row + ",growx");
 
       // MF most higher
       row++;
@@ -218,10 +239,8 @@ public class ArdSettingsPanel extends JPanel {
 
     // round up
     Property ardRoundUpBeanProperty = BeanProperty.create("ardRoundUp");
-    AutoBinding autoBinding_ard_roundUp = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings,
-      ardRoundUpBeanProperty,
-      rdbtnRoundUpToNext,
-      jCheckBoxBeanProperty);
+    AutoBinding autoBinding_ard_roundUp = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, settings, ardRoundUpBeanProperty,
+        rdbtnRoundUpToNext, jCheckBoxBeanProperty);
     autoBinding_ard_roundUp.bind();
   }
 
@@ -234,6 +253,6 @@ public class ArdSettingsPanel extends JPanel {
       }
     }
 
-    settings.setCustomAspectRatios(customARs.stream().collect(Collectors.toList()));
+    settings.setCustomAspectRatios(new ArrayList<>(customARs));
   }
 }

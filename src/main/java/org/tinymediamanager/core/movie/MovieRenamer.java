@@ -49,6 +49,7 @@ import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
+import org.tinymediamanager.core.entities.MediaStreamInfo.Flags;
 import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedBitrateRenderer;
@@ -76,6 +77,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
+import org.tinymediamanager.scraper.util.ParserUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 import com.floreysoft.jmte.Engine;
@@ -128,10 +130,13 @@ public class MovieRenamer {
     tokenMap.put("producers", "movie.producers");
     tokenMap.put("directors", "movie.directors");
     tokenMap.put("writers", "movie.writers");
+    tokenMap.put("productionCompany", "movie.productionCompany");
+    tokenMap.put("productionCompanyAsArray", "movie.productionCompanyAsArray");
 
     tokenMap.put("videoCodec", "movie.mediaInfoVideoCodec");
     tokenMap.put("videoFormat", "movie.mediaInfoVideoFormat");
     tokenMap.put("aspectRatio", "movie.mediaInfoAspectRatioAsString");
+    tokenMap.put("aspectRatio2", "movie.mediaInfoAspectRatio2AsString");
     tokenMap.put("videoResolution", "movie.mediaInfoVideoResolution");
     tokenMap.put("videoBitDepth", "movie.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "movie.mediaInfoVideoBitrate;bitrate");
@@ -173,7 +178,7 @@ public class MovieRenamer {
     for (MediaFile sub : subtitleFiles) {
       String originalLang = "";
       String lang = "";
-      String forced = "";
+      String additional = "";
       List<MediaFileSubtitle> mfsl = sub.getSubtitles();
 
       if (mfsl != null && !mfsl.isEmpty()) {
@@ -181,7 +186,10 @@ public class MovieRenamer {
         MediaFileSubtitle mfs = mfsl.get(0);
         originalLang = mfs.getLanguage();
         if (mfs.isForced()) {
-          forced = ".forced";
+          additional = ".forced";
+        }
+        if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
+          additional += ".sdh"; // double possible?!
         }
       }
       else {
@@ -193,12 +201,16 @@ public class MovieRenamer {
           shortname = sub.getBasename().toLowerCase(Locale.ROOT).replace(m.getVideoBasenameWithoutStacking(), "");
         }
 
-        if (sub.getFilename().toLowerCase(Locale.ROOT).contains("forced")) {
-          // add "forced" prior language
-          forced = ".forced";
+        List<String> splitted = ParserUtils.splitByPunctuation(shortname);
+        if (splitted.contains("forced")) {
+          // detect "forced" before language!
+          additional = ".forced";
           shortname = shortname.replaceAll("\\p{Punct}*forced", "");
         }
-        // shortname = shortname.replaceAll("\\p{Punct}", "").trim(); // NEVER EVER!!!
+        if (splitted.contains("sdh")) {
+          additional += ".sdh"; // double possible?!
+          shortname = shortname.replaceAll("\\p{Punct}*sdh", "");
+        }
 
         for (String s : langArray) {
           if (LanguageUtils.doesStringEndWithLanguage(shortname, s)) {
@@ -230,7 +242,7 @@ public class MovieRenamer {
         if (!lang.isEmpty()) {
           newSubName += "." + lang;
         }
-        newSubName += forced;
+        newSubName += additional;
       }
       else {
         // with stacking info; try to match
@@ -240,7 +252,7 @@ public class MovieRenamer {
             if (!lang.isEmpty()) {
               newSubName += "." + lang;
             }
-            newSubName += forced;
+            newSubName += additional;
           }
         }
       }
@@ -267,7 +279,7 @@ public class MovieRenamer {
           if (!lang.isEmpty()) {
             mfs.setLanguage(lang);
           }
-          if (!forced.isEmpty()) {
+          if (!additional.isEmpty()) {
             mfs.setForced(true);
           }
           mfs.setCodec(sub.getExtension());
@@ -874,6 +886,9 @@ public class MovieRenamer {
             }
             if (mfs.isForced()) {
               newFilename += ".forced";
+            }
+            if (mfs.has(Flags.FLAG_HEARING_IMPAIRED)) {
+              newFilename += ".sdh";
             }
           }
         }

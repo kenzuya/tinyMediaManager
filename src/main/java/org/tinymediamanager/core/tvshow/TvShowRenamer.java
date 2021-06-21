@@ -125,6 +125,7 @@ public class TvShowRenamer {
     tokenMap.put("parent", "tvShow.parent");
     tokenMap.put("showNote", "tvShow.note");
     tokenMap.put("showStatus", "tvShow.status");
+    tokenMap.put("showImdb", "tvShow.imdbId");
 
     // Season tags
     tokenMap.put("seasonName", "season.title");
@@ -143,11 +144,13 @@ public class TvShowRenamer {
     tokenMap.put("titleSortable", "episode.titleSortable");
     tokenMap.put("year", "episode.year");
     tokenMap.put("airedDate", "episode.firstAired;date(yyyy-MM-dd)");
+    tokenMap.put("episodeImdb", "episode.imdbId");
 
     tokenMap.put("videoCodec", "episode.mediaInfoVideoCodec");
     tokenMap.put("videoFormat", "episode.mediaInfoVideoFormat");
     tokenMap.put("videoResolution", "episode.mediaInfoVideoResolution");
     tokenMap.put("aspectRatio", "episode.mediaInfoAspectRatioAsString");
+    tokenMap.put("aspectRatio2", "episode.mediaInfoAspectRatio2AsString");
     tokenMap.put("videoBitDepth", "episode.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "episode.mediaInfoVideoBitrate;bitrate");
     tokenMap.put("audioCodec", "episode.mediaInfoAudioCodec");

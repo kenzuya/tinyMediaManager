@@ -442,6 +442,27 @@ public class ParserUtils {
     return result;
   }
 
+  /**
+   * splits the given String into substrings by punctuation characters <br>
+   * !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ (no space!)
+   *
+   * @param source
+   *          the source String to split
+   * @return an array with all parts
+   */
+  public static List<String> splitByPunctuation(String source) {
+    List<String> result = new ArrayList<>();
+
+    for (String string : source.split("\\p{Punct}")) {
+      string = string.trim();
+      if (StringUtils.isNotBlank(string)) {
+        result.add(string);
+      }
+    }
+
+    return result;
+  }
+
   private static class ParserInfo {
     public String name  = "";
     public String year  = "";
