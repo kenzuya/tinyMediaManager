@@ -44,6 +44,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -248,7 +249,16 @@ public class MovieList extends AbstractModelObject {
 
     for (Movie movie : moviesToChange) {
       Path oldMoviePath = movie.getPathNIO();
-      Path newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+      Path newMoviePath;
+
+      try {
+        // try to _cleanly_ calculate the relative path
+        newMoviePath = Paths.get(newDatasource, Paths.get(movie.getDataSource()).relativize(oldMoviePath).toString());
+      }
+      catch (Exception e) {
+        // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
+        newMoviePath = Paths.get(newDatasource, FilenameUtils.separatorsToSystem(movie.getPath().replace(movie.getDataSource(), "")));
+      }
 
       movie.setDataSource(newDatasource);
       movie.setPath(newMoviePath.toAbsolutePath().toString());
