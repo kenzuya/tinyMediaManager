@@ -101,8 +101,8 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
   }
 
   private void initComponents() {
-    movieList = MovieList.getInstance();
-    SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList<Movie>) movieList.getMovies()),
+    movieList = MovieModuleManager.getInstance().getMovieList();
+    SortedList<Movie> sortedMovies = new SortedList<>(GlazedListsSwing.swingThreadProxyList((ObservableElementList) movieList.getMovies()),
         new MovieComparator());
     sortedMovies.setMode(SortedList.AVOID_MOVING_ELEMENTS);
 
@@ -154,11 +154,13 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
         JPopupMenu popupMenu = btnExtendedFilter.getPopupMenu();
         popupMenu.removeAll();
 
-        for (String uiFilter : MovieModuleManager.SETTINGS.getMovieUiFilterPresets().keySet()) {
+        for (String uiFilter : MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().keySet()) {
           FilterPresetAction action = new FilterPresetAction(uiFilter) {
             @Override
             protected void processAction(ActionEvent e) {
-              MovieUIModule.getInstance().getSelectionModel().setFilterValues(MovieModuleManager.SETTINGS.getMovieUiFilterPresets().get(presetName));
+              MovieUIModule.getInstance()
+                  .getSelectionModel()
+                  .setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieUiFilterPresets().get(presetName));
             }
           };
           popupMenu.add(action);
@@ -247,7 +249,8 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
     // set the initial selection
     movieTable.setSelectionModel(selectionModel.getSelectionModel());
     // selecting first movie at startup
-    if (MovieList.getInstance().getMovies() != null && !MovieList.getInstance().getMovies().isEmpty()) {
+    if (MovieModuleManager.getInstance().getMovieList().getMovies() != null
+        && !MovieModuleManager.getInstance().getMovieList().getMovies().isEmpty()) {
       ListSelectionModel selectionModel = movieTable.getSelectionModel();
       if (selectionModel.isSelectionEmpty()) {
         int selectionIndex = movieTable.convertRowIndexToModel(0);

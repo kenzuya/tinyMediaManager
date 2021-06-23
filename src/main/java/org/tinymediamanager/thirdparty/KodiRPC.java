@@ -31,10 +31,8 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -204,9 +202,9 @@ public class KodiRPC {
 
     if (call.getResults() != null && !call.getResults().isEmpty()) {
       // cache our lookup maps
-      Map<SplitUri, Movie> tmmFiles = prepareMovieFileMap(MovieList.getInstance().getMovies());
-      Map<String, Movie> imdbIds = prepareMovieImdbIdMap(MovieList.getInstance().getMovies());
-      Map<String, List<Movie>> titles = prepareMovieTitleMap(MovieList.getInstance().getMovies());
+      Map<SplitUri, Movie> tmmFiles = prepareMovieFileMap(MovieModuleManager.getInstance().getMovieList().getMovies());
+      Map<String, Movie> imdbIds = prepareMovieImdbIdMap(MovieModuleManager.getInstance().getMovieList().getMovies());
+      Map<String, List<Movie>> titles = prepareMovieTitleMap(MovieModuleManager.getInstance().getMovieList().getMovies());
 
       LOGGER.debug("TMM {} items", tmmFiles.size());
 
@@ -336,8 +334,8 @@ public class KodiRPC {
 
     if (tvShowCall.getResults() != null && !tvShowCall.getResults().isEmpty()) {
       // cache our lookup maps
-      Map<SplitUri, TvShow> tmmFiles = prepareTvShowFileMap(TvShowList.getInstance().getTvShows());
-      Map<String, TvShow> idMap = prepareTvShowIdMap(TvShowList.getInstance().getTvShows());
+      Map<SplitUri, TvShow> tmmFiles = prepareTvShowFileMap(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
+      Map<String, TvShow> idMap = prepareTvShowIdMap(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
 
       LOGGER.debug("TMM {} items", tmmFiles.size());
 
@@ -793,10 +791,10 @@ public class KodiRPC {
         }
 
         LOGGER.info("--- TMM DATASOURCES ---");
-        for (String ds : MovieModuleManager.SETTINGS.getMovieDataSource()) {
+        for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
           LOGGER.info(ds + " - " + new SplitUri(ds, ""));
         }
-        for (String ds : TvShowModuleManager.SETTINGS.getTvShowDataSource()) {
+        for (String ds : TvShowModuleManager.getInstance().getSettings().getTvShowDataSource()) {
           LOGGER.info(ds + " - " + new SplitUri(ds, ""));
         }
       }

@@ -33,7 +33,6 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieHelpers;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -212,8 +211,8 @@ public class MovieChooserModel extends AbstractModelObject {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
       options.setSearchResult(result);
       options.setLanguage(language);
-      options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-      options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+      options.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+      options.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");
@@ -288,7 +287,7 @@ public class MovieChooserModel extends AbstractModelObject {
       return false;
     }
 
-    for (Movie movie : MovieList.getInstance().getMovies()) {
+    for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
       if (movieToScrape == movie) {
         continue;
       }
@@ -352,9 +351,9 @@ public class MovieChooserModel extends AbstractModelObject {
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
       options.setId("mediaFile", movieToScrape.getMainFile());
-      options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-      options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-      options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+      options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
       // scrape providers till one artwork has been found
       for (MediaScraper artworkScraper : artworkScrapers) {

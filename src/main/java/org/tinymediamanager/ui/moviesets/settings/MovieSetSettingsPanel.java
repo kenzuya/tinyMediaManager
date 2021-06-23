@@ -58,7 +58,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSetSettingsPanel extends JPanel {
   private static final long   serialVersionUID = -4173835431245178069L;
 
-  private final MovieSettings settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
   private JCheckBox           chckbxShowMissingMovies;
   private JCheckBox           chckbxTvShowTableTooltips;

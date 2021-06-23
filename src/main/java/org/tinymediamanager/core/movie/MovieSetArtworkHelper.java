@@ -229,7 +229,7 @@ public class MovieSetArtworkHelper {
    * @return the {@link Path} to the artwork folder or null
    */
   private static Path getArtworkFolder() {
-    String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetDataFolder();
+    String artworkFolder = MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder();
     if (StringUtils.isBlank(artworkFolder)) {
       return null;
     }
@@ -346,7 +346,7 @@ public class MovieSetArtworkHelper {
    *          the movie set to search artwork for
    */
   private static void findArtworkInArtworkFolder(MovieSet movieSet) {
-    String artworkFolder = MovieModuleManager.SETTINGS.getMovieSetDataFolder();
+    String artworkFolder = MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder();
     if (StringUtils.isBlank(artworkFolder)) {
       return;
     }
@@ -526,7 +526,7 @@ public class MovieSetArtworkHelper {
     }
 
     // the right language and down to 2 resolutions lower (if language has priority)
-    if (MovieModuleManager.SETTINGS.isImageLanguagePriority()) {
+    if (MovieModuleManager.getInstance().getSettings().isImageLanguagePriority()) {
       int counter = 1;
       int newOrder = sizeOrder;
       while (counter <= 2) {
@@ -579,8 +579,8 @@ public class MovieSetArtworkHelper {
    * find the "best" poster in the list of artwork, assign it to the movie and download it
    */
   private static void setBestPoster(MovieSet movieSet, List<MediaArtwork> artwork) {
-    int preferredSizeOrder = MovieModuleManager.SETTINGS.getImagePosterSize().getOrder();
-    String preferredLanguage = MovieModuleManager.SETTINGS.getImageScraperLanguage().getLanguage();
+    int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImagePosterSize().getOrder();
+    String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
 
     // sort artwork due to our preferences
     List<MediaArtwork> sortedPosters = sortArtwork(artwork, MediaArtwork.MediaArtworkType.POSTER, preferredSizeOrder, preferredLanguage);
@@ -596,8 +596,8 @@ public class MovieSetArtworkHelper {
    * find the "best" fanart in the list of artwork, assign it to the movie set and download it
    */
   private static void setBestFanart(MovieSet movieSet, List<MediaArtwork> artwork) {
-    int preferredSizeOrder = MovieModuleManager.SETTINGS.getImageFanartSize().getOrder();
-    String preferredLanguage = MovieModuleManager.SETTINGS.getImageScraperLanguage().getLanguage();
+    int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+    String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
 
     // sort artwork due to our preferences
     List<MediaArtwork> sortedFanarts = sortArtwork(artwork, MediaArtwork.MediaArtworkType.BACKGROUND, preferredSizeOrder, preferredLanguage);
@@ -621,8 +621,8 @@ public class MovieSetArtworkHelper {
    */
   private static void setBestArtwork(MovieSet movieSet, List<MediaArtwork> artwork, MediaArtwork.MediaArtworkType type) {
     // sort artwork due to our preferences
-    int preferredSizeOrder = MovieModuleManager.SETTINGS.getImageFanartSize().getOrder();
-    String preferredLanguage = MovieModuleManager.SETTINGS.getImageScraperLanguage().getLanguage();
+    int preferredSizeOrder = MovieModuleManager.getInstance().getSettings().getImageFanartSize().getOrder();
+    String preferredLanguage = MovieModuleManager.getInstance().getSettings().getImageScraperLanguage().getLanguage();
     List<MediaArtwork> sortedArtworks = sortArtwork(artwork, type, preferredSizeOrder, preferredLanguage);
 
     for (MediaArtwork art : sortedArtworks) {
@@ -722,12 +722,12 @@ public class MovieSetArtworkHelper {
     }
 
     // and also remove any empty subfolders from the artwork folder
-    if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getMovieSetDataFolder())) {
+    if (StringUtils.isBlank(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder())) {
       return;
     }
 
     try {
-      Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.SETTINGS.getMovieSetDataFolder()));
+      Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder()));
     }
     catch (Exception e) {
       LOGGER.warn("could not clean empty subfolders: {}", e.getMessage());
@@ -735,28 +735,30 @@ public class MovieSetArtworkHelper {
   }
 
   public static boolean hasMissingArtwork(MovieSet movieSet) {
-    if (!MovieModuleManager.SETTINGS.getPosterFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
+    if (!MovieModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.POSTER).isEmpty()) {
       return true;
     }
-    if (!MovieModuleManager.SETTINGS.getFanartFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.FANART).isEmpty()) {
+    if (!MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.FANART).isEmpty()) {
       return true;
     }
-    if (!MovieModuleManager.SETTINGS.getBannerFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.BANNER).isEmpty()) {
+    if (!MovieModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.BANNER).isEmpty()) {
       return true;
     }
-    if (!MovieModuleManager.SETTINGS.getDiscartFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.DISC).isEmpty()) {
+    if (!MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.DISC).isEmpty()) {
       return true;
     }
-    if (!MovieModuleManager.SETTINGS.getLogoFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
+    if (!MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.LOGO).isEmpty()) {
       return true;
     }
-    if (!MovieModuleManager.SETTINGS.getClearlogoFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.CLEARLOGO).isEmpty()) {
+    if (!MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty()
+        && movieSet.getMediaFiles(MediaFileType.CLEARLOGO).isEmpty()) {
       return true;
     }
-    if (!MovieModuleManager.SETTINGS.getClearartFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.CLEARART).isEmpty()) {
+    if (!MovieModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty()
+        && movieSet.getMediaFiles(MediaFileType.CLEARART).isEmpty()) {
       return true;
     }
-    return !MovieModuleManager.SETTINGS.getThumbFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.THUMB).isEmpty();
+    return !MovieModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty() && movieSet.getMediaFiles(MediaFileType.THUMB).isEmpty();
   }
 
   /**
@@ -1015,35 +1017,35 @@ public class MovieSetArtworkHelper {
 
     switch (type) {
       case FANART:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetFanartFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetFanartFilenames());
         break;
 
       case POSTER:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetPosterFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetPosterFilenames());
         break;
 
       case LOGO:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetLogoFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetLogoFilenames());
         break;
 
       case CLEARLOGO:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetClearlogoFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetClearlogoFilenames());
         break;
 
       case BANNER:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetBannerFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetBannerFilenames());
         break;
 
       case CLEARART:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetClearartFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetClearartFilenames());
         break;
 
       case THUMB:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetThumbFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetThumbFilenames());
         break;
 
       case DISC:
-        fileNamings.addAll(MovieModuleManager.SETTINGS.getMovieSetDiscartFilenames());
+        fileNamings.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetDiscartFilenames());
         break;
 
       default:

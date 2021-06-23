@@ -49,7 +49,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   private final PropertyChangeListener          tvShowPropertyChangeListener;
   private final PropertyChangeListener          episodePropertyChangeListener;
 
-  private final TvShowList                      tvShowList = TvShowList.getInstance();
+  private final TvShowList                      tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
   public TvShowTreeDataProvider(TmmTreeTableFormat<TmmTreeNode> tableFormat) {
     this.tableFormat = tableFormat;
@@ -150,10 +150,10 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     setTreeComparator(new TvShowTreeNodeComparator());
 
-    TvShowModuleManager.SETTINGS.addPropertyChangeListener(evt -> {
+    TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
         case "displayMissingEpisodes":
-          if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
+          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
             addDummyEpisodes();
           }
           else {
@@ -162,7 +162,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           break;
 
         case "displayMissingSpecials":
-          if (TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
+          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
             addDummySpecials();
           }
           else {

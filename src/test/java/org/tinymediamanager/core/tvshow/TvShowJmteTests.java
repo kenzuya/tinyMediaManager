@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
@@ -48,9 +50,14 @@ import org.tinymediamanager.scraper.DynaEnum;
 
 import com.floreysoft.jmte.Engine;
 
-public class TvShowJmteTests {
+public class TvShowJmteTests extends BasicTest {
   private Engine              engine;
   private Map<String, Object> root;
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testTvshowPatterns() {

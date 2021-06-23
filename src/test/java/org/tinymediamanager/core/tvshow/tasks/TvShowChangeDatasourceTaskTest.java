@@ -26,9 +26,8 @@ import java.util.Collections;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -36,8 +35,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 public class TvShowChangeDatasourceTaskTest extends BasicTest {
   @BeforeClass
   public static void init() throws Exception {
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Test

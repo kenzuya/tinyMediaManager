@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -81,7 +80,7 @@ public class MovieToMpLegacyConnector extends MovieGenericXmlConnector {
 
     for (MediaGenres mediaGenre : movie.getGenres()) {
       Element genre = document.createElement("genre");
-      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale()));
+      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale()));
       genres.appendChild(genre);
     }
 
@@ -105,7 +104,7 @@ public class MovieToMpLegacyConnector extends MovieGenericXmlConnector {
   protected void addStudios() {
     Element studio = document.createElement("studio");
     // if we just want to write one studio, we have to strip that out
-    if (MovieSettings.getInstance().isNfoWriteSingleStudio()) {
+    if (MovieModuleManager.getInstance().getSettings().isNfoWriteSingleStudio()) {
       List<String> studios = ParserUtils.split(movie.getProductionCompany());
       if (!studios.isEmpty()) {
         studio.setTextContent(studios.get(0));
@@ -145,7 +144,8 @@ public class MovieToMpLegacyConnector extends MovieGenericXmlConnector {
     // prepare spoken language for MP - try to extract the iso codes to the UI language separated by a pipe
     List<String> languages = new ArrayList<>();
     for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
-      String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale(),
+      String translated = LanguageUtils
+          .getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale(),
           langu.trim());
       languages.add(translated);
     }

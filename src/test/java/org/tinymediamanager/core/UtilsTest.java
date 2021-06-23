@@ -11,7 +11,6 @@ import java.util.Locale;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
@@ -19,9 +18,7 @@ public class UtilsTest extends BasicTest {
 
   @BeforeClass
   public static void setup() {
-    // create a fresh default config
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   // @Test

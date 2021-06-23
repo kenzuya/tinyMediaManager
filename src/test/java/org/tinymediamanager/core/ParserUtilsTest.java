@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.scraper.util.ParserUtils;
 
 public class ParserUtilsTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testNamingDetection() {

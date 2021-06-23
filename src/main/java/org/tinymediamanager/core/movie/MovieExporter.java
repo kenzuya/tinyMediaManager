@@ -139,7 +139,7 @@ public class MovieExporter extends MediaEntityExporter {
         Movie movie = (Movie) me;
         LOGGER.debug("processing movie {}", movie.getTitle());
         // get preferred movie name like set up in movie renamer
-        String detailFilename = MovieRenamer.createDestinationForFilename(MovieModuleManager.SETTINGS.getRenamerFilename(), movie);
+        String detailFilename = MovieRenamer.createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
         if (StringUtils.isBlank(detailFilename)) {
           detailFilename = movie.getVideoBasenameWithoutStacking();
         }
@@ -180,7 +180,7 @@ public class MovieExporter extends MediaEntityExporter {
   }
 
   private static String getMovieFilename(Movie movie) {
-    String filename = MovieRenamer.createDestinationForFilename(MovieModuleManager.SETTINGS.getRenamerFilename(), movie);
+    String filename = MovieRenamer.createDestinationForFilename(MovieModuleManager.getInstance().getSettings().getRenamerFilename(), movie);
     if (StringUtils.isNotBlank(filename)) {
       return filename;
     }

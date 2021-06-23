@@ -56,7 +56,7 @@ public class TvShowRenamerPreview {
 
   public TvShowRenamerPreviewContainer generatePreview() {
     // generate the new path
-    container.newPath = Paths.get(getTvShowFoldername(TvShowModuleManager.SETTINGS.getRenamerTvShowFoldername(), tvShow));
+    container.newPath = Paths.get(getTvShowFoldername(TvShowModuleManager.getInstance().getSettings().getRenamerTvShowFoldername(), tvShow));
 
     // process TV show media files
     processTvShow();

@@ -211,7 +211,7 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
    * @return true if artwork is available
    */
   public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.SETTINGS.getSeasonCheckImages()) {
+    for (MediaArtworkType type : TvShowModuleManager.getInstance().getSettings().getSeasonCheckImages()) {
       if (StringUtils.isBlank(getArtworkFilename(type))) {
         return false;
       }

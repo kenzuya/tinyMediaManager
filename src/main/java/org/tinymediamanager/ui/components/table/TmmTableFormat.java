@@ -38,9 +38,9 @@ import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 
@@ -52,11 +52,7 @@ import ca.odell.glazedlists.gui.AdvancedTableFormat;
  * @author Manuel Laggner
  */
 public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
-
   protected List<Column> columns = new ArrayList<>();
-
-  public TmmTableFormat() {
-  }
 
   protected FontMetrics getFontMetrics() {
     Font defaultFont = UIManager.getFont("Table.font");
@@ -150,7 +146,7 @@ public abstract class TmmTableFormat<E> implements AdvancedTableFormat<E> {
       columnIdentifier = identifier;
       columnValue = value;
       columnClass = clazz;
-      minWidth = (int) (Globals.settings.getFontSize() * 2.3);
+      minWidth = (int) (Settings.getInstance().getFontSize() * 2.3);
     }
 
     public void setColumnComparator(Comparator<?> comparator) {

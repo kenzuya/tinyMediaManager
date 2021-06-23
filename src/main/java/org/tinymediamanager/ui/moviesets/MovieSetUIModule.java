@@ -173,8 +173,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
   private void init() {
     // re-set filters
-    if (MovieModuleManager.SETTINGS.isStoreMovieSetUiFilters()) {
-      SwingUtilities.invokeLater(() -> treePanel.getTreeTable().setFilterValues(MovieModuleManager.SETTINGS.getMovieSetUiFilters()));
+    if (MovieModuleManager.getInstance().getSettings().isStoreMovieSetUiFilters()) {
+      SwingUtilities
+          .invokeLater(() -> treePanel.getTreeTable().setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieSetUiFilters()));
     }
   }
 

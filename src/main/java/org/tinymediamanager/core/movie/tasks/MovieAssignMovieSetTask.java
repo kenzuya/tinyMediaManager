@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.core.movie.tasks;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -48,14 +49,13 @@ import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
  * @author Manuel Laggner
  */
 public class MovieAssignMovieSetTask extends TmmThreadPool {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(MovieAssignMovieSetTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieAssignMovieSetTask.class);
 
-
-  private List<Movie>                 moviesToScrape;
+  private final List<Movie>   moviesToScrape;
 
   public MovieAssignMovieSetTask(List<Movie> moviesToScrape) {
     super(TmmResourceBundle.getString("movie.assignmovieset"));
-    this.moviesToScrape = moviesToScrape;
+    this.moviesToScrape = new ArrayList<>(moviesToScrape);
   }
 
   @Override
@@ -70,9 +70,9 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
     LOGGER.info("Done assigning movies to movie sets");
   }
 
-  private class Worker implements Runnable {
-    private MovieList movieList = MovieList.getInstance();
-    private Movie     movie;
+  private static class Worker implements Runnable {
+    private final MovieList movieList = MovieModuleManager.getInstance().getMovieList();
+    private final Movie     movie;
 
     public Worker(Movie movie) {
       this.movie = movie;
@@ -88,9 +88,9 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
         MediaScraper movieSetScraper = MediaScraper.getMediaScraperById(MediaMetadata.TMDB, ScraperType.MOVIE_SET);
 
         MovieSearchAndScrapeOptions movieOptions = new MovieSearchAndScrapeOptions();
-        movieOptions.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
-        movieOptions.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-        movieOptions.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+        movieOptions.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+        movieOptions.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+        movieOptions.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
         for (Entry<String, Object> entry : movie.getIds().entrySet()) {
           movieOptions.setId(entry.getKey(), entry.getValue().toString());
@@ -114,7 +114,7 @@ public class MovieAssignMovieSetTask extends TmmThreadPool {
             try {
               MovieSetSearchAndScrapeOptions movieSetOptions = new MovieSetSearchAndScrapeOptions();
               movieSetOptions.setTmdbId(collectionId);
-              movieSetOptions.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
+              movieSetOptions.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
 
               MediaMetadata info = ((IMovieSetMetadataProvider) movieSetScraper.getMediaProvider()).getMetadata(movieSetOptions);
               if (info != null && StringUtils.isNotBlank(info.getTitle())) {

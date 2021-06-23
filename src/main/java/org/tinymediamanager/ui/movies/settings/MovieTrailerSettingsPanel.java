@@ -51,7 +51,6 @@ import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
@@ -80,7 +79,7 @@ class MovieTrailerSettingsPanel extends JPanel {
    * @wbp.nls.resourceBundle messages
    */
 
-  private final MovieSettings        settings                   = MovieModuleManager.SETTINGS;
+  private final MovieSettings        settings                   = MovieModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> scrapers                   = new ArrayList<>();
   private final ItemListener         checkBoxListener;
 
@@ -112,7 +111,7 @@ class MovieTrailerSettingsPanel extends JPanel {
     List<String> enabledTrailerProviders = settings.getTrailerScrapers();
     int selectedIndex = -1;
     int counter = 0;
-    for (MediaScraper scraper : MovieList.getInstance().getAvailableTrailerScrapers()) {
+    for (MediaScraper scraper : MovieModuleManager.getInstance().getMovieList().getAvailableTrailerScrapers()) {
       ScraperInTable ScraperInTable = new ScraperInTable(scraper);
       if (enabledTrailerProviders.contains(ScraperInTable.getScraperId())) {
         ScraperInTable.setActive(true);

@@ -1,5 +1,6 @@
 Version 4.2
 =======================
++ added support for 3rd party scrapers
 + (TV shows) added experimental TV show renamer preview #534
 + initial support for reading/writing movie set NFO files #1334
 + (movies/TV shows) "add a new data source" has been added to the "update data sources" menu

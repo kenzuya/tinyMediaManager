@@ -112,11 +112,11 @@ public class TvShowScrapeTask extends TmmThreadPool {
 
     waitForCompletionOrCancel();
 
-    if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
+    if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
       TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(tvShowsToScrape);
-      task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
-      task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-      task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+      task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktCollection());
+      task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+      task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
@@ -125,7 +125,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
   }
 
   private class Worker implements Runnable {
-    private final TvShowList tvShowList = TvShowList.getInstance();
+    private final TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     private final TvShow     tvShow;
 
     private Worker(TvShow tvShow) {

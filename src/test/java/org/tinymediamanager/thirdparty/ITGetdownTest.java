@@ -26,8 +26,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.updater.getdown.TmmGetdownApplication;
 import org.tinymediamanager.updater.getdown.TmmGetdownDownloader;
@@ -38,10 +40,15 @@ import com.threerings.getdown.data.Resource;
 import com.threerings.getdown.net.Downloader;
 import com.threerings.getdown.util.ProgressObserver;
 
-public class ITGetdownTest {
+public class ITGetdownTest extends BasicTest {
 
   private static final String APP_FOLDER    = "target/test-classes/getdown/";
   private static final String UPDATE_FOLDER = APP_FOLDER + "/update/";
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testGetdown() throws Exception {

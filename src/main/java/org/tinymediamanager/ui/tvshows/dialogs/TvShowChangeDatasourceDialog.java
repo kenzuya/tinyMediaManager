@@ -74,7 +74,7 @@ public class TvShowChangeDatasourceDialog extends TmmDialog {
         panelContent.add(lblDatasourceT, "cell 0 2");
       }
       {
-        cbDatasource = new JComboBox(TvShowModuleManager.SETTINGS.getTvShowDataSource().toArray());
+        cbDatasource = new JComboBox(TvShowModuleManager.getInstance().getSettings().getTvShowDataSource().toArray());
         panelContent.add(cbDatasource, "cell 1 2,growx,wmin 0");
       }
 

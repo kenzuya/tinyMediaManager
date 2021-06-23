@@ -68,13 +68,14 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowBulkEditorDialog extends TmmDialog {
-  private static final long   serialVersionUID = 3527478264068979388L;
+  private static final long         serialVersionUID = 3527478264068979388L;
 
-  private TvShowList          tvShowList       = TvShowList.getInstance();
-  private List<TvShow>        tvShowsToEdit;
-  private List<TvShowEpisode> tvShowEpisodesToEdit;
-  private boolean             episodesChanged  = false;
-  private boolean             tvShowsChanged   = false;
+  private final TvShowList          tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
+  private final List<TvShow>        tvShowsToEdit;
+  private final List<TvShowEpisode> tvShowEpisodesToEdit;
+
+  private boolean                   episodesChanged  = false;
+  private boolean                   tvShowsChanged   = false;
 
   /**
    * Instantiates a new movie batch editor.
@@ -246,7 +247,8 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         panelContent.add(lblCertificationT, "cell 0 5, alignx right");
 
         JComboBox cbCertification = new JComboBox();
-        for (MediaCertification cert : MediaCertification.getCertificationsforCountry(TvShowModuleManager.SETTINGS.getCertificationCountry())) {
+        for (MediaCertification cert : MediaCertification
+            .getCertificationsforCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry())) {
           cbCertification.addItem(cert);
         }
         panelContent.add(cbCertification, "cell 1 5, growx");
@@ -436,10 +438,10 @@ public class TvShowBulkEditorDialog extends TmmDialog {
       }
       {
         JLabel lblEpisodePlotT = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
-        panelContent.add(lblEpisodePlotT,"cell 0 7, alignx right");
+        panelContent.add(lblEpisodePlotT, "cell 0 7, alignx right");
 
         JTextField tfEpisodePlot = new JTextField();
-        panelContent.add(tfEpisodePlot,"cell 1 7, growx");
+        panelContent.add(tfEpisodePlot, "cell 1 7, growx");
 
         JButton btnEpisodePlot = new SquareIconButton(IconManager.APPLY_INV);
         btnEpisodePlot.addActionListener(e -> {
@@ -450,7 +452,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
-        panelContent.add(btnEpisodePlot,"cell 2 7");
+        panelContent.add(btnEpisodePlot, "cell 2 7");
       }
 
       {
@@ -479,12 +481,12 @@ public class TvShowBulkEditorDialog extends TmmDialog {
         panelContent.add(btnAddDirectors, "cell 1 8");
         btnAddDirectors.addActionListener(e -> {
           episodesChanged = true;
-          //Open Director Dialog
-          Person director = new Person(Person.Type.DIRECTOR,TmmResourceBundle.getString("director.name.unknown"), "Director");
-          PersonEditorDialog dialog = new PersonEditorDialog(MainWindow.getInstance(),TmmResourceBundle.getString("cast.director.add"),director);
+          // Open Director Dialog
+          Person director = new Person(Person.Type.DIRECTOR, TmmResourceBundle.getString("director.name.unknown"), "Director");
+          PersonEditorDialog dialog = new PersonEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("cast.director.add"), director);
           dialog.setVisible(true);
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          for (TvShowEpisode episode: tvShowEpisodesToEdit) {
+          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
 
             List<Person> directors = new ArrayList<>();
             directors.add(director);
@@ -542,16 +544,16 @@ public class TvShowBulkEditorDialog extends TmmDialog {
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           }
 
-          if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
+          if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
             Set<TvShow> tvShows1 = new HashSet<>();
             for (TvShowEpisode episode : tvShowEpisodesToEdit) {
               tvShows1.add(episode.getTvShow());
             }
             tvShows1.addAll(tvShowsToEdit);
             TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(new ArrayList<>(tvShows1));
-            task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
-            task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-            task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+            task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktCollection());
+            task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+            task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
             TmmTaskManager.getInstance().addUnnamedTask(task);
           }

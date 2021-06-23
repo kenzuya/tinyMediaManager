@@ -49,7 +49,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowExtraFanartNaming;
@@ -76,7 +75,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowImageSettingsPanel extends JPanel {
   private static final long          serialVersionUID = 4999827736720726395L;
 
-  private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings       settings         = TvShowModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> artworkScrapers  = new ArrayList<>();
   private final ItemListener         checkBoxListener;
 
@@ -103,7 +102,7 @@ class TvShowImageSettingsPanel extends JPanel {
     List<String> enabledArtworkProviders = settings.getArtworkScrapers();
     int selectedIndex = -1;
     int counter = 0;
-    for (MediaScraper scraper : TvShowList.getInstance().getAvailableArtworkScrapers()) {
+    for (MediaScraper scraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableArtworkScrapers()) {
       ScraperInTable artworkScraper = new ScraperInTable(scraper);
       if (enabledArtworkProviders.contains(artworkScraper.getScraperId())) {
         artworkScraper.setActive(true);

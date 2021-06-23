@@ -41,10 +41,10 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -89,7 +89,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
 
     // first of all, get the data from a previous written NFO file,
     // if we do not want clean NFOs
-    if (!MovieModuleManager.SETTINGS.isWriteCleanNfo()) {
+    if (!MovieModuleManager.getInstance().getSettings().isWriteCleanNfo()) {
       for (MediaFile mf : movieSet.getMediaFiles(MediaFileType.NFO)) {
         try {
           parser = MovieNfoParser.parseNfo(mf.getFileAsPath());
@@ -119,7 +119,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
         // tmm comment
         Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dat = formatter.format(new Date());
-        document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Globals.settings.getVersion()));
+        document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Settings.getInstance().getVersion()));
 
         root = document.createElement("movie");
         document.appendChild(root);
@@ -195,7 +195,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
   }
 
   private Path createNfoPath(MovieSet movieSet, MovieSetNfoNaming nfoNaming) {
-    String dataFolder = MovieModuleManager.SETTINGS.getMovieSetDataFolder();
+    String dataFolder = MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder();
     if (StringUtils.isBlank(dataFolder)) {
       return null;
     }
@@ -248,7 +248,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
     Map<String, MediaRating> ratings = movieSet.getRatings();
 
     MediaRating mainMediaRating = null;
-    for (String ratingSource : MovieModuleManager.SETTINGS.getRatingSources()) {
+    for (String ratingSource : MovieModuleManager.getInstance().getSettings().getRatingSources()) {
       mainMediaRating = ratings.get(ratingSource);
       if (mainMediaRating != null) {
         break;
@@ -368,7 +368,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
    */
   protected void addDateAdded() {
     Element dateadded = document.createElement("dateadded");
-    switch (MovieModuleManager.SETTINGS.getNfoDateAddedField()) {
+    switch (MovieModuleManager.getInstance().getSettings().getNfoDateAddedField()) {
       case DATE_ADDED:
         if (movieSet.getDateAdded() != null) {
           dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movieSet.getDateAdded()));
@@ -399,7 +399,7 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
   protected void addGenres() {
     for (MediaGenres mediaGenre : movieSet.getGenres()) {
       Element genre = document.createElement("genre");
-      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale()));
+      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale()));
       root.appendChild(genre);
     }
   }

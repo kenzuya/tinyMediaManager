@@ -91,7 +91,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieBulkEditorDialog extends TmmDialog {
   private static final long              serialVersionUID = -8515248604267310279L;
 
-  private final MovieList                movieList        = MovieList.getInstance();
+  private final MovieList                movieList        = MovieModuleManager.getInstance().getMovieList();
   private final List<Movie>              moviesToEdit     = new ArrayList<>();
 
   private boolean                        changed          = false;
@@ -298,7 +298,8 @@ public class MovieBulkEditorDialog extends TmmDialog {
         panelContent.add(lblCertificationT, "cell 0 4,alignx right");
 
         final JComboBox cbCertification = new JComboBox();
-        for (MediaCertification cert : MediaCertification.getCertificationsforCountry(MovieModuleManager.SETTINGS.getCertificationCountry())) {
+        for (MediaCertification cert : MediaCertification
+            .getCertificationsforCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry())) {
           cbCertification.addItem(cert);
         }
         panelContent.add(cbCertification, "cell 1 4,growx");
@@ -664,11 +665,11 @@ public class MovieBulkEditorDialog extends TmmDialog {
               movie.saveToDb();
             }
             // if configured - sync with trakt.tv
-            if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
+            if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
               MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(moviesToEdit);
-              task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
-              task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
-              task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
+              task.setSyncCollection(MovieModuleManager.getInstance().getSettings().getSyncTraktCollection());
+              task.setSyncWatched(MovieModuleManager.getInstance().getSettings().getSyncTraktWatched());
+              task.setSyncRating(MovieModuleManager.getInstance().getSettings().getSyncTraktRating());
 
               TmmTaskManager.getInstance().addUnnamedTask(task);
             }

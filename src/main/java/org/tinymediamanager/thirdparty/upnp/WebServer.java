@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -60,10 +60,10 @@ public class WebServer extends NanoHTTPD {
           UUID uuid = UUID.fromString(path[2]);
           MediaEntity m = null;
           if ("movies".equals(path[1])) {
-            m = MovieList.getInstance().lookupMovie(uuid);
+            m = MovieModuleManager.getInstance().getMovieList().lookupMovie(uuid);
           }
           else if ("tvshows".equals(path[1])) {
-            m = TvShowList.getInstance().lookupTvShow(uuid);
+            m = TvShowModuleManager.getInstance().getTvShowList().lookupTvShow(uuid);
           }
 
           if (m != null) {

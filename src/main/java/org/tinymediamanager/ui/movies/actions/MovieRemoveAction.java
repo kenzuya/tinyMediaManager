@@ -30,7 +30,7 @@ import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -44,8 +44,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRemoveAction extends TmmAction {
-  private static final long           serialVersionUID = -984567332370801730L;
-  
+  private static final long serialVersionUID = -984567332370801730L;
 
   public MovieRemoveAction() {
     putValue(SMALL_ICON, IconManager.DELETE);
@@ -70,8 +69,8 @@ public class MovieRemoveAction extends TmmAction {
 
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
       Object[] params = { TmmResourceBundle.getString("movie.remove.desc"), checkBox };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("movie.remove"), JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE, null, options, null);
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("movie.remove"),
+          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again
       if (checkBox.isSelected()) {
@@ -85,7 +84,7 @@ public class MovieRemoveAction extends TmmAction {
 
     // remove selected movies
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    MovieList.getInstance().removeMovies(selectedMovies);
+    MovieModuleManager.getInstance().getMovieList().removeMovies(selectedMovies);
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

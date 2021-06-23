@@ -56,9 +56,9 @@ public class TvShowTrailerDownloadTask extends TmmTask {
     this.tvShow = tvShow;
 
     // store the trailer settings at the start of this task (to do not suffer from changes while the task is running)
-    trailernames.addAll(TvShowModuleManager.SETTINGS.getTrailerFilenames());
-    desiredSource = TvShowModuleManager.SETTINGS.getTrailerSource();
-    desiredQuality = TvShowModuleManager.SETTINGS.getTrailerQuality();
+    trailernames.addAll(TvShowModuleManager.getInstance().getSettings().getTrailerFilenames());
+    desiredSource = TvShowModuleManager.getInstance().getSettings().getTrailerSource();
+    desiredQuality = TvShowModuleManager.getInstance().getSettings().getTrailerQuality();
   }
 
   @Override

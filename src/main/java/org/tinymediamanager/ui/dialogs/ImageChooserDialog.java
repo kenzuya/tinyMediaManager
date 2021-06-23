@@ -1116,12 +1116,12 @@ public class ImageChooserDialog extends TmmDialog {
 
           ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(mediaType);
           if (mediaType == MediaType.MOVIE || mediaType == MediaType.MOVIE_SET) {
-            options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-            options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-            options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+            options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+            options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+            options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
           }
           else if (mediaType == MediaType.TV_SHOW || mediaType == MediaType.TV_EPISODE) {
-            options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+            options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
           }
           else {
             continue;

@@ -2,16 +2,22 @@ package org.tinymediamanager.core.mediainfo;
 
 import java.nio.file.Paths;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaFile;
 
 // http://blog.ampedsoftware.com/2016/03/14/introduction-to-aspect-ratio/ 
 
 public class AspectRatioTests extends BasicTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(AspectRatioTests.class);
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void AR169() {

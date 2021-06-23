@@ -49,8 +49,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 
@@ -68,8 +68,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
     super(searchCapabilities, sortCapabilities);
   }
 
-  private static final Logger         LOGGER = LoggerFactory.getLogger(ContentDirectoryService.class);
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryService.class);
 
   @Override
   public BrowseResult browse(String objectID, BrowseFlag browseFlag, String filter, long firstResult, long maxResults, SortCriterion[] orderby)
@@ -113,9 +112,9 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
       // *********************************************
       StorageFolder uMovies = new StorageFolder(Upnp.ID_MOVIES, uRoot, TmmResourceBundle.getString("tmm.movies"), "", 0, 0L);
 
-      List<org.tinymediamanager.core.movie.entities.Movie> movies = MovieList.getInstance().getMovies();
+      List<org.tinymediamanager.core.movie.entities.Movie> movies = MovieModuleManager.getInstance().getMovieList().getMovies();
       StorageFolder grpTitles = new StorageFolder(uMovies.getId() + "/t", uMovies, TmmResourceBundle.getString("metatag.title"), "",
-          MovieList.getInstance().getMovieCount(), 0L);
+          MovieModuleManager.getInstance().getMovieList().getMovieCount(), 0L);
 
       // add movies to titles
       for (org.tinymediamanager.core.movie.entities.Movie movie : movies) {
@@ -127,7 +126,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
 
       uMovies.addContainer(grpTitles);
 
-      Collection<MediaGenres> mgs = MovieList.getInstance().getUsedGenres();
+      Collection<MediaGenres> mgs = MovieModuleManager.getInstance().getMovieList().getUsedGenres();
       GenreContainer grpGenres = new GenreContainer(uMovies.getId() + "/g", uMovies, TmmResourceBundle.getString("metatag.genre"), "", mgs.size());
       for (MediaGenres mg : mgs) {
         GenreContainer gc = new GenreContainer(grpGenres.getId() + "/" + mg.getLocalizedName(), grpGenres, mg.getLocalizedName(), "", 0);
@@ -152,9 +151,9 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
 
       // *********************************************
       StorageFolder uTvShows = new StorageFolder(Upnp.ID_TVSHOWS, uRoot, TmmResourceBundle.getString("tmm.tvshows"), "",
-          TvShowList.getInstance().getTvShowCount(), 0L);
+          TvShowModuleManager.getInstance().getTvShowList().getTvShowCount(), 0L);
 
-      List<org.tinymediamanager.core.tvshow.entities.TvShow> tmmShows = TvShowList.getInstance().getTvShows();
+      List<org.tinymediamanager.core.tvshow.entities.TvShow> tmmShows = TvShowModuleManager.getInstance().getTvShowList().getTvShows();
       for (org.tinymediamanager.core.tvshow.entities.TvShow t : tmmShows) {
         StorageFolder uTvShow = new StorageFolder(Upnp.ID_TVSHOWS + "/" + t.getDbId(), uTvShows, t.getTitle(), "", t.getSeasonCount(), 0L);
 
@@ -188,7 +187,7 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
 
           // get em fresh from DB, for FULL metadata
           if (path[0].equals(Upnp.ID_MOVIES) && isUUID(request)) {
-            org.tinymediamanager.core.movie.entities.Movie m = MovieList.getInstance().lookupMovie(UUID.fromString(request));
+            org.tinymediamanager.core.movie.entities.Movie m = MovieModuleManager.getInstance().getMovieList().lookupMovie(UUID.fromString(request));
             if (m != null) {
               Movie um = Metadata.getUpnpMovie(m, true);
               um.setId(parent + "/" + um.getId());
@@ -197,7 +196,9 @@ public class ContentDirectoryService extends AbstractContentDirectoryService {
             }
           }
           else if (path[0].equals(Upnp.ID_TVSHOWS) && path.length == 4) {
-            org.tinymediamanager.core.tvshow.entities.TvShow t = TvShowList.getInstance().lookupTvShow(UUID.fromString(path[1]));
+            org.tinymediamanager.core.tvshow.entities.TvShow t = TvShowModuleManager.getInstance()
+                .getTvShowList()
+                .lookupTvShow(UUID.fromString(path[1]));
             if (t != null) {
               TvShowEpisode ep = t.getEpisode(getInt(path[2]), getInt(path[3])).stream().findFirst().orElse(null);
               if (ep != null) {

@@ -28,7 +28,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -67,7 +66,7 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       JLabel lblScraper = new TmmLabel(TmmResourceBundle.getString("scraper"));
       panelScraper.add(lblScraper, "cell 0 0 2 1,alignx right");
 
-      cbSubtitleScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableSubtitleScrapers());
+      cbSubtitleScraper = new MediaScraperCheckComboBox(MovieModuleManager.getInstance().getMovieList().getAvailableSubtitleScrapers());
       panelScraper.add(cbSubtitleScraper, "cell 2 0,growx,wmin 0");
 
       JLabel lblLanguage = new TmmLabel(TmmResourceBundle.getString("metatag.language"));
@@ -106,8 +105,8 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
 
     // scraper
     List<MediaScraper> selectedSubtitleScrapers = new ArrayList<>();
-    for (MediaScraper subtitleScraper : MovieList.getInstance().getAvailableSubtitleScrapers()) {
-      if (MovieModuleManager.SETTINGS.getSubtitleScrapers().contains(subtitleScraper.getId())) {
+    for (MediaScraper subtitleScraper : MovieModuleManager.getInstance().getMovieList().getAvailableSubtitleScrapers()) {
+      if (MovieModuleManager.getInstance().getSettings().getSubtitleScrapers().contains(subtitleScraper.getId())) {
         selectedSubtitleScrapers.add(subtitleScraper);
       }
     }
@@ -115,9 +114,9 @@ public class MovieDownloadSubtitleDialog extends TmmDialog {
       cbSubtitleScraper.setSelectedItems(selectedSubtitleScrapers);
     }
 
-    cbLanguage.setSelectedItems(Collections.singletonList(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage()));
+    cbLanguage.setSelectedItems(Collections.singletonList(MovieModuleManager.getInstance().getSettings().getSubtitleScraperLanguage()));
 
-    chckbxForceBestSubtitle.setSelected(MovieModuleManager.SETTINGS.isSubtitleForceBestMatch());
+    chckbxForceBestSubtitle.setSelected(MovieModuleManager.getInstance().getSettings().isSubtitleForceBestMatch());
   }
 
   /**

@@ -23,13 +23,18 @@ import java.util.regex.Pattern;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
 
+/**
+ * the class {@link TvShowTreeTextFilter} is used to filter the TV shows by text input
+ * 
+ * @author Manuel Laggner
+ */
 public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilter {
-  private final TvShowSettings settings = TvShowSettings.getInstance();
-  private Matcher              matcher;
+  private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
 
   @Override
   public boolean accept(TmmTreeNode node) {
@@ -41,6 +46,7 @@ public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilt
       TvShowTreeDataProvider.AbstractTvShowTreeNode treeNode = (TvShowTreeDataProvider.AbstractTvShowTreeNode) node;
 
       // filter on the node
+      Matcher matcher;
       if (settings.getNode()) {
         matcher = filterPattern.matcher(treeNode.toString());
         if (matcher.find()) {

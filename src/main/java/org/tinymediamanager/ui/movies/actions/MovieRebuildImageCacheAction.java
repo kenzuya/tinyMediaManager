@@ -21,8 +21,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.ImageCache;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -38,8 +38,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieRebuildImageCacheAction extends TmmAction {
-  private static final long           serialVersionUID = -5089957097690621345L;
-
+  private static final long serialVersionUID = -5089957097690621345L;
 
   public MovieRebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.rebuildimagecache"));
@@ -48,7 +47,7 @@ public class MovieRebuildImageCacheAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    if (!Globals.settings.isImageCache()) {
+    if (!Settings.getInstance().isImageCache()) {
       JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.imagecache.notactivated"));
       return;
     }

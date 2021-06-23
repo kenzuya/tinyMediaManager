@@ -27,6 +27,7 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -37,8 +38,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Wolfgang Janes
  */
 public class TvShowCertificationFilter extends AbstractCheckComboBoxTvShowUIFilter<MediaCertification> {
-
-  private final TvShowList tvShowList = TvShowList.getInstance();
+  private final TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
   public TvShowCertificationFilter() {
     super();

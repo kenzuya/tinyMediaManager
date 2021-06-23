@@ -113,7 +113,7 @@ public class MovieSet extends MediaEntity {
 
     // link with movies
     for (UUID uuid : movieIds) {
-      Movie movie = MovieList.getInstance().lookupMovie(uuid);
+      Movie movie = MovieModuleManager.getInstance().getMovieList().lookupMovie(uuid);
       if (movie != null && movie.getMovieSet() == this) {
         movies.add(movie);
       }
@@ -353,7 +353,7 @@ public class MovieSet extends MediaEntity {
     List<Movie> moviesForDisplay = new ArrayList<>(getMovies());
 
     // now mix in all missing movies
-    if (MovieModuleManager.SETTINGS.isDisplayMovieSetMissingMovies() && ListUtils.isNotEmpty(dummyMovies)) {
+    if (MovieModuleManager.getInstance().getSettings().isDisplayMovieSetMissingMovies() && ListUtils.isNotEmpty(dummyMovies)) {
       for (MovieSetMovie movieSetMovie : dummyMovies) {
         boolean found = false;
 
@@ -437,7 +437,7 @@ public class MovieSet extends MediaEntity {
    * @return the checks for images
    */
   public Boolean getHasImages() {
-    for (MediaArtworkType type : MovieModuleManager.SETTINGS.getCheckImagesMovieSet()) {
+    for (MediaArtworkType type : MovieModuleManager.getInstance().getSettings().getCheckImagesMovieSet()) {
       if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
         return false;
       }
@@ -486,19 +486,19 @@ public class MovieSet extends MediaEntity {
 
   @Override
   public void saveToDb() {
-    MovieList.getInstance().persistMovieSet(this);
+    MovieModuleManager.getInstance().getMovieList().persistMovieSet(this);
   }
 
   @Override
   public void deleteFromDb() {
-    MovieList.getInstance().removeMovieSetFromDb(this);
+    MovieModuleManager.getInstance().getMovieList().removeMovieSetFromDb(this);
   }
 
   /**
    * clean movies from this movieset if there are any inconsistances
    */
   public void cleanMovieSet() {
-    MovieList movieList = MovieList.getInstance();
+    MovieList movieList = MovieModuleManager.getInstance().getMovieList();
     boolean dirty = false;
 
     for (Movie movie : new ArrayList<>(movies)) {
@@ -574,7 +574,7 @@ public class MovieSet extends MediaEntity {
     // set chosen metadata
     if (config.contains(MovieSetScraperMetadataConfig.TITLE)) {
       // Capitalize first letter of title if setting is set!
-      if (MovieModuleManager.SETTINGS.getCapitalWordsInTitles()) {
+      if (MovieModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
       }
       else {
@@ -615,21 +615,21 @@ public class MovieSet extends MediaEntity {
    * Write nfo.
    */
   public void writeNFO() {
-    if (MovieModuleManager.SETTINGS.getMovieSetNfoFilenames().isEmpty()) {
+    if (MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames().isEmpty()) {
       LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
       return;
     }
 
     IMovieSetConnector connector = null;
 
-    switch (MovieModuleManager.SETTINGS.getMovieSetConnector()) {
+    switch (MovieModuleManager.getInstance().getSettings().getMovieSetConnector()) {
       case EMBY:
       default:
         connector = new MovieSetToEmbyConnector(this);
     }
 
     if (connector != null) {
-      connector.write(MovieModuleManager.SETTINGS.getMovieSetNfoFilenames());
+      connector.write(MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames());
       firePropertyChange(HAS_NFO_FILE, false, true);
     }
   }

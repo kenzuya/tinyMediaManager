@@ -48,7 +48,7 @@ public class MovieScraperMetadataPanel extends JPanel {
    */
 
 
-  private final MovieSettings                              settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings                              settings         = MovieModuleManager.getInstance().getSettings();
   private final Map<MovieScraperMetadataConfig, JCheckBox> checkboxes;
 
   public MovieScraperMetadataPanel() {

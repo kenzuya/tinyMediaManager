@@ -39,10 +39,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.MediaInfo.StreamKind;
@@ -323,7 +323,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
       case EXTRA:
         // check if that extra is a video file
-        if (Globals.settings.getVideoFileType().contains("." + getExtension().toLowerCase(Locale.ROOT))) {
+        if (Settings.getInstance().getVideoFileType().contains("." + getExtension().toLowerCase(Locale.ROOT))) {
           return true;
         }
         break;

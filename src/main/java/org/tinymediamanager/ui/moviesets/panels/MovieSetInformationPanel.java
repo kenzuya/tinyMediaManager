@@ -347,7 +347,7 @@ public class MovieSetInformationPanel extends JPanel {
   }
 
   private void setArtworkPath(MovieSet movieSet) {
-    String artworkPath = MovieModuleManager.SETTINGS.getMovieSetDataFolder();
+    String artworkPath = MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder();
     if (StringUtils.isBlank(artworkPath)) {
       taArtworkPath1.setVisible(false);
       taArtworkPath2.setVisible(false);

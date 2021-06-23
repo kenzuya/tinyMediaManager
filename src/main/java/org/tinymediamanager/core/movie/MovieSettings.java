@@ -27,12 +27,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
@@ -74,7 +74,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 /**
  * The Class MovieSettings.
  */
-public class MovieSettings extends AbstractSettings {
+public final class MovieSettings extends AbstractSettings {
   private static final Logger                    LOGGER                                 = LoggerFactory.getLogger(MovieSettings.class);
 
   public static final String                     DEFAULT_RENAMER_FOLDER_PATTERN         = "${title} ${- ,edition,} (${year})";
@@ -355,8 +355,8 @@ public class MovieSettings extends AbstractSettings {
    *
    * @return single instance of MovieSettings
    */
-  public static synchronized MovieSettings getInstance() {
-    return getInstance(Globals.settings.getSettingsFolder());
+  static synchronized MovieSettings getInstance() {
+    return getInstance(Settings.getInstance().getSettingsFolder());
   }
 
   /**
@@ -365,7 +365,7 @@ public class MovieSettings extends AbstractSettings {
    *
    * @return single instance of MovieSettings
    */
-  public static synchronized MovieSettings getInstance(String folder) {
+  static synchronized MovieSettings getInstance(String folder) {
     if (instance == null) {
       instance = (MovieSettings) getInstance(folder, CONFIG_FILE, MovieSettings.class);
     }
@@ -413,7 +413,7 @@ public class MovieSettings extends AbstractSettings {
   }
 
   public void removeMovieDataSources(String path) {
-    MovieList movieList = MovieList.getInstance();
+    MovieList movieList = MovieModuleManager.getInstance().getMovieList();
     movieList.removeDatasource(path);
     movieDataSources.remove(path);
     firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
@@ -425,7 +425,7 @@ public class MovieSettings extends AbstractSettings {
     if (index > -1) {
       movieDataSources.remove(oldDatasource);
       movieDataSources.add(index, newDatasource);
-      MovieList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+      MovieModuleManager.getInstance().getMovieList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
     firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);

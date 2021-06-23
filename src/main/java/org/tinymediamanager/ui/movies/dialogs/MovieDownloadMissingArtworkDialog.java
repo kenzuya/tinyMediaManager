@@ -28,7 +28,6 @@ import javax.swing.JSeparator;
 
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -58,8 +57,8 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
 
     // artwork scraper
     List<MediaScraper> selectedArtworkScrapers = new ArrayList<>();
-    for (MediaScraper artworkScraper : MovieList.getInstance().getAvailableArtworkScrapers()) {
-      if (MovieModuleManager.SETTINGS.getArtworkScrapers().contains(artworkScraper.getId())) {
+    for (MediaScraper artworkScraper : MovieModuleManager.getInstance().getMovieList().getAvailableArtworkScrapers()) {
+      if (MovieModuleManager.getInstance().getSettings().getArtworkScrapers().contains(artworkScraper.getId())) {
         selectedArtworkScrapers.add(artworkScraper);
       }
     }
@@ -72,7 +71,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
       JLabel lblArtworkScraper = new TmmLabel(TmmResourceBundle.getString("scraper.artwork"));
       panelCenter.add(lblArtworkScraper, "cell 0 2,alignx right");
 
-      cbArtworkScraper = new MediaScraperCheckComboBox(MovieList.getInstance().getAvailableArtworkScrapers());
+      cbArtworkScraper = new MediaScraperCheckComboBox(MovieModuleManager.getInstance().getMovieList().getAvailableArtworkScrapers());
       panelCenter.add(cbArtworkScraper, "cell 1 2,growx");
 
       JSeparator separator = new JSeparator();
@@ -116,7 +115,7 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
     }
 
     // pre-set config
-    cbScraperConfig.setSelectedItems(MovieModuleManager.SETTINGS.getScraperMetadataConfig());
+    cbScraperConfig.setSelectedItems(MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig());
   }
 
   /**
@@ -126,8 +125,8 @@ public class MovieDownloadMissingArtworkDialog extends TmmDialog {
    */
   public MovieSearchAndScrapeOptions getMovieSearchAndScrapeOptions() {
     MovieSearchAndScrapeOptions movieSearchAndScrapeConfig = new MovieSearchAndScrapeOptions();
-    movieSearchAndScrapeConfig.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-    movieSearchAndScrapeConfig.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+    movieSearchAndScrapeConfig.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+    movieSearchAndScrapeConfig.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
     // artwork scrapers
     movieSearchAndScrapeConfig.setArtworkScraper(cbArtworkScraper.getSelectedItems());

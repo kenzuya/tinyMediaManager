@@ -45,7 +45,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -70,7 +69,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperSettingsPanel extends JPanel {
   private static final long        serialVersionUID = -299825914193235308L;
 
-  private final MovieSettings      settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings      settings         = MovieModuleManager.getInstance().getSettings();
   private final List<MovieScraper> scrapers         = new ArrayList<>();
 
   /**
@@ -87,10 +86,10 @@ class MovieScraperSettingsPanel extends JPanel {
    */
   MovieScraperSettingsPanel() {
     // pre-init
-    MediaScraper defaultMediaScraper = MovieList.getInstance().getDefaultMediaScraper();
+    MediaScraper defaultMediaScraper = MovieModuleManager.getInstance().getMovieList().getDefaultMediaScraper();
     int selectedIndex = 0;
 
-    for (MediaScraper scraper : MovieList.getInstance().getAvailableMediaScrapers()) {
+    for (MediaScraper scraper : MovieModuleManager.getInstance().getMovieList().getAvailableMediaScrapers()) {
       MovieScraper movieScraper = new MovieScraper(scraper);
       scrapers.add(movieScraper);
     }

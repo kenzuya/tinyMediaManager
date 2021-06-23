@@ -54,7 +54,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -675729644848101096L;
 
-  private final TvShowSettings         settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings         settings         = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener           checkBoxListener;
 
   private JCheckBox                    chckbxImageCache;

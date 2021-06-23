@@ -54,6 +54,7 @@ import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieHelpers;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -1699,7 +1700,7 @@ public class MovieNfoParser {
     // movieset
     if (set != null && StringUtils.isNotEmpty(set.name)) {
       // search for that movieset
-      MovieList movieList = MovieList.getInstance();
+      MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
       // movie set id
       int tmdbSetId = 0;

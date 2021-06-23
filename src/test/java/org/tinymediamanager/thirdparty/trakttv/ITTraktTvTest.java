@@ -3,15 +3,19 @@ package org.tinymediamanager.thirdparty.trakttv;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 
-public class ITTraktTvTest {
+public class ITTraktTvTest extends BasicTest {
 
   private static final TraktTv t = TraktTv.getInstance();
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -34,27 +38,27 @@ public class ITTraktTvTest {
 
   @Test
   public void syncTraktMovieCollection() throws Exception {
-    t.syncTraktMovieCollection(MovieList.getInstance().getMovies());
+    t.syncTraktMovieCollection(MovieModuleManager.getInstance().getMovieList().getMovies());
   }
 
   @Test
   public void syncTraktMovieWatched() throws Exception {
-    t.syncTraktMovieWatched(MovieList.getInstance().getMovies());
+    t.syncTraktMovieWatched(MovieModuleManager.getInstance().getMovieList().getMovies());
   }
 
   @Test
   public void syncTraktTvShowCollection() throws Exception {
-    t.syncTraktTvShowCollection(TvShowList.getInstance().getTvShows());
+    t.syncTraktTvShowCollection(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
   }
 
   @Test
   public void syncTraktTvShowWatched() throws Exception {
-    t.syncTraktTvShowWatched(TvShowList.getInstance().getTvShows());
+    t.syncTraktTvShowWatched(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
   }
 
   // @Test
   // public void getTvLib() {
-  // List<TvShow> shows = t.getManager().userService().libraryShowsWatched(Globals.settings.getTraktUsername(), Extended.MIN);
+  // List<TvShow> shows = t.getManager().userService().libraryShowsWatched(Settings.getInstance().getTraktUsername(), Extended.MIN);
   // System.out.println(shows.size());
   // }
   //

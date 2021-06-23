@@ -27,12 +27,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
@@ -68,7 +68,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  *
  * @author Manuel Laggner
  */
-public class TvShowSettings extends AbstractSettings {
+public final class TvShowSettings extends AbstractSettings {
   private static final Logger                            LOGGER                                 = LoggerFactory.getLogger(TvShowSettings.class);
 
   public static final String                             DEFAULT_RENAMER_FOLDER_PATTERN         = "${showTitle} (${showYear})";
@@ -325,8 +325,8 @@ public class TvShowSettings extends AbstractSettings {
    *
    * @return single instance of TvShowSettings
    */
-  public static synchronized TvShowSettings getInstance() {
-    return getInstance(Globals.settings.getSettingsFolder());
+  static synchronized TvShowSettings getInstance() {
+    return getInstance(Settings.getInstance().getSettingsFolder());
   }
 
   /**
@@ -335,7 +335,7 @@ public class TvShowSettings extends AbstractSettings {
    *
    * @return single instance of TvShowSettings
    */
-  public static synchronized TvShowSettings getInstance(String folder) {
+  static synchronized TvShowSettings getInstance(String folder) {
     if (instance == null) {
       instance = (TvShowSettings) getInstance(folder, CONFIG_FILE, TvShowSettings.class);
     }
@@ -391,7 +391,7 @@ public class TvShowSettings extends AbstractSettings {
   }
 
   public void removeTvShowDataSources(String path) {
-    TvShowList tvShowList = TvShowList.getInstance();
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     tvShowList.removeDatasource(path);
     tvShowDataSources.remove(path);
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
@@ -403,7 +403,7 @@ public class TvShowSettings extends AbstractSettings {
     if (index > -1) {
       tvShowDataSources.remove(oldDatasource);
       tvShowDataSources.add(index, newDatasource);
-      TvShowList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+      TvShowModuleManager.getInstance().getTvShowList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
     firePropertyChange(Constants.DATA_SOURCE, null, tvShowDataSources);

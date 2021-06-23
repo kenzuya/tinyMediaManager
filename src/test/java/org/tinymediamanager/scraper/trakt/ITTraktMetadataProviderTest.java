@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -31,6 +31,7 @@ public class ITTraktMetadataProviderTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    BasicTest.setup();
     setLicenseKey();
   }
 

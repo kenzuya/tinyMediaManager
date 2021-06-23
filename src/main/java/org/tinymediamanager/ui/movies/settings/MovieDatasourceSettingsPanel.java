@@ -62,7 +62,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
 
 
 
-  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
   private JTextField                  tfAddBadword;
   private JList<String>               listBadWords;
@@ -91,14 +91,14 @@ class MovieDatasourceSettingsPanel extends JPanel {
     btnRemoveDatasource.addActionListener(arg0 -> {
       int row = listDatasources.getSelectedIndex();
       if (row != -1) { // nothing selected
-        String path = MovieModuleManager.SETTINGS.getMovieDataSource().get(row);
+        String path = MovieModuleManager.getInstance().getSettings().getMovieDataSource().get(row);
         String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
         int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.movie.datasource.remove.info"), path),
             TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices,
             TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          MovieModuleManager.SETTINGS.removeMovieDataSources(path);
+          MovieModuleManager.getInstance().getSettings().removeMovieDataSources(path);
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
       }
@@ -138,7 +138,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
           JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
-        MovieModuleManager.SETTINGS.addBadWord(tfAddBadword.getText());
+        MovieModuleManager.getInstance().getSettings().addBadWord(tfAddBadword.getText());
         tfAddBadword.setText("");
       }
     });
@@ -146,8 +146,8 @@ class MovieDatasourceSettingsPanel extends JPanel {
     btnRemoveBadWord.addActionListener(arg0 -> {
       int row = listBadWords.getSelectedIndex();
       if (row != -1) {
-        String badWord = MovieModuleManager.SETTINGS.getBadWord().get(row);
-        MovieModuleManager.SETTINGS.removeBadWord(badWord);
+        String badWord = MovieModuleManager.getInstance().getSettings().getBadWord().get(row);
+        MovieModuleManager.getInstance().getSettings().removeBadWord(badWord);
       }
     });
 
@@ -174,13 +174,13 @@ class MovieDatasourceSettingsPanel extends JPanel {
     btnExchangeDatasource.addActionListener(arg0 -> {
       int row = listDatasources.getSelectedIndex();
       if (row != -1) { // nothing selected
-        String path = MovieModuleManager.SETTINGS.getMovieDataSource().get(row);
+        String path = MovieModuleManager.getInstance().getSettings().getMovieDataSource().get(row);
         ExchangeDatasourceDialog dialog = new ExchangeDatasourceDialog(path);
         dialog.setVisible(true);
 
         if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          MovieModuleManager.SETTINGS.exchangeMovieDatasource(path, dialog.getNewDatasource());
+          MovieModuleManager.getInstance().getSettings().exchangeMovieDatasource(path, dialog.getNewDatasource());
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
       }

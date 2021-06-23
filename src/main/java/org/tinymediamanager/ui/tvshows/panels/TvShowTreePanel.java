@@ -90,7 +90,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long serialVersionUID = 5889203009864512935L;
 
-  private final TvShowList  tvShowList       = TvShowList.getInstance();
+  private final TvShowList  tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
 
   private int               rowcount;
   private long              rowcountLastUpdate;
@@ -145,11 +145,11 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
         JPopupMenu popupMenu = btnFilter.getPopupMenu();
         popupMenu.removeAll();
 
-        for (String uiFilter : TvShowModuleManager.SETTINGS.getUiFilterPresets().keySet()) {
+        for (String uiFilter : TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().keySet()) {
           FilterPresetAction action = new FilterPresetAction(uiFilter) {
             @Override
             protected void processAction(ActionEvent e) {
-              tree.setFilterValues(TvShowModuleManager.SETTINGS.getUiFilterPresets().get(presetName));
+              tree.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(presetName));
             }
           };
           popupMenu.add(action);
@@ -185,7 +185,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat) {
       @Override
       public void storeFilters() {
-        if (TvShowModuleManager.SETTINGS.isStoreUiFilters()) {
+        if (TvShowModuleManager.getInstance().getSettings().isStoreUiFilters()) {
           List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
           for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
             if (filter instanceof ITmmUIFilter) {
@@ -199,8 +199,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
               }
             }
           }
-          TvShowModuleManager.SETTINGS.setUiFilters(filterValues);
-          TvShowModuleManager.SETTINGS.saveSettings();
+          TvShowModuleManager.getInstance().getSettings().setUiFilters(filterValues);
+          TvShowModuleManager.getInstance().getSettings().saveSettings();
         }
       }
     };

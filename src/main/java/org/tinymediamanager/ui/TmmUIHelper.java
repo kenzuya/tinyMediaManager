@@ -44,10 +44,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.TinyFileDialogs;
@@ -284,12 +284,12 @@ public class TmmUIHelper {
     String fileType = "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
     String abs = file.toAbsolutePath().toString();
 
-    if (StringUtils.isNotBlank(Globals.settings.getMediaPlayer()) && Globals.settings.getAllSupportedFileTypes().contains(fileType)) {
+    if (StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer()) && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
       if (SystemUtils.IS_OS_MAC) {
-        exec(new String[] { "open", Globals.settings.getMediaPlayer(), "--args", abs });
+        exec(new String[] { "open", Settings.getInstance().getMediaPlayer(), "--args", abs });
       }
       else {
-        exec(new String[] { Globals.settings.getMediaPlayer(), abs });
+        exec(new String[] { Settings.getInstance().getMediaPlayer(), abs });
       }
     }
     else if (SystemUtils.IS_OS_WINDOWS) {
@@ -524,7 +524,7 @@ public class TmmUIHelper {
 
   public static void setTheme() throws Exception {
 
-    switch (Globals.settings.getTheme()) {
+    switch (Settings.getInstance().getTheme()) {
       case "Dark":
         UIManager.setLookAndFeel(new TmmDarkLaf());
         break;

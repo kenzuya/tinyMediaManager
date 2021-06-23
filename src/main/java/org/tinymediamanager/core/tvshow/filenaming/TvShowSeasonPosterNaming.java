@@ -37,7 +37,7 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
       if (season == -1) {
         return "season-all-poster." + extension;
       }
-      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
         return "season-specials-poster." + extension;
       }
       else if (season > -1) {
@@ -66,7 +66,7 @@ public enum TvShowSeasonPosterNaming implements ITvShowSeasonFileNaming {
       if (season == -1) {
         filename += "season-all";
       }
-      else if (season == 0 && TvShowModuleManager.SETTINGS.isSpecialSeason()) {
+      else if (season == 0 && TvShowModuleManager.getInstance().getSettings().isSpecialSeason()) {
         filename += "season-specials";
       }
       else if (season > -1) {

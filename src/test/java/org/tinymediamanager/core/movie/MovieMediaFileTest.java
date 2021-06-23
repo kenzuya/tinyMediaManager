@@ -7,10 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 
@@ -18,8 +17,7 @@ public class MovieMediaFileTest extends BasicTest {
 
   @BeforeClass
   public static void beforeClass() {
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Test

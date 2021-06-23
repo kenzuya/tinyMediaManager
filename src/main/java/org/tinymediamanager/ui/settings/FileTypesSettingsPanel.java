@@ -35,7 +35,6 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
@@ -84,41 +83,41 @@ class FileTypesSettingsPanel extends JPanel {
     // data init
     btnAddVideoFiletype.addActionListener(e -> {
       if (StringUtils.isNotEmpty(tfVideoFiletype.getText())) {
-        Globals.settings.addVideoFileType(tfVideoFiletype.getText());
+        Settings.getInstance().addVideoFileType(tfVideoFiletype.getText());
         tfVideoFiletype.setText("");
       }
     });
     btnRemoveVideoFiletype.addActionListener(arg0 -> {
       int row = listVideoFiletypes.getSelectedIndex();
       if (row != -1) {
-        String prefix = Globals.settings.getVideoFileType().get(row);
-        Globals.settings.removeVideoFileType(prefix);
+        String prefix = Settings.getInstance().getVideoFileType().get(row);
+        Settings.getInstance().removeVideoFileType(prefix);
       }
     });
     btnAddSubtitleFiletype.addActionListener(e -> {
       if (StringUtils.isNotEmpty(tfSubtitleFiletype.getText())) {
-        Globals.settings.addSubtitleFileType(tfSubtitleFiletype.getText());
+        Settings.getInstance().addSubtitleFileType(tfSubtitleFiletype.getText());
         tfSubtitleFiletype.setText("");
       }
     });
     btnRemoveSubtitleFiletype.addActionListener(arg0 -> {
       int row = listSubtitleFiletypes.getSelectedIndex();
       if (row != -1) {
-        String prefix = Globals.settings.getSubtitleFileType().get(row);
-        Globals.settings.removeSubtitleFileType(prefix);
+        String prefix = Settings.getInstance().getSubtitleFileType().get(row);
+        Settings.getInstance().removeSubtitleFileType(prefix);
       }
     });
     btnAddAudioFiletype.addActionListener(e -> {
       if (StringUtils.isNotEmpty(tfAudioFiletype.getText())) {
-        Globals.settings.addAudioFileType(tfAudioFiletype.getText());
+        Settings.getInstance().addAudioFileType(tfAudioFiletype.getText());
         tfAudioFiletype.setText("");
       }
     });
     btnRemoveAudioFiletype.addActionListener(arg0 -> {
       int row = listAudioFiletypes.getSelectedIndex();
       if (row != -1) {
-        String prefix = Globals.settings.getAudioFileType().get(row);
-        Globals.settings.removeAudioFileType(prefix);
+        String prefix = Settings.getInstance().getAudioFileType().get(row);
+        Settings.getInstance().removeAudioFileType(prefix);
       }
     });
     btnAddCleanupFiletype.addActionListener(e -> {
@@ -130,15 +129,15 @@ class FileTypesSettingsPanel extends JPanel {
           JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
-        Globals.settings.addCleanupFileType(tfCleanupFiletype.getText());
+        Settings.getInstance().addCleanupFileType(tfCleanupFiletype.getText());
         tfCleanupFiletype.setText("");
       }
     });
     btnRemoveCleanupFiletype.addActionListener(arg0 -> {
       int row = listCleanupFiletypes.getSelectedIndex();
       if (row != -1) {
-        String prefix = Globals.settings.getCleanupFileType().get(row);
-        Globals.settings.removeCleanupFileType(prefix);
+        String prefix = Settings.getInstance().getCleanupFileType().get(row);
+        Settings.getInstance().removeCleanupFileType(prefix);
       }
     });
   }

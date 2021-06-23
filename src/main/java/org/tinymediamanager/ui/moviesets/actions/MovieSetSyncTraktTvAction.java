@@ -18,7 +18,7 @@ package org.tinymediamanager.ui.moviesets.actions;
 import java.awt.event.ActionEvent;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
@@ -41,7 +41,7 @@ public class MovieSetSyncTraktTvAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieList.getInstance().getMovies());
+    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieModuleManager.getInstance().getMovieList().getMovies());
     task.setSyncCollection(true);
     task.setSyncWatched(true);
     task.setSyncRating(true);

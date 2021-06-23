@@ -67,7 +67,7 @@ public class TvShowTreeCellRenderer extends TmmTreeTableCellRenderer {
 
   @Override
   public String getToolTipText() {
-    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isShowTvShowTableTooltips()) {
       return null;
     }
 
