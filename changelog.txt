@@ -13,3 +13,4 @@ Version 4.2
 + (TV shows) bulk add actor / director /  rating / certification in episodes / tvshows
 x (TV shows) do not mix in TV show actors to the episode cast #1219
   since this is no more accurate (e.g. in Black Mirror) and scrapers like TMDB/IMDB provide detailed data for episode cast
+x (Linux) pre-set installed FFmpeg on first run
