@@ -17,6 +17,7 @@ package org.tinymediamanager.core.movie.tasks;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -120,7 +121,6 @@ public class MovieSetScrapeTask extends TmmThreadPool {
       catch (Exception e) {
         LOGGER.error("getMetadata", e);
       }
-
     }
 
     private List<MediaArtwork> getArtwork(MovieSet movieSet, MediaMetadata metadata, List<MediaScraper> artworkScrapers) {
@@ -130,7 +130,9 @@ public class MovieSetScrapeTask extends TmmThreadPool {
       options.setDataFromOtherOptions(scrapeOptions);
       options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
       options.setMetadata(metadata);
-      options.setIds(metadata.getIds());
+      if (metadata != null) {
+        options.setIds(metadata.getIds());
+      }
       options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
       options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
       options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
@@ -155,6 +157,10 @@ public class MovieSetScrapeTask extends TmmThreadPool {
     }
 
     private List<MovieSet.MovieSetMovie> createMovieSetMovies(MediaMetadata info) {
+      if (info == null) {
+        return Collections.emptyList();
+      }
+
       List<MovieSet.MovieSetMovie> movieSetMovies = new ArrayList<>();
 
       for (MediaMetadata item : info.getSubItems()) {

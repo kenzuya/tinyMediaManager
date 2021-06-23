@@ -42,6 +42,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.h2.mvstore.MVMap;
 import org.slf4j.Logger;
@@ -291,7 +292,16 @@ public final class TvShowList extends AbstractModelObject {
 
     for (TvShow tvShow : tvShowsToChange) {
       Path oldTvShowPath = tvShow.getPathNIO();
-      Path newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+      Path newTvShowPath;
+
+      try {
+        // try to _cleanly_ calculate the relative path
+        newTvShowPath = Paths.get(newDatasource, Paths.get(tvShow.getDataSource()).relativize(oldTvShowPath).toString());
+      }
+      catch (Exception e) {
+        // if that fails (maybe migrate from windows to linux/macos), just try a simple string replacement
+        newTvShowPath = Paths.get(newDatasource, FilenameUtils.separatorsToSystem(tvShow.getPath().replace(tvShow.getDataSource(), "")));
+      }
 
       tvShow.setDataSource(newDatasource);
       tvShow.setPath(newTvShowPath.toAbsolutePath().toString());

@@ -1245,8 +1245,15 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       incVisFile();
 
+      if (file.getFileName() == null) {
+        return CONTINUE;
+      }
+
       String filename = file.getFileName().toString();
-      String path = file.getParent().getFileName().toString();
+      String path = "";
+      if (file.getParent() != null && file.getParent().getFileName() != null) {
+        path = file.getParent().getFileName().toString();
+      }
 
       // in a disc folder we only accept NFO files
       if (Utils.isRegularFile(attr) && path.matches(DISC_FOLDER_REGEX)) {
@@ -1289,7 +1296,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // don't go below a disc folder
-      if (dir.getFileName() != null && dir.getParent() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+      if (dir.getParent() != null && dir.getParent().getFileName() != null && dir.getParent().getFileName().toString().matches(DISC_FOLDER_REGEX)) {
         return SKIP_SUBTREE;
       }
 

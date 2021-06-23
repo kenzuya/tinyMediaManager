@@ -250,7 +250,7 @@ public final class TvShowModuleManager implements ITmmModule {
 
           mvStore = new MVStore.Builder().fileName(databaseFile.toString())
               .compressHigh()
-              .autoCommitBufferSize(2048)
+              .autoCommitBufferSize(8192)
               .backgroundExceptionHandler(this)
               .open();
           mvStore.setAutoCommitDelay(2000); // 2 sec
@@ -276,7 +276,7 @@ public final class TvShowModuleManager implements ITmmModule {
 
     mvStore = new MVStore.Builder().fileName(databaseFile.toString())
         .compressHigh()
-        .autoCommitBufferSize(2048)
+        .autoCommitBufferSize(8192)
         .backgroundExceptionHandler(exceptionHandler)
         .open();
     mvStore.setAutoCommitDelay(2000); // 2 sec
