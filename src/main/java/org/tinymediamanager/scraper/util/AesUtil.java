@@ -16,8 +16,8 @@
 package org.tinymediamanager.scraper.util;
 
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -25,7 +25,9 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 
 /**
  * A class providing some classes helping to encrypt/decrypt data into AES
@@ -82,26 +84,20 @@ public class AesUtil {
     }
   }
 
-  protected static String random(int length) {
-    byte[] salt = new byte[length];
-    new SecureRandom().nextBytes(salt);
-    return hex(salt);
-  }
-
   protected static String base64(byte[] bytes) {
-    return DatatypeConverter.printBase64Binary(bytes);
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   protected static byte[] base64(String str) {
-    return DatatypeConverter.parseBase64Binary(str);
+    return Base64.getDecoder().decode(str);
   }
 
   protected static String hex(byte[] bytes) {
-    return DatatypeConverter.printHexBinary(bytes);
+    return Hex.encodeHexString(bytes);
   }
 
-  protected static byte[] hex(String str) {
-    return DatatypeConverter.parseHexBinary(str);
+  protected static byte[] hex(String str) throws DecoderException {
+    return Hex.decodeHex(str);
   }
 
   private IllegalStateException fail(Exception e) {

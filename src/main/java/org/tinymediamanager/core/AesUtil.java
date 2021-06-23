@@ -18,6 +18,7 @@ package org.tinymediamanager.core;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -25,7 +26,9 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 
 public class AesUtil {
   public static final String  DEFAULT_VECTOR   = "727DEC2725991751BDFE3DBD0C6BF137";
@@ -87,19 +90,19 @@ public class AesUtil {
   }
 
   protected static String base64(byte[] bytes) {
-    return DatatypeConverter.printBase64Binary(bytes);
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   protected static byte[] base64(String str) {
-    return DatatypeConverter.parseBase64Binary(str);
+    return Base64.getDecoder().decode(str);
   }
 
   protected static String hex(byte[] bytes) {
-    return DatatypeConverter.printHexBinary(bytes);
+    return Hex.encodeHexString(bytes);
   }
 
-  protected static byte[] hex(String str) {
-    return DatatypeConverter.parseHexBinary(str);
+  protected static byte[] hex(String str) throws DecoderException {
+    return Hex.decodeHex(str);
   }
 
   private IllegalStateException fail(Exception e) {
