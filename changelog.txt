@@ -1,7 +1,8 @@
 Upcoming version
 =======================
 + added country MX to supported certifications #1379
-x re-added the java parameter "tmm.legacy.filechooser" to prevent tinyfiledialogs from loading #1378
+x added a java parameter "tmm.mvstore.buffersize" to set the autocommit buffer size for MVstore (https://bit.ly/2SXnH1F) #1373
+x re-added the java parameter "tmm.legacy.filechooser" to prevent tinyfiledialogs from loading (https://bit.ly/2SXnH1F) #1378
 
 
 Version 4.1.6

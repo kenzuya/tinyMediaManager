@@ -59,12 +59,12 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  */
 public class MovieModuleManager implements ITmmModule {
 
-  public static final MovieSettings    SETTINGS     = MovieSettings.getInstance();
+  public static final MovieSettings    SETTINGS             = MovieSettings.getInstance();
 
-  private static final String          MODULE_TITLE = "Movie management";
-  private static final String          MOVIE_DB     = "movies.db";
-  private static final Logger          LOGGER       = LoggerFactory.getLogger(MovieModuleManager.class);
-  private static final int             COMMIT_DELAY = 2000;
+  private static final String          MODULE_TITLE         = "Movie management";
+  private static final String          MOVIE_DB             = "movies.db";
+  private static final Logger          LOGGER               = LoggerFactory.getLogger(MovieModuleManager.class);
+  private static final int             COMMIT_DELAY         = 2000;
 
   private static MovieModuleManager    instance;
 
@@ -73,6 +73,7 @@ public class MovieModuleManager implements ITmmModule {
   private final ReentrantReadWriteLock lock;
 
   private boolean                      enabled;
+  private int                          autoCommitBufferSize = 8192;
   private MVStore                      mvStore;
   private ObjectWriter                 movieObjectWriter;
   private ObjectReader                 movieObjectReader;
@@ -89,6 +90,12 @@ public class MovieModuleManager implements ITmmModule {
     startupMessages = new ArrayList<>();
     pendingChanges = new HashMap<>();
     lock = new ReentrantReadWriteLock();
+
+    // check if a custom autocommit buffer size has been set via jvm args
+    int bufferSize = Integer.getInteger("tmm.mvstore.buffersize", 8);
+    if (2 <= bufferSize && bufferSize <= 64) {
+      autoCommitBufferSize = 1024 * bufferSize;
+    }
   }
 
   public static MovieModuleManager getInstance() {
@@ -242,7 +249,7 @@ public class MovieModuleManager implements ITmmModule {
 
           mvStore = new MVStore.Builder().fileName(databaseFile.toString())
               .compressHigh()
-              .autoCommitBufferSize(8192)
+              .autoCommitBufferSize(autoCommitBufferSize)
               .backgroundExceptionHandler(this)
               .open();
           mvStore.setAutoCommitDelay(2000); // 2 sec
@@ -268,7 +275,7 @@ public class MovieModuleManager implements ITmmModule {
 
     mvStore = new MVStore.Builder().fileName(databaseFile.toString())
         .compressHigh()
-        .autoCommitBufferSize(8192)
+        .autoCommitBufferSize(autoCommitBufferSize)
         .backgroundExceptionHandler(exceptionHandler)
         .open();
     mvStore.setAutoCommitDelay(2000); // 2 sec
