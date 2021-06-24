@@ -19,7 +19,6 @@ package org.tinymediamanager.scraper.entities;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import org.tinymediamanager.core.MediaCertification;
 
 public class MediaCertificationTest {
 

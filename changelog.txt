@@ -1,5 +1,6 @@
 Upcoming version
 =======================
++ added country MX to supported certifications #1379
 
 
 Version 4.1.6

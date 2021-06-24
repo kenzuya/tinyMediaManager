@@ -38,7 +38,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -48,6 +47,7 @@ import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 public class TvShowToNfoConnectorTest extends BasicTest {
 

@@ -627,8 +627,8 @@ public enum CountryCode {
   // /** <a href="http://en.wikipedia.org/wiki/Malawi">Malawi</a> */
   // MW("Malawi", "MWI", 454),
   //
-  // /** <a href="http://en.wikipedia.org/wiki/Mexico">Mexico</a> */
-  // MX("Mexico", "MEX", 484),
+   /** <a href="http://en.wikipedia.org/wiki/Mexico">Mexico</a> */
+   MX("Mexico", "MEX", 484),
   //
   // /** <a href="http://en.wikipedia.org/wiki/Malaysia">Malaysia</a> */
   // MY("Malaysia", "MYS", 458),
