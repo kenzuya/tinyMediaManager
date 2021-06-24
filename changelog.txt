@@ -1,6 +1,7 @@
 Upcoming version
 =======================
 + added country MX to supported certifications #1379
+x re-added the java parameter "tmm.legacy.filechooser" to prevent tinyfiledialogs from loading #1378
 
 
 Version 4.1.6
