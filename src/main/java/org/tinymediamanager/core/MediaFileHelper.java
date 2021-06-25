@@ -131,7 +131,7 @@ public class MediaFileHelper {
   public static final String       VIDEO_3D_MVC       = "3D MVC";
 
   static {
-    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp");
+    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp", "webp");
 
     // .disc = video stubs
     // .evo = hd-dvd

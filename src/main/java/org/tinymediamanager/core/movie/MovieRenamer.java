@@ -93,7 +93,7 @@ import com.floreysoft.jmte.token.Token;
  */
 public class MovieRenamer {
   private static final Logger              LOGGER                      = LoggerFactory.getLogger(MovieRenamer.class);
-  private static final List<String>        KNOWN_IMAGE_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "bmp", "tbn", "gif");
+  private static final List<String>        KNOWN_IMAGE_FILE_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "bmp", "tbn", "gif", "webp");
 
   // to not use posix here
   private static final Pattern             TITLE_PATTERN               = Pattern.compile("\\$\\{.*?title.*?\\}", Pattern.CASE_INSENSITIVE);
@@ -1106,7 +1106,7 @@ public class MovieRenamer {
   }
 
   private static String getArtworkExtension(MediaFile mf) {
-    String ext = mf.getExtension().replaceAll("jpeg", "jpg"); // we only have one constant and only write jpg
+    String ext = mf.getExtension().replace("jpeg", "jpg"); // we only have one constant and only write jpg
     if (ext.equalsIgnoreCase("tbn")) {
       String cont = mf.getContainerFormat();
       if (cont.equalsIgnoreCase("PNG")) {

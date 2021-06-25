@@ -1700,6 +1700,9 @@ public class Utils {
         case "tiff":
           return "tif";
 
+        case "webp":
+          return "webp";
+
         default:
           return "";
       }

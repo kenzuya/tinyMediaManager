@@ -66,7 +66,7 @@ public class MovieSetArtworkHelper {
 
   private static final List<MediaFileType> SUPPORTED_ARTWORK_TYPES     = Arrays.asList(MediaFileType.POSTER, MediaFileType.FANART,
       MediaFileType.BANNER, MediaFileType.LOGO, MediaFileType.CLEARLOGO, MediaFileType.CLEARART, MediaFileType.THUMB, MediaFileType.DISC);
-  private static final String[]            SUPPORTED_ARTWORK_FILETYPES = { "jpg", "png", "tbn" };
+  private static final String[]            SUPPORTED_ARTWORK_FILETYPES = { "jpg", "png", "tbn", "webp" };
 
   private MovieSetArtworkHelper() {
     // hide default constructor for utility classes
