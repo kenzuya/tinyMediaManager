@@ -771,33 +771,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       movie.setTitle(videoName);
     }
 
-    // set the 3D flag/edition from the file/folder name ONLY at first import
-    if (movie.isNewlyAdded()) {
-      // if the String 3D is in the movie dir, assume it is a 3D movie
-      Matcher matcher = VIDEO_3D_PATTERN.matcher(movieDir.getFileName().toString());
-      if (matcher.find()) {
-        movie.setVideoIn3D(true);
-      }
-      // same for first video file; not necessarily the main file, but we have no file size yet to determine...
-      MediaFile vid = getMediaFile(mfs, MediaFileType.VIDEO);
-      if (vid != null) {
-        matcher = VIDEO_3D_PATTERN.matcher(vid.getFilename());
-        if (matcher.find()) {
-          movie.setVideoIn3D(true);
-        }
-
-        // remember the filename the first time the movie gets added to tmm
-        if (StringUtils.isBlank(movie.getOriginalFilename())) {
-          movie.setOriginalFilename(vid.getFilename());
-        }
-      }
-
-      // get edition from name if no edition has been set via NFO
-      if (movie.getEdition() == MovieEdition.NONE) {
-        movie.setEdition(MovieEdition.getMovieEditionFromString(movieDir.getFileName().toString()));
-      }
-    }
-
     movie.setPath(movieDir.toAbsolutePath().toString());
     movie.setDataSource(dataSource.toString());
 
@@ -858,6 +831,33 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // VIDEO file exchanged - treat this movie as new
     if (videoRemoved && !movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
       movie.setNewlyAdded(true);
+    }
+
+    // set the 3D flag/edition from the file/folder name ONLY at first import
+    if (movie.isNewlyAdded()) {
+      // if the String 3D is in the movie dir, assume it is a 3D movie
+      Matcher matcher = VIDEO_3D_PATTERN.matcher(movieDir.getFileName().toString());
+      if (matcher.find()) {
+        movie.setVideoIn3D(true);
+      }
+      // same for first video file; not necessarily the main file, but we have no file size yet to determine...
+      MediaFile vid = getMediaFile(mfs, MediaFileType.VIDEO);
+      if (vid != null) {
+        matcher = VIDEO_3D_PATTERN.matcher(vid.getFilename());
+        if (matcher.find()) {
+          movie.setVideoIn3D(true);
+        }
+
+        // remember the filename the first time the movie gets added to tmm
+        if (StringUtils.isBlank(movie.getOriginalFilename())) {
+          movie.setOriginalFilename(vid.getFilename());
+        }
+      }
+
+      // get edition from name if no edition has been set via NFO
+      if (movie.getEdition() == MovieEdition.NONE) {
+        movie.setEdition(MovieEdition.getMovieEditionFromString(movieDir.getFileName().toString()));
+      }
     }
 
     // ***************************************************************
