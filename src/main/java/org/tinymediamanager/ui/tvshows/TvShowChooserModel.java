@@ -189,12 +189,12 @@ public class TvShowChooserModel extends AbstractModelObject {
     return artworkScrapers;
   }
 
-  public void startTrailerScrapeTask(TvShow tvShow) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(tvShow));
+  public void startTrailerScrapeTask(TvShow tvShow, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(tvShow, overwrite));
   }
 
-  public void startThemeDownloadTask(TvShow tvShow) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow)));
+  public void startThemeDownloadTask(TvShow tvShow, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), overwrite));
   }
 
   /**
@@ -305,18 +305,20 @@ public class TvShowChooserModel extends AbstractModelObject {
     return language;
   }
 
-  public void startArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config) {
-    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(tvShow, config));
+  public void startArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(tvShow, config, overwrite));
   }
 
   private class ArtworkScrapeTask extends TmmTask {
-    private TvShow                            tvShowToScrape;
-    private List<TvShowScraperMetadataConfig> config;
+    private final TvShow                            tvShowToScrape;
+    private final List<TvShowScraperMetadataConfig> config;
+    private final boolean                           overwrite;
 
-    public ArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config) {
+    public ArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
       super(TmmResourceBundle.getString("message.scrape.artwork") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowToScrape = tvShow;
       this.config = config;
+      this.overwrite = overwrite;
     }
 
     @Override
@@ -364,21 +366,27 @@ public class TvShowChooserModel extends AbstractModelObject {
         artwork.add(ma);
       }
 
-      tvShowToScrape.setArtwork(artwork, config);
+      tvShowToScrape.setArtwork(artwork, config, overwrite);
     }
   }
 
   private class TrailerScrapeTask extends TmmTask {
-    private final TvShow tvShowtoScrape;
+    private final TvShow  tvShowtoScrape;
+    private final boolean overwrite;
 
-    public TrailerScrapeTask(TvShow tvShow) {
+    public TrailerScrapeTask(TvShow tvShow, boolean overwrite) {
       super(TmmResourceBundle.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowtoScrape = tvShow;
+      this.overwrite = overwrite;
     }
 
     @Override
     protected void doInBackground() {
       if (!scraped) {
+        return;
+      }
+
+      if (!overwrite && !tvShowtoScrape.getTrailer().isEmpty()) {
         return;
       }
 

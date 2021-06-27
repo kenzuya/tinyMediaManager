@@ -53,6 +53,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
   private final List<TvShowEpisode>                      episodes;
   private final TvShowEpisodeSearchAndScrapeOptions      scrapeOptions;
   private final List<TvShowEpisodeScraperMetadataConfig> config;
+  private final boolean                                  overwrite;
 
   /**
    * Instantiates a new tv show episode scrape task.
@@ -63,11 +64,12 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
    *          the scraper options to use
    */
   public TvShowEpisodeScrapeTask(List<TvShowEpisode> episodes, TvShowEpisodeSearchAndScrapeOptions options,
-      List<TvShowEpisodeScraperMetadataConfig> config) {
+      List<TvShowEpisodeScraperMetadataConfig> config, boolean overwrite) {
     super(TmmResourceBundle.getString("tvshow.scraping"), episodes.size(), TaskType.BACKGROUND_TASK);
     this.episodes = episodes;
     this.scrapeOptions = options;
     this.config = config;
+    this.overwrite = overwrite;
   }
 
   @Override
@@ -109,7 +111,7 @@ public class TvShowEpisodeScrapeTask extends TmmTask {
         LOGGER.info("=====================================================");
         MediaMetadata metadata = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(options);
         if (StringUtils.isNotBlank(metadata.getTitle())) {
-          episode.setMetadata(metadata, config);
+          episode.setMetadata(metadata, config, overwrite);
           episode.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
           episode.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
         }

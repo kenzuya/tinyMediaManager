@@ -616,13 +616,25 @@ public class TvShowArtworkHelper {
     }
   }
 
-  public static void setArtwork(TvShow tvShow, List<MediaArtwork> artwork, List<TvShowScraperMetadataConfig> config) {
+  /**
+   * set the found artwork for the given {@link TvShow}
+   *
+   * @param tvshow
+   *          the TV show to set the artwork for
+   * @param artwork
+   *          a list of all artworks to be set
+   * @param config
+   *          the config which artwork to set
+   * @param overwrite
+   *          should we overwrite existing artwork
+   */
+  public static void setArtwork(TvShow tvShow, List<MediaArtwork> artwork, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
     if (!ScraperMetadataConfig.containsAnyArtwork(config)) {
       return;
     }
 
     // poster
-    if (config.contains(TvShowScraperMetadataConfig.POSTER)) {
+    if (config.contains(TvShowScraperMetadataConfig.POSTER) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.POSTER)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == POSTER) {
           // set url
@@ -635,7 +647,7 @@ public class TvShowArtworkHelper {
     }
 
     // fanart
-    if (config.contains(TvShowScraperMetadataConfig.FANART)) {
+    if (config.contains(TvShowScraperMetadataConfig.FANART) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.FANART)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == BACKGROUND) {
           // set url
@@ -648,7 +660,7 @@ public class TvShowArtworkHelper {
     }
 
     // banner
-    if (config.contains(TvShowScraperMetadataConfig.BANNER)) {
+    if (config.contains(TvShowScraperMetadataConfig.BANNER) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.BANNER)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == BANNER) {
           // set url
@@ -661,7 +673,7 @@ public class TvShowArtworkHelper {
     }
 
     // logo
-    if (config.contains(TvShowScraperMetadataConfig.LOGO)) {
+    if (config.contains(TvShowScraperMetadataConfig.LOGO) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.LOGO)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == LOGO) {
           // set url
@@ -674,7 +686,8 @@ public class TvShowArtworkHelper {
     }
 
     // clearlogo
-    if (config.contains(TvShowScraperMetadataConfig.CLEARLOGO)) {
+    if (config.contains(TvShowScraperMetadataConfig.CLEARLOGO)
+        && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == CLEARLOGO) {
           // set url
@@ -687,7 +700,8 @@ public class TvShowArtworkHelper {
     }
 
     // clearart
-    if (config.contains(TvShowScraperMetadataConfig.CLEARART)) {
+    if (config.contains(TvShowScraperMetadataConfig.CLEARART)
+        && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.CLEARART)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == CLEARART) {
           // set url
@@ -700,7 +714,7 @@ public class TvShowArtworkHelper {
     }
 
     // thumb
-    if (config.contains(TvShowScraperMetadataConfig.THUMB)) {
+    if (config.contains(TvShowScraperMetadataConfig.THUMB) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.THUMB)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == THUMB) {
           // set url
@@ -726,7 +740,7 @@ public class TvShowArtworkHelper {
     }
 
     // keyart
-    if (config.contains(TvShowScraperMetadataConfig.KEYART)) {
+    if (config.contains(TvShowScraperMetadataConfig.KEYART) && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.KEYART)))) {
       for (MediaArtwork art : artwork) {
         if (art.getType() == KEYART) {
           // set url
@@ -744,11 +758,13 @@ public class TvShowArtworkHelper {
       for (MediaArtwork art : artwork) {
         if (art.getType() == MediaArtworkType.SEASON_POSTER && art.getSeason() >= 0) {
           // check if there is already an artwork for this season
-          String url = seasonPosters.get(art.getSeason());
-          if (StringUtils.isBlank(url)) {
-            tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_POSTER);
-            TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_POSTER);
-            seasonPosters.put(art.getSeason(), art.getDefaultUrl());
+          if (overwrite || StringUtils.isBlank(tvShow.getSeasonArtwork(art.getSeason(), SEASON_POSTER))) {
+            String url = seasonPosters.get(art.getSeason());
+            if (StringUtils.isBlank(url)) {
+              tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_POSTER);
+              TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_POSTER);
+              seasonPosters.put(art.getSeason(), art.getDefaultUrl());
+            }
           }
         }
       }
@@ -760,11 +776,13 @@ public class TvShowArtworkHelper {
       for (MediaArtwork art : artwork) {
         if (art.getType() == MediaArtworkType.SEASON_BANNER && art.getSeason() >= 0) {
           // check if there is already an artwork for this season
-          String url = seasonBanners.get(art.getSeason());
-          if (StringUtils.isBlank(url)) {
-            tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_BANNER);
-            TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_BANNER);
-            seasonBanners.put(art.getSeason(), art.getDefaultUrl());
+          if (overwrite || StringUtils.isBlank(tvShow.getSeasonArtwork(art.getSeason(), SEASON_BANNER))) {
+            String url = seasonBanners.get(art.getSeason());
+            if (StringUtils.isBlank(url)) {
+              tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_BANNER);
+              TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_BANNER);
+              seasonBanners.put(art.getSeason(), art.getDefaultUrl());
+            }
           }
         }
       }
@@ -776,18 +794,21 @@ public class TvShowArtworkHelper {
       for (MediaArtwork art : artwork) {
         if (art.getType() == MediaArtworkType.SEASON_THUMB && art.getSeason() >= 0) {
           // check if there is already an artwork for this season
-          String url = seasonThumbs.get(art.getSeason());
-          if (StringUtils.isBlank(url)) {
-            tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_THUMB);
-            TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_THUMB);
-            seasonThumbs.put(art.getSeason(), art.getDefaultUrl());
+          if (overwrite || StringUtils.isBlank(tvShow.getSeasonArtwork(art.getSeason(), SEASON_THUMB))) {
+            String url = seasonThumbs.get(art.getSeason());
+            if (StringUtils.isBlank(url)) {
+              tvShow.setSeasonArtworkUrl(art.getSeason(), art.getDefaultUrl(), SEASON_THUMB);
+              TvShowArtworkHelper.downloadSeasonArtwork(tvShow, art.getSeason(), SEASON_THUMB);
+              seasonThumbs.put(art.getSeason(), art.getDefaultUrl());
+            }
           }
         }
       }
     }
 
     // extrafanart
-    if (config.contains(TvShowScraperMetadataConfig.EXTRAFANART)) {
+    if (config.contains(TvShowScraperMetadataConfig.EXTRAFANART)
+        && (overwrite || StringUtils.isBlank(tvShow.getArtworkFilename(MediaFileType.EXTRAFANART)))) {
       List<String> extrafanarts = new ArrayList<>();
       if (TvShowModuleManager.getInstance().getSettings().isImageExtraFanart()
           && TvShowModuleManager.getInstance().getSettings().getImageExtraFanartCount() > 0) {

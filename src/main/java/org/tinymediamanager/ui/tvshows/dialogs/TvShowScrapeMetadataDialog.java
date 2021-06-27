@@ -39,6 +39,7 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.kodi.KodiTvShowMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
@@ -53,17 +54,19 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowScrapeMetadataDialog extends TmmDialog {
-  private static final long                                                      serialVersionUID = 6120530120703772160L;
+  private static final long                                                            serialVersionUID = 6120530120703772160L;
 
-  private boolean                                                                startScrape      = false;
+  private boolean                                                                      startScrape      = false;
 
   /** UI components */
-  private JComboBox                                                              cbLanguage;
-  private MediaScraperComboBox                                                   cbMetadataScraper;
-  private MediaScraperCheckComboBox                                              cbArtworkScraper;
-  private MediaScraperCheckComboBox                                              cbTrailerScraper;
-  private ScraperMetadataConfigCheckComboBox<TvShowScraperMetadataConfig>        cbTvShowScraperConfig;
-  private ScraperMetadataConfigCheckComboBox<TvShowEpisodeScraperMetadataConfig> cbEpisodeScraperConfig;
+  private final JComboBox                                                              cbLanguage;
+  private final MediaScraperCheckComboBox                                              cbArtworkScraper;
+  private final ScraperMetadataConfigCheckComboBox<TvShowEpisodeScraperMetadataConfig> cbEpisodeScraperConfig;
+  private final JHintCheckBox                                                          chckbxDoNotOverwrite;
+
+  private MediaScraperComboBox                                                         cbMetadataScraper;
+  private MediaScraperCheckComboBox                                                    cbTrailerScraper;
+  private ScraperMetadataConfigCheckComboBox<TvShowScraperMetadataConfig>              cbTvShowScraperConfig;
 
   /**
    * create the scraper dialog with displaying just set fields
@@ -121,7 +124,7 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     }
     JPanel panelScraperConfig = new JPanel();
     panelContent.add(panelScraperConfig, "cell 0 5 2 1,grow");
-    panelScraperConfig.setLayout(new MigLayout("hidemode 3", "[][300lp:500lp,grow]", "[][][]"));
+    panelScraperConfig.setLayout(new MigLayout("hidemode 3", "[][300lp:500lp,grow]", "[][][][]"));
     {
       JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("chooser.scrape"));
       panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0 2 1");
@@ -159,6 +162,13 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
     }
     panelScraperConfig.add(cbEpisodeScraperConfig, "cell 1 2,grow, wmin 0");
 
+    {
+      chckbxDoNotOverwrite = new JHintCheckBox(TmmResourceBundle.getString("message.scrape.donotoverwrite"));
+      chckbxDoNotOverwrite.setToolTipText(TmmResourceBundle.getString("message.scrape.donotoverwrite.desc"));
+      chckbxDoNotOverwrite.setHintIcon(IconManager.HINT);
+      panelScraperConfig.add(chckbxDoNotOverwrite, "cell 0 3 2 1");
+
+    }
     {
       JButton btnCancel = new JButton(TmmResourceBundle.getString("Button.cancel"));
       btnCancel.setIcon(IconManager.CANCEL_INV);
@@ -315,6 +325,15 @@ public class TvShowScrapeMetadataDialog extends TmmDialog {
    */
   public List<TvShowEpisodeScraperMetadataConfig> getTvShowEpisodeScraperMetadataConfig() {
     return cbEpisodeScraperConfig.getSelectedItems();
+  }
+
+  /**
+   * should the scrape overwrite existing items
+   *
+   * @return true/false
+   */
+  public boolean getOverwriteExistingItems() {
+    return !chckbxDoNotOverwrite.isSelected();
   }
 
   /**

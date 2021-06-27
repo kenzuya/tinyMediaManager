@@ -28,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
@@ -45,14 +46,15 @@ import org.tinymediamanager.scraper.http.Url;
  * @author Manuel Laggner
  */
 public class TvShowThemeDownloadTask extends TmmThreadPool {
-  private static final Logger         LOGGER  = LoggerFactory.getLogger(TvShowThemeDownloadTask.class);
+  private static final Logger LOGGER  = LoggerFactory.getLogger(TvShowThemeDownloadTask.class);
 
+  private final List<TvShow>  tvShows = new ArrayList<>();
+  private final boolean       overwrite;
 
-  private final List<TvShow>          tvShows = new ArrayList<>();
-
-  public TvShowThemeDownloadTask(List<TvShow> tvShows) {
+  public TvShowThemeDownloadTask(List<TvShow> tvShows, boolean overwrite) {
     super(TmmResourceBundle.getString("theme.download"));
     this.tvShows.addAll(tvShows);
+    this.overwrite = overwrite;
   }
 
   @Override
@@ -61,7 +63,7 @@ public class TvShowThemeDownloadTask extends TmmThreadPool {
     start();
 
     for (TvShow tvShow : tvShows) {
-      submitTask(new Worker(tvShow));
+      submitTask(new Worker(tvShow, overwrite));
     }
 
     waitForCompletionOrCancel();
@@ -79,15 +81,21 @@ public class TvShowThemeDownloadTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private static class Worker implements Runnable {
-    private final TvShow tvShow;
+    private final TvShow  tvShow;
+    private final boolean overwrite;
 
-    Worker(TvShow tvShow) {
+    Worker(TvShow tvShow, boolean overwrite) {
       this.tvShow = tvShow;
+      this.overwrite = overwrite;
     }
 
     @Override
     public void run() {
       try {
+        if (!overwrite && !tvShow.getMediaFiles(MediaFileType.THEME).isEmpty()) {
+          return;
+        }
+
         int tvdbId = tvShow.getIdAsInt(MediaMetadata.TVDB);
 
         if (tvdbId > 0) {

@@ -95,6 +95,7 @@ import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.TmmUILayoutStore;
 import org.tinymediamanager.ui.components.EnhancedTextField;
 import org.tinymediamanager.ui.components.ImageLabel;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.SquareIconButton;
@@ -122,38 +123,45 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowChooserDialog extends TmmDialog implements ActionListener {
-  private static final long                                                      serialVersionUID      = 2371518113606870230L;
-  private static final Logger                                                    LOGGER                = LoggerFactory
+  private static final long                                                            serialVersionUID      = 2371518113606870230L;
+  private static final Logger                                                          LOGGER                = LoggerFactory
       .getLogger(TvShowChooserDialog.class);
 
-  private TvShowList                                                             tvShowList            = TvShowModuleManager.getInstance()
+  private final TvShowList                                                             tvShowList            = TvShowModuleManager.getInstance()
       .getTvShowList();
-  private TvShow                                                                 tvShowToScrape;
-  private SortedList<TvShowChooserModel>                                         searchResultEventList = null;
-  private TvShowChooserModel                                                     selectedResult        = null;
-  private MediaScraper                                                           mediaScraper;
-  private List<MediaScraper>                                                     artworkScrapers;
-  private List<MediaScraper>                                                     trailerScrapers;
-  private boolean                                                                continueQueue         = true;
-  private boolean                                                                navigateBack          = false;
+  private final List<MediaScraper>                                                     artworkScrapers;
+  private final List<MediaScraper>                                                     trailerScrapers;
 
-  private SearchTask                                                             activeSearchTask;
+  private TvShow                                                                       tvShowToScrape;
+  private SortedList<TvShowChooserModel>                                               searchResultEventList = null;
+  private TvShowChooserModel                                                           selectedResult        = null;
+  private MediaScraper                                                                 mediaScraper;
+  private boolean                                                                      continueQueue         = true;
+  private boolean                                                                      navigateBack          = false;
 
-  private JTextField                                                             textFieldSearchString;
-  private MediaScraperComboBox                                                   cbScraper;
-  private JComboBox<MediaLanguages>                                              cbLanguage;
-  private TmmTable                                                               tableSearchResults;
-  private JLabel                                                                 lblTtitle;
-  private JTextArea                                                              taOverview;
-  private ImageLabel                                                             lblTvShowPoster;
-  private JLabel                                                                 lblProgressAction;
-  private JLabel                                                                 lblError;
-  private JProgressBar                                                           progressBar;
-  private JButton                                                                okButton;
-  private JLabel                                                                 lblPath;
-  private JLabel                                                                 lblOriginalTitle;
-  private ScraperMetadataConfigCheckComboBox<TvShowScraperMetadataConfig>        cbTvShowScraperConfig;
-  private ScraperMetadataConfigCheckComboBox<TvShowEpisodeScraperMetadataConfig> cbEpisodeScraperConfig;
+  private SearchTask                                                                   activeSearchTask;
+
+  /**
+   * UI components
+   */
+
+  private final MediaScraperComboBox                                                   cbScraper;
+  private final JComboBox<MediaLanguages>                                              cbLanguage;
+  private final TmmTable                                                               tableSearchResults;
+  private final JLabel                                                                 lblTtitle;
+  private final JTextArea                                                              taOverview;
+  private final ImageLabel                                                             lblTvShowPoster;
+  private final JLabel                                                                 lblProgressAction;
+  private final JLabel                                                                 lblError;
+  private final JProgressBar                                                           progressBar;
+  private final JButton                                                                okButton;
+  private final JLabel                                                                 lblPath;
+  private final JLabel                                                                 lblOriginalTitle;
+  private final ScraperMetadataConfigCheckComboBox<TvShowScraperMetadataConfig>        cbTvShowScraperConfig;
+  private final ScraperMetadataConfigCheckComboBox<TvShowEpisodeScraperMetadataConfig> cbEpisodeScraperConfig;
+  private final JHintCheckBox                                                          chckbxDoNotOverwrite;
+
+  private JTextField                                                                   textFieldSearchString;
 
   /**
    * Instantiates a new tv show chooser dialog.
@@ -310,7 +318,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
     {
       JPanel panelScraperConfig = new JPanel();
       contentPanel.add(panelScraperConfig, "cell 0 4,grow");
-      panelScraperConfig.setLayout(new MigLayout("", "[][grow]", "[][][]"));
+      panelScraperConfig.setLayout(new MigLayout("", "[][grow]", "[][][][]"));
       {
         JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("chooser.scrape"));
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0 2 1");
@@ -332,6 +340,12 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
         cbEpisodeScraperConfig.enableFilter(
             (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbEpisodeScraperConfig, "cell 1 2,grow, wmin 0");
+      }
+      {
+        chckbxDoNotOverwrite = new JHintCheckBox(TmmResourceBundle.getString("message.scrape.donotoverwrite"));
+        chckbxDoNotOverwrite.setToolTipText(TmmResourceBundle.getString("message.scrape.donotoverwrite.desc"));
+        chckbxDoNotOverwrite.setHintIcon(IconManager.HINT);
+        panelScraperConfig.add(chckbxDoNotOverwrite, "cell 0 3 2 1");
       }
     }
     {
@@ -479,6 +493,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
           List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig = cbTvShowScraperConfig.getSelectedItems();
           List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = cbEpisodeScraperConfig.getSelectedItems();
+          boolean overwrite = !chckbxDoNotOverwrite.isSelected();
 
           MediaMetadata md = model.getMetadata();
 
@@ -493,7 +508,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           }
 
           // set scraped metadata
-          tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig);
+          tvShowToScrape.setMetadata(md, tvShowScraperMetadataConfig, overwrite);
           tvShowToScrape.setLastScraperId(model.getMediaScraper().getId());
           tvShowToScrape.setLastScrapeLanguage(model.getLanguage().name());
 
@@ -509,37 +524,46 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
           if (ScraperMetadataConfig.containsAnyArtwork(tvShowScraperMetadataConfig)) {
             // let the user choose the images
             if (!TvShowModuleManager.getInstance().getSettings().isScrapeBestImage()) {
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.POSTER)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.POSTER)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.POSTER)))) {
                 chooseArtwork(MediaFileType.POSTER);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.FANART)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.FANART)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.FANART)))) {
                 chooseArtwork(MediaFileType.FANART);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.BANNER)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.BANNER)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.BANNER)))) {
                 chooseArtwork(MediaFileType.BANNER);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.LOGO)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.LOGO)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.LOGO)))) {
                 chooseArtwork(MediaFileType.LOGO);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CLEARLOGO)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CLEARLOGO)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
                 chooseArtwork(MediaFileType.CLEARLOGO);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CLEARART)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CLEARART)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.CLEARART)))) {
                 chooseArtwork(MediaFileType.CLEARART);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THUMB)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THUMB)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.THUMB)))) {
                 chooseArtwork(MediaFileType.THUMB);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CHARACTERART)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.CHARACTERART)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.CHARACTERART)))) {
                 chooseArtwork(MediaFileType.CHARACTERART);
               }
-              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.KEYART)) {
+              if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.KEYART)
+                  && (overwrite || StringUtils.isBlank(tvShowToScrape.getArtworkFilename(MediaFileType.KEYART)))) {
                 chooseArtwork(MediaFileType.KEYART);
               }
             }
             else {
               // get artwork asynchronous
-              model.startArtworkScrapeTask(tvShowToScrape, tvShowScraperMetadataConfig);
+              model.startArtworkScrapeTask(tvShowToScrape, tvShowScraperMetadataConfig, overwrite);
             }
           }
 
@@ -554,19 +578,19 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
               scrapeOptions.setArtworkScraper(model.getArtworkScrapers());
               scrapeOptions.setLanguage(model.getLanguage());
 
-              TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig);
+              TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodesToScrape, scrapeOptions, episodeScraperMetadataConfig, overwrite);
               TmmTaskManager.getInstance().addUnnamedTask(task);
             }
           }
 
           // get trailers?
           if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.TRAILER)) {
-            model.startTrailerScrapeTask(tvShowToScrape);
+            model.startTrailerScrapeTask(tvShowToScrape, overwrite);
           }
 
           // get theme?
           if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
-            model.startThemeDownloadTask(tvShowToScrape);
+            model.startThemeDownloadTask(tvShowToScrape, overwrite);
           }
 
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -734,7 +758,7 @@ public class TvShowChooserDialog extends TmmDialog implements ActionListener {
 
     private List<MediaSearchResult> searchResult;
     private Throwable               error  = null;
-    boolean                         cancel       = false;
+    boolean                         cancel = false;
 
     private SearchTask(String searchTerm, TvShow show, boolean withIds) {
       this.searchTerm = searchTerm;

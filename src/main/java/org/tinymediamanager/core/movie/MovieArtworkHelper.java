@@ -814,53 +814,58 @@ public class MovieArtworkHelper {
    *          a list of all artworks to be set
    * @param config
    *          the config which artwork to set
+   * @param overwrite
+   *          should we overwrite existing artwork
    */
-  public static void setArtwork(Movie movie, List<MediaArtwork> artwork, List<MovieScraperMetadataConfig> config) {
+  public static void setArtwork(Movie movie, List<MediaArtwork> artwork, List<MovieScraperMetadataConfig> config, boolean overwrite) {
     if (!ScraperMetadataConfig.containsAnyArtwork(config)) {
       return;
     }
 
     // poster
-    if (config.contains(MovieScraperMetadataConfig.POSTER)) {
+    if (config.contains(MovieScraperMetadataConfig.POSTER) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.POSTER)))) {
       setBestPoster(movie, artwork);
     }
 
     // fanart
-    if (config.contains(MovieScraperMetadataConfig.FANART)) {
+    if (config.contains(MovieScraperMetadataConfig.FANART) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.FANART)))) {
       setBestFanart(movie, artwork);
     }
 
     // works now for single & multimovie
-    if (config.contains(MovieScraperMetadataConfig.LOGO)) {
+    if (config.contains(MovieScraperMetadataConfig.LOGO) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.LOGO)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.LOGO, !MovieModuleManager.getInstance().getSettings().getLogoFilenames().isEmpty());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.CLEARLOGO)) {
+    if (config.contains(MovieScraperMetadataConfig.CLEARLOGO)
+        && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.CLEARLOGO)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.CLEARLOGO, !MovieModuleManager.getInstance().getSettings().getClearlogoFilenames().isEmpty());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.CLEARART)) {
+    if (config.contains(MovieScraperMetadataConfig.CLEARART)
+        && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.CLEARART)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.CLEARART, !MovieModuleManager.getInstance().getSettings().getClearartFilenames().isEmpty());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.BANNER)) {
+    if (config.contains(MovieScraperMetadataConfig.BANNER) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.BANNER)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.BANNER, !MovieModuleManager.getInstance().getSettings().getBannerFilenames().isEmpty());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.THUMB)) {
+    if (config.contains(MovieScraperMetadataConfig.THUMB) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.THUMB)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.THUMB, !MovieModuleManager.getInstance().getSettings().getThumbFilenames().isEmpty());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.DISCART)) {
+    if (config.contains(MovieScraperMetadataConfig.DISCART) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.DISC)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.DISC, !MovieModuleManager.getInstance().getSettings().getDiscartFilenames().isEmpty());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.KEYART)) {
+    if (config.contains(MovieScraperMetadataConfig.KEYART) && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.KEYART)))) {
       setBestArtwork(movie, artwork, MediaArtworkType.KEYART, !MovieModuleManager.getInstance().getSettings().getKeyartFilenames().isEmpty());
     }
 
     // extrathumbs
-    if (config.contains(MovieScraperMetadataConfig.EXTRATHUMB)) {
+    if (config.contains(MovieScraperMetadataConfig.EXTRATHUMB)
+        && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.EXTRATHUMB)))) {
       List<String> extrathumbs = new ArrayList<>();
       if (MovieModuleManager.getInstance().getSettings().isImageExtraThumbs()
           && MovieModuleManager.getInstance().getSettings().getImageExtraThumbsCount() > 0) {
@@ -887,7 +892,8 @@ public class MovieArtworkHelper {
     }
 
     // extrafanarts
-    if (config.contains(MovieScraperMetadataConfig.EXTRAFANART)) {
+    if (config.contains(MovieScraperMetadataConfig.EXTRAFANART)
+        && (overwrite || StringUtils.isBlank(movie.getArtworkFilename(MediaFileType.EXTRAFANART)))) {
       List<String> extrafanarts = new ArrayList<>();
       if (MovieModuleManager.getInstance().getSettings().isImageExtraFanart()
           && MovieModuleManager.getInstance().getSettings().getImageExtraFanartCount() > 0) {

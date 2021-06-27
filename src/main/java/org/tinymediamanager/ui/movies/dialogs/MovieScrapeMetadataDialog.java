@@ -38,6 +38,7 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.kodi.KodiMovieMetadataProvider;
 import org.tinymediamanager.ui.IconManager;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.MediaScraperCheckComboBox;
 import org.tinymediamanager.ui.components.combobox.MediaScraperComboBox;
@@ -52,14 +53,16 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieScrapeMetadataDialog extends TmmDialog {
-  private static final long                                              serialVersionUID = 3826984454317979241L;
+  private static final long                                                    serialVersionUID = 3826984454317979241L;
 
-  private JComboBox<MediaLanguages>                                      cbLanguage;
-  private MediaScraperComboBox                                           cbMetadataScraper;
-  private MediaScraperCheckComboBox                                      cbArtworkScraper;
-  private MediaScraperCheckComboBox                                      cbTrailerScraper;
-  private boolean                                                        startScrape      = false;
-  private ScraperMetadataConfigCheckComboBox<MovieScraperMetadataConfig> cbScraperConfig;
+  private final JComboBox<MediaLanguages>                                      cbLanguage;
+  private final MediaScraperComboBox                                           cbMetadataScraper;
+  private final MediaScraperCheckComboBox                                      cbArtworkScraper;
+  private final MediaScraperCheckComboBox                                      cbTrailerScraper;
+  private final ScraperMetadataConfigCheckComboBox<MovieScraperMetadataConfig> cbScraperConfig;
+  private final JHintCheckBox                                                  chckbxDoNotOverwrite;
+
+  private boolean                                                              startScrape      = false;
 
   /**
    * Instantiates a new movie scrape metadata.
@@ -131,7 +134,7 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
 
       JPanel panelScraperConfig = new JPanel();
       panelCenter.add(panelScraperConfig, "cell 0 5 2 1,grow");
-      panelScraperConfig.setLayout(new MigLayout("", "[300lp:500lp,grow]", "[][]"));
+      panelScraperConfig.setLayout(new MigLayout("", "[300lp:500lp,grow]", "[][][]"));
       {
         JLabel lblScrapeFollowingItems = new TmmLabel(TmmResourceBundle.getString("scraper.metadata.select"));
         panelScraperConfig.add(lblScrapeFollowingItems, "cell 0 0");
@@ -140,6 +143,12 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
         cbScraperConfig.enableFilter(
             (movieScraperMetadataConfig, s) -> movieScraperMetadataConfig.getDescription().toLowerCase(ROOT).startsWith(s.toLowerCase(ROOT)));
         panelScraperConfig.add(cbScraperConfig, "cell 0 1 ,wmin 0,grow");
+      }
+      {
+        chckbxDoNotOverwrite = new JHintCheckBox(TmmResourceBundle.getString("message.scrape.donotoverwrite"));
+        chckbxDoNotOverwrite.setToolTipText(TmmResourceBundle.getString("message.scrape.donotoverwrite.desc"));
+        chckbxDoNotOverwrite.setHintIcon(IconManager.HINT);
+        panelScraperConfig.add(chckbxDoNotOverwrite, "cell 0 2");
       }
     }
     {
@@ -211,6 +220,15 @@ public class MovieScrapeMetadataDialog extends TmmDialog {
    */
   public List<MovieScraperMetadataConfig> getMovieScraperMetadataConfig() {
     return cbScraperConfig.getSelectedItems();
+  }
+
+  /**
+   * should the scrape overwrite existing items
+   * 
+   * @return true/false
+   */
+  public boolean getOverwriteExistingItems() {
+    return !chckbxDoNotOverwrite.isSelected();
   }
 
   /**

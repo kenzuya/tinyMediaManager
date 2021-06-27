@@ -170,7 +170,7 @@ class MovieCommand implements Runnable {
       List<MovieScraperMetadataConfig> config = MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig();
       options.loadDefaults();
 
-      Runnable task = new MovieScrapeTask(moviesToScrape, true, options, config);
+      Runnable task = new MovieScrapeTask(new MovieScrapeTask.MovieScrapeParams(moviesToScrape, options, config));
       task.run(); // blocking
 
       // wait for other tmm threads (artwork download et all)

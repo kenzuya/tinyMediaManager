@@ -641,7 +641,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
    * @param metadata
    *          the new metadata
    */
-  public void setMetadata(MediaMetadata metadata, List<TvShowEpisodeScraperMetadataConfig> config) {
+  public void setMetadata(MediaMetadata metadata, List<TvShowEpisodeScraperMetadataConfig> config, boolean overwriteExistingItems) {
     // check against null metadata (e.g. aborted request)
     if (metadata == null) {
       LOGGER.error("metadata was null");
@@ -667,14 +667,23 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
     }
 
-    if (!matchFound) {
+    if (!matchFound && overwriteExistingItems) {
       // clear the old ids to set only the new ones
       ids.clear();
     }
 
-    setIds(metadata.getIds());
+    if (overwriteExistingItems) {
+      setIds(metadata.getIds());
+    }
+    else {
+      for (Map.Entry<String, Object> entry : metadata.getIds().entrySet()) {
+        if (!ids.containsKey(entry.getKey())) {
+          setId(entry.getKey(), entry.getValue());
+        }
+      }
+    }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.TITLE)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.TITLE) && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
@@ -684,7 +693,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.ORIGINAL_TITLE)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.ORIGINAL_TITLE) && (overwriteExistingItems || StringUtils.isBlank(getOriginalTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setOriginalTitle(WordUtils.capitalize(metadata.getOriginalTitle()));
@@ -694,65 +703,73 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       }
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.PLOT)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.PLOT) && (overwriteExistingItems || StringUtils.isBlank(getPlot()))) {
       setPlot(metadata.getPlot());
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.AIRED_SEASON_EPISODE)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.AIRED_SEASON_EPISODE) && (overwriteExistingItems || episode == -1 || season == -1)) {
       setAiredSeason(metadata.getSeasonNumber());
       setAiredEpisode(metadata.getEpisodeNumber());
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.DVD_SEASON_EPISODE)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.DVD_SEASON_EPISODE) && (overwriteExistingItems || dvdEpisode == -1 || dvdSeason == -1)) {
       setDvdSeason(metadata.getDvdSeasonNumber());
       setDvdEpisode(metadata.getDvdEpisodeNumber());
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.DISPLAY_SEASON_EPISODE)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.DISPLAY_SEASON_EPISODE)
+        && (overwriteExistingItems || displayEpisode == -1 || displaySeason == -1)) {
       setDisplaySeason(metadata.getDisplaySeasonNumber());
       setDisplayEpisode(metadata.getDisplayEpisodeNumber());
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.AIRED)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.AIRED) && (overwriteExistingItems || getFirstAired() == null)) {
       setFirstAired(metadata.getReleaseDate());
     }
 
     if (config.contains(TvShowEpisodeScraperMetadataConfig.RATING)) {
       Map<String, MediaRating> newRatings = new HashMap<>();
 
-      if (matchFound) {
+      if (matchFound || !overwriteExistingItems) {
+
         // only update new ratings, but let the old ones survive
         newRatings.putAll(getRatings());
       }
 
       for (MediaRating mediaRating : metadata.getRatings()) {
-        newRatings.put(mediaRating.getId(), mediaRating);
+        if (overwriteExistingItems) {
+          newRatings.put(mediaRating.getId(), mediaRating);
+        }
+        else {
+          newRatings.putIfAbsent(mediaRating.getId(), mediaRating);
+        }
       }
 
       setRatings(newRatings);
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
       removeAllTags();
       addToTags(metadata.getTags());
     }
 
     if (ScraperMetadataConfig.containsAnyCast(config)) {
-      if (config.contains(TvShowEpisodeScraperMetadataConfig.ACTORS)) {
+      if (config.contains(TvShowEpisodeScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
         setActors(metadata.getCastMembers(Person.Type.ACTOR));
         writeActorImages();
       }
 
-      if (config.contains(TvShowEpisodeScraperMetadataConfig.DIRECTORS)) {
+      if (config.contains(TvShowEpisodeScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
         setDirectors(metadata.getCastMembers(Person.Type.DIRECTOR));
       }
 
-      if (config.contains(TvShowEpisodeScraperMetadataConfig.WRITERS)) {
+      if (config.contains(TvShowEpisodeScraperMetadataConfig.WRITERS) && (overwriteExistingItems || getWriters().isEmpty())) {
         setWriters(metadata.getCastMembers(Person.Type.WRITER));
       }
     }
 
-    if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)) {
+    if (config.contains(TvShowEpisodeScraperMetadataConfig.THUMB)
+        && (overwriteExistingItems || StringUtils.isBlank(getArtworkFilename(MediaFileType.THUMB)))) {
       List<MediaArtwork> mas = metadata.getMediaArt(MediaArtworkType.THUMB);
       if (!mas.isEmpty()) {
         setArtworkUrl(mas.get(0).getDefaultUrl(), MediaFileType.THUMB);

@@ -320,22 +320,24 @@ public class MovieChooserModel extends AbstractModelObject {
     return tagline;
   }
 
-  public void startArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config) {
-    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(movie, config));
+  public void startArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(movie, config, overwrite));
   }
 
-  public void startTrailerScrapeTask(Movie movie) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(movie));
+  public void startTrailerScrapeTask(Movie movie, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(movie, overwrite));
   }
 
   private class ArtworkScrapeTask extends TmmTask {
-    private Movie                            movieToScrape;
-    private List<MovieScraperMetadataConfig> config;
+    private final Movie                            movieToScrape;
+    private final List<MovieScraperMetadataConfig> config;
+    private final boolean                          overwrite;
 
-    public ArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config) {
+    public ArtworkScrapeTask(Movie movie, List<MovieScraperMetadataConfig> config, boolean overwrite) {
       super(TmmResourceBundle.getString("message.scrape.artwork") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieToScrape = movie;
       this.config = config;
+      this.overwrite = overwrite;
     }
 
     @Override
@@ -379,22 +381,28 @@ public class MovieChooserModel extends AbstractModelObject {
         artwork.add(ma);
       }
 
-      movieToScrape.setArtwork(artwork, config);
+      movieToScrape.setArtwork(artwork, config, overwrite);
     }
 
   }
 
   private class TrailerScrapeTask extends TmmTask {
-    private Movie movieToScrape;
+    private final Movie   movieToScrape;
+    private final boolean overwrite;
 
-    public TrailerScrapeTask(Movie movie) {
+    public TrailerScrapeTask(Movie movie, boolean overwrite) {
       super(TmmResourceBundle.getString("message.scrape.trailer") + " " + movie.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.movieToScrape = movie;
+      this.overwrite = overwrite;
     }
 
     @Override
     protected void doInBackground() {
       if (!scraped) {
+        return;
+      }
+
+      if (!overwrite && !movieToScrape.getTrailer().isEmpty()) {
         return;
       }
 

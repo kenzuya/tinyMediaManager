@@ -437,7 +437,6 @@ public abstract class MediaEntity extends AbstractModelObject {
     for (Entry<String, Object> entry : ids.entrySet()) {
       if (StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null) {
         setId(entry.getKey(), entry.getValue());
-        firePropertyChange(entry.getKey(), null, entry.getValue());
       }
     }
   }
@@ -575,7 +574,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public void setArtwork(Path file, MediaFileType type) {
     List<MediaFile> images = getMediaFiles(type);
-    MediaFile mediaFile = null;
+    MediaFile mediaFile;
     if (!images.isEmpty()) {
       mediaFile = images.get(0);
       mediaFile.setFile(file);

@@ -202,7 +202,8 @@ class TvShowCommand implements Runnable {
           .getSettings()
           .getEpisodeScraperMetadataConfig();
 
-      Runnable task = new TvShowScrapeTask(showsToScrape, true, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig);
+      Runnable task = new TvShowScrapeTask(
+          new TvShowScrapeTask.TvShowScrapeParams(showsToScrape, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig));
       task.run(); // blocking
 
       // wait for other tmm threads (artwork download et all)
@@ -241,7 +242,7 @@ class TvShowCommand implements Runnable {
             .getSettings()
             .getEpisodeScraperMetadataConfig();
 
-        Runnable task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig);
+        Runnable task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig, true);
         task.run(); // blocking
 
         // wait for other tmm threads (artwork download et all)
@@ -263,7 +264,8 @@ class TvShowCommand implements Runnable {
         .getTvShowList()
         .getTvShows()
         .stream()
-        .filter(tvShow -> tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty()).collect(Collectors.toList());
+        .filter(tvShow -> tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty())
+        .collect(Collectors.toList());
 
     for (TvShow tvShow : tvShowsWithoutTrailer) {
       TvShowHelpers.downloadBestTrailer(tvShow);

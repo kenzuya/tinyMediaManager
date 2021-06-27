@@ -65,38 +65,25 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
  * @author Manuel Laggner
  */
 public class TvShowScrapeTask extends TmmThreadPool {
-  private static final Logger                            LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
+  private static final Logger      LOGGER = LoggerFactory.getLogger(TvShowScrapeTask.class);
 
-  private final List<TvShow>                             tvShowsToScrape;
-  private final boolean                                  doSearch;
-  private final TvShowSearchAndScrapeOptions             scrapeOptions;
-  private final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig;
-  private final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig;
+  private final TvShowScrapeParams tvShowScrapeParams;
 
   /**
    * Instantiates a new tv show scrape task.
    * 
-   * @param tvShowsToScrape
-   *          the tv shows to scrape
-   * @param doSearch
-   *          the do search
-   * @param options
-   *          the options
+   * @param tvShowScrapeParams
+   *          the {@link TvShowScrapeParams} containing all parameters for the scrape
    */
-  public TvShowScrapeTask(List<TvShow> tvShowsToScrape, boolean doSearch, TvShowSearchAndScrapeOptions options,
-      List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
+  public TvShowScrapeTask(final TvShowScrapeParams tvShowScrapeParams) {
     super(TmmResourceBundle.getString("tvshow.scraping"));
-    this.tvShowsToScrape = tvShowsToScrape;
-    this.doSearch = doSearch;
-    this.scrapeOptions = options;
-    this.tvShowScraperMetadataConfig = tvShowScraperMetadataConfig;
-    this.episodeScraperMetadataConfig = episodeScraperMetadataConfig;
+    this.tvShowScrapeParams = tvShowScrapeParams;
   }
 
   @Override
   protected void doInBackground() {
     // set up scrapers
-    MediaScraper mediaMetadataScraper = scrapeOptions.getMetadataScraper();
+    MediaScraper mediaMetadataScraper = tvShowScrapeParams.scrapeOptions.getMetadataScraper();
 
     if (!mediaMetadataScraper.isEnabled()) {
       return;
@@ -106,14 +93,14 @@ public class TvShowScrapeTask extends TmmThreadPool {
     start();
 
     initThreadPool(3, "scrape");
-    for (TvShow tvShow : tvShowsToScrape) {
+    for (TvShow tvShow : tvShowScrapeParams.tvShowsToScrape) {
       submitTask(new Worker(tvShow));
     }
 
     waitForCompletionOrCancel();
 
     if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
-      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(tvShowsToScrape);
+      TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(tvShowScrapeParams.tvShowsToScrape);
       task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktCollection());
       task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
       task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
@@ -136,14 +123,14 @@ public class TvShowScrapeTask extends TmmThreadPool {
     public void run() {
       try {
         // set up scrapers
-        MediaScraper mediaMetadataScraper = scrapeOptions.getMetadataScraper();
-        List<MediaScraper> trailerScrapers = scrapeOptions.getTrailerScrapers();
+        MediaScraper mediaMetadataScraper = tvShowScrapeParams.scrapeOptions.getMetadataScraper();
+        List<MediaScraper> trailerScrapers = tvShowScrapeParams.scrapeOptions.getTrailerScrapers();
 
         // scrape tv show
 
         // search for tv show
         MediaSearchResult result1 = null;
-        if (doSearch) {
+        if (tvShowScrapeParams.doSearch) {
           List<MediaSearchResult> results = tvShowList.searchTvShow(tvShow.getTitle(), tvShow.getYear(), tvShow.getIds(), mediaMetadataScraper);
           if (results != null && !results.isEmpty()) {
             result1 = results.get(0);
@@ -171,12 +158,12 @@ public class TvShowScrapeTask extends TmmThreadPool {
         }
 
         // get metadata and artwork
-        if ((doSearch && result1 != null) || !doSearch) {
+        if ((tvShowScrapeParams.doSearch && result1 != null) || !tvShowScrapeParams.doSearch) {
           try {
-            TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions(scrapeOptions);
+            TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions(tvShowScrapeParams.scrapeOptions);
             options.setSearchResult(result1);
 
-            if (doSearch) {
+            if (tvShowScrapeParams.doSearch) {
               options.setIds(result1.getIds());
             }
             else {
@@ -188,8 +175,8 @@ public class TvShowScrapeTask extends TmmThreadPool {
             // scrape metadata if wanted
             MediaMetadata md = null;
 
-            if (ScraperMetadataConfig.containsAnyMetadata(tvShowScraperMetadataConfig)
-                || ScraperMetadataConfig.containsAnyCast(tvShowScraperMetadataConfig)) {
+            if (ScraperMetadataConfig.containsAnyMetadata(tvShowScrapeParams.tvShowScraperMetadataConfig)
+                || ScraperMetadataConfig.containsAnyCast(tvShowScrapeParams.tvShowScraperMetadataConfig)) {
               LOGGER.info("=====================================================");
               LOGGER.info("Scraper metadata with scraper: {}", mediaMetadataScraper.getMediaProvider().getProviderInfo().getId());
               LOGGER.info(options.toString());
@@ -197,9 +184,9 @@ public class TvShowScrapeTask extends TmmThreadPool {
               md = ((ITvShowMetadataProvider) mediaMetadataScraper.getMediaProvider()).getMetadata(options);
 
               if (md != null) {
-                tvShow.setMetadata(md, tvShowScraperMetadataConfig);
-                tvShow.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
-                tvShow.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
+                tvShow.setMetadata(md, tvShowScrapeParams.tvShowScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
+                tvShow.setLastScraperId(tvShowScrapeParams.scrapeOptions.getMetadataScraper().getId());
+                tvShow.setLastScrapeLanguage(tvShowScrapeParams.scrapeOptions.getLanguage().name());
               }
             }
 
@@ -243,24 +230,25 @@ public class TvShowScrapeTask extends TmmThreadPool {
             tvShow.saveToDb();
 
             // scrape episodes
-            if (!episodeScraperMetadataConfig.isEmpty()) {
+            if (!tvShowScrapeParams.episodeScraperMetadataConfig.isEmpty()) {
               List<TvShowEpisode> episodesToScrape = tvShow.getEpisodesToScrape();
               // scrape episodes in a task
               if (!episodesToScrape.isEmpty()) {
                 TvShowEpisodeSearchAndScrapeOptions options1 = new TvShowEpisodeSearchAndScrapeOptions();
                 options1.setDataFromOtherOptions(options);
-                TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodesToScrape, options1, episodeScraperMetadataConfig);
+                TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(episodesToScrape, options1,
+                    tvShowScrapeParams.episodeScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
                 TmmTaskManager.getInstance().addUnnamedTask(task);
               }
             }
 
             // scrape artwork if wanted
-            if (ScraperMetadataConfig.containsAnyArtwork(tvShowScraperMetadataConfig)) {
-              tvShow.setArtwork(getArtwork(tvShow, md), tvShowScraperMetadataConfig);
+            if (ScraperMetadataConfig.containsAnyArtwork(tvShowScrapeParams.tvShowScraperMetadataConfig)) {
+              tvShow.setArtwork(getArtwork(tvShow, md), tvShowScrapeParams.tvShowScraperMetadataConfig, tvShowScrapeParams.overwriteExistingItems);
             }
 
             // scrape trailer if wanted
-            if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.TRAILER)) {
+            if (tvShowScrapeParams.tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.TRAILER)) {
               tvShow.setTrailers(getTrailers(tvShow, md, trailerScrapers));
               tvShow.saveToDb();
               tvShow.writeNFO();
@@ -270,8 +258,9 @@ public class TvShowScrapeTask extends TmmThreadPool {
             }
 
             // download theme
-            if (tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
-              TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow)));
+            if (tvShowScrapeParams.tvShowScraperMetadataConfig.contains(TvShowScraperMetadataConfig.THEME)) {
+              TmmTaskManager.getInstance()
+                  .addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), tvShowScrapeParams.overwriteExistingItems));
             }
           }
           catch (MissingIdException e) {
@@ -307,7 +296,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
       List<MediaArtwork> artwork = new ArrayList<>();
 
       ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_SHOW);
-      options.setDataFromOtherOptions(scrapeOptions);
+      options.setDataFromOtherOptions(tvShowScrapeParams.scrapeOptions);
       options.setArtworkType(MediaArtworkType.ALL);
       options.setMetadata(metadata);
 
@@ -316,7 +305,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
       }
 
       // scrape providers till one artwork has been found
-      for (MediaScraper artworkScraper : scrapeOptions.getArtworkScrapers()) {
+      for (MediaScraper artworkScraper : tvShowScrapeParams.scrapeOptions.getArtworkScrapers()) {
         ITvShowArtworkProvider artworkProvider = (ITvShowArtworkProvider) artworkScraper.getMediaProvider();
         try {
           artwork.addAll(artworkProvider.getArtwork(options));
@@ -338,7 +327,7 @@ public class TvShowScrapeTask extends TmmThreadPool {
 
       TrailerSearchAndScrapeOptions options = new TrailerSearchAndScrapeOptions(MediaType.TV_SHOW);
 
-      options.setDataFromOtherOptions(scrapeOptions);
+      options.setDataFromOtherOptions(tvShowScrapeParams.scrapeOptions);
       options.setMetadata(metadata);
 
       for (Entry<String, Object> entry : tvShow.getIds().entrySet()) {
@@ -370,5 +359,36 @@ public class TvShowScrapeTask extends TmmThreadPool {
   public void callback(Object obj) {
     // do not publish task description here, because with different workers the text is never right
     publishState(progressDone);
+  }
+
+  public static class TvShowScrapeParams {
+    private final List<TvShow>                             tvShowsToScrape;
+    private final TvShowSearchAndScrapeOptions             scrapeOptions;
+    private final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig;
+    private final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig;
+
+    private boolean                                        doSearch;
+    private boolean                                        overwriteExistingItems;
+
+    public TvShowScrapeParams(List<TvShow> tvShowsToScrape, TvShowSearchAndScrapeOptions scrapeOptions,
+        List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig, List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig) {
+      this.tvShowsToScrape = tvShowsToScrape;
+      this.scrapeOptions = scrapeOptions;
+      this.tvShowScraperMetadataConfig = tvShowScraperMetadataConfig;
+      this.episodeScraperMetadataConfig = episodeScraperMetadataConfig;
+
+      this.doSearch = true;
+      this.overwriteExistingItems = true;
+    }
+
+    public TvShowScrapeParams setDoSearch(boolean doSearch) {
+      this.doSearch = doSearch;
+      return this;
+    }
+
+    public TvShowScrapeParams setOverwriteExistingItems(boolean overwriteExistingItems) {
+      this.overwriteExistingItems = overwriteExistingItems;
+      return this;
+    }
   }
 }

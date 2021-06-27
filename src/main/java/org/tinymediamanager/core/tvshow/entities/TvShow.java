@@ -850,7 +850,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    * @param config
    *          the config
    */
-  public void setMetadata(MediaMetadata metadata, List<TvShowScraperMetadataConfig> config) {
+  public void setMetadata(MediaMetadata metadata, List<TvShowScraperMetadataConfig> config, boolean overwriteExistingItems) {
     // check against null metadata (e.g. aborted request)
     if (metadata == null) {
       LOGGER.error("metadata was null");
@@ -880,14 +880,23 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (!matchFound) {
+    if (!matchFound && overwriteExistingItems) {
       // clear the old ids to set only the new ones
       ids.clear();
     }
 
-    setIds(metadata.getIds());
+    if (overwriteExistingItems) {
+      setIds(metadata.getIds());
+    }
+    else {
+      for (Map.Entry<String, Object> entry : metadata.getIds().entrySet()) {
+        if (!ids.containsKey(entry.getKey())) {
+          setId(entry.getKey(), entry.getValue());
+        }
+      }
+    }
 
-    if (config.contains(TvShowScraperMetadataConfig.TITLE)) {
+    if (config.contains(TvShowScraperMetadataConfig.TITLE) && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
@@ -897,7 +906,7 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.ORIGINAL_TITLE)) {
+    if (config.contains(TvShowScraperMetadataConfig.ORIGINAL_TITLE) && (overwriteExistingItems || StringUtils.isBlank(getOriginalTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (TvShowModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setOriginalTitle(WordUtils.capitalize(metadata.getOriginalTitle()));
@@ -907,65 +916,72 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.PLOT)) {
+    if (config.contains(TvShowScraperMetadataConfig.PLOT) && (overwriteExistingItems || StringUtils.isBlank(getPlot()))) {
       setPlot(metadata.getPlot());
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.YEAR)) {
+    if (config.contains(TvShowScraperMetadataConfig.YEAR) && (overwriteExistingItems || getYear() <= 0)) {
       setYear(metadata.getYear());
     }
 
     if (config.contains(TvShowScraperMetadataConfig.RATING)) {
       Map<String, MediaRating> newRatings = new HashMap<>();
 
-      if (matchFound) {
+      if (matchFound || !overwriteExistingItems) {
         // only update new ratings, but let the old ones survive
         newRatings.putAll(getRatings());
       }
 
       for (MediaRating mediaRating : metadata.getRatings()) {
-        newRatings.put(mediaRating.getId(), mediaRating);
+        if (overwriteExistingItems) {
+          newRatings.put(mediaRating.getId(), mediaRating);
+        }
+        else {
+          newRatings.putIfAbsent(mediaRating.getId(), mediaRating);
+        }
       }
 
       setRatings(newRatings);
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.AIRED)) {
+    if (config.contains(TvShowScraperMetadataConfig.AIRED) && (overwriteExistingItems || getFirstAired() == null)) {
       setFirstAired(metadata.getReleaseDate());
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.STATUS)) {
+    if (config.contains(TvShowScraperMetadataConfig.STATUS)
+        && (overwriteExistingItems || getStatus() == null || getStatus() == MediaAiredStatus.UNKNOWN)) {
       setStatus(metadata.getStatus());
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.RUNTIME)) {
+    if (config.contains(TvShowScraperMetadataConfig.RUNTIME) && (overwriteExistingItems || getRuntime() <= 0)) {
       setRuntime(metadata.getRuntime());
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.COUNTRY)) {
+    if (config.contains(TvShowScraperMetadataConfig.COUNTRY) && (overwriteExistingItems || StringUtils.isBlank(getCountry()))) {
       setCountry(StringUtils.join(metadata.getCountries(), ", "));
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.STUDIO)) {
+    if (config.contains(TvShowScraperMetadataConfig.STUDIO) && (overwriteExistingItems || StringUtils.isBlank(getProductionCompany()))) {
       setProductionCompany(StringUtils.join(metadata.getProductionCompanies(), ", "));
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.CERTIFICATION)) {
+    if (config.contains(TvShowScraperMetadataConfig.CERTIFICATION)
+        && (overwriteExistingItems || getCertification() == null || getCertification() == MediaCertification.UNKNOWN)) {
       if (!metadata.getCertifications().isEmpty()) {
         setCertification(metadata.getCertifications().get(0));
       }
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.ACTORS)) {
+    if (config.contains(TvShowScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
       writeActorImages();
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.GENRES)) {
+    if (config.contains(TvShowScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
       setGenres(metadata.getGenres());
     }
 
-    if (config.contains(TvShowScraperMetadataConfig.TAGS)) {
+    if (config.contains(TvShowScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
       removeAllTags();
       addToTags(metadata.getTags());
     }
@@ -975,7 +991,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       for (Map.Entry<Integer, String> entry : metadata.getSeasonNames().entrySet()) {
         Matcher matcher = TvShowEpisodeAndSeasonParser.SEASON_PATTERN.matcher(entry.getValue());
         if (!matcher.find()) {
-          seasonTitleMap.put(entry.getKey(), entry.getValue());
+          if (overwriteExistingItems) {
+            seasonTitleMap.put(entry.getKey(), entry.getValue());
+          }
+          else {
+            seasonTitleMap.putIfAbsent(entry.getKey(), entry.getValue());
+          }
         }
       }
     }
@@ -997,9 +1018,11 @@ public class TvShow extends MediaEntity implements IMediaInformation {
    *          the artwork
    * @param config
    *          the config
+   * @param overwrite
+   *          should we overwrite existing artwork
    */
-  public void setArtwork(List<MediaArtwork> artwork, List<TvShowScraperMetadataConfig> config) {
-    TvShowArtworkHelper.setArtwork(this, artwork, config);
+  public void setArtwork(List<MediaArtwork> artwork, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
+    TvShowArtworkHelper.setArtwork(this, artwork, config, overwrite);
   }
 
   /**

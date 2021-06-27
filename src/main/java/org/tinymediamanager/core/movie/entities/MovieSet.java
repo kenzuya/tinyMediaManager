@@ -752,11 +752,11 @@ public class MovieSet extends MediaEntity {
     }
 
     @Override
-    public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config) {
+    public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
       // do not set movie set assignment since that could create new movie sets in the DB
       List<MovieScraperMetadataConfig> newConfig = new ArrayList<>(config);
       newConfig.remove(MovieScraperMetadataConfig.COLLECTION);
-      super.setMetadata(metadata, newConfig);
+      super.setMetadata(metadata, newConfig, overwriteExistingItems);
     }
 
     @Override

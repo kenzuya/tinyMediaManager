@@ -37,7 +37,6 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TvShowDownloadThemeAction extends TmmAction {
 
-
   public TvShowDownloadThemeAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.downloadtheme"));
     putValue(SMALL_ICON, IconManager.MUSIC);
@@ -53,7 +52,7 @@ public class TvShowDownloadThemeAction extends TmmAction {
       return;
     }
 
-    TvShowThemeDownloadTask task = new TvShowThemeDownloadTask(selectedTvShows);
+    TvShowThemeDownloadTask task = new TvShowThemeDownloadTask(selectedTvShows, true);
     TmmTaskManager.getInstance().addDownloadTask(task);
   }
 }

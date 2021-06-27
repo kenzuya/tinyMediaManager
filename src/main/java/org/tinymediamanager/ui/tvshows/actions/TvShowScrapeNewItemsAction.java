@@ -128,9 +128,10 @@ public class TvShowScrapeNewItemsAction extends TmmAction {
       // get options from dialog
       TvShowEpisodeSearchAndScrapeOptions options = dialog.getTvShowEpisodeSearchAndScrapeOptions();
       List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
+      boolean overwrite = dialog.getOverwriteExistingItems();
 
       // scrape
-      TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig);
+      TvShowEpisodeScrapeTask task = new TvShowEpisodeScrapeTask(entry.getValue(), options, episodeScraperMetadataConfig, overwrite);
       TmmTaskManager.getInstance().addUnnamedTask(task);
     }
   }

@@ -38,6 +38,7 @@ import static org.tinymediamanager.core.Constants.SPOKEN_LANGUAGES;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TMDB;
+import static org.tinymediamanager.core.Constants.TMDB_SET;
 import static org.tinymediamanager.core.Constants.TOP250;
 import static org.tinymediamanager.core.Constants.TRAILER;
 import static org.tinymediamanager.core.Constants.TRAKT;
@@ -710,7 +711,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    * @param config
    *          the config
    */
-  public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config) {
+  public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
     if (metadata == null) {
       LOGGER.error("metadata was null");
       return;
@@ -738,15 +739,24 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (!matchFound) {
+    if (!matchFound && overwriteExistingItems) {
       // clear the old ids/tags to set only the new ones
       ids.clear();
     }
 
-    setIds(metadata.getIds());
+    if (overwriteExistingItems) {
+      setIds(metadata.getIds());
+    }
+    else {
+      for (Map.Entry<String, Object> entry : metadata.getIds().entrySet()) {
+        if (!ids.containsKey(entry.getKey())) {
+          setId(entry.getKey(), entry.getValue());
+        }
+      }
+    }
 
     // set chosen metadata
-    if (config.contains(MovieScraperMetadataConfig.TITLE)) {
+    if (config.contains(MovieScraperMetadataConfig.TITLE) && (overwriteExistingItems || StringUtils.isBlank(getTitle()))) {
       // Capitalize first letter of title if setting is set!
       if (MovieModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
@@ -756,7 +766,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(MovieScraperMetadataConfig.ORIGINAL_TITLE)) {
+    if (config.contains(MovieScraperMetadataConfig.ORIGINAL_TITLE) && (overwriteExistingItems || StringUtils.isBlank(getOriginalTitle()))) {
       // Capitalize first letter of original title if setting is set!
       if (MovieModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setOriginalTitle(WordUtils.capitalize(metadata.getOriginalTitle()));
@@ -766,87 +776,93 @@ public class Movie extends MediaEntity implements IMediaInformation {
       }
     }
 
-    if (config.contains(MovieScraperMetadataConfig.TAGLINE)) {
+    if (config.contains(MovieScraperMetadataConfig.TAGLINE) && (overwriteExistingItems || StringUtils.isBlank(getTagline()))) {
       setTagline(metadata.getTagline());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.PLOT)) {
+    if (config.contains(MovieScraperMetadataConfig.PLOT) && (overwriteExistingItems || StringUtils.isBlank(getPlot()))) {
       setPlot(metadata.getPlot());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.YEAR)) {
+    if (config.contains(MovieScraperMetadataConfig.YEAR) && (overwriteExistingItems || getYear() <= 0)) {
       setYear(metadata.getYear());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.RELEASE_DATE)) {
+    if (config.contains(MovieScraperMetadataConfig.RELEASE_DATE) && (overwriteExistingItems || getReleaseDate() == null)) {
       setReleaseDate(metadata.getReleaseDate());
     }
 
     if (config.contains(MovieScraperMetadataConfig.RATING)) {
       Map<String, MediaRating> newRatings = new HashMap<>();
 
-      if (matchFound) {
+      if (matchFound || !overwriteExistingItems) {
         // only update new ratings, but let the old ones survive
         newRatings.putAll(getRatings());
       }
 
       for (MediaRating mediaRating : metadata.getRatings()) {
-        newRatings.put(mediaRating.getId(), mediaRating);
+        if (overwriteExistingItems) {
+          newRatings.put(mediaRating.getId(), mediaRating);
+        }
+        else {
+          newRatings.putIfAbsent(mediaRating.getId(), mediaRating);
+        }
       }
 
       setRatings(newRatings);
     }
 
-    if (config.contains(MovieScraperMetadataConfig.TOP250)) {
+    if (config.contains(MovieScraperMetadataConfig.TOP250) && (overwriteExistingItems || getTop250() <= 0)) {
       setTop250(metadata.getTop250());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.RUNTIME)) {
+    if (config.contains(MovieScraperMetadataConfig.RUNTIME) && (overwriteExistingItems || getRuntime() <= 0)) {
       setRuntime(metadata.getRuntime());
     }
 
-    if (config.contains(MovieScraperMetadataConfig.SPOKEN_LANGUAGES)) {
+    if (config.contains(MovieScraperMetadataConfig.SPOKEN_LANGUAGES) && (overwriteExistingItems || StringUtils.isBlank(getSpokenLanguages()))) {
       setSpokenLanguages(StringUtils.join(metadata.getSpokenLanguages(), ", "));
     }
 
     // country
-    if (config.contains(MovieScraperMetadataConfig.COUNTRY)) {
+    if (config.contains(MovieScraperMetadataConfig.COUNTRY) && (overwriteExistingItems || StringUtils.isBlank(getCountry()))) {
       setCountry(StringUtils.join(metadata.getCountries(), ", "));
     }
 
     // certifications
-    if (config.contains(MovieScraperMetadataConfig.CERTIFICATION)) {
+    if (config.contains(MovieScraperMetadataConfig.CERTIFICATION)
+        && (overwriteExistingItems || getCertification() == null || getCertification() == MediaCertification.UNKNOWN)) {
       if (!metadata.getCertifications().isEmpty()) {
         setCertification(metadata.getCertifications().get(0));
       }
     }
 
     // studio
-    if (config.contains(MovieScraperMetadataConfig.PRODUCTION_COMPANY)) {
+    if (config.contains(MovieScraperMetadataConfig.PRODUCTION_COMPANY) && (overwriteExistingItems || StringUtils.isBlank(getProductionCompany()))) {
       setProductionCompany(StringUtils.join(metadata.getProductionCompanies(), ", "));
     }
 
     // cast
-    if (config.contains(MovieScraperMetadataConfig.ACTORS)) {
+    if (config.contains(MovieScraperMetadataConfig.ACTORS) && (overwriteExistingItems || getActors().isEmpty())) {
       setActors(metadata.getCastMembers(Person.Type.ACTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.DIRECTORS)) {
+    if (config.contains(MovieScraperMetadataConfig.DIRECTORS) && (overwriteExistingItems || getDirectors().isEmpty())) {
       setDirectors(metadata.getCastMembers(Person.Type.DIRECTOR));
     }
-    if (config.contains(MovieScraperMetadataConfig.WRITERS)) {
+    if (config.contains(MovieScraperMetadataConfig.WRITERS) && (overwriteExistingItems || getWriters().isEmpty())) {
       setWriters(metadata.getCastMembers(Person.Type.WRITER));
     }
-    if (config.contains(MovieScraperMetadataConfig.PRODUCERS)) {
+    if (config.contains(MovieScraperMetadataConfig.PRODUCERS) && (overwriteExistingItems || getProducers().isEmpty())) {
       setProducers(metadata.getCastMembers(Person.Type.PRODUCER));
     }
 
     // genres
-    if (config.contains(MovieScraperMetadataConfig.GENRES)) {
+    if (config.contains(MovieScraperMetadataConfig.GENRES) && (overwriteExistingItems || getGenres().isEmpty())) {
       setGenres(metadata.getGenres());
     }
 
     // tags
-    if (config.contains(MovieScraperMetadataConfig.TAGS)) {
+    if (config.contains(MovieScraperMetadataConfig.TAGS) && (overwriteExistingItems || getTags().isEmpty())) {
       removeAllTags();
       addToTags(metadata.getTags());
     }
@@ -855,7 +871,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     setScraped(true);
 
     // create MovieSet
-    if (config.contains(MovieScraperMetadataConfig.COLLECTION)) {
+    if (config.contains(MovieScraperMetadataConfig.COLLECTION) && (overwriteExistingItems || getIdAsInt(TMDB_SET) == 0)) {
       int col = 0;
       try {
         col = (int) metadata.getId(MediaMetadata.TMDB_SET);
@@ -1012,9 +1028,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the md
    * @param config
    *          the config
+   * @param overwrite
+   *          should we overwrite existing artwork
    */
-  public void setArtwork(MediaMetadata md, List<MovieScraperMetadataConfig> config) {
-    setArtwork(md.getMediaArt(MediaArtworkType.ALL), config);
+  public void setArtwork(MediaMetadata md, List<MovieScraperMetadataConfig> config, boolean overwrite) {
+    setArtwork(md.getMediaArt(MediaArtworkType.ALL), config, overwrite);
   }
 
   /**
@@ -1024,9 +1042,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
    *          the artwork
    * @param config
    *          the config
+   * @param overwrite
+   *          should we overwrite existing artwork
    */
-  public void setArtwork(List<MediaArtwork> artwork, List<MovieScraperMetadataConfig> config) {
-    MovieArtworkHelper.setArtwork(this, artwork, config);
+  public void setArtwork(List<MediaArtwork> artwork, List<MovieScraperMetadataConfig> config, boolean overwrite) {
+    MovieArtworkHelper.setArtwork(this, artwork, config, overwrite);
   }
 
   @Override
@@ -1623,8 +1643,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
       List<String> translatedLanguages = new ArrayList<>();
       for (String langu : ParserUtils.split(getSpokenLanguages())) {
         String translated = LanguageUtils
-            .getLocalizedLanguageNameFromLocalizedString(Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage()),
-            langu.trim());
+            .getLocalizedLanguageNameFromLocalizedString(Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage()), langu.trim());
         translatedLanguages.add(translated);
       }
 
