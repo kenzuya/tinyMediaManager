@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -41,6 +40,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowTrailerDownloadTask;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 /**
  * a collection of various helpers for the TV show module

@@ -62,12 +62,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class TvShowModuleManager implements ITmmModule {
 
-  public static final TvShowSettings   SETTINGS     = TvShowSettings.getInstance();
+  public static final TvShowSettings   SETTINGS             = TvShowSettings.getInstance();
 
-  private static final String          MODULE_TITLE = "TV show management";
-  private static final String          TV_SHOW_DB   = "tvshows.db";
-  private static final Logger          LOGGER       = LoggerFactory.getLogger(TvShowModuleManager.class);
-  private static final int             COMMIT_DELAY = 2000;
+  private static final String          MODULE_TITLE         = "TV show management";
+  private static final String          TV_SHOW_DB           = "tvshows.db";
+  private static final Logger          LOGGER               = LoggerFactory.getLogger(TvShowModuleManager.class);
+  private static final int             COMMIT_DELAY         = 2000;
 
   private static TvShowModuleManager   instance;
 
@@ -76,6 +76,7 @@ public class TvShowModuleManager implements ITmmModule {
   private final ReentrantReadWriteLock lock;
 
   private boolean                      enabled;
+  private int                          autoCommitBufferSize = 8192;
   private MVStore                      mvStore;
   private ObjectWriter                 tvShowObjectWriter;
   private ObjectReader                 tvShowObjectReader;
@@ -92,6 +93,12 @@ public class TvShowModuleManager implements ITmmModule {
     startupMessages = new ArrayList<>();
     pendingChanges = new HashMap<>();
     lock = new ReentrantReadWriteLock();
+
+    // check if a custom autocommit buffer size has been set via jvm args
+    int bufferSize = Integer.getInteger("tmm.mvstore.buffersize", 8);
+    if (2 <= bufferSize && bufferSize <= 64) {
+      autoCommitBufferSize = 1024 * bufferSize;
+    }
   }
 
   public static TvShowModuleManager getInstance() {
@@ -245,7 +252,7 @@ public class TvShowModuleManager implements ITmmModule {
 
           mvStore = new MVStore.Builder().fileName(databaseFile.toString())
               .compressHigh()
-              .autoCommitBufferSize(8192)
+              .autoCommitBufferSize(autoCommitBufferSize)
               .backgroundExceptionHandler(this)
               .open();
           mvStore.setAutoCommitDelay(2000); // 2 sec
@@ -271,7 +278,7 @@ public class TvShowModuleManager implements ITmmModule {
 
     mvStore = new MVStore.Builder().fileName(databaseFile.toString())
         .compressHigh()
-        .autoCommitBufferSize(8192)
+        .autoCommitBufferSize(autoCommitBufferSize)
         .backgroundExceptionHandler(exceptionHandler)
         .open();
     mvStore.setAutoCommitDelay(2000); // 2 sec

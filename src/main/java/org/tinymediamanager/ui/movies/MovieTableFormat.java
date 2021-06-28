@@ -25,7 +25,6 @@ import java.util.function.Function;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
@@ -37,6 +36,7 @@ import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.MediaMetadata;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.table.TmmTableFormat;

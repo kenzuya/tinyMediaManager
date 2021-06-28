@@ -14,7 +14,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -34,6 +33,7 @@ import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;

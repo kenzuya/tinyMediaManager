@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -46,6 +45,7 @@ import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.DynaEnum;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.floreysoft.jmte.Engine;
 

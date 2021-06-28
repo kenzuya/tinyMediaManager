@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -38,6 +37,7 @@ import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 /**
  * a collection of various helpers for the movie module

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.core;
+package org.tinymediamanager.scraper.entities;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.tinymediamanager.scraper.entities.CountryCode;
+import org.tinymediamanager.core.TmmResourceBundle;
 
 /**
  * The enum Certification. This enum holds all (to tinyMediaManager) known certifications including some parsing information. You can parse a string
@@ -236,15 +236,20 @@ public enum MediaCertification {
     PT_M18(CountryCode.PT, "M/18", new String[] { "M/18", "M_18" }),
     PT_P(CountryCode.PT, "P", new String[] { "P" }),
 
+    MX_AA(CountryCode.MX, "AA", new String[] { "MX:AA" }),
+    MX_A(CountryCode.MX, "A", new String[] { "MX:A" }),
+    MX_B(CountryCode.MX, "B", new String[] { "MX:B" }),
+    MX_B_15(CountryCode.MX, "B-15", new String[] { "MX:B-15" }),
+    MX_C(CountryCode.MX, "C", new String[] { "MX:C" }),
+    MX_D(CountryCode.MX, "D", new String[] { "MX:D" }),
+
     NOT_RATED(CountryCode.US, "not rated", new String[] { "not rated", "NR" }),
     UNKNOWN(null, "unknown", new String[] { "unknown" });
   // @formatter:on
 
-  
-
-  private CountryCode                 country;
-  private String                      name;
-  private String[]                    possibleNotations;
+  private final CountryCode country;
+  private final String      name;
+  private final String[]    possibleNotations;
 
   /**
    * Instantiates a new certification.
@@ -492,14 +497,19 @@ public enum MediaCertification {
       // movies
       case US_G:
         return "Rated G";
+
       case US_PG:
         return "Rated PG";
+
       case US_PG13:
         return "Rated PG-13";
+
       case US_R:
         return "Rated R";
+
       case US_NC17:
         return "Rated NC-17";
+
       case NOT_RATED:
         return "NR";
 
