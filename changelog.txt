@@ -17,3 +17,4 @@ x (TV shows) do not mix in TV show actors to the episode cast #1219
   since this is no more accurate (e.g. in Black Mirror) and scrapers like TMDB/IMDB provide detailed data for episode cast
 x (Linux) pre-set installed FFmpeg on first run
 x (movies) re-read 3D flag, edition and original filename on exchanged video files
+x (movies/TV shows) queue rename tasks after mediainfo tasks #1368

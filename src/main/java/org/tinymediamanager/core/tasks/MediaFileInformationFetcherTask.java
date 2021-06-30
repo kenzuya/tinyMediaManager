@@ -84,6 +84,8 @@ public class MediaFileInformationFetcherTask implements Runnable {
           mediaEntity.addToMediaFiles(new MediaFile(xmlFile));
         }
       }
+
+      Thread.sleep(50);
     }
     catch (Exception e) {
       LOGGER.error("Thread crashed: ", e);
