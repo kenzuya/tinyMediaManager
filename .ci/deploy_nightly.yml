@@ -1,0 +1,42 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: registry.gitlab.com/tinymediamanager/docker/packaging
+  environment:
+    name: nightly
+    url: https://nightly.tinymediamanager.org
+  allow_failure: false
+  tags:
+    - docker # force running on gitlab  
+  script:
+    # generate changelog.txt for nightly builds
+    - sh generate_changelog.sh
+
+    # package archives
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
+
+    # build windows installer
+    - chmod 777 . dist
+    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
+
+    # build macOS dmg file
+    - sh AppBundler/create_dmg.sh
+
+    # write the job ID to the repo
+    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/7895208/repository/files/v4_job_id.txt
+
+  artifacts:
+    expire_in: 2 days
+    paths:
+      - build/
+      - dist/
+
+deploy:
+  stage: deploy
+  needs:
+    - build
+  trigger:
+    project: tinyMediaManager/nightly.tinymediamanager.org
