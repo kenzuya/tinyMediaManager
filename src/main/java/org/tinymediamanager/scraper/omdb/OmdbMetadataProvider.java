@@ -16,15 +16,39 @@
 
 package org.tinymediamanager.scraper.omdb;
 
+import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
+import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
+import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.core.FeatureNotEnabledException;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.exceptions.ScrapeException;
+import org.tinymediamanager.scraper.MediaSearchAndScrapeOptions;
+import org.tinymediamanager.scraper.MediaSearchResult;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
-import org.tinymediamanager.scraper.omdb.service.Controller;
+import org.tinymediamanager.scraper.util.MediaIdUtil;
+import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
+import org.tinymediamanager.scraper.util.RatingUtil;
 
 /**
  * Central metadata provider class
@@ -35,8 +59,6 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
   private static final String     ID = "omdbapi";
 
   private final MediaProviderInfo providerInfo;
-
-  protected Controller            controller;
 
   OmdbMetadataProvider() {
     providerInfo = createMediaProviderInfo();
@@ -69,59 +91,227 @@ abstract class OmdbMetadataProvider implements IMediaProvider {
     return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
   }
 
-  // thread safe initialization of the API
-  protected synchronized void initAPI() throws ScrapeException {
+  protected abstract Logger getLogger();
 
-    // create a new instance of the omdb api
-    if (controller == null) {
-      if (!isActive()) {
-        throw new ScrapeException(new FeatureNotEnabledException(this));
+  protected List<MediaSearchResult> parseSearchResults(Document document, MediaType mediaType) {
+    Elements results = document.getElementsByTag("result");
+    if (results.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<MediaSearchResult> searchResults = new ArrayList<>();
+
+    for (Element result : results) {
+      MediaSearchResult searchResult = new MediaSearchResult(getId(), mediaType);
+
+      if (MetadataUtil.isValidImdbId(result.attr("imdbID"))) {
+        searchResult.setId(MediaMetadata.IMDB, result.attr("imdbID"));
       }
 
-      controller = new Controller(false);
+      searchResult.setTitle(result.attr("title"));
+      searchResult.setYear(MetadataUtil.parseInt(result.attr("year"), 0));
+
+      // if year is still zero, try to get it in a different way
+      if (searchResult.getYear() <= 0 && result.attr("year").length() >= 4) {
+        searchResult.setYear(MetadataUtil.parseInt(result.attr("year").substring(0, 4)));
+      }
+
+      if (StringUtils.isNotBlank(result.attr("poster"))) {
+        searchResult.setPosterUrl(result.attr("poster"));
+      }
+
+      searchResults.add(searchResult);
     }
 
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
-    if (StringUtils.isNotBlank(userApiKey)) {
-      controller.setApiKey(userApiKey);
+    return searchResults;
+  }
+
+  protected MediaMetadata parseDetail(Document document, String baseElement) {
+    Elements movies = document.getElementsByTag(baseElement);
+    if (movies.isEmpty()) {
+      return null;
     }
-    else {
+
+    DateFormat format = new SimpleDateFormat("d MMMM yyyy", Locale.ENGLISH);
+
+    MediaMetadata md = new MediaMetadata(getId());
+    Element movie = movies.first();
+
+    if (MetadataUtil.isValidImdbId(movie.attr("imdbID"))) {
+      md.setId(MediaMetadata.IMDB, movie.attr("imdbID"));
+    }
+
+    md.setTitle(movie.attr("title"));
+    md.setPlot(movie.attr("plot"));
+    md.setYear(MetadataUtil.parseInt(movie.attr("year"), 0));
+
+    // if year is still zero, try to get it in a different way
+    if (md.getYear() <= 0 && movie.attr("year").length() >= 4) {
+      md.setYear(MetadataUtil.parseInt(movie.attr("year").substring(0, 4)));
+    }
+
+    MediaCertification certification = MediaCertification.findCertification(movie.attr("rated"));
+    if (certification != MediaCertification.UNKNOWN) {
+      md.addCertification(certification);
+    }
+
+    try {
+      md.setReleaseDate(format.parse(movie.attr("released")));
+    }
+    catch (Exception ignored) {
+      // can be ignored
+    }
+
+    Pattern p = Pattern.compile("\\d+");
+    Matcher m = p.matcher(movie.attr("runtime"));
+    while (m.find()) {
       try {
-        controller.setApiKey(getApiKey());
+        md.setRuntime(Integer.parseInt(m.group()));
+        break;
       }
-      catch (Exception e) {
-        throw new ScrapeException(e);
+      catch (NumberFormatException ignored) {
+        // not able to parse
       }
     }
-  }
 
-  /**
-   * return a list of results that were separated by a delimiter
-   *
-   * @param input
-   *          result from API
-   * @param delimiter
-   *          used delimiter
-   * @return List of results
-   */
-  protected List<String> getResult(String input, String delimiter) {
-    String[] result = input.split(delimiter);
-    List<String> output = new ArrayList<>();
-
-    for (String r : result) {
-      output.add(r.trim());
+    String[] genres = movie.attr("genre").split(",");
+    for (String genre : genres) {
+      genre = genre.trim();
+      MediaGenres mediaGenres = MediaGenres.getGenre(genre);
+      md.addGenre(mediaGenres);
     }
 
-    return output;
+    String[] directors = movie.attr("director").split(",");
+    for (String d : directors) {
+      Person director = new Person(DIRECTOR);
+      director.setName(d.trim());
+      md.addCastMember(director);
+    }
+
+    String[] writers = movie.attr("writer").split(",");
+    for (String w : writers) {
+      Person writer = new Person(WRITER);
+      writer.setName(w.trim());
+      md.addCastMember(writer);
+    }
+
+    String[] actors = movie.attr("actors").split(",");
+    for (String a : actors) {
+      Person actor = new Person(ACTOR);
+      actor.setName(a.trim());
+      md.addCastMember(actor);
+    }
+
+    md.setSpokenLanguages(ParserUtils.split(movie.attr("language")));
+    md.setCountries(ParserUtils.split(movie.attr("country")));
+
+    // IMDB rating
+    try {
+      MediaRating rating = new MediaRating("imdb");
+      rating.setRating(Float.parseFloat(movie.attr("imdbRating")));
+      rating.setVotes(MetadataUtil.parseInt(movie.attr("imdbVotes")));
+      rating.setMaxValue(10);
+      md.addRating(rating);
+    }
+    catch (NumberFormatException e) {
+      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    try {
+      MediaRating rating = new MediaRating("metacritic");
+      rating.setRating(Float.parseFloat(movie.attr("metascore")));
+      rating.setMaxValue(100);
+      md.addRating(rating);
+    }
+    catch (NumberFormatException e) {
+      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    // Tomatoratings
+    try {
+      MediaRating rating = new MediaRating("tomatometerallcritics");
+      rating.setRating(Float.parseFloat(movie.attr("tomatoMeter")));
+      rating.setVotes(MetadataUtil.parseInt(movie.attr("tomatoReviews")));
+      rating.setMaxValue(100);
+      md.addRating(rating);
+    }
+    catch (NumberFormatException e) {
+      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    try {
+      MediaRating rating = new MediaRating("tomatometerallaudience");
+      rating.setRating(Float.parseFloat(movie.attr("tomatoUserMeter")));
+      rating.setVotes(MetadataUtil.parseInt(movie.attr("tomatoUserReviews")));
+      rating.setMaxValue(100);
+      md.addRating(rating);
+    }
+    catch (NumberFormatException e) {
+      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    try {
+      MediaRating rating = new MediaRating("tomatometeravgcritics");
+      rating.setRating(Float.parseFloat(movie.attr("tomatoRating")));
+      rating.setVotes(MetadataUtil.parseInt(movie.attr("tomatoReviews")));
+      rating.setMaxValue(10);
+      md.addRating(rating);
+    }
+    catch (NumberFormatException e) {
+      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    try {
+      MediaRating rating = new MediaRating("tomatometeravgaudience");
+      rating.setRating(Float.parseFloat(movie.attr("tomatoUserRating")));
+      rating.setVotes(MetadataUtil.parseInt(movie.attr("tomatoUserReviews")));
+      rating.setMaxValue(5);
+      md.addRating(rating);
+    }
+    catch (NumberFormatException e) {
+      getLogger().trace("could not parse rating/vote count: {}", e.getMessage());
+    }
+
+    // get the imdb rating from the imdb dataset too (and probably replace an
+    // outdated rating from omdb)
+    if (md.getId(MediaMetadata.IMDB) instanceof String) {
+      MediaRating omdbRating = md.getRatings().stream().filter(rating -> MediaMetadata.IMDB.equals(rating.getId())).findFirst().orElse(null);
+      MediaRating imdbRating = RatingUtil.getImdbRating((String) md.getId(MediaMetadata.IMDB));
+      if (imdbRating != null && (omdbRating == null || imdbRating.getVotes() > omdbRating.getVotes())) {
+        md.getRatings().remove(omdbRating);
+        md.addRating(imdbRating);
+      }
+    }
+
+    if (StringUtils.isNotBlank(movie.attr("poster"))) {
+      MediaArtwork artwork = new MediaArtwork(getId(), MediaArtwork.MediaArtworkType.POSTER);
+      artwork.setDefaultUrl(movie.attr("poster"));
+      md.addMediaArt(artwork);
+    }
+
+    return md;
   }
 
-  /**
-   * set the Debugmode for JUnit Testing
-   *
-   * @param verbose
-   *          Boolean for debug mode
-   */
-  void setVerbose(boolean verbose) {
-    controller = new Controller(verbose);
+  protected String getImdbId(MediaSearchAndScrapeOptions options) {
+    // id from the options
+    String imdbId = options.getImdbId();
+
+    // id from omdb proxy?
+    if (!MetadataUtil.isValidImdbId(imdbId)) {
+      imdbId = options.getIdAsString(getProviderInfo().getId());
+    }
+
+    // still no imdb id but tvdb id? get it from tmdb
+    if (!MetadataUtil.isValidImdbId(imdbId) && options.getIdAsIntOrDefault(MediaMetadata.TVDB, 0) > 0) {
+      int tvdbId = options.getIdAsInt(MediaMetadata.TVDB);
+      imdbId = MediaIdUtil.getImdbIdFromTvdbId(String.valueOf(tvdbId));
+    }
+
+    // still no imdb id but tmdb id? get it from tmdb
+    if (!MetadataUtil.isValidImdbId(imdbId) && options.getTmdbId() > 0) {
+      imdbId = MediaIdUtil.getTvShowImdbIdViaTmdbId(options.getTmdbId());
+    }
+
+    return imdbId;
   }
 }
