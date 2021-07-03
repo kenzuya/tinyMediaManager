@@ -54,6 +54,7 @@ deploy-docker:
     - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
 
     # build
+    - cp -R dist docker
     - cd docker
     - docker build -f Dockerfile.test -t $IMAGE_NAME .
 
