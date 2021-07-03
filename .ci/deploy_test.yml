@@ -39,3 +39,25 @@ deploy:
     - build
   trigger:
     project: tinyMediaManager/test.tinymediamanager.org
+
+deploy-docker:
+  stage: deploy
+  image: docker:latest
+  services:
+    - name: docker:dind
+  needs:
+    - build
+  depends:
+    - build
+  variables:
+    IMAGE_NAME: tinymediamanager/tinymediamanager:4-nightly
+  script:
+    # login
+    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+
+    # build
+    - cd docker
+    - docker build -f Dockerfile.test -t $IMAGE_NAME .
+
+    # push to the registry
+    - docker push $IMAGE_NAME:$timestamp
