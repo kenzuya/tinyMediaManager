@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -45,6 +44,7 @@ import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.DynaEnum;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.floreysoft.jmte.Engine;
 

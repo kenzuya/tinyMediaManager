@@ -24,10 +24,10 @@ import java.util.Locale;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 /**

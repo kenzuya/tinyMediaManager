@@ -22,8 +22,8 @@ import javax.swing.Icon;
 import javax.swing.UIManager;
 
 import org.jdesktop.beansbinding.Converter;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.scraper.entities.CountryCode;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.ui.images.TmmSvgIcon;
 
 import com.kitfox.svg.app.beans.SVGIcon;

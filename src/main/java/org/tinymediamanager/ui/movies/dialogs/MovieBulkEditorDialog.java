@@ -47,7 +47,6 @@ import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -59,6 +58,7 @@ import org.tinymediamanager.core.movie.MovieRenamer;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;

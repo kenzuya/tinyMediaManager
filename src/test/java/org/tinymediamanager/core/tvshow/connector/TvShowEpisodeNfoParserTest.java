@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 public class TvShowEpisodeNfoParserTest {
 

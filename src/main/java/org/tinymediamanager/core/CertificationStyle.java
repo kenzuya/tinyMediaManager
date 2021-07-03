@@ -16,6 +16,7 @@
 package org.tinymediamanager.core;
 
 import org.tinymediamanager.scraper.entities.CountryCode;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 /**
  * The enum CertificationStyle represents all certification styles which we support writing

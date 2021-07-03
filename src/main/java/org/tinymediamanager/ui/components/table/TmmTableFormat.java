@@ -39,8 +39,8 @@ import javax.swing.table.TableCellRenderer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileHelper;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.ui.IconManager;
 
