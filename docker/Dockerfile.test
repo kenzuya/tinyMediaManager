@@ -7,7 +7,7 @@ ARG LIBZEN=https://mediaarea.net/download/binary/libzen0/0.4.39/libzen0v5_0.4.39
 ARG LIBMEDIAINFO=https://mediaarea.net/download/binary/libmediainfo0/21.03/libmediainfo0v5_21.03-1_amd64.Debian_10.deb
 
 # Install requirements for TMM
-ADD dist /tmp/dist
+ADD ../dist /tmp/dist
 RUN \
     apt-get update && \
     apt-get install --no-install-recommends -y \
