@@ -20,7 +20,7 @@ RUN \
     wget -q ${LIBZEN} && \
     wget -q ${LIBMEDIAINFO} && \
     dpkg -i *.deb && \
-    tar xzf /tmp/dist/tmm*linux*.tar.gz -C /tmp/ && \
+    tar xzf /tmp/dist/tmm*linux-amd64.tar.gz -C /tmp/ && \
     mv /tmp/tinyMediaManager/* /app/ && \
     rm -R /tmp/dist /tmp/tinyMediaManager && \
     mkdir -p /data/data && \
