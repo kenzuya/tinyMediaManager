@@ -47,8 +47,6 @@ deploy-docker:
     - name: docker:dind
   needs:
     - build
-  depends:
-    - build
   variables:
     IMAGE_NAME: tinymediamanager/tinymediamanager:4-nightly
   script:
