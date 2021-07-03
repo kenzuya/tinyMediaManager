@@ -6,8 +6,8 @@ ENV APP=tinyMediaManager
 ARG LIBZEN=https://mediaarea.net/download/binary/libzen0/0.4.39/libzen0v5_0.4.39-1_amd64.Debian_10.deb
 ARG LIBMEDIAINFO=https://mediaarea.net/download/binary/libmediainfo0/21.03/libmediainfo0v5_21.03-1_amd64.Debian_10.deb
 
-# Install requirements for TMM
-ADD dist /tmp/dist
+# Install tmm & requirements
+ADD tinyMediaManager /app
 RUN \
     apt-get update && \
     apt-get install --no-install-recommends -y \
@@ -20,9 +20,6 @@ RUN \
     wget -q ${LIBZEN} && \
     wget -q ${LIBMEDIAINFO} && \
     dpkg -i *.deb && \
-    tar xzf /tmp/dist/tmm*linux-amd64.tar.gz -C /tmp/ && \
-    mv /tmp/tinyMediaManager/* /app/ && \
-    rm -R /tmp/dist /tmp/tinyMediaManager && \
     mkdir -p /data/data && \
     # Remove some unneeded stuff.
     rm *.deb && \
