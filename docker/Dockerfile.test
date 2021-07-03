@@ -31,7 +31,7 @@ RUN \
 ADD launcher-extra.yml /app/
 ADD tmm.prop /data/data/
 
-LABEL Name=tinyMediaManager v4 nightly
+LABEL Name="tinyMediaManager test build" Version="v4"
 
 WORKDIR /app
 CMD ["/app/tinyMediaManager"]

@@ -33,7 +33,7 @@ RUN \
 ADD launcher-extra.yml /app/
 ADD tmm.prop /data/data/
 
-LABEL Name=tinyMediaManager v=${TMM_VERSION}
+LABEL Name="tinyMediaManager" Version=${TMM_VERSION}
 
 WORKDIR /app
 CMD ["/app/tinyMediaManager"]
