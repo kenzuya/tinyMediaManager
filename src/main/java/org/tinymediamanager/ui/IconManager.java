@@ -164,6 +164,7 @@ public class IconManager {
   // font awesome icons - column headers
   public static final ImageIcon              AUDIO                        = createTableHeaderIcon("volume.svg");
   public static final ImageIcon              ASPECT_RATIO                 = createTableHeaderIcon("ruler-combined-solid.svg");
+  public static final ImageIcon              ASPECT_RATIO_2               = createTableHeaderIcon("ruler-combined-2-solid.svg");
   public static final ImageIcon              CERTIFICATION                = createTableHeaderIcon("universal-access.svg");
   public static final ImageIcon              COUNT                        = createTableHeaderIcon("hashtag.svg");
   public static final ImageIcon              DATE_ADDED                   = createTableHeaderIcon("calendar-plus.svg");

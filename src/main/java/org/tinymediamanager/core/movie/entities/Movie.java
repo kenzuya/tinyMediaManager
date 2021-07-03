@@ -2353,6 +2353,25 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   @Override
+  public Float getMediaInfoAspectRatio2() {
+    return getMainVideoFile().getAspectRatio2();
+  }
+
+  public String getMediaInfoAspectRatio2AsString() {
+    Float aspectRatio2 = getMediaInfoAspectRatio2();
+    String ar2AsString = "";
+    if (aspectRatio2 != null) {
+      DecimalFormat df = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.US));
+      ar2AsString = df.format(getMainVideoFile().getAspectRatio2()).replaceAll("\\.", "");
+    }
+    return ar2AsString;
+  }
+
+  public boolean isMultiFormat() {
+    return getMainVideoFile().getAspectRatio2() != null;
+  }
+
+  @Override
   public String getMediaInfoAudioCodec() {
     return getMainVideoFile().getAudioCodec();
   }
