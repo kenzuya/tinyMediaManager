@@ -1,5 +1,5 @@
 # Building application container
-FROM docker.pkg.github.com/max06/base-gui/base-gui:latest
+FROM max06net/base-gui:0.0.1
 
 ENV TMM_VERSION=4.1.6
 ENV APP=tinyMediaManager
