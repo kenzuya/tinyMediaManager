@@ -59,4 +59,4 @@ deploy-docker:
     - docker build -f Dockerfile.test -t $IMAGE_NAME .
 
     # push to the registry
-    - docker push $IMAGE_NAME:$timestamp
+    - docker push $IMAGE_NAME
