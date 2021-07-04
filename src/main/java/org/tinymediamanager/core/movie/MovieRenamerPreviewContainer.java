@@ -29,17 +29,22 @@ import org.tinymediamanager.core.movie.entities.Movie;
  * @author Manuel Laggner
  */
 public class MovieRenamerPreviewContainer {
+  final Movie           movie;
+  final Path            oldPath;
+  final List<MediaFile> newMediaFiles;
 
-  Movie           movie;
-  Path            oldPath;
-  Path            newPath;
-  List<MediaFile> newMediaFiles = new ArrayList<>();
-  boolean         needsRename   = false;
+  Path                  newPath;
+  boolean               needsRename = false;
 
   public MovieRenamerPreviewContainer(Movie movie) {
     this.movie = movie;
+    this.newMediaFiles = new ArrayList<>();
+
     if (movie != null && !movie.getDataSource().isEmpty()) {
       this.oldPath = Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());
+    }
+    else {
+      this.oldPath = null;
     }
   }
 

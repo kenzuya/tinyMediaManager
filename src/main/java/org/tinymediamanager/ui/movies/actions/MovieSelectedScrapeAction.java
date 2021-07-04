@@ -43,8 +43,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class MovieSelectedScrapeAction extends TmmAction {
-  private static final long           serialVersionUID = -6006932819900795735L;
-
+  private static final long serialVersionUID = -6006932819900795735L;
 
   public MovieSelectedScrapeAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.scrape.selected.force"));
@@ -70,11 +69,13 @@ public class MovieSelectedScrapeAction extends TmmAction {
     // get options from dialog
     MovieSearchAndScrapeOptions options = dialog.getMovieSearchAndScrapeOptions();
     List<MovieScraperMetadataConfig> config = dialog.getMovieScraperMetadataConfig();
+    boolean overwrite = dialog.getOverwriteExistingItems();
 
     // do we want to scrape?
     if (dialog.shouldStartScrape()) {
       // scrape
-      TmmThreadPool scrapeTask = new MovieScrapeTask(selectedMovies, true, options, config);
+      TmmThreadPool scrapeTask = new MovieScrapeTask(
+          new MovieScrapeTask.MovieScrapeParams(selectedMovies, options, config).setOverwriteExistingItems(overwrite));
       TmmTaskManager.getInstance().addMainTask(scrapeTask);
     }
   }

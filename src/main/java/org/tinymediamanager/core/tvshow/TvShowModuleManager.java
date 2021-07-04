@@ -60,9 +60,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * 
  * @author Manuel Laggner
  */
-public class TvShowModuleManager implements ITmmModule {
-
-  public static final TvShowSettings   SETTINGS             = TvShowSettings.getInstance();
+public final class TvShowModuleManager implements ITmmModule {
 
   private static final String          MODULE_TITLE         = "TV show management";
   private static final String          TV_SHOW_DB           = "tvshows.db";
@@ -106,6 +104,14 @@ public class TvShowModuleManager implements ITmmModule {
       instance = new TvShowModuleManager();
     }
     return instance;
+  }
+
+  public TvShowSettings getSettings() {
+    return TvShowSettings.getInstance();
+  }
+
+  public TvShowList getTvShowList() {
+    return TvShowList.getInstance();
   }
 
   @Override
@@ -153,7 +159,7 @@ public class TvShowModuleManager implements ITmmModule {
    * 3. open a new one
    */
   private void openDatabaseAndLoadTvShows() {
-    Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), TV_SHOW_DB);
+    Path databaseFile = Paths.get(Settings.getInstance().getSettingsFolder(), TV_SHOW_DB);
     try {
       loadDatabase(databaseFile);
       return;
@@ -263,7 +269,7 @@ public class TvShowModuleManager implements ITmmModule {
           tvShowMap = mvStore.openMap("tvshows");
           episodeMap = mvStore.openMap("episodes");
 
-          for (TvShow tvShow : TvShowList.getInstance().getTvShows()) {
+          for (TvShow tvShow : getTvShowList().getTvShows()) {
             persistTvShow(tvShow);
 
             for (TvShowEpisode episode : tvShow.getEpisodes()) {
@@ -289,9 +295,9 @@ public class TvShowModuleManager implements ITmmModule {
     tvShowMap = mvStore.openMap("tvshows");
     episodeMap = mvStore.openMap("episodes");
 
-    TvShowList.getInstance().loadTvShowsFromDatabase(tvShowMap);
-    TvShowList.getInstance().loadEpisodesFromDatabase(episodeMap);
-    TvShowList.getInstance().initDataAfterLoading();
+    getTvShowList().loadTvShowsFromDatabase(tvShowMap);
+    getTvShowList().loadEpisodesFromDatabase(episodeMap);
+    getTvShowList().initDataAfterLoading();
   }
 
   @Override
@@ -312,8 +318,8 @@ public class TvShowModuleManager implements ITmmModule {
       mvStore.close();
     }
 
-    if (Globals.settings.isDeleteTrashOnExit()) {
-      for (String ds : SETTINGS.getTvShowDataSource()) {
+    if (Settings.getInstance().isDeleteTrashOnExit()) {
+      for (String ds : getSettings().getTvShowDataSource()) {
         Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
         Utils.deleteDirectoryRecursive(file);
       }
@@ -463,7 +469,7 @@ public class TvShowModuleManager implements ITmmModule {
 
   @Override
   public void saveSettings() {
-    SETTINGS.saveSettings();
+    getSettings().saveSettings();
   }
 
   @Override

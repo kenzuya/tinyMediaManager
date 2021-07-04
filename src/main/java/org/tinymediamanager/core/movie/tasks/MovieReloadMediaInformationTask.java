@@ -38,7 +38,7 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
 public class MovieReloadMediaInformationTask extends TmmThreadPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(MovieReloadMediaInformationTask.class);
 
-  private List<Movie>         moviesToReload;
+  private final List<Movie>   moviesToReload;
 
   public MovieReloadMediaInformationTask(List<Movie> movies) {
     super(TmmResourceBundle.getString("movie.updatemediainfo"));

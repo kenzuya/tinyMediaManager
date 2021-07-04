@@ -119,7 +119,7 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
       fireChanged(matcher);
     });
 
-    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
+    if (MovieModuleManager.getInstance().getSettings().isStoreUiFilters()) {
       List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
       for (IMovieUIFilter filter : filters) {
         if (filter.getFilterState() != ITmmUIFilter.FilterState.INACTIVE) {
@@ -130,8 +130,8 @@ public class MovieMatcherEditor extends AbstractMatcherEditor<Movie> {
           filterValues.add(uiFilters);
         }
       }
-      MovieModuleManager.SETTINGS.setUiFilters(filterValues);
-      MovieModuleManager.SETTINGS.saveSettings();
+      MovieModuleManager.getInstance().getSettings().setUiFilters(filterValues);
+      MovieModuleManager.getInstance().getSettings().saveSettings();
     }
   }
 

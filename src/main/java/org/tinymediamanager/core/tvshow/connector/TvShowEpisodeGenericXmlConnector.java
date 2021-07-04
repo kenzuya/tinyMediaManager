@@ -39,17 +39,16 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -94,7 +93,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
 
     // first of all, get the data from a previous written NFO file,
     // if we do not want clean NFOs
-    if (!TvShowModuleManager.SETTINGS.isWriteCleanNfo()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isWriteCleanNfo()) {
       for (MediaFile mf : firstEpisode.getMediaFiles(MediaFileType.NFO)) {
         try {
           parser = TvShowEpisodeNfoParser.parseNfo(mf.getFileAsPath());
@@ -128,7 +127,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
           if (first) {
             Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String dat = formatter.format(new Date());
-            document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Globals.settings.getVersion()));
+            document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Settings.getInstance().getVersion()));
           }
 
           root = document.createElement("episodedetails");
@@ -344,7 +343,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
 
     // the default rating
     Map<String, MediaRating> ratings = episode.getRatings();
-    MediaRating mainMediaRating = ratings.get(TvShowModuleManager.SETTINGS.getPreferredRating());
+    MediaRating mainMediaRating = ratings.get(TvShowModuleManager.getInstance().getSettings().getPreferredRating());
 
     // is there any rating which is not the user rating?
     if (mainMediaRating == null) {
@@ -442,7 +441,8 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
     Element mpaa = document.createElement("mpaa");
 
     if (episode.getCertification() != null) {
-      mpaa.setTextContent(CertificationStyle.formatCertification(episode.getCertification(), TvShowModuleManager.SETTINGS.getCertificationStyle()));
+      mpaa.setTextContent(CertificationStyle.formatCertification(episode.getCertification(),
+          TvShowModuleManager.getInstance().getSettings().getCertificationStyle()));
     }
     root.appendChild(mpaa);
   }
@@ -463,7 +463,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    */
   protected void addDateAdded(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
     Element dateadded = document.createElement("dateadded");
-    switch (TvShowModuleManager.SETTINGS.getNfoDateAddedField()) {
+    switch (TvShowModuleManager.getInstance().getSettings().getNfoDateAddedField()) {
       case DATE_ADDED:
         if (episode.getDateAdded() != null) {
           dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(episode.getDateAdded()));
@@ -548,7 +548,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
       root.appendChild(studio);
 
       // break here if we just want to write one studio
-      if (TvShowSettings.getInstance().isNfoWriteSingleStudio()) {
+      if (TvShowModuleManager.getInstance().getSettings().isNfoWriteSingleStudio()) {
         break;
       }
     }
@@ -591,7 +591,7 @@ public abstract class TvShowEpisodeGenericXmlConnector implements ITvShowEpisode
    * add actors (guests) in <actor><name>xxx</name><role>xxx</role><thumb>xxx</thumb></actor>
    */
   protected void addActors(TvShowEpisode episode, TvShowEpisodeNfoParser.Episode parser) {
-    for (Person tvShowActor : episode.getGuests()) {
+    for (Person tvShowActor : episode.getActors()) {
       Element actor = document.createElement("actor");
 
       Element name = document.createElement("name");

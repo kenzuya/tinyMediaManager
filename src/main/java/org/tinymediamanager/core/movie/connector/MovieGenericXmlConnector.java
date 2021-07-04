@@ -38,11 +38,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -50,7 +50,6 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -90,7 +89,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
 
     // first of all, get the data from a previous written NFO file,
     // if we do not want clean NFOs
-    if (!MovieModuleManager.SETTINGS.isWriteCleanNfo()) {
+    if (!MovieModuleManager.getInstance().getSettings().isWriteCleanNfo()) {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.NFO)) {
         try {
           parser = MovieNfoParser.parseNfo(mf.getFileAsPath());
@@ -119,7 +118,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
         // tmm comment
         Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dat = formatter.format(new Date());
-        document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Globals.settings.getVersion()));
+        document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Settings.getInstance().getVersion()));
 
         root = document.createElement("movie");
         document.appendChild(root);
@@ -261,7 +260,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     Map<String, MediaRating> ratings = movie.getRatings();
 
     MediaRating mainMediaRating = null;
-    for (String ratingSource : MovieModuleManager.SETTINGS.getRatingSources()) {
+    for (String ratingSource : MovieModuleManager.getInstance().getSettings().getRatingSources()) {
       mainMediaRating = ratings.get(ratingSource);
       if (mainMediaRating != null) {
         break;
@@ -349,9 +348,9 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addOutline() {
     String outlineText = "";
-    if (MovieModuleManager.SETTINGS.isCreateOutline()) {
+    if (MovieModuleManager.getInstance().getSettings().isCreateOutline()) {
       // lets create the outline since we do not have any outline field
-      if (MovieModuleManager.SETTINGS.isOutlineFirstSentence()) {
+      if (MovieModuleManager.getInstance().getSettings().isOutlineFirstSentence()) {
         // use the first sentence of the plot (at least 20 chars)
         StringBuilder text = new StringBuilder();
         String[] sentences = movie.getPlot().split("\\.");
@@ -429,7 +428,8 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     Element mpaa = document.createElement("mpaa");
 
     if (movie.getCertification() != null) {
-      mpaa.setTextContent(CertificationStyle.formatCertification(movie.getCertification(), MovieModuleManager.SETTINGS.getCertificationStyle()));
+      mpaa.setTextContent(
+          CertificationStyle.formatCertification(movie.getCertification(), MovieModuleManager.getInstance().getSettings().getCertificationStyle()));
     }
     root.appendChild(mpaa);
   }
@@ -441,7 +441,8 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     Element certification = document.createElement("certification");
     if (movie.getCertification() != null) {
       certification
-          .setTextContent(CertificationStyle.formatCertification(movie.getCertification(), MovieModuleManager.SETTINGS.getCertificationStyle()));
+          .setTextContent(CertificationStyle.formatCertification(movie.getCertification(),
+              MovieModuleManager.getInstance().getSettings().getCertificationStyle()));
     }
     root.appendChild(certification);
   }
@@ -534,7 +535,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
    */
   protected void addDateAdded() {
     Element dateadded = document.createElement("dateadded");
-    switch (MovieModuleManager.SETTINGS.getNfoDateAddedField()) {
+    switch (MovieModuleManager.getInstance().getSettings().getNfoDateAddedField()) {
       case DATE_ADDED:
         if (movie.getDateAdded() != null) {
           dateadded.setTextContent(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(movie.getDateAdded()));
@@ -593,7 +594,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
   protected void addGenres() {
     for (MediaGenres mediaGenre : movie.getGenres()) {
       Element genre = document.createElement("genre");
-      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale()));
+      genre.setTextContent(mediaGenre.getLocalizedName(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale()));
       root.appendChild(genre);
     }
   }
@@ -609,7 +610,7 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
       root.appendChild(studio);
 
       // break here if we just want to write one studio
-      if (MovieSettings.getInstance().isNfoWriteSingleStudio()) {
+      if (MovieModuleManager.getInstance().getSettings().isNfoWriteSingleStudio()) {
         break;
       }
     }
@@ -727,7 +728,8 @@ public abstract class MovieGenericXmlConnector implements IMovieConnector {
     // prepare the languages to be printed in localized form
     List<String> translatedLanguages = new ArrayList<>();
     for (String langu : ParserUtils.split(movie.getSpokenLanguages())) {
-      String translated = LanguageUtils.getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.SETTINGS.getNfoLanguage().toLocale(),
+      String translated = LanguageUtils
+          .getLocalizedLanguageNameFromLocalizedString(MovieModuleManager.getInstance().getSettings().getNfoLanguage().toLocale(),
           langu.trim());
       translatedLanguages.add(translated);
     }

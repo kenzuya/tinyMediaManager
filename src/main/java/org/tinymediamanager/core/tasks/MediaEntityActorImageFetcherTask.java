@@ -64,7 +64,7 @@ public abstract class MediaEntityActorImageFetcherTask implements Runnable {
               return;
             }
 
-            if (Utils.isRegularFile(path) && path.getFileName().toString().matches("(?i).*\\.(tbn|png|jpg)")
+            if (Utils.isRegularFile(path) && path.getFileName().toString().matches("(?i).*\\.(tbn|png|jpg|webp)")
                 && !path.getFileName().toString().startsWith(".")) {
               boolean found = false;
               // check if there is an actor for this file

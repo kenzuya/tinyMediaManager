@@ -34,11 +34,12 @@ import javax.swing.border.Border;
  * @author Manuel Laggner
  */
 public class JHintCheckBox extends JCheckBox {
-  private static final long serialVersionUID = -3513765234706901506L;
+  private static final long  serialVersionUID = -3513765234706901506L;
 
-  private Icon              hintIcon;
-  private Insets            dummyInsets;
-  private MouseAdapter      tooltipAdatapter = createMouseAdapter();
+  private final Insets       dummyInsets;
+  private final MouseAdapter tooltipAdapter   = createMouseAdapter();
+
+  private Icon               hintIcon;
 
   private MouseAdapter createMouseAdapter() {
     return new MouseAdapter() {
@@ -86,9 +87,9 @@ public class JHintCheckBox extends JCheckBox {
   @Override
   public void setToolTipText(String text) {
     // remove the mouse listener if already added
-    removeMouseListener(tooltipAdatapter);
+    removeMouseListener(tooltipAdapter);
     // and readd
-    addMouseListener(tooltipAdatapter);
+    addMouseListener(tooltipAdapter);
 
     super.setToolTipText(text);
   }

@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -49,10 +51,15 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.floreysoft.jmte.Engine;
 
-public class MovieJmteTests {
+public class MovieJmteTests extends BasicTest {
 
   private Engine              engine;
   private Map<String, Object> root;
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testMoviePatterns() {

@@ -45,7 +45,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -72,7 +71,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieImageSettingsPanel extends JPanel {
   private static final long          serialVersionUID = 7312645402037806284L;
 
-  private final MovieSettings        settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> scrapers         = new ArrayList<>();
 
   private JComboBox                  cbImagePosterSize;
@@ -92,7 +91,7 @@ class MovieImageSettingsPanel extends JPanel {
     List<String> enabledArtworkProviders = settings.getArtworkScrapers();
     int selectedIndex = -1;
     int counter = 0;
-    for (MediaScraper scraper : MovieList.getInstance().getAvailableArtworkScrapers()) {
+    for (MediaScraper scraper : MovieModuleManager.getInstance().getMovieList().getAvailableArtworkScrapers()) {
       ScraperInTable artworkScraper = new ScraperInTable(scraper);
       if (scraper.isEnabled() && enabledArtworkProviders.contains(artworkScraper.getScraperId())) {
         artworkScraper.setActive(true);

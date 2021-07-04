@@ -33,6 +33,8 @@ import org.tinymediamanager.thirdparty.SplitUri;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.movies.actions.MovieKodiGetWatchedAction;
 import org.tinymediamanager.ui.movies.actions.MovieKodiRefreshNfoAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetKodiGetWatchedMovieAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetKodiRefreshMovieNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowKodiGetWatchedAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowKodiRefreshNfoAction;
 
@@ -95,6 +97,83 @@ public class KodiRPCMenu {
           }
 
           if (connected) {
+            if (component == connectMenuItem) {
+              component.setEnabled(false);
+            }
+            else {
+              component.setEnabled(true);
+            }
+          }
+          else {
+            if (component == connectMenuItem) {
+              component.setEnabled(true);
+            }
+            else {
+              component.setEnabled(false);
+            }
+          }
+        }
+      }
+
+      @Override
+      public void menuDeselected(MenuEvent e) {
+        // not needed
+      }
+
+      @Override
+      public void menuCanceled(MenuEvent e) {
+        // not needed
+      }
+    });
+
+    return m;
+  }
+
+  /**
+   * Adds Kodi RPC menu structure in right-click popup
+   *
+   * @return the {@link JMenu} for the movie set popup menu
+   */
+  public static JMenu createMenuKodiMenuRightClickMovieSets() {
+    String version = KodiRPC.getInstance().getVersion();
+    JMenu m = new JMenu(version);
+    m.setIcon(IconManager.KODI);
+
+    m.add(new MovieSetKodiRefreshMovieNfoAction());
+    m.add(new MovieSetKodiGetWatchedMovieAction());
+
+    m.addSeparator();
+
+    JMenuItem connectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.connect"), IconManager.CONNECT);
+    connectMenuItem.addActionListener(e -> KodiRPC.getInstance().connect());
+    m.add(connectMenuItem);
+
+    JMenuItem disconnectMenuItem = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.disconnect"), IconManager.DISCONNECT);
+    disconnectMenuItem.addActionListener(e -> KodiRPC.getInstance().disconnect());
+    m.add(disconnectMenuItem);
+
+    m.addSeparator();
+
+    JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.updatemappings"), IconManager.SYNC);
+    i.addActionListener(e -> KodiRPC.getInstance().updateMovieMappings());
+    m.add(i);
+
+    m.addSeparator();
+
+    m.add(createMenuApplication());
+    m.add(createMenuSystem());
+    m.add(createMenuVideoDatasources());
+    m.add(createMenuAudioDatasources());
+
+    m.addMenuListener(new MenuListener() {
+      @Override
+      public void menuSelected(MenuEvent e) {
+        for (Component component : m.getMenuComponents()) {
+          if (component instanceof JSeparator) {
+            continue;
+          }
+
+          if (KodiRPC.getInstance().isConnected()) {
             if (component == connectMenuItem) {
               component.setEnabled(false);
             }

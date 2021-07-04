@@ -62,7 +62,6 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
@@ -100,7 +99,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
   private static final Logger                      LOGGER            = LoggerFactory.getLogger(TvShowRenamerSettingsPanel.class);
 
-  private final TvShowSettings                     settings          = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings                     settings          = TvShowModuleManager.getInstance().getSettings();
   private final List<String>                       spaceReplacements = new ArrayList<>(Arrays.asList("_", ".", "-"));
   private final List<String>                       colonReplacements = new ArrayList<>(Arrays.asList(" ", "-", "_"));
   private final EventList<TvShowRenamerExample>    exampleEventList;
@@ -474,7 +473,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
   private void buildAndInstallTvShowArray() {
     cbTvShowForPreview.removeAllItems();
-    List<TvShow> allTvShows = new ArrayList<>(TvShowList.getInstance().getTvShows());
+    List<TvShow> allTvShows = new ArrayList<>(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
     allTvShows.sort(new TvShowComparator());
     for (TvShow tvShow : allTvShows) {
       TvShowPreviewContainer container = new TvShowPreviewContainer();

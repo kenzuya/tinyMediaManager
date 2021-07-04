@@ -17,10 +17,17 @@
 package org.tinymediamanager.scraper.config;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.imdb.ImdbMovieMetadataProvider;
 
-public class ImdbMetadataProviderConfigTest {
+public class ImdbMetadataProviderConfigTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testConfig() {

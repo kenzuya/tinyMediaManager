@@ -26,8 +26,7 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -39,8 +38,7 @@ public class MovieNfoParserTest extends BasicTest {
 
   @BeforeClass
   public static void init() throws Exception {
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Test

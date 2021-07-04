@@ -21,6 +21,7 @@ import java.awt.event.ItemListener;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -55,7 +56,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = 4999827736720726395L;
 
-  private final TvShowSettings                 settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings                 settings         = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
   private final ItemListener                   comboBoxListener;
 
@@ -112,6 +113,9 @@ class TvShowScraperNfoSettingsPanel extends JPanel {
 
         cbNfoFormat = new JComboBox(TvShowConnectors.values());
         panelNfo.add(cbNfoFormat, "cell 1 0 2 1");
+
+        JButton docsButton = new DocsButton("/tvshows/nfo-formats");
+        panelNfo.add(docsButton, "cell 1 0 2 1");
 
         {
           JLabel lblNfoFileNaming = new JLabel(TmmResourceBundle.getString("Settings.nofFileNaming"));

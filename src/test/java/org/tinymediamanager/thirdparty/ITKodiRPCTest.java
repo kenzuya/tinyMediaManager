@@ -8,18 +8,24 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.jsonrpc.api.model.VideoModel.MovieDetail;
 import org.tinymediamanager.jsonrpc.config.HostConfig;
 import org.tinymediamanager.jsonrpc.io.ApiException;
 
-public class ITKodiRPCTest {
+public class ITKodiRPCTest extends BasicTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ITKodiRPCTest.class);
   // *************************************************************************************
   // you need to enable Kodi -> remote control from OTHER machines (to open TCP port 9090)
   // and you need to enable webserver -> some calls are POSTed (not async)
   // *************************************************************************************
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void events() {

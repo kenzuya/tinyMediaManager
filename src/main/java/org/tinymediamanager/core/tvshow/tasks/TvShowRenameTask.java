@@ -119,7 +119,7 @@ public class TvShowRenameTask extends TmmThreadPool {
   /**
    * ThreadpoolWorker to work off ONE episode
    */
-  private class RenameEpisodeTask implements Callable<Object> {
+  private static class RenameEpisodeTask implements Callable<Object> {
 
     private TvShowEpisode episode = null;
 

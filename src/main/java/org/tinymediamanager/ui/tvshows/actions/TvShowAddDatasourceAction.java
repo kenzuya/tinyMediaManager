@@ -49,8 +49,8 @@ public class TvShowAddDatasourceAction extends TmmAction {
       String path = TmmProperties.getInstance().getProperty("tvshow.datasource.path");
       Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.tvshowdatasource.folderchooser"), path);
       if (file != null && Files.isDirectory(file)) {
-        TvShowModuleManager.SETTINGS.addTvShowDataSources(file.toAbsolutePath().toString());
-        TvShowModuleManager.SETTINGS.saveSettings();
+        TvShowModuleManager.getInstance().getSettings().addTvShowDataSources(file.toAbsolutePath().toString());
+        TvShowModuleManager.getInstance().getSettings().saveSettings();
         TmmProperties.getInstance().putProperty("tvshow.datasource.path", file.toAbsolutePath().toString());
       }
     });

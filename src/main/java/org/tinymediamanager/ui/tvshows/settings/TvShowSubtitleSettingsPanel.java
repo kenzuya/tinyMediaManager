@@ -44,7 +44,6 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.LanguageStyle;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -71,7 +70,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSubtitleSettingsPanel extends JPanel {
   private static final long          serialVersionUID = -1607146878528487625L;
 
-  private final TvShowSettings       settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings       settings         = TvShowModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> scrapers         = new ArrayList<>();
 
   private TmmTable                   tableScraper;
@@ -86,7 +85,7 @@ class TvShowSubtitleSettingsPanel extends JPanel {
     List<String> enabledSubtitleProviders = settings.getSubtitleScrapers();
     int selectedIndex = -1;
     int counter = 0;
-    for (MediaScraper scraper : TvShowList.getInstance().getAvailableSubtitleScrapers()) {
+    for (MediaScraper scraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableSubtitleScrapers()) {
       ScraperInTable subtitleScraper = new ScraperInTable(scraper);
       if (enabledSubtitleProviders.contains(subtitleScraper.getScraperId())) {
         subtitleScraper.setActive(true);

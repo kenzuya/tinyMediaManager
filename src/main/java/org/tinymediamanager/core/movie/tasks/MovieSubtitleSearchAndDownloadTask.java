@@ -70,7 +70,7 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
 
     // get scrapers
     this.subtitleScrapers = new ArrayList<>();
-    for (String scraperId : MovieModuleManager.SETTINGS.getSubtitleScrapers()) {
+    for (String scraperId : MovieModuleManager.getInstance().getSettings().getSubtitleScrapers()) {
       MediaScraper scraper = MediaScraper.getMediaScraperById(scraperId, ScraperType.MOVIE_SUBTITLE);
       if (scraper != null) {
         subtitleScrapers.add(scraper);
@@ -152,7 +152,8 @@ public class MovieSubtitleSearchAndDownloadTask extends TmmThreadPool {
             }
 
             // the right language tag from the renamer settings
-            String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), MovieModuleManager.SETTINGS.getSubtitleLanguageStyle());
+            String lang = LanguageStyle.getLanguageCodeForStyle(language.name(),
+                MovieModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
             if (StringUtils.isBlank(lang)) {
               lang = language.name();
             }

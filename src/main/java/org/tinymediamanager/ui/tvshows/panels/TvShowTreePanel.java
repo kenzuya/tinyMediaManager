@@ -26,13 +26,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -40,6 +40,8 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -58,7 +60,10 @@ import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.actions.ClearFilterPresetAction;
+import org.tinymediamanager.ui.actions.FilterPresetAction;
 import org.tinymediamanager.ui.actions.RequestFocusAction;
+import org.tinymediamanager.ui.components.SplitButton;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeModel;
@@ -85,7 +90,7 @@ import net.miginfocom.swing.MigLayout;
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private static final long serialVersionUID = 5889203009864512935L;
 
-  private final TvShowList  tvShowList       = TvShowList.getInstance();
+  private final TvShowList  tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
 
   private int               rowcount;
   private long              rowcountLastUpdate;
@@ -95,7 +100,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private JLabel            lblEpisodeCountTotal;
   private JLabel            lblTvShowCountFiltered;
   private JLabel            lblTvShowCountTotal;
-  private JButton           btnFilter;
+  private SplitButton       btnFilter;
 
   public TvShowTreePanel(TvShowSelectionModel selectionModel) {
     initComponents();
@@ -131,16 +136,56 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
     getActionMap().put("search", new RequestFocusAction(searchField));
 
-    btnFilter = new JButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
+    btnFilter = new SplitButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
     btnFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
-    btnFilter.addActionListener(e -> TvShowUIModule.getInstance().setFilterDialogVisible(true));
+    btnFilter.getActionButton().addActionListener(e -> TvShowUIModule.getInstance().setFilterDialogVisible(true));
+    btnFilter.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        JPopupMenu popupMenu = btnFilter.getPopupMenu();
+        popupMenu.removeAll();
+
+        for (String uiFilter : TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().keySet()) {
+          FilterPresetAction action = new FilterPresetAction(uiFilter) {
+            @Override
+            protected void processAction(ActionEvent e) {
+              tree.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(presetName));
+            }
+          };
+          popupMenu.add(action);
+        }
+        if (popupMenu.getSubElements().length != 0) {
+          popupMenu.addSeparator();
+        }
+
+        popupMenu.add(new ClearFilterPresetAction() {
+          @Override
+          protected void processAction(ActionEvent e) {
+            tree.setFilterValues(Collections.emptyList());
+          }
+        });
+
+        popupMenu.pack();
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // do nothing
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+        // do nothing
+      }
+    });
+
     add(btnFilter, "cell 1 0");
 
     TmmTreeTableFormat<TmmTreeNode> tableFormat = new TvShowTableFormat();
     tree = new TmmTreeTable(new TvShowTreeDataProvider(tableFormat), tableFormat) {
       @Override
       public void storeFilters() {
-        if (TvShowModuleManager.SETTINGS.isStoreUiFilters()) {
+        if (TvShowModuleManager.getInstance().getSettings().isStoreUiFilters()) {
           List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
           for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
             if (filter instanceof ITmmUIFilter) {
@@ -154,8 +199,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
               }
             }
           }
-          TvShowModuleManager.SETTINGS.setUiFilters(filterValues);
-          TvShowModuleManager.SETTINGS.saveSettings();
+          TvShowModuleManager.getInstance().getSettings().setUiFilters(filterValues);
+          TvShowModuleManager.getInstance().getSettings().saveSettings();
         }
       }
     };
@@ -351,10 +396,10 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     }
 
     if (active) {
-      btnFilter.setIcon(IconManager.FILTER_ACTIVE);
+      btnFilter.getActionButton().setIcon(IconManager.FILTER_ACTIVE);
     }
     else {
-      btnFilter.setIcon(null);
+      btnFilter.getActionButton().setIcon(null);
     }
   }
 

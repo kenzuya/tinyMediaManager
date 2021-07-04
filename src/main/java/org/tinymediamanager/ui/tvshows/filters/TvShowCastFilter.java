@@ -88,7 +88,7 @@ public class TvShowCastFilter extends AbstractTextTvShowUIFilter {
             }
           }
         }
-        for (Person actor : episode.getGuests()) {
+        for (Person actor : episode.getActors()) {
           if (StringUtils.isNotBlank(actor.getName())) {
             Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(actor.getName()));
             if (matcher.find()) {

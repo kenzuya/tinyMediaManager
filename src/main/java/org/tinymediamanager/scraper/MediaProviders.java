@@ -17,7 +17,9 @@ package org.tinymediamanager.scraper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,8 +36,14 @@ import org.tinymediamanager.scraper.imdb.ImdbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.imdb.ImdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IKodiMetadataProvider;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.IMovieMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieSubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.IMovieTrailerProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowSubtitleProvider;
+import org.tinymediamanager.scraper.interfaces.ITvShowTrailerProvider;
 import org.tinymediamanager.scraper.kodi.KodiMetadataProvider;
 import org.tinymediamanager.scraper.moviemeter.MovieMeterMovieMetadataProvider;
 import org.tinymediamanager.scraper.mpdbtv.MpdbMovieArtworkMetadataProvider;
@@ -46,6 +54,7 @@ import org.tinymediamanager.scraper.omdb.OmdbMovieMetadataProvider;
 import org.tinymediamanager.scraper.omdb.OmdbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesMovieSubtitleProvider;
 import org.tinymediamanager.scraper.opensubtitles.OpenSubtitlesTvShowSubtitleProvider;
+import org.tinymediamanager.scraper.spi.IAddonProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowArtworkProvider;
 import org.tinymediamanager.scraper.thetvdb.TheTvDbTvShowMetadataProvider;
 import org.tinymediamanager.scraper.tmdb.TmdbMovieArtworkProvider;
@@ -83,6 +92,18 @@ public class MediaProviders {
       return;
     }
 
+    // load the addons
+    List<Class<? extends IMediaProvider>> addons = new ArrayList<>();
+    Iterator<IAddonProvider> addonIterator = ServiceLoader.load(IAddonProvider.class).iterator();
+    while (addonIterator.hasNext()) {
+      try {
+        addons.addAll(addonIterator.next().getAddonClasses());
+      }
+      catch (Exception | Error e) {
+        LOGGER.error("Could not load addons - '{}'", e.getMessage());
+      }
+    }
+
     /////////////////////////////////////////////
     // MOVIE
     /////////////////////////////////////////////
@@ -94,6 +115,9 @@ public class MediaProviders {
     loadProvider(MpdbMovieMetadataProvider.class);
     loadProvider(KodiMetadataProvider.class);
     loadProvider(TraktMovieMetadataProvider.class);
+
+    // addons
+    loadAddonsForInterface(addons, IMovieMetadataProvider.class);
 
     // register all compatible scrapers in the universal scraper
     MEDIA_PROVIDERS.forEach((key, value) -> {
@@ -116,6 +140,9 @@ public class MediaProviders {
     loadProvider(MpdbMovieArtworkMetadataProvider.class);
     loadProvider(FFmpegMovieArtworkProvider.class);
 
+    // addons
+    loadAddonsForInterface(addons, IMovieArtworkProvider.class);
+
     /////////////////////////////////////////////
     // MOVIE TRAILER
     /////////////////////////////////////////////
@@ -123,10 +150,16 @@ public class MediaProviders {
     loadProvider(HdTrailersNetMovieTrailerProvider.class);
     loadProvider(OfdbMovieTrailerProvider.class);
 
+    // addons
+    loadAddonsForInterface(addons, IMovieTrailerProvider.class);
+
     /////////////////////////////////////////////
     // MOVIE SUBTITLES
     /////////////////////////////////////////////
     loadProvider(OpenSubtitlesMovieSubtitleProvider.class);
+
+    // addons
+    loadAddonsForInterface(addons, IMovieSubtitleProvider.class);
 
     /////////////////////////////////////////////
     // TV SHOWS
@@ -138,6 +171,10 @@ public class MediaProviders {
     loadProvider(AniDbTvShowMetadataProvider.class);
     loadProvider(TvMazeTvShowMetadataProvider.class);
     loadProvider(OmdbTvShowMetadataProvider.class);
+
+    // addons
+    loadAddonsForInterface(addons, ITvShowMetadataProvider.class);
+
     // register all compatible scrapers in the universal scraper
     MEDIA_PROVIDERS.forEach((key, value) -> {
       for (IMediaProvider mediaProvider : ListUtils.nullSafe(value)) {
@@ -159,15 +196,37 @@ public class MediaProviders {
     loadProvider(ImdbTvShowArtworkProvider.class);
     loadProvider(FFmpegTvShowArtworkProvider.class);
 
+    // addons
+    loadAddonsForInterface(addons, ITvShowArtworkProvider.class);
+
     /////////////////////////////////////////////
     // TV SHOW TRAILER
     /////////////////////////////////////////////
     loadProvider(TmdbTvShowTrailerProvider.class);
 
+    // addons
+    loadAddonsForInterface(addons, ITvShowTrailerProvider.class);
+
     /////////////////////////////////////////////
     // TV SHOW SUBTITLES
     /////////////////////////////////////////////
-    loadProvider(OpenSubtitlesTvShowSubtitleProvider.class); // already loaded in movie section, because this scraper share its instances
+    loadProvider(OpenSubtitlesTvShowSubtitleProvider.class);
+
+    // addons
+    loadAddonsForInterface(addons, ITvShowSubtitleProvider.class);
+  }
+
+  private static void loadAddonsForInterface(List<Class<? extends IMediaProvider>> addons, Class<? extends IMediaProvider> iface) {
+    for (Class<? extends IMediaProvider> addon : addons) {
+      if (iface.isAssignableFrom(addon)) {
+        try {
+          loadProvider(addon);
+        }
+        catch (Exception | Error e) {
+          LOGGER.error("Could not load addon '{}' - '{}'", addon.getName(), e.getMessage());
+        }
+      }
+    }
   }
 
   private static void loadProvider(Class<? extends IMediaProvider> clazz) {

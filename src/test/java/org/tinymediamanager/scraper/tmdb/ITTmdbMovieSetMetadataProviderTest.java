@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaSearchResult;
@@ -21,6 +21,7 @@ public class ITTmdbMovieSetMetadataProviderTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    BasicTest.setup();
     setLicenseKey();
   }
 

@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
 import org.tinymediamanager.scraper.moviemeter.services.FilmService;
 import org.tinymediamanager.scraper.moviemeter.services.SearchService;
@@ -33,6 +33,7 @@ public class ITMovieMeterServiceTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    BasicTest.setup();
     setLicenseKey();
   }
 

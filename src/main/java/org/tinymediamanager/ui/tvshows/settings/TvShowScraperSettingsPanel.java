@@ -45,7 +45,6 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -71,7 +70,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperSettingsPanel extends JPanel {
   private static final long         serialVersionUID = 4999827736720726395L;
 
-  private final TvShowSettings      settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings      settings         = TvShowModuleManager.getInstance().getSettings();
   private final List<TvShowScraper> scrapers         = new ArrayList<>();
 
   /** UI components */
@@ -86,9 +85,9 @@ class TvShowScraperSettingsPanel extends JPanel {
   TvShowScraperSettingsPanel() {
 
     // pre-init
-    MediaScraper defaultMediaScraper = TvShowList.getInstance().getDefaultMediaScraper();
+    MediaScraper defaultMediaScraper = TvShowModuleManager.getInstance().getTvShowList().getDefaultMediaScraper();
     int selectedIndex = 0;
-    for (MediaScraper scraper : TvShowList.getInstance().getAvailableMediaScrapers()) {
+    for (MediaScraper scraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableMediaScrapers()) {
       TvShowScraper tvShowScraper = new TvShowScraper(scraper);
       scrapers.add(tvShowScraper);
     }

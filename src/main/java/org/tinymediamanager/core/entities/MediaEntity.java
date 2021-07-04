@@ -81,10 +81,10 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.tinymediamanager.scraper.util.ParserUtils;
 
 /**
  * The Class MediaEntity. The base class for all entities
@@ -437,7 +437,6 @@ public abstract class MediaEntity extends AbstractModelObject {
     for (Entry<String, Object> entry : ids.entrySet()) {
       if (StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null) {
         setId(entry.getKey(), entry.getValue());
-        firePropertyChange(entry.getKey(), null, entry.getValue());
       }
     }
   }
@@ -575,7 +574,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public void setArtwork(Path file, MediaFileType type) {
     List<MediaFile> images = getMediaFiles(type);
-    MediaFile mediaFile = null;
+    MediaFile mediaFile;
     if (!images.isEmpty()) {
       mediaFile = images.get(0);
       mediaFile.setFile(file);

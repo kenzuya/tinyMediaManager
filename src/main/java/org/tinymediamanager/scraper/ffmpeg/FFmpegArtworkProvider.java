@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.addon.FFmpegAddon;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
@@ -71,13 +71,13 @@ abstract class FFmpegArtworkProvider implements IMediaProvider {
   }
 
   public boolean isActive() {
-    return isFeatureEnabled() && (StringUtils.isNotBlank(Globals.settings.getMediaFramework()) || new FFmpegAddon().isAvailable());
+    return isFeatureEnabled() && (StringUtils.isNotBlank(Settings.getInstance().getMediaFramework()) || new FFmpegAddon().isAvailable());
   }
 
   public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
 
     // FFmpeg must be specified in the settings
-    if (StringUtils.isBlank(Globals.settings.getMediaFramework())) {
+    if (StringUtils.isBlank(Settings.getInstance().getMediaFramework())) {
       throw new MissingIdException("FFmpeg");
     }
 

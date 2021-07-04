@@ -516,7 +516,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
 
   private <E> Function<E, String> showTooltip(Function<E, String> tooltipFunction) {
     return movie -> {
-      if (MovieModuleManager.SETTINGS.isShowMovieTableTooltips()) {
+      if (MovieModuleManager.getInstance().getSettings().isShowMovieTableTooltips()) {
         return tooltipFunction.apply(movie);
       }
       else {

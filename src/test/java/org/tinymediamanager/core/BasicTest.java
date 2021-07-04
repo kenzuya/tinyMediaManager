@@ -1,4 +1,20 @@
-package org.tinymediamanager;
+/*
+ * Copyright 2012 - 2021 Manuel Laggner
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.tinymediamanager.core;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -14,10 +30,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaFileHelper;
-import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.MediaSource;
-import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -26,10 +38,10 @@ import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieEdition;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.license.License;
@@ -38,9 +50,13 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 
-public class BasicTest {
-
+public abstract class BasicTest {
   private static final String LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel lacus libero. Ut vel lacus erat. Maecenas maximus vestibulum ante at efficitur. Sed id ex eget purus commodo feugiat. Suspendisse ultricies felis sed interdum luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc et scelerisque nibh. Donec maximus nunc nunc, non commodo nulla rhoncus id. Curabitur pharetra maximus tellus non porta. Ut vehicula elit nec ante elementum, ut semper ligula consectetur.";
+
+  protected static void setup() {
+    deleteSettingsFolder(3);
+    Settings.getInstance(getSettingsFolder(3));
+  }
 
   protected static void setLicenseKey() throws Exception {
     String key = "";
@@ -91,13 +107,21 @@ public class BasicTest {
     lc.getLogger("org.tinymediamanager").setLevel(Level.TRACE);
   }
 
-  public static String getSettingsFolder() {
-    StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
+  protected static String getSettingsFolder() {
+    return getSettingsFolder(2);
+  }
+
+  private static String getSettingsFolder(int stackLocation) {
+    StackTraceElement ste = Thread.currentThread().getStackTrace()[stackLocation];
     return "target/testdata/" + ste.getClassName();
   }
 
-  public static void deleteSettingsFolder() {
-    StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
+  protected static void deleteSettingsFolder() {
+    deleteSettingsFolder(2);
+  }
+
+  private static void deleteSettingsFolder(int stackLocation) {
+    StackTraceElement ste = Thread.currentThread().getStackTrace()[stackLocation];
     try {
       Utils.deleteDirectoryRecursive(Paths.get("target", "testdata", ste.getClassName()));
     }
@@ -199,7 +223,7 @@ public class BasicTest {
     movie.setMediaSource(MediaSource.values()[new Random().nextInt(MediaSource.values().length)]);
     movie.setEdition(MovieEdition.values()[new Random().nextInt(MovieEdition.values().length)]);
 
-    MovieList.getInstance().addMovie(movie);
+    MovieModuleManager.getInstance().getMovieList().addMovie(movie);
     movie.saveToDb();
     System.out.println("Created movie " + movie.getDbId());
   }
@@ -274,7 +298,7 @@ public class BasicTest {
     tvShow.addEpisode(episode);
     // ========= EPISODE end =========
 
-    TvShowList.getInstance().addTvShow(tvShow);
+    TvShowModuleManager.getInstance().getTvShowList().addTvShow(tvShow);
     tvShow.saveToDb();
     System.out.println("Created show " + tvShow.getDbId());
   }

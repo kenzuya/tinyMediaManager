@@ -23,9 +23,8 @@ import java.util.Collections;
 import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
@@ -34,8 +33,7 @@ public class MovieConnectorTest extends BasicTest {
 
   @BeforeClass
   public static void setup() {
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
     try {
       Files.createDirectories(Paths.get(getSettingsFolder(), "movie_nfo_out"));
     }

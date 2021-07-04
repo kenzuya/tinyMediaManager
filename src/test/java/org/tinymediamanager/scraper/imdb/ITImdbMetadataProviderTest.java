@@ -18,7 +18,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
@@ -42,6 +42,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    BasicTest.setup();
     setLicenseKey();
   }
 
@@ -313,7 +314,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       mp = new ImdbTvShowMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
+      TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
       options.setId(MediaMetadata.SEASON_NR, "1");
       options.setId(MediaMetadata.EPISODE_NR, "1");
@@ -349,7 +350,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       mp = new ImdbTvShowMetadataProvider();
       options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
+      TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
       options.setId(MediaMetadata.SEASON_NR, "3");
       options.setId(MediaMetadata.EPISODE_NR, "12");
@@ -395,7 +396,7 @@ public class ITImdbMetadataProviderTest extends BasicTest {
       options = new TvShowEpisodeSearchAndScrapeOptions();
       mp.getProviderInfo().getConfig().setValue(ImdbParser.USE_TMDB_FOR_TV_SHOWS, Boolean.TRUE);
       options.setTvShowIds(Collections.singletonMap(MediaMetadata.IMDB, "tt0491738"));
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
+      TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.de);
       options.setId(MediaMetadata.SEASON_NR, "1");
       options.setId(MediaMetadata.EPISODE_NR, "1");

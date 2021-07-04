@@ -21,8 +21,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -36,6 +37,11 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  */
 public class MovieTest extends BasicTest {
   private Movie m = new Movie();
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void trailerDetection() {

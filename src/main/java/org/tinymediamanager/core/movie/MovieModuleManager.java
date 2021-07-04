@@ -57,9 +57,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * 
  * @author Manuel Laggner
  */
-public class MovieModuleManager implements ITmmModule {
-
-  public static final MovieSettings    SETTINGS             = MovieSettings.getInstance();
+public final class MovieModuleManager implements ITmmModule {
 
   private static final String          MODULE_TITLE         = "Movie management";
   private static final String          MOVIE_DB             = "movies.db";
@@ -103,6 +101,14 @@ public class MovieModuleManager implements ITmmModule {
       instance = new MovieModuleManager();
     }
     return instance;
+  }
+
+  public MovieSettings getSettings() {
+    return MovieSettings.getInstance();
+  }
+
+  public MovieList getMovieList() {
+    return MovieList.getInstance();
   }
 
   @Override
@@ -150,7 +156,7 @@ public class MovieModuleManager implements ITmmModule {
    * 3. open a new one
    */
   private void openDatabaseAndLoadMovies() {
-    Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), MOVIE_DB);
+    Path databaseFile = Paths.get(Settings.getInstance().getSettingsFolder(), MOVIE_DB);
     try {
       loadDatabase(databaseFile);
       return;
@@ -260,11 +266,11 @@ public class MovieModuleManager implements ITmmModule {
           movieMap = mvStore.openMap("movies");
           movieSetMap = mvStore.openMap("movieSets");
 
-          for (Movie movie : MovieList.getInstance().getMovies()) {
+          for (Movie movie : getMovieList().getMovies()) {
             persistMovie(movie);
           }
 
-          for (MovieSet movieSet : MovieList.getInstance().getMovieSetList()) {
+          for (MovieSet movieSet : getMovieList().getMovieSetList()) {
             persistMovieSet(movieSet);
           }
 
@@ -286,9 +292,9 @@ public class MovieModuleManager implements ITmmModule {
     movieMap = mvStore.openMap("movies");
     movieSetMap = mvStore.openMap("movieSets");
 
-    MovieList.getInstance().loadMoviesFromDatabase(movieMap);
-    MovieList.getInstance().loadMovieSetsFromDatabase(movieSetMap);
-    MovieList.getInstance().initDataAfterLoading();
+    getMovieList().loadMoviesFromDatabase(movieMap);
+    getMovieList().loadMovieSetsFromDatabase(movieSetMap);
+    getMovieList().initDataAfterLoading();
   }
 
   @Override
@@ -309,8 +315,8 @@ public class MovieModuleManager implements ITmmModule {
       mvStore.close();
     }
 
-    if (Globals.settings.isDeleteTrashOnExit()) {
-      for (String ds : SETTINGS.getMovieDataSource()) {
+    if (Settings.getInstance().isDeleteTrashOnExit()) {
+      for (String ds : getSettings().getMovieDataSource()) {
         Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
         Utils.deleteDirectoryRecursive(file);
       }
@@ -473,7 +479,7 @@ public class MovieModuleManager implements ITmmModule {
 
   @Override
   public void saveSettings() {
-    SETTINGS.saveSettings();
+    getSettings().saveSettings();
   }
 
   @Override

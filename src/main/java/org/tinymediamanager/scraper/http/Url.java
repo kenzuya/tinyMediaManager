@@ -287,7 +287,7 @@ public class Url {
     InputStream is = null;
 
     // replace our API keys for logging...
-    String logUrl = url.replaceAll("api_key=\\w+", "api_key=<API_KEY>").replaceAll("api/\\d+\\w+", "api/<API_KEY>");
+    String logUrl = url.replaceAll("api_?key=\\w+", "api_key=<API_KEY>").replaceAll("api/\\d+\\w+", "api/<API_KEY>");
     LOGGER.debug("getting {}", logUrl);
 
     Request.Builder requestBuilder = new Request.Builder();

@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.tinymediamanager.scraper.omdb.entities;
-
-import java.util.List;
-
-import com.google.gson.annotations.SerializedName;
+package org.tinymediamanager.core.movie.connector;
 
 /**
- * Created by wjanes on 10.02.2017.
- *
- * @author Wolfgang Janes
+ * The Enum MovieSetConnectors.
+ * 
+ * @author Manuel Laggner
  */
-public class MediaSearch {
-  @SerializedName("Search")
-  public List<MediaEntity> search = null;
+public enum MovieSetConnectors {
+  EMBY("Emby");
 
-  @SerializedName("totalResults")
-  public String            totalResults;
+  private final String title;
 
-  @SerializedName("Response")
-  public String            response;
+  MovieSetConnectors(String title) {
+    this.title = title;
+  }
+
+  @Override
+  public String toString() {
+    return this.title;
+  }
 }

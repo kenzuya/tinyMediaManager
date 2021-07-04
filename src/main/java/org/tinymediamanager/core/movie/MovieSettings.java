@@ -27,15 +27,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
+import org.tinymediamanager.core.movie.connector.MovieSetConnectors;
 import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearlogoNaming;
@@ -52,6 +53,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieSetClearlogoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetDiscartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetFanartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetLogoNaming;
+import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetPosterNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieSetThumbNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieThumbNaming;
@@ -65,13 +67,14 @@ import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaArtwork.PosterSizes;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 /**
  * The Class MovieSettings.
  */
-public class MovieSettings extends AbstractSettings {
+public final class MovieSettings extends AbstractSettings {
   private static final Logger                    LOGGER                                 = LoggerFactory.getLogger(MovieSettings.class);
 
   public static final String                     DEFAULT_RENAMER_FOLDER_PATTERN         = "${title} ${- ,edition,} (${year})";
@@ -129,25 +132,12 @@ public class MovieSettings extends AbstractSettings {
   private final List<MovieDiscartNaming>         discartFilenames                       = new ArrayList<>();
   private final List<MovieKeyartNaming>          keyartFilenames                        = new ArrayList<>();
 
-  // movie set artwork
-  private final List<MovieSetPosterNaming>       movieSetPosterFilenames                = new ArrayList<>();
-  private final List<MovieSetFanartNaming>       movieSetFanartFilenames                = new ArrayList<>();
-  private final List<MovieSetBannerNaming>       movieSetBannerFilenames                = new ArrayList<>();
-  private final List<MovieSetClearartNaming>     movieSetClearartFilenames              = new ArrayList<>();
-  private final List<MovieSetThumbNaming>        movieSetThumbFilenames                 = new ArrayList<>();
-  private final List<MovieSetClearlogoNaming>    movieSetClearlogoFilenames             = new ArrayList<>();
-  private final List<MovieSetLogoNaming>         movieSetLogoFilenames                  = new ArrayList<>();
-  private final List<MovieSetDiscartNaming>      movieSetDiscartFilenames               = new ArrayList<>();
-
   private final List<MovieTrailerNaming>         trailerFilenames                       = new ArrayList<>();
   private final List<String>                     badWords                               = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                     artworkScrapers                        = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                     trailerScrapers                        = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                     subtitleScrapers                       = ObservableCollections.observableList(new ArrayList<>());
   private final List<String>                     skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
-
-  private final Map<String, List<UIFilters>>     movieUiFilterPresets                   = new HashMap<>();
-  private final Map<String, List<UIFilters>>     movieSetUiFilterPresets                = new HashMap<>();
 
   // data sources / NFO settings
   private boolean                                buildImageCacheOnImport                = false;
@@ -195,9 +185,7 @@ public class MovieSettings extends AbstractSettings {
   private int                                    imageExtraThumbsCount                  = 5;
   private boolean                                imageExtraFanart                       = false;
   private int                                    imageExtraFanartCount                  = 5;
-  private String                                 movieSetArtworkFolder                  = "";
   private boolean                                scrapeBestImage                        = true;
-  private boolean                                scrapeBestImageMovieSet                = true;
   private MediaLanguages                         imageScraperLanguage                   = MediaLanguages.en;
   private boolean                                imageLanguagePriority                  = true;
   private boolean                                writeActorImages                       = false;
@@ -229,18 +217,38 @@ public class MovieSettings extends AbstractSettings {
   private boolean                                originalTitle                          = false;
   private boolean                                sortableOriginalTitle                  = false;
   private boolean                                sortTitle                              = false;
+  private boolean                                note                                   = false;
 
   // ui
   private boolean                                showMovieTableTooltips                 = true;
-  private boolean                                showMovieSetTableTooltips              = true;
-  private boolean                                displayMovieSetMissingMovies           = false;
   private final List<String>                     ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
   private final List<MediaArtworkType>           checkImagesMovie                       = new ArrayList<>();
-  private final List<MediaArtworkType>           checkImagesMovieSet                    = new ArrayList<>();
   private boolean                                storeUiFilters                         = false;
   private final List<UIFilters>                  uiFilters                              = new ArrayList<>();
+
+  // movie sets
+  private MovieSetConnectors                     movieSetConnector                      = MovieSetConnectors.EMBY;
+  private final List<MovieSetNfoNaming>          movieSetNfoFilenames                   = new ArrayList<>();
+  @JsonAlias("movieSetArtworkFolder")
+  private String                                 movieSetDataFolder                     = "";
+  private boolean                                scrapeBestImageMovieSet                = true;
+
+  // movie set artwork
+  private final List<MovieSetPosterNaming>       movieSetPosterFilenames                = new ArrayList<>();
+  private final List<MovieSetFanartNaming>       movieSetFanartFilenames                = new ArrayList<>();
+  private boolean                                showMovieSetTableTooltips              = true;
+  private final List<MovieSetBannerNaming>       movieSetBannerFilenames                = new ArrayList<>();
+  private boolean                                displayMovieSetMissingMovies           = false;
+  private final List<MovieSetClearartNaming>     movieSetClearartFilenames              = new ArrayList<>();
+  private final List<MediaArtworkType>           checkImagesMovieSet                    = new ArrayList<>();
+  private final List<MovieSetThumbNaming>        movieSetThumbFilenames                 = new ArrayList<>();
   private boolean                                storeMovieSetUiFilters                 = false;
+  private final List<MovieSetClearlogoNaming>    movieSetClearlogoFilenames             = new ArrayList<>();
   private final List<UIFilters>                  movieSetUiFilters                      = new ArrayList<>();
+  private final List<MovieSetLogoNaming>         movieSetLogoFilenames                  = new ArrayList<>();
+  private final Map<String, List<UIFilters>>     movieUiFilterPresets                   = new HashMap<>();
+  private final List<MovieSetDiscartNaming>      movieSetDiscartFilenames               = new ArrayList<>();
+  private final Map<String, List<UIFilters>>     movieSetUiFilterPresets                = new HashMap<>();
 
   public MovieSettings() {
     super();
@@ -285,6 +293,9 @@ public class MovieSettings extends AbstractSettings {
 
     keyartFilenames.clear();
     addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
+
+    movieSetNfoFilenames.clear();
+    addMovieSetNfoFilename(MovieSetNfoNaming.KODI_NFO);
 
     movieSetPosterFilenames.clear();
     addMovieSetPosterFilename(MovieSetPosterNaming.KODI_POSTER);
@@ -344,8 +355,8 @@ public class MovieSettings extends AbstractSettings {
    *
    * @return single instance of MovieSettings
    */
-  public static synchronized MovieSettings getInstance() {
-    return getInstance(Globals.settings.getSettingsFolder());
+  static synchronized MovieSettings getInstance() {
+    return getInstance(Settings.getInstance().getSettingsFolder());
   }
 
   /**
@@ -354,7 +365,7 @@ public class MovieSettings extends AbstractSettings {
    *
    * @return single instance of MovieSettings
    */
-  public static synchronized MovieSettings getInstance(String folder) {
+  static synchronized MovieSettings getInstance(String folder) {
     if (instance == null) {
       instance = (MovieSettings) getInstance(folder, CONFIG_FILE, MovieSettings.class);
     }
@@ -402,7 +413,7 @@ public class MovieSettings extends AbstractSettings {
   }
 
   public void removeMovieDataSources(String path) {
-    MovieList movieList = MovieList.getInstance();
+    MovieList movieList = MovieModuleManager.getInstance().getMovieList();
     movieList.removeDatasource(path);
     movieDataSources.remove(path);
     firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
@@ -414,7 +425,7 @@ public class MovieSettings extends AbstractSettings {
     if (index > -1) {
       movieDataSources.remove(oldDatasource);
       movieDataSources.add(index, newDatasource);
-      MovieList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+      MovieModuleManager.getInstance().getMovieList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(MOVIE_DATA_SOURCE, null, movieDataSources);
     firePropertyChange(Constants.DATA_SOURCE, null, movieDataSources);
@@ -736,14 +747,14 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("imageExtraFanart", oldValue, newValue);
   }
 
-  public String getMovieSetArtworkFolder() {
-    return movieSetArtworkFolder;
+  public String getMovieSetDataFolder() {
+    return movieSetDataFolder;
   }
 
-  public void setMovieSetArtworkFolder(String newValue) {
-    String oldValue = this.movieSetArtworkFolder;
-    this.movieSetArtworkFolder = newValue;
-    firePropertyChange("movieSetArtworkFolder", oldValue, newValue);
+  public void setMovieSetDataFolder(String newValue) {
+    String oldValue = this.movieSetDataFolder;
+    this.movieSetDataFolder = newValue;
+    firePropertyChange("movieSetDataFolder", oldValue, newValue);
   }
 
   public MovieConnectors getMovieConnector() {
@@ -1143,6 +1154,12 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("sortTitle", oldValue, newValue);
   }
 
+  public void setNote(boolean newValue) {
+    boolean oldValue = this.note;
+    this.note = newValue;
+    firePropertyChange("note", oldValue, newValue);
+  }
+
   public boolean getTitle() {
     return this.title;
   }
@@ -1161,6 +1178,10 @@ public class MovieSettings extends AbstractSettings {
 
   public boolean getSortTitle() {
     return this.sortTitle;
+  }
+
+  public boolean getNote() {
+    return this.note;
   }
 
   public boolean isIncludeExternalAudioStreams() {
@@ -1467,6 +1488,32 @@ public class MovieSettings extends AbstractSettings {
     firePropertyChange("capitalWordsInTitles", oldValue, newValue);
   }
 
+  public MovieSetConnectors getMovieSetConnector() {
+    return movieSetConnector;
+  }
+
+  public void setMovieSetConnector(MovieSetConnectors newValue) {
+    MovieSetConnectors oldValue = this.movieSetConnector;
+    this.movieSetConnector = newValue;
+    firePropertyChange("movieSetConnector", oldValue, newValue);
+  }
+
+  public void addMovieSetNfoFilename(MovieSetNfoNaming filename) {
+    if (!movieSetNfoFilenames.contains(filename)) {
+      movieSetNfoFilenames.add(filename);
+      firePropertyChange("movieSetNfoFilenames", null, movieSetNfoFilenames);
+    }
+  }
+
+  public void clearMovieSetNfoFilenames() {
+    movieSetNfoFilenames.clear();
+    firePropertyChange("movieSetNfoFilenames", null, movieSetNfoFilenames);
+  }
+
+  public List<MovieSetNfoNaming> getMovieSetNfoFilenames() {
+    return new ArrayList<>(this.movieSetNfoFilenames);
+  }
+
   public void addMovieSetPosterFilename(MovieSetPosterNaming filename) {
     if (!movieSetPosterFilenames.contains(filename)) {
       movieSetPosterFilenames.add(filename);
@@ -1713,6 +1760,8 @@ public class MovieSettings extends AbstractSettings {
     keyartFilenames.clear();
     addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
 
+    movieSetNfoFilenames.clear();
+
     movieSetPosterFilenames.clear();
     addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
 
@@ -1786,6 +1835,9 @@ public class MovieSettings extends AbstractSettings {
 
     keyartFilenames.clear();
     addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
+
+    movieSetNfoFilenames.clear();
+    addMovieSetNfoFilename(MovieSetNfoNaming.KODI_NFO);
 
     movieSetPosterFilenames.clear();
     addMovieSetPosterFilename(MovieSetPosterNaming.KODI_POSTER);
@@ -1861,6 +1913,9 @@ public class MovieSettings extends AbstractSettings {
     keyartFilenames.clear();
     addKeyartFilename(MovieKeyartNaming.KEYART);
 
+    movieSetNfoFilenames.clear();
+    addMovieSetNfoFilename(MovieSetNfoNaming.KODI_NFO);
+
     movieSetPosterFilenames.clear();
     addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
 
@@ -1935,6 +1990,9 @@ public class MovieSettings extends AbstractSettings {
     keyartFilenames.clear();
     addKeyartFilename(MovieKeyartNaming.KEYART);
 
+    movieSetNfoFilenames.clear();
+    addMovieSetNfoFilename(MovieSetNfoNaming.KODI_NFO);
+
     movieSetPosterFilenames.clear();
     addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
 
@@ -2008,6 +2066,8 @@ public class MovieSettings extends AbstractSettings {
 
     keyartFilenames.clear();
     addKeyartFilename(MovieKeyartNaming.KEYART);
+
+    movieSetNfoFilenames.clear();
 
     movieSetPosterFilenames.clear();
     addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);

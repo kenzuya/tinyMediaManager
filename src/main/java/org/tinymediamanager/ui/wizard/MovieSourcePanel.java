@@ -55,7 +55,7 @@ class MovieSourcePanel extends JPanel {
 
   
 
-  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
   private JList<String>               listDataSources;
 
@@ -97,7 +97,7 @@ class MovieSourcePanel extends JPanel {
         String path = TmmProperties.getInstance().getProperty("movie.datasource.path");
         Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.datasource.folderchooser"), path);
         if (file != null && Files.isDirectory(file)) {
-          MovieModuleManager.SETTINGS.addMovieDataSources(file.toAbsolutePath().toString());
+          MovieModuleManager.getInstance().getSettings().addMovieDataSources(file.toAbsolutePath().toString());
         }
       });
 
@@ -107,14 +107,14 @@ class MovieSourcePanel extends JPanel {
       btnRemove.addActionListener(arg0 -> {
         int row = listDataSources.getSelectedIndex();
         if (row != -1) { // nothing selected
-          String path = MovieModuleManager.SETTINGS.getMovieDataSource().get(row);
+          String path = MovieModuleManager.getInstance().getSettings().getMovieDataSource().get(row);
           String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
           int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.movie.datasource.remove.info"), path),
               TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices,
               TmmResourceBundle.getString("Button.abort"));
           if (decision == JOptionPane.YES_OPTION) {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            MovieModuleManager.SETTINGS.removeMovieDataSources(path);
+            MovieModuleManager.getInstance().getSettings().removeMovieDataSources(path);
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           }
         }

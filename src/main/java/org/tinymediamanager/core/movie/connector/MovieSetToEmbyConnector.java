@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.scraper.omdb.entities;
+package org.tinymediamanager.core.movie.connector;
 
-import java.util.List;
+import org.tinymediamanager.core.movie.entities.MovieSet;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+/**
+ * this class is a general XML connector which suits as a base class for most xml based connectors
+ *
+ * @author Manuel Laggner
+ */
+public class MovieSetToEmbyConnector extends MovieSetGenericXmlConnector {
+  public MovieSetToEmbyConnector(MovieSet movieSet) {
+    super(movieSet);
+  }
 
-public class SeasonEntity {
-
-  @SerializedName("Title")
-  @Expose
-  public String              title;
-  @SerializedName("Season")
-  @Expose
-  public String              season;
-  @SerializedName("totalSeasons")
-  @Expose
-  public String              totalSeasons;
-  @SerializedName("Episodes")
-  @Expose
-  public List<EpisodeEntity> episodes = null;
-  @SerializedName("Response")
-  @Expose
-  public String              response;
-
+  @Override
+  protected void addOwnTags() {
+    // no own tags here
+  }
 }

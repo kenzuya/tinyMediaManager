@@ -16,7 +16,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -38,6 +38,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    BasicTest.setup();
     setLicenseKey();
   }
 
@@ -129,7 +130,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
      */
     try {
       ITvShowMetadataProvider metadataProvider = new TheTvDbTvShowMetadataProvider();
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
+      TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
       options.setLanguage(MediaLanguages.en);
@@ -225,7 +226,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
 
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setTvShowIds(Collections.singletonMap(metadataProvider.getProviderInfo().getId(), "79335"));
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
+      TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.en);
       options.setId(MediaMetadata.SEASON_NR, "1");
       options.setId(MediaMetadata.EPISODE_NR, "2");
@@ -273,7 +274,7 @@ public class ITTheTvDbMetadataProviderTest extends BasicTest {
 
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions();
       options.setId(metadataProvider.getProviderInfo().getId(), "79335");
-      TvShowModuleManager.SETTINGS.setCertificationCountry(CountryCode.US);
+      TvShowModuleManager.getInstance().getSettings().setCertificationCountry(CountryCode.US);
       options.setLanguage(MediaLanguages.tr);
       options.setId(MediaMetadata.SEASON_NR, "1");
       options.setId(MediaMetadata.EPISODE_NR, "2");

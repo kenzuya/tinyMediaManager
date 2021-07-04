@@ -133,9 +133,9 @@ public class MovieSetScrapeTask extends TmmThreadPool {
       if (metadata != null) {
         options.setIds(metadata.getIds());
       }
-      options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-      options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-      options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+      options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+      options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
       // scrape providers till one artwork has been found
       for (MediaScraper scraper : artworkScrapers) {
@@ -166,7 +166,7 @@ public class MovieSetScrapeTask extends TmmThreadPool {
       for (MediaMetadata item : info.getSubItems()) {
         // mix in the dummy movie
         MovieSet.MovieSetMovie movieSetMovie = new MovieSet.MovieSetMovie();
-        movieSetMovie.setMetadata(item, Arrays.asList(MovieScraperMetadataConfig.values()));
+        movieSetMovie.setMetadata(item, Arrays.asList(MovieScraperMetadataConfig.values()), true);
         movieSetMovie.setLastScraperId(scrapeOptions.getMetadataScraper().getId());
         movieSetMovie.setLastScrapeLanguage(scrapeOptions.getLanguage().name());
 

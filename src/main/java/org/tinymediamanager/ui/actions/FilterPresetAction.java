@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.tinymediamanager.ui.actions;
 
-package org.tinymediamanager.scraper.omdb.entities;
+import org.tinymediamanager.ui.IconManager;
 
-import com.google.gson.annotations.SerializedName;
+/**
+ * the class {@link FilterPresetAction} is used to trigger the filter presets from the dropdown menu
+ * 
+ * @author Manuel Laggner
+ */
+public abstract class FilterPresetAction extends TmmAction {
+  protected final String presetName;
 
-public class MediaRating {
-
-  @SerializedName("Source")
-  public String source;
-  @SerializedName("Value")
-  public String value;
+  public FilterPresetAction(String presetName) {
+    putValue(NAME, presetName);
+    putValue(SMALL_ICON, IconManager.FILTER);
+    this.presetName = presetName;
+  }
 }

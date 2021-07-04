@@ -1116,12 +1116,12 @@ public class ImageChooserDialog extends TmmDialog {
 
           ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(mediaType);
           if (mediaType == MediaType.MOVIE || mediaType == MediaType.MOVIE_SET) {
-            options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-            options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-            options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+            options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+            options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+            options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
           }
           else if (mediaType == MediaType.TV_SHOW || mediaType == MediaType.TV_EPISODE) {
-            options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+            options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
           }
           else {
             continue;
@@ -1306,7 +1306,7 @@ public class ImageChooserDialog extends TmmDialog {
       }
 
       Path file = TmmUIHelper.selectFile(TmmResourceBundle.getString("image.choose"), path,
-          new FileNameExtensionFilter("Image files", ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tbn"));
+          new FileNameExtensionFilter("Image files", ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tbn", ".webp"));
       if (file != null && Utils.isRegularFile(file)) {
         String fileName = file.toAbsolutePath().toString();
         imageLabel.clearImage();

@@ -82,7 +82,7 @@ import ca.odell.glazedlists.ObservableElementList;
  * 
  * @author Manuel Laggner
  */
-public class TvShowList extends AbstractModelObject {
+public final class TvShowList extends AbstractModelObject {
   private static final Logger                            LOGGER   = LoggerFactory.getLogger(TvShowList.class);
   private static TvShowList                              instance = null;
 
@@ -154,7 +154,7 @@ public class TvShowList extends AbstractModelObject {
    * 
    * @return single instance of TvShowList
    */
-  public static synchronized TvShowList getInstance() {
+  static synchronized TvShowList getInstance() {
     if (TvShowList.instance == null) {
       TvShowList.instance = new TvShowList();
     }
@@ -591,7 +591,7 @@ public class TvShowList extends AbstractModelObject {
   }
 
   public MediaScraper getDefaultMediaScraper() {
-    MediaScraper scraper = MediaScraper.getMediaScraperById(TvShowModuleManager.SETTINGS.getScraper(), ScraperType.TV_SHOW);
+    MediaScraper scraper = MediaScraper.getMediaScraperById(TvShowModuleManager.getInstance().getSettings().getScraper(), ScraperType.TV_SHOW);
     if (scraper == null || !scraper.isEnabled()) {
       scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.TV_SHOW);
     }
@@ -647,7 +647,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified artwork scrapers
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
-    List<MediaScraper> defaultScrapers = getArtworkScrapers(TvShowModuleManager.SETTINGS.getArtworkScrapers());
+    List<MediaScraper> defaultScrapers = getArtworkScrapers(TvShowModuleManager.getInstance().getSettings().getArtworkScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -668,7 +668,7 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper)
       throws ScrapeException {
-    return searchTvShow(searchTerm, year, ids, mediaScraper, TvShowModuleManager.SETTINGS.getScraperLanguage());
+    return searchTvShow(searchTerm, year, ids, mediaScraper, TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
   }
 
   /**
@@ -701,8 +701,8 @@ public class TvShowList extends AbstractModelObject {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery(searchTerm);
     options.setLanguage(language);
-    options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-    options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+    options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+    options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
     if (ids != null) {
       options.setIds(ids);
@@ -1112,7 +1112,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified subtitle scrapers
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
-    List<MediaScraper> defaultScrapers = getSubtitleScrapers(TvShowModuleManager.SETTINGS.getSubtitleScrapers());
+    List<MediaScraper> defaultScrapers = getSubtitleScrapers(TvShowModuleManager.getInstance().getSettings().getSubtitleScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -1122,7 +1122,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified trailer scrapers
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
-    List<MediaScraper> defaultScrapers = getTrailerScrapers(TvShowModuleManager.SETTINGS.getTrailerScrapers());
+    List<MediaScraper> defaultScrapers = getTrailerScrapers(TvShowModuleManager.getInstance().getSettings().getTrailerScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 

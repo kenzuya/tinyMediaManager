@@ -27,12 +27,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
@@ -68,7 +68,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  *
  * @author Manuel Laggner
  */
-public class TvShowSettings extends AbstractSettings {
+public final class TvShowSettings extends AbstractSettings {
   private static final Logger                            LOGGER                                 = LoggerFactory.getLogger(TvShowSettings.class);
 
   public static final String                             DEFAULT_RENAMER_FOLDER_PATTERN         = "${showTitle} (${showYear})";
@@ -112,6 +112,11 @@ public class TvShowSettings extends AbstractSettings {
   private static final String                            EPISODE_CHECK_IMAGES                   = "episodeCheckImages";
   private static final String                            SEASON_CHECK_IMAGES                    = "seasonCheckImages";
   private static final String                            TVSHOW_CHECK_IMAGES                    = "TvShowCheckImages";
+
+  private static final String                            NODE                                   = "node";
+  private static final String                            TITLE                                  = "title";
+  private static final String                            ORIGINAL_TITLE                         = "originalTitle";
+  private static final String                            NOTE                                   = "note";
 
   private final List<String>                             tvShowDataSources                      = ObservableCollections
       .observableList(new ArrayList<>());
@@ -226,6 +231,12 @@ public class TvShowSettings extends AbstractSettings {
   private boolean                                        storeUiFilters                         = false;
   private final List<UIFilters>                          uiFilters                              = new ArrayList<>();
 
+  // Quick Search filter
+  private boolean                                        node                                   = true;
+  private boolean                                        title                                  = true;
+  private boolean                                        originalTitle                          = true;
+  private boolean                                        note                                   = false;
+
   public TvShowSettings() {
     super();
 
@@ -314,8 +325,8 @@ public class TvShowSettings extends AbstractSettings {
    *
    * @return single instance of TvShowSettings
    */
-  public static synchronized TvShowSettings getInstance() {
-    return getInstance(Globals.settings.getSettingsFolder());
+  static synchronized TvShowSettings getInstance() {
+    return getInstance(Settings.getInstance().getSettingsFolder());
   }
 
   /**
@@ -324,7 +335,7 @@ public class TvShowSettings extends AbstractSettings {
    *
    * @return single instance of TvShowSettings
    */
-  public static synchronized TvShowSettings getInstance(String folder) {
+  static synchronized TvShowSettings getInstance(String folder) {
     if (instance == null) {
       instance = (TvShowSettings) getInstance(folder, CONFIG_FILE, TvShowSettings.class);
     }
@@ -380,7 +391,7 @@ public class TvShowSettings extends AbstractSettings {
   }
 
   public void removeTvShowDataSources(String path) {
-    TvShowList tvShowList = TvShowList.getInstance();
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     tvShowList.removeDatasource(path);
     tvShowDataSources.remove(path);
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
@@ -392,7 +403,7 @@ public class TvShowSettings extends AbstractSettings {
     if (index > -1) {
       tvShowDataSources.remove(oldDatasource);
       tvShowDataSources.add(index, newDatasource);
-      TvShowList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+      TvShowModuleManager.getInstance().getTvShowList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
     firePropertyChange(Constants.DATA_SOURCE, null, tvShowDataSources);
@@ -905,6 +916,46 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.displayMissingSpecials;
     this.displayMissingSpecials = newValue;
     firePropertyChange("displayMissingSpecials", oldValue, newValue);
+  }
+
+  public void setNode(boolean newValue) {
+    boolean oldValue = this.node;
+    this.node = newValue;
+    firePropertyChange(NODE, oldValue, newValue);
+  }
+
+  public boolean getNode() {
+    return this.node;
+  }
+
+  public void setTitle(boolean newValue) {
+    boolean oldValue = this.node;
+    this.node = newValue;
+    firePropertyChange(TITLE, oldValue, newValue);
+  }
+
+  public boolean getTitle() {
+    return this.title;
+  }
+
+  public void setOriginalTitle(boolean newValue) {
+    boolean oldValue = this.originalTitle;
+    this.originalTitle = newValue;
+    firePropertyChange(ORIGINAL_TITLE, oldValue, newValue);
+  }
+
+  public boolean getOriginalTitle() {
+    return this.originalTitle;
+  }
+
+  public void setNote(boolean newValue) {
+    boolean oldValue = this.note;
+    this.note = newValue;
+    firePropertyChange(NOTE, oldValue, newValue);
+  }
+
+  public boolean getNote() {
+    return this.note;
   }
 
   /**

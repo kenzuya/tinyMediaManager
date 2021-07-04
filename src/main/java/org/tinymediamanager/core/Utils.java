@@ -95,8 +95,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message.MessageLevel;
-import org.tinymediamanager.core.movie.MovieSettings;
-import org.tinymediamanager.core.tvshow.TvShowSettings;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.scraper.http.Url;
 import org.tinymediamanager.scraper.util.StrgUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
@@ -281,10 +281,10 @@ public class Utils {
   public static List<String> getAllDatasources() {
     List<String> ret = new ArrayList<>();
 
-    for (String m : MovieSettings.getInstance().getMovieDataSource()) {
+    for (String m : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
       ret.add(m);
     }
-    for (String t : TvShowSettings.getInstance().getTvShowDataSource()) {
+    for (String t : TvShowModuleManager.getInstance().getSettings().getTvShowDataSource()) {
       ret.add(t);
     }
 
@@ -1699,6 +1699,9 @@ public class Utils {
 
         case "tiff":
           return "tif";
+
+        case "webp":
+          return "webp";
 
         default:
           return "";

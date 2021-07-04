@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-package org.tinymediamanager.scraper.omdb.entities;
+package org.tinymediamanager.core.movie.connector;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.util.List;
 
-public class EpisodeEntity {
+import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
 
-  @SerializedName("Title")
-  @Expose
-  public String title;
-  @SerializedName("Released")
-  @Expose
-  public String released;
-  @SerializedName("Episode")
-  @Expose
-  public String episode;
-  @SerializedName("imdbRating")
-  @Expose
-  public String imdbRating;
-  @SerializedName("imdbID")
-  @Expose
-  public String imdbID;
-
+/**
+ * This interface is designed for the movie set connectors
+ *
+ * @author Manuel Laggner
+ */
+public interface IMovieSetConnector {
+  /**
+   * write a file containing the data from the movie set
+   */
+  void write(List<MovieSetNfoNaming> nfoNames);
 }

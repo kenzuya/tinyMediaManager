@@ -54,7 +54,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -675729644848101096L;
 
-  private final TvShowSettings         settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings         settings         = TvShowModuleManager.getInstance().getSettings();
   private final ItemListener           checkBoxListener;
 
   private JCheckBox                    chckbxImageCache;
@@ -93,6 +93,11 @@ class TvShowSettingsPanel extends JPanel {
   private JCheckBox                    chckbxTraktRating;
   private JCheckBox                    chckbxSeasonArtworkFallback;
   private JCheckBox                    chckbxStoreFilter;
+
+  private JCheckBox                    chckbxNode;
+  private JCheckBox                    chckbxTitle;
+  private JCheckBox                    chckbxOriginalTitle;
+  private JCheckBox                    chckbxNote;
 
   /**
    * Instantiates a new tv show settings panel.
@@ -284,31 +289,47 @@ class TvShowSettingsPanel extends JPanel {
       collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#ui-settings"));
       add(collapsiblePanel, "cell 0 0,growx,wmin 0");
       {
+        JLabel lblTvShowFilter = new JLabel(TmmResourceBundle.getString("Settings.tvshowquickfilter"));
+        panelUiSettings.add(lblTvShowFilter, "cell 1 0 2 1");
+
+        chckbxNode = new JCheckBox(TmmResourceBundle.getString("metatag.node"));
+        panelUiSettings.add(chckbxNode, "flowx,cell 2 1");
+
+        chckbxTitle = new JCheckBox(TmmResourceBundle.getString("metatag.title"));
+        panelUiSettings.add(chckbxTitle, "cell 2 1");
+
+        chckbxOriginalTitle = new JCheckBox(TmmResourceBundle.getString("metatag.originaltitle"));
+        panelUiSettings.add(chckbxOriginalTitle, "cell 2 1");
+
+        chckbxNote = new JCheckBox(TmmResourceBundle.getString("metatag.note"));
+        panelUiSettings.add(chckbxNote, "cell 2 1");
+      }
+      {
         chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
-        panelUiSettings.add(chckbxStoreFilter, "cell 1 0 2 1");
+        panelUiSettings.add(chckbxStoreFilter, "cell 1 2 2 1");
       }
       {
         chckbxShowLogos = new JCheckBox(TmmResourceBundle.getString("Settings.showlogos"));
-        panelUiSettings.add(chckbxShowLogos, "cell 1 1 2 1");
+        panelUiSettings.add(chckbxShowLogos, "cell 1 3 2 1");
 
         chckbxShowMissingEpisodes = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingepisodes"));
-        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 2 2 1");
+        panelUiSettings.add(chckbxShowMissingEpisodes, "cell 1 4 2 1");
 
         chckbxShowMissingSpecials = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.missingespecials"));
-        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 3");
+        panelUiSettings.add(chckbxShowMissingSpecials, "cell 2 5");
 
         JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "flowx,cell 1 4 2 1");
+        panelUiSettings.add(lblRating, "flowx,cell 1 6 2 1");
 
         cbRating = new AutocompleteComboBox(Arrays.asList("tvdb", "tmdb", "imdb", "trakt", "metascore", "rottenTomatoes", "anidb"));
-        panelUiSettings.add(cbRating, "cell 1 4 2 1");
+        panelUiSettings.add(cbRating, "cell 1 6 2 1");
 
         chckbxTvShowTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.showtabletooltips"));
-        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 6 2 1");
+        panelUiSettings.add(chckbxTvShowTableTooltips, "cell 1 8 2 1");
       }
       {
         chckbxSeasonArtworkFallback = new JCheckBox(TmmResourceBundle.getString("Settings.tvshow.seasonartworkfallback"));
-        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 7 2 1");
+        panelUiSettings.add(chckbxSeasonArtworkFallback, "cell 1 9 2 1");
       }
     }
     {
@@ -566,7 +587,27 @@ class TvShowSettingsPanel extends JPanel {
     //
     Property tvShowSettingsBeanProperty_20 = BeanProperty.create("ardAfterScrape");
     AutoBinding autoBinding_20 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_20, chckbxARDAfterScrape,
-      jCheckBoxBeanProperty);
+        jCheckBoxBeanProperty);
     autoBinding_20.bind();
+    //
+    Property tvShowSettingsBeanProperty_21 = BeanProperty.create("node");
+    AutoBinding autoBinding_21 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_21, chckbxNode,
+        jCheckBoxBeanProperty);
+    autoBinding_21.bind();
+    //
+    Property tvShowSettingsBeanProperty_22 = BeanProperty.create("title");
+    AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_22, chckbxTitle,
+        jCheckBoxBeanProperty);
+    autoBinding_22.bind();
+    //
+    Property tvShowSettingsBeanProperty_23 = BeanProperty.create("originalTitle");
+    AutoBinding autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_23, chckbxOriginalTitle,
+        jCheckBoxBeanProperty);
+    autoBinding_23.bind();
+    //
+    Property tvShowSettingsBeanProperty_24 = BeanProperty.create("note");
+    AutoBinding autoBinding_24 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, tvShowSettingsBeanProperty_24, chckbxNote,
+        jCheckBoxBeanProperty);
+    autoBinding_24.bind();
   }
 }

@@ -3,13 +3,20 @@ package org.tinymediamanager.core.movie;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.movie.entities.Movie;
 
 public class MovieRenamerTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
+
   @Test
   public void special() {
     assertEqual("jb - the bla", MovieRenamer.replaceInvalidCharacters("jb: the bla"));

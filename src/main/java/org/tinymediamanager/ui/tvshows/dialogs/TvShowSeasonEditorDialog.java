@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
@@ -69,7 +70,7 @@ public class TvShowSeasonEditorDialog extends TmmDialog {
   private static final String SPACER              = "        ";
 
   private final TvShowSeason  tvShowSeasonToEdit;
-  private final TvShowList    tvShowList          = TvShowList.getInstance();
+  private final TvShowList    tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
 
   private boolean             continueQueue       = true;
   private boolean             navigateBack        = false;

@@ -44,7 +44,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -132,7 +131,7 @@ public class MediaFileHelper {
   public static final String       VIDEO_3D_MVC       = "3D MVC";
 
   static {
-    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp");
+    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp", "webp");
 
     // .disc = video stubs
     // .evo = hd-dvd
@@ -288,15 +287,15 @@ public class MediaFileHelper {
       return MediaFileType.THEME;
     }
 
-    if (Globals.settings.getAudioFileType().contains("." + ext)) {
+    if (Settings.getInstance().getAudioFileType().contains("." + ext)) {
       return MediaFileType.AUDIO;
     }
 
-    if (Globals.settings.getSubtitleFileType().contains("." + ext)) {
+    if (Settings.getInstance().getSubtitleFileType().contains("." + ext)) {
       return MediaFileType.SUBTITLE;
     }
 
-    if (Globals.settings.getVideoFileType().contains("." + ext)) {
+    if (Settings.getInstance().getVideoFileType().contains("." + ext)) {
       // is this maybe a trailer?
       if (basename.matches("(?i).*[\\[\\]\\(\\)_.-]+trailer[\\[\\]\\(\\)_.-]?$") || basename.equalsIgnoreCase("movie-trailer")
           || TRAILER_FOLDERS.contains(foldername)) {
