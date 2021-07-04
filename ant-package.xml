@@ -213,11 +213,11 @@
         <!-- package macOS -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
-        <echo message="package for macOS"/>
+        <echo message="package for macOS x86_64"/>
         <echo message="====================================================="/>
         <copy file="${build.dir}/digest.txt" todir="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/"/>
         <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/mac/tinyMediaManager.app/Contents/Resources/Java/"/>
-        <zip destfile="${dist.dir}/tmm_${tmmVersion}_mac.zip" level="9">
+        <zip destfile="${dist.dir}/tmm_${tmmVersion}_macos-x86_64.zip" level="9">
             <zipfileset dir="${dist.dir}/mac" excludes="**/tinyMediaManager"/>
             <zipfileset filemode="755" dir="${dist.dir}/mac"
                         includes="**/tinyMediaManager"/>
@@ -227,11 +227,11 @@
         <!-- package Windows -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
-        <echo message="package for Windows"/>
+        <echo message="package for Windows amd64"/>
         <echo message="====================================================="/>
         <copy file="${build.dir}/digest.txt" todir="${dist.dir}/win"/>
         <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/win"/>
-        <zip destfile="${dist.dir}/tmm_${tmmVersion}_win.zip" level="9">
+        <zip destfile="${dist.dir}/tmm_${tmmVersion}_windows-amd64.zip" level="9">
             <zipfileset filemode="755" dir="${dist.dir}/win"/>
         </zip>
 
@@ -239,11 +239,11 @@
         <!-- package Linux -->
         <!-- ===================================================== -->
         <echo message="====================================================="/>
-        <echo message="package for Linux"/>
+        <echo message="package for Linux amd64"/>
         <echo message="====================================================="/>
         <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
         <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
-        <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_linux.tar.gz">
+        <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_linux-amd64.tar.gz">
             <tarfileset prefix="tinyMediaManager/" dir="${dist.dir}/linux" excludes="tinyMediaManager"/>
             <tarfileset prefix="tinyMediaManager/" filemode="755" dir="${dist.dir}/linux" includes="tinyMediaManager"/>
         </tar>
@@ -256,7 +256,7 @@
         <echo message="====================================================="/>
         <copy file="${build.dir}/digest.txt" todir="${dist.dir}/linux"/>
         <copy file="${build.dir}/digest2.txt" todir="${dist.dir}/linux"/>
-        <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_arm.tar.gz">
+        <tar compression="gzip" destfile="${dist.dir}/tmm_${tmmVersion}_linux-arm.tar.gz">
             <tarfileset prefix="tinyMediaManager/" dir="${dist.dir}/arm" excludes="tinyMediaManager-arm"/>
             <tarfileset prefix="tinyMediaManager/" filemode="755" dir="${dist.dir}/arm"
                         includes="tinyMediaManager-arm"/>
@@ -272,13 +272,6 @@
         <delete dir="${dist.dir}/mac"/>
         <delete dir="${dist.dir}/linux"/>
         <delete dir="${dist.dir}/arm"/>
-
-        <!-- create checksums -->
-        <checksum algorithm="SHA-1" fileext=".sha1">
-            <fileset dir="${dist.dir}">
-                <include name="tmm**"/>
-            </fileset>
-        </checksum>
 
         <move file="${dist.dir}" tofile="dist"/>
     </target>

@@ -1,9 +1,10 @@
 Version 4.2
 =======================
-+ added country MX to supported certifications #1379
++ added Windows installer, macOS dmg and Docker image
 + added support for 3rd party scrapers
 + added support for not overwriting existing items on scrape #1368
 + added support for webp images
++ added country MX to supported certifications #1379
 + (TV shows) added experimental TV show renamer preview #534
 + initial support for reading/writing movie set NFO files #1334
 + (movies/TV shows) "add a new data source" has been added to the "update data sources" menu
