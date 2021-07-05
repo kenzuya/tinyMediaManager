@@ -1,8 +1,9 @@
 # Building application container
-FROM max06net/base-gui:0.0.1
+FROM max06net/base-gui:0.1.0-buster-slim
 
 ENV TMM_VERSION=4.1.6
 ENV APP=tinyMediaManager
+ENV ALLOW_DIRECT_VNC=true
 
 ARG LIBZEN=https://mediaarea.net/download/binary/libzen0/0.4.39/libzen0v5_0.4.39-1_amd64.Debian_10.deb
 ARG LIBMEDIAINFO=https://mediaarea.net/download/binary/libmediainfo0/21.03/libmediainfo0v5_21.03-1_amd64.Debian_10.deb
