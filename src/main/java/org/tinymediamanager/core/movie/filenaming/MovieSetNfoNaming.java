@@ -49,5 +49,18 @@ public enum MovieSetNfoNaming implements IMovieSetFileNaming {
     public Location getFolderLocation() {
       return Location.AUTOMATOR_STYLE_FOLDER;
     }
+  },
+
+  /** [movie set name]/collection.nfo */
+  EMBY_NFO {
+    @Override
+    public String getFilename(String basename, String extension) {
+      return "collection.nfo";
+    }
+
+    @Override
+    public Location getFolderLocation() {
+      return Location.KODI_STYLE_FOLDER;
+    }
   }
 }

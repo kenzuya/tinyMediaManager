@@ -22,7 +22,7 @@ import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.scraper.ArtworkSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMovieArtworkProvider;
 
@@ -54,10 +54,14 @@ public class FFmpegMovieArtworkProvider extends FFmpegArtworkProvider implements
   }
 
   @Override
-  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException, MissingIdException {
-
+  public List<MediaArtwork> getArtwork(ArtworkSearchAndScrapeOptions options) throws ScrapeException {
     if (!isActive()) {
       throw new ScrapeException(new FeatureNotEnabledException(this));
+    }
+
+    // not supported for TV shows and movie sets
+    if (options.getMediaType() == MediaType.MOVIE_SET || options.getMediaType() == MediaType.TV_SHOW) {
+      return Collections.emptyList();
     }
 
     // only allow ALL, THUMB and BACKGROUD per se

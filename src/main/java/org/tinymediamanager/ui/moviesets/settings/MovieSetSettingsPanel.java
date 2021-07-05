@@ -77,6 +77,7 @@ public class MovieSetSettingsPanel extends JPanel {
   private JComboBox           cbNfoFormat;
   private JCheckBox           cbMovieNfoFilename1;
   private JCheckBox           cbMovieNfoFilename2;
+  private JCheckBox           cbMovieNfoFilename3;
 
   private final ItemListener  checkBoxListener;
   private JCheckBox           chckbxStoreFilter;
@@ -127,13 +128,25 @@ public class MovieSetSettingsPanel extends JPanel {
     if (chckbxCheckDiscart.isSelected()) {
       settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.DISC);
     }
+
+    settings.clearMovieSetNfoFilenames();
+    if (cbMovieNfoFilename1.isSelected()) {
+      settings.addMovieSetNfoFilename(MovieSetNfoNaming.KODI_NFO);
+    }
+    if (cbMovieNfoFilename2.isSelected()) {
+      settings.addMovieSetNfoFilename(MovieSetNfoNaming.AUTOMATOR_NFO);
+    }
+    if (cbMovieNfoFilename3.isSelected()) {
+      settings.addMovieSetNfoFilename(MovieSetNfoNaming.EMBY_NFO);
+    }
   }
 
   private void buildCheckBoxes() {
     cbMovieNfoFilename1.removeItemListener(checkBoxListener);
     cbMovieNfoFilename2.removeItemListener(checkBoxListener);
+    cbMovieNfoFilename3.removeItemListener(checkBoxListener);
 
-    clearSelection(cbMovieNfoFilename1, cbMovieNfoFilename2);
+    clearSelection(cbMovieNfoFilename1, cbMovieNfoFilename2, cbMovieNfoFilename3);
 
     // NFO filenames
     List<MovieSetNfoNaming> movieSetNfoFilenames = settings.getMovieSetNfoFilenames();
@@ -143,9 +156,13 @@ public class MovieSetSettingsPanel extends JPanel {
     if (movieSetNfoFilenames.contains(MovieSetNfoNaming.AUTOMATOR_NFO)) {
       cbMovieNfoFilename2.setSelected(true);
     }
+    if (movieSetNfoFilenames.contains(MovieSetNfoNaming.EMBY_NFO)) {
+      cbMovieNfoFilename3.setSelected(true);
+    }
 
     cbMovieNfoFilename1.addItemListener(checkBoxListener);
     cbMovieNfoFilename2.addItemListener(checkBoxListener);
+    cbMovieNfoFilename3.addItemListener(checkBoxListener);
 
     chckbxCheckPoster.removeItemListener(checkBoxListener);
     chckbxCheckFanart.removeItemListener(checkBoxListener);
@@ -266,7 +283,7 @@ public class MovieSetSettingsPanel extends JPanel {
 
         JPanel panelNfoFilenames = new JPanel();
         panelData.add(panelNfoFilenames, "cell 1 4 2 1,grow");
-        panelNfoFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][]"));
+        panelNfoFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][][]"));
 
         JLabel lblNewLabel = new JLabel(TmmResourceBundle.getString("Settings.nofFileNaming"));
         panelNfoFilenames.add(lblNewLabel, "cell 0 0");
@@ -277,6 +294,9 @@ public class MovieSetSettingsPanel extends JPanel {
 
         cbMovieNfoFilename2 = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.moviesetname") + ".nfo");
         panelNfoFilenames.add(cbMovieNfoFilename2, "cell 1 1");
+
+        cbMovieNfoFilename3 = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.moviesetname") + "/collection.nfo");
+        panelNfoFilenames.add(cbMovieNfoFilename3, "cell 1 2");
       }
     }
     {

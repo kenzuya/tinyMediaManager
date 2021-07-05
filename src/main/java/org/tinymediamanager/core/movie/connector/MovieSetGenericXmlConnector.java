@@ -101,6 +101,11 @@ public abstract class MovieSetGenericXmlConnector implements IMovieSetConnector 
       }
     }
 
+    // remove old ones
+    for (MediaFile oldNfo : movieSet.getMediaFiles(MediaFileType.NFO)) {
+      Utils.deleteFileSafely(oldNfo.getFileAsPath());
+    }
+
     List<MediaFile> newNfos = new ArrayList<>(1);
 
     for (MovieSetNfoNaming nfoNaming : nfoNames) {
