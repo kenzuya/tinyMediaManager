@@ -42,6 +42,8 @@ import org.tinymediamanager.core.jmte.NamedArrayRenderer;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedNumberRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
+import org.tinymediamanager.core.jmte.TmmModelAdaptor;
+import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -71,7 +73,10 @@ public class TvShowJmteTests extends BasicTest {
       engine.registerNamedRenderer(new NamedUpperCaseRenderer());
       engine.registerNamedRenderer(new TvShowRenamer.TvShowNamedFirstCharacterRenderer());
       engine.registerNamedRenderer(new NamedArrayRenderer());
-      engine.setModelAdaptor(new TvShowRenamer.TvShowRenamerModelAdaptor());
+
+      engine.setModelAdaptor(new TmmModelAdaptor());
+      engine.setOutputAppender(new TmmOutputAppender());
+
       root = new HashMap<>();
       root.put("tvShow", tvShow);
 
@@ -112,7 +117,10 @@ public class TvShowJmteTests extends BasicTest {
       engine.registerNamedRenderer(new NamedUpperCaseRenderer());
       engine.registerNamedRenderer(new TvShowRenamer.TvShowNamedFirstCharacterRenderer());
       engine.registerNamedRenderer(new NamedArrayRenderer());
-      engine.setModelAdaptor(new TvShowRenamer.TvShowRenamerModelAdaptor());
+
+      engine.setModelAdaptor(new TmmModelAdaptor());
+      engine.setOutputAppender(new TmmOutputAppender());
+
       root = new HashMap<>();
       root.put("episode", episode);
       root.put("tvShow", episode.getTvShow());

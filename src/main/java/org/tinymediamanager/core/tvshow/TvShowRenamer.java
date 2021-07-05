@@ -65,6 +65,7 @@ import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
+import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -82,8 +83,6 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
-import com.floreysoft.jmte.TemplateContext;
-import com.floreysoft.jmte.token.Token;
 
 /**
  * The TvShowRenamer Works on per MediaFile basis
@@ -1414,7 +1413,9 @@ public class TvShowRenamer {
       engine.registerNamedRenderer(new NamedBitrateRenderer());
       engine.registerNamedRenderer(new NamedReplacementRenderer());
 
-      engine.setModelAdaptor(new TvShowRenamerModelAdaptor());
+      engine.setModelAdaptor(new TmmModelAdaptor());
+      engine.setOutputAppender(new TmmOutputAppender());
+
       Map<String, Object> root = new HashMap<>();
       if (episode != null) {
         root.put("episode", episode);
@@ -1951,37 +1952,6 @@ public class TvShowRenamer {
       }
     }
     return err;
-  }
-
-  public static class TvShowRenamerModelAdaptor extends TmmModelAdaptor {
-    @Override
-    public Object getValue(Map<String, Object> model, String expression) {
-      Object value = super.getValue(model, expression);
-
-      if (value instanceof String) {
-        value = replaceInvalidCharacters((String) value);
-      }
-
-      return value;
-    }
-
-    @Override
-    public Object getValue(TemplateContext context, Token token, List<String> segments, String expression) {
-      Object value = super.getValue(context, token, segments, expression);
-
-      if (value instanceof String) {
-        value = replaceInvalidCharacters((String) value);
-
-        // do not replace path separators on the .parent token
-        if (!token.getText().contains("parent")) {
-          value = ((String) value).replaceAll("\\/", " ");
-          value = ((String) value).replaceAll("\\\\", " ");
-
-        }
-      }
-
-      return value;
-    }
   }
 
   public static class TvShowNamedFirstCharacterRenderer implements NamedRenderer {

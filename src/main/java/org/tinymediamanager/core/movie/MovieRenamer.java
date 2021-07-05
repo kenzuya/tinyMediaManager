@@ -60,6 +60,7 @@ import org.tinymediamanager.core.jmte.NamedReplacementRenderer;
 import org.tinymediamanager.core.jmte.NamedTitleCaseRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
 import org.tinymediamanager.core.jmte.TmmModelAdaptor;
+import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -83,8 +84,6 @@ import org.tinymediamanager.scraper.util.StrgUtils;
 import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
-import com.floreysoft.jmte.TemplateContext;
-import com.floreysoft.jmte.token.Token;
 
 /**
  * The Class MovieRenamer.
@@ -1178,7 +1177,10 @@ public class MovieRenamer {
   public static String getTokenValue(Movie movie, String token) {
     try {
       Engine engine = createEngine();
-      engine.setModelAdaptor(new MovieRenamerModelAdaptor());
+
+      engine.setModelAdaptor(new TmmModelAdaptor());
+      engine.setOutputAppender(new TmmOutputAppender());
+
       Map<String, Object> root = new HashMap<>();
       root.put("movie", movie);
 
@@ -1439,36 +1441,6 @@ public class MovieRenamer {
   public static String replacePathSeparators(String source) {
     String result = source.replaceAll("\\/", " ");
     return result.replaceAll("\\\\", " ");
-  }
-
-  public static class MovieRenamerModelAdaptor extends TmmModelAdaptor {
-    @Override
-    public Object getValue(Map<String, Object> model, String expression) {
-      Object value = super.getValue(model, expression);
-
-      if (value instanceof String) {
-        value = replaceInvalidCharacters((String) value);
-      }
-
-      return value;
-    }
-
-    @Override
-    public Object getValue(TemplateContext context, Token token, List<String> segments, String expression) {
-      Object value = super.getValue(context, token, segments, expression);
-
-      if (value instanceof String) {
-        value = replaceInvalidCharacters((String) value);
-
-        // do not replace path separators on the .parent token
-        if (!token.getText().contains("parent")) {
-          value = replacePathSeparators((String) value);
-
-        }
-      }
-
-      return value;
-    }
   }
 
   private static class MovieNamedFirstCharacterRenderer implements NamedRenderer {
