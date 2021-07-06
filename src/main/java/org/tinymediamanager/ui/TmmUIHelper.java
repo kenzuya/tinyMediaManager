@@ -74,7 +74,7 @@ public class TmmUIHelper {
 
   public static Path selectDirectory(String title, String initialPath) {
     // are we forced to open the legacy file chooser?
-    if (!"true".equals(System.getProperty("tmm.legacy.filechooser"))) {
+    if ("true".equalsIgnoreCase(System.getProperty("tmm.legacy.filechooser"))) {
       return openJFileChooser(JFileChooser.DIRECTORIES_ONLY, title, initialPath, true, null, null);
     }
 
@@ -173,7 +173,7 @@ public class TmmUIHelper {
 
   public static Path selectFile(String title, String initialPath, FileNameExtensionFilter filter) {
     // are we forced to open the legacy file chooser?
-    if (!"true".equals(System.getProperty("tmm.legacy.filechooser"))) {
+    if ("true".equalsIgnoreCase(System.getProperty("tmm.legacy.filechooser"))) {
       return openJFileChooser(JFileChooser.FILES_ONLY, title, initialPath, true, null, filter);
     }
 
@@ -252,7 +252,7 @@ public class TmmUIHelper {
 
   public static Path saveFile(String title, String initialPath, String filename, FileNameExtensionFilter filter) {
     // are we forced to open the legacy file chooser?
-    if (!"true".equals(System.getProperty("tmm.legacy.filechooser"))) {
+    if ("true".equalsIgnoreCase(System.getProperty("tmm.legacy.filechooser"))) {
       return openJFileChooser(JFileChooser.FILES_ONLY, title, initialPath, false, filename, filter);
     }
 
