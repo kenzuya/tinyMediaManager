@@ -1526,6 +1526,35 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * more sophisticated check, if a movie in its current naming form might also be a "multiMovie"<br>
+   * If ALL filenames start with video filename, the chances are good :)<br>
+   * used in ChangeDatasource action, where we could rename as MMD, and not whole folder.<br>
+   * (isMMD is only evaluated on import - this is dynamic)
+   * 
+   * @return true if that is the case, false otherwise
+   */
+  public boolean hasMultiMovieNaming() {
+    if (isDisc()) {
+      return false;
+    }
+
+    MediaFile vid = getMainFile();
+    String name = vid.getFilenameWithoutStacking();
+    if (!name.isEmpty()) {
+      return false;
+    }
+
+    for (MediaFile mf : getMediaFiles()) {
+      // if we have a single file not starting with our video filename, it cannot be a MMD
+      if (!mf.getFilename().startsWith(name) || mf.isDiscFile()) {
+        return false;
+      }
+    }
+    // all files good
+    return true;
+  }
+
+  /**
    * Gets the movie set.
    * 
    * @return the movieset
