@@ -232,7 +232,7 @@ public class KodiRPCMenu {
     m.addSeparator();
 
     JMenuItem i = new JMenuItem(TmmResourceBundle.getString("kodi.rpc.updatemappings"), IconManager.SYNC);
-    i.addActionListener(e -> KodiRPC.getInstance().updateMovieMappings());
+    i.addActionListener(e -> KodiRPC.getInstance().updateTvShowMappings());
     m.add(i);
 
     m.addSeparator();
