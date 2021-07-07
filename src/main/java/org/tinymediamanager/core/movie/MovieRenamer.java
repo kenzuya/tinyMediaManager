@@ -1179,7 +1179,12 @@ public class MovieRenamer {
       Engine engine = createEngine();
 
       engine.setModelAdaptor(new TmmModelAdaptor());
-      engine.setOutputAppender(new TmmOutputAppender());
+      engine.setOutputAppender(new TmmOutputAppender() {
+        @Override
+        protected String replaceInvalidCharacters(String text) {
+          return MovieRenamer.replaceInvalidCharacters(text);
+        }
+      });
 
       Map<String, Object> root = new HashMap<>();
       root.put("movie", movie);

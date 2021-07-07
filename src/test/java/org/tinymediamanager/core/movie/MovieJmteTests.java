@@ -74,7 +74,12 @@ public class MovieJmteTests extends BasicTest {
       engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
 
       engine.setModelAdaptor(new TmmModelAdaptor());
-      engine.setOutputAppender(new TmmOutputAppender());
+      engine.setOutputAppender(new TmmOutputAppender() {
+        @Override
+        protected String replaceInvalidCharacters(String text) {
+          return MovieRenamer.replaceInvalidCharacters(text);
+        }
+      });
 
       root = new HashMap<>();
       root.put("movie", movie);

@@ -75,7 +75,12 @@ public class TvShowJmteTests extends BasicTest {
       engine.registerNamedRenderer(new NamedArrayRenderer());
 
       engine.setModelAdaptor(new TmmModelAdaptor());
-      engine.setOutputAppender(new TmmOutputAppender());
+      engine.setOutputAppender(new TmmOutputAppender() {
+        @Override
+        protected String replaceInvalidCharacters(String text) {
+          return TvShowRenamer.replaceInvalidCharacters(text);
+        }
+      });
 
       root = new HashMap<>();
       root.put("tvShow", tvShow);
@@ -119,7 +124,12 @@ public class TvShowJmteTests extends BasicTest {
       engine.registerNamedRenderer(new NamedArrayRenderer());
 
       engine.setModelAdaptor(new TmmModelAdaptor());
-      engine.setOutputAppender(new TmmOutputAppender());
+      engine.setOutputAppender(new TmmOutputAppender() {
+        @Override
+        protected String replaceInvalidCharacters(String text) {
+          return TvShowRenamer.replaceInvalidCharacters(text);
+        }
+      });
 
       root = new HashMap<>();
       root.put("episode", episode);

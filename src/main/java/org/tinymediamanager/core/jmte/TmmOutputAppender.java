@@ -19,7 +19,7 @@ import com.floreysoft.jmte.template.DefaultOutputAppender;
 import com.floreysoft.jmte.token.PlainTextToken;
 import com.floreysoft.jmte.token.Token;
 
-public class TmmOutputAppender extends DefaultOutputAppender {
+public abstract class TmmOutputAppender extends DefaultOutputAppender {
 
   @Override
   public void append(StringBuilder builder, String text, Token token) {
@@ -28,6 +28,11 @@ public class TmmOutputAppender extends DefaultOutputAppender {
       text = text.replace("/", " ");
       text = text.replace("\\", " ");
     }
+
+    text = replaceInvalidCharacters(text);
+
     super.append(builder, text, token);
   }
+
+  protected abstract String replaceInvalidCharacters(String text);
 }

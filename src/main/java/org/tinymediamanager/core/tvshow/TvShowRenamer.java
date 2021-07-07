@@ -1414,7 +1414,12 @@ public class TvShowRenamer {
       engine.registerNamedRenderer(new NamedReplacementRenderer());
 
       engine.setModelAdaptor(new TmmModelAdaptor());
-      engine.setOutputAppender(new TmmOutputAppender());
+      engine.setOutputAppender(new TmmOutputAppender() {
+        @Override
+        protected String replaceInvalidCharacters(String text) {
+          return TvShowRenamer.replaceInvalidCharacters(text);
+        }
+      });
 
       Map<String, Object> root = new HashMap<>();
       if (episode != null) {
