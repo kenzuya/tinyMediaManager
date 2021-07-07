@@ -1141,6 +1141,10 @@ public class TvShow extends MediaEntity implements IMediaInformation {
     return (!getMediaFiles(MediaFileType.THEME).isEmpty());
   }
 
+  public Boolean getHasNote() {
+    return StringUtils.isNotBlank(note);
+  }
+
   /**
    * Gets the check mark for images. What to be checked is configurable
    *

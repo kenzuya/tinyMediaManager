@@ -415,6 +415,15 @@ public class Movie extends MediaEntity implements IMediaInformation {
   }
 
   /**
+   * Check if Movie has a note
+   *
+   * @return the check for the note
+   */
+  public Boolean getHasNote() {
+    return StringUtils.isNotBlank(note);
+  }
+
+  /**
    * Gets the title for ui.
    * 
    * @return the title for ui

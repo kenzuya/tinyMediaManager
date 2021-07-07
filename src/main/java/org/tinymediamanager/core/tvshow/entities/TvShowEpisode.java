@@ -1788,4 +1788,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
     return false;
   }
+
+  public boolean getHasNote() {
+    return StringUtils.isNotBlank(note);
+  }
 }

@@ -15,6 +15,7 @@ Version 4.2
 + (movies/TV shows) added a better overview for compatible NFO consumers (media centers/other tools)
 + (TV shows) added filter for year and decade
 + (TV shows) bulk add actor / director /  rating / certification in episodes / tvshows
++ (movies/TV shows) added column to see if note is available
 x (TV shows) do not mix in TV show actors to the episode cast #1219
   since this is no more accurate (e.g. in Black Mirror) and scrapers like TMDB/IMDB provide detailed data for episode cast
 x (Linux) pre-set installed FFmpeg on first run
