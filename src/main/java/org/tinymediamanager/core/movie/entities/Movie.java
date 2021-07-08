@@ -1539,7 +1539,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     }
 
     MediaFile vid = getMainFile();
-    String name = vid.getFilenameWithoutStacking();
+    String name = FilenameUtils.getBaseName(vid.getFilenameWithoutStacking());
     if (name.isEmpty()) {
       return false;
     }
