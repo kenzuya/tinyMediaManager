@@ -499,7 +499,7 @@ public class KodiRPC {
   }
 
   public void readWatchedState(TvShowEpisode episode) {
-    Integer kodiID = moviemappings.get(episode.getDbId());
+    Integer kodiID = getEpisodeId(episode);
 
     if (kodiID != null) {
       final VideoLibrary.GetEpisodeDetails call = new VideoLibrary.GetEpisodeDetails(kodiID, VideoModel.BaseDetail.PLAYCOUNT);
@@ -517,7 +517,7 @@ public class KodiRPC {
   }
 
   private Integer getEpisodeId(TvShowEpisode episode) {
-    Integer tvShowId = tvshowmappings.get(episode.getDbId());
+    Integer tvShowId = tvshowmappings.get(episode.getTvShowDbId());
     if (tvShowId == null) {
       return null;
     }
