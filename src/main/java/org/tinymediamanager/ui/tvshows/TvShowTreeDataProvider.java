@@ -558,7 +558,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
   abstract static class AbstractTvShowTreeNode extends TmmTreeNode {
 
-    AbstractTvShowTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    AbstractTvShowTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -578,7 +578,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    TvShowTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    TvShowTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -634,7 +634,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    public TvShowSeasonTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    public TvShowSeasonTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -691,7 +691,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    public TvShowEpisodeTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    public TvShowEpisodeTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 

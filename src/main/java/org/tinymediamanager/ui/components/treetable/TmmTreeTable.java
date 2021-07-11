@@ -26,6 +26,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventObject;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -61,20 +62,22 @@ import org.tinymediamanager.ui.components.tree.TmmTreeNode;
  */
 public class TmmTreeTable extends TmmTable {
 
-  protected TmmTreeTableRenderDataProvider   renderDataProvider = null;
-  protected int                              selectedRow        = -1;
-  protected Boolean                          cachedRootVisible  = true;
-  protected Set<ITmmTreeFilter<TmmTreeNode>> treeFilters;
-  protected ITmmTreeTableModel               treeTableModel;
-  protected PropertyChangeListener           filterChangeListener;
+  protected final TmmTreeDataProvider<TmmTreeNode> dataProvider;
+  protected final Set<ITmmTreeFilter<TmmTreeNode>> treeFilters;
 
-  private int[]                              lastEditPosition;
+  protected TmmTreeTableRenderDataProvider         renderDataProvider = null;
+  protected int                                    selectedRow        = -1;
+  protected Boolean                                cachedRootVisible  = true;
+  protected ITmmTreeTableModel                     treeTableModel;
+  protected PropertyChangeListener                 filterChangeListener;
 
-  public TmmTreeTable(TmmTreeDataProvider<? extends TmmTreeNode> dataProvider, TmmTreeTableFormat tableFormat) {
-    treeFilters = new CopyOnWriteArraySet<>();
-    treeTableModel = new TmmTreeTableModel(new TmmTreeModelConnector<>(dataProvider), tableFormat);
-    ((TmmTreeModel) treeTableModel.getTreeModel()).getDataProvider().setTreeFilters(treeFilters);
-    filterChangeListener = evt -> updateFiltering();
+  private int[]                                    lastEditPosition;
+
+  public TmmTreeTable(TmmTreeDataProvider<TmmTreeNode> dataProvider, TmmTreeTableFormat<TmmTreeNode> tableFormat) {
+    this.dataProvider = dataProvider;
+    this.treeFilters = new CopyOnWriteArraySet<>();
+    this.treeTableModel = new TmmTreeTableModel(new TmmTreeModelConnector<>(dataProvider), tableFormat);
+    this.filterChangeListener = evt -> updateFiltering();
     setModel(treeTableModel);
     initTreeTable();
   }
@@ -175,7 +178,7 @@ public class TmmTreeTable extends TmmTable {
   public void setDefaultHiddenColumns() {
     if (getColumnModel() instanceof TmmTableColumnModel && getModel() instanceof TmmTreeTableModel) {
       TmmTreeTableModel tableModel = (TmmTreeTableModel) getModel();
-      TmmTableFormat tableFormat = tableModel.getTableModel().getTableFormat();
+      TmmTableFormat<TmmTreeNode> tableFormat = tableModel.getTableModel().getTableFormat();
 
       List<String> hiddenColumns = new ArrayList<>();
 
@@ -482,6 +485,8 @@ public class TmmTreeTable extends TmmTable {
     }
 
     treeFilters.clear();
+
+    updateFiltering();
   }
 
   /**
@@ -493,8 +498,9 @@ public class TmmTreeTable extends TmmTable {
   public void addFilter(ITmmTreeFilter<TmmTreeNode> newFilter) {
     // add our filter listener
     newFilter.addPropertyChangeListener(ITmmTreeFilter.TREE_FILTER_CHANGED, filterChangeListener);
-
     treeFilters.add(newFilter);
+
+    updateFiltering();
   }
 
   /**
@@ -503,19 +509,33 @@ public class TmmTreeTable extends TmmTable {
    * @param filter
    *          the filter to be removed
    */
-  public void removeFilter(ITmmTreeFilter filter) {
+  public void removeFilter(ITmmTreeFilter<TmmTreeNode> filter) {
     // remove our filter listener
     filter.removePropertyChangeListener(filterChangeListener);
-
     treeFilters.remove(filter);
+
+    updateFiltering();
   }
 
   /**
    * Updates nodes sorting and filtering for all loaded nodes.
    */
   void updateFiltering() {
+    // re-evaluate active filters
+    Set<ITmmTreeFilter<TmmTreeNode>> activeTreeFilters = new HashSet<>();
+
+    for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
+      if (filter.isActive()) {
+        activeTreeFilters.add(filter);
+      }
+    }
+
+    dataProvider.setTreeFilters(activeTreeFilters);
+
+    // and update the UI
     final TreeModel model = treeTableModel.getTreeModel();
     if (model instanceof TmmTreeModel) {
+      ((TmmTreeModel<?>) model).invalidateFilterCache();
       ((TmmTreeModel<?>) model).updateSortingAndFiltering();
     }
 
@@ -615,19 +635,20 @@ public class TmmTreeTable extends TmmTable {
   }
 
   private static class TreeCellEditorBorder implements Border {
-    private Insets    insets        = new Insets(0, 0, 0, 0);
-    private boolean   isLeaf;
-    private boolean   isExpanded;
-    private Icon      icon;
-    private int       nestingDepth;
-    private final int ICON_TEXT_GAP = new JLabel().getIconTextGap();
-    private int       checkWidth;
-    private JCheckBox checkBox;
+    private final Insets insets      = new Insets(0, 0, 0, 0);
+    private final int    iconTextGap = new JLabel().getIconTextGap();
+
+    private boolean      isLeaf;
+    private boolean      isExpanded;
+    private Icon         icon;
+    private int          nestingDepth;
+    private int          checkWidth;
+    private JCheckBox    checkBox;
 
     @Override
     public Insets getBorderInsets(Component c) {
       insets.left = (nestingDepth * TmmTreeTableCellRenderer.getNestingWidth()) + TmmTreeTableCellRenderer.getExpansionHandleWidth() + 1;
-      insets.left += checkWidth + ((icon != null) ? icon.getIconWidth() + ICON_TEXT_GAP : 0);
+      insets.left += checkWidth + ((icon != null) ? icon.getIconWidth() + iconTextGap : 0);
       insets.top = 1;
       insets.right = 1;
       insets.bottom = 1;
@@ -687,25 +708,41 @@ public class TmmTreeTable extends TmmTable {
     }
 
     @Override
-    public void updateSortingAndFiltering(TmmTreeNode parent) {
-      // store selected nodes
-      int[] selectedRows = getSelectedRows();
+    public void updateSortingAndFiltering() {
+      long now = System.currentTimeMillis();
 
-      setAdjusting(true);
+      if (now > nextNodeStructureChanged) {
+        // store selected nodes
+        int[] selectedRows = getSelectedRows();
 
-      // Updating root node children
-      boolean structureChanged = performFilteringAndSortingRecursively(parent);
-      if (structureChanged) {
-        nodeStructureChanged(getRoot());
+        setAdjusting(true);
 
-        // Restoring tree state including all selections and expansions
-        clearSelection();
-        setAdjusting(false);
-        for (int row : selectedRows) {
-          getSelectionModel().addSelectionInterval(row, row);
+        // Updating root node children
+        boolean structureChanged = performFilteringAndSortingRecursively(getRoot());
+        if (structureChanged) {
+          nodeStructureChanged();
+
+          // Restoring tree state including all selections and expansions
+          clearSelection();
+          setAdjusting(false);
+          for (int row : selectedRows) {
+            getSelectionModel().addSelectionInterval(row, row);
+          }
         }
+        long end = System.currentTimeMillis();
+
+        if ((end - now) < TIMER_DELAY) {
+          // logic has been run within the delay time
+          nextNodeStructureChanged = end + TIMER_DELAY;
+        }
+        else {
+          // logic was slower than the interval - increase the interval adaptively
+          nextNodeStructureChanged = end + (end - now) * 2;
+        }
+      }
+      else {
+        startUpdateSortAndFilterTimer();
       }
     }
   }
-
 }

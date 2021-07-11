@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
@@ -88,12 +90,9 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long serialVersionUID = 5889203009864512935L;
+  private static final long serialVersionUID      = 5889203009864512935L;
 
-  private final TvShowList  tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
-
-  private int               rowcount;
-  private long              rowcountLastUpdate;
+  private final TvShowList  tvShowList            = TvShowModuleManager.getInstance().getTvShowList();
 
   private TmmTreeTable      tree;
   private JLabel            lblEpisodeCountFiltered;
@@ -102,6 +101,8 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   private JLabel            lblTvShowCountTotal;
   private SplitButton       btnFilter;
 
+  private Timer             totalCalculationTimer = null;
+
   public TvShowTreePanel(TvShowSelectionModel selectionModel) {
     initComponents();
 
@@ -109,9 +110,6 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
 
     // initialize totals
     updateTotals();
-
-    // initialize filteredCount
-    updateFilteredCount();
 
     tvShowList.addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
@@ -219,7 +217,7 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
     tree.setRootVisible(false);
 
     tree.getModel().addTableModelListener(arg0 -> {
-      updateFilteredCount();
+      updateTotals();
 
       if (tree.getTreeTableModel().getTreeModel() instanceof TmmTreeModel) {
         if (((TmmTreeModel<?>) tree.getTreeTableModel().getTreeModel()).isAdjusting()) {
@@ -404,65 +402,70 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
   }
 
   private void updateTotals() {
-    lblTvShowCountTotal.setText(String.valueOf(tvShowList.getTvShowCount()));
-    int dummyEpisodeCount = tvShowList.getDummyEpisodeCount();
-    if (dummyEpisodeCount > 0) {
-      int episodeCount = tvShowList.getEpisodeCount();
-      lblEpisodeCountTotal.setText(episodeCount + " (" + (episodeCount + dummyEpisodeCount) + ")");
-    }
-    else {
-      lblEpisodeCountTotal.setText(String.valueOf(tvShowList.getEpisodeCount()));
-    }
-  }
-
-  private void updateFilteredCount() {
-    int tvShowCount = 0;
-    int episodeCount = 0;
-    int virtualEpisodeCount = 0;
-
-    // check rowcount if there has been a change in the display
-    // if the row count from the last run matches with this, we assume that the tree did not change
-    // the biggest error we can create here is to show a wrong count of filtered TV shows/episodes,
-    // but we gain a ton of performance if we do not re-evaluate the count at every change
-    int rowcount = tree.getTreeTableModel().getRowCount();
-    long rowcountLastUpdate = System.currentTimeMillis();
-
-    // update if the rowcount changed or at least after 2 seconds after the last update
-    if (this.rowcount == rowcount && (rowcountLastUpdate - this.rowcountLastUpdate) < 2000) {
+    if (this.totalCalculationTimer != null) {
       return;
     }
 
-    DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getTreeTableModel().getRoot();
-    Enumeration<?> enumeration = root.depthFirstEnumeration();
-    while (enumeration.hasMoreElements()) {
-      DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
+    totalCalculationTimer = new Timer("updateTotals");
 
-      Object userObject = node.getUserObject();
+    TimerTask task = new TimerTask() {
+      public void run() {
+        SwingUtilities.invokeLater(() -> {
+          // sum
+          lblTvShowCountTotal.setText(String.valueOf(tvShowList.getTvShowCount()));
+          int dummyEpisodeCount = 0;
+          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
+            dummyEpisodeCount = tvShowList.getDummyEpisodeCount();
+          }
+          if (dummyEpisodeCount > 0) {
+            int episodeCount = tvShowList.getEpisodeCount();
+            lblEpisodeCountTotal.setText(episodeCount + " (" + (episodeCount + dummyEpisodeCount) + ")");
+          }
+          else {
+            lblEpisodeCountTotal.setText(String.valueOf(tvShowList.getEpisodeCount()));
+          }
 
-      if (userObject instanceof TvShow) {
-        tvShowCount++;
+          // filtered
+          int tvShowCount = 0;
+          int episodeCount = 0;
+          int virtualEpisodeCount = 0;
+
+          DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getTreeTableModel().getRoot();
+          Enumeration<?> enumeration = root.depthFirstEnumeration();
+          while (enumeration.hasMoreElements()) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) enumeration.nextElement();
+
+            Object userObject = node.getUserObject();
+
+            if (userObject instanceof TvShow) {
+              tvShowCount++;
+            }
+            else if (userObject instanceof TvShowEpisode) {
+              if (((TvShowEpisode) userObject).isDummy()) {
+                virtualEpisodeCount++;
+              }
+              else {
+                episodeCount++;
+              }
+            }
+          }
+
+          lblTvShowCountFiltered.setText(String.valueOf(tvShowCount));
+
+          if (tvShowList.hasDummyEpisodes()) {
+            lblEpisodeCountFiltered.setText(episodeCount + " (" + (episodeCount + virtualEpisodeCount) + ")");
+          }
+          else {
+            lblEpisodeCountFiltered.setText(String.valueOf(episodeCount));
+          }
+
+          // re-set the timer for the next run
+          totalCalculationTimer = null;
+        });
       }
-      else if (userObject instanceof TvShowEpisode) {
-        if (((TvShowEpisode) userObject).isDummy()) {
-          virtualEpisodeCount++;
-        }
-        else {
-          episodeCount++;
-        }
-      }
-    }
+    };
 
-    lblTvShowCountFiltered.setText(String.valueOf(tvShowCount));
-
-    if (tvShowList.hasDummyEpisodes()) {
-      lblEpisodeCountFiltered.setText(episodeCount + " (" + (episodeCount + virtualEpisodeCount) + ")");
-    }
-    else {
-      lblEpisodeCountFiltered.setText(String.valueOf(episodeCount));
-    }
-
-    this.rowcount = rowcount;
-    this.rowcountLastUpdate = rowcountLastUpdate;
+    totalCalculationTimer.schedule(task, 100L);
   }
 
   @Override

@@ -295,8 +295,7 @@ public final class TvShowModuleManager implements ITmmModule {
     tvShowMap = mvStore.openMap("tvshows");
     episodeMap = mvStore.openMap("episodes");
 
-    getTvShowList().loadTvShowsFromDatabase(tvShowMap);
-    getTvShowList().loadEpisodesFromDatabase(episodeMap);
+    getTvShowList().loadTvShowsFromDatabase(tvShowMap, episodeMap);
     getTvShowList().initDataAfterLoading();
   }
 
