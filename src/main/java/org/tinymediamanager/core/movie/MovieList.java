@@ -42,6 +42,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -58,6 +60,7 @@ import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ObservableCopyOnWriteArrayList;
 import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -112,6 +115,7 @@ public final class MovieList extends AbstractModelObject {
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
   private final Comparator<MovieSet>                     movieSetComparator = new MovieSetComparator();
+  private final ReadWriteLock                            readWriteLock      = new ReentrantReadWriteLock();
 
   /**
    * Instantiates a new movie list.
@@ -278,13 +282,7 @@ public final class MovieList extends AbstractModelObject {
    * @return the unscraped movies
    */
   public List<Movie> getUnscrapedMovies() {
-    List<Movie> unscrapedMovies = new ArrayList<>();
-    for (Movie movie : movieList) {
-      if (!movie.isScraped()) {
-        unscrapedMovies.add(movie);
-      }
-    }
-    return unscrapedMovies;
+    return movieList.parallelStream().filter(movie -> !movie.isScraped()).collect(Collectors.toList());
   }
 
   /**
@@ -293,13 +291,7 @@ public final class MovieList extends AbstractModelObject {
    * @return the new movies
    */
   public List<Movie> getNewMovies() {
-    List<Movie> newMovies = new ArrayList<>();
-    for (Movie movie : movieList) {
-      if (movie.isNewlyAdded()) {
-        newMovies.add(movie);
-      }
-    }
-    return newMovies;
+    return movieList.parallelStream().filter(MediaEntity::isNewlyAdded).collect(Collectors.toList());
   }
 
   /**
@@ -326,7 +318,9 @@ public final class MovieList extends AbstractModelObject {
     // remove in inverse order => performance
     for (int i = movies.size() - 1; i >= 0; i--) {
       Movie movie = movies.get(i);
+      readWriteLock.writeLock().lock();
       movieList.remove(movie);
+      readWriteLock.writeLock().unlock();
       if (movie.getMovieSet() != null) {
         MovieSet movieSet = movie.getMovieSet();
 
@@ -361,7 +355,9 @@ public final class MovieList extends AbstractModelObject {
     for (int i = movies.size() - 1; i >= 0; i--) {
       Movie movie = movies.get(i);
       movie.deleteFilesSafely();
+      readWriteLock.writeLock().lock();
       movieList.remove(movie);
+      readWriteLock.writeLock().unlock();
       if (movie.getMovieSet() != null) {
         MovieSet movieSet = movie.getMovieSet();
         movieSet.removeMovie(movie, false);
@@ -545,13 +541,7 @@ public final class MovieList extends AbstractModelObject {
    * @return the movie list
    */
   public synchronized List<Movie> getMoviesByPath(Path path) {
-    ArrayList<Movie> movies = new ArrayList<>();
-    for (Movie movie : movieList) {
-      if (movie.getPathNIO().compareTo(path) == 0) {
-        movies.add(movie);
-      }
-    }
-    return movies;
+    return movieList.parallelStream().filter(movie -> movie.getPathNIO().compareTo(path) == 0).collect(Collectors.toList());
   }
 
   /**
@@ -951,9 +941,7 @@ public final class MovieList extends AbstractModelObject {
       for (MediaFile mf : movie.getMediaFiles(MediaFileType.VIDEO, MediaFileType.SUBTITLE)) {
         // subtitle language
         if (!mf.getSubtitleLanguagesList().isEmpty()) {
-          for (String lang : mf.getSubtitleLanguagesList()) {
-            subtitleLanguages.add(lang);
-          }
+          subtitleLanguages.addAll(mf.getSubtitleLanguagesList());
         }
       }
     }
@@ -993,9 +981,7 @@ public final class MovieList extends AbstractModelObject {
 
         // audio language
         if (!mf.getAudioLanguagesList().isEmpty()) {
-          for (String lang : mf.getAudioLanguagesList()) {
-            audioLanguages.add(lang);
-          }
+          audioLanguages.addAll(mf.getAudioLanguagesList());
         }
 
         // HDR Format
@@ -1072,7 +1058,7 @@ public final class MovieList extends AbstractModelObject {
    * @return a {@link Set} of all years
    */
   public Collection<Integer> getYearsInMovies() {
-    return yearsInMovies;
+    return Collections.unmodifiableList(yearsInMovies);
   }
 
   /**
@@ -1081,7 +1067,7 @@ public final class MovieList extends AbstractModelObject {
    * @return a {@link Set} of all decades
    */
   public Collection<String> getDecadeInMovies() {
-    return decadeInMovies;
+    return Collections.unmodifiableList(decadeInMovies);
   }
 
   /**
@@ -1090,47 +1076,47 @@ public final class MovieList extends AbstractModelObject {
    * @return a {@link Set} of all tags
    */
   public Collection<String> getTagsInMovies() {
-    return tagsInMovies;
+    return Collections.unmodifiableList(tagsInMovies);
   }
 
   public Collection<String> getVideoCodecsInMovies() {
-    return videoCodecsInMovies;
+    return Collections.unmodifiableList(videoCodecsInMovies);
   }
 
   public Collection<String> getVideoContainersInMovies() {
-    return videoContainersInMovies;
+    return Collections.unmodifiableList(videoContainersInMovies);
   }
 
   public Collection<String> getAudioCodecsInMovies() {
-    return audioCodecsInMovies;
+    return Collections.unmodifiableList(audioCodecsInMovies);
   }
 
   public Collection<MediaCertification> getCertificationsInMovies() {
-    return certificationsInMovies;
+    return Collections.unmodifiableList(certificationsInMovies);
   }
 
   public Collection<Double> getFrameRatesInMovies() {
-    return frameRatesInMovies;
+    return Collections.unmodifiableList(frameRatesInMovies);
   }
 
   public Collection<Integer> getAudioStreamsInMovies() {
-    return audioStreamsInMovies;
+    return Collections.unmodifiableList(audioStreamsInMovies);
   }
 
   public Collection<Integer> getSubtitlesInMovies() {
-    return subtitlesInMovies;
+    return Collections.unmodifiableList(subtitlesInMovies);
   }
 
   public Collection<String> getAudioLanguagesInMovies() {
-    return audioLanguagesInMovies;
+    return Collections.unmodifiableList(audioLanguagesInMovies);
   }
 
   public Collection<String> getSubtitleLanguagesInMovies() {
-    return subtitleLanguagesInMovies;
+    return Collections.unmodifiableList(subtitleLanguagesInMovies);
   }
 
   public Collection<String> getHDRFormatInMovies() {
-    return hdrFormatInMovies;
+    return Collections.unmodifiableList(hdrFormatInMovies);
   }
 
   /**
@@ -1183,7 +1169,7 @@ public final class MovieList extends AbstractModelObject {
    * @return the movieSetList
    */
   public List<MovieSet> getMovieSetList() {
-    return movieSetList;
+    return Collections.unmodifiableList(movieSetList);
   }
 
   /**
@@ -1205,7 +1191,9 @@ public final class MovieList extends AbstractModelObject {
    */
   public void addMovieSet(MovieSet movieSet) {
     int oldValue = movieSetList.size();
-    this.movieSetList.add(movieSet);
+    readWriteLock.writeLock().lock();
+    movieSetList.add(movieSet);
+    readWriteLock.writeLock().unlock();
     movieSet.addPropertyChangeListener(movieSetListener);
     firePropertyChange(Constants.ADDED_MOVIE_SET, null, movieSet);
     firePropertyChange("movieSetCount", oldValue, movieSetList.size());
@@ -1237,8 +1225,9 @@ public final class MovieList extends AbstractModelObject {
         String movieSetName = movieSet.getTitleForStorage();
         Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder(), movieSetName));
       }
-
+      readWriteLock.writeLock().lock();
       movieSetList.remove(movieSet);
+      readWriteLock.writeLock().unlock();
       MovieModuleManager.getInstance().removeMovieSetFromDb(movieSet);
     }
     catch (Exception e) {
@@ -1321,21 +1310,7 @@ public final class MovieList extends AbstractModelObject {
    * invalidate the title sortable upon changes to the sortable prefixes
    */
   public void invalidateTitleSortable() {
-    for (Movie movie : new ArrayList<>(movieList)) {
-      movie.clearTitleSortable();
-    }
-  }
-
-  /**
-   * create a new offline movie with the given title in the specified data source
-   * 
-   * @param title
-   *          the given title
-   * @param datasource
-   *          the data source to create the offline movie in
-   */
-  public void addOfflineMovie(String title, String datasource) {
-    addOfflineMovie(title, datasource, MediaSource.UNKNOWN);
+    movieList.parallelStream().forEach(Movie::clearTitleSortable);
   }
 
   /**

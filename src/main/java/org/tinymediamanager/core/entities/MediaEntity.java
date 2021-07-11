@@ -139,7 +139,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   protected boolean                    newlyAdded         = false;
   protected boolean                    duplicate          = false;
-  protected ReadWriteLock              readWriteLock      = new ReentrantReadWriteLock();
+  protected final ReadWriteLock        readWriteLock      = new ReentrantReadWriteLock();
 
   public MediaEntity() {
   }
