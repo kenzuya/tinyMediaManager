@@ -230,6 +230,7 @@ public class TvShowFilterDialog extends TmmDialog {
             if (StringUtils.isNotBlank(savedPreset)) {
               cbPreset.removeActionListener(actionListener);
               TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
+              TvShowModuleManager.getInstance().getSettings().saveSettings();
               loadPresets();
               cbPreset.setSelectedItem(savedPreset);
               cbPreset.addActionListener(actionListener);
@@ -271,6 +272,7 @@ public class TvShowFilterDialog extends TmmDialog {
             if (tvShowUiFilters.remove(filterName) != null) {
               cbPreset.removeActionListener(actionListener);
               TvShowModuleManager.getInstance().getSettings().setUiFilterPresets(tvShowUiFilters);
+              TvShowModuleManager.getInstance().getSettings().saveSettings();
               loadPresets();
               cbPreset.addActionListener(actionListener);
             }

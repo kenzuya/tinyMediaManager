@@ -160,6 +160,7 @@ public class MovieSetFilterDialog extends TmmDialog {
           if (StringUtils.isNotBlank(savedPreset)) {
             cbPreset.removeActionListener(actionListener);
             MovieModuleManager.getInstance().getSettings().setMovieSetUiFilterPresets(uiFilters);
+            MovieModuleManager.getInstance().getSettings().saveSettings();
             loadPresets();
             cbPreset.setSelectedItem(savedPreset);
             cbPreset.addActionListener(actionListener);
@@ -201,6 +202,7 @@ public class MovieSetFilterDialog extends TmmDialog {
           if (uiFilters.remove(filterName) != null) {
             cbPreset.removeActionListener(actionListener);
             MovieModuleManager.getInstance().getSettings().setMovieSetUiFilterPresets(uiFilters);
+            MovieModuleManager.getInstance().getSettings().saveSettings();
             loadPresets();
             cbPreset.addActionListener(actionListener);
           }
