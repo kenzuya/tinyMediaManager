@@ -42,6 +42,7 @@ import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
+import org.tinymediamanager.core.movie.MovieSettingsDefaults;
 import org.tinymediamanager.core.movie.MovieTextMatcherList;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -191,11 +192,11 @@ public class MovieSettingsPanel extends JPanel {
       }
     });
 
-    btnPresetXbmc.addActionListener(evt -> settings.setDefaultSettingsForXbmc());
-    btnPresetKodi.addActionListener(evt -> settings.setDefaultSettingsForKodi());
-    btnPresetMediaPortal1.addActionListener(evt -> settings.setDefaultSettingsForMediaPortal1());
-    btnPresetMediaPortal2.addActionListener(evt -> settings.setDefaultSettingsForMediaPortal2());
-    btnPresetPlex.addActionListener(evt -> settings.setDefaultSettingsForPlex());
+    btnPresetXbmc.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForXbmc());
+    btnPresetKodi.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForKodi());
+    btnPresetMediaPortal1.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForMediaPortal1());
+    btnPresetMediaPortal2.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForMediaPortal2());
+    btnPresetPlex.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForPlex());
 
     buildCheckBoxes();
   }
@@ -640,7 +641,7 @@ public class MovieSettingsPanel extends JPanel {
     //
     Property movieSettingsBeanProperty_22 = BeanProperty.create("ardAfterScrape");
     AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_22, chckbxARDAfterScrape,
-      jCheckBoxBeanProperty);
+        jCheckBoxBeanProperty);
     autoBinding_22.bind();
   }
 }

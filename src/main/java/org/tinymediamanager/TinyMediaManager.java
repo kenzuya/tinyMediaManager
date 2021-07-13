@@ -56,10 +56,12 @@ import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSettingsDefaults;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSettingsDefaults;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
@@ -295,8 +297,8 @@ public final class TinyMediaManager {
 
           if (Settings.getInstance().isNewConfig()) {
             // add/set default scrapers
-            MovieModuleManager.getInstance().getSettings().setDefaultScrapers();
-            TvShowModuleManager.getInstance().getSettings().setDefaultScrapers();
+            MovieSettingsDefaults.setDefaultScrapers();
+            TvShowSettingsDefaults.setDefaultScrapers();
           }
 
           if (g2 != null) {

@@ -36,6 +36,7 @@ import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
+import org.tinymediamanager.core.tvshow.TvShowSettingsDefaults;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.thirdparty.trakttv.TvShowClearTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
@@ -120,11 +121,11 @@ class TvShowSettingsPanel extends JPanel {
       }
     });
 
-    btnPresetXbmc.addActionListener(evt -> settings.setDefaultSettingsForXbmc());
-    btnPresetKodi.addActionListener(evt -> settings.setDefaultSettingsForKodi());
-    btnPresetMediaPortal1.addActionListener(evt -> settings.setDefaultSettingsForMediaPortal());
-    btnPresetMediaPortal2.addActionListener(evt -> settings.setDefaultSettingsForMediaPortal());
-    btnPresetPlex.addActionListener(evt -> settings.setDefaultSettingsForPlex());
+    btnPresetXbmc.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForXbmc());
+    btnPresetKodi.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForKodi());
+    btnPresetMediaPortal1.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
+    btnPresetMediaPortal2.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForMediaPortal());
+    btnPresetPlex.addActionListener(evt -> TvShowSettingsDefaults.setDefaultSettingsForPlex());
 
     buildCheckBoxes();
   }
