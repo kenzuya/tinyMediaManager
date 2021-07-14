@@ -47,6 +47,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractFileVisitor;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -450,6 +451,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         if (!filesFound.contains(mf.getFileAsPath())) {
           LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
           tvShow.removeFromMediaFiles(mf);
+          // and remove the image cache
+          if (mf.isGraphic()) {
+            ImageCache.invalidateCachedImage(mf);
+          }
           dirty = true;
         }
       }
@@ -460,6 +465,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           if (!filesFound.contains(mf.getFileAsPath())) {
             LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
             episode.removeFromMediaFiles(mf);
+            // and remove the image cache
+            if (mf.isGraphic()) {
+              ImageCache.invalidateCachedImage(mf);
+            }
             dirty = true;
           }
         }

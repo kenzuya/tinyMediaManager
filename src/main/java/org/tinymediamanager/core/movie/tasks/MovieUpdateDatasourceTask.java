@@ -52,6 +52,7 @@ import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractFileVisitor;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -1287,6 +1288,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           if (!filesFound.contains(mf.getFileAsPath())) {
             LOGGER.debug("removing orphaned file from DB: {}", mf.getFileAsPath());
             movie.removeFromMediaFiles(mf);
+            // invalidate the image cache
+            if (mf.isGraphic()) {
+              ImageCache.invalidateCachedImage(mf);
+            }
             dirty = true;
           }
         }

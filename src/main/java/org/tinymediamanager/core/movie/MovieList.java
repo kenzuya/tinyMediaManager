@@ -53,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
@@ -333,6 +334,13 @@ public final class MovieList extends AbstractModelObject {
       catch (Exception e) {
         LOGGER.error("Error removing movie from DB: {}", e.getMessage());
       }
+
+      // and remove the image cache
+      for (MediaFile mf : movie.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
+      }
     }
 
     firePropertyChange("movies", null, movieList);
@@ -368,6 +376,13 @@ public final class MovieList extends AbstractModelObject {
       }
       catch (Exception e) {
         LOGGER.error("Error removing movie from DB: {}", e.getMessage());
+      }
+
+      // and remove the image cache
+      for (MediaFile mf : movie.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
       }
     }
 
@@ -474,6 +489,13 @@ public final class MovieList extends AbstractModelObject {
     catch (Exception e) {
       LOGGER.error("failed to remove movie: {}", movie.getTitle());
     }
+
+    // and remove the image cache
+    for (MediaFile mf : movie.getMediaFiles()) {
+      if (mf.isGraphic()) {
+        ImageCache.invalidateCachedImage(mf);
+      }
+    }
   }
 
   public void persistMovieSet(MovieSet movieSet) {
@@ -493,6 +515,13 @@ public final class MovieList extends AbstractModelObject {
     }
     catch (Exception e) {
       LOGGER.error("failed to remove movie set: {}", movieSet.getTitle());
+    }
+
+    // and remove the image cache
+    for (MediaFile mf : movieSet.getMediaFiles()) {
+      if (mf.isGraphic()) {
+        ImageCache.invalidateCachedImage(mf);
+      }
     }
   }
 

@@ -73,6 +73,7 @@ import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.IMediaInformation;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -683,7 +684,6 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       for (int i = episodes.size() - 1; i >= 0; i--) {
         TvShowEpisode episode = episodes.get(i);
         removeEpisode(episode);
-        TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
       }
     }
 
@@ -703,6 +703,14 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       removeFromSeason(episode);
       episodes.remove(episode);
       TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
+
+      // and remove the image cache
+      for (MediaFile mf : episode.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
+      }
+
       saveToDb();
 
       firePropertyChange(REMOVED_EPISODE, null, episode);
@@ -746,6 +754,14 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       removeFromSeason(episode);
       episodes.remove(episode);
       TvShowModuleManager.getInstance().getTvShowList().removeEpisodeFromDb(episode);
+
+      // and remove the image cache
+      for (MediaFile mf : episode.getMediaFiles()) {
+        if (mf.isGraphic()) {
+          ImageCache.invalidateCachedImage(mf);
+        }
+      }
+
       saveToDb();
 
       firePropertyChange(REMOVED_EPISODE, null, episode);

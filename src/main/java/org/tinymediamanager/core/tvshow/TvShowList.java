@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -351,6 +352,13 @@ public final class TvShowList extends AbstractModelObject {
     catch (Exception e) {
       LOGGER.error("problem removing TV show from DB: {}", e.getMessage());
     }
+
+    // and remove the image cache
+    for (MediaFile mf : tvShow.getMediaFiles()) {
+      if (mf.isGraphic()) {
+        ImageCache.invalidateCachedImage(mf);
+      }
+    }
   }
 
   /**
@@ -373,6 +381,13 @@ public final class TvShowList extends AbstractModelObject {
     }
     catch (Exception e) {
       LOGGER.error("problem removing TV show from DB: {}", e.getMessage());
+    }
+
+    // and remove the image cache
+    for (MediaFile mf : tvShow.getMediaFiles()) {
+      if (mf.isGraphic()) {
+        ImageCache.invalidateCachedImage(mf);
+      }
     }
 
     firePropertyChange(TV_SHOWS, null, tvShows);
