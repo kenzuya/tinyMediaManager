@@ -27,6 +27,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
@@ -41,7 +42,7 @@ public class MediaInfoTest extends BasicTest {
   @BeforeClass
   public static void setUp() throws Exception {
     BasicTest.setup();
-    MediaInfoUtils.loadMediaInfo();
+    TmmOsUtils.loadNativeLibs();
   }
 
   @Test

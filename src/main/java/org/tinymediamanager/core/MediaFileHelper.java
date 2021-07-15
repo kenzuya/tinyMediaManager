@@ -1008,7 +1008,7 @@ public class MediaFileHelper {
    * @return a {@link List} of all associated files along with libmediainfo data
    */
   private static synchronized List<MediaInfoFile> getMediaInfoFromSingleFile(MediaFile mediaFile) {
-    if (!MediaInfoUtils.USE_LIBMEDIAINFO) {
+    if (!MediaInfoUtils.useMediaInfo()) {
       return Collections.emptyList();
     }
 
@@ -1089,7 +1089,7 @@ public class MediaFileHelper {
   private static synchronized List<MediaInfoFile> getMediaInfoSnapshotFromISO(MediaFile mediaFile) {
     List<MediaInfoFile> miFiles;
 
-    if (!MediaInfoUtils.USE_LIBMEDIAINFO) {
+    if (!MediaInfoUtils.useMediaInfo()) {
       return Collections.emptyList();
     }
 
