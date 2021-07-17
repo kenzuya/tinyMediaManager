@@ -18,6 +18,7 @@ Version 4.2
 + (TV shows) bulk add actor / director /  rating / certification in episodes / tvshows
 + (movies/TV shows) added column to see if note is available
 + (movies) added the possibility to download just extrafanarts/extrathumbs #741 #1397
++ (movies) added a "index of movie in movie set" renamer token #1347
 x (TV shows) introduced adaptive event processing: this will help the UI to stay responsive on large libraries.
   The drawback here is, that some sorting and filtering in the UI will be delayed for large libraries
 x (TV shows) do not mix in TV show actors to the episode cast #1219

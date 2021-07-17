@@ -64,6 +64,7 @@ import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.jmte.ZeroNumberRenderer;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.movie.filenaming.MovieBannerNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearartNaming;
 import org.tinymediamanager.core.movie.filenaming.MovieClearlogoNaming;
@@ -87,7 +88,7 @@ import com.floreysoft.jmte.RenderFormatInfo;
 
 /**
  * The Class MovieRenamer.
- * 
+ *
  * @author Manuel Laggner / Myron Boyle
  */
 public class MovieRenamer {
@@ -160,6 +161,7 @@ public class MovieRenamer {
     tokenMap.put("note", "movie.note");
     tokenMap.put("decadeLong", "movie.decadeLong");
     tokenMap.put("decadeShort", "movie.decadeShort");
+    tokenMap.put("movieSetIndex", "movie;indexOfMovieSet");
 
     return tokenMap;
   }
@@ -300,7 +302,7 @@ public class MovieRenamer {
 
   /**
    * remove empty subfolders in this folder after renaming; only valid if we're in a single movie folder!
-   * 
+   *
    * @param movie
    *          the movie to clean
    */
@@ -320,7 +322,7 @@ public class MovieRenamer {
 
   /**
    * Rename movie inside the actual datasource.
-   * 
+   *
    * @param movie
    *          the movie
    */
@@ -725,7 +727,7 @@ public class MovieRenamer {
 
   /**
    * generates renamed filename(s) per MF
-   * 
+   *
    * @param movie
    *          the movie (for datasource, path)
    * @param mf
@@ -1120,7 +1122,7 @@ public class MovieRenamer {
 
   /**
    * returns "delimiter + stackingString" for use in filename
-   * 
+   *
    * @param mf
    *          a mediaFile
    * @return eg ".CD1" dependent of settings
@@ -1141,7 +1143,7 @@ public class MovieRenamer {
 
   /**
    * Creates the new filename according to template string
-   * 
+   *
    * @param template
    *          the template
    * @param movie
@@ -1154,7 +1156,7 @@ public class MovieRenamer {
 
   /**
    * Creates the new filename according to template string
-   * 
+   *
    * @param template
    *          the template
    * @param movie
@@ -1167,7 +1169,7 @@ public class MovieRenamer {
 
   /**
    * gets the token value (${x}) from specified movie object with all renamer related replacements!
-   * 
+   *
    * @param movie
    *          our movie
    * @param token
@@ -1205,7 +1207,7 @@ public class MovieRenamer {
 
   /**
    * create the {@link Engine} to be used with JMTE
-   * 
+   *
    * @return the pre-created Engine
    */
   public static Engine createEngine() {
@@ -1220,13 +1222,14 @@ public class MovieRenamer {
     engine.registerNamedRenderer(new NamedFilesizeRenderer());
     engine.registerNamedRenderer(new NamedBitrateRenderer());
     engine.registerNamedRenderer(new NamedReplacementRenderer());
+    engine.registerNamedRenderer(new MovieNamedIndexOfMovieSetRenderer());
 
     return engine;
   }
 
   /**
    * Creates the new file/folder name according to template string
-   * 
+   *
    * @param template
    *          the template
    * @param movie
@@ -1316,7 +1319,7 @@ public class MovieRenamer {
 
   /**
    * moves a file.
-   * 
+   *
    * @param oldFilename
    *          the old filename
    * @param newFilename
@@ -1348,7 +1351,7 @@ public class MovieRenamer {
 
   /**
    * copies a file.
-   * 
+   *
    * @param oldFilename
    *          the old filename
    * @param newFilename
@@ -1383,7 +1386,7 @@ public class MovieRenamer {
   /**
    * Check if the folder rename pattern is unique<br>
    * Unique true, when having at least a $T/$E-$Y combo or $I imdbId<br>
-   * 
+   *
    * @param pattern
    *          the pattern to check the uniqueness for
    * @return true/false
@@ -1396,7 +1399,7 @@ public class MovieRenamer {
    * Check if the FILE rename pattern is valid<br>
    * What means, pattern has at least title set (${title}|${originalTitle}|${titleSortable})<br>
    * "empty" is considered as invalid - so not renaming files
-   * 
+   *
    * @return true/false
    */
   public static boolean isFilePatternValid() {
@@ -1438,7 +1441,7 @@ public class MovieRenamer {
 
   /**
    * replace all path separators in the given {@link String} with a space
-   * 
+   *
    * @param source
    *          the the original {@link String}
    * @return the cleaned {@link String}
@@ -1489,6 +1492,39 @@ public class MovieRenamer {
     @Override
     public Class<?>[] getSupportedClasses() {
       return new Class[] { Date.class, String.class, Integer.class, Long.class };
+    }
+  }
+
+  private static class MovieNamedIndexOfMovieSetRenderer implements NamedRenderer {
+
+    @Override
+    public String render(Object o, String s, Locale locale, Map<String, Object> map) {
+      if (o instanceof Movie) {
+        Movie movie = (Movie) o;
+        MovieSet movieSet = movie.getMovieSet();
+        if (movieSet == null) {
+          return null;
+        }
+
+        return String.valueOf(movieSet.getMovieIndex(movie) + 1);
+      }
+
+      return null;
+    }
+
+    @Override
+    public String getName() {
+      return "indexOfMovieSet";
+    }
+
+    @Override
+    public RenderFormatInfo getFormatInfo() {
+      return null;
+    }
+
+    @Override
+    public Class<?>[] getSupportedClasses() {
+      return new Class[] { Movie.class };
     }
   }
 }
