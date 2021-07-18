@@ -60,6 +60,7 @@ import org.tinymediamanager.ui.dialogs.FilterSaveDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 import org.tinymediamanager.ui.movies.MovieSelectionModel;
 import org.tinymediamanager.ui.movies.filters.IMovieUIFilter;
+import org.tinymediamanager.ui.movies.filters.MovieAllInOneFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAspectRatioFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioChannelFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioCodecFilter;
@@ -168,6 +169,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieInMovieSetFilter(), panelMain);
         addFilter(new MovieDifferentRuntimeFilter(), panelMain);
         addFilter(new MovieNoteFilter(), panelMain);
+        addFilter(new MovieAllInOneFilter(), panelMain);
       }
 
       {
