@@ -18,6 +18,9 @@ package org.tinymediamanager.core.movie.tasks;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static java.nio.file.FileVisitResult.TERMINATE;
+import static org.tinymediamanager.core.MediaFileHelper.BDMV;
+import static org.tinymediamanager.core.MediaFileHelper.HVDVD_TS;
+import static org.tinymediamanager.core.MediaFileHelper.VIDEO_TS;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 
 import java.io.IOException;
@@ -91,11 +94,6 @@ import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger       LOGGER           = LoggerFactory.getLogger(MovieUpdateDatasourceTask.class);
 
-  // constants
-  private static final String       VIDEO_TS         = "VIDEO_TS";
-  private static final String       BDMV             = "BDMV";
-  private static final String       HVDVD_TS         = "HVDVD_TS";
-
   private static long               preDir           = 0;
   private static long               postDir          = 0;
   private static long               visFile          = 0;
@@ -105,7 +103,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   // skip well-known, but unneeded folders (UPPERCASE)
   private static final List<String> SKIP_FOLDERS     = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER",
-      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ");
+      "SYSTEM VOLUME INFORMATION", "@EADIR", "ADV_OBJ", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._" (exception for movie ".45")
   private static final String       SKIP_REGEX       = "(?i)^[.@](?!45|buelos)[\\w@]+.*";

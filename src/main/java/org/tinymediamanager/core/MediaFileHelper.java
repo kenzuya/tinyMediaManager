@@ -74,7 +74,7 @@ public class MediaFileHelper {
   public static final List<String> TRAILER_FOLDERS    = List.of("trailer", "trailers");
   // lower case
   public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
-      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");
+      "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others");
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -129,6 +129,11 @@ public class MediaFileHelper {
   public static final String       VIDEO_3D_HSBS      = "3D HSBS";
   public static final String       VIDEO_3D_HTAB      = "3D HTAB";
   public static final String       VIDEO_3D_MVC       = "3D MVC";
+
+  // disc folders
+  public static final String       VIDEO_TS           = "VIDEO_TS";
+  public static final String       BDMV               = "BDMV";
+  public static final String       HVDVD_TS           = "HVDVD_TS";
 
   static {
     SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp", "webp");

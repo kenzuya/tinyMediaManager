@@ -87,14 +87,9 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger       LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
 
-  // constants
-  private static final String       VIDEO_TS      = "VIDEO_TS";
-  private static final String       BDMV          = "BDMV";
-  private static final String       HVDVD_TS      = "HVDVD_TS";
-
   // skip well-known, but unneeded folders (UPPERCASE)
   private static final List<String> SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER", "SYSTEM VOLUME INFORMATION",
-      "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB");
+      "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._"
   private static final String       SKIP_REGEX    = "^[.][\\w@]+.*";
