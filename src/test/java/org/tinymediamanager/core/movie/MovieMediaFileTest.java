@@ -65,7 +65,7 @@ public class MovieMediaFileTest extends BasicTest {
   }
 
   @Test
-  public void ExtrasTest() {
+  public void mediaFileDetectionTest() {
     // video
     MediaFileType mft = MediaFileType.VIDEO;
     checkExtra("E.T. el extraterrestre", mft);
@@ -95,6 +95,15 @@ public class MovieMediaFileTest extends BasicTest {
     checkExtra("", mft);
     checkExtra("Extras/another/someExtForSomeMovie-trailer", mft);
 
+    // trailer
+    mft = MediaFileType.TRAILER;
+    checkExtra("Red.Shoe.Diaries.S01.DVDRip.X264-trailer", mft);
+    checkExtra("trailer/long", mft);
+    checkExtra("trailers/tvtrailer", mft);
+    checkExtra("movie-trailer", mft);
+    checkExtra("movie-trailer2", mft);
+    checkExtra("movie-trailer.2", mft);
+
     System.out.println("All fine :)");
   }
 
@@ -103,9 +112,8 @@ public class MovieMediaFileTest extends BasicTest {
       return;
     }
     Path f = Paths.get(".", filename + ".avi");
-    System.out.println("testing " + f + " for ");
     MediaFile mf = new MediaFile(f);
-    assertEqual(mft, mf.getType());
+    assertEqual(filename, mft, mf.getType());
   }
 
   @Test

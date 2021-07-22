@@ -1,8 +1,9 @@
 Version 4.2
 =======================
 + added Windows installer, macOS dmg and Docker image
-+ (Linux) ship libmediainfo for 64bit systems
 + added support for 3rd party scrapers
++ added regular expression based skip folders #1402
++ (Linux) ship libmediainfo for 64bit systems
 + added support for not overwriting existing items on scrape #1368
 + added support for webp images
 + added country MX to supported certifications #1379

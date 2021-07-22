@@ -53,6 +53,7 @@ import org.tinymediamanager.thirdparty.TinyFileDialogs;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
+import org.tinymediamanager.ui.dialogs.RegexpInputDialog;
 import org.tinymediamanager.ui.dialogs.UpdateDialog;
 import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
 import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
@@ -599,5 +600,11 @@ public class TmmUIHelper {
     if (confirm == JOptionPane.YES_OPTION) {
       MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
     }
+  }
+
+  public static String showRegexpInputDialog(Window parent) {
+    RegexpInputDialog inputDialog = new RegexpInputDialog(parent);
+    inputDialog.setVisible(true);
+    return inputDialog.getRegularExpression();
   }
 }

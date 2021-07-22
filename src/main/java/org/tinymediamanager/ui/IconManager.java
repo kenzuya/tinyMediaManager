@@ -156,6 +156,7 @@ public class IconManager {
   public static final ImageIcon              DELETE_INV                   = createButtonIcon("trash-alt.svg");
   public static final ImageIcon              EXCHANGE                     = createButtonIcon("exchange.svg");
   public static final ImageIcon              FILE_OPEN_INV                = createButtonIcon("folder-open.svg");
+  public static final ImageIcon              FILE_ADD_INV                 = createButtonIcon("file-plus.svg");
   public static final ImageIcon              IMAGE_INV                    = createButtonIcon("image.svg");
   public static final ImageIcon              PLAY_INV                     = createButtonIcon("play.svg");
   public static final ImageIcon              REMOVE_INV                   = createButtonIcon("minus.svg");

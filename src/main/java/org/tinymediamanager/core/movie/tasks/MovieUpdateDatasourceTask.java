@@ -110,7 +110,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private static final Pattern      VIDEO_3D_PATTERN = Pattern.compile("(?i)[ ._\\(\\[-]3D[ ._\\)\\]-]?");
 
   private final List<String>        dataSources;
-  private final List<String>        skipFolders;
+  private final List<Pattern>       skipFolders;
   private final List<Movie>         moviesToUpdate   = new ArrayList<>();
   private final MovieList           movieList        = MovieModuleManager.getInstance().getMovieList();
   private final Set<Path>           filesFound       = ConcurrentHashMap.newKeySet();
@@ -121,21 +121,47 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   public MovieUpdateDatasourceTask() {
     super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
-    skipFolders = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getSkipFolder());
+    skipFolders = new ArrayList<>();
+
+    init();
   }
 
   public MovieUpdateDatasourceTask(String datasource) {
     super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
-    skipFolders = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getSkipFolder());
+    skipFolders = new ArrayList<>();
+
+    init();
   }
 
   public MovieUpdateDatasourceTask(List<Movie> movies) {
     super(TmmResourceBundle.getString("update.datasource"));
     dataSources = new ArrayList<>(0);
     moviesToUpdate.addAll(movies);
-    skipFolders = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getSkipFolder());
+    skipFolders = new ArrayList<>();
+
+    init();
+  }
+
+  private void init() {
+    for (String skipFolder : MovieModuleManager.getInstance().getSettings().getSkipFolder()) {
+      try {
+        Pattern pattern = Pattern.compile(skipFolder);
+        skipFolders.add(pattern);
+      }
+      catch (Exception e) {
+        try {
+          LOGGER.debug("no valid skip pattern - '{}'", skipFolder);
+
+          Pattern pattern = Pattern.compile(Pattern.quote(skipFolder));
+          skipFolders.add(pattern);
+        }
+        catch (Exception ignored) {
+          // just ignore
+        }
+      }
+    }
   }
 
   @Override
@@ -199,7 +225,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private void updateDatasource() {
     for (String ds : dataSources) {
       // check the special case, that the data source is also an ignore folder
-      if (skipFolders.contains(ds)) {
+      if (isInSkipFolder(Paths.get(ds))) {
         LOGGER.debug("datasource '{}' is also a skipfolder - skipping", ds);
         continue;
       }
@@ -319,8 +345,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
     LOGGER.info("Start UDS for movie sets");
 
-    Set<Path> movieSetFiles = getAllFilesRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder()),
-        Integer.MAX_VALUE);
+    Set<Path> movieSetFiles = getAllFilesRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder()));
 
     for (Path path : movieSetFiles) {
       if (FilenameUtils.isExtension(path.getFileName().toString(), "nfo")) {
@@ -462,9 +487,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private class FindMovieTask implements Callable<Object> {
 
-    private Path subdir     = null;
-    private Path datasource = null;
-    private long uniqueId;
+    private final Path subdir;
+    private final Path datasource;
+    private final long uniqueId;
 
     public FindMovieTask(Path subdir, Path datasource) {
       this.subdir = subdir;
@@ -494,9 +519,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private class ParseMultiMovieDirTask implements Callable<Object> {
 
-    private Path       movieDir   = null;
-    private Path       datasource = null;
-    private List<Path> allFiles   = null;
+    private final Path       movieDir;
+    private final Path       datasource;
+    private final List<Path> allFiles;
 
     public ParseMultiMovieDirTask(Path dataSource, Path movieDir, List<Path> allFiles) {
       this.datasource = dataSource;
@@ -694,7 +719,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     }
 
     Movie movie = movieList.getMovieByPath(movieDir);
-    Set<Path> allFiles = getAllFilesRecursive(movieDir, Integer.MAX_VALUE);
+    Set<Path> allFiles = getAllFilesRecursive(movieDir);
     filesFound.add(movieDir.toAbsolutePath()); // our global cache
     filesFound.addAll(allFiles); // our global cache
 
@@ -991,6 +1016,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
               movie.setYear(Integer.parseInt(ty[1]));
             }
             catch (Exception ignored) {
+              // nothing to do
             }
           }
           // get edition from name
@@ -1449,12 +1475,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
       for (Path path : directoryStream) {
         if (Utils.isRegularFile(path) || path.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-          String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
-          if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
-            fileNames.add(path.toAbsolutePath());
+          if (isInSkipFolder(path)) {
+            LOGGER.debug("Skipping: {}", path);
           }
           else {
-            LOGGER.debug("Skipping: {}", path);
+            fileNames.add(path.toAbsolutePath());
           }
         }
       }
@@ -1477,12 +1502,11 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     List<Path> fileNames = new ArrayList<>();
     try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
       for (Path path : directoryStream) {
-        String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
-        if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
-          fileNames.add(path.toAbsolutePath());
+        if (isInSkipFolder(path)) {
+          LOGGER.debug("Skipping: {}", path);
         }
         else {
-          LOGGER.debug("Skipping: {}", path);
+          fileNames.add(path.toAbsolutePath());
         }
       }
     }
@@ -1495,27 +1519,21 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   // **************************************
   // gets all files recursive,
   // **************************************
-  private Set<Path> getAllFilesRecursive(Path folder, int deep) {
+  private Set<Path> getAllFilesRecursive(Path folder) {
     folder = folder.toAbsolutePath();
-    AllFilesRecursive visitor = new AllFilesRecursive(skipFolders);
+    AllFilesRecursive visitor = new AllFilesRecursive();
     try {
-      Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), deep, visitor);
+      Files.walkFileTree(folder, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, visitor);
     }
     catch (IOException e) {
-      // can not happen, since we overrided visitFileFailed, which throws no exception ;)
+      // can not happen, since we have overridden visitFileFailed, which throws no exception ;)
     }
     return visitor.fFound;
   }
 
-  private static class AllFilesRecursive extends AbstractFileVisitor {
-    private final Set<Path>    fFound = new HashSet<>();
-    private final List<String> skipFolders;
+  private class AllFilesRecursive extends AbstractFileVisitor {
+    private final Set<Path> fFound = new HashSet<>();
 
-    public AllFilesRecursive(List<String> skipFolders) {
-      this.skipFolders = new ArrayList<>(skipFolders);
-    }
-
-    @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
       incVisFile();
 
@@ -1555,10 +1573,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
       incPreDir();
       // getFilename returns null on DS root!
-      if (dir.getFileName() != null
-          && (Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"))
-              || SKIP_FOLDERS.contains(dir.getFileName().toString().toUpperCase(Locale.ROOT)) || dir.getFileName().toString().matches(SKIP_REGEX))
-          || skipFolders.contains(dir.toFile().getAbsolutePath())) {
+      if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir))) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
@@ -1601,9 +1616,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   }
 
   private class SearchAndParseVisitor extends AbstractFileVisitor {
-    private final Path              datasource;
-    private final ArrayList<String> unstackedRoot = new ArrayList<>(); // only for folderstacking
-    private final Set<Path>         videofolders  = new HashSet<>();   // all found video folders
+    private final Path         datasource;
+    private final List<String> unstackedRoot = new ArrayList<>(); // only for folderstacking
+    private final Set<Path>    videofolders  = new HashSet<>();   // all found video folders
 
     SearchAndParseVisitor(Path datasource) {
       this.datasource = datasource;
@@ -1631,14 +1646,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
       incPreDir();
-      String fn = dir.getFileName().toString().toUpperCase(Locale.ROOT);
       String parent = "";
       if (!dir.equals(datasource) && !dir.getParent().equals(datasource)) {
         parent = dir.getParent().getFileName().toString().toUpperCase(Locale.ROOT); // skip all subdirs of disc folders
       }
 
-      if (SKIP_FOLDERS.contains(fn) || fn.matches(SKIP_REGEX) || Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore"))
-          || Files.exists(dir.resolve(".nomedia")) || skipFolders.contains(dir.toFile().getAbsolutePath()) || parent.matches(DISC_FOLDER_REGEX)) {
+      if (dir.getFileName() != null && (isInSkipFolder(dir) || containsSkipFile(dir) || parent.matches(DISC_FOLDER_REGEX))) {
         LOGGER.debug("Skipping dir: {}", dir);
         return SKIP_SUBTREE;
       }
@@ -1687,7 +1700,50 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       }
       return CONTINUE;
     }
+  }
 
+  /**
+   * check if the given folder is a skip folder
+   * 
+   * @param dir
+   *          the folder to check
+   * @return true/false
+   */
+  private boolean isInSkipFolder(Path dir) {
+    String dirName = dir.getFileName().toString();
+    String dirNameUppercase = dirName.toUpperCase(Locale.ROOT);
+    String fullPath = dir.toAbsolutePath().toString();
+
+    // hard coded skip folders
+    if (SKIP_FOLDERS.contains(dirNameUppercase) || dirName.matches(SKIP_REGEX)) {
+      return true;
+    }
+
+    // skip folders from regexp
+    for (Pattern pattern : skipFolders) {
+      Matcher matcher = pattern.matcher(dirName);
+      if (matcher.matches()) {
+        return true;
+      }
+
+      // maybe the regexp is a full path
+      if (pattern.toString().equals(fullPath)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * check if the given folder contains any of the well known skip files (tmmignore, .tmmignore, .nomedia)
+   * 
+   * @param dir
+   *          the folder to check
+   * @return true/false
+   */
+  private boolean containsSkipFile(Path dir) {
+    return Files.exists(dir.resolve(".tmmignore")) || Files.exists(dir.resolve("tmmignore")) || Files.exists(dir.resolve(".nomedia"));
   }
 
   /**
