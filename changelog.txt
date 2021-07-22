@@ -31,3 +31,4 @@ x re-added the java parameter "tmm.legacy.filechooser" to prevent tinyfiledialog
 x (movies/TV shows) replace invalid characters in the renamer after the renderers have been applied #1385
 x (movies/TV shows) immediately save settings after changing filter presets #1395
 x (movies) respect more special plex folders #1398 #1402
+x fixed loading of the translations for Traditional Chinese (zh_Hant) #1406

@@ -1149,6 +1149,10 @@ public class Utils {
       catch (Exception e) {
         // Whoopsie. try to fix string....
         if (language.matches("^\\w\\w_\\w\\w.*")) {
+          // okay, maybe some special locale - try to detect all exceptions
+          if ("zh_HANT".equals(language)) {
+            return new Locale("zh", "HANT");
+          }
           return LocaleUtils.toLocale(language.substring(0, 5));
         }
       }
