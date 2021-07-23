@@ -158,6 +158,9 @@ public class TvShowThemeDownloadTask extends TmmThreadPool {
             MediaFile mediaFile = new MediaFile(destFile);
             mediaFile.gatherMediaInformation();
             tvShow.addToMediaFiles(mediaFile);
+
+            // and save the TV show
+            tvShow.saveToDb();
           }
           finally {
             // remove temp file
