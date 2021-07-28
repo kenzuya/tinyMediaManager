@@ -1710,6 +1710,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * @return true/false
    */
   private boolean isInSkipFolder(Path dir) {
+    if (dir != null && dir.getFileName() == null) {
+      return false;
+    }
     String dirName = dir.getFileName().toString();
     String dirNameUppercase = dirName.toUpperCase(Locale.ROOT);
     String fullPath = dir.toAbsolutePath().toString();
