@@ -69,6 +69,7 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieArtworkHelper;
 import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.connector.MovieNfoParser;
 import org.tinymediamanager.core.movie.connector.MovieSetNfoParser;
@@ -765,7 +766,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           }
         }
         catch (Exception e) {
-          LOGGER.warn("| couldn't read TXT {}", mf.getFilename());
+          LOGGER.debug("| couldn't read TXT {}", mf.getFilename());
         }
       }
       else if (mf.getType().equals(MediaFileType.VIDEO)) {
@@ -1116,6 +1117,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
   private void addMediafilesToMovie(Movie movie, List<MediaFile> mediaFiles) {
     List<MediaFile> current = new ArrayList<>(movie.getMediaFiles());
 
+    // sort the given media files to bring the video to the front
+    mediaFiles.sort(new MovieMediaFileComparator());
+
+    // remember the first video file
+    MediaFile mainVideoFile = null;
+
     for (MediaFile mf : mediaFiles) {
       if (!current.contains(mf)) { // a new mediafile was found!
         if (mf.getPath().toUpperCase(Locale.ROOT).contains("BDMV") || mf.getPath().toUpperCase(Locale.ROOT).contains("VIDEO_TS")
@@ -1133,6 +1140,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         LOGGER.debug("| parsing {} {}", mf.getType().name(), mf.getFileAsPath());
         switch (mf.getType()) {
           case VIDEO:
+            if (mainVideoFile == null) {
+              mainVideoFile = mf;
+            }
             movie.addToMediaFiles(mf);
 
             if (movie.getMediaSource() == MediaSource.UNKNOWN) {
@@ -1152,6 +1162,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
               LOGGER.warn("problem: detected media file type FANART in extrafanart folder: {}", mf.getPath());
               continue;
             }
+
+            // if the fanart ends with -fanart, but does not start with the same base name, we recategorize it as graphic
+            if (hasInvalidBasename(mainVideoFile, mf, "fanart")) {
+              mf.setType(MediaFileType.GRAPHIC);
+            }
+
             movie.addToMediaFiles(mf);
             break;
 
@@ -1161,6 +1177,35 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
               LOGGER.warn("| problem: detected media file type THUMB in extrathumbs folder: {}", mf.getPath());
               continue;
             }
+
+            // if the thumb ends with -thumb, but does not start with the same base name, we recategorize it as graphic
+            if (hasInvalidBasename(mainVideoFile, mf, "thumb")) {
+              mf.setType(MediaFileType.GRAPHIC);
+            }
+
+            movie.addToMediaFiles(mf);
+            break;
+
+          case POSTER:
+          case BANNER:
+          case CLEARLOGO:
+          case LOGO:
+          case CLEARART:
+          case KEYART:
+            // if the artwork ends with -<type>, but does not start with the same base name, we recategorize it as graphic
+            if (hasInvalidBasename(mainVideoFile, mf, mf.getType().name().toLowerCase(Locale.ROOT))) {
+              mf.setType(MediaFileType.GRAPHIC);
+            }
+
+            movie.addToMediaFiles(mf);
+            break;
+
+          case DISC:
+            // if the artwork ends with -disc or -discart, but does not start with the same base name, we recategorize it as graphic
+            if (hasInvalidBasename(mainVideoFile, mf, "disc") || hasInvalidBasename(mainVideoFile, mf, "discart")) {
+              mf.setType(MediaFileType.GRAPHIC);
+            }
+
             movie.addToMediaFiles(mf);
             break;
 
@@ -1169,21 +1214,14 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           case SAMPLE:
           case NFO:
           case TEXT:
-          case POSTER:
           case SEASON_POSTER:
           case EXTRAFANART:
           case EXTRATHUMB:
           case AUDIO:
-          case DISC:
-          case BANNER:
-          case CLEARART:
-          case LOGO:
-          case CLEARLOGO:
           case MEDIAINFO:
           case VSMETA:
           case THEME:
           case CHARACTERART:
-          case KEYART:
           case DOUBLE_EXT:
             movie.addToMediaFiles(mf);
             break;
@@ -1202,11 +1240,31 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         // debug
         if (mf.getType() != MediaFileType.GRAPHIC && mf.getType() != MediaFileType.UNKNOWN && mf.getType() != MediaFileType.NFO
             && !movie.getMediaFiles().contains(mf)) {
-          LOGGER.error("| Movie not added mf: {}", mf.getFileAsPath());
+          LOGGER.warn("| Movie not added mf: {}", mf.getFileAsPath());
         }
 
       } // end new MF found
     } // end MF loop
+  }
+
+  private boolean hasInvalidBasename(MediaFile mainVideoFile, MediaFile toCheck, String suffix) {
+    if (mainVideoFile == null) {
+      return false;
+    }
+
+    String toCheckBasename = FilenameUtils.getBaseName(toCheck.getFilename());
+
+    if (!toCheckBasename.endsWith("-" + suffix)) {
+      return false;
+    }
+
+    String mainVideoFileBasename = FilenameUtils.getBaseName(mainVideoFile.getFilename());
+
+    if (!toCheckBasename.equals(mainVideoFileBasename)) {
+      return true;
+    }
+
+    return false;
   }
 
   /*
@@ -1710,9 +1768,10 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    * @return true/false
    */
   private boolean isInSkipFolder(Path dir) {
-    if (dir != null && dir.getFileName() == null) {
+    if (dir == null || dir.getFileName() == null) {
       return false;
     }
+
     String dirName = dir.getFileName().toString();
     String dirNameUppercase = dirName.toUpperCase(Locale.ROOT);
     String fullPath = dir.toAbsolutePath().toString();

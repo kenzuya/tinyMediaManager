@@ -34,3 +34,4 @@ x (movies/TV shows) immediately save settings after changing filter presets #139
 x (movies) respect more special plex folders #1398 #1402
 x fixed loading of the translations for Traditional Chinese (zh_Hant) #1406
 x (TV shows) persist TV show after downloading a theme #1405
+x (movies) improved internal artwork handling #1413

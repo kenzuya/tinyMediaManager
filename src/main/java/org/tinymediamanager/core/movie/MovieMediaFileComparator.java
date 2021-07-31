@@ -41,9 +41,13 @@ public class MovieMediaFileComparator implements Comparator<MediaFile> {
       case EXTRATHUMB:
         return mf1.getFilename().compareTo(mf2.getFilename());
 
-      // sort the rest by filesize (descending)
-      default:
+      case TRAILER:
+        // sort trailer by size
         return Long.compare(mf2.getFilesize(), mf1.getFilesize());
+
+      // sort the rest by filename length (descending) - assume that the kodi standard -poster, -fanart is always on top in this case
+      default:
+        return Integer.compare(mf2.getFilename().length(), mf1.getFilename().length());
     }
   }
 }
