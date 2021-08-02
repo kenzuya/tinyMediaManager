@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -36,7 +37,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Manuel Laggner
  */
 public class TvShowVideoContainerFilter extends AbstractCheckComboBoxTvShowUIFilter<String> {
-  private TvShowList tvShowList = TvShowList.getInstance();
+  private final TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
   public TvShowVideoContainerFilter() {
     super();

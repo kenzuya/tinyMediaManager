@@ -24,6 +24,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 
 /**
@@ -32,12 +33,12 @@ import org.tinymediamanager.ui.TmmUIHelper;
  * @author Manuel Laggner
  */
 public class FaqAction extends TmmAction {
-  private static final long           serialVersionUID = 1668251251156765161L;
-  
-  private static final Logger         LOGGER           = LoggerFactory.getLogger(FaqAction.class);
+  private static final long   serialVersionUID = 1668251251156765161L;
+  private static final Logger LOGGER           = LoggerFactory.getLogger(FaqAction.class);
 
   public FaqAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.faq"));
+    putValue(SMALL_ICON, IconManager.HELP);
   }
 
   @Override

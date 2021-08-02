@@ -60,7 +60,7 @@ class TvShowImageTypeSettingsPanel extends JPanel {
 
   
 
-  private TvShowSettings              settings         = TvShowModuleManager.SETTINGS;
+  private TvShowSettings    settings         = TvShowModuleManager.getInstance().getSettings();
   private JCheckBox                   chckbxEpisodeThumb1;
   private JCheckBox                   chckbxEpisodeThumb3;
   private JCheckBox                   chckbxEpisodeThumb4;

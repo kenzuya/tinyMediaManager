@@ -469,6 +469,21 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     episodes = new ArrayList<>();
 
+    // get actors from the show itself
+    List<Actor> baseActors = new ArrayList<>();
+    try {
+      Response<ActorsResponse> httpResponse = tvdb.series().actors(showId).execute();
+      if (httpResponse.isSuccessful() && httpResponse.body() != null) {
+        for (Actor actor : ListUtils.nullSafe(httpResponse.body().data)) {
+          baseActors.add(actor);
+        }
+      }
+    }
+    catch (Exception ignored) {
+      // do not worry if no actors could be fetched
+    }
+
+    // get episodes
     List<Episode> eps = new ArrayList<>();
     try {
       String language = options.getLanguage().getLanguage();
@@ -572,7 +587,20 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
         }
       }
 
-      // actors (guests?)
+      // actors
+      // 1. mix in base staff
+      for (Actor actor : baseActors) {
+        Person cm = new Person(ACTOR);
+        cm.setId(getId(), actor.id);
+        cm.setName(actor.name);
+        cm.setRole(actor.role);
+        if (StringUtils.isNotBlank(actor.image)) {
+          cm.setThumbUrl(ARTWORK_URL + actor.image);
+        }
+
+        episode.addCastMember(cm);
+      }
+      // 2. mix in guests
       if (ep.guestStars != null && !ep.guestStars.isEmpty()) {
         for (String guest : ep.guestStars) {
           String[] multiple = guest.split(",");

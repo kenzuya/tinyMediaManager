@@ -45,7 +45,7 @@ public class TvShowDownloadActorImagesAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    if (!TvShowModuleManager.SETTINGS.isWriteActorImages()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isWriteActorImages()) {
       JOptionPane.showMessageDialog(MainWindow.getInstance(), TmmResourceBundle.getString("tmm.downloadactorimages.activate"));
       return;
     }

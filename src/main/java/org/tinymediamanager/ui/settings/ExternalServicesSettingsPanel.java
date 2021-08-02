@@ -25,7 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.trakttv.TraktTv;
@@ -55,7 +55,7 @@ class ExternalServicesSettingsPanel extends JPanel {
 
     // data init
     if (License.getInstance().isValidLicense()
-        && StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
+        && StringUtils.isNoneBlank(Settings.getInstance().getTraktAccessToken(), Settings.getInstance().getTraktRefreshToken())) {
       lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.good"));
     }
     else {
@@ -103,10 +103,10 @@ class ExternalServicesSettingsPanel extends JPanel {
     catch (Exception ignored) {
     }
 
-    Globals.settings.setTraktAccessToken(accessToken);
-    Globals.settings.setTraktRefreshToken(refreshToken);
+    Settings.getInstance().setTraktAccessToken(accessToken);
+    Settings.getInstance().setTraktRefreshToken(refreshToken);
 
-    if (StringUtils.isNoneBlank(Globals.settings.getTraktAccessToken(), Globals.settings.getTraktRefreshToken())) {
+    if (StringUtils.isNoneBlank(Settings.getInstance().getTraktAccessToken(), Settings.getInstance().getTraktRefreshToken())) {
       lblTraktStatus.setText(TmmResourceBundle.getString("Settings.trakt.status.good"));
     }
     else {

@@ -3,6 +3,7 @@ mainClass: org.tinymediamanager.TinyMediaManager
 classpath:
   - tmm.jar
   - /lib/*
+  - /addons/*
 jvmOpts:
   - '-Xms64m'
   - '-Xmx512m'

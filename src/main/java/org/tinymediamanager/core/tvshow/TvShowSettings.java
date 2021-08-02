@@ -27,12 +27,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.observablecollections.ObservableCollections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
 import org.tinymediamanager.core.tvshow.connector.TvShowConnectors;
@@ -68,163 +68,167 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  *
  * @author Manuel Laggner
  */
-public class TvShowSettings extends AbstractSettings {
-  private static final Logger                            LOGGER                                 = LoggerFactory.getLogger(TvShowSettings.class);
+public final class TvShowSettings extends AbstractSettings {
+  private static final Logger                    LOGGER                                 = LoggerFactory.getLogger(TvShowSettings.class);
+  private static final String                    CONFIG_FILE                            = "tvShows.json";
 
-  public static final String                             DEFAULT_RENAMER_FOLDER_PATTERN         = "${showTitle} (${showYear})";
-  public static final String                             DEFAULT_RENAMER_SEASON_PATTERN         = "Season ${seasonNr}";
-  public static final String                             DEFAULT_RENAMER_FILE_PATTERN           = "${showTitle} - S${seasonNr2}E${episodeNr2} - ${title}";
+  public static final String                     DEFAULT_RENAMER_FOLDER_PATTERN         = "${showTitle} (${showYear})";
+  public static final String                     DEFAULT_RENAMER_SEASON_PATTERN         = "Season ${seasonNr}";
+  public static final String                     DEFAULT_RENAMER_FILE_PATTERN           = "${showTitle} - S${seasonNr2}E${episodeNr2} - ${title}";
 
-  private static final String                            CONFIG_FILE                            = "tvShows.json";
-
-  private static TvShowSettings                          instance;
+  private static TvShowSettings                  instance;
 
   /**
    * Constants mainly for events
    */
-  private static final String                            TV_SHOW_DATA_SOURCE                    = "tvShowDataSource";
-  private static final String                            ARTWORK_SCRAPERS                       = "artworkScrapers";
-  private static final String                            TRAILER_SCRAPERS                       = "trailerScrapers";
-  private static final String                            TRAILER_FILENAME                       = "trailerFilename";
+  static final String                            TV_SHOW_DATA_SOURCE                    = "tvShowDataSource";
+  static final String                            ARTWORK_SCRAPERS                       = "artworkScrapers";
+  static final String                            TRAILER_SCRAPERS                       = "trailerScrapers";
+  static final String                            TRAILER_FILENAME                       = "trailerFilename";
 
-  private static final String                            CERTIFICATION_COUNTRY                  = "certificationCountry";
-  private static final String                            RENAMER_SEASON_FOLDER                  = "renamerSeasonFoldername";
-  private static final String                            BAD_WORD                               = "badWord";
-  private static final String                            SKIP_FOLDER                            = "skipFolder";
-  private static final String                            SUBTITLE_SCRAPERS                      = "subtitleScrapers";
-  private static final String                            NFO_FILENAME                           = "nfoFilename";
-  private static final String                            POSTER_FILENAME                        = "posterFilename";
-  private static final String                            FANART_FILENAME                        = "fanartFilename";
-  private static final String                            EXTRAFANART_FILENAME                   = "extraFanartFilename";
-  private static final String                            BANNER_FILENAME                        = "bannerFilename";
-  private static final String                            DISCART_FILENAME                       = "discartFilename";
-  private static final String                            CLEARART_FILENAME                      = "clearartFilename";
-  private static final String                            THUMB_FILENAME                         = "thumbFilename";
-  private static final String                            LOGO_FILENAME                          = "logoFilename";
-  private static final String                            CLEARLOGO_FILENAME                     = "clearlogoFilename";
-  private static final String                            CHARACTERART_FILENAME                  = "characterartFilename";
-  private static final String                            KEYART_FILENAME                        = "keyartFilename";
-  private static final String                            SEASON_POSTER_FILENAME                 = "seasonPosterFilename";
-  private static final String                            SEASON_BANNER_FILENAME                 = "seasonBannerFilename";
-  private static final String                            SEASON_THUMB_FILENAME                  = "seasonThumbFilename";
-  private static final String                            EPISODE_NFO_FILENAME                   = "episodeNfoFilename";
-  private static final String                            EPISODE_THUMB_FILENAME                 = "episodeThumbFilename";
-  private static final String                            EPISODE_CHECK_IMAGES                   = "episodeCheckImages";
-  private static final String                            SEASON_CHECK_IMAGES                    = "seasonCheckImages";
-  private static final String                            TVSHOW_CHECK_IMAGES                    = "TvShowCheckImages";
+  static final String                            CERTIFICATION_COUNTRY                  = "certificationCountry";
+  static final String                            RENAMER_SEASON_FOLDER                  = "renamerSeasonFoldername";
+  static final String                            BAD_WORD                               = "badWord";
+  static final String                            SKIP_FOLDER                            = "skipFolder";
+  static final String                            SUBTITLE_SCRAPERS                      = "subtitleScrapers";
+  static final String                            NFO_FILENAME                           = "nfoFilename";
+  static final String                            POSTER_FILENAME                        = "posterFilename";
+  static final String                            FANART_FILENAME                        = "fanartFilename";
+  static final String                            EXTRAFANART_FILENAME                   = "extraFanartFilename";
+  static final String                            BANNER_FILENAME                        = "bannerFilename";
+  static final String                            DISCART_FILENAME                       = "discartFilename";
+  static final String                            CLEARART_FILENAME                      = "clearartFilename";
+  static final String                            THUMB_FILENAME                         = "thumbFilename";
+  static final String                            LOGO_FILENAME                          = "logoFilename";
+  static final String                            CLEARLOGO_FILENAME                     = "clearlogoFilename";
+  static final String                            CHARACTERART_FILENAME                  = "characterartFilename";
+  static final String                            KEYART_FILENAME                        = "keyartFilename";
+  static final String                            SEASON_POSTER_FILENAME                 = "seasonPosterFilename";
+  static final String                            SEASON_BANNER_FILENAME                 = "seasonBannerFilename";
+  static final String                            SEASON_THUMB_FILENAME                  = "seasonThumbFilename";
+  static final String                            EPISODE_NFO_FILENAME                   = "episodeNfoFilename";
+  static final String                            EPISODE_THUMB_FILENAME                 = "episodeThumbFilename";
+  static final String                            EPISODE_CHECK_IMAGES                   = "episodeCheckImages";
+  static final String                            SEASON_CHECK_IMAGES                    = "seasonCheckImages";
+  static final String                            TVSHOW_CHECK_IMAGES                    = "TvShowCheckImages";
 
-  private final List<String>                             tvShowDataSources                      = ObservableCollections
-      .observableList(new ArrayList<>());
-  private final List<String>                             badWords                               = ObservableCollections
-      .observableList(new ArrayList<>());
-  private final List<String>                             artworkScrapers                        = ObservableCollections
-      .observableList(new ArrayList<>());
-  private final List<String>                             trailerScrapers                        = ObservableCollections
-      .observableList(new ArrayList<>());
-  private final List<String>                             skipFolders                            = ObservableCollections
-      .observableList(new ArrayList<>());
-  private final List<String>                             subtitleScrapers                       = ObservableCollections
-      .observableList(new ArrayList<>());
-  private final List<TvShowNfoNaming>                    nfoFilenames                           = new ArrayList<>();
-  private final List<TvShowPosterNaming>                 posterFilenames                        = new ArrayList<>();
-  private final List<TvShowFanartNaming>                 fanartFilenames                        = new ArrayList<>();
-  private final List<TvShowExtraFanartNaming>            extraFanartFilenames                   = new ArrayList<>();
-  private final List<TvShowBannerNaming>                 bannerFilenames                        = new ArrayList<>();
-  private final List<TvShowDiscartNaming>                discartFilenames                       = new ArrayList<>();
-  private final List<TvShowClearartNaming>               clearartFilenames                      = new ArrayList<>();
-  private final List<TvShowThumbNaming>                  thumbFilenames                         = new ArrayList<>();
-  private final List<TvShowClearlogoNaming>              clearlogoFilenames                     = new ArrayList<>();
-  private final List<TvShowLogoNaming>                   logoFilenames                          = new ArrayList<>();
-  private final List<TvShowCharacterartNaming>           characterartFilenames                  = new ArrayList<>();
-  private final List<TvShowKeyartNaming>                 keyartFilenames                        = new ArrayList<>();
-  private final List<TvShowSeasonPosterNaming>           seasonPosterFilenames                  = new ArrayList<>();
-  private final List<TvShowSeasonBannerNaming>           seasonBannerFilenames                  = new ArrayList<>();
-  private final List<TvShowSeasonThumbNaming>            seasonThumbFilenames                   = new ArrayList<>();
-  private final List<TvShowEpisodeNfoNaming>             episodeNfoFilenames                    = new ArrayList<>();
-  private final List<TvShowEpisodeThumbNaming>           episodeThumbFilenames                  = new ArrayList<>();
-  private final List<MediaArtworkType>                   episodeCheckImages                     = new ArrayList<>();
-  private final List<MediaArtworkType>                   seasonCheckImages                      = new ArrayList<>();
-  private final List<MediaArtworkType>                   tvShowCheckImages                      = new ArrayList<>();
-  private final List<TvShowTrailerNaming>                trailerFilenames                       = new ArrayList<>();
+  static final String                            NODE                                   = "node";
+  static final String                            TITLE                                  = "title";
+  static final String                            ORIGINAL_TITLE                         = "originalTitle";
+  static final String                            NOTE                                   = "note";
 
-  private final Map<String, List<UIFilters>>             uiFilterPresets                        = new HashMap<>();
+  final List<String>                             tvShowDataSources                      = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                             badWords                               = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                             artworkScrapers                        = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                             trailerScrapers                        = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                             skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
+  final List<String>                             subtitleScrapers                       = ObservableCollections.observableList(new ArrayList<>());
+  final List<TvShowNfoNaming>                    nfoFilenames                           = new ArrayList<>();
+  final List<TvShowPosterNaming>                 posterFilenames                        = new ArrayList<>();
+  final List<TvShowFanartNaming>                 fanartFilenames                        = new ArrayList<>();
+  final List<TvShowExtraFanartNaming>            extraFanartFilenames                   = new ArrayList<>();
+  final List<TvShowBannerNaming>                 bannerFilenames                        = new ArrayList<>();
+  final List<TvShowDiscartNaming>                discartFilenames                       = new ArrayList<>();
+  final List<TvShowClearartNaming>               clearartFilenames                      = new ArrayList<>();
+  final List<TvShowThumbNaming>                  thumbFilenames                         = new ArrayList<>();
+  final List<TvShowClearlogoNaming>              clearlogoFilenames                     = new ArrayList<>();
+  final List<TvShowLogoNaming>                   logoFilenames                          = new ArrayList<>();
+  final List<TvShowCharacterartNaming>           characterartFilenames                  = new ArrayList<>();
+  final List<TvShowKeyartNaming>                 keyartFilenames                        = new ArrayList<>();
+  final List<TvShowSeasonPosterNaming>           seasonPosterFilenames                  = new ArrayList<>();
+  final List<TvShowSeasonBannerNaming>           seasonBannerFilenames                  = new ArrayList<>();
+  final List<TvShowSeasonThumbNaming>            seasonThumbFilenames                   = new ArrayList<>();
+  final List<TvShowEpisodeNfoNaming>             episodeNfoFilenames                    = new ArrayList<>();
+  final List<TvShowEpisodeThumbNaming>           episodeThumbFilenames                  = new ArrayList<>();
+  final List<MediaArtworkType>                   episodeCheckImages                     = new ArrayList<>();
+  final List<MediaArtworkType>                   seasonCheckImages                      = new ArrayList<>();
+  final List<MediaArtworkType>                   tvShowCheckImages                      = new ArrayList<>();
+  final List<TvShowTrailerNaming>                trailerFilenames                       = new ArrayList<>();
+
+  final Map<String, List<UIFilters>>             uiFilterPresets                        = new HashMap<>();
 
   // data sources / NFO settings
-  private TvShowConnectors                               tvShowConnector                        = TvShowConnectors.XBMC;
-  private CertificationStyle                             certificationStyle                     = CertificationStyle.LARGE;
-  private boolean                                        writeCleanNfo                          = false;
-  private DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
-  private MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
-  private boolean                                        nfoWriteEpisodeguide                   = true;
-  private boolean                                        nfoWriteDateEnded                      = false;
-  private boolean                                        nfoWriteAllActors                      = false;
-  private boolean                                        nfoWriteSingleStudio                   = false;
+  TvShowConnectors                               tvShowConnector                        = TvShowConnectors.XBMC;
+  CertificationStyle                             certificationStyle                     = CertificationStyle.LARGE;
+  boolean                                        writeCleanNfo                          = false;
+  DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
+  MediaLanguages                                 nfoLanguage                            = MediaLanguages.en;
+  boolean                                        nfoWriteEpisodeguide                   = true;
+  boolean                                        nfoWriteDateEnded                      = false;
+  boolean                                        nfoWriteAllActors                      = false;
+  boolean                                        nfoWriteSingleStudio                   = false;
 
   // renamer
-  private boolean                                        renameAfterScrape                      = false;
-  private boolean                                        ardAfterScrape                         = false;
-  private boolean                                        updateOnStart                          = false;
-  private String                                         renamerTvShowFoldername                = DEFAULT_RENAMER_FOLDER_PATTERN;
-  private String                                         renamerSeasonFoldername                = DEFAULT_RENAMER_SEASON_PATTERN;
-  private String                                         renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
-  private boolean                                        renamerShowPathnameSpaceSubstitution   = false;
-  private String                                         renamerShowPathnameSpaceReplacement    = "_";
-  private boolean                                        renamerSeasonPathnameSpaceSubstitution = false;
-  private String                                         renamerSeasonPathnameSpaceReplacement  = "_";
-  private boolean                                        renamerFilenameSpaceSubstitution       = false;
-  private String                                         renamerFilenameSpaceReplacement        = "_";
-  private String                                         renamerColonReplacement                = "";
-  private String                                         renamerFirstCharacterNumberReplacement = "#";
-  private boolean                                        asciiReplacement                       = false;
-  private boolean                                        specialSeason                          = true;
+  boolean                                        renameAfterScrape                      = false;
+  boolean                                        ardAfterScrape                         = false;
+  boolean                                        updateOnStart                          = false;
+  String                                         renamerTvShowFoldername                = DEFAULT_RENAMER_FOLDER_PATTERN;
+  String                                         renamerSeasonFoldername                = DEFAULT_RENAMER_SEASON_PATTERN;
+  String                                         renamerFilename                        = DEFAULT_RENAMER_FILE_PATTERN;
+  boolean                                        renamerShowPathnameSpaceSubstitution   = false;
+  String                                         renamerShowPathnameSpaceReplacement    = "_";
+  boolean                                        renamerSeasonPathnameSpaceSubstitution = false;
+  String                                         renamerSeasonPathnameSpaceReplacement  = "_";
+  boolean                                        renamerFilenameSpaceSubstitution       = false;
+  String                                         renamerFilenameSpaceReplacement        = "_";
+  String                                         renamerColonReplacement                = "";
+  String                                         renamerFirstCharacterNumberReplacement = "#";
+  boolean                                        asciiReplacement                       = false;
+  boolean                                        specialSeason                          = true;
 
   // meta data scraper
-  private String                                         scraper                                = Constants.TVDB;
-  private MediaLanguages                                 scraperLanguage                        = MediaLanguages.en;
-  private CountryCode                                    certificationCountry                   = CountryCode.US;
-  private String                                         releaseDateCountry                     = "";
-  private final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig            = new ArrayList<>();
-  private final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig           = new ArrayList<>();
+  String                                         scraper                                = Constants.TVDB;
+  MediaLanguages                                 scraperLanguage                        = MediaLanguages.en;
+  CountryCode                                    certificationCountry                   = CountryCode.US;
+  String                                         releaseDateCountry                     = "";
+  final List<TvShowScraperMetadataConfig>        tvShowScraperMetadataConfig            = new ArrayList<>();
+  final List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig           = new ArrayList<>();
 
   // artwork scraper
-  private MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
-  private MediaArtwork.PosterSizes                       imagePosterSize                        = MediaArtwork.PosterSizes.LARGE;
-  private MediaArtwork.FanartSizes                       imageFanartSize                        = MediaArtwork.FanartSizes.LARGE;
-  private boolean                                        scrapeBestImage                        = true;
-  private boolean                                        writeActorImages                       = false;
-  private boolean                                        imageExtraFanart                       = false;
-  private int                                            imageExtraFanartCount                  = 5;
+  MediaLanguages                                 imageScraperLanguage                   = MediaLanguages.en;
+  MediaArtwork.PosterSizes                       imagePosterSize                        = MediaArtwork.PosterSizes.LARGE;
+  MediaArtwork.FanartSizes                       imageFanartSize                        = MediaArtwork.FanartSizes.LARGE;
+  boolean                                        scrapeBestImage                        = true;
+  boolean                                        writeActorImages                       = false;
+  boolean                                        imageExtraFanart                       = false;
+  int                                            imageExtraFanartCount                  = 5;
 
   // trailer scraper
-  private boolean                                        useTrailerPreference                   = true;
-  private boolean                                        automaticTrailerDownload               = false;
-  private TrailerQuality                                 trailerQuality                         = TrailerQuality.HD_720;
-  private TrailerSources                                 trailerSource                          = TrailerSources.YOUTUBE;
+  boolean                                        useTrailerPreference                   = true;
+  boolean                                        automaticTrailerDownload               = false;
+  TrailerQuality                                 trailerQuality                         = TrailerQuality.HD_720;
+  TrailerSources                                 trailerSource                          = TrailerSources.YOUTUBE;
 
   // subtitle scraper
-  private MediaLanguages                                 subtitleScraperLanguage                = MediaLanguages.en;
-  private LanguageStyle                                  subtitleLanguageStyle                  = LanguageStyle.ISO3T;
-  private boolean                                        subtitleForceBestMatch                 = false;
+  MediaLanguages                                 subtitleScraperLanguage                = MediaLanguages.en;
+  LanguageStyle                                  subtitleLanguageStyle                  = LanguageStyle.ISO3T;
+  boolean                                        subtitleForceBestMatch                 = false;
 
   // misc
-  private boolean                                        buildImageCacheOnImport                = false;
-  private boolean                                        syncTrakt                              = false;
-  private boolean                                        syncTraktCollection                    = true;
-  private boolean                                        syncTraktWatched                       = true;
-  private boolean                                        syncTraktRating                        = true;
-  private boolean                                        dvdOrder                               = false;
-  private String                                         preferredRating                        = "tvdb";
-  private boolean                                        extractArtworkFromVsmeta               = false;
-  private boolean                                        useMediainfoMetadata                   = false;
+  boolean                                        buildImageCacheOnImport                = false;
+  boolean                                        syncTrakt                              = false;
+  boolean                                        syncTraktCollection                    = true;
+  boolean                                        syncTraktWatched                       = true;
+  boolean                                        syncTraktRating                        = true;
+  boolean                                        dvdOrder                               = false;
+  String                                         preferredRating                        = "tvdb";
+  boolean                                        extractArtworkFromVsmeta               = false;
+  boolean                                        useMediainfoMetadata                   = false;
 
   // ui
-  private boolean                                        displayMissingEpisodes                 = false;
-  private boolean                                        displayMissingSpecials                 = false;
-  private boolean                                        capitalWordsinTitles                   = false;
-  private boolean                                        showTvShowTableTooltips                = true;
-  private boolean                                        seasonArtworkFallback                  = false;
-  private boolean                                        storeUiFilters                         = false;
-  private final List<UIFilters>                          uiFilters                              = new ArrayList<>();
+  boolean                                        displayMissingEpisodes                 = false;
+  boolean                                        displayMissingSpecials                 = false;
+  boolean                                        capitalWordsinTitles                   = false;
+  boolean                                        showTvShowTableTooltips                = true;
+  boolean                                        seasonArtworkFallback                  = false;
+  boolean                                        storeUiFilters                         = false;
+  final List<UIFilters>                          uiFilters                              = new ArrayList<>();
+
+  // Quick Search filter
+  boolean                                        node                                   = true;
+  boolean                                        title                                  = true;
+  boolean                                        originalTitle                          = true;
+  boolean                                        note                                   = false;
 
   public TvShowSettings() {
     super();
@@ -314,8 +318,8 @@ public class TvShowSettings extends AbstractSettings {
    *
    * @return single instance of TvShowSettings
    */
-  public static synchronized TvShowSettings getInstance() {
-    return getInstance(Globals.settings.getSettingsFolder());
+  static synchronized TvShowSettings getInstance() {
+    return getInstance(Settings.getInstance().getSettingsFolder());
   }
 
   /**
@@ -324,7 +328,7 @@ public class TvShowSettings extends AbstractSettings {
    *
    * @return single instance of TvShowSettings
    */
-  public static synchronized TvShowSettings getInstance(String folder) {
+  static synchronized TvShowSettings getInstance(String folder) {
     if (instance == null) {
       instance = (TvShowSettings) getInstance(folder, CONFIG_FILE, TvShowSettings.class);
     }
@@ -380,7 +384,7 @@ public class TvShowSettings extends AbstractSettings {
   }
 
   public void removeTvShowDataSources(String path) {
-    TvShowList tvShowList = TvShowList.getInstance();
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     tvShowList.removeDatasource(path);
     tvShowDataSources.remove(path);
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
@@ -392,7 +396,7 @@ public class TvShowSettings extends AbstractSettings {
     if (index > -1) {
       tvShowDataSources.remove(oldDatasource);
       tvShowDataSources.add(index, newDatasource);
-      TvShowList.getInstance().exchangeDatasource(oldDatasource, newDatasource);
+      TvShowModuleManager.getInstance().getTvShowList().exchangeDatasource(oldDatasource, newDatasource);
     }
     firePropertyChange(TV_SHOW_DATA_SOURCE, null, tvShowDataSources);
     firePropertyChange(Constants.DATA_SOURCE, null, tvShowDataSources);
@@ -905,6 +909,46 @@ public class TvShowSettings extends AbstractSettings {
     boolean oldValue = this.displayMissingSpecials;
     this.displayMissingSpecials = newValue;
     firePropertyChange("displayMissingSpecials", oldValue, newValue);
+  }
+
+  public void setNode(boolean newValue) {
+    boolean oldValue = this.node;
+    this.node = newValue;
+    firePropertyChange(NODE, oldValue, newValue);
+  }
+
+  public boolean getNode() {
+    return this.node;
+  }
+
+  public void setTitle(boolean newValue) {
+    boolean oldValue = this.node;
+    this.node = newValue;
+    firePropertyChange(TITLE, oldValue, newValue);
+  }
+
+  public boolean getTitle() {
+    return this.title;
+  }
+
+  public void setOriginalTitle(boolean newValue) {
+    boolean oldValue = this.originalTitle;
+    this.originalTitle = newValue;
+    firePropertyChange(ORIGINAL_TITLE, oldValue, newValue);
+  }
+
+  public boolean getOriginalTitle() {
+    return this.originalTitle;
+  }
+
+  public void setNote(boolean newValue) {
+    boolean oldValue = this.note;
+    this.note = newValue;
+    firePropertyChange(NOTE, oldValue, newValue);
+  }
+
+  public boolean getNote() {
+    return this.note;
   }
 
   /**
@@ -1483,291 +1527,5 @@ public class TvShowSettings extends AbstractSettings {
 
   public boolean isStoreUiFilters() {
     return storeUiFilters;
-  }
-
-  /*****************************************************************
-   * defaults
-   *****************************************************************/
-
-  /**
-   * XBMC/Kodi <17 defaults
-   */
-  public void setDefaultSettingsForXbmc() {
-    nfoFilenames.clear();
-    nfoFilenames.add(TvShowNfoNaming.TV_SHOW);
-
-    posterFilenames.clear();
-    posterFilenames.add(TvShowPosterNaming.POSTER);
-
-    fanartFilenames.clear();
-    fanartFilenames.add(TvShowFanartNaming.FANART);
-
-    extraFanartFilenames.clear();
-    extraFanartFilenames.add(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
-
-    bannerFilenames.clear();
-    bannerFilenames.add(TvShowBannerNaming.BANNER);
-
-    discartFilenames.clear();
-    discartFilenames.add(TvShowDiscartNaming.DISCART);
-
-    clearartFilenames.clear();
-    clearartFilenames.add(TvShowClearartNaming.CLEARART);
-
-    logoFilenames.clear();
-    logoFilenames.add(TvShowLogoNaming.LOGO);
-
-    clearlogoFilenames.clear();
-    clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
-
-    characterartFilenames.clear();
-    characterartFilenames.add(TvShowCharacterartNaming.CHARACTERART);
-
-    thumbFilenames.clear();
-    thumbFilenames.add(TvShowThumbNaming.THUMB);
-
-    keyartFilenames.clear();
-    keyartFilenames.add(TvShowKeyartNaming.KEYART);
-
-    seasonPosterFilenames.clear();
-    seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
-
-    seasonBannerFilenames.clear();
-    seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
-
-    seasonThumbFilenames.clear();
-    seasonThumbFilenames.add(TvShowSeasonThumbNaming.SEASON_THUMB);
-
-    episodeNfoFilenames.clear();
-    episodeNfoFilenames.add(TvShowEpisodeNfoNaming.FILENAME);
-
-    episodeThumbFilenames.clear();
-    episodeThumbFilenames.add(TvShowEpisodeThumbNaming.FILENAME_THUMB);
-
-    // other settings
-    setTvShowConnector(TvShowConnectors.XBMC);
-    setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
-    setCertificationStyle(CertificationStyle.LARGE);
-
-    firePropertyChange("preset", false, true);
-  }
-
-  /**
-   * Kodi 17+ defaults
-   */
-  public void setDefaultSettingsForKodi() {
-    nfoFilenames.clear();
-    nfoFilenames.add(TvShowNfoNaming.TV_SHOW);
-
-    posterFilenames.clear();
-    posterFilenames.add(TvShowPosterNaming.POSTER);
-
-    fanartFilenames.clear();
-    fanartFilenames.add(TvShowFanartNaming.FANART);
-
-    extraFanartFilenames.clear();
-    extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
-
-    bannerFilenames.clear();
-    bannerFilenames.add(TvShowBannerNaming.BANNER);
-
-    discartFilenames.clear();
-    discartFilenames.add(TvShowDiscartNaming.DISCART);
-
-    clearartFilenames.clear();
-    clearartFilenames.add(TvShowClearartNaming.CLEARART);
-
-    logoFilenames.clear();
-    logoFilenames.add(TvShowLogoNaming.LOGO);
-
-    clearlogoFilenames.clear();
-    clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
-
-    characterartFilenames.clear();
-    characterartFilenames.add(TvShowCharacterartNaming.CHARACTERART);
-
-    thumbFilenames.clear();
-    thumbFilenames.add(TvShowThumbNaming.LANDSCAPE);
-
-    keyartFilenames.clear();
-    keyartFilenames.add(TvShowKeyartNaming.KEYART);
-
-    seasonPosterFilenames.clear();
-    seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
-
-    seasonBannerFilenames.clear();
-    seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
-
-    seasonThumbFilenames.clear();
-    seasonThumbFilenames.add(TvShowSeasonThumbNaming.SEASON_THUMB);
-
-    episodeNfoFilenames.clear();
-    episodeNfoFilenames.add(TvShowEpisodeNfoNaming.FILENAME);
-
-    episodeThumbFilenames.clear();
-    episodeThumbFilenames.add(TvShowEpisodeThumbNaming.FILENAME_THUMB);
-
-    // other settings
-    setTvShowConnector(TvShowConnectors.KODI);
-    setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
-    setCertificationStyle(CertificationStyle.LARGE);
-    setNfoWriteEpisodeguide(false);
-
-    firePropertyChange("preset", false, true);
-  }
-
-  /**
-   * MediaPortal defaults
-   */
-  public void setDefaultSettingsForMediaPortal() {
-    nfoFilenames.clear();
-    nfoFilenames.add(TvShowNfoNaming.TV_SHOW);
-
-    posterFilenames.clear();
-    posterFilenames.add(TvShowPosterNaming.POSTER);
-
-    fanartFilenames.clear();
-    fanartFilenames.add(TvShowFanartNaming.FANART);
-
-    extraFanartFilenames.clear();
-    extraFanartFilenames.add(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
-
-    bannerFilenames.clear();
-    bannerFilenames.add(TvShowBannerNaming.BANNER);
-
-    discartFilenames.clear();
-    discartFilenames.add(TvShowDiscartNaming.DISCART);
-
-    clearartFilenames.clear();
-    clearartFilenames.add(TvShowClearartNaming.CLEARART);
-
-    logoFilenames.clear();
-    logoFilenames.add(TvShowLogoNaming.LOGO);
-
-    clearlogoFilenames.clear();
-    clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
-
-    characterartFilenames.clear();
-    characterartFilenames.add(TvShowCharacterartNaming.CHARACTERART);
-
-    thumbFilenames.clear();
-    thumbFilenames.add(TvShowThumbNaming.THUMB);
-
-    keyartFilenames.clear();
-    keyartFilenames.add(TvShowKeyartNaming.KEYART);
-
-    seasonPosterFilenames.clear();
-    seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_POSTER);
-
-    seasonBannerFilenames.clear();
-    seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_BANNER);
-
-    seasonThumbFilenames.clear();
-    seasonThumbFilenames.add(TvShowSeasonThumbNaming.SEASON_THUMB);
-
-    episodeNfoFilenames.clear();
-    episodeNfoFilenames.add(TvShowEpisodeNfoNaming.FILENAME);
-
-    episodeThumbFilenames.clear();
-    episodeThumbFilenames.add(TvShowEpisodeThumbNaming.FILENAME);
-
-    // other settings
-    setTvShowConnector(TvShowConnectors.XBMC);
-    setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
-    setCertificationStyle(CertificationStyle.TECHNICAL);
-
-    firePropertyChange("preset", false, true);
-  }
-
-  /**
-   * Plex defaults
-   */
-  public void setDefaultSettingsForPlex() {
-    nfoFilenames.clear();
-    nfoFilenames.add(TvShowNfoNaming.TV_SHOW);
-
-    posterFilenames.clear();
-    posterFilenames.add(TvShowPosterNaming.POSTER);
-
-    fanartFilenames.clear();
-    fanartFilenames.add(TvShowFanartNaming.FANART);
-
-    extraFanartFilenames.clear();
-    extraFanartFilenames.add(TvShowExtraFanartNaming.EXTRAFANART);
-
-    bannerFilenames.clear();
-    bannerFilenames.add(TvShowBannerNaming.BANNER);
-
-    discartFilenames.clear();
-    discartFilenames.add(TvShowDiscartNaming.DISCART);
-
-    clearartFilenames.clear();
-    clearartFilenames.add(TvShowClearartNaming.CLEARART);
-
-    logoFilenames.clear();
-    logoFilenames.add(TvShowLogoNaming.LOGO);
-
-    clearlogoFilenames.clear();
-    clearlogoFilenames.add(TvShowClearlogoNaming.CLEARLOGO);
-
-    characterartFilenames.clear();
-    characterartFilenames.add(TvShowCharacterartNaming.CHARACTERART);
-
-    thumbFilenames.clear();
-    thumbFilenames.add(TvShowThumbNaming.THUMB);
-
-    keyartFilenames.clear();
-    keyartFilenames.add(TvShowKeyartNaming.KEYART);
-
-    seasonPosterFilenames.clear();
-    seasonPosterFilenames.add(TvShowSeasonPosterNaming.SEASON_FOLDER);
-
-    seasonBannerFilenames.clear();
-    seasonBannerFilenames.add(TvShowSeasonBannerNaming.SEASON_FOLDER);
-
-    seasonThumbFilenames.clear();
-    seasonThumbFilenames.add(TvShowSeasonThumbNaming.SEASON_FOLDER);
-
-    episodeNfoFilenames.clear();
-    episodeNfoFilenames.add(TvShowEpisodeNfoNaming.FILENAME);
-
-    episodeThumbFilenames.clear();
-    episodeThumbFilenames.add(TvShowEpisodeThumbNaming.FILENAME);
-
-    // other settings
-    setTvShowConnector(TvShowConnectors.XBMC);
-    setRenamerTvShowFoldername(DEFAULT_RENAMER_FOLDER_PATTERN);
-    setRenamerSeasonFoldername(DEFAULT_RENAMER_SEASON_PATTERN);
-    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
-    setCertificationStyle(CertificationStyle.SHORT);
-
-    firePropertyChange("preset", false, true);
-  }
-
-  /**
-   * set the default scrapers for the movie module
-   */
-  public void setDefaultScrapers() {
-    // activate default scrapers
-    artworkScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_ARTWORK)) {
-      addTvShowArtworkScraper(ms.getId());
-    }
-
-    trailerScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_TRAILER)) {
-      addTvShowTrailerScraper(ms.getId());
-    }
-
-    subtitleScrapers.clear();
-    for (MediaScraper ms : MediaScraper.getMediaScrapers(ScraperType.TVSHOW_SUBTITLE)) {
-      addTvShowSubtitleScraper(ms.getId());
-    }
   }
 }

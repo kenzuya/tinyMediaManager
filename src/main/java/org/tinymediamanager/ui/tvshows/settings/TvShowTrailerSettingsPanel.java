@@ -52,7 +52,6 @@ import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
@@ -72,7 +71,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class TvShowTrailerSettingsPanel extends JPanel {
 
-  private final TvShowSettings       settings                   = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings       settings                   = TvShowModuleManager.getInstance().getSettings();
   private final List<ScraperInTable> scrapers                   = ObservableCollections.observableList(new ArrayList<>());
   private final ItemListener         checkBoxListener;
   private final ButtonGroup          trailerFilenameButtonGroup = new ButtonGroup();
@@ -102,7 +101,7 @@ public class TvShowTrailerSettingsPanel extends JPanel {
     List<String> enabledTrailerProviders = settings.getTrailerScrapers();
     int selectedIndex = -1;
     int counter = 0;
-    for (MediaScraper scraper : TvShowList.getInstance().getAvailableTrailerScrapers()) {
+    for (MediaScraper scraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableTrailerScrapers()) {
       ScraperInTable trailerScraper = new ScraperInTable(scraper);
       if (enabledTrailerProviders.contains(trailerScraper.getScraperId())) {
         trailerScraper.setActive(true);

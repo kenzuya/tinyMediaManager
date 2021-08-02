@@ -40,7 +40,7 @@ import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.ui.components.table.TmmTable;
 
@@ -133,7 +133,7 @@ public class TmmUILayoutStore implements AWTEventListener {
    *          the frame
    */
   public void loadSettings(JFrame frame) {
-    if (!Globals.settings.isStoreWindowPreferences()) {
+    if (!Settings.getInstance().isStoreWindowPreferences()) {
       // at least display the main frame centered
       if ("mainWindow".equals(frame.getName())) {
         frame.setLocationRelativeTo(null);
@@ -175,7 +175,7 @@ public class TmmUILayoutStore implements AWTEventListener {
    *          the dialog
    */
   public void loadSettings(JDialog dialog) {
-    if (!Globals.settings.isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
+    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
       dialog.pack();
       dialog.setLocationRelativeTo(dialog.getParent());
       return;
@@ -227,7 +227,7 @@ public class TmmUILayoutStore implements AWTEventListener {
    *          the frame
    */
   public void saveSettings(JFrame frame) {
-    if (!Globals.settings.isStoreWindowPreferences()) {
+    if (!Settings.getInstance().isStoreWindowPreferences()) {
       return;
     }
 
@@ -293,7 +293,7 @@ public class TmmUILayoutStore implements AWTEventListener {
    *          the dialog
    */
   public void saveSettings(JDialog dialog) {
-    if (!Globals.settings.isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
+    if (!Settings.getInstance().isStoreWindowPreferences() || StringUtils.isBlank(dialog.getName())) {
       return;
     }
 

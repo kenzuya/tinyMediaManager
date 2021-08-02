@@ -65,7 +65,7 @@ public class UpgradeTasks {
   }
 
   public static void setOldVersion() {
-    oldVersion = Globals.settings.getVersion();
+    oldVersion = Settings.getInstance().getVersion();
   }
 
   public static String getOldVersion() {
@@ -128,8 +128,8 @@ public class UpgradeTasks {
 
     if (StrgUtils.compareVersion(v, "4.0.2") < 0) {
       LOGGER.info("Performing upgrade tasks to version 4.0.2");
-      Globals.settings.setIgnoreSSLProblems(true);
-      Globals.settings.saveSettings();
+      Settings.getInstance().setIgnoreSSLProblems(true);
+      Settings.getInstance().saveSettings();
     }
 
     if (StrgUtils.compareVersion(v, "4.1") < 0) {
@@ -263,8 +263,8 @@ public class UpgradeTasks {
    *
    */
   public static void performUpgradeTasksAfterDatabaseLoading() {
-    MovieList movieList = MovieList.getInstance();
-    TvShowList tvShowList = TvShowList.getInstance();
+    MovieList movieList = MovieModuleManager.getInstance().getMovieList();
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
     String v = "" + oldVersion;
 
@@ -279,13 +279,15 @@ public class UpgradeTasks {
     // ****************************************************
     if (StrgUtils.compareVersion(v, "4.0.6") < 0) {
       // upgrade extrafanart settings
-      if (MovieModuleManager.SETTINGS.isImageExtraFanart() && MovieModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty()) {
-        MovieModuleManager.SETTINGS.addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
-        MovieModuleManager.SETTINGS.saveSettings();
+      if (MovieModuleManager.getInstance().getSettings().isImageExtraFanart()
+          && MovieModuleManager.getInstance().getSettings().getExtraFanartFilenames().isEmpty()) {
+        MovieModuleManager.getInstance().getSettings().addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
+        MovieModuleManager.getInstance().getSettings().saveSettings();
       }
-      if (TvShowModuleManager.SETTINGS.isImageExtraFanart() && TvShowModuleManager.SETTINGS.getExtraFanartFilenames().isEmpty()) {
-        TvShowModuleManager.SETTINGS.addExtraFanartFilename(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
-        TvShowModuleManager.SETTINGS.saveSettings();
+      if (TvShowModuleManager.getInstance().getSettings().isImageExtraFanart()
+          && TvShowModuleManager.getInstance().getSettings().getExtraFanartFilenames().isEmpty()) {
+        TvShowModuleManager.getInstance().getSettings().addExtraFanartFilename(TvShowExtraFanartNaming.FOLDER_EXTRAFANART);
+        TvShowModuleManager.getInstance().getSettings().saveSettings();
       }
 
       // update container formats
@@ -334,11 +336,11 @@ public class UpgradeTasks {
       }
 
       // release date country
-      if (StringUtils.isBlank(MovieModuleManager.SETTINGS.getReleaseDateCountry())) {
-        MovieModuleManager.SETTINGS.setReleaseDateCountry(Locale.getDefault().getCountry());
+      if (StringUtils.isBlank(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry())) {
+        MovieModuleManager.getInstance().getSettings().setReleaseDateCountry(Locale.getDefault().getCountry());
       }
-      if (StringUtils.isBlank(TvShowModuleManager.SETTINGS.getReleaseDateCountry())) {
-        TvShowModuleManager.SETTINGS.setReleaseDateCountry(Locale.getDefault().getCountry());
+      if (StringUtils.isBlank(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry())) {
+        TvShowModuleManager.getInstance().getSettings().setReleaseDateCountry(Locale.getDefault().getCountry());
       }
     }
 
@@ -346,22 +348,22 @@ public class UpgradeTasks {
       // do not run the upgrade task in the git build, since it would always overwrite the values
       if (!ReleaseInfo.isGitBuild()) {
         {
-          String folderPattern = MovieModuleManager.SETTINGS.getRenamerPathname();
+          String folderPattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
           if (folderPattern.contains("${hdr}")) {
-            MovieModuleManager.SETTINGS.setRenamerPathname(folderPattern.replace("${hdr}", "${hdrformat}"));
-            MovieModuleManager.SETTINGS.saveSettings();
+            MovieModuleManager.getInstance().getSettings().setRenamerPathname(folderPattern.replace("${hdr}", "${hdrformat}"));
+            MovieModuleManager.getInstance().getSettings().saveSettings();
           }
 
-          String filenamePattern = MovieModuleManager.SETTINGS.getRenamerFilename();
+          String filenamePattern = MovieModuleManager.getInstance().getSettings().getRenamerFilename();
           if (filenamePattern.contains("${hdr}")) {
-            MovieModuleManager.SETTINGS.setRenamerFilename(filenamePattern.replace("${hdr}", "${hdrformat}"));
-            MovieModuleManager.SETTINGS.saveSettings();
+            MovieModuleManager.getInstance().getSettings().setRenamerFilename(filenamePattern.replace("${hdr}", "${hdrformat}"));
+            MovieModuleManager.getInstance().getSettings().saveSettings();
           }
 
-          filenamePattern = TvShowModuleManager.SETTINGS.getRenamerFilename();
+          filenamePattern = TvShowModuleManager.getInstance().getSettings().getRenamerFilename();
           if (filenamePattern.contains("${hdr}")) {
-            TvShowModuleManager.SETTINGS.setRenamerFilename(filenamePattern.replace("${hdr}", "${hdrformat}"));
-            TvShowModuleManager.SETTINGS.saveSettings();
+            TvShowModuleManager.getInstance().getSettings().setRenamerFilename(filenamePattern.replace("${hdr}", "${hdrformat}"));
+            TvShowModuleManager.getInstance().getSettings().saveSettings();
           }
         }
       }

@@ -337,6 +337,17 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setColumnResizeable(false);
     col.setDefaultHidden(true);
     addColumn(col);
+
+    /*
+    * has Note
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.note"), "theme", this::hasNote, ImageIcon.class);
+    col.setHeaderIcon(IconManager.INFO);
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    col.setColumnComparator(imageComparator);
+    addColumn(col);
+
   }
 
   @Override
@@ -530,7 +541,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     if (userObject instanceof TvShow) {
       TvShow tvShow = (TvShow) userObject;
       // if we untick to write episode file NFOs, we do not need to check for tree "problems"...
-      if (TvShowModuleManager.SETTINGS.getEpisodeNfoFilenames().isEmpty()) {
+      if (TvShowModuleManager.getInstance().getSettings().getEpisodeNfoFilenames().isEmpty()) {
         return getCheckIcon(tvShow.getHasNfoFile());
       }
       return getTriStateIcon(TRI_STATE.getState(tvShow.getHasNfoFile(), tvShow.getHasEpisodeNfoFiles()));
@@ -595,7 +606,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasNfoTooltip(TmmTreeNode node) {
-    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isShowTvShowTableTooltips()) {
       return null;
     }
 
@@ -609,7 +620,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasImageTooltip(TmmTreeNode node) {
-    if (!TvShowModuleManager.SETTINGS.isShowTvShowTableTooltips()) {
+    if (!TvShowModuleManager.getInstance().getSettings().isShowTvShowTableTooltips()) {
       return null;
     }
 
@@ -643,6 +654,17 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     Object userObject = node.getUserObject();
     if ( userObject instanceof TvShow) {
       return getCheckIcon(((TvShow) userObject ).getHasMusicTheme());
+    }
+    return null;
+  }
+
+  private ImageIcon hasNote(TmmTreeNode node) {
+    Object userObject = node.getUserObject();
+    if ( userObject instanceof TvShow) {
+      return getCheckIcon(((TvShow) userObject).getHasNote());
+    }
+    else if ( userObject instanceof TvShowEpisode ) {
+      return getCheckIcon(((TvShowEpisode) userObject).getHasNote());
     }
     return null;
   }

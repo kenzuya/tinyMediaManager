@@ -49,8 +49,8 @@ public class MovieAddDatasourceAction extends TmmAction {
       String path = TmmProperties.getInstance().getProperty("movie.datasource.path");
       Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.datasource.folderchooser"), path);
       if (file != null && Files.isDirectory(file)) {
-        MovieModuleManager.SETTINGS.addMovieDataSources(file.toAbsolutePath().toString());
-        MovieModuleManager.SETTINGS.saveSettings();
+        MovieModuleManager.getInstance().getSettings().addMovieDataSources(file.toAbsolutePath().toString());
+        MovieModuleManager.getInstance().getSettings().saveSettings();
         TmmProperties.getInstance().putProperty("movie.datasource.path", file.toAbsolutePath().toString());
       }
     });

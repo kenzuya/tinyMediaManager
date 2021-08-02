@@ -22,7 +22,6 @@ import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.scraper.util.RatingUtil;
 
 /**
@@ -30,7 +29,7 @@ import org.tinymediamanager.scraper.util.RatingUtil;
  * 
  * @author Manuel Laggner
  */
-public class TmmModuleManager {
+public final class TmmModuleManager {
   private static final Logger     LOGGER = LoggerFactory.getLogger(TmmModuleManager.class);
   private static TmmModuleManager instance;
 
@@ -138,7 +137,7 @@ public class TmmModuleManager {
    * trigger saveSettings for tmm and all modules
    */
   public void saveSettings() {
-    Globals.settings.saveSettings();
+    Settings.getInstance().saveSettings();
 
     for (ITmmModule module : modules) {
       try {

@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
@@ -42,6 +44,8 @@ import org.tinymediamanager.core.jmte.JmteUtils;
 import org.tinymediamanager.core.jmte.NamedDateRenderer;
 import org.tinymediamanager.core.jmte.NamedFirstCharacterRenderer;
 import org.tinymediamanager.core.jmte.NamedUpperCaseRenderer;
+import org.tinymediamanager.core.jmte.TmmModelAdaptor;
+import org.tinymediamanager.core.jmte.TmmOutputAppender;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.DynaEnum;
@@ -49,10 +53,15 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.floreysoft.jmte.Engine;
 
-public class MovieJmteTests {
+public class MovieJmteTests extends BasicTest {
 
   private Engine              engine;
   private Map<String, Object> root;
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testMoviePatterns() {
@@ -63,7 +72,14 @@ public class MovieJmteTests {
       engine.registerNamedRenderer(new NamedDateRenderer());
       engine.registerNamedRenderer(new NamedUpperCaseRenderer());
       engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
-      engine.setModelAdaptor(new MovieRenamer.MovieRenamerModelAdaptor());
+
+      engine.setModelAdaptor(new TmmModelAdaptor());
+      engine.setOutputAppender(new TmmOutputAppender() {
+        @Override
+        protected String replaceInvalidCharacters(String text) {
+          return MovieRenamer.replaceInvalidCharacters(text);
+        }
+      });
 
       root = new HashMap<>();
       root.put("movie", movie);

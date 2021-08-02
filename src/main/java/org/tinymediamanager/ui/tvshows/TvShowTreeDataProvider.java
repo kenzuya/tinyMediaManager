@@ -49,7 +49,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   private final PropertyChangeListener          tvShowPropertyChangeListener;
   private final PropertyChangeListener          episodePropertyChangeListener;
 
-  private final TvShowList                      tvShowList = TvShowList.getInstance();
+  private final TvShowList                      tvShowList = TvShowModuleManager.getInstance().getTvShowList();
 
   public TvShowTreeDataProvider(TmmTreeTableFormat<TmmTreeNode> tableFormat) {
     this.tableFormat = tableFormat;
@@ -150,10 +150,10 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     setTreeComparator(new TvShowTreeNodeComparator());
 
-    TvShowModuleManager.SETTINGS.addPropertyChangeListener(evt -> {
+    TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
         case "displayMissingEpisodes":
-          if (TvShowModuleManager.SETTINGS.isDisplayMissingEpisodes()) {
+          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingEpisodes()) {
             addDummyEpisodes();
           }
           else {
@@ -162,7 +162,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
           break;
 
         case "displayMissingSpecials":
-          if (TvShowModuleManager.SETTINGS.isDisplayMissingSpecials()) {
+          if (TvShowModuleManager.getInstance().getSettings().isDisplayMissingSpecials()) {
             addDummySpecials();
           }
           else {
@@ -558,13 +558,15 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
   abstract static class AbstractTvShowTreeNode extends TmmTreeNode {
 
-    AbstractTvShowTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    AbstractTvShowTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 
     abstract String getTitle();
 
     abstract String getOriginalTitle();
+
+    abstract String getNote();
   }
 
   public static class TvShowTreeNode extends AbstractTvShowTreeNode {
@@ -576,7 +578,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    TvShowTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    TvShowTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -616,6 +618,11 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
       return toString();
     }
+
+    @Override
+    String getNote() {
+      return toString();
+    }
   }
 
   public static class TvShowSeasonTreeNode extends AbstractTvShowTreeNode {
@@ -627,7 +634,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    public TvShowSeasonTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    public TvShowSeasonTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -668,6 +675,11 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
     public String getOriginalTitle() {
       return toString();
     }
+
+    @Override
+    String getNote() {
+      return toString();
+    }
   }
 
   public static class TvShowEpisodeTreeNode extends AbstractTvShowTreeNode {
@@ -679,7 +691,7 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
      * @param userObject
      *          the user object
      */
-    public TvShowEpisodeTreeNode(Object userObject, TmmTreeDataProvider<?> dataProvider) {
+    public TvShowEpisodeTreeNode(Object userObject, TmmTreeDataProvider<TmmTreeNode> dataProvider) {
       super(userObject, dataProvider);
     }
 
@@ -720,6 +732,16 @@ public class TvShowTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
       if (getUserObject() instanceof TvShowEpisode) {
         TvShowEpisode episode = (TvShowEpisode) getUserObject();
         return episode.getOriginalTitle();
+      }
+
+      return toString();
+    }
+
+    @Override
+    String getNote() {
+      if (getUserObject() instanceof TvShowEpisode) {
+        TvShowEpisode episode = (TvShowEpisode) getUserObject();
+        return episode.getNote();
       }
 
       return toString();

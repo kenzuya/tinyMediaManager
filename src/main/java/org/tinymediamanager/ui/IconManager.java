@@ -95,6 +95,8 @@ public class IconManager {
   public static final ImageIcon              FEEDBACK                     = createMenuIcon("envelope.svg");
   public static final ImageIcon              EDIT                         = createMenuIcon("edit.svg");
   public static final ImageIcon              EXPORT                       = createMenuIcon("share-square.svg");
+  public static final ImageIcon              FILTER                       = createMenuIcon("filter.svg");
+  public static final ImageIcon              HELP                         = createMenuIcon("question-circle.svg");
   public static final ImageIcon              HINT                         = createMenuIcon("info-circle.svg");
   public static final ImageIcon              IMAGE                        = createMenuIcon("image.svg");
   public static final ImageIcon              KODI                         = createMenuIcon("kodi.svg");
@@ -126,13 +128,13 @@ public class IconManager {
   public static final ImageIcon              CLEAR_GREY                   = createSVGIcon("times-circle.svg");
   public static final ImageIcon              COLLAPSED                    = createSVGIcon("chevron-square-down.svg");
   public static final ImageIcon              CONFIGURE                    = createSVGIcon("wrench.svg");
+  public static final ImageIcon              DATE_PICKER                  = createSVGIcon("calendar-alt.svg");
   public static final ImageIcon              DELETE_GRAY                  = createSVGIcon("trash-alt.svg");
   public static final ImageIcon              ERROR                        = createSVGIcon("times-circle.svg");
   public static final ImageIcon              EXPANDED                     = createSVGIcon("chevron-square-right.svg");
   public static final ImageIcon              WARN                         = createSVGIcon("exclamation-triangle.svg");
   public static final ImageIcon              WARN_INTENSIFIED             = createSVGIcon("exclamation-triangle.svg", Color.RED);
   public static final ImageIcon              INFO                         = createSVGIcon("info-circle.svg");
-  public static final ImageIcon              HELP                         = createSVGIcon("question-circle.svg");
   public static final ImageIcon              FILTER_ACTIVE                = createSVGIcon("lightbulb-on.svg", new Color(255, 119, 0));
   public static final ImageIcon              NEW_GREEN                    = createSVGIcon("plus-circle.svg", new Color(31, 187, 0));
   public static final ImageIcon              PLAY_LARGE                   = createSVGIcon("play-circle.svg", 2.33333);
@@ -151,10 +153,10 @@ public class IconManager {
   public static final ImageIcon              CHECK_ALL                    = createButtonIcon("check-square.svg");
   public static final ImageIcon              CLEAR_ALL                    = createButtonIcon("square.svg");
   public static final ImageIcon              COPY_INV                     = createButtonIcon("clone.svg");
-  public static final ImageIcon              DATE_PICKER                  = createButtonIcon("calendar-alt.svg");
   public static final ImageIcon              DELETE_INV                   = createButtonIcon("trash-alt.svg");
   public static final ImageIcon              EXCHANGE                     = createButtonIcon("exchange.svg");
   public static final ImageIcon              FILE_OPEN_INV                = createButtonIcon("folder-open.svg");
+  public static final ImageIcon              FILE_ADD_INV                 = createButtonIcon("file-plus.svg");
   public static final ImageIcon              IMAGE_INV                    = createButtonIcon("image.svg");
   public static final ImageIcon              PLAY_INV                     = createButtonIcon("play.svg");
   public static final ImageIcon              REMOVE_INV                   = createButtonIcon("minus.svg");

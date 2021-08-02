@@ -56,10 +56,12 @@ public class TmmTaskManager implements TmmTaskListener {
   private final ThreadPoolExecutor       mainTaskExecutor = createMainTaskQueue();
 
   // fake task handles to manage queues
-  private TmmTaskHandle                  imageQueueHandle;
+  private final TmmTaskHandle            imageQueueHandle;
 
   // scheduled threads
   private final ScheduledExecutorService scheduler        = Executors.newScheduledThreadPool(1);
+
+  private boolean                        isShutdown       = false;
 
   private TmmTaskManager() {
     imageQueueHandle = new ImageQueueTaskHandle();
@@ -124,23 +126,7 @@ public class TmmTaskManager implements TmmTaskListener {
       threadCount = 3;
     }
     ThreadPoolExecutor executor = new ThreadPoolExecutor(threadCount, threadCount, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
-        new TmmThreadFactory("unnamed-task")) {
-      // @Override
-      // protected void beforeExecute(Thread d, Runnable r) {
-      // super.beforeExecute(d, r);
-      // if (unnamedQueueHandle != null) {
-      // processTaskEvent(unnamedQueueHandle);
-      // }
-      // }
-      //
-      // @Override
-      // protected void afterExecute(Runnable r, Throwable t) {
-      // super.afterExecute(r, t);
-      // if (unnamedQueueHandle != null) {
-      // processTaskEvent(unnamedQueueHandle);
-      // }
-      // }
-    };
+        new TmmThreadFactory("unnamed-task"));
     executor.allowCoreThreadTimeOut(true);
     return executor;
   }
@@ -152,6 +138,10 @@ public class TmmTaskManager implements TmmTaskListener {
    *          the task to be added
    */
   public void addImageDownloadTask(Runnable task) {
+    if (isShutdown) {
+      return;
+    }
+
     if (imageDownloadExecutor == null || imageDownloadExecutor.isShutdown()) {
       imageDownloadExecutor = createImageDownloadExecutor();
     }
@@ -165,6 +155,10 @@ public class TmmTaskManager implements TmmTaskListener {
    *          the task to be added
    */
   public void addUnnamedTask(TmmTask task) {
+    if (isShutdown) {
+      return;
+    }
+
     if (unnamedTaskExecutor == null || unnamedTaskExecutor.isShutdown()) {
       unnamedTaskExecutor = createUnnamedTaskExecutor();
     }
@@ -182,6 +176,10 @@ public class TmmTaskManager implements TmmTaskListener {
    *          the task to be added
    */
   public void addUnnamedTask(Runnable task) {
+    if (isShutdown) {
+      return;
+    }
+
     if (unnamedTaskExecutor == null || unnamedTaskExecutor.isShutdown()) {
       unnamedTaskExecutor = createUnnamedTaskExecutor();
     }
@@ -195,6 +193,10 @@ public class TmmTaskManager implements TmmTaskListener {
    *          the task to be added
    */
   public void addDownloadTask(TmmTask task) {
+    if (isShutdown) {
+      return;
+    }
+
     if (downloadExecutor == null) {
       downloadExecutor = new ThreadPoolExecutor(Settings.getInstance().getMaximumDownloadThreads(),
           Settings.getInstance().getMaximumDownloadThreads(), 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
@@ -234,6 +236,10 @@ public class TmmTaskManager implements TmmTaskListener {
    * @return true if there is already a main task running
    */
   public void addMainTask(TmmThreadPool newTask) {
+    if (isShutdown) {
+      return;
+    }
+
     newTask.setState(TaskState.QUEUED);
     newTask.addListener(this);
     // immediately inform this listener
@@ -254,6 +260,8 @@ public class TmmTaskManager implements TmmTaskListener {
    * shut down all threads
    */
   public void shutdown() {
+    isShutdown = true;
+
     if (imageDownloadExecutor != null) {
       imageDownloadExecutor.shutdown();
     }
@@ -278,6 +286,8 @@ public class TmmTaskManager implements TmmTaskListener {
    * hard shutdown of all tasks after a max of 4 secs waiting
    */
   public void shutdownNow() {
+    isShutdown = true;
+
     if (poolRunning()) {
       // give the threads 4 seconds to finish
       try {

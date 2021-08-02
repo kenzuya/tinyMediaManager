@@ -38,7 +38,7 @@ import org.tinymediamanager.ui.components.combobox.TmmCheckComboBox;
  * @author Manuel Laggner
  */
 public class TvShowDatasourceFilter extends AbstractCheckComboBoxTvShowUIFilter<String> {
-  private TvShowSettings tvShowSettings = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings tvShowSettings = TvShowModuleManager.getInstance().getSettings();
 
   public TvShowDatasourceFilter() {
     super();

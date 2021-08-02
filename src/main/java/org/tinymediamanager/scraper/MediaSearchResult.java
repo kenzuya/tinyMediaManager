@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -36,20 +37,21 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @since 1.0
  */
 public class MediaSearchResult implements Comparable<MediaSearchResult> {
-  private static final Logger LOGGER   = LoggerFactory.getLogger(MediaSearchResult.class);
+  private static final Logger       LOGGER           = LoggerFactory.getLogger(MediaSearchResult.class);
 
-  private String              providerId;
-  private String              url;
-  private String              title;
-  private String              overview;
-  private int                 year;
-  private String              originalTitle;
-  private String              originalLanguage;
-  private Map<String, Object> ids      = new HashMap<>();
-  private float               score;
-  private MediaMetadata       metadata = null;
-  private MediaType           type;
-  private String              posterUrl;
+  private final MediaType           type;
+  private final Map<String, Object> ids              = new HashMap<>();
+
+  private String                    providerId;
+  private String                    url              = "";
+  private String                    title            = "";
+  private String                    overview         = "";
+  private int                       year             = 0;
+  private String                    originalTitle    = "";
+  private String                    originalLanguage = "";
+  private float                     score            = 0;
+  private MediaMetadata             metadata         = null;
+  private String                    posterUrl        = "";
 
   public MediaSearchResult(String providerId, MediaType type) {
     this.providerId = providerId;
@@ -101,6 +103,25 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
     }
     else {
       metadata.mergeFrom(msr.getMediaMetadata());
+    }
+  }
+
+  public void mergeFrom(MediaMetadata mediaMetadata) {
+    if (mediaMetadata == null) {
+      return;
+    }
+
+    this.metadata = mediaMetadata;
+
+    ids.putAll(mediaMetadata.getIds());
+    setTitle(mediaMetadata.getTitle());
+    setOriginalTitle(mediaMetadata.getOriginalTitle());
+    setYear(mediaMetadata.getYear());
+    setOverview(mediaMetadata.getPlot());
+
+    if (!mediaMetadata.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).isEmpty()) {
+      MediaArtwork poster = mediaMetadata.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).get(0);
+      setPosterUrl(poster.getDefaultUrl());
     }
   }
 

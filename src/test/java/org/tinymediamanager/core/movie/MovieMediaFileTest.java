@@ -7,10 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 
@@ -18,8 +17,7 @@ public class MovieMediaFileTest extends BasicTest {
 
   @BeforeClass
   public static void beforeClass() {
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Test
@@ -67,7 +65,7 @@ public class MovieMediaFileTest extends BasicTest {
   }
 
   @Test
-  public void ExtrasTest() {
+  public void mediaFileDetectionTest() {
     // video
     MediaFileType mft = MediaFileType.VIDEO;
     checkExtra("E.T. el extraterrestre", mft);
@@ -97,6 +95,15 @@ public class MovieMediaFileTest extends BasicTest {
     checkExtra("", mft);
     checkExtra("Extras/another/someExtForSomeMovie-trailer", mft);
 
+    // trailer
+    // mft = MediaFileType.TRAILER;
+    // checkExtra("Red.Shoe.Diaries.S01.DVDRip.X264-trailer", mft);
+    // checkExtra("trailer/long", mft);
+    // checkExtra("trailers/tvtrailer", mft);
+    // checkExtra("movie-trailer", mft);
+    // checkExtra("movie-trailer2", mft);
+    // checkExtra("movie-trailer.2", mft);
+
     System.out.println("All fine :)");
   }
 
@@ -105,9 +112,8 @@ public class MovieMediaFileTest extends BasicTest {
       return;
     }
     Path f = Paths.get(".", filename + ".avi");
-    System.out.println("testing " + f + " for ");
     MediaFile mf = new MediaFile(f);
-    assertEqual(mft, mf.getType());
+    assertEqual(filename, mft, mf.getType());
   }
 
   @Test

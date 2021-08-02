@@ -24,15 +24,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The class TmmTreeModel is the base class for the tree model of the TmmTree
@@ -42,25 +42,31 @@ import org.slf4j.LoggerFactory;
  * @param <E>
  */
 public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
-  private static final long              serialVersionUID     = 894025254282580674L;
-  private static final Logger            LOGGER               = LoggerFactory.getLogger(TmmTreeModel.class);
+  private static final long              serialVersionUID          = 894025254282580674L;
+  protected static final long            TIMER_DELAY               = 100L;
 
   protected final TmmTreeDataProvider<E> dataProvider;
   protected final TmmTree<E>             tree;
 
-  protected E                            rootNode             = null;
+  protected E                            rootNode                  = null;
 
   // node cache fir quick searching a node
-  protected final HashMap<Object, E>     nodeCache            = new HashMap<>();
+  protected final Map<Object, E>         nodeCache                 = new HashMap<>();
   // nodes cached states (parent -> children cached state).
-  protected final Map<Object, Boolean>   nodeCached           = new HashMap<>();
-  // cache for children nodes returned by data provider (parent ID -> list of raw
-  // child nodes).
-  protected final Map<Object, List<E>>   rawNodeChildrenCache = new HashMap<>();
+  protected final Map<Object, Boolean>   nodeCached                = new HashMap<>();
+  // cache for children nodes returned by data provider (parent ID -> list of raw child nodes).
+  protected final Map<Object, List<E>>   rawNodeChildrenCache      = new HashMap<>();
+  // cache for children nodes returned by data provider (parent ID -> list of filtered nodes).
+  protected final Map<String, List<E>>   filteredNodeChildrenCache = new HashMap<>();
   // lock for accessing the cache
-  protected final ReadWriteLock          readWriteLock        = new ReentrantReadWriteLock();
-
-  protected boolean                      isAdjusting          = false;
+  protected final ReadWriteLock          readWriteLock             = new ReentrantReadWriteLock();
+  // just don't do some UI tasks while the structure is changing
+  protected boolean                      isAdjusting               = false;
+  // throttle update of the UI
+  protected long                         nextUpdateSortAndFilter   = 0;
+  protected Timer                        updateSortAndFilterTimer  = null;
+  protected long                         nextNodeStructureChanged  = 0;
+  protected Timer                        nodeStructureChangedTimer = null;
 
   /**
    * Create a new instance of the TmmTreeModel for the given TmmTree and data provider
@@ -100,13 +106,16 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
 
         TreeNode[] path = child.getPath();
         if (path != null && path.length > 1) {
-          updateSortingAndFiltering((E) path[1]);
+          readWriteLock.writeLock().lock();
+          TmmTreeNode parent = (TmmTreeNode) path[1];
+          filteredNodeChildrenCache.remove(parent.getId());
+          readWriteLock.writeLock().unlock();
+          updateSortingAndFiltering();
         }
       }
       // the structure has been changed
       if (TmmTreeDataProvider.NODE_STRUCTURE_CHANGED.equals(evt.getPropertyName()) && evt.getNewValue() instanceof TmmTreeNode) {
-        E child = (E) evt.getNewValue();
-        nodeStructureChanged(child);
+        nodeStructureChanged();
       }
     });
     loadTreeData(getRoot());
@@ -216,10 +225,68 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
   }
 
   /**
+   * invalidate the filter cache
+   */
+  public void invalidateFilterCache() {
+    filteredNodeChildrenCache.clear();
+  }
+
+  /**
    * Updates nodes sorting and filtering for all nodes.
    */
   public void updateSortingAndFiltering() {
-    updateSortingAndFiltering(getRoot());
+    long now = System.currentTimeMillis();
+
+    if (now > nextUpdateSortAndFilter) {
+      // Saving tree state to restore it right after children update
+      TmmTreeState treeState = null;
+      if (this.tree != null) {
+        treeState = tree.getTreeState();
+      }
+
+      // Updating root node children
+      setAdjusting(true);
+      performFilteringAndSortingRecursively(getRoot());
+
+      setAdjusting(false);
+      nodeStructureChanged(treeState);
+
+      long end = System.currentTimeMillis();
+
+      if ((end - now) < TIMER_DELAY) {
+        // logic has been run within the delay time
+        nextUpdateSortAndFilter = end + TIMER_DELAY;
+      }
+      else {
+        // logic was slower than the interval - increase the interval adaptively
+        nextUpdateSortAndFilter = end + (end - now) * 2;
+      }
+    }
+    else {
+      startUpdateSortAndFilterTimer();
+    }
+  }
+
+  protected void startUpdateSortAndFilterTimer() {
+    // lazily update the node structure to prevent UI locking
+    if (updateSortAndFilterTimer != null) {
+      // a timer is already running
+      return;
+    }
+
+    updateSortAndFilterTimer = new Timer();
+    TimerTask timerTask = new TimerTask() {
+      @Override
+      public void run() {
+        SwingUtilities.invokeLater(() -> {
+          updateSortingAndFiltering();
+          updateSortAndFilterTimer = null;
+        });
+      }
+    };
+
+    // fire that after the timer delay
+    updateSortAndFilterTimer.schedule(timerTask, TIMER_DELAY);
   }
 
   /**
@@ -240,27 +307,64 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     return false;
   }
 
-  /**
-   * Updates nodes sorting and filtering for the specified parent and its children
-   */
-  public void updateSortingAndFiltering(E parent) {
-    // Saving tree state to restore it right after children update
-    TmmTreeState treeState = null;
-    if (this.tree != null) {
-      treeState = tree.getTreeState();
+  public void nodeStructureChanged() {
+    nodeStructureChanged((TmmTreeState) null);
+  }
+
+  public void nodeStructureChanged(TmmTreeState treeState) {
+    long now = System.currentTimeMillis();
+
+    if (now > nextNodeStructureChanged) {
+      nodeStructureChanged(getRoot());
+
+      // Restoring tree state including all selections and expansions
+      if (treeState != null && tree != null) {
+        tree.setTreeState(treeState);
+      }
+
+      long end = System.currentTimeMillis();
+
+      if ((end - now) < TIMER_DELAY) {
+        // logic has been run within the delay time
+        nextNodeStructureChanged = end + TIMER_DELAY;
+      }
+      else {
+        // logic was slower than the interval - increase the interval adaptively
+        nextNodeStructureChanged = end + (end - now) * 2;
+      }
+    }
+    else {
+      startNodeStructureChangedTimer(treeState);
+    }
+  }
+
+  protected void startNodeStructureChangedTimer(TmmTreeState treeState) {
+    // lazily update the node structure to prevent UI locking
+    if (nodeStructureChangedTimer != null) {
+      // a timer is already running
+      return;
     }
 
-    // Updating root node children
-    setAdjusting(true);
-    performFilteringAndSortingRecursively(parent);
+    nodeStructureChangedTimer = new Timer();
+    TimerTask timerTask = new TimerTask() {
+      @Override
+      public void run() {
+        SwingUtilities.invokeLater(() -> {
+          // since we do this not often, we can call it on root
+          nodeStructureChanged(getRoot());
 
-    setAdjusting(false);
-    nodeStructureChanged(getRoot());
+          // Restoring tree state including all selections and expansions
+          if (treeState != null && tree != null) {
+            tree.setTreeState(treeState);
+          }
 
-    // Restoring tree state including all selections and expansions
-    if (this.tree != null && treeState != null) {
-      tree.setTreeState(treeState);
-    }
+          nodeStructureChangedTimer = null;
+        });
+      }
+    };
+
+    // fire that after the timer delay
+    nodeStructureChangedTimer.schedule(timerTask, TIMER_DELAY);
   }
 
   /**
@@ -345,6 +449,14 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
       return new ArrayList<>(0);
     }
 
+    // get cache
+    readWriteLock.readLock().lock();
+    List<E> filteredNodes = filteredNodeChildrenCache.get(parentNode.getId());
+    readWriteLock.readLock().unlock();
+    if (filteredNodes != null) {
+      return filteredNodes;
+    }
+
     // Filter children
     final List<E> filteredAndSorted = new ArrayList<>();
 
@@ -379,6 +491,11 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
         // sometimes if the underlying is actively updated, an IllegalArgumentException can be thrown here, so just catch it
       }
     }
+
+    // get cache
+    readWriteLock.writeLock().lock();
+    filteredNodeChildrenCache.put(parentNode.getId(), filteredAndSorted);
+    readWriteLock.writeLock().unlock();
 
     return filteredAndSorted;
   }
@@ -425,6 +542,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     }
     cachedChildren.addAll(children);
     cacheNodes(children);
+    filteredNodeChildrenCache.remove(parent.getId()); // to force re-calculate the entire subtree
     readWriteLock.writeLock().unlock();
 
     // Clearing nodes cache
@@ -435,7 +553,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     insertNodesInto(children, parent, parent.getChildCount());
 
     // Updating parent node sorting and filtering
-    updateSortingAndFiltering(parent);
+    updateSortingAndFiltering();
   }
 
   /**
@@ -465,6 +583,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     if (children != null) {
       children.remove(node);
     }
+    filteredNodeChildrenCache.remove(parent.getId());
     readWriteLock.writeLock().unlock();
 
     // Clearing node cache
@@ -477,11 +596,8 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     // Removing node from parent
     super.removeNodeFromParent(node);
 
-    // Updating parent node sorting and filtering
-    updateSortingAndFiltering(parent);
-
     setAdjusting(false);
-    nodeStructureChanged(parent);
+    nodeStructureChanged();
   }
 
   /**
@@ -591,7 +707,7 @@ public class TmmTreeModel<E extends TmmTreeNode> extends DefaultTreeModel {
     final List<E> children = rawNodeChildrenCache.remove(node.getId());
     readWriteLock.writeLock().unlock();
 
-    // Clears chld nodes cache
+    // Clears child nodes cache
     if (children != null) {
       clearNodeChildrenCache(children, true);
     }

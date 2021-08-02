@@ -24,7 +24,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Locale;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.entities.MediaEntity;
@@ -35,7 +37,12 @@ import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 
-public class ITMediaTrailerDownloadTest {
+public class ITMediaTrailerDownloadTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void downloadDirectTrailerTest() {

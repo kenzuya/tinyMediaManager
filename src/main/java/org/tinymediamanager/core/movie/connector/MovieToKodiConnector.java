@@ -373,7 +373,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
       }
 
       // also include external audio files if set
-      if (MovieModuleManager.SETTINGS.isIncludeExternalAudioStreams()) {
+      if (MovieModuleManager.getInstance().getSettings().isIncludeExternalAudioStreams()) {
         for (MediaFile audioFile : movie.getMediaFiles(MediaFileType.AUDIO)) {
           for (MediaFileAudioStream audioStream : vid.getAudioStreams()) {
             Element audio = document.createElement("audio");

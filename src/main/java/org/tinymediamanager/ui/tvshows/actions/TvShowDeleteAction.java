@@ -26,7 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -41,8 +41,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowDeleteAction extends TmmAction {
-  private static final long           serialVersionUID = -2355545751433709417L;
-
+  private static final long serialVersionUID = -2355545751433709417L;
 
   public TvShowDeleteAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.delete"));
@@ -73,7 +72,7 @@ public class TvShowDeleteAction extends TmmAction {
       // delete a whole TV show
       if (obj instanceof TvShow) {
         TvShow tvShow = (TvShow) obj;
-        TvShowList.getInstance().deleteTvShow(tvShow);
+        TvShowModuleManager.getInstance().getTvShowList().deleteTvShow(tvShow);
       }
       // delete a season
       if (obj instanceof TvShowSeason) {

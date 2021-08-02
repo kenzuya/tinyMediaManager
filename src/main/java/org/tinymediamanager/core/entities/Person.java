@@ -326,8 +326,7 @@ public class Person extends AbstractModelObject {
     Person cast = (Person) obj;
 
     // checks of equality
-    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role) && StringUtils.equals(thumbUrl, cast.thumbUrl)
-        && StringUtils.equals(profileUrl, cast.profileUrl)) {
+    if (StringUtils.equals(name, cast.name) && StringUtils.equals(role, cast.role)) {
       return true;
     }
 
@@ -336,6 +335,6 @@ public class Person extends AbstractModelObject {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(name).append(role).append(thumbUrl).append(profileUrl).build();
+    return new HashCodeBuilder().append(name).append(role).build();
   }
 }

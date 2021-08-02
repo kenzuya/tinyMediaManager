@@ -9,7 +9,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -27,6 +27,8 @@ public class ITMovieSubtitleSearchTest extends BasicTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+    BasicTest.setup();
+
     TmmModuleManager.getInstance().startUp();
     MovieModuleManager.getInstance().startUp();
     TvShowModuleManager.getInstance().startUp();
@@ -52,7 +54,7 @@ public class ITMovieSubtitleSearchTest extends BasicTest {
       MediaScraper scraper = MediaScraper.getMediaScraperById("opensubtitles", ScraperType.MOVIE_SUBTITLE);
       assertThat(scraper).isNotNull();
 
-      for (Movie movie : MovieList.getInstance().getMovies()) {
+      for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
         for (MediaFile mediaFile : movie.getMediaFiles(MediaFileType.VIDEO)) {
           SubtitleSearchAndScrapeOptions options = new SubtitleSearchAndScrapeOptions(MediaType.MOVIE);
           options.setFile(mediaFile.getFile().toFile());

@@ -54,21 +54,20 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  */
 
 public class MovieFindMissingTask extends TmmThreadPool {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(MovieFindMissingTask.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieFindMissingTask.class);
 
-
-  private List<String>                dataSources;
-  private MovieList                   movieList;
+  private final List<String>  dataSources;
+  private final MovieList     movieList;
 
   public MovieFindMissingTask() {
     super(TmmResourceBundle.getString("movie.findmissing"));
-    movieList = MovieList.getInstance();
-    dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
+    movieList = MovieModuleManager.getInstance().getMovieList();
+    dataSources = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
   }
 
   public MovieFindMissingTask(String datasource) {
     super(TmmResourceBundle.getString("movie.findmissing") + " (" + datasource + ")");
-    movieList = MovieList.getInstance();
+    movieList = MovieModuleManager.getInstance().getMovieList();
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
   }

@@ -27,6 +27,7 @@ import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -42,7 +43,7 @@ public class MovieGenreFilter extends AbstractCheckComboBoxMovieUIFilter<MediaGe
   public MovieGenreFilter() {
     super();
     checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
-    movieList = MovieList.getInstance();
+    movieList = MovieModuleManager.getInstance().getMovieList();
     comparator = new MediaGenres.MediaGenresComparator();
 
     buildAndInstallMediaGenres();

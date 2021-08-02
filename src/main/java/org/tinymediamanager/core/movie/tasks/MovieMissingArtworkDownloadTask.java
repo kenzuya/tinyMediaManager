@@ -99,7 +99,7 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
       // a) is there missing artwork according to the config? (to download them)
       if (MovieArtworkHelper.hasMissingArtwork(movie, metadataConfig)) {
         try {
-          MovieList movieList = MovieList.getInstance();
+          MovieList movieList = MovieModuleManager.getInstance().getMovieList();
           // set up scrapers
           List<MediaArtwork> artwork = new ArrayList<>();
           ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE);
@@ -107,9 +107,9 @@ public class MovieMissingArtworkDownloadTask extends TmmThreadPool {
           options.setArtworkType(MediaArtworkType.ALL);
           options.setIds(movie.getIds());
           options.setId("mediaFile", movie.getMainFile());
-          options.setLanguage(MovieModuleManager.SETTINGS.getImageScraperLanguage());
-          options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-          options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+          options.setLanguage(MovieModuleManager.getInstance().getSettings().getImageScraperLanguage());
+          options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+          options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
           // scrape providers till one artwork has been found
           for (MediaScraper scraper : movieList.getDefaultArtworkScrapers()) {

@@ -189,12 +189,12 @@ public class TvShowChooserModel extends AbstractModelObject {
     return artworkScrapers;
   }
 
-  public void startTrailerScrapeTask(TvShow tvShow) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(tvShow));
+  public void startTrailerScrapeTask(TvShow tvShow, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TrailerScrapeTask(tvShow, overwrite));
   }
 
-  public void startThemeDownloadTask(TvShow tvShow) {
-    TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow)));
+  public void startThemeDownloadTask(TvShow tvShow, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new TvShowThemeDownloadTask(Collections.singletonList(tvShow), overwrite));
   }
 
   /**
@@ -208,8 +208,8 @@ public class TvShowChooserModel extends AbstractModelObject {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
       options.setSearchResult(result);
       options.setLanguage(language);
-      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+      options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+      options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
       options.setIds(result.getIds());
 
       LOGGER.info("=====================================================");
@@ -249,8 +249,8 @@ public class TvShowChooserModel extends AbstractModelObject {
 
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setLanguage(language);
-    options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-    options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+    options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+    options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
     for (Entry<String, Object> entry : metadata.getIds().entrySet()) {
       options.setId(entry.getKey(), entry.getValue().toString());
@@ -305,18 +305,20 @@ public class TvShowChooserModel extends AbstractModelObject {
     return language;
   }
 
-  public void startArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config) {
-    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(tvShow, config));
+  public void startArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
+    TmmTaskManager.getInstance().addUnnamedTask(new ArtworkScrapeTask(tvShow, config, overwrite));
   }
 
   private class ArtworkScrapeTask extends TmmTask {
-    private TvShow                            tvShowToScrape;
-    private List<TvShowScraperMetadataConfig> config;
+    private final TvShow                            tvShowToScrape;
+    private final List<TvShowScraperMetadataConfig> config;
+    private final boolean                           overwrite;
 
-    public ArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config) {
+    public ArtworkScrapeTask(TvShow tvShow, List<TvShowScraperMetadataConfig> config, boolean overwrite) {
       super(TmmResourceBundle.getString("message.scrape.artwork") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowToScrape = tvShow;
       this.config = config;
+      this.overwrite = overwrite;
     }
 
     @Override
@@ -332,9 +334,9 @@ public class TvShowChooserModel extends AbstractModelObject {
       options.setLanguage(language);
       options.setMetadata(metadata);
       options.setIds(metadata.getIds());
-      options.setLanguage(TvShowModuleManager.SETTINGS.getImageScraperLanguage());
-      options.setFanartSize(TvShowModuleManager.SETTINGS.getImageFanartSize());
-      options.setPosterSize(TvShowModuleManager.SETTINGS.getImagePosterSize());
+      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getImageScraperLanguage());
+      options.setFanartSize(TvShowModuleManager.getInstance().getSettings().getImageFanartSize());
+      options.setPosterSize(TvShowModuleManager.getInstance().getSettings().getImagePosterSize());
 
       for (Entry<String, Object> entry : tvShowToScrape.getIds().entrySet()) {
         options.setId(entry.getKey(), entry.getValue().toString());
@@ -364,21 +366,27 @@ public class TvShowChooserModel extends AbstractModelObject {
         artwork.add(ma);
       }
 
-      tvShowToScrape.setArtwork(artwork, config);
+      tvShowToScrape.setArtwork(artwork, config, overwrite);
     }
   }
 
   private class TrailerScrapeTask extends TmmTask {
-    private final TvShow tvShowtoScrape;
+    private final TvShow  tvShowtoScrape;
+    private final boolean overwrite;
 
-    public TrailerScrapeTask(TvShow tvShow) {
+    public TrailerScrapeTask(TvShow tvShow, boolean overwrite) {
       super(TmmResourceBundle.getString("message.scrape.trailer") + " " + tvShow.getTitle(), 0, TaskType.BACKGROUND_TASK);
       this.tvShowtoScrape = tvShow;
+      this.overwrite = overwrite;
     }
 
     @Override
     protected void doInBackground() {
       if (!scraped) {
+        return;
+      }
+
+      if (!overwrite && !tvShowtoScrape.getTrailer().isEmpty()) {
         return;
       }
 

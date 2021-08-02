@@ -55,7 +55,7 @@ public class TvShowExtraImageFetcherTask implements Runnable {
     this.tvShow = tvShow;
     this.type = type;
 
-    this.extraFanartNamings = new ArrayList<>(TvShowModuleManager.SETTINGS.getExtraFanartFilenames());
+    this.extraFanartNamings = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getExtraFanartFilenames());
   }
 
   @Override

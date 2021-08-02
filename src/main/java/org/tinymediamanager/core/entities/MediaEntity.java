@@ -81,10 +81,10 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.tinymediamanager.scraper.util.ParserUtils;
 
 /**
  * The Class MediaEntity. The base class for all entities
@@ -139,7 +139,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   protected boolean                    newlyAdded         = false;
   protected boolean                    duplicate          = false;
-  protected ReadWriteLock              readWriteLock      = new ReentrantReadWriteLock();
+  protected final ReadWriteLock        readWriteLock      = new ReentrantReadWriteLock();
 
   public MediaEntity() {
   }
@@ -437,7 +437,6 @@ public abstract class MediaEntity extends AbstractModelObject {
     for (Entry<String, Object> entry : ids.entrySet()) {
       if (StringUtils.isNotBlank(entry.getKey()) && entry.getValue() != null) {
         setId(entry.getKey(), entry.getValue());
-        firePropertyChange(entry.getKey(), null, entry.getValue());
       }
     }
   }
@@ -575,7 +574,7 @@ public abstract class MediaEntity extends AbstractModelObject {
 
   public void setArtwork(Path file, MediaFileType type) {
     List<MediaFile> images = getMediaFiles(type);
-    MediaFile mediaFile = null;
+    MediaFile mediaFile;
     if (!images.isEmpty()) {
       mediaFile = images.get(0);
       mediaFile.setFile(file);
@@ -806,26 +805,34 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void addToMediaFiles(MediaFile mediaFile) {
-    readWriteLock.writeLock().lock();
-    // only store the MF if it is not in the list or if the type has been changed
-    if (mediaFiles.contains(mediaFile)) {
-      int i = mediaFiles.indexOf(mediaFile);
-      if (i >= 0) {
-        MediaFile oldMf = mediaFiles.get(i);
-        if (oldMf.getType() != mediaFile.getType()) {
-          mediaFiles.remove(i);
+    boolean changed = false;
+
+    try {
+      readWriteLock.writeLock().lock();
+      // only store the MF if it is not in the list or if the type has been changed
+      if (mediaFiles.contains(mediaFile)) {
+        int i = mediaFiles.indexOf(mediaFile);
+        if (i >= 0) {
+          MediaFile oldMf = mediaFiles.get(i);
+          if (oldMf.getType() != mediaFile.getType()) {
+            mediaFiles.remove(i);
+          }
         }
       }
+      if (!mediaFiles.contains(mediaFile)) {
+        mediaFiles.add(mediaFile);
+        sortMediaFiles();
+        changed = true;
+      }
     }
-    if (!mediaFiles.contains(mediaFile)) {
-      mediaFiles.add(mediaFile);
+    finally {
+      readWriteLock.writeLock().unlock();
     }
 
-    sortMediaFiles();
-    readWriteLock.writeLock().unlock();
-
-    firePropertyChange(MEDIA_FILES, null, mediaFiles);
-    fireAddedEventForMediaFile(mediaFile);
+    if (changed) {
+      firePropertyChange(MEDIA_FILES, null, mediaFiles);
+      fireAddedEventForMediaFile(mediaFile);
+    }
   }
 
   public void addToMediaFiles(List<MediaFile> mediaFiles) {
@@ -1076,49 +1083,69 @@ public abstract class MediaEntity extends AbstractModelObject {
   }
 
   public void removeFromMediaFiles(MediaFile mediaFile) {
+    boolean changed = false;
+
     readWriteLock.writeLock().lock();
     try {
-      mediaFiles.remove(mediaFile);
+      changed = mediaFiles.remove(mediaFile);
     }
     finally {
       readWriteLock.writeLock().unlock();
     }
 
-    firePropertyChange(MEDIA_FILES, null, mediaFiles);
-    fireRemoveEventForMediaFile(mediaFile);
+    if (changed) {
+      firePropertyChange(MEDIA_FILES, null, mediaFiles);
+      fireRemoveEventForMediaFile(mediaFile);
+    }
   }
 
   public void removeAllMediaFilesExceptType(MediaFileType type) {
     List<MediaFile> changedMediafiles = new ArrayList<>();
 
-    readWriteLock.writeLock().lock();
-    for (int i = mediaFiles.size() - 1; i >= 0; i--) {
-      MediaFile mediaFile = mediaFiles.get(i);
-      if (!mediaFile.getType().equals(type)) {
-        mediaFiles.remove(i);
-        changedMediafiles.add(mediaFile);
+    try {
+      readWriteLock.writeLock().lock();
+      for (int i = mediaFiles.size() - 1; i >= 0; i--) {
+        MediaFile mediaFile = mediaFiles.get(i);
+        if (!mediaFile.getType().equals(type)) {
+          mediaFiles.remove(i);
+          changedMediafiles.add(mediaFile);
+        }
       }
     }
-    readWriteLock.writeLock().unlock();
-    for (MediaFile mediaFile : changedMediafiles) {
-      fireRemoveEventForMediaFile(mediaFile);
+    finally {
+      readWriteLock.writeLock().unlock();
+    }
+
+    if (!changedMediafiles.isEmpty()) {
+      for (MediaFile mediaFile : changedMediafiles) {
+        fireRemoveEventForMediaFile(mediaFile);
+      }
+      firePropertyChange(MEDIA_FILES, null, mediaFiles);
     }
   }
 
   public void removeAllMediaFiles(MediaFileType type) {
     List<MediaFile> changedMediafiles = new ArrayList<>();
 
-    readWriteLock.writeLock().lock();
-    for (int i = mediaFiles.size() - 1; i >= 0; i--) {
-      MediaFile mediaFile = mediaFiles.get(i);
-      if (mediaFile.getType().equals(type)) {
-        mediaFiles.remove(i);
-        changedMediafiles.add(mediaFile);
+    try {
+      readWriteLock.writeLock().lock();
+      for (int i = mediaFiles.size() - 1; i >= 0; i--) {
+        MediaFile mediaFile = mediaFiles.get(i);
+        if (mediaFile.getType().equals(type)) {
+          mediaFiles.remove(i);
+          changedMediafiles.add(mediaFile);
+        }
       }
     }
-    readWriteLock.writeLock().unlock();
-    for (MediaFile mediaFile : changedMediafiles) {
-      fireRemoveEventForMediaFile(mediaFile);
+    finally {
+      readWriteLock.writeLock().unlock();
+    }
+
+    if (!changedMediafiles.isEmpty()) {
+      for (MediaFile mediaFile : changedMediafiles) {
+        fireRemoveEventForMediaFile(mediaFile);
+      }
+      firePropertyChange(MEDIA_FILES, null, mediaFiles);
     }
   }
 
@@ -1139,6 +1166,7 @@ public abstract class MediaEntity extends AbstractModelObject {
     readWriteLock.readLock().lock();
     List<MediaFile> mfs = new ArrayList<>(this.mediaFiles);
     readWriteLock.readLock().unlock();
+
     for (MediaFile mf : mfs) {
       // invalidate image cache
       if (mf.isGraphic()) {

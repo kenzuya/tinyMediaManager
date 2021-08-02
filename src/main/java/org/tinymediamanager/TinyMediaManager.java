@@ -54,12 +54,13 @@ import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaGenres;
-import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSettingsDefaults;
 import org.tinymediamanager.core.movie.tasks.MovieUpdateDatasourceTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSettingsDefaults;
 import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaProviders;
@@ -89,7 +90,7 @@ import ch.qos.logback.core.ConsoleAppender;
  * 
  * @author Manuel Laggner
  */
-public class TinyMediaManager {
+public final class TinyMediaManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(TinyMediaManager.class);
 
   /**
@@ -172,16 +173,16 @@ public class TinyMediaManager {
     debugCharacterEncoding("current encoding : ");
 
     // set GUI default language
-    Locale.setDefault(Utils.getLocaleFromLanguage(Globals.settings.getLanguage()));
+    Locale.setDefault(Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage()));
     LOGGER.info("System language  : {}_{}", System.getProperty("user.language"), System.getProperty("user.country"));
     LOGGER.info("GUI language     : {}_{}", Locale.getDefault().getLanguage(), Locale.getDefault().getCountry());
-    LOGGER.info("Scraper language : {}", MovieModuleManager.SETTINGS.getScraperLanguage());
-    LOGGER.info("TV Scraper lang  : {}", TvShowModuleManager.SETTINGS.getScraperLanguage());
+    LOGGER.info("Scraper language : {}", MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+    LOGGER.info("TV Scraper lang  : {}", TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
 
     // start EDT
     EventQueue.invokeLater(new Runnable() {
       public void run() {
-        boolean newVersion = !Globals.settings.isCurrentVersion(); // same snapshots/git considered as "new", for upgrades
+        boolean newVersion = !Settings.getInstance().isCurrentVersion(); // same snapshots/git considered as "new", for upgrades
         try {
           Thread.setDefaultUncaughtExceptionHandler(new Log4jBackstop());
           if (!GraphicsEnvironment.isHeadless()) {
@@ -244,14 +245,14 @@ public class TinyMediaManager {
               splash.update();
             }
             UpgradeTasks.performUpgradeTasksBeforeDatabaseLoading(); // do the upgrade tasks for the old version
-            Globals.settings.setCurrentVersion();
-            Globals.settings.saveSettings();
+            Settings.getInstance().setCurrentVersion();
+            Settings.getInstance().saveSettings();
           }
 
           // proxy settings
-          if (Globals.settings.useProxy()) {
+          if (Settings.getInstance().useProxy()) {
             LOGGER.info("setting proxy");
-            Globals.settings.setProxy();
+            Settings.getInstance().setProxy();
           }
 
           // MediaInfo /////////////////////////////////////////////////////
@@ -260,7 +261,7 @@ public class TinyMediaManager {
             splash.update();
           }
 
-          MediaInfoUtils.loadMediaInfo();
+          TmmOsUtils.loadNativeLibs();
 
           // various initializations of classes
           MediaGenres.init();
@@ -293,10 +294,10 @@ public class TinyMediaManager {
           // just instantiate static - will block (takes a few secs)
           MediaProviders.loadMediaProviders();
 
-          if (Globals.settings.isNewConfig()) {
+          if (Settings.getInstance().isNewConfig()) {
             // add/set default scrapers
-            MovieModuleManager.SETTINGS.setDefaultScrapers();
-            TvShowModuleManager.SETTINGS.setDefaultScrapers();
+            MovieSettingsDefaults.setDefaultScrapers();
+            TvShowSettingsDefaults.setDefaultScrapers();
           }
 
           if (g2 != null) {
@@ -304,12 +305,12 @@ public class TinyMediaManager {
             splash.update();
           }
           Upnp u = Upnp.getInstance();
-          if (Globals.settings.isUpnpShareLibrary()) {
+          if (Settings.getInstance().isUpnpShareLibrary()) {
             u.startWebServer();
             u.createUpnpService();
             u.startMediaServer();
           }
-          if (Globals.settings.isUpnpRemotePlay()) {
+          if (Settings.getInstance().isUpnpRemotePlay()) {
             u.createUpnpService();
             u.sendPlayerSearchRequest();
             u.startWebServer();
@@ -350,7 +351,7 @@ public class TinyMediaManager {
             window.setVisible(true);
 
             // wizard for new user
-            if (Globals.settings.isNewConfig()) {
+            if (Settings.getInstance().isNewConfig()) {
               TinyMediaManagerWizard wizard = new TinyMediaManagerWizard();
               wizard.setVisible(true);
             }
@@ -375,13 +376,13 @@ public class TinyMediaManager {
             }
 
             // If auto update on start for movies data sources is enable, execute it
-            if (MovieModuleManager.SETTINGS.isUpdateOnStart()) {
+            if (MovieModuleManager.getInstance().getSettings().isUpdateOnStart()) {
               TmmThreadPool task = new MovieUpdateDatasourceTask();
               TmmTaskManager.getInstance().addMainTask(task);
             }
 
             // If auto update on start for TV shows data sources is enable, execute it
-            if (TvShowModuleManager.SETTINGS.isUpdateOnStart()) {
+            if (TvShowModuleManager.getInstance().getSettings().isUpdateOnStart()) {
               TmmThreadPool task = new TvShowUpdateDatasourceTask();
               TmmTaskManager.getInstance().addMainTask(task);
             }
@@ -504,8 +505,8 @@ public class TinyMediaManager {
     // load font settings
     try {
       // sanity check
-      Font font = Font.decode(Globals.settings.getFontFamily());
-      Font savedFont = new Font(font.getFamily(), font.getStyle(), Globals.settings.getFontSize());
+      Font font = Font.decode(Settings.getInstance().getFontFamily());
+      Font savedFont = new Font(font.getFamily(), font.getStyle(), Settings.getInstance().getFontSize());
 
       UIManager.put("defaultFont", savedFont);
     }

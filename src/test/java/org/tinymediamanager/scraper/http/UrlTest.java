@@ -26,17 +26,19 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.exceptions.HttpException;
 
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
-public class UrlTest {
+public class UrlTest extends BasicTest {
   private static final MockWebServer mockWebServer = new MockWebServer();
 
   @BeforeClass
   public static void setUp() throws Exception {
+    BasicTest.setup();
     mockWebServer.start();
   }
 

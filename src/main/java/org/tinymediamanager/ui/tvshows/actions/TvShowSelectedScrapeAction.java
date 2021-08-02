@@ -43,8 +43,7 @@ import org.tinymediamanager.ui.tvshows.dialogs.TvShowScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class TvShowSelectedScrapeAction extends TmmAction {
-  private static final long           serialVersionUID = 699165862194137592L;
-
+  private static final long serialVersionUID = 699165862194137592L;
 
   public TvShowSelectedScrapeAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.selected.force"));
@@ -76,9 +75,12 @@ public class TvShowSelectedScrapeAction extends TmmAction {
     TvShowSearchAndScrapeOptions options = dialog.getTvShowSearchAndScrapeOptions();
     List<TvShowScraperMetadataConfig> tvShowScraperMetadataConfig = dialog.getTvShowScraperMetadataConfig();
     List<TvShowEpisodeScraperMetadataConfig> episodeScraperMetadataConfig = dialog.getTvShowEpisodeScraperMetadataConfig();
+    boolean overwrite = dialog.getOverwriteExistingItems();
 
     // scrape
-    TmmThreadPool scrapeTask = new TvShowScrapeTask(selectedTvShows, true, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig);
+    TmmThreadPool scrapeTask = new TvShowScrapeTask(
+        new TvShowScrapeTask.TvShowScrapeParams(selectedTvShows, options, tvShowScraperMetadataConfig, episodeScraperMetadataConfig)
+            .setOverwriteExistingItems(overwrite));
     TmmTaskManager.getInstance().addMainTask(scrapeTask);
   }
 }
