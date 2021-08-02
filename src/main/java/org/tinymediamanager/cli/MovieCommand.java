@@ -196,10 +196,10 @@ class MovieCommand implements Runnable {
   private void detectAspectRatio() {
     List<Movie> moviesToDetect = new ArrayList<>();
     if (ard.ardAll) {
-      moviesToDetect = MovieList.getInstance().getMovies();
+      moviesToDetect = MovieModuleManager.getInstance().getMovieList().getMovies();
     }
     else if (ard.ardNew) {
-      moviesToDetect = MovieList.getInstance().getNewMovies();
+      moviesToDetect = MovieModuleManager.getInstance().getMovieList().getNewMovies();
     }
 
     if (!moviesToDetect.isEmpty()) {
