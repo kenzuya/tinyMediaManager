@@ -58,7 +58,7 @@ public class ArdSettingsPanel extends JPanel {
   private JRadioButton           rdbtnRoundNearest;
   private JRadioButton           rdbtnRoundUpToNext;
   private ButtonGroup            buttonGroupARUseMode = new ButtonGroup();
-  private JRadioButton           rdbtnMFDisabled;
+  private JRadioButton rdbtnMFMost;
   private JRadioButton           rdbtnMFHigher;
   private JRadioButton           rdbtnMFWider;
 
@@ -76,7 +76,7 @@ public class ArdSettingsPanel extends JPanel {
         switch (sliderDetectionMode.getValue()) {
           case 0: // fast
           case 1: // default
-            rdbtnMFDisabled.setEnabled(false);
+            rdbtnMFMost.setEnabled(false);
             rdbtnMFWider.setEnabled(false);
             rdbtnMFHigher.setEnabled(false);
 
@@ -85,10 +85,10 @@ public class ArdSettingsPanel extends JPanel {
             break;
 
           case 2: // accurate
-            rdbtnMFDisabled.setEnabled(true);
+            rdbtnMFMost.setEnabled(true);
             rdbtnMFWider.setEnabled(true);
             rdbtnMFHigher.setEnabled(true);
-            rdbtnMFDisabled.setSelected(this.previousMFMode == 0);
+            rdbtnMFMost.setSelected(this.previousMFMode == 0);
             rdbtnMFHigher.setSelected(this.previousMFMode == 1);
             rdbtnMFWider.setSelected(this.previousMFMode == 2);
             break;
@@ -115,12 +115,12 @@ public class ArdSettingsPanel extends JPanel {
 
     boolean isAccurate = sliderDetectionMode.getValue() == 2;
     previousMFMode = settings.getArdMFMode();
-    rdbtnMFDisabled.addChangeListener(e -> {
-      if (rdbtnMFDisabled.isSelected())
+    rdbtnMFMost.addChangeListener(e -> {
+      if (rdbtnMFMost.isSelected())
         settings.setArdMFMode(0);
     });
-    rdbtnMFDisabled.setSelected(isAccurate && settings.getArdMFMode() == 0);
-    rdbtnMFDisabled.setEnabled(isAccurate);
+    rdbtnMFMost.setSelected(isAccurate && settings.getArdMFMode() == 0);
+    rdbtnMFMost.setEnabled(isAccurate);
     rdbtnMFHigher.addChangeListener(e -> {
       if (rdbtnMFHigher.isSelected())
         settings.setArdMFMode(1);
@@ -214,11 +214,11 @@ public class ArdSettingsPanel extends JPanel {
       JLabel lblMultiFormat = new JLabel(TmmResourceBundle.getString("Settings.ard.multiformat.hint"));
       panelArdSettings.add(lblMultiFormat, "cell 1 " + row + " 3 1");
 
-      // MF disabled
+      // MF most common
       row++;
-      rdbtnMFDisabled = new JRadioButton(TmmResourceBundle.getString("Settings.ard.multiformat.disabled"));
-      buttonGroupARUseMode.add(rdbtnMFDisabled);
-      panelArdSettings.add(rdbtnMFDisabled, "cell 1 " + row + ",growx");
+      rdbtnMFMost = new JRadioButton(TmmResourceBundle.getString("Settings.ard.multiformat.useMost"));
+      buttonGroupARUseMode.add(rdbtnMFMost);
+      panelArdSettings.add(rdbtnMFMost, "cell 1 " + row + ",growx");
 
       // MF most higher
       row++;
