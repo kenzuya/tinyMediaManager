@@ -21,13 +21,14 @@ import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.fanarttv.entities.Images;
 
 public class ITFanartTvTest extends BasicTest {
 
   @Before
   public void setUpBeforeTest() throws Exception {
+    BasicTest.setup();
     setLicenseKey();
   }
 

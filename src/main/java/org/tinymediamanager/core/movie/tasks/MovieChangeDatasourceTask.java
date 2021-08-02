@@ -38,11 +38,10 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  * @author Manuel Laggner
  */
 public class MovieChangeDatasourceTask extends TmmThreadPool {
-  private static final Logger         LOGGER         = LoggerFactory.getLogger(MovieChangeDatasourceTask.class);
+  private static final Logger LOGGER         = LoggerFactory.getLogger(MovieChangeDatasourceTask.class);
 
-
-  private final String                datasource;
-  private final List<Movie>           moviesToChange = new ArrayList<>();
+  private final String        datasource;
+  private final List<Movie>   moviesToChange = new ArrayList<>();
 
   public MovieChangeDatasourceTask(List<Movie> moviesToChange, String datasource) {
     super(TmmResourceBundle.getString("movie.changedatasource"));
@@ -88,7 +87,15 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
         moveMovieFromMMD();
       }
       else {
-        moveMovie();
+        // if we are a "normal" movie, but all our MFs have a MMD style, we can rename them accordingly :)
+        if (movie.hasMultiMovieNaming()) {
+          // we override it here - TBD if we need to save it?!
+          movie.setMultiMovieDir(true);
+          moveMovieFromMMD();
+        }
+        else {
+          moveMovie();
+        }
       }
     }
 
@@ -132,10 +139,16 @@ public class MovieChangeDatasourceTask extends TmmThreadPool {
           Files.createDirectories(destDir);
         }
         else {
-          LOGGER.error("Directory already exists! '{}' - NOT renaming folder ('upgrade' movie)", destDir);
-          // well, better not to move
-          MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove"));
-          return;
+          // directory might exist, but since it is a MMD, we check for video file existence
+          MediaFile mf = movie.getMainFile();
+          Path srcFile = mf.getFileAsPath();
+          Path destFile = destDir.resolve(srcDir.relativize(srcFile));
+          if (Files.exists(destFile)) {
+            // well, better not to move
+            LOGGER.error("Video file already exists! '{}' - NOT moving movie", destDir);
+            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, srcDir, "message.changedatasource.failedmove"));
+            return;
+          }
         }
 
         for (MediaFile mf : movie.getMediaFiles()) {

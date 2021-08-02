@@ -42,6 +42,7 @@ import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
+import org.tinymediamanager.core.movie.MovieSettingsDefaults;
 import org.tinymediamanager.core.movie.MovieTextMatcherList;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
@@ -65,7 +66,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSettingsPanel extends JPanel {
   private static final long            serialVersionUID = -4173835431245178069L;
 
-  private final MovieSettings          settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings          settings         = MovieModuleManager.getInstance().getSettings();
 
   private JButton                      btnClearTraktData;
   private JCheckBox                    chckbxTraktSync;
@@ -105,12 +106,15 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                    chckbxOriginalTitle;
   private JCheckBox                    chckbxSortableOriginalTitle;
   private JCheckBox                    chckbxSortTitle;
+  private JCheckBox                    chckbxNote;
 
   private final ItemListener           checkBoxListener;
   private JCheckBox                    chckbxTraktSyncWatched;
   private JCheckBox                    chckbxTraktSyncRating;
   private JCheckBox                    chckbxTraktSyncCollection;
   private JCheckBox                    chckbxStoreFilter;
+  private JButton                      btnPresetJellyfin;
+  private JButton                      btnPresetEmby;
 
   public MovieSettingsPanel() {
 
@@ -139,7 +143,7 @@ public class MovieSettingsPanel extends JPanel {
       }
 
       if (selectedItem instanceof String && StringUtils.isNotBlank((String) selectedItem)) {
-        MovieModuleManager.SETTINGS.addRatingSource((String) selectedItem);
+        MovieModuleManager.getInstance().getSettings().addRatingSource((String) selectedItem);
 
         // set text combobox text input to ""
         if (editorComponent instanceof JTextField) {
@@ -156,7 +160,7 @@ public class MovieSettingsPanel extends JPanel {
       int row = listRatings.getSelectedIndex();
       if (row != -1) { // nothing selected
         String ratingSource = settings.getRatingSources().get(row);
-        MovieModuleManager.SETTINGS.removeRatingSource(ratingSource);
+        MovieModuleManager.getInstance().getSettings().removeRatingSource(ratingSource);
       }
     });
 
@@ -190,11 +194,13 @@ public class MovieSettingsPanel extends JPanel {
       }
     });
 
-    btnPresetXbmc.addActionListener(evt -> settings.setDefaultSettingsForXbmc());
-    btnPresetKodi.addActionListener(evt -> settings.setDefaultSettingsForKodi());
-    btnPresetMediaPortal1.addActionListener(evt -> settings.setDefaultSettingsForMediaPortal1());
-    btnPresetMediaPortal2.addActionListener(evt -> settings.setDefaultSettingsForMediaPortal2());
-    btnPresetPlex.addActionListener(evt -> settings.setDefaultSettingsForPlex());
+    btnPresetXbmc.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForXbmc());
+    btnPresetKodi.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForKodi());
+    btnPresetJellyfin.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForJellyfin());
+    btnPresetEmby.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForEmby());
+    btnPresetPlex.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForPlex());
+    btnPresetMediaPortal1.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForMediaPortal1());
+    btnPresetMediaPortal2.addActionListener(evt -> MovieSettingsDefaults.setDefaultSettingsForMediaPortal2());
 
     buildCheckBoxes();
   }
@@ -331,6 +337,9 @@ public class MovieSettingsPanel extends JPanel {
 
         chckbxSortTitle = new JCheckBox(MovieTextMatcherList.SORTED_TITLE.toString());
         panelUiSettings.add(chckbxSortTitle, "cell 2 1");
+
+        chckbxNote = new JCheckBox(MovieTextMatcherList.NOTE.toString());
+        panelUiSettings.add(chckbxNote, "cell 2 1");
       }
       {
         chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
@@ -485,7 +494,8 @@ public class MovieSettingsPanel extends JPanel {
       }
     }
     {
-      JPanel panelPresets = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][][][grow]", "[]"));
+      JPanel panelPresets = new JPanel(
+          new MigLayout("hidemode 1, insets 0", "[20lp!][15lp][120lp:n][15lp!][120lp:n][15lp!][120lp:n][grow]", "[][][][]"));
 
       JLabel lblPresets = new TmmLabel(TmmResourceBundle.getString("Settings.preset"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelPresets, lblPresets, true);
@@ -493,23 +503,31 @@ public class MovieSettingsPanel extends JPanel {
       add(collapsiblePanel, "cell 0 6,growx,wmin 0");
       {
         JLabel lblPresetHintT = new JLabel(TmmResourceBundle.getString("Settings.preset.desc"));
-        panelPresets.add(lblPresetHintT, "cell 1 0 3 1");
+        panelPresets.add(lblPresetHintT, "cell 1 0 7 1");
       }
       {
         btnPresetKodi = new JButton("Kodi v17+");
         panelPresets.add(btnPresetKodi, "cell 2 1,growx");
 
         btnPresetXbmc = new JButton("XBMC/Kodi <v17");
-        panelPresets.add(btnPresetXbmc, "cell 3 1,growx");
+        panelPresets.add(btnPresetXbmc, "cell 4 1,growx");
+      }
+      {
+        btnPresetJellyfin = new JButton("Jellyfin");
+        panelPresets.add(btnPresetJellyfin, "cell 2 2,growx");
 
-        btnPresetMediaPortal1 = new JButton("MediaPortal 1.x");
-        panelPresets.add(btnPresetMediaPortal1, "cell 2 2,growx");
-
-        btnPresetMediaPortal2 = new JButton("MediaPortal 2.x");
-        panelPresets.add(btnPresetMediaPortal2, "cell 3 2,growx");
+        btnPresetEmby = new JButton("Emby");
+        panelPresets.add(btnPresetEmby, "cell 4 2,growx");
 
         btnPresetPlex = new JButton("Plex");
-        panelPresets.add(btnPresetPlex, "cell 2 3,growx");
+        panelPresets.add(btnPresetPlex, "cell 6 2,growx");
+      }
+      {
+        btnPresetMediaPortal1 = new JButton("MediaPortal 1.x");
+        panelPresets.add(btnPresetMediaPortal1, "cell 2 3,growx");
+
+        btnPresetMediaPortal2 = new JButton("MediaPortal 2.x");
+        panelPresets.add(btnPresetMediaPortal2, "cell 4 3,growx");
       }
     }
   }
@@ -582,6 +600,11 @@ public class MovieSettingsPanel extends JPanel {
         jCheckBoxBeanProperty);
     autoBinding_17.bind();
     //
+    Property movieSettingsBeanProperty_23 = BeanProperty.create("note");
+    AutoBinding autoBinding_23 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_23, chckbxNote,
+        jCheckBoxBeanProperty);
+    autoBinding_23.bind();
+    //
     Property movieSettingsBeanProperty = BeanProperty.create("ratingSources");
     JListBinding jListBinding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, listRatings);
     jListBinding.bind();
@@ -631,7 +654,7 @@ public class MovieSettingsPanel extends JPanel {
     //
     Property movieSettingsBeanProperty_22 = BeanProperty.create("ardAfterScrape");
     AutoBinding autoBinding_22 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_22, chckbxARDAfterScrape,
-      jCheckBoxBeanProperty);
+        jCheckBoxBeanProperty);
     autoBinding_22.bind();
   }
 }

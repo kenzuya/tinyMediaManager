@@ -87,7 +87,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
   private static final Logger                LOGGER                = LoggerFactory.getLogger(TvShowEpisodeInformationPanel.class);
   private static final long                  serialVersionUID      = 2032708149757390567L;
 
-  private final TvShowSettings               settings              = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings               settings              = TvShowModuleManager.getInstance().getSettings();
   private final TvShowEpisodeSelectionModel  tvShowEpisodeSelectionModel;
   private final RatingConverter<MediaRating> ratingRatingConverter = new RatingConverter<>();
 

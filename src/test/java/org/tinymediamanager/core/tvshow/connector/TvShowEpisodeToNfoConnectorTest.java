@@ -37,11 +37,10 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -57,9 +56,7 @@ import org.tinymediamanager.scraper.entities.MediaCertification;
 public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
   @BeforeClass
   public static void setup() {
-    // create a default config file for config access
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Test
@@ -232,7 +229,7 @@ public class TvShowEpisodeToNfoConnectorTest extends BasicTest {
       assertThat(newEpisode.getTags()).isEqualTo(episode.getTags());
 
       // since we do not write show actors to the episodes, we need to adopt this test
-      for (Person person : newEpisode.getGuests()) {
+      for (Person person : newEpisode.getActors()) {
         assertThat(episode.getActors()).contains(person);
         assertThat(newEpisode.getTvShow().getActors()).doesNotContain(person);
       }

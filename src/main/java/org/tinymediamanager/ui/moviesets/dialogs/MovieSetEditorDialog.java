@@ -44,8 +44,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +64,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
+import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.scraper.MediaMetadata;
@@ -79,7 +80,6 @@ import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.FlatButton;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
-import org.tinymediamanager.ui.components.NoBorderScrollPane;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.table.TmmTable;
@@ -99,7 +99,7 @@ public class MovieSetEditorDialog extends TmmDialog {
   private static final String ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String SPACER              = "        ";
 
-  private MovieList           movieList           = MovieList.getInstance();
+  private MovieList           movieList           = MovieModuleManager.getInstance().getMovieList();
   private MovieSet            movieSetToEdit;
   private List<Movie>         moviesInSet         = ObservableCollections.observableList(new ArrayList<>());
   private List<Movie>         removedMovies       = new ArrayList<>();
@@ -114,7 +114,7 @@ public class MovieSetEditorDialog extends TmmDialog {
   private TmmTable            tableMovies;
   private ImageLabel          lblPoster;
   private ImageLabel          lblFanart;
-  private JTextPane           tpOverview;
+  private JTextArea           taPlot;
   private JTextField          tfTmdbId;
 
   private ImageLabel          lblLogo;
@@ -132,6 +132,7 @@ public class MovieSetEditorDialog extends TmmDialog {
   private JTextField          tfClearArt;
   private JTextField          tfThumb;
   private JTextField          tfDisc;
+  private JTextField          tfNote;
 
   /**
    * Instantiates a new movie set editor.
@@ -158,7 +159,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       JPanel panelContent = new JPanel();
       tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), panelContent);
       panelContent
-          .setLayout(new MigLayout("", "[][400lp,grow 200][150lp:200lp,grow 50]", "[][][150lp:25%:40%,grow][20lp:n][pref!][][50lp:20%:30%,grow]"));
+          .setLayout(new MigLayout("", "[][400lp,grow][150lp:200lp,grow 50]", "[][][100lp:25%:25%,grow][][20lp:n][pref!][][50lp:20%:30%,grow]"));
 
       JLabel lblName = new TmmLabel(TmmResourceBundle.getString("movieset.title"));
       panelContent.add(lblName, "cell 0 0,alignx right");
@@ -192,7 +193,7 @@ public class MovieSetEditorDialog extends TmmDialog {
       });
       panelContent.add(btnDeletePoster, "cell 2 0");
 
-      panelContent.add(lblPoster, "cell 2 1 1 4,grow");
+      panelContent.add(lblPoster, "cell 2 1 1 5,grow");
       lblPoster.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblPosterSize, lblPoster, MediaFileType.POSTER));
 
       JLabel lblTmdbid = new TmmLabel(TmmResourceBundle.getString("metatag.tmdb"));
@@ -205,18 +206,27 @@ public class MovieSetEditorDialog extends TmmDialog {
       JLabel lblOverview = new TmmLabel(TmmResourceBundle.getString("metatag.plot"));
       panelContent.add(lblOverview, "cell 0 2,alignx right,aligny top");
 
-      JScrollPane scrollPaneOverview = new NoBorderScrollPane();
-      panelContent.add(scrollPaneOverview, "cell 1 2,grow");
+      JScrollPane scrollPaneOverview = new JScrollPane();
+      panelContent.add(scrollPaneOverview, "cell 1 2,grow, wmin 0");
 
-      tpOverview = new JTextPane();
-      tpOverview.setForeground(UIManager.getColor("TextField.foreground"));
-      scrollPaneOverview.setViewportView(tpOverview);
+      taPlot = new JTextArea();
+      taPlot.setLineWrap(true);
+      taPlot.setWrapStyleWord(true);
+      taPlot.setForeground(UIManager.getColor("TextField.foreground"));
+      scrollPaneOverview.setViewportView(taPlot);
+
+      JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
+      panelContent.add(lblNoteT, "cell 0 3,alignx trailing");
+
+      tfNote = new JTextField();
+      panelContent.add(tfNote, "cell 1 3,growx");
+      tfNote.setColumns(10);
 
       JLabel lblMovies = new TmmLabel(TmmResourceBundle.getString("tmm.movies"));
-      panelContent.add(lblMovies, "flowy,cell 0 4,alignx right,aligny top");
+      panelContent.add(lblMovies, "flowy,cell 0 5,alignx right,aligny top");
 
       JScrollPane scrollPaneMovies = new JScrollPane();
-      panelContent.add(scrollPaneMovies, "cell 1 4 1 3,grow");
+      panelContent.add(scrollPaneMovies, "cell 1 5 1 3,grow");
 
       tableMovies = new TmmTable();
       scrollPaneMovies.setViewportView(tableMovies);
@@ -233,19 +243,19 @@ public class MovieSetEditorDialog extends TmmDialog {
           updateArtworkUrl(lblFanart, tfFanart);
         }
       });
-      panelContent.add(new TmmLabel(TmmResourceBundle.getString("mediafiletype.fanart")), "cell 2 5");
+      panelContent.add(new TmmLabel(TmmResourceBundle.getString("mediafiletype.fanart")), "cell 2 6");
 
       LinkLabel lblFanartSize = new LinkLabel();
-      panelContent.add(lblFanartSize, "cell 2 5");
+      panelContent.add(lblFanartSize, "cell 2 6");
       JButton btnDeleteFanart = new FlatButton(SPACER, IconManager.DELETE_GRAY);
       btnDeleteFanart.setToolTipText(TmmResourceBundle.getString("Button.deleteartwork.desc"));
       btnDeleteFanart.addActionListener(e -> {
         lblFanart.clearImage();
         tfFanart.setText("");
       });
-      panelContent.add(btnDeleteFanart, "cell 2 5");
+      panelContent.add(btnDeleteFanart, "cell 2 6");
 
-      panelContent.add(lblFanart, "cell 2 6,grow");
+      panelContent.add(lblFanart, "cell 2 7,grow");
       lblFanart.addPropertyChangeListener(ORIGINAL_IMAGE_SIZE, e -> setImageSizeAndCreateLink(lblFanartSize, lblFanart, MediaFileType.FANART));
 
       JButton btnSearchTmdbId = new JButton("");
@@ -254,7 +264,7 @@ public class MovieSetEditorDialog extends TmmDialog {
 
       JButton btnRemoveMovie = new JButton("");
       btnRemoveMovie.setAction(new RemoveMovieAction());
-      panelContent.add(btnRemoveMovie, "cell 0 4,alignx right,aligny top");
+      panelContent.add(btnRemoveMovie, "cell 0 5,alignx right,aligny top");
 
       /**
        * Artwork pane
@@ -537,7 +547,8 @@ public class MovieSetEditorDialog extends TmmDialog {
     {
       tfName.setText(movieSetToEdit.getTitle());
       tfTmdbId.setText(String.valueOf(movieSetToEdit.getTmdbId()));
-      tpOverview.setText(movieSetToEdit.getPlot());
+      taPlot.setText(movieSetToEdit.getPlot());
+      tfNote.setText(movieSetToEdit.getNote());
       moviesInSet.addAll(movieSetToEdit.getMovies());
 
       setArtworkPath(MediaFileType.POSTER, lblPoster);
@@ -650,7 +661,8 @@ public class MovieSetEditorDialog extends TmmDialog {
     @Override
     public void actionPerformed(ActionEvent e) {
       movieSetToEdit.setTitle(tfName.getText());
-      movieSetToEdit.setPlot(tpOverview.getText());
+      movieSetToEdit.setPlot(taPlot.getText());
+      movieSetToEdit.setNote(tfNote.getText());
 
       // process artwork
       processArtwork(MediaFileType.POSTER, lblPoster, tfPoster);
@@ -699,7 +711,10 @@ public class MovieSetEditorDialog extends TmmDialog {
       catch (Exception ignored) {
       }
       movieSetToEdit.setTmdbId(tmdbId);
+      movieSetToEdit.writeNFO();
       movieSetToEdit.saveToDb();
+
+      MovieSetArtworkHelper.cleanupArtwork(movieSetToEdit);
 
       setVisible(false);
     }
@@ -791,9 +806,9 @@ public class MovieSetEditorDialog extends TmmDialog {
             MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
             options.setTmdbId(movie.getTmdbId());
             options.setImdbId(movie.getImdbId());
-            options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
-            options.setCertificationCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
-            options.setReleaseDateCountry(MovieModuleManager.SETTINGS.getReleaseDateCountry());
+            options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+            options.setCertificationCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
+            options.setReleaseDateCountry(MovieModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
             try {
               MediaMetadata md = mp.getMetadata(options);

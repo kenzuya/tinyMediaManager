@@ -23,13 +23,14 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.scraper.MediaProviderInfo;
 
-@SuppressWarnings("deprecation")
-public class MediaProviderConfigTest {
+public class MediaProviderConfigTest extends BasicTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+    BasicTest.setup();
     FileUtils.deleteQuietly(new File("target/scraper_config.conf"));
     FileUtils.copyFile(new File("target/test-classes/scraper_config.conf.tmpl"), new File("target/scraper_config.conf"));
   }

@@ -40,10 +40,9 @@ import org.tinymediamanager.core.threading.TmmThreadPool;
  * @author Manuel Laggner
  */
 public class MovieRenameTask extends TmmThreadPool {
-  private static final Logger         LOGGER = LoggerFactory.getLogger(MovieRenameTask.class);
-  
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieRenameTask.class);
 
-  private List<Movie>                 moviesToRename;
+  private final List<Movie>   moviesToRename;
 
   /**
    * Instantiates a new movie rename task.
@@ -53,7 +52,7 @@ public class MovieRenameTask extends TmmThreadPool {
    */
   public MovieRenameTask(List<Movie> moviesToRename) {
     super(TmmResourceBundle.getString("movie.rename"));
-    this.moviesToRename = moviesToRename;
+    this.moviesToRename = new ArrayList<>(moviesToRename);
   }
 
   @Override
@@ -65,15 +64,15 @@ public class MovieRenameTask extends TmmThreadPool {
       List<MediaFile> imageFiles = new ArrayList<>();
 
       // rename movies
-      for (Movie aMoviesToRename : moviesToRename) {
+      for (Movie movie : moviesToRename) {
         if (cancel) {
           break;
         }
 
-        submitTask(new RenameMovieTask(aMoviesToRename));
+        submitTask(new RenameMovieTask(movie));
 
         // remember all image files
-        imageFiles.addAll(aMoviesToRename.getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList()));
+        imageFiles.addAll(movie.getMediaFiles().stream().filter(MediaFile::isGraphic).collect(Collectors.toList()));
       }
       waitForCompletionOrCancel();
       if (cancel) {
@@ -101,8 +100,7 @@ public class MovieRenameTask extends TmmThreadPool {
    * @version 1.0
    */
   private static class RenameMovieTask implements Callable<Object> {
-
-    private Movie movie = null;
+    private final Movie movie;
 
     private RenameMovieTask(Movie movie) {
       this.movie = movie;

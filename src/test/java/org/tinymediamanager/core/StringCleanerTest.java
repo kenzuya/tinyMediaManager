@@ -2,14 +2,19 @@ package org.tinymediamanager.core;
 
 import java.util.Iterator;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
 import org.tinymediamanager.scraper.util.StrgUtils;
 
 /**
  * StringCleaner provides a method for normalizing a string to generally ASCII-compatible form.
  */
 public class StringCleanerTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   /***********************************/
   @Test

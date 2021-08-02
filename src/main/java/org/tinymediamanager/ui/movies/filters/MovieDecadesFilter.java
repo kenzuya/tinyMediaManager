@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -34,8 +35,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Wolfgang Janes
  */
 public class MovieDecadesFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
-
-  private MovieList movieList = MovieList.getInstance();
+  private final MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
   public MovieDecadesFilter() {
     super();
@@ -47,7 +47,7 @@ public class MovieDecadesFilter extends AbstractCheckComboBoxMovieUIFilter<Strin
 
   @Override
   protected JLabel createLabel() {
-    return new TmmLabel(BUNDLE.getString("movie.decades"));
+    return new TmmLabel(BUNDLE.getString("metatag.decade"));
   }
 
   @Override

@@ -28,6 +28,7 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -38,7 +39,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  */
 public class MovieAudioLanguageFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
 
-    private MovieList movieList = MovieList.getInstance();
+  private MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
     public MovieAudioLanguageFilter() {
         super();

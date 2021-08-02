@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
@@ -58,25 +59,24 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class MovieDatasourceSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = -7580437046944123496L;
+  private static final long   serialVersionUID = -7580437046944123496L;
 
+  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
-
-  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
-
-  private JTextField                  tfAddBadword;
-  private JList<String>               listBadWords;
-  private JList<String>               listDatasources;
-  private JList<String>               listSkipFolder;
-  private JButton                     btnRemoveDatasource;
-  private JButton                     btnAddDatasource;
-  private JButton                     btnAddSkipFolder;
-  private JButton                     btnRemoveSkipFolder;
-  private JButton                     btnRemoveBadWord;
-  private JButton                     btnAddBadWord;
-  private JButton                     btnMoveUpDatasoure;
-  private JButton                     btnMoveDownDatasource;
-  private JButton                     btnExchangeDatasource;
+  private JTextField          tfAddBadword;
+  private JList<String>       listBadWords;
+  private JList<String>       listDatasources;
+  private JList<String>       listSkipFolder;
+  private JButton             btnRemoveDatasource;
+  private JButton             btnAddDatasource;
+  private JButton             btnAddSkipFolder;
+  private JButton             btnAddSkipRegexp;
+  private JButton             btnRemoveSkipFolder;
+  private JButton             btnRemoveBadWord;
+  private JButton             btnAddBadWord;
+  private JButton             btnMoveUpDatasoure;
+  private JButton             btnMoveDownDatasource;
+  private JButton             btnExchangeDatasource;
 
   /**
    * Instantiates a new movie settings panel.
@@ -91,14 +91,14 @@ class MovieDatasourceSettingsPanel extends JPanel {
     btnRemoveDatasource.addActionListener(arg0 -> {
       int row = listDatasources.getSelectedIndex();
       if (row != -1) { // nothing selected
-        String path = MovieModuleManager.SETTINGS.getMovieDataSource().get(row);
+        String path = MovieModuleManager.getInstance().getSettings().getMovieDataSource().get(row);
         String[] choices = { TmmResourceBundle.getString("Button.continue"), TmmResourceBundle.getString("Button.abort") };
         int decision = JOptionPane.showOptionDialog(null, String.format(TmmResourceBundle.getString("Settings.movie.datasource.remove.info"), path),
             TmmResourceBundle.getString("Settings.datasource.remove"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices,
             TmmResourceBundle.getString("Button.abort"));
         if (decision == JOptionPane.YES_OPTION) {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          MovieModuleManager.SETTINGS.removeMovieDataSources(path);
+          MovieModuleManager.getInstance().getSettings().removeMovieDataSources(path);
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
       }
@@ -121,6 +121,13 @@ class MovieDatasourceSettingsPanel extends JPanel {
       }
     });
 
+    btnAddSkipRegexp.addActionListener(e -> {
+      String regexp = TmmUIHelper.showRegexpInputDialog(SwingUtilities.getWindowAncestor(this));
+      if (StringUtils.isNotBlank(regexp)) {
+        settings.addSkipFolder(regexp);
+      }
+    });
+
     btnRemoveSkipFolder.addActionListener(e -> {
       int row = listSkipFolder.getSelectedIndex();
       if (row != -1) { // nothing selected
@@ -138,7 +145,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
           JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("message.regex.error"));
           return;
         }
-        MovieModuleManager.SETTINGS.addBadWord(tfAddBadword.getText());
+        MovieModuleManager.getInstance().getSettings().addBadWord(tfAddBadword.getText());
         tfAddBadword.setText("");
       }
     });
@@ -146,8 +153,8 @@ class MovieDatasourceSettingsPanel extends JPanel {
     btnRemoveBadWord.addActionListener(arg0 -> {
       int row = listBadWords.getSelectedIndex();
       if (row != -1) {
-        String badWord = MovieModuleManager.SETTINGS.getBadWord().get(row);
-        MovieModuleManager.SETTINGS.removeBadWord(badWord);
+        String badWord = MovieModuleManager.getInstance().getSettings().getBadWord().get(row);
+        MovieModuleManager.getInstance().getSettings().removeBadWord(badWord);
       }
     });
 
@@ -174,13 +181,13 @@ class MovieDatasourceSettingsPanel extends JPanel {
     btnExchangeDatasource.addActionListener(arg0 -> {
       int row = listDatasources.getSelectedIndex();
       if (row != -1) { // nothing selected
-        String path = MovieModuleManager.SETTINGS.getMovieDataSource().get(row);
+        String path = MovieModuleManager.getInstance().getSettings().getMovieDataSource().get(row);
         ExchangeDatasourceDialog dialog = new ExchangeDatasourceDialog(path);
         dialog.setVisible(true);
 
         if (StringUtils.isNotBlank(dialog.getNewDatasource())) {
           setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-          MovieModuleManager.SETTINGS.exchangeMovieDatasource(path, dialog.getNewDatasource());
+          MovieModuleManager.getInstance().getSettings().exchangeMovieDatasource(path, dialog.getNewDatasource());
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
       }
@@ -227,7 +234,7 @@ class MovieDatasourceSettingsPanel extends JPanel {
     }
 
     {
-      JPanel panelIgnore = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[100lp,grow]"));
+      JPanel panelIgnore = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][400lp][][grow]", "[150lp,grow]"));
 
       JLabel lblIgnoreT = new TmmLabel(TmmResourceBundle.getString("Settings.ignore"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelIgnore, lblIgnoreT, true);
@@ -243,6 +250,10 @@ class MovieDatasourceSettingsPanel extends JPanel {
         btnAddSkipFolder = new SquareIconButton(IconManager.ADD_INV);
         panelIgnore.add(btnAddSkipFolder, "flowy, cell 2 0, aligny top, growx");
         btnAddSkipFolder.setToolTipText(TmmResourceBundle.getString("Settings.addignore"));
+
+        btnAddSkipRegexp = new SquareIconButton(IconManager.FILE_ADD_INV);
+        panelIgnore.add(btnAddSkipRegexp, "flowy, cell 2 0, aligny top, growx");
+        btnAddSkipRegexp.setToolTipText(TmmResourceBundle.getString("Settings.addignoreregexp"));
 
         btnRemoveSkipFolder = new SquareIconButton(IconManager.REMOVE_INV);
         panelIgnore.add(btnRemoveSkipFolder, "flowy, cell 2 0, aligny top, growx");

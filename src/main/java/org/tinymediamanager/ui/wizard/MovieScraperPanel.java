@@ -40,7 +40,6 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
@@ -70,7 +69,7 @@ class MovieScraperPanel extends JPanel {
    */
 
 
-  private final MovieSettings         settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings        settings         = MovieModuleManager.getInstance().getSettings();
   private final List<MovieScraper>    scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
   private JTable                      tableScraper;
@@ -85,10 +84,10 @@ class MovieScraperPanel extends JPanel {
 
   public MovieScraperPanel() {
     // data init before UI init
-    MediaScraper defaultMediaScraper = MovieList.getInstance().getDefaultMediaScraper();
+    MediaScraper defaultMediaScraper = MovieModuleManager.getInstance().getMovieList().getDefaultMediaScraper();
     int selectedIndex = 0;
     int counter = 0;
-    for (MediaScraper scraper : MovieList.getInstance().getAvailableMediaScrapers()) {
+    for (MediaScraper scraper : MovieModuleManager.getInstance().getMovieList().getAvailableMediaScrapers()) {
       MovieScraper movieScraper = new MovieScraper(scraper);
       if (scraper.equals(defaultMediaScraper)) {
         movieScraper.setDefaultScraper(true);

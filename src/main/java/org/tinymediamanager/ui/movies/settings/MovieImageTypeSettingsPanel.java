@@ -52,7 +52,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieImageTypeSettingsPanel extends JPanel {
   private static final long   serialVersionUID = 7312645402037806284L;
 
-  private final MovieSettings settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
   private JCheckBox           chckbxMoviePosterFilename2;
   private JCheckBox           chckbxMoviePosterFilename4;

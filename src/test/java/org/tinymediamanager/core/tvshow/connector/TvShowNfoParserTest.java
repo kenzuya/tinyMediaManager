@@ -22,12 +22,19 @@ import static org.assertj.core.api.Assertions.entry;
 import java.nio.file.Paths;
 
 import org.assertj.core.api.Assertions;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class TvShowNfoParserTest {
+public class TvShowNfoParserTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testNfoParserKodi142() {

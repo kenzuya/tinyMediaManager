@@ -16,6 +16,7 @@
 package org.tinymediamanager.scraper.config;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -23,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This clas is used for holding a config setting
+ * This class is used for holding a config setting
  * 
  * @author Myron Boyle
  */
@@ -47,7 +48,7 @@ public class MediaProviderConfigObject {
   boolean                     encrypt         = false;
   boolean                     visible         = true;
   ConfigType                  type            = ConfigType.TEXT;
-  ArrayList<String>           possibleValues  = new ArrayList<>();
+  List<String>                possibleValues  = new ArrayList<>();
 
   public String getKey() {
     return key;
@@ -89,14 +90,18 @@ public class MediaProviderConfigObject {
       case SELECT:
         ret = getValueAsString();
         break;
+
       case SELECT_INDEX:
         Integer i = getValueIndex();
         ret = (i == null || i < 0) ? "" : String.valueOf(i);
         break;
+
       case BOOL:
         return String.valueOf(getValueAsBool());
+
       case INTEGER:
         return String.valueOf(getValueAsInteger());
+
       case TEXT:
       default:
         return this.value;
@@ -106,24 +111,21 @@ public class MediaProviderConfigObject {
 
   public String getValueAsString() {
     if (type == ConfigType.SELECT && !possibleValues.contains(this.value)) {
-      LOGGER.trace("Could not get value for key '{}' - not in range; returning default {}", this.key, defaultValue);
       return this.defaultValue;
     }
     return this.value;
   }
 
   public Boolean getValueAsBool() {
-    Boolean bool = Boolean.FALSE;
+    boolean bool = Boolean.FALSE;
     if (type != ConfigType.BOOL) {
-      LOGGER.trace("This is not a boolean '{}={}' - returning NULL ", key, value);
       return bool;
     }
     if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) { // always false when unparseable :/
-      bool = Boolean.valueOf(value);
+      bool = Boolean.parseBoolean(value);
     }
     else {
-      LOGGER.trace("This is not a Boolean '{}={}' - returning default {}", key, value, defaultValue);
-      bool = Boolean.valueOf(defaultValue);
+      bool = Boolean.parseBoolean(defaultValue);
     }
     return bool;
   }
@@ -131,14 +133,12 @@ public class MediaProviderConfigObject {
   public Integer getValueAsInteger() {
     Integer integer = null;
     if (type != ConfigType.INTEGER) {
-      LOGGER.trace("This is not an Integer '{}={}' - returning NULL ", key, value);
       return null;
     }
     try {
       integer = Integer.parseInt(value);
     }
     catch (Exception e) {
-      LOGGER.trace("This is not an Integer '{}={}' - returning default {}", key, value, defaultValue);
       try {
         integer = Integer.parseInt(defaultValue);
       }
@@ -151,9 +151,8 @@ public class MediaProviderConfigObject {
 
   public Integer getValueIndex() {
     // FIXME: Index is just stored in value? return 1:1 ?!? no example found yet...
-    Integer ret = null;
+    Integer ret;
     if (type != ConfigType.SELECT && type != ConfigType.SELECT_INDEX) {
-      LOGGER.trace("This is not a selectbox '{}={} - returning NULL ", key, value);
       return null;
     }
     ret = possibleValues.indexOf(value);
@@ -162,15 +161,12 @@ public class MediaProviderConfigObject {
       if (ret == -1) {
         ret = null;
       }
-      LOGGER.trace("Could not get index for '{}={}' - not in defined range! returning default {}", key, value, ret);
     }
     return ret;
   }
 
   public void setValue(String value) {
     if (type == ConfigType.SELECT && !possibleValues.contains(value)) {
-      // possible values set, but ours isn't in? just return...
-      LOGGER.trace("Could not set '{}={}' - not in defined range!", key, value);
       return;
     }
     this.value = value;
@@ -215,11 +211,11 @@ public class MediaProviderConfigObject {
     this.returnListAsInt = returnListAsInt;
   }
 
-  public ArrayList<String> getPossibleValues() {
+  public List<String> getPossibleValues() {
     return possibleValues;
   }
 
-  public void setPossibleValues(ArrayList<String> possibleValues) {
+  public void setPossibleValues(List<String> possibleValues) {
     this.possibleValues = possibleValues;
   }
 

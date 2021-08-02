@@ -43,7 +43,7 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
   private final PropertyChangeListener          movieSetPropertyChangeListener;
   private final PropertyChangeListener          moviePropertyChangeListener;
 
-  private final MovieList                       movieList = MovieList.getInstance();
+  private final MovieList                       movieList = MovieModuleManager.getInstance().getMovieList();
 
   public MovieSetTreeDataProvider(TmmTreeTableFormat<TmmTreeNode> tableFormat) {
     this.tableFormat = tableFormat;
@@ -103,7 +103,7 @@ public class MovieSetTreeDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
     setTreeComparator(new MovieSetTreeNodeComparator());
 
-    MovieModuleManager.SETTINGS.addPropertyChangeListener(evt -> {
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
         case "displayMovieSetMissingMovies":
           mixinDummyMovies();

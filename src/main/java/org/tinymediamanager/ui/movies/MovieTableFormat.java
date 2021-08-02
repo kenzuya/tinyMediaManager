@@ -510,6 +510,16 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     col.setHeaderIcon(IconManager.WATCHED);
     col.setColumnResizeable(false);
     addColumn(col);
+
+    /*
+    * Note
+     */
+    col = new Column(TmmResourceBundle.getString("metatag.note"), "note", movie -> getCheckIcon(movie.getHasNote()),ImageIcon.class);
+    col.setColumnComparator(imageComparator);
+    col.setHeaderIcon(IconManager.INFO);
+    col.setColumnResizeable(false);
+    col.setDefaultHidden(true);
+    addColumn(col);
   }
 
   private Float getRating(MediaRating rating) {
@@ -528,7 +538,7 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
 
   private <E> Function<E, String> showTooltip(Function<E, String> tooltipFunction) {
     return movie -> {
-      if (MovieModuleManager.SETTINGS.isShowMovieTableTooltips()) {
+      if (MovieModuleManager.getInstance().getSettings().isShowMovieTableTooltips()) {
         return tooltipFunction.apply(movie);
       }
       else {

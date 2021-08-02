@@ -18,22 +18,34 @@ package org.tinymediamanager.ui.moviesets.settings;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.event.ItemListener;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
+import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
+import org.tinymediamanager.core.movie.connector.MovieSetConnectors;
+import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 
 import net.miginfocom.swing.MigLayout;
@@ -46,7 +58,7 @@ import net.miginfocom.swing.MigLayout;
 public class MovieSetSettingsPanel extends JPanel {
   private static final long   serialVersionUID = -4173835431245178069L;
 
-  private final MovieSettings settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
 
   private JCheckBox           chckbxShowMissingMovies;
   private JCheckBox           chckbxTvShowTableTooltips;
@@ -60,6 +72,13 @@ public class MovieSetSettingsPanel extends JPanel {
   private JCheckBox           chckbxCheckClearlogo;
   private JCheckBox           chckbxCheckDiscart;
 
+  private JTextField          tfMovieSetArtworkFolder;
+  private JButton             btnSelectFolder;
+  private JComboBox           cbNfoFormat;
+  private JCheckBox           cbMovieNfoFilename1;
+  private JCheckBox           cbMovieNfoFilename2;
+  private JCheckBox           cbMovieNfoFilename3;
+
   private final ItemListener  checkBoxListener;
   private JCheckBox           chckbxStoreFilter;
 
@@ -69,6 +88,16 @@ public class MovieSetSettingsPanel extends JPanel {
     // UI initializations
     initComponents();
     initDataBindings();
+
+    // further initializations
+    btnSelectFolder.addActionListener(arg0 -> {
+      String path = TmmProperties.getInstance().getProperty("movieset.folderchooser.path");
+      Path file = TmmUIHelper.selectDirectory(TmmResourceBundle.getString("Settings.movieset.folderchooser"), path);
+      if (file != null && Files.isDirectory(file)) {
+        tfMovieSetArtworkFolder.setText(file.toAbsolutePath().toString());
+        TmmProperties.getInstance().putProperty("movieset.folderchooser.path", file.toAbsolutePath().toString());
+      }
+    });
 
     buildCheckBoxes();
   }
@@ -99,9 +128,42 @@ public class MovieSetSettingsPanel extends JPanel {
     if (chckbxCheckDiscart.isSelected()) {
       settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.DISC);
     }
+
+    settings.clearMovieSetNfoFilenames();
+    if (cbMovieNfoFilename1.isSelected()) {
+      settings.addMovieSetNfoFilename(MovieSetNfoNaming.KODI_NFO);
+    }
+    if (cbMovieNfoFilename2.isSelected()) {
+      settings.addMovieSetNfoFilename(MovieSetNfoNaming.AUTOMATOR_NFO);
+    }
+    if (cbMovieNfoFilename3.isSelected()) {
+      settings.addMovieSetNfoFilename(MovieSetNfoNaming.EMBY_NFO);
+    }
   }
 
   private void buildCheckBoxes() {
+    cbMovieNfoFilename1.removeItemListener(checkBoxListener);
+    cbMovieNfoFilename2.removeItemListener(checkBoxListener);
+    cbMovieNfoFilename3.removeItemListener(checkBoxListener);
+
+    clearSelection(cbMovieNfoFilename1, cbMovieNfoFilename2, cbMovieNfoFilename3);
+
+    // NFO filenames
+    List<MovieSetNfoNaming> movieSetNfoFilenames = settings.getMovieSetNfoFilenames();
+    if (movieSetNfoFilenames.contains(MovieSetNfoNaming.KODI_NFO)) {
+      cbMovieNfoFilename1.setSelected(true);
+    }
+    if (movieSetNfoFilenames.contains(MovieSetNfoNaming.AUTOMATOR_NFO)) {
+      cbMovieNfoFilename2.setSelected(true);
+    }
+    if (movieSetNfoFilenames.contains(MovieSetNfoNaming.EMBY_NFO)) {
+      cbMovieNfoFilename3.setSelected(true);
+    }
+
+    cbMovieNfoFilename1.addItemListener(checkBoxListener);
+    cbMovieNfoFilename2.addItemListener(checkBoxListener);
+    cbMovieNfoFilename3.addItemListener(checkBoxListener);
+
     chckbxCheckPoster.removeItemListener(checkBoxListener);
     chckbxCheckFanart.removeItemListener(checkBoxListener);
     chckbxCheckBanner.removeItemListener(checkBoxListener);
@@ -169,7 +231,7 @@ public class MovieSetSettingsPanel extends JPanel {
   }
 
   private void initComponents() {
-    setLayout(new MigLayout("", "[600lp,grow]", "[][]"));
+    setLayout(new MigLayout("", "[600lp,grow]", "[][15lp!][][15lp!][]"));
     {
       JPanel panelUiSettings = new JPanel();
       panelUiSettings.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][]")); // 16lp ~ width of the
@@ -192,12 +254,58 @@ public class MovieSetSettingsPanel extends JPanel {
       }
     }
     {
+      JPanel panelData = new JPanel();
+      panelData.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!,grow][grow]", "[][grow][10lp!][][grow]")); // 16lp ~ width of the
+
+      JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.movieset.data"), H3);
+      CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelData, lblMiscT, true);
+
+      add(collapsiblePanel, "cell 0 2,growx,wmin 0");
+      {
+        JLabel lblFoldername = new TmmLabel(TmmResourceBundle.getString("Settings.movieset.datafolder"));
+        panelData.add(lblFoldername, "cell 1 0 2 1");
+
+        tfMovieSetArtworkFolder = new JTextField();
+        panelData.add(tfMovieSetArtworkFolder, "cell 1 0 2 1");
+        tfMovieSetArtworkFolder.setColumns(40);
+
+        btnSelectFolder = new JButton(TmmResourceBundle.getString("Settings.movieset.buttonselect"));
+        panelData.add(btnSelectFolder, "cell 1 0 2 1");
+
+        JTextArea taHint = new ReadOnlyTextArea(TmmResourceBundle.getString("Settings.movieset.datafolder.hint"));
+        panelData.add(taHint, "cell 1 1 2 1,grow, wmin 0");
+
+        JLabel lblNfoFormat = new JLabel(TmmResourceBundle.getString("Settings.nfoFormat"));
+        panelData.add(lblNfoFormat, "flowx,cell 1 3 2 1");
+
+        cbNfoFormat = new JComboBox(MovieSetConnectors.values());
+        panelData.add(cbNfoFormat, "cell 1 3 2 1");
+
+        JPanel panelNfoFilenames = new JPanel();
+        panelData.add(panelNfoFilenames, "cell 1 4 2 1,grow");
+        panelNfoFilenames.setLayout(new MigLayout("insets 0", "[][]", "[][][]"));
+
+        JLabel lblNewLabel = new JLabel(TmmResourceBundle.getString("Settings.nofFileNaming"));
+        panelNfoFilenames.add(lblNewLabel, "cell 0 0");
+
+        cbMovieNfoFilename1 = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.moviesetname") + "/"
+            + TmmResourceBundle.getString("Settings.movieset.moviesetname") + ".nfo");
+        panelNfoFilenames.add(cbMovieNfoFilename1, "cell 1 0");
+
+        cbMovieNfoFilename2 = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.moviesetname") + ".nfo");
+        panelNfoFilenames.add(cbMovieNfoFilename2, "cell 1 1");
+
+        cbMovieNfoFilename3 = new JCheckBox(TmmResourceBundle.getString("Settings.movieset.moviesetname") + "/collection.nfo");
+        panelNfoFilenames.add(cbMovieNfoFilename3, "cell 1 2");
+      }
+    }
+    {
       JPanel panelMisc = new JPanel();
       panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
-      add(collapsiblePanel, "cell 0 1,growx,wmin 0");
+      add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
         JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
         panelMisc.add(lblCheckImages, "cell 1 0 2 1");
@@ -249,5 +357,17 @@ public class MovieSetSettingsPanel extends JPanel {
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_2, chckbxStoreFilter,
         jCheckBoxBeanProperty);
     autoBinding_2.bind();
+    //
+    Property movieSettingsBeanProperty_3 = BeanProperty.create("movieSetDataFolder");
+    Property jTextFieldBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_3, tfMovieSetArtworkFolder,
+        jTextFieldBeanProperty);
+    autoBinding_3.bind();
+    //
+    Property movieSettingsBeanProperty_4 = BeanProperty.create("movieSetConnector");
+    Property jComboBoxBeanProperty = BeanProperty.create("selectedItem");
+    AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_4, cbNfoFormat,
+        jComboBoxBeanProperty);
+    autoBinding_4.bind();
   }
 }

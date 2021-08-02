@@ -23,10 +23,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.Utils;
+import org.tinymediamanager.core.mediainfo.MediaInfoUtils;
 import org.tinymediamanager.scraper.util.UrlUtil;
+import org.tinymediamanager.thirdparty.MediaInfo;
+
+import com.sun.jna.Platform;
 
 /**
  * The class TmmOsUtils. Utility class for OS specific tasks
@@ -109,5 +115,56 @@ public class TmmOsUtils {
     pb.directory(tmmExecutable.toAbsolutePath().getParent().toAbsolutePath().toFile());
     pb.redirectOutput(new File(SystemUtils.IS_OS_WINDOWS ? "NUL" : "/dev/null")).redirectErrorStream(true);
     return pb;
+  }
+
+  /**
+   * load shipped natives info from /native/*
+   */
+  public static void loadNativeLibs() {
+    // we do ship 64 bit libs only
+    if (!Platform.is64Bit()) {
+      return;
+    }
+
+    String nativepath = "native/";
+
+    // windows
+    if (SystemUtils.IS_OS_WINDOWS) {
+      nativepath += "windows";
+    }
+    // linux
+    else if (SystemUtils.IS_OS_LINUX) {
+      nativepath += "linux";
+    }
+    // osx
+    else if (SystemUtils.IS_OS_MAC) {
+      nativepath += "mac";
+    }
+
+    Path tmmNativeDir = Paths.get(nativepath).toAbsolutePath();
+
+    try {
+      // copy and load the native libs to the temp dir to avoid unforseeable issues
+      Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"), "tmm");
+      Path nativeDir = tmpDir.resolve(nativepath).toAbsolutePath();
+      Utils.copyDirectoryRecursive(tmmNativeDir, nativeDir);
+
+      System.setProperty("jna.library.path", nativeDir.toString());
+      LOGGER.debug("Loading native libs from: {}", nativeDir);
+    }
+    catch (Exception e) {
+      // not possible somehow -> load directly from tmm folder
+      LOGGER.info("could not copy native libs to the temp folder -> try to load from install dir");
+      System.setProperty("jna.library.path", tmmNativeDir.toString());
+      LOGGER.debug("Loading native libs from: {}", tmmNativeDir);
+    }
+
+    if (MediaInfoUtils.useMediaInfo()) {
+      String miv = MediaInfo.version(); // load class
+
+      if (!StringUtils.isEmpty(miv)) {
+        LOGGER.info("Using libmediainfo version '{}'", miv);
+      }
+    }
   }
 }

@@ -27,11 +27,15 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.movie.entities.Movie;
 
 /**
- * The class MovieRenamerPreview. To create a preview of the movie renamer (dry run)
+ * The class {@link MovieRenamerPreview}. To create a preview of the movie renamer (dry run)
  * 
  * @author Manuel Laggner / Myron Boyle
  */
 public class MovieRenamerPreview {
+
+  private MovieRenamerPreview() {
+    throw new IllegalAccessError();
+  }
 
   public static MovieRenamerPreviewContainer renameMovie(Movie movie) {
     MovieRenamerPreviewContainer container = new MovieRenamerPreviewContainer(movie);
@@ -40,7 +44,7 @@ public class MovieRenamerPreview {
     Set<MediaFile> newFiles = new LinkedHashSet<>();
 
     String newVideoBasename = "";
-    if (MovieModuleManager.SETTINGS.getRenamerFilename().trim().isEmpty()) {
+    if (MovieModuleManager.getInstance().getSettings().getRenamerFilename().trim().isEmpty()) {
       // we are NOT renaming any files, so we keep the same name on renaming ;)
       newVideoBasename = movie.getVideoBasenameWithoutStacking();
     }
@@ -65,7 +69,7 @@ public class MovieRenamerPreview {
 
     // movie folder needs a rename?
     Path oldMovieFolder = movie.getPathNIO();
-    String pattern = MovieModuleManager.SETTINGS.getRenamerPathname();
+    String pattern = MovieModuleManager.getInstance().getSettings().getRenamerPathname();
     if (pattern.isEmpty()) {
       // same
       container.newPath = Paths.get(movie.getDataSource()).relativize(movie.getPathNIO());

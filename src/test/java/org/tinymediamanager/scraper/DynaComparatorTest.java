@@ -11,10 +11,16 @@ import java.util.Locale;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 
-public class DynaComparatorTest {
+public class DynaComparatorTest extends BasicTest {
 
   private static List<Person> p = new ArrayList<>();
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @BeforeClass
   public static void init() throws ParseException {

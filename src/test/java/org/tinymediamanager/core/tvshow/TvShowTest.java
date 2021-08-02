@@ -21,8 +21,7 @@ import java.nio.file.Paths;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser.EpisodeMatchingResult;
@@ -39,8 +38,7 @@ public class TvShowTest extends BasicTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
     setTraceLogging();
   }
 
@@ -53,7 +51,7 @@ public class TvShowTest extends BasicTest {
       createFakeShow("Show 2");
       createFakeShow("Show 3");
 
-      TvShowList instance = TvShowList.getInstance();
+      TvShowList instance = TvShowModuleManager.getInstance().getTvShowList();
 
       for (TvShow show : instance.getTvShows()) {
         System.out.println(show.getTitle());
@@ -106,11 +104,11 @@ public class TvShowTest extends BasicTest {
     ep.setTvShow(show);
     show.addEpisode(ep);
 
-    TvShowList.getInstance().addTvShow(show);
+    TvShowModuleManager.getInstance().getTvShowList().addTvShow(show);
     // setup done
 
     // display renamed EP name :)
-    System.out.println(TvShowRenamer.createDestination(TvShowModuleManager.SETTINGS.getRenamerFilename(), show.getEpisodes()));
+    System.out.println(TvShowRenamer.createDestination(TvShowModuleManager.getInstance().getSettings().getRenamerFilename(), show.getEpisodes()));
     System.out.println(TvShowRenamer.generateEpisodeFilenames(show, dmf, dmf).get(0).getFilename());
 
     TvShowModuleManager.getInstance().shutDown();

@@ -165,7 +165,6 @@ public class MainWindow extends JFrame {
     splitPane.setLeftComponent(tabbedPane);
 
     detailPanel = new JPanel();
-    detailPanel.setOpaque(false);
     detailPanel.setLayout(new CardLayout(0, 0));
     splitPane.setRightComponent(detailPanel);
 

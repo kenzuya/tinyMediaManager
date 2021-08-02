@@ -32,11 +32,10 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
@@ -52,16 +51,14 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 class SortTitleSettingsPanel extends JPanel {
-  private static final long           serialVersionUID = 1857926059556024932L;
+  private static final long serialVersionUID = 1857926059556024932L;
 
+  private final Settings    settings         = Settings.getInstance();
 
-
-  private Settings                    settings         = Settings.getInstance();
-
-  private JList<String>               listSortPrefixes;
-  private JTextField                  tfSortPrefix;
-  private JButton                     btnRemoveSortPrefix;
-  private JButton                     btnAddSortPrefix;
+  private JList<String>     listSortPrefixes;
+  private JTextField        tfSortPrefix;
+  private JButton           btnRemoveSortPrefix;
+  private JButton           btnAddSortPrefix;
 
   SortTitleSettingsPanel() {
     // init UI
@@ -71,19 +68,19 @@ class SortTitleSettingsPanel extends JPanel {
     // init data
     btnAddSortPrefix.addActionListener(e -> {
       if (StringUtils.isNotEmpty(tfSortPrefix.getText())) {
-        Globals.settings.addTitlePrefix(tfSortPrefix.getText());
+        Settings.getInstance().addTitlePrefix(tfSortPrefix.getText());
         tfSortPrefix.setText("");
-        MovieList.getInstance().invalidateTitleSortable();
-        TvShowList.getInstance().invalidateTitleSortable();
+        MovieModuleManager.getInstance().getMovieList().invalidateTitleSortable();
+        TvShowModuleManager.getInstance().getTvShowList().invalidateTitleSortable();
       }
     });
     btnRemoveSortPrefix.addActionListener(arg0 -> {
       int row = listSortPrefixes.getSelectedIndex();
       if (row != -1) {
-        String prefix = Globals.settings.getTitlePrefix().get(row);
-        Globals.settings.removeTitlePrefix(prefix);
-        MovieList.getInstance().invalidateTitleSortable();
-        TvShowList.getInstance().invalidateTitleSortable();
+        String prefix = Settings.getInstance().getTitlePrefix().get(row);
+        Settings.getInstance().removeTitlePrefix(prefix);
+        MovieModuleManager.getInstance().getMovieList().invalidateTitleSortable();
+        TvShowModuleManager.getInstance().getTvShowList().invalidateTitleSortable();
       }
     });
   }

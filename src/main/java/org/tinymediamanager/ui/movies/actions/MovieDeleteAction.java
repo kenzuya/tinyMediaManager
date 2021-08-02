@@ -26,7 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -39,8 +39,7 @@ import org.tinymediamanager.ui.movies.MovieUIModule;
  * @author Manuel Laggner
  */
 public class MovieDeleteAction extends TmmAction {
-  private static final long           serialVersionUID = -984567332370801730L;
-  
+  private static final long serialVersionUID = -984567332370801730L;
 
   public MovieDeleteAction() {
     putValue(SMALL_ICON, IconManager.DELETE_FOREVER);
@@ -60,7 +59,8 @@ public class MovieDeleteAction extends TmmAction {
 
     // display warning and ask the user again
     Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), TmmResourceBundle.getString("movie.delete.desc"), TmmResourceBundle.getString("movie.delete"), //$NON-NLS-2$
+    int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), TmmResourceBundle.getString("movie.delete.desc"),
+        TmmResourceBundle.getString("movie.delete"), //$NON-NLS-1$
         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
     if (answer != JOptionPane.YES_OPTION) {
       return;
@@ -68,7 +68,7 @@ public class MovieDeleteAction extends TmmAction {
 
     // remove selected movies
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-    MovieList.getInstance().deleteMovies(selectedMovies);
+    MovieModuleManager.getInstance().getMovieList().deleteMovies(selectedMovies);
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }
 }

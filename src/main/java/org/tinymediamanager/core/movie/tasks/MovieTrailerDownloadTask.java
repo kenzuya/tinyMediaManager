@@ -61,11 +61,11 @@ public class MovieTrailerDownloadTask extends TmmTask {
       trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
     }
     else {
-      trailernames.addAll(MovieModuleManager.SETTINGS.getTrailerFilenames());
+      trailernames.addAll(MovieModuleManager.getInstance().getSettings().getTrailerFilenames());
     }
 
-    desiredSource = MovieModuleManager.SETTINGS.getTrailerSource();
-    desiredQuality = MovieModuleManager.SETTINGS.getTrailerQuality();
+    desiredSource = MovieModuleManager.getInstance().getSettings().getTrailerSource();
+    desiredQuality = MovieModuleManager.getInstance().getSettings().getTrailerQuality();
   }
 
   @Override

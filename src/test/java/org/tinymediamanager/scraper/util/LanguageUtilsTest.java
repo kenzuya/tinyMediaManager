@@ -7,11 +7,13 @@ import java.util.Locale;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 
-public class LanguageUtilsTest {
+public class LanguageUtilsTest extends BasicTest {
 
   @BeforeClass
   public static void setUp() {
+    BasicTest.setup();
     Locale.setDefault(Locale.ENGLISH);
   }
 

@@ -44,12 +44,20 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetBatchEditMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetCleanupArtworkAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetEditMovieAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetExportMovieAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetMissingArtworkAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetReadMovieNfoAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRemoveAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetRenameAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetScrapeMissingMoviesAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetSearchAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedCollectionTraktTvAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedRatingTraktTvAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedTraktTvAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncSelectedWatchedTraktTvAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetSyncTraktTvAction;
 import org.tinymediamanager.ui.moviesets.actions.MovieSetToggleWatchedFlagAction;
+import org.tinymediamanager.ui.moviesets.actions.MovieSetUpdateMovieAction;
 import org.tinymediamanager.ui.moviesets.dialogs.MovieSetFilterDialog;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetArtworkPanel;
 import org.tinymediamanager.ui.moviesets.panels.MovieSetInformationPanel;
@@ -58,7 +66,13 @@ import org.tinymediamanager.ui.moviesets.panels.MovieSetMissingMovieInformationP
 import org.tinymediamanager.ui.moviesets.panels.MovieSetTreePanel;
 import org.tinymediamanager.ui.moviesets.settings.MovieSetSettingsNode;
 import org.tinymediamanager.ui.settings.TmmSettingsNode;
+import org.tinymediamanager.ui.thirdparty.KodiRPCMenu;
 
+/**
+ * the class {@link MovieSetUIModule} is the core class to manage the movie sets in the UI
+ * 
+ * @author Manuel Laggner
+ */
 public class MovieSetUIModule extends AbstractTmmUIModule {
   private static final String          ID       = "movieSets";
 
@@ -73,8 +87,6 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
   private final MovieSetFilterDialog   movieSetFilterDialog;
   private final TmmSettingsNode        settingsNode;
 
-  private JPopupMenu                   popupMenu;
-
   private MovieSetUIModule() {
     selectionModel = new MovieSetSelectionModel();
     movieSelectionModel = new MovieSelectionModel();
@@ -82,11 +94,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
     treePanel = new MovieSetTreePanel(selectionModel);
 
     detailPanel = new JPanel();
-    detailPanel.setOpaque(false);
     detailPanel.setLayout(new CardLayout());
 
     dataPanel = new JPanel();
-    dataPanel.setOpaque(false);
     dataPanel.setLayout(new CardLayout());
     detailPanel.add(dataPanel, "cell 0 0, grow");
 
@@ -163,8 +173,9 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
   private void init() {
     // re-set filters
-    if (MovieModuleManager.SETTINGS.isStoreMovieSetUiFilters()) {
-      SwingUtilities.invokeLater(() -> treePanel.getTreeTable().setFilterValues(MovieModuleManager.SETTINGS.getMovieSetUiFilters()));
+    if (MovieModuleManager.getInstance().getSettings().isStoreMovieSetUiFilters()) {
+      SwingUtilities
+          .invokeLater(() -> treePanel.getTreeTable().setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieSetUiFilters()));
     }
   }
 
@@ -180,7 +191,7 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
   private void createPopupMenu() {
     // popup menu
-    popupMenu = new JPopupMenu();
+    JPopupMenu popupMenu = new JPopupMenu();
 
     // movieset actions
     popupMenu.add(createAndRegisterAction(MovieSetAddAction.class));
@@ -193,13 +204,27 @@ public class MovieSetUIModule extends AbstractTmmUIModule {
 
     // movie actions
     popupMenu.addSeparator();
+    popupMenu.add(createAndRegisterAction(MovieSetUpdateMovieAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetReadMovieNfoAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetEditMovieAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetBatchEditMovieAction.class));
     popupMenu.add(createAndRegisterAction(MovieSetToggleWatchedFlagAction.class));
-
-    // actions for both of them
-    popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieSetRenameAction.class));
+    popupMenu.add(createAndRegisterAction(MovieSetExportMovieAction.class));
+
+    popupMenu.addSeparator();
+    JMenu traktMenu = new JMenu("Trakt.tv");
+    traktMenu.setIcon(IconManager.MENU);
+    traktMenu.add(createAndRegisterAction(MovieSetSyncTraktTvAction.class));
+    traktMenu.addSeparator();
+    traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedCollectionTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedWatchedTraktTvAction.class));
+    traktMenu.add(createAndRegisterAction(MovieSetSyncSelectedRatingTraktTvAction.class));
+    popupMenu.add(traktMenu);
+
+    JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickMovieSets();
+    popupMenu.add(kodiRPCMenu);
 
     if (Globals.isDebug()) {
       final JMenu debugMenu = new JMenu("Debug");

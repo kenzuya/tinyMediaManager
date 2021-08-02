@@ -21,15 +21,15 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 
 /**
@@ -38,8 +38,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
  * @author Manuel Laggner
  */
 public class RebuildImageCacheAction extends TmmAction {
-  private static final long           serialVersionUID = -9178351750617647813L;
-
+  private static final long serialVersionUID = -9178351750617647813L;
 
   public RebuildImageCacheAction() {
     putValue(NAME, TmmResourceBundle.getString("tmm.rebuildimagecache"));
@@ -48,7 +47,7 @@ public class RebuildImageCacheAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    if (!Globals.settings.isImageCache()) {
+    if (!Settings.getInstance().isImageCache()) {
       JOptionPane.showMessageDialog(null, TmmResourceBundle.getString("tmm.imagecache.notactivated"));
       return;
     }
@@ -56,19 +55,19 @@ public class RebuildImageCacheAction extends TmmAction {
     List<MediaFile> imageFiles = new ArrayList<>();
 
     // movie list
-    List<Movie> movies = new ArrayList<>(MovieList.getInstance().getMovies());
+    List<Movie> movies = new ArrayList<>(MovieModuleManager.getInstance().getMovieList().getMovies());
     for (Movie movie : movies) {
       imageFiles.addAll(movie.getImagesToCache());
     }
 
     // moviesets
-    List<MovieSet> movieSets = new ArrayList<>(MovieList.getInstance().getMovieSetList());
+    List<MovieSet> movieSets = new ArrayList<>(MovieModuleManager.getInstance().getMovieList().getMovieSetList());
     for (MovieSet movieSet : movieSets) {
       imageFiles.addAll(movieSet.getImagesToCache());
     }
 
     // tv dhows
-    List<TvShow> tvShows = new ArrayList<>(TvShowList.getInstance().getTvShows());
+    List<TvShow> tvShows = new ArrayList<>(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
     for (TvShow tvShow : tvShows) {
       imageFiles.addAll(tvShow.getImagesToCache());
     }

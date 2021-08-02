@@ -25,9 +25,13 @@ import java.nio.file.Path;
  */
 public enum TvShowConnectors {
   KODI("Kodi"),
-  XBMC("Kodi / XBMC < v16");
+  XBMC("Kodi / XBMC < v16"),
+  EMBY("Emby"),
+  JELLYFIN("Jellyfin"),
+  PLEX("Plex"),
+  MEDIAPORTAL("MediaPortal");
 
-  private String title;
+  private final String title;
 
   TvShowConnectors(String title) {
     this.title = title;

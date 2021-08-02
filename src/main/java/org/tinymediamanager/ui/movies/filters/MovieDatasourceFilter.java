@@ -35,7 +35,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Manuel Laggner
  */
 public class MovieDatasourceFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
-  private MovieSettings movieSettings = MovieModuleManager.SETTINGS;
+  private MovieSettings movieSettings = MovieModuleManager.getInstance().getSettings();
 
   public MovieDatasourceFilter() {
     super();

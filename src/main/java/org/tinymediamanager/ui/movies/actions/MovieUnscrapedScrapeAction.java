@@ -23,7 +23,7 @@ import java.util.List;
 import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
@@ -41,8 +41,7 @@ import org.tinymediamanager.ui.movies.dialogs.MovieScrapeMetadataDialog;
  * @author Manuel Laggner
  */
 public class MovieUnscrapedScrapeAction extends TmmAction {
-  private static final long           serialVersionUID = -5330113139288186736L;
-
+  private static final long serialVersionUID = -5330113139288186736L;
 
   public MovieUnscrapedScrapeAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.scrape.unscraped"));
@@ -54,7 +53,7 @@ public class MovieUnscrapedScrapeAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    List<Movie> unscrapedMovies = MovieList.getInstance().getUnscrapedMovies();
+    List<Movie> unscrapedMovies = MovieModuleManager.getInstance().getMovieList().getUnscrapedMovies();
     if (!unscrapedMovies.isEmpty()) {
       MovieScrapeMetadataDialog dialog = new MovieScrapeMetadataDialog(TmmResourceBundle.getString("movie.scrape.unscraped"));
       dialog.setLocationRelativeTo(MainWindow.getInstance());
@@ -63,11 +62,13 @@ public class MovieUnscrapedScrapeAction extends TmmAction {
       // get options from dialog
       MovieSearchAndScrapeOptions options = dialog.getMovieSearchAndScrapeOptions();
       List<MovieScraperMetadataConfig> config = dialog.getMovieScraperMetadataConfig();
+      boolean overwrite = dialog.getOverwriteExistingItems();
 
       // do we want to scrape?
       if (dialog.shouldStartScrape()) {
         // scrape
-        TmmThreadPool scrapeTask = new MovieScrapeTask(unscrapedMovies, true, options, config);
+        TmmThreadPool scrapeTask = new MovieScrapeTask(
+            new MovieScrapeTask.MovieScrapeParams(unscrapedMovies, options, config).setOverwriteExistingItems(overwrite));
         TmmTaskManager.getInstance().addMainTask(scrapeTask);
       }
     }

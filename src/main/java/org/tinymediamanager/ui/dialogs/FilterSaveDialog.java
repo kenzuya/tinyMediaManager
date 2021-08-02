@@ -88,26 +88,21 @@ public class FilterSaveDialog extends TmmDialog {
 
       JButton btnSave = new JButton(TmmResourceBundle.getString("Button.save"));
       btnSave.addActionListener(e -> {
+        String name;
         if (rdbtnOverwritePreset.isSelected()) {
-          String name = (String) cbPresets.getSelectedItem();
-
-          if (StringUtils.isBlank(name)) {
-            JOptionPane.showMessageDialog(FilterSaveDialog.this, TmmResourceBundle.getString("filter.emptyname"));
-            return;
-          }
-
-          existingFilters.put(name, new ArrayList<>(filter));
-          savedPreset = name;
+          name = (String) cbPresets.getSelectedItem();
         }
         else {
-          if (StringUtils.isBlank(tfPresetName.getText())) {
-            JOptionPane.showMessageDialog(FilterSaveDialog.this, TmmResourceBundle.getString("filter.emptyname"));
-            return;
-          }
-
-          existingFilters.put(tfPresetName.getText(), new ArrayList<>(filter));
-          savedPreset = tfPresetName.getText();
+          name = tfPresetName.getText();
         }
+
+        if (StringUtils.isBlank(name)) {
+          JOptionPane.showMessageDialog(FilterSaveDialog.this, TmmResourceBundle.getString("filter.emptyname"));
+          return;
+        }
+
+        existingFilters.put(name, new ArrayList<>(filter));
+        savedPreset = name;
 
         setVisible(false);
       });

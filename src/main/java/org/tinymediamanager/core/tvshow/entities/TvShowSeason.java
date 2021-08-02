@@ -53,8 +53,8 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
   private final TvShow                 tvShow;
   private final List<TvShowEpisode>    episodes    = new CopyOnWriteArrayList<>();
   private final PropertyChangeListener listener;
+  private final int                    season;
 
-  private int                          season      = -1;
   private String                       title       = "";
   private Date                         lastWatched = null;
 
@@ -114,11 +114,13 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     // when adding a new episode, check:
     for (TvShowEpisode e : episodes) {
       // - if that is a dummy episode; do not add it if a the real episode is available
-      if (episode.isDummy() && episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason()) {
+      if (episode.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
+          || (episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
         return;
       }
       // - if that is a real episode; remove the corresponding dummy episode if available
-      if (!episode.isDummy() && e.isDummy() && episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason()) {
+      if (!episode.isDummy() && e.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
+          || (episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
         tvShow.removeEpisode(e);
       }
     }
@@ -209,7 +211,7 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
    * @return true if artwork is available
    */
   public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.SETTINGS.getSeasonCheckImages()) {
+    for (MediaArtworkType type : TvShowModuleManager.getInstance().getSettings().getSeasonCheckImages()) {
       if (StringUtils.isBlank(getArtworkFilename(type))) {
         return false;
       }

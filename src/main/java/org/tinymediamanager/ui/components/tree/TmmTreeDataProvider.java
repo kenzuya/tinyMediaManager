@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.components.tree;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,12 +39,12 @@ public abstract class TmmTreeDataProvider<E extends TmmTreeNode> extends Abstrac
   public static final String               NODE_REMOVED           = "nodeRemoved";
   public static final String               NODE_STRUCTURE_CHANGED = "nodeStructureChanged";
 
-  protected Set<ITmmTreeFilter<E>>         treeFilters            = null;
-  private boolean                          filtersActive          = true;
-
-  protected Comparator<E>                  treeComparator         = null;
   protected final ReadWriteLock            readWriteLock          = new ReentrantReadWriteLock();
   protected final Map<Object, TmmTreeNode> nodeMap                = new HashMap<>();
+  protected final Set<ITmmTreeFilter<E>>   treeFilters            = new HashSet<>();
+
+  private boolean                          filtersActive          = true;
+  protected Comparator<E>                  treeComparator         = null;
 
   /**
    * Get all tree filters assigned to this data provider
@@ -61,7 +62,11 @@ public abstract class TmmTreeDataProvider<E extends TmmTreeNode> extends Abstrac
    *          the tree filters to be set
    */
   public void setTreeFilters(final Set<ITmmTreeFilter<E>> treeFilters) {
-    this.treeFilters = treeFilters;
+    this.treeFilters.clear();
+
+    if (treeFilters != null) {
+      this.treeFilters.addAll(treeFilters);
+    }
   }
 
   /**

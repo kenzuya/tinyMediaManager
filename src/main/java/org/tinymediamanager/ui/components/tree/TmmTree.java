@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.components.tree;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -34,10 +35,12 @@ import javax.swing.tree.TreePath;
  *          the node type
  */
 public class TmmTree<E extends TmmTreeNode> extends JTree {
-  private static final long        serialVersionUID = 4918691644082882866L;
+  private static final long              serialVersionUID = 4918691644082882866L;
 
-  protected Set<ITmmTreeFilter<E>> treeFilters;
-  protected PropertyChangeListener filterChangeListener;
+  protected final TmmTreeDataProvider<E> dataProvider;
+
+  protected Set<ITmmTreeFilter<E>>       treeFilters;
+  protected PropertyChangeListener       filterChangeListener;
 
   /**
    * create a new tree for the given data provider
@@ -47,10 +50,10 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
    */
   public TmmTree(TmmTreeDataProvider<E> dataProvider) {
     super();
+    this.dataProvider = dataProvider;
+    setModel(new TmmTreeModel<>(this, dataProvider));
     treeFilters = new CopyOnWriteArraySet<>();
     filterChangeListener = evt -> updateFiltering();
-    // setOpaque(false);
-    setDataProvider(dataProvider);
   }
 
   /**
@@ -62,28 +65,6 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
   public TmmTreeDataProvider<E> getDataProvider() {
     final TreeModel model = getModel();
     return model instanceof TmmTreeModel ? ((TmmTreeModel<E>) model).getDataProvider() : null;
-  }
-
-  /**
-   * get the data provider for this tree
-   * 
-   * @param dataProvider
-   *          the data provider to be set
-   */
-  public void setDataProvider(final TmmTreeDataProvider<E> dataProvider) {
-    if (dataProvider != null) {
-      // add a reference to this filter set into the data provider for easier filtering
-      dataProvider.setTreeFilters(treeFilters);
-
-      // final TmmTreeDataProvider<E> oldDataProvider = getDataProvider();
-
-      // Updating model
-      // Be aware that all the data will be loaded right away
-      setModel(new TmmTreeModel<>(this, dataProvider));
-
-      // Informing about data provider change
-      // firePropertyChange(TREE_DATA_PROVIDER_PROPERTY, oldDataProvider, dataProvider);
-    }
   }
 
   /**
@@ -117,8 +98,8 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
   public void addFilter(ITmmTreeFilter<E> newFilter) {
     // add our filter listener
     newFilter.addPropertyChangeListener(ITmmTreeFilter.TREE_FILTER_CHANGED, filterChangeListener);
-
     treeFilters.add(newFilter);
+
     updateFiltering();
   }
 
@@ -131,8 +112,8 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
   public void removeFilter(ITmmTreeFilter<E> filter) {
     // remove our filter listener
     filter.removePropertyChangeListener(filterChangeListener);
-
     treeFilters.remove(filter);
+
     updateFiltering();
   }
 
@@ -141,8 +122,20 @@ public class TmmTree<E extends TmmTreeNode> extends JTree {
    */
   @SuppressWarnings("unchecked")
   public void updateFiltering() {
+    // re-evaluate active filters
+    Set<ITmmTreeFilter<E>> activeTreeFilters = new HashSet<>();
+
+    for (ITmmTreeFilter<E> filter : treeFilters) {
+      if (filter.isActive()) {
+        activeTreeFilters.add(filter);
+      }
+    }
+
+    dataProvider.setTreeFilters(activeTreeFilters);
+
     final TreeModel model = getModel();
     if (model instanceof TmmTreeModel) {
+      ((TmmTreeModel<E>) getModel()).invalidateFilterCache();
       ((TmmTreeModel<E>) getModel()).updateSortingAndFiltering();
     }
   }

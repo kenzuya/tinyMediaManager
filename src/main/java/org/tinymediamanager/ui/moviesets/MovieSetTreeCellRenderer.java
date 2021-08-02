@@ -56,7 +56,7 @@ public class MovieSetTreeCellRenderer extends TmmTreeTableCellRenderer {
 
   @Override
   public String getToolTipText() {
-    if (!MovieModuleManager.SETTINGS.isShowMovieSetTableTooltips()) {
+    if (!MovieModuleManager.getInstance().getSettings().isShowMovieSetTableTooltips()) {
       return null;
     }
 
