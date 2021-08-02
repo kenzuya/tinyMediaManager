@@ -17,7 +17,11 @@ package org.tinymediamanager.cli;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,9 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.movie.MovieList;
-import org.tinymediamanager.core.movie.entities.Movie;
-import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowComparator;
@@ -41,7 +42,12 @@ import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
-import org.tinymediamanager.core.tvshow.tasks.*;
+import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowSubtitleSearchAndDownloadTask;
+import org.tinymediamanager.core.tvshow.tasks.TvShowUpdateDatasourceTask;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
@@ -264,10 +270,10 @@ class TvShowCommand implements Runnable {
   private void detectAspectRatio() {
     List<TvShowEpisode> episodesToDetect = new ArrayList<>();
     if (ard.ardAll) {
-      episodesToDetect.addAll(TvShowList.getInstance().getEpisodes());
+      episodesToDetect.addAll(TvShowModuleManager.getInstance().getTvShowList().getEpisodes());
     }
     else if (ard.ardNew) {
-      episodesToDetect.addAll(TvShowList.getInstance().getNewEpisodes());
+      episodesToDetect.addAll(TvShowModuleManager.getInstance().getTvShowList().getNewEpisodes());
     }
 
     if (!episodesToDetect.isEmpty()) {
