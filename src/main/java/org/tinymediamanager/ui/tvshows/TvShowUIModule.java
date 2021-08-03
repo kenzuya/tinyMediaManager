@@ -84,6 +84,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowToggleWatchedFlagAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowTrailerDownloadAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateDatasourcesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateSingleDatasourceAction;
@@ -305,6 +306,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowDownloadMissingArtworkAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDownloadActorImagesAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowTrailerDownloadAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleSearchAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleDownloadAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDownloadThemeAction.class));
