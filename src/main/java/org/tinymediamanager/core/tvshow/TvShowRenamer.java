@@ -151,6 +151,7 @@ public class TvShowRenamer {
     tokenMap.put("videoFormat", "episode.mediaInfoVideoFormat");
     tokenMap.put("videoResolution", "episode.mediaInfoVideoResolution");
     tokenMap.put("aspectRatio", "episode.mediaInfoAspectRatioAsString");
+    tokenMap.put("aspectRatio2", "episode.mediaInfoAspectRatio2AsString");
     tokenMap.put("videoBitDepth", "episode.mediaInfoVideoBitDepth");
     tokenMap.put("videoBitRate", "episode.mediaInfoVideoBitrate;bitrate");
     tokenMap.put("audioCodec", "episode.mediaInfoAudioCodec");
