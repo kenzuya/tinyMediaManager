@@ -39,6 +39,7 @@ import com.floreysoft.jmte.Engine;
 import com.floreysoft.jmte.NamedRenderer;
 import com.floreysoft.jmte.RenderFormatInfo;
 import com.floreysoft.jmte.encoder.XMLEncoder;
+import org.tinymediamanager.core.jmte.JSONEncoder;
 
 public abstract class MediaEntityExporter {
   private static final Logger   LOGGER             = LoggerFactory.getLogger(MediaEntityExporter.class);
@@ -96,9 +97,10 @@ public abstract class MediaEntityExporter {
 
     if ("html".equals(fileExtension)) {
       engine.setEncoder(new HtmlEncoder()); // special char replacement
-    }
-    if ("xml".equals(fileExtension)) {
+    } else if ("xml".equals(fileExtension)) {
       engine.setEncoder(new XMLEncoder()); // special char replacement
+    } else if ("json".equals(fileExtension)) {
+      engine.setEncoder(new JSONEncoder());
     }
 
     // load list template from File

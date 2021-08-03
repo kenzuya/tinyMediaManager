@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ExportTemplate;
 import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowComparator;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
@@ -41,6 +42,7 @@ import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.tasks.TvShowARDetectorTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowEpisodeScrapeTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowRenameTask;
 import org.tinymediamanager.core.tvshow.tasks.TvShowScrapeTask;
@@ -99,6 +101,9 @@ class TvShowCommand implements Runnable {
   @CommandLine.Option(names = { "-w", "--rewriteNFO" }, description = "Rewrite NFO files of all TV shows/episodes")
   boolean                     rewriteNFO;
 
+  @CommandLine.ArgGroup
+  AspectRatioDetect           ard;
+
   @Override
   public void run() {
     // update data sources
@@ -112,6 +117,10 @@ class TvShowCommand implements Runnable {
     // scrape tv shows/episodes
     if (scrape != null) {
       scrapeTvShows(showsToScrape, episodesToScrape);
+    }
+
+    if (ard != null) {
+      detectAspectRatio();
     }
 
     // download trailer
@@ -258,6 +267,21 @@ class TvShowCommand implements Runnable {
     }
   }
 
+  private void detectAspectRatio() {
+    List<TvShowEpisode> episodesToDetect = new ArrayList<>();
+    if (ard.ardAll) {
+      episodesToDetect.addAll(TvShowModuleManager.getInstance().getTvShowList().getEpisodes());
+    }
+    else if (ard.ardNew) {
+      episodesToDetect.addAll(TvShowModuleManager.getInstance().getTvShowList().getNewEpisodes());
+    }
+
+    if (!episodesToDetect.isEmpty()) {
+      TmmTask task = new TvShowARDetectorTask(episodesToDetect);
+      task.run();
+    }
+  }
+
   private void downloadTrailer() {
     LOGGER.info("downloading missing trailers...");
     List<TvShow> tvShowsWithoutTrailer = TvShowModuleManager.getInstance()
@@ -399,6 +423,14 @@ class TvShowCommand implements Runnable {
 
     @CommandLine.Option(names = { "--scrapeAll", }, description = "Scrape all TV shows/episodes")
     boolean scrapeAll;
+  }
+
+  static class AspectRatioDetect {
+    @CommandLine.Option(names = { "-d", "--ardNew", }, description = "Detect aspect ratio of new TV shows/episodes (found with the update options)")
+    boolean ardNew;
+
+    @CommandLine.Option(names = { "-dA", "--ardAll", }, description = "Detect aspect ratio of all TV shows/episodes")
+    boolean ardAll;
   }
 
   static class Subtitle {

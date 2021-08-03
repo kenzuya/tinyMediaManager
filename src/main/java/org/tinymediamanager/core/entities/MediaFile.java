@@ -83,6 +83,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   @JsonProperty
   private float                      aspectRatio       = 0f;
   @JsonProperty
+  private Float                      aspectRatio2      = null;
+  @JsonProperty
   private int                        videoBitRate      = 0;
   @JsonProperty
   private int                        overallBitRate    = 0;
@@ -134,6 +136,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoHeight = clone.videoHeight;
     this.videoWidth = clone.videoWidth;
     this.aspectRatio = clone.aspectRatio;
+    this.aspectRatio2 = clone.aspectRatio2;
     this.overallBitRate = clone.overallBitRate;
     this.bitDepth = clone.bitDepth;
     this.frameRate = clone.frameRate;
@@ -395,6 +398,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     setExactVideoFormat("");
     setContainerFormat("");
     setAspectRatio(0);
+    setAspectRatio2(null);
     setVideo3DFormat("");
     setHdrFormat("");
     setAnimatedGraphic(false);
@@ -1029,7 +1033,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    *
    * @return the aspect ratio
    */
-  public float getAspectRatio() {
+  public Float getAspectRatio() {
 
     // check whether the aspect ratio has been overridden
     if (aspectRatio > 0) {
@@ -1042,6 +1046,22 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     float ar = (float) this.videoWidth / (float) this.videoHeight;
     return getCommonAspectRatio(ar);
+  }
+
+  /**
+   * sets the aspect ratio 2 for this file.
+   *
+   * @param newValue
+   *          the new aspect ratio 2
+   */
+  public void setAspectRatio2(Float newValue) {
+    Float oldValue = this.aspectRatio2;
+    this.aspectRatio2 = newValue;
+    firePropertyChange("aspectRatio2", oldValue, newValue);
+  }
+
+  public Float getAspectRatio2() {
+    return this.aspectRatio2;
   }
 
   /**
