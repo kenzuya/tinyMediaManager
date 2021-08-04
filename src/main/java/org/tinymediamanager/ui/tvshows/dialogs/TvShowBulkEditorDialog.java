@@ -37,6 +37,7 @@ import javax.swing.SpinnerNumberModel;
 
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.entities.MediaFileSubtitle;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
@@ -58,6 +59,7 @@ import org.tinymediamanager.ui.components.TmmTabbedPane;
 import org.tinymediamanager.ui.components.combobox.AutocompleteComboBox;
 import org.tinymediamanager.ui.dialogs.PersonEditorDialog;
 import org.tinymediamanager.ui.dialogs.RatingEditorDialog;
+import org.tinymediamanager.ui.dialogs.SubtitleEditorDialog;
 import org.tinymediamanager.ui.dialogs.TmmDialog;
 
 import net.miginfocom.swing.MigLayout;
@@ -515,6 +517,23 @@ public class TvShowBulkEditorDialog extends TmmDialog {
             mr.setRating(rating.value);
             mr.setMaxValue(rating.maxValue);
             episode.setRating(mr);
+          }
+          setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        });
+      }
+      {
+        JButton btnAddSubtitle = new JButton(TmmResourceBundle.getString("subtitle.add"));
+        panelContent.add(btnAddSubtitle, "cell 1 9");
+        btnAddSubtitle.addActionListener( e -> {
+
+          //Open Subtitle Dialog
+          MediaFileSubtitle mediaFileSubtitle = new MediaFileSubtitle();
+
+          SubtitleEditorDialog dialog = new SubtitleEditorDialog(MainWindow.getInstance(), TmmResourceBundle.getString("subtitle.add"),mediaFileSubtitle);
+          dialog.setVisible(true);
+          setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+          for (TvShowEpisode episode : tvShowEpisodesToEdit) {
+            episode.getMainFile().addSubtitle(mediaFileSubtitle);
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         });
