@@ -32,6 +32,7 @@ import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
@@ -114,6 +115,7 @@ public final class MovieSettings extends AbstractSettings {
   static final String                    SKIP_FOLDER                            = "skipFolder";
   static final String                    CHECK_IMAGES_MOVIE                     = "checkImagesMovie";
   static final String                    CHECK_IMAGES_MOVIESET                  = "checkImagesMovieSet";
+  static final String                    POST_PROCESS                           = "postProcess";
 
   final List<String>                     movieDataSources                       = ObservableCollections.observableList(new ArrayList<>());
   final List<MovieNfoNaming>             nfoFilenames                           = new ArrayList<>();
@@ -216,6 +218,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                sortableOriginalTitle                  = false;
   boolean                                sortTitle                              = false;
   boolean                                note                                   = false;
+  final List<PostProcess>                postProcess                            = ObservableCollections.observableList(new ArrayList<>());
 
   // ui
   boolean                                showMovieTableTooltips                 = true;
@@ -1716,5 +1719,390 @@ public final class MovieSettings extends AbstractSettings {
     return storeMovieSetUiFilters;
   }
 
+  public void addPostProcess(PostProcess newProcess) {
+    postProcess.add(newProcess);
+    firePropertyChange(POST_PROCESS, null, postProcess);
+  }
 
+  public void removePostProcess(PostProcess process) {
+    postProcess.remove(process);
+    firePropertyChange(POST_PROCESS, null, postProcess);
+  }
+
+  public List<PostProcess> getPostProcess() {
+    return postProcess;
+  }
+
+  public void setPostProcess(List<PostProcess> newValues) {
+    postProcess.clear();
+    postProcess.addAll(newValues);
+    firePropertyChange(POST_PROCESS, null, postProcess);
+  }
+
+  /*****************************************************************
+   * defaults
+   *****************************************************************/
+
+  /**
+   * XBMC/Kodi <17 defaults
+   */
+  public void setDefaultSettingsForXbmc() {
+    // file names
+    nfoFilenames.clear();
+    addNfoFilename(MovieNfoNaming.FILENAME_NFO);
+
+    posterFilenames.clear();
+    addPosterFilename(MoviePosterNaming.FILENAME_POSTER);
+
+    fanartFilenames.clear();
+    addFanartFilename(MovieFanartNaming.FILENAME_FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
+
+    bannerFilenames.clear();
+    addBannerFilename(MovieBannerNaming.FILENAME_BANNER);
+
+    clearartFilenames.clear();
+    addClearartFilename(MovieClearartNaming.FILENAME_CLEARART);
+
+    thumbFilenames.clear();
+    addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
+
+    logoFilenames.clear();
+    addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
+
+    clearlogoFilenames.clear();
+    addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
+
+    discartFilenames.clear();
+    addDiscartFilename(MovieDiscartNaming.FILENAME_DISC);
+
+    keyartFilenames.clear();
+    addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
+
+    movieSetPosterFilenames.clear();
+    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
+
+    movieSetFanartFilenames.clear();
+    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
+
+    movieSetBannerFilenames.clear();
+    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
+
+    movieSetClearartFilenames.clear();
+    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
+
+    movieSetThumbFilenames.clear();
+    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
+
+    movieSetLogoFilenames.clear();
+    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
+
+    movieSetClearlogoFilenames.clear();
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
+
+    movieSetDiscartFilenames.clear();
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+
+    trailerFilenames.clear();
+    addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
+
+    // other settings
+    setMovieConnector(MovieConnectors.XBMC);
+    setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
+    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    setCertificationStyle(CertificationStyle.LARGE);
+
+    firePropertyChange("preset", false, true);
+  }
+
+  /**
+   * Kodi 17+ defaults
+   */
+  public void setDefaultSettingsForKodi() {
+    // file names
+    nfoFilenames.clear();
+    addNfoFilename(MovieNfoNaming.FILENAME_NFO);
+
+    posterFilenames.clear();
+    addPosterFilename(MoviePosterNaming.FILENAME_POSTER);
+
+    fanartFilenames.clear();
+    addFanartFilename(MovieFanartNaming.FILENAME_FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
+
+    bannerFilenames.clear();
+    addBannerFilename(MovieBannerNaming.FILENAME_BANNER);
+
+    clearartFilenames.clear();
+    addClearartFilename(MovieClearartNaming.FILENAME_CLEARART);
+
+    thumbFilenames.clear();
+    addThumbFilename(MovieThumbNaming.FILENAME_LANDSCAPE);
+
+    logoFilenames.clear();
+    addLogoFilename(MovieLogoNaming.FILENAME_LOGO);
+
+    clearlogoFilenames.clear();
+    addClearlogoFilename(MovieClearlogoNaming.FILENAME_CLEARLOGO);
+
+    discartFilenames.clear();
+    addDiscartFilename(MovieDiscartNaming.FILENAME_DISCART);
+
+    keyartFilenames.clear();
+    addKeyartFilename(MovieKeyartNaming.FILENAME_KEYART);
+
+    movieSetPosterFilenames.clear();
+    addMovieSetPosterFilename(MovieSetPosterNaming.KODI_POSTER);
+
+    movieSetFanartFilenames.clear();
+    addMovieSetFanartFilename(MovieSetFanartNaming.KODI_FANART);
+
+    movieSetBannerFilenames.clear();
+    addMovieSetBannerFilename(MovieSetBannerNaming.KODI_BANNER);
+
+    movieSetClearartFilenames.clear();
+    addMovieSetClearartFilename(MovieSetClearartNaming.KODI_CLEARART);
+
+    movieSetThumbFilenames.clear();
+    addMovieSetThumbFilename(MovieSetThumbNaming.KODI_LANDSCAPE);
+
+    movieSetLogoFilenames.clear();
+    addMovieSetLogoFilename(MovieSetLogoNaming.KODI_LOGO);
+
+    movieSetClearlogoFilenames.clear();
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.KODI_CLEARLOGO);
+
+    movieSetDiscartFilenames.clear();
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.KODI_DISCART);
+
+    trailerFilenames.clear();
+    addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
+
+    // other settings
+    setMovieConnector(MovieConnectors.KODI);
+    setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
+    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    setCertificationStyle(CertificationStyle.LARGE);
+
+    firePropertyChange("preset", false, true);
+  }
+
+  /**
+   * MediaPortal 1 defaults
+   */
+  public void setDefaultSettingsForMediaPortal1() {
+    // file names
+    nfoFilenames.clear();
+    addNfoFilename(MovieNfoNaming.FILENAME_NFO);
+
+    posterFilenames.clear();
+    addPosterFilename(MoviePosterNaming.POSTER);
+
+    fanartFilenames.clear();
+    addFanartFilename(MovieFanartNaming.FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
+
+    bannerFilenames.clear();
+    addBannerFilename(MovieBannerNaming.BANNER);
+
+    clearartFilenames.clear();
+    addClearartFilename(MovieClearartNaming.CLEARART);
+
+    thumbFilenames.clear();
+    addThumbFilename(MovieThumbNaming.THUMB);
+
+    logoFilenames.clear();
+    addLogoFilename(MovieLogoNaming.LOGO);
+
+    clearlogoFilenames.clear();
+    addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
+
+    discartFilenames.clear();
+    addDiscartFilename(MovieDiscartNaming.DISC);
+
+    keyartFilenames.clear();
+    addKeyartFilename(MovieKeyartNaming.KEYART);
+
+    movieSetPosterFilenames.clear();
+    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
+
+    movieSetFanartFilenames.clear();
+    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
+
+    movieSetBannerFilenames.clear();
+    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
+
+    movieSetClearartFilenames.clear();
+    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
+
+    movieSetThumbFilenames.clear();
+    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
+
+    movieSetLogoFilenames.clear();
+    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
+
+    movieSetClearlogoFilenames.clear();
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
+
+    movieSetDiscartFilenames.clear();
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+
+    trailerFilenames.clear();
+    addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
+
+    // other settings
+    setMovieConnector(MovieConnectors.MP);
+    setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
+    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    setCertificationStyle(CertificationStyle.TECHNICAL);
+
+    firePropertyChange("preset", false, true);
+  }
+
+  /**
+   * MediaPortal 2 defaults
+   */
+  public void setDefaultSettingsForMediaPortal2() {
+    // file names
+    nfoFilenames.clear();
+    addNfoFilename(MovieNfoNaming.FILENAME_NFO);
+
+    posterFilenames.clear();
+    addPosterFilename(MoviePosterNaming.POSTER);
+
+    fanartFilenames.clear();
+    addFanartFilename(MovieFanartNaming.FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(MovieExtraFanartNaming.FOLDER_EXTRAFANART);
+
+    bannerFilenames.clear();
+    addBannerFilename(MovieBannerNaming.BANNER);
+
+    clearartFilenames.clear();
+    addClearartFilename(MovieClearartNaming.CLEARART);
+
+    thumbFilenames.clear();
+    addThumbFilename(MovieThumbNaming.THUMB);
+
+    logoFilenames.clear();
+    addLogoFilename(MovieLogoNaming.LOGO);
+
+    clearlogoFilenames.clear();
+    addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
+
+    discartFilenames.clear();
+    addDiscartFilename(MovieDiscartNaming.DISC);
+
+    keyartFilenames.clear();
+    addKeyartFilename(MovieKeyartNaming.KEYART);
+
+    movieSetPosterFilenames.clear();
+    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
+
+    movieSetFanartFilenames.clear();
+    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
+
+    movieSetBannerFilenames.clear();
+    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
+
+    movieSetClearartFilenames.clear();
+    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
+
+    movieSetThumbFilenames.clear();
+    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
+
+    movieSetLogoFilenames.clear();
+    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
+
+    movieSetClearlogoFilenames.clear();
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
+
+    movieSetDiscartFilenames.clear();
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+
+    trailerFilenames.clear();
+    addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
+
+    // other settings
+    setMovieConnector(MovieConnectors.KODI);
+    setRenamerPathname(DEFAULT_RENAMER_FOLDER_PATTERN);
+    setRenamerFilename(DEFAULT_RENAMER_FILE_PATTERN);
+    setCertificationStyle(CertificationStyle.TECHNICAL);
+
+    firePropertyChange("preset", false, true);
+  }
+
+  /**
+   * Plex defaults
+   */
+  public void setDefaultSettingsForPlex() {
+    // file names
+    nfoFilenames.clear();
+    addNfoFilename(MovieNfoNaming.FILENAME_NFO);
+
+    posterFilenames.clear();
+    addPosterFilename(MoviePosterNaming.POSTER);
+
+    fanartFilenames.clear();
+    addFanartFilename(MovieFanartNaming.FANART);
+
+    extraFanartFilenames.clear();
+    addExtraFanartFilename(MovieExtraFanartNaming.FILENAME_EXTRAFANART);
+
+    bannerFilenames.clear();
+    addBannerFilename(MovieBannerNaming.BANNER);
+
+    clearartFilenames.clear();
+    addClearartFilename(MovieClearartNaming.CLEARART);
+
+    thumbFilenames.clear();
+    addThumbFilename(MovieThumbNaming.THUMB);
+
+    logoFilenames.clear();
+    addLogoFilename(MovieLogoNaming.LOGO);
+
+    clearlogoFilenames.clear();
+    addClearlogoFilename(MovieClearlogoNaming.CLEARLOGO);
+
+    discartFilenames.clear();
+    addDiscartFilename(MovieDiscartNaming.DISC);
+
+    keyartFilenames.clear();
+    addKeyartFilename(MovieKeyartNaming.KEYART);
+
+    movieSetPosterFilenames.clear();
+    addMovieSetPosterFilename(MovieSetPosterNaming.MOVIE_POSTER);
+
+    movieSetFanartFilenames.clear();
+    addMovieSetFanartFilename(MovieSetFanartNaming.MOVIE_FANART);
+
+    movieSetBannerFilenames.clear();
+    addMovieSetBannerFilename(MovieSetBannerNaming.MOVIE_BANNER);
+
+    movieSetClearartFilenames.clear();
+    addMovieSetClearartFilename(MovieSetClearartNaming.MOVIE_CLEARART);
+
+    movieSetThumbFilenames.clear();
+    addMovieSetThumbFilename(MovieSetThumbNaming.MOVIE_LANDSCAPE);
+
+    movieSetLogoFilenames.clear();
+    addMovieSetLogoFilename(MovieSetLogoNaming.MOVIE_LOGO);
+
+    movieSetClearlogoFilenames.clear();
+    addMovieSetClearlogoFilename(MovieSetClearlogoNaming.MOVIE_CLEARLOGO);
+
+    movieSetDiscartFilenames.clear();
+    addMovieSetDiscartFilename(MovieSetDiscartNaming.MOVIE_DISCART);
+
+    trailerFilenames.clear();
+    addTrailerFilename(MovieTrailerNaming.FILENAME_TRAILER);
+
+  }
 }
