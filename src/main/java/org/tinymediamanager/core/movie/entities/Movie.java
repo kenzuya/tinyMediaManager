@@ -313,7 +313,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
    */
   @Override
   public boolean isScraped() {
-    return scraped || getHasMetadata();
+    return scraped || (!plot.isEmpty() && year != 0);
   }
 
   /**
@@ -377,31 +377,6 @@ public class Movie extends MediaEntity implements IMediaInformation {
     List<MediaFile> mf = getMediaFiles(MediaFileType.NFO);
 
     return mf != null && !mf.isEmpty();
-  }
-
-  /**
-   * doe we have basic metadata filled?<br>
-   * like plot and year to take another fields into account always produces false positives (there are documentaries out there, which do not have
-   * actors or either a producer in the meta data DBs..)
-   * 
-   * @return true/false
-   */
-  public Boolean getHasMetadata() {
-    return !plot.isEmpty() && year != 0;
-  }
-
-  /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
-   * @return the checks for images
-   */
-  public Boolean getHasImages() {
-    for (MediaArtworkType type : MovieModuleManager.getInstance().getSettings().getCheckImagesMovie()) {
-      if (StringUtils.isEmpty(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
-        return false;
-      }
-    }
-    return true;
   }
 
   /**
@@ -2680,6 +2655,112 @@ public class Movie extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
+  }
+
+  public Object getValueForMetadata(MovieScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case ID:
+        return getIds();
+
+      case TITLE:
+        return getTitle();
+
+      case ORIGINAL_TITLE:
+        return getOriginalTitle();
+
+      case TAGLINE:
+        return getTagline();
+
+      case PLOT:
+        return getPlot();
+
+      case YEAR:
+        return getYear();
+
+      case RELEASE_DATE:
+        return getReleaseDate();
+
+      case RATING:
+        return getRatings();
+
+      case TOP250:
+        return getTop250();
+
+      case RUNTIME:
+        return getRuntime();
+
+      case CERTIFICATION:
+        return getCertification();
+
+      case GENRES:
+        return getGenres();
+
+      case SPOKEN_LANGUAGES:
+        return getSpokenLanguages();
+
+      case COUNTRY:
+        return getCountry();
+
+      case PRODUCTION_COMPANY:
+        return getProductionCompany();
+
+      case TAGS:
+        return getTags();
+
+      case COLLECTION:
+        return getMovieSet();
+
+      case TRAILER:
+        return getMediaFiles(MediaFileType.TRAILER);
+
+      case ACTORS:
+        return getActors();
+
+      case PRODUCERS:
+        return getProducers();
+
+      case DIRECTORS:
+        return getDirectors();
+
+      case WRITERS:
+        return getWriters();
+
+      case POSTER:
+        return getMediaFiles(MediaFileType.POSTER);
+
+      case FANART:
+        return getMediaFiles(MediaFileType.FANART);
+
+      case BANNER:
+        return getMediaFiles(MediaFileType.BANNER);
+
+      case CLEARART:
+        return getMediaFiles(MediaFileType.CLEARART);
+
+      case THUMB:
+        return getMediaFiles(MediaFileType.THUMB);
+
+      case LOGO:
+        return getMediaFiles(MediaFileType.LOGO);
+
+      case CLEARLOGO:
+        return getMediaFiles(MediaFileType.CLEARLOGO);
+
+      case DISCART:
+        return getMediaFiles(MediaFileType.DISC);
+
+      case KEYART:
+        return getMediaFiles(MediaFileType.KEYART);
+
+      case EXTRAFANART:
+        return getMediaFiles(MediaFileType.EXTRAFANART);
+
+      case EXTRATHUMB:
+        return getMediaFiles(MediaFileType.EXTRATHUMB);
+    }
+
+    return null;
   }
 
   private void postProcess(List<MovieScraperMetadataConfig> config) {

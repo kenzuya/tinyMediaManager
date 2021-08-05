@@ -115,6 +115,18 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
           break;
       }
     });
+
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "movieSetCheckMetadata":
+        case "movieSetCheckArtwork":
+          tree.invalidate();
+          break;
+
+        default:
+          break;
+      }
+    });
   }
 
   private void initComponents() {

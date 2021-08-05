@@ -4,6 +4,7 @@ Version 4.2
 + added support for 3rd party scrapers
 + added experimental support for post process actions #817
 + added regular expression based skip folders #1402
++ enhanced visualization of missing metadata #1350
 + (Linux) ship libmediainfo for 64bit systems
 + added support for not overwriting existing items on scrape #1368
 + added support for webp images

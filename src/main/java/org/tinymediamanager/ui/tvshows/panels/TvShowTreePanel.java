@@ -122,6 +122,20 @@ public class TvShowTreePanel extends TmmListPanel implements ITmmTabItem {
           break;
       }
     });
+    TvShowModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "tvShowCheckMetadata":
+        case "tvShowCheckArtwork":
+        case "seasonCheckArtwork":
+        case "episodeCheckMetadata":
+        case "episodeCheckArtwork":
+          tree.invalidate();
+          break;
+
+        default:
+          break;
+      }
+    });
   }
 
   private void initComponents() {

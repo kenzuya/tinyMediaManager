@@ -42,7 +42,6 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
 
   // cast
   ACTORS(Type.CAST),
-  PRODUCERS(Type.CAST),
   DIRECTORS(Type.CAST),
   WRITERS(Type.CAST),
 

@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.movies;
 
 import java.awt.FontMetrics;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +34,9 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieEdition;
+import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaCertification;
@@ -51,7 +54,11 @@ import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
  */
 public class MovieTableFormat extends TmmTableFormat<Movie> {
 
+  private final MovieList movieList;
+
   public MovieTableFormat() {
+
+    movieList = MovieModuleManager.getInstance().getMovieList();
 
     Comparator<Movie> movieComparator = new MovieComparator();
     Comparator<Movie> originalTitleComparator = new MovieComparator() {
@@ -467,21 +474,67 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-     * NFO
+     * Metadata
      */
-    col = new Column(TmmResourceBundle.getString("tmm.nfo"), "nfo", movie -> getCheckIcon(movie.getHasNfoFile()), ImageIcon.class);
+    Function<Movie, String> nfoFunction = movie -> {
+      List<MovieScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+        if (config.isMetaData() || config.isCast()) {
+          values.add(config);
+        }
+      }
+      List<MovieScraperMetadataConfig> missingMetadata = movieList.detectMissingFields(movie, values);
+
+      if (!missingMetadata.isEmpty()) {
+        StringBuilder missing = new StringBuilder(TmmResourceBundle.getString("tmm.missing") + ":");
+
+        for (MovieScraperMetadataConfig metadataConfig : missingMetadata) {
+          missing.append("\n").append(metadataConfig.getDescription());
+        }
+
+        return missing.toString();
+      }
+
+      return null;
+    };
+    col = new Column(TmmResourceBundle.getString("tmm.metadata"), "metadata", movie -> getCheckIcon(movieList.detectMissingMetadata(movie).isEmpty()),
+        ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
+    col.setColumnTooltip(showTooltip(nfoFunction));
     addColumn(col);
 
     /*
      * images
      */
-    col = new Column(TmmResourceBundle.getString("tmm.images"), "images", movie -> getCheckIcon(movie.getHasImages()), ImageIcon.class);
+    Function<Movie, String> imageFunction = movie -> {
+      List<MovieScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+        if (config.isArtwork()) {
+          values.add(config);
+        }
+      }
+      List<MovieScraperMetadataConfig> missingMetadata = movieList.detectMissingFields(movie, values);
+
+      if (!missingMetadata.isEmpty()) {
+        StringBuilder missing = new StringBuilder(TmmResourceBundle.getString("tmm.missing") + ":");
+
+        for (MovieScraperMetadataConfig metadataConfig : missingMetadata) {
+          missing.append("\n").append(metadataConfig.getDescription());
+        }
+
+        return missing.toString();
+      }
+
+      return null;
+    };
+    col = new Column(TmmResourceBundle.getString("tmm.images"), "images", movie -> getCheckIcon(movieList.detectMissingArtwork(movie).isEmpty()),
+        ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
+    col.setColumnTooltip(showTooltip(imageFunction));
     addColumn(col);
 
     /*
@@ -512,9 +565,9 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
     addColumn(col);
 
     /*
-    * Note
+     * Note
      */
-    col = new Column(TmmResourceBundle.getString("metatag.note"), "note", movie -> getCheckIcon(movie.getHasNote()),ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("metatag.note"), "note", movie -> getCheckIcon(movie.getHasNote()), ImageIcon.class);
     col.setColumnComparator(imageComparator);
     col.setHeaderIcon(IconManager.INFO);
     col.setColumnResizeable(false);

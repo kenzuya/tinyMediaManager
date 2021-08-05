@@ -17,10 +17,14 @@ package org.tinymediamanager.ui.moviesets.settings;
 
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ItemListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -30,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 import org.jdesktop.beansbinding.BeanProperty;
@@ -38,13 +43,15 @@ import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.connector.MovieSetConnectors;
 import org.tinymediamanager.core.movie.filenaming.MovieSetNfoNaming;
-import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TmmUIHelper;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
+import org.tinymediamanager.ui.components.JHintCheckBox;
 import org.tinymediamanager.ui.components.ReadOnlyTextArea;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -56,33 +63,30 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class MovieSetSettingsPanel extends JPanel {
-  private static final long   serialVersionUID = -4173835431245178069L;
+  private static final long                                   serialVersionUID = -4173835431245178069L;
+  private static final int                                    COL_COUNT        = 7;
 
-  private final MovieSettings settings         = MovieModuleManager.getInstance().getSettings();
+  private final MovieSettings                                 settings         = MovieModuleManager.getInstance().getSettings();
 
-  private JCheckBox           chckbxShowMissingMovies;
-  private JCheckBox           chckbxTvShowTableTooltips;
+  private JCheckBox                                           chckbxShowMissingMovies;
+  private JCheckBox                                           chckbxTvShowTableTooltips;
 
-  private JCheckBox           chckbxCheckPoster;
-  private JCheckBox           chckbxCheckFanart;
-  private JCheckBox           chckbxCheckBanner;
-  private JCheckBox           chckbxCheckClearart;
-  private JCheckBox           chckbxCheckThumb;
-  private JCheckBox           chckbxCheckLogo;
-  private JCheckBox           chckbxCheckClearlogo;
-  private JCheckBox           chckbxCheckDiscart;
+  private JTextField                                          tfMovieSetArtworkFolder;
+  private JButton                                             btnSelectFolder;
+  private JComboBox                                           cbNfoFormat;
+  private JCheckBox                                           cbMovieNfoFilename1;
+  private JCheckBox                                           cbMovieNfoFilename2;
+  private JCheckBox                                           cbMovieNfoFilename3;
 
-  private JTextField          tfMovieSetArtworkFolder;
-  private JButton             btnSelectFolder;
-  private JComboBox           cbNfoFormat;
-  private JCheckBox           cbMovieNfoFilename1;
-  private JCheckBox           cbMovieNfoFilename2;
-  private JCheckBox           cbMovieNfoFilename3;
+  private JCheckBox                                           chckbxStoreFilter;
 
-  private final ItemListener  checkBoxListener;
-  private JCheckBox           chckbxStoreFilter;
+  private final Map<MovieSetScraperMetadataConfig, JCheckBox> metadataCheckBoxes;
+  private final Map<MovieSetScraperMetadataConfig, JCheckBox> artworkCheckBoxes;
+  private final ItemListener                                  checkBoxListener;
 
   public MovieSetSettingsPanel() {
+    metadataCheckBoxes = new LinkedHashMap<>();
+    artworkCheckBoxes = new LinkedHashMap<>();
     checkBoxListener = e -> checkChanges();
 
     // UI initializations
@@ -103,32 +107,27 @@ public class MovieSetSettingsPanel extends JPanel {
   }
 
   private void checkChanges() {
-    settings.clearCheckImagesMovieSet();
-    if (chckbxCheckPoster.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.POSTER);
-    }
-    if (chckbxCheckFanart.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.BACKGROUND);
-    }
-    if (chckbxCheckBanner.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.BANNER);
-    }
-    if (chckbxCheckClearart.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.CLEARART);
-    }
-    if (chckbxCheckThumb.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.THUMB);
-    }
-    if (chckbxCheckLogo.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.LOGO);
-    }
-    if (chckbxCheckClearlogo.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.CLEARLOGO);
-    }
-    if (chckbxCheckDiscart.isSelected()) {
-      settings.addCheckImagesMovieSet(MediaArtwork.MediaArtworkType.DISC);
+    // metadata
+    settings.clearMovieSetCheckMetadata();
+    for (Map.Entry<MovieSetScraperMetadataConfig, JCheckBox> entry : metadataCheckBoxes.entrySet()) {
+      MovieSetScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addMovieSetCheckMetadata(key);
+      }
     }
 
+    // artwork
+    settings.clearMovieSetCheckArtwork();
+    for (Map.Entry<MovieSetScraperMetadataConfig, JCheckBox> entry : artworkCheckBoxes.entrySet()) {
+      MovieSetScraperMetadataConfig key = entry.getKey();
+      JCheckBox value = entry.getValue();
+      if (value.isSelected()) {
+        settings.addMovieSetCheckArtwork(key);
+      }
+    }
+
+    // NFO
     settings.clearMovieSetNfoFilenames();
     if (cbMovieNfoFilename1.isSelected()) {
       settings.addMovieSetNfoFilename(MovieSetNfoNaming.KODI_NFO);
@@ -142,12 +141,6 @@ public class MovieSetSettingsPanel extends JPanel {
   }
 
   private void buildCheckBoxes() {
-    cbMovieNfoFilename1.removeItemListener(checkBoxListener);
-    cbMovieNfoFilename2.removeItemListener(checkBoxListener);
-    cbMovieNfoFilename3.removeItemListener(checkBoxListener);
-
-    clearSelection(cbMovieNfoFilename1, cbMovieNfoFilename2, cbMovieNfoFilename3);
-
     // NFO filenames
     List<MovieSetNfoNaming> movieSetNfoFilenames = settings.getMovieSetNfoFilenames();
     if (movieSetNfoFilenames.contains(MovieSetNfoNaming.KODI_NFO)) {
@@ -164,64 +157,31 @@ public class MovieSetSettingsPanel extends JPanel {
     cbMovieNfoFilename2.addItemListener(checkBoxListener);
     cbMovieNfoFilename3.addItemListener(checkBoxListener);
 
-    chckbxCheckPoster.removeItemListener(checkBoxListener);
-    chckbxCheckFanart.removeItemListener(checkBoxListener);
-    chckbxCheckBanner.removeItemListener(checkBoxListener);
-    chckbxCheckClearart.removeItemListener(checkBoxListener);
-    chckbxCheckThumb.removeItemListener(checkBoxListener);
-    chckbxCheckLogo.removeItemListener(checkBoxListener);
-    chckbxCheckClearlogo.removeItemListener(checkBoxListener);
-    chckbxCheckDiscart.removeItemListener(checkBoxListener);
-    clearSelection(chckbxCheckPoster, chckbxCheckFanart, chckbxCheckBanner, chckbxCheckClearart, chckbxCheckThumb, chckbxCheckLogo,
-        chckbxCheckClearlogo, chckbxCheckDiscart);
-
-    for (MediaArtwork.MediaArtworkType type : settings.getCheckImagesMovieSet()) {
-      switch (type) {
-        case POSTER:
-          chckbxCheckPoster.setSelected(true);
-          break;
-
-        case BACKGROUND:
-          chckbxCheckFanart.setSelected(true);
-          break;
-
-        case BANNER:
-          chckbxCheckBanner.setSelected(true);
-          break;
-
-        case CLEARART:
-          chckbxCheckClearart.setSelected(true);
-          break;
-
-        case THUMB:
-          chckbxCheckThumb.setSelected(true);
-          break;
-
-        case LOGO:
-          chckbxCheckLogo.setSelected(true);
-          break;
-
-        case CLEARLOGO:
-          chckbxCheckClearlogo.setSelected(true);
-          break;
-
-        case DISC:
-          chckbxCheckDiscart.setSelected(true);
-          break;
-
-        default:
-          break;
+    // metadata
+    for (MovieSetScraperMetadataConfig value : settings.getMovieSetCheckMetadata()) {
+      JCheckBox checkBox = metadataCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
       }
     }
 
-    chckbxCheckPoster.addItemListener(checkBoxListener);
-    chckbxCheckFanart.addItemListener(checkBoxListener);
-    chckbxCheckBanner.addItemListener(checkBoxListener);
-    chckbxCheckClearart.addItemListener(checkBoxListener);
-    chckbxCheckThumb.addItemListener(checkBoxListener);
-    chckbxCheckLogo.addItemListener(checkBoxListener);
-    chckbxCheckClearlogo.addItemListener(checkBoxListener);
-    chckbxCheckDiscart.addItemListener(checkBoxListener);
+    // set the checkbox listener at the end!
+    for (JCheckBox checkBox : metadataCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
+    }
+
+    // artwork
+    for (MovieSetScraperMetadataConfig value : settings.getMovieSetCheckArtwork()) {
+      JCheckBox checkBox = artworkCheckBoxes.get(value);
+      if (checkBox != null) {
+        checkBox.setSelected(true);
+      }
+    }
+
+    // set the checkbox listener at the end!
+    for (JCheckBox checkBox : artworkCheckBoxes.values()) {
+      checkBox.addItemListener(checkBoxListener);
+    }
   }
 
   private void clearSelection(JCheckBox... checkBoxes) {
@@ -307,38 +267,72 @@ public class MovieSetSettingsPanel extends JPanel {
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
       add(collapsiblePanel, "cell 0 4,growx,wmin 0");
       {
+        JLabel lblCheckMetadata = new JLabel(TmmResourceBundle.getString("Settings.checkmetadata"));
+        panelMisc.add(lblCheckMetadata, "cell 1 0 2 1");
+
+        JPanel panelCheckMetadata = new JPanel();
+        panelCheckMetadata.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.ipadx = 10;
+
+        // Metadata
+        for (MovieSetScraperMetadataConfig value : MovieSetScraperMetadataConfig.values()) {
+          if (value.isMetaData()) {
+            addMetadataCheckbox(panelCheckMetadata, value, metadataCheckBoxes, gbc);
+          }
+        }
+        panelMisc.add(panelCheckMetadata, "cell 2 1");
+      }
+
+      {
         JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelMisc.add(lblCheckImages, "cell 1 0 2 1");
+        panelMisc.add(lblCheckImages, "cell 1 2 2 1");
 
         JPanel panelCheckImages = new JPanel();
-        panelCheckImages.setLayout(new MigLayout("hidemode 1, insets 0", "", ""));
-        panelMisc.add(panelCheckImages, "cell 2 1");
+        panelCheckImages.setLayout(new GridBagLayout());
 
-        chckbxCheckPoster = new JCheckBox(TmmResourceBundle.getString("mediafiletype.poster"));
-        panelCheckImages.add(chckbxCheckPoster, "cell 0 0");
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.ipadx = 10;
 
-        chckbxCheckFanart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.fanart"));
-        panelCheckImages.add(chckbxCheckFanart, "cell 1 0");
+        // Artwork
+        for (MovieSetScraperMetadataConfig value : MovieSetScraperMetadataConfig.values()) {
+          if (value.isArtwork()) {
+            addMetadataCheckbox(panelCheckImages, value, artworkCheckBoxes, gbc);
+          }
+        }
 
-        chckbxCheckBanner = new JCheckBox(TmmResourceBundle.getString("mediafiletype.banner"));
-        panelCheckImages.add(chckbxCheckBanner, "cell 2 0");
-
-        chckbxCheckClearart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearart"));
-        panelCheckImages.add(chckbxCheckClearart, "cell 3 0");
-
-        chckbxCheckThumb = new JCheckBox(TmmResourceBundle.getString("mediafiletype.thumb"));
-        panelCheckImages.add(chckbxCheckThumb, "cell 4 0");
-
-        chckbxCheckLogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.logo"));
-        panelCheckImages.add(chckbxCheckLogo, "cell 5 0");
-
-        chckbxCheckClearlogo = new JCheckBox(TmmResourceBundle.getString("mediafiletype.clearlogo"));
-        panelCheckImages.add(chckbxCheckClearlogo, "cell 6 0");
-
-        chckbxCheckDiscart = new JCheckBox(TmmResourceBundle.getString("mediafiletype.disc"));
-        panelCheckImages.add(chckbxCheckDiscart, "cell 7 0");
+        panelMisc.add(panelCheckImages, "cell 2 3");
       }
     }
+  }
+
+  private void addMetadataCheckbox(JPanel panel, MovieSetScraperMetadataConfig config, Map<MovieSetScraperMetadataConfig, JCheckBox> map,
+      GridBagConstraints gbc) {
+    JCheckBox checkBox;
+    if (StringUtils.isNotBlank(config.getToolTip())) {
+      checkBox = new JHintCheckBox(config.getDescription());
+      checkBox.setToolTipText(config.getToolTip());
+      ((JHintCheckBox) checkBox).setHintIcon(IconManager.HINT);
+    }
+    else {
+      checkBox = new JCheckBox(config.getDescription());
+    }
+    map.put(config, checkBox);
+
+    if (gbc.gridx >= COL_COUNT) {
+      gbc.gridx = 0;
+      gbc.gridy++;
+    }
+    panel.add(checkBox, gbc);
+
+    gbc.gridx++;
   }
 
   protected void initDataBindings() {

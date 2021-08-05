@@ -58,7 +58,6 @@ import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.CountryCode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
-import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -108,9 +107,11 @@ public final class TvShowSettings extends AbstractSettings {
   static final String                            SEASON_THUMB_FILENAME                  = "seasonThumbFilename";
   static final String                            EPISODE_NFO_FILENAME                   = "episodeNfoFilename";
   static final String                            EPISODE_THUMB_FILENAME                 = "episodeThumbFilename";
-  static final String                            EPISODE_CHECK_IMAGES                   = "episodeCheckImages";
-  static final String                            SEASON_CHECK_IMAGES                    = "seasonCheckImages";
-  static final String                            TVSHOW_CHECK_IMAGES                    = "TvShowCheckImages";
+  static final String                            TVSHOW_CHECK_METADATA                  = "tvShowCheckMetadata";
+  static final String                            TVSHOW_CHECK_ARTWORK                   = "tvShowCheckArtwork";
+  static final String                            SEASON_CHECK_ARTWORK                   = "seasonCheckArtwork";
+  static final String                            EPISODE_CHECK_METADATA                 = "episodeCheckMetadata";
+  static final String                            EPISODE_CHECK_ARTWORK                  = "episodeCheckArtwork";
 
   static final String                            NODE                                   = "node";
   static final String                            TITLE                                  = "title";
@@ -140,9 +141,6 @@ public final class TvShowSettings extends AbstractSettings {
   final List<TvShowSeasonThumbNaming>            seasonThumbFilenames                   = new ArrayList<>();
   final List<TvShowEpisodeNfoNaming>             episodeNfoFilenames                    = new ArrayList<>();
   final List<TvShowEpisodeThumbNaming>           episodeThumbFilenames                  = new ArrayList<>();
-  final List<MediaArtworkType>                   episodeCheckImages                     = new ArrayList<>();
-  final List<MediaArtworkType>                   seasonCheckImages                      = new ArrayList<>();
-  final List<MediaArtworkType>                   tvShowCheckImages                      = new ArrayList<>();
   final List<TvShowTrailerNaming>                trailerFilenames                       = new ArrayList<>();
 
   final Map<String, List<UIFilters>>             uiFilterPresets                        = new HashMap<>();
@@ -223,6 +221,11 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        seasonArtworkFallback                  = false;
   boolean                                        storeUiFilters                         = false;
   final List<UIFilters>                          uiFilters                              = new ArrayList<>();
+  final List<TvShowScraperMetadataConfig>        tvShowCheckMetadata                    = new ArrayList<>();
+  final List<TvShowScraperMetadataConfig>        tvShowCheckArtwork                     = new ArrayList<>();
+  final List<TvShowScraperMetadataConfig>        seasonCheckArtwork                     = new ArrayList<>();
+  final List<TvShowEpisodeScraperMetadataConfig> episodeCheckMetadata                   = new ArrayList<>();
+  final List<TvShowEpisodeScraperMetadataConfig> episodeCheckArtwork                    = new ArrayList<>();
 
   // Quick Search filter
   boolean                                        node                                   = true;
@@ -288,18 +291,38 @@ public final class TvShowSettings extends AbstractSettings {
     episodeThumbFilenames.clear();
     addEpisodeThumbFilename(TvShowEpisodeThumbNaming.FILENAME_THUMB);
 
-    episodeCheckImages.clear();
-    addEpisodeCheckImages(MediaArtworkType.THUMB);
+    tvShowCheckMetadata.clear();
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.ID);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.TITLE);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.PLOT);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.YEAR);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.AIRED);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.STATUS);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.RATING);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.RUNTIME);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.CERTIFICATION);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.GENRES);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.STUDIO);
+    addTvShowCheckMetadata(TvShowScraperMetadataConfig.ACTORS);
 
-    seasonCheckImages.clear();
-    addSeasonCheckImages(MediaArtworkType.SEASON_POSTER);
-    addSeasonCheckImages(MediaArtworkType.SEASON_BANNER);
-    addSeasonCheckImages(MediaArtworkType.SEASON_THUMB);
+    tvShowCheckArtwork.clear();
+    addTvShowCheckArtwork(TvShowScraperMetadataConfig.POSTER);
+    addTvShowCheckArtwork(TvShowScraperMetadataConfig.FANART);
+    addTvShowCheckArtwork(TvShowScraperMetadataConfig.BANNER);
 
-    tvShowCheckImages.clear();
-    addTvShowCheckImages(MediaArtworkType.POSTER);
-    addTvShowCheckImages(MediaArtworkType.BACKGROUND);
-    addTvShowCheckImages(MediaArtworkType.BANNER);
+    seasonCheckArtwork.clear();
+    addSeasonCheckArtwork(TvShowScraperMetadataConfig.SEASON_POSTER);
+    addSeasonCheckArtwork(TvShowScraperMetadataConfig.SEASON_BANNER);
+    addSeasonCheckArtwork(TvShowScraperMetadataConfig.SEASON_THUMB);
+
+    episodeCheckMetadata.clear();
+    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED_SEASON_EPISODE);
+    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.TITLE);
+    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.AIRED);
+    addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig.ACTORS);
+
+    episodeCheckArtwork.clear();
+    addEpisodeCheckArtwork(TvShowEpisodeScraperMetadataConfig.THUMB);
 
     trailerFilenames.clear();
     addTrailerFilename(TvShowTrailerNaming.TVSHOW_TRAILER);
@@ -1278,52 +1301,84 @@ public final class TvShowSettings extends AbstractSettings {
     return new ArrayList<>(this.episodeNfoFilenames);
   }
 
-  public void addEpisodeCheckImages(MediaArtworkType type) {
-    if (!episodeCheckImages.contains(type)) {
-      episodeCheckImages.add(type);
-      firePropertyChange(EPISODE_CHECK_IMAGES, null, episodeCheckImages);
+  public void clearTvShowCheckMetadata() {
+    tvShowCheckMetadata.clear();
+    firePropertyChange(TVSHOW_CHECK_METADATA, null, tvShowCheckMetadata);
+  }
+
+  public List<TvShowScraperMetadataConfig> getTvShowCheckMetadata() {
+    return new ArrayList<>(tvShowCheckMetadata);
+  }
+
+  public void addTvShowCheckMetadata(TvShowScraperMetadataConfig config) {
+    if (!tvShowCheckMetadata.contains(config)) {
+      tvShowCheckMetadata.add(config);
+      firePropertyChange(TVSHOW_CHECK_METADATA, null, tvShowCheckMetadata);
     }
   }
 
-  public void clearEpisodeCheckImages() {
-    episodeCheckImages.clear();
-    firePropertyChange(EPISODE_CHECK_IMAGES, null, episodeCheckImages);
+  public void clearTvShowCheckArtwork() {
+    tvShowCheckArtwork.clear();
+    firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
   }
 
-  public List<MediaArtworkType> getEpisodeCheckImages() {
-    return new ArrayList<>(this.episodeCheckImages);
+  public List<TvShowScraperMetadataConfig> getTvShowCheckArtwork() {
+    return new ArrayList<>(tvShowCheckArtwork);
   }
 
-  public void addSeasonCheckImages(MediaArtworkType type) {
-    if (!seasonCheckImages.contains(type)) {
-      seasonCheckImages.add(type);
-      firePropertyChange(SEASON_CHECK_IMAGES, null, seasonCheckImages);
+  public void addTvShowCheckArtwork(TvShowScraperMetadataConfig config) {
+    if (!tvShowCheckArtwork.contains(config)) {
+      tvShowCheckArtwork.add(config);
+      firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
     }
   }
 
-  public void clearSeasonCheckImages() {
-    seasonCheckImages.clear();
-    firePropertyChange(SEASON_CHECK_IMAGES, null, seasonCheckImages);
+  public void clearSeasonCheckArtwork() {
+    seasonCheckArtwork.clear();
+    firePropertyChange(SEASON_CHECK_ARTWORK, null, seasonCheckArtwork);
   }
 
-  public List<MediaArtworkType> getSeasonCheckImages() {
-    return new ArrayList<>(this.seasonCheckImages);
+  public List<TvShowScraperMetadataConfig> getSeasonCheckArtwork() {
+    return new ArrayList<>(seasonCheckArtwork);
   }
 
-  public void addTvShowCheckImages(MediaArtworkType type) {
-    if (!tvShowCheckImages.contains(type)) {
-      tvShowCheckImages.add(type);
-      firePropertyChange(TVSHOW_CHECK_IMAGES, null, tvShowCheckImages);
+  public void addSeasonCheckArtwork(TvShowScraperMetadataConfig config) {
+    if (!seasonCheckArtwork.contains(config)) {
+      seasonCheckArtwork.add(config);
+      firePropertyChange(SEASON_CHECK_ARTWORK, null, seasonCheckArtwork);
     }
   }
 
-  public void clearTvShowCheckImages() {
-    tvShowCheckImages.clear();
-    firePropertyChange(TVSHOW_CHECK_IMAGES, null, tvShowCheckImages);
+  public void clearEpisodeCheckMetadata() {
+    episodeCheckMetadata.clear();
+    firePropertyChange(EPISODE_CHECK_METADATA, null, episodeCheckMetadata);
   }
 
-  public List<MediaArtworkType> getTvShowCheckImages() {
-    return new ArrayList<>(this.tvShowCheckImages);
+  public List<TvShowEpisodeScraperMetadataConfig> getEpisodeCheckMetadata() {
+    return new ArrayList<>(episodeCheckMetadata);
+  }
+
+  public void addEpisodeCheckMetadata(TvShowEpisodeScraperMetadataConfig config) {
+    if (!episodeCheckMetadata.contains(config)) {
+      episodeCheckMetadata.add(config);
+      firePropertyChange(EPISODE_CHECK_METADATA, null, episodeCheckMetadata);
+    }
+  }
+
+  public void clearEpisodeCheckArtwork() {
+    episodeCheckArtwork.clear();
+    firePropertyChange(EPISODE_CHECK_ARTWORK, null, episodeCheckArtwork);
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> getEpisodeCheckArtwork() {
+    return new ArrayList<>(episodeCheckArtwork);
+  }
+
+  public void addEpisodeCheckArtwork(TvShowEpisodeScraperMetadataConfig config) {
+    if (!episodeCheckArtwork.contains(config)) {
+      episodeCheckArtwork.add(config);
+      firePropertyChange(EPISODE_CHECK_ARTWORK, null, episodeCheckArtwork);
+    }
   }
 
   public CertificationStyle getCertificationStyle() {

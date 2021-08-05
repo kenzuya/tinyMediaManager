@@ -170,6 +170,8 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieDifferentRuntimeFilter(), panelMain);
         addFilter(new MovieNoteFilter(), panelMain);
         addFilter(new MovieAllInOneFilter(), panelMain);
+        addFilter(new MovieMissingMetadataFilter(), panelMain);
+        addFilter(new MovieMissingArtworkFilter(), panelMain);
       }
 
       {
@@ -198,8 +200,6 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieSubtitleLanguageFilter(), panelMediaData);
         addFilter(new MovieDatasourceFilter(), panelMediaData);
         addFilter(new MovieVideoExtrasFilter(), panelMediaData);
-        addFilter(new MovieMissingMetadataFilter(), panelMediaData);
-        addFilter(new MovieMissingArtworkFilter(), panelMediaData);
         addFilter(new MovieMissingSubtitlesFilter(), panelMediaData);
         addFilter(new MovieHDRFormatFilter(), panelMediaData);
       }

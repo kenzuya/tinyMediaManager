@@ -90,7 +90,6 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
   private MovieList         movieList;
 
-  private JTextField        searchField;
   private TmmTable          movieTable;
   private JLabel            lblMovieCountFiltered;
   private JLabel            lblMovieCountTotal;
@@ -108,7 +107,7 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
     setLayout(new MigLayout("", "[200lp:n,grow][100lp:n,fill]", "[][200lp:300lp,grow]0[][]"));
 
-    searchField = EnhancedTextField.createSearchTextField();
+    JTextField searchField = EnhancedTextField.createSearchTextField();
     add(searchField, "cell 0 0,growx");
 
     // register global short cut for the search field
@@ -212,6 +211,18 @@ public class MovieListPanel extends TmmListPanel implements ITmmTabItem {
 
     // initialize filteredCount
     lblMovieCountFiltered.setText(String.valueOf(movieTableModel.getRowCount()));
+
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "movieCheckMetadata":
+        case "movieCheckArtwork":
+          movieTable.invalidate();
+          break;
+
+        default:
+          break;
+      }
+    });
   }
 
   private void updateFilterIndicator() {

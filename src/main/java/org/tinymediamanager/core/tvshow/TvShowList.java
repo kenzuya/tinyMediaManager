@@ -62,6 +62,7 @@ import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -1174,6 +1175,110 @@ public final class TvShowList extends AbstractModelObject {
         }
       }
     }
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingMetadata(TvShow tvShow) {
+    return detectMissingFields(tvShow, TvShowModuleManager.getInstance().getSettings().getTvShowCheckMetadata());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingArtwork(TvShow tvShow) {
+    return detectMissingFields(tvShow, TvShowModuleManager.getInstance().getSettings().getTvShowCheckArtwork());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingFields(TvShow tvshow, List<TvShowScraperMetadataConfig> toCheck) {
+    List<TvShowScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = tvshow.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingArtwork(TvShowSeason season) {
+    return detectMissingFields(season, TvShowModuleManager.getInstance().getSettings().getSeasonCheckArtwork());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingFields(TvShowSeason season, List<TvShowScraperMetadataConfig> toCheck) {
+    List<TvShowScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = season.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingMetadata(TvShowEpisode episode) {
+    return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckMetadata());
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingArtwork(TvShowEpisode episode) {
+    return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckArtwork());
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingFields(TvShowEpisode episode, List<TvShowEpisodeScraperMetadataConfig> toCheck) {
+    List<TvShowEpisodeScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowEpisodeScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = episode.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
   }
 
   private static class TvShowMediaScraperComparator implements Comparator<MediaScraper> {

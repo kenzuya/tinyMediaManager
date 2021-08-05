@@ -30,6 +30,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
  */
 public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   // meta data
+  ID(Type.METADATA, "metatag.id"),
   TITLE(Type.METADATA),
   ORIGINAL_TITLE(Type.METADATA, "metatag.originaltitle"),
   TAGLINE(Type.METADATA),
@@ -67,9 +68,9 @@ public enum MovieScraperMetadataConfig implements ScraperMetadataConfig {
   EXTRAFANART(Type.ARTWORK),
   EXTRATHUMB(Type.ARTWORK);
 
-  private Type   type;
-  private String description;
-  private String tooltip;
+  private final Type   type;
+  private final String description;
+  private final String tooltip;
 
   MovieScraperMetadataConfig(Type type) {
     this(type, null, null);

@@ -1418,6 +1418,78 @@ public final class MovieList extends AbstractModelObject {
     return tvShowTitles;
   }
 
+  public List<MovieScraperMetadataConfig> detectMissingMetadata(Movie movie) {
+    return detectMissingFields(movie, MovieModuleManager.getInstance().getSettings().getMovieCheckMetadata());
+  }
+
+  public List<MovieScraperMetadataConfig> detectMissingArtwork(Movie movie) {
+    return detectMissingFields(movie, MovieModuleManager.getInstance().getSettings().getMovieCheckArtwork());
+  }
+
+  public List<MovieScraperMetadataConfig> detectMissingFields(Movie movie, List<MovieScraperMetadataConfig> toCheck) {
+    List<MovieScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (MovieScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = movie.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<MovieSetScraperMetadataConfig> detectMissingMetadata(MovieSet movieSet) {
+    return detectMissingFields(movieSet, MovieModuleManager.getInstance().getSettings().getMovieSetCheckMetadata());
+  }
+
+  public List<MovieSetScraperMetadataConfig> detectMissingArtwork(MovieSet movieSet) {
+    return detectMissingFields(movieSet, MovieModuleManager.getInstance().getSettings().getMovieSetCheckArtwork());
+  }
+
+  public List<MovieSetScraperMetadataConfig> detectMissingFields(MovieSet movieSet, List<MovieSetScraperMetadataConfig> toCheck) {
+    List<MovieSetScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (MovieSetScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = movieSet.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
   private static class MovieSetComparator implements Comparator<MovieSet> {
     @Override
     public int compare(MovieSet o1, MovieSet o2) {

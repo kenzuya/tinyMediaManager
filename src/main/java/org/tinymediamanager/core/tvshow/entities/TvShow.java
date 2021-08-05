@@ -95,6 +95,7 @@ import org.tinymediamanager.core.threading.TmmTaskHandle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.TvShowArtworkHelper;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
@@ -1162,27 +1163,14 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * Gets the check mark for images. What to be checked is configurable
-   *
-   * @return the checks for images
-   */
-  public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.getInstance().getSettings().getTvShowCheckImages()) {
-      if (StringUtils.isBlank(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
    * Checks if all seasons and episodes of that TV show have artwork assigned
    *
    * @return true if artwork is available
    */
   public Boolean getHasSeasonAndEpisodeImages() {
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     for (TvShowSeason season : seasons) {
-      if (!season.getHasImages() || !season.getHasEpisodeImages()) {
+      if (!tvShowList.detectMissingArtwork(season).isEmpty() || !season.getHasEpisodeImages()) {
         return false;
       }
     }
@@ -1190,19 +1178,20 @@ public class TvShow extends MediaEntity implements IMediaInformation {
   }
 
   /**
-   * Checks if all episodes of that season have a NFO file
+   * Checks if all episodes of that TV show has metadata
    *
    * @return true if NFO files are available
    */
-  public Boolean getHasEpisodeNfoFiles() {
-    boolean nfo = true;
+  public Boolean getHasEpisodeMetadata() {
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+
     for (TvShowEpisode episode : episodes) {
-      if (!episode.getHasNfoFile()) {
-        nfo = false;
-        break;
+      if (!tvShowList.detectMissingMetadata(episode).isEmpty()) {
+        return false;
       }
     }
-    return nfo;
+
+    return true;
   }
 
   /**
@@ -2353,5 +2342,96 @@ public class TvShow extends MediaEntity implements IMediaInformation {
       // re-write the trailer list
       mixinLocalTrailers();
     }
+  }
+
+  public Object getValueForMetadata(TvShowScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case ID:
+        return getIds();
+
+      case TITLE:
+        return getTitle();
+
+      case ORIGINAL_TITLE:
+        return getOriginalTitle();
+
+      case PLOT:
+        return getPlot();
+
+      case YEAR:
+        return getYear();
+
+      case AIRED:
+        return getFirstAired();
+
+      case RATING:
+        return getRatings();
+
+      case RUNTIME:
+        return getRuntime();
+
+      case CERTIFICATION:
+        return getCertification();
+
+      case GENRES:
+        return getGenres();
+
+      case COUNTRY:
+        return getCountry();
+
+      case STUDIO:
+        return getProductionCompany();
+
+      case STATUS:
+        return getStatus();
+
+      case TAGS:
+        return getTags();
+
+      case TRAILER:
+        return getMediaFiles(MediaFileType.TRAILER);
+
+      case ACTORS:
+        return getActors();
+
+      case POSTER:
+        return getMediaFiles(MediaFileType.POSTER);
+
+      case FANART:
+        return getMediaFiles(MediaFileType.FANART);
+
+      case BANNER:
+        return getMediaFiles(MediaFileType.BANNER);
+
+      case CLEARART:
+        return getMediaFiles(MediaFileType.CLEARART);
+
+      case THUMB:
+        return getMediaFiles(MediaFileType.THUMB);
+
+      case LOGO:
+        return getMediaFiles(MediaFileType.LOGO);
+
+      case CLEARLOGO:
+        return getMediaFiles(MediaFileType.CLEARLOGO);
+
+      case DISCART:
+        return getMediaFiles(MediaFileType.DISC);
+
+      case KEYART:
+        return getMediaFiles(MediaFileType.KEYART);
+
+      case EXTRAFANART:
+        return getMediaFiles(MediaFileType.EXTRAFANART);
+
+      case CHARACTERART:
+        return getMediaFiles(MediaFileType.CHARACTERART);
+
+      case THEME:
+        return getMediaFiles(MediaFileType.THEME);
+    }
+
+    return null;
   }
 }

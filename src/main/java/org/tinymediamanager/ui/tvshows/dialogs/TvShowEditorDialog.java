@@ -1715,7 +1715,7 @@ public class TvShowEditorDialog extends TmmDialog {
     }
   }
 
-  private class EpisodeEditorContainer extends AbstractModelObject {
+  private static class EpisodeEditorContainer extends AbstractModelObject {
     TvShowEpisode tvShowEpisode;
     int           season;
     int           episode;

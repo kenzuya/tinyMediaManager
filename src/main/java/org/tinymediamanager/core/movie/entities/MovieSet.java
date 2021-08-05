@@ -51,7 +51,6 @@ import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -431,25 +430,11 @@ public class MovieSet extends MediaEntity {
     }
   }
 
-  /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
-   * @return the checks for images
-   */
-  public Boolean getHasImages() {
-    for (MediaArtworkType type : MovieModuleManager.getInstance().getSettings().getCheckImagesMovieSet()) {
-      if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public Boolean getHasMetadata() {
-    return StringUtils.isNotBlank(plot) && StringUtils.isNotBlank(title);
-  }
-
   public Boolean isWatched() {
+    if (movies.isEmpty()) {
+      return false;
+    }
+
     for (Movie movie : movies) {
       if (!movie.isWatched()) {
         return false;
@@ -458,6 +443,7 @@ public class MovieSet extends MediaEntity {
     return true;
   }
 
+  @Override
   public List<MediaFile> getImagesToCache() {
     // get files to cache
     List<MediaFile> filesToCache = new ArrayList<>();
@@ -482,6 +468,7 @@ public class MovieSet extends MediaEntity {
 
   @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
+    // nothing to do here
   }
 
   @Override
@@ -492,40 +479,6 @@ public class MovieSet extends MediaEntity {
   @Override
   public void deleteFromDb() {
     MovieModuleManager.getInstance().getMovieList().removeMovieSetFromDb(this);
-  }
-
-  /**
-   * clean movies from this movieset if there are any inconsistances
-   */
-  public void cleanMovieSet() {
-    MovieList movieList = MovieModuleManager.getInstance().getMovieList();
-    boolean dirty = false;
-
-    for (Movie movie : new ArrayList<>(movies)) {
-      if (!movieList.getMovies().contains(movie)) {
-        movies.remove(movie);
-        movieIds.remove(movie.getDbId());
-        dirty = true;
-      }
-    }
-
-    if (dirty) {
-      saveToDb();
-    }
-  }
-
-  /**
-   * check if one of the movies is newly added
-   *
-   * @return true/false
-   */
-  public boolean hasNewlyAddedMovies() {
-    for (Movie movie : movies) {
-      if (movie.isNewlyAdded()) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -690,6 +643,49 @@ public class MovieSet extends MediaEntity {
     }
 
     return "";
+  }
+
+  public Object getValueForMetadata(MovieSetScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case ID:
+        return getIds();
+
+      case TITLE:
+        return getTitle();
+
+      case PLOT:
+        return getPlot();
+
+      case RATING:
+        return getRatings();
+
+      case POSTER:
+        return getMediaFiles(MediaFileType.POSTER);
+
+      case FANART:
+        return getMediaFiles(MediaFileType.FANART);
+
+      case BANNER:
+        return getMediaFiles(MediaFileType.BANNER);
+
+      case CLEARART:
+        return getMediaFiles(MediaFileType.CLEARART);
+
+      case THUMB:
+        return getMediaFiles(MediaFileType.THUMB);
+
+      case LOGO:
+        return getMediaFiles(MediaFileType.LOGO);
+
+      case CLEARLOGO:
+        return getMediaFiles(MediaFileType.CLEARLOGO);
+
+      case DISCART:
+        return getMediaFiles(MediaFileType.DISC);
+    }
+
+    return null;
   }
 
   /*******************************************************************************
