@@ -723,7 +723,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
           break;
         }
         for (TvShowEpisode episode : season.getEpisodes()) {
-          if (!episode.isDummy() && tvShowList.detectMissingFields(episode, episodeValues).isEmpty()) {
+          if (!episode.isDummy() && !tvShowList.detectMissingFields(episode, episodeValues).isEmpty()) {
             missingSeasonEpisodeData = true;
             break;
           }
@@ -763,7 +763,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       boolean missingEpisodeData = false;
 
       for (TvShowEpisode episode : season.getEpisodes()) {
-        if (!episode.isDummy() && tvShowList.detectMissingFields(episode, episodeValues).isEmpty()) {
+        if (!episode.isDummy() && !tvShowList.detectMissingFields(episode, episodeValues).isEmpty()) {
           missingEpisodeData = true;
           break;
         }
