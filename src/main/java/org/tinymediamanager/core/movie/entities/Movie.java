@@ -57,6 +57,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -377,6 +378,33 @@ public class Movie extends MediaEntity implements IMediaInformation {
     List<MediaFile> mf = getMediaFiles(MediaFileType.NFO);
 
     return mf != null && !mf.isEmpty();
+  }
+
+  /**
+   * do we have basic metadata filled?<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingMetadata()
+   *
+   * @return true/false
+   */
+  @Deprecated // is still used in some export templates
+  public Boolean getHasMetadata() {
+    return !plot.isEmpty() && year != 0;
+  }
+
+  /**
+   * do we have basic images? Poster and Fanart is checked.<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingArtwork()
+   *
+   * @return the checks for images
+   */
+  @Deprecated // is still used in some export templates
+  public Boolean getHasImages() {
+    for (MediaArtworkType type : Arrays.asList(MediaArtworkType.POSTER, MediaArtworkType.BACKGROUND)) {
+      if (StringUtils.isEmpty(getArtworkFilename(MediaFileType.getMediaFileType(type)))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

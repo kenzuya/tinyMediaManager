@@ -430,6 +430,33 @@ public class MovieSet extends MediaEntity {
     }
   }
 
+  /**
+   * do we have basic images? Poster is checked.<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingArtwork()
+   *
+   * @return the checks for images
+   */
+  @Deprecated
+  public Boolean getHasImages() {
+    for (MediaArtworkType type : Arrays.asList(MediaArtworkType.POSTER)) {
+      if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * do we have basic metadata filled?<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingMetadata()
+   *
+   * @return true/false
+   */
+  @Deprecated
+  public Boolean getHasMetadata() {
+    return StringUtils.isNoneBlank(title, plot);
+  }
+
   public Boolean isWatched() {
     if (movies.isEmpty()) {
       return false;
