@@ -52,6 +52,18 @@ test:jdk15:
   artifacts:
     expire_in: 1 days
 
+test:jdk16:
+  stage: test
+  image: registry.gitlab.com/tinymediamanager/docker/jdk15
+  except:
+    - main@tinyMediaManager/tinyMediaManager
+  only:
+    - pushes
+  script:
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
+
 # use dependency scanning (only on QA)
 include:
   template: Dependency-Scanning.gitlab-ci.yml
