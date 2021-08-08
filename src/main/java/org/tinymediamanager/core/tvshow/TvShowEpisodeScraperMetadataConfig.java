@@ -44,15 +44,15 @@ public enum TvShowEpisodeScraperMetadataConfig implements ScraperMetadataConfig 
   ACTORS(Type.CAST),
   DIRECTORS(Type.CAST),
   WRITERS(Type.CAST),
+  @Deprecated
+  PRODUCERS(Type.DEPRECATED),
 
   // artwork
   THUMB(Type.ARTWORK);
 
-  
-
-  private Type                        type;
-  private String                      description;
-  private String                      tooltip;
+  private final Type   type;
+  private final String description;
+  private final String tooltip;
 
   TvShowEpisodeScraperMetadataConfig(Type type) {
     this(type, null, null);
