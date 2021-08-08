@@ -1258,6 +1258,8 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       return false;
     }
 
+    toCheckBasename = toCheckBasename.replaceAll("-" + suffix + "$", "");
+
     String mainVideoFileBasename = FilenameUtils.getBaseName(mainVideoFile.getFilename());
 
     if (!toCheckBasename.equals(mainVideoFileBasename)) {
