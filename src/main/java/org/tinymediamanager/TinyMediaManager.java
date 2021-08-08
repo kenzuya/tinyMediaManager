@@ -534,8 +534,12 @@ public final class TinyMediaManager {
     Level level;
 
     switch (loglevelAsString) {
+      case "OFF":
+        level = null;
+        break;
+
       case "ERROR":
-        level = Level.TRACE;
+        level = Level.ERROR;
         break;
 
       case "WARN":
@@ -563,11 +567,16 @@ public final class TinyMediaManager {
     // get the console appender
     Appender consoleAppender = lc.getLogger("ROOT").getAppender("CONSOLE");
     if (consoleAppender instanceof ConsoleAppender) {
-      // and set a filter to drop messages beneath the given level
-      ThresholdLoggerFilter filter = new ThresholdLoggerFilter(level);
-      filter.start();
-      consoleAppender.clearAllFilters();
-      consoleAppender.addFilter(filter);
+      if (level == null) {
+        consoleAppender.stop();
+      }
+      else {
+        // and set a filter to drop messages beneath the given level
+        ThresholdLoggerFilter filter = new ThresholdLoggerFilter(level);
+        filter.start();
+        consoleAppender.clearAllFilters();
+        consoleAppender.addFilter(filter);
+      }
     }
   }
 
