@@ -692,6 +692,8 @@ public class MovieRenamer {
           continue;
         }
 
+        movie.removeFromMediaFiles(cl);
+
         if (existingFiles.contains(cl.getFileAsPath())) {
           LOGGER.debug("Deleting {}", cl.getFileAsPath());
           Utils.deleteFileWithBackup(cl.getFileAsPath(), movie.getDataSource());
