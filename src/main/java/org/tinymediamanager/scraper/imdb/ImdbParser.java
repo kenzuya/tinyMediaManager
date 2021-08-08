@@ -393,7 +393,7 @@ public abstract class ImdbParser {
 
         // and parse out the poster
         String posterUrl = "";
-        Elements posters = doc.getElementsByClass("poster");
+        Elements posters = doc.getElementsByClass("ipc-poster");
         if (posters != null && !posters.isEmpty()) {
           Elements imgs = posters.get(0).getElementsByTag("img");
           for (Element img : imgs) {
