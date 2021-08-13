@@ -1,5 +1,12 @@
 Version 4.2
 =======================
+******************************************************************************************************
+added TheTVDB API v4 which improves scraping TV show (and movie) metadata in several places #921 #1367
+
+TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a contract with TheTVDB
+  to allow all PRO users to continue using this service without any additional subscription needed!
+******************************************************************************************************
+
 + added Windows installer, macOS dmg and Docker image
 + added support for 3rd party scrapers
 + added experimental support for post process actions #817

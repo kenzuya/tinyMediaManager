@@ -56,5 +56,5 @@ public interface IMovieMetadataProvider extends IMediaProvider {
    * @throws NothingFoundException
    *           indicated that nothing has been found
    */
-  MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException, MissingIdException, NothingFoundException;
+  MediaMetadata getMetadata(MovieSearchAndScrapeOptions options) throws ScrapeException;
 }

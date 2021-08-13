@@ -49,6 +49,10 @@ public class MetadataUtil {
    * @return the best out of the 2 scored attempts
    */
   public static float calculateScore(String searchTitle, String matchTitle) {
+    if (StringUtils.isAnyBlank(searchTitle, matchTitle)) {
+      return 0;
+    }
+
     float score1 = Similarity.compareStrings(searchTitle, matchTitle);
     float score2 = Similarity.compareStrings(searchTitle, removeNonSearchCharacters(matchTitle));
     float score3 = 0;
@@ -56,10 +60,7 @@ public class MetadataUtil {
       score3 = Similarity.compareStrings(searchTitle.replaceFirst(" \\d{4}$", ""), matchTitle);
     }
 
-    float score = Math.max(score1, Math.max(score3, score2));
-    LOGGER.debug(String.format("Similarity Score: [%s][%s]=[%s]", searchTitle, matchTitle, score));
-
-    return score;
+    return Math.max(score1, Math.max(score3, score2));
   }
 
   /**
@@ -210,10 +211,36 @@ public class MetadataUtil {
    *
    * @param original
    *          the integer to unbox
+   * @param defaultValue
+   *          the default value if unboxing fails
    * @return the int value of the {@link Integer} or the default value if null
    */
-  public static int unboxInteger(Integer original, int defaulValue) {
-    return Optional.ofNullable(original).orElse(defaulValue);
+  public static int unboxInteger(Integer original, int defaultValue) {
+    return Optional.ofNullable(original).orElse(defaultValue);
+  }
+
+  /**
+   * safe unboxing of the given {@link Long} or else return the default value
+   *
+   * @param original
+   *          the long to unbox
+   * @return the int value of the {@link Long} or the default value if null
+   */
+  public static long unboxLong(Long original) {
+    return unboxLong(original, 0);
+  }
+
+  /**
+   * safe unboxing of the given {@link Long} or else return the default value
+   *
+   * @param original
+   *          the long to unbox
+   * @param defaultValue
+   *          the default value if unboxing fails
+   * @return the int value of the {@link Long} or the default value if null
+   */
+  public static long unboxLong(Long original, long defaultValue) {
+    return Optional.ofNullable(original).orElse(defaultValue);
   }
 
   /**

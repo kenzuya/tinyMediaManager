@@ -68,7 +68,7 @@ public class TmmHttpClient {
   }
 
   private TmmHttpClient() {
-    // hide public constructor for utility classas
+    throw new IllegalAccessError();
   }
 
   /**

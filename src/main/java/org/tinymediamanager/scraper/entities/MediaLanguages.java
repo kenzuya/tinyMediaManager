@@ -120,8 +120,8 @@ public enum MediaLanguages {
   none("-");
   //@formatter:on
 
-  private String                                   title;
-  private String                                   displayTitle;
+  private final String                             title;
+  private final String                             displayTitle;
 
   private static final Map<String, MediaLanguages> lookup = prepareLookup();
 

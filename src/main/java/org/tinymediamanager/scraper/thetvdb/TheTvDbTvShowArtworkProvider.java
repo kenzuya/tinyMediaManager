@@ -15,22 +15,12 @@
  */
 package org.tinymediamanager.scraper.thetvdb;
 
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.ALL;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
-import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
@@ -43,13 +33,10 @@ import org.tinymediamanager.scraper.exceptions.HttpException;
 import org.tinymediamanager.scraper.exceptions.MissingIdException;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowArtworkProvider;
-import org.tinymediamanager.scraper.util.MetadataUtil;
-
-import com.uwetrottmann.thetvdb.entities.Language;
-import com.uwetrottmann.thetvdb.entities.SeriesImageQueryResult;
-import com.uwetrottmann.thetvdb.entities.SeriesImageQueryResultResponse;
-import com.uwetrottmann.thetvdb.entities.SeriesImagesQueryParam;
-import com.uwetrottmann.thetvdb.entities.SeriesImagesQueryParamResponse;
+import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.SeriesExtendedResponse;
+import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
 
 import retrofit2.Response;
 
@@ -119,31 +106,16 @@ public class TheTvDbTvShowArtworkProvider extends TheTvDbMetadataProvider implem
     }
 
     // get artwork from thetvdb
-    List<SeriesImageQueryResult> images = new ArrayList<>();
+    List<ArtworkBaseRecord> images = new ArrayList<>();
     try {
       // get all types of artwork we can get
-      Response<SeriesImagesQueryParamResponse> response = tvdb.series().imagesQueryParams(id).execute();
+      Response<SeriesExtendedResponse> response = tvdb.getSeriesService().getSeriesExtended(id).execute();
       if (!response.isSuccessful()) {
         throw new HttpException(response.code(), response.message());
       }
-      for (SeriesImagesQueryParam param : response.body().data) {
-        if (options.getArtworkType() == ALL || ("fanart".equals(param.keyType) && options.getArtworkType() == BACKGROUND)
-            || ("poster".equals(param.keyType) && options.getArtworkType() == POSTER)
-            || ("season".equals(param.keyType) && options.getArtworkType() == SEASON_POSTER)
-            || ("seasonwide".equals(param.keyType) && options.getArtworkType() == SEASON_BANNER)
-            || ("series".equals(param.keyType) && options.getArtworkType() == BANNER)) {
 
-          try {
-            Response<SeriesImageQueryResultResponse> httpResponse = tvdb.series().imagesQuery(id, param.keyType, null, null, null).execute();
-            if (!httpResponse.isSuccessful()) {
-              throw new HttpException(httpResponse.code(), httpResponse.message());
-            }
-            images.addAll(httpResponse.body().data);
-          }
-          catch (Exception e) {
-            LOGGER.error("could not get artwork from tvdb: {}", e.getMessage());
-          }
-        }
+      if (response.body() != null && response.body().data != null && response.body().data.artworks != null) {
+        images.addAll(response.body().data.artworks);
       }
     }
     catch (Exception e) {
@@ -151,127 +123,24 @@ public class TheTvDbTvShowArtworkProvider extends TheTvDbMetadataProvider implem
       throw new ScrapeException(e);
     }
 
-    if (images.isEmpty()) {
+    if (ListUtils.isEmpty(images)) {
       return artwork;
     }
 
     // sort it
-    images.sort(new ImageComparator(options.getLanguage().getLanguage()));
+    images.sort(new ImageComparator(LanguageUtils.getIso3Language(options.getLanguage().toLocale())));
 
-    // build output
-    for (SeriesImageQueryResult image : images) {
-      MediaArtwork ma = null;
+    // get base show artwork
+    for (ArtworkBaseRecord image : images) {
+      MediaArtwork ma = parseArtwork(image);
 
-      // set artwork type
-      switch (image.keyType) {
-        case "fanart":
-          ma = new MediaArtwork(getProviderInfo().getId(), BACKGROUND);
-          break;
-
-        case "poster":
-          ma = new MediaArtwork(getProviderInfo().getId(), POSTER);
-          break;
-
-        case "season":
-          ma = new MediaArtwork(getProviderInfo().getId(), SEASON_POSTER);
-          try {
-            ma.setSeason(Integer.parseInt(image.subKey));
-          }
-          catch (Exception e) {
-            LOGGER.trace("could not parse season: {}", image.subKey);
-          }
-          break;
-
-        case "seasonwide":
-          ma = new MediaArtwork(getProviderInfo().getId(), SEASON_BANNER);
-          try {
-            ma.setSeason(Integer.parseInt(image.subKey));
-          }
-          catch (Exception e) {
-            LOGGER.trace("could not parse season: {}", image.subKey);
-          }
-          break;
-
-        case "series":
-          ma = new MediaArtwork(getProviderInfo().getId(), BANNER);
-          break;
-
-        default:
-          continue;
+      if (ma == null) {
+        continue;
       }
 
-      // extract image sizes
-      if (StringUtils.isNotBlank(image.resolution)) {
-        try {
-          Pattern pattern = Pattern.compile("([0-9]{3,4})x([0-9]{3,4})");
-          Matcher matcher = pattern.matcher(image.resolution);
-          if (matcher.matches() && matcher.groupCount() > 1) {
-            int width = Integer.parseInt(matcher.group(1));
-            int height = Integer.parseInt(matcher.group(2));
-            ma.addImageSize(width, height, ARTWORK_URL + image.fileName);
-
-            // set image size
-            switch (ma.getType()) {
-              case POSTER:
-                if (width >= 1000) {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.LARGE.getOrder());
-                }
-                else if (width >= 500) {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.BIG.getOrder());
-                }
-                else if (width >= 342) {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.MEDIUM.getOrder());
-                }
-                else {
-                  ma.setSizeOrder(MediaArtwork.PosterSizes.SMALL.getOrder());
-                }
-                break;
-
-              case BACKGROUND:
-                if (width >= 3840) {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.XLARGE.getOrder());
-                }
-                if (width >= 1920) {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-                }
-                else if (width >= 1280) {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-                }
-                else {
-                  ma.setSizeOrder(MediaArtwork.FanartSizes.SMALL.getOrder());
-                }
-                break;
-
-              default:
-                break;
-            }
-          }
-        }
-        catch (Exception e) {
-          LOGGER.debug("could not extract size from artwork: {}", image.resolution);
-        }
+      if (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == ma.getType()) {
+        artwork.add(ma);
       }
-
-      // set size for banner & season poster (resolution not in api)
-      if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER) {
-        ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
-      }
-      else if (ma.getType() == BANNER) {
-        ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
-      }
-
-      ma.setDefaultUrl(ARTWORK_URL + image.fileName);
-      ma.setOriginalUrl(ARTWORK_URL + image.fileName);
-      if (StringUtils.isNotBlank(image.thumbnail)) {
-        ma.setPreviewUrl(ARTWORK_URL + image.thumbnail);
-      }
-      else {
-        ma.setPreviewUrl(ma.getDefaultUrl());
-      }
-
-      ma.setLanguage(ma.getLanguage());
-
-      artwork.add(ma);
     }
 
     return artwork;
@@ -280,62 +149,49 @@ public class TheTvDbTvShowArtworkProvider extends TheTvDbMetadataProvider implem
   /**********************************************************************
    * local helper classes
    **********************************************************************/
-  private class ImageComparator implements Comparator<SeriesImageQueryResult> {
-    private int preferredLangu = 0;
-    private int english        = 0;
+  private static class ImageComparator implements Comparator<ArtworkBaseRecord> {
+    private final String preferredLangu;
+    private final String english;
 
     private ImageComparator(String language) {
-      for (Language lang : tvdbLanguages) {
-        if (language.equals(lang.abbreviation)) {
-          preferredLangu = lang.id;
-        }
-        if ("en".equals(lang.abbreviation)) {
-          english = lang.id;
-        }
-      }
+      preferredLangu = language;
+      english = "eng";
     }
 
     /*
      * sort artwork: primary by language: preferred lang (ie de), en, others; then: score
      */
     @Override
-    public int compare(SeriesImageQueryResult arg0, SeriesImageQueryResult arg1) {
-      // check if first image is preferred langu
-      int languageId0 = MetadataUtil.unboxInteger(arg0.languageId, -1);
-      int languageId1 = MetadataUtil.unboxInteger(arg1.languageId, -1);
-
-      if (languageId0 == preferredLangu && languageId1 != preferredLangu) {
+    public int compare(ArtworkBaseRecord arg0, ArtworkBaseRecord arg1) {
+      if (preferredLangu.equals(arg0.language) && !preferredLangu.equals(arg1.language)) {
         return -1;
       }
 
       // check if second image is preferred langu
-      if (languageId0 != preferredLangu && languageId1 == preferredLangu) {
+      if (!preferredLangu.equals(arg0.language) && preferredLangu.equals(arg1.language)) {
         return 1;
       }
 
       // check if the first image is en
-      if (languageId0 == english && languageId1 != english) {
+      if (english.equals(arg0.language) && !english.equals(arg1.language)) {
         return -1;
       }
 
       // check if the second image is en
-      if (languageId0 != english && languageId1 == english) {
+      if (!english.equals(arg0.language) && english.equals(arg1.language)) {
         return 1;
       }
 
       int result = 0;
 
-      if (arg0.ratingsInfo != null && arg1.ratingsInfo != null) {
-        int ratingCount0 = MetadataUtil.unboxInteger(arg0.ratingsInfo.count);
-        int ratingCount1 = MetadataUtil.unboxInteger(arg1.ratingsInfo.count);
-
+      if (arg0.score != null && arg1.score != null) {
         // swap arg0 and arg1 to sort reverse
-        result = Integer.compare(ratingCount1, ratingCount0);
+        result = Long.compare(arg1.score, arg0.score);
       }
 
       // if the result is still 0, we need to compare by ID (returning a zero here will treat it as a duplicate and remove the previous one)
       if (result == 0) {
-        result = Integer.compare(arg1.id, arg0.id);
+        result = Long.compare(arg0.id, arg1.id);
       }
 
       return result;

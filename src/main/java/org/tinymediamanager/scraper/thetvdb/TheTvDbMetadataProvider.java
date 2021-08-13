@@ -15,29 +15,46 @@
  */
 package org.tinymediamanager.scraper.thetvdb;
 
-import java.io.IOException;
+import static org.tinymediamanager.core.entities.Person.Type.ACTOR;
+import static org.tinymediamanager.core.entities.Person.Type.DIRECTOR;
+import static org.tinymediamanager.core.entities.Person.Type.PRODUCER;
+import static org.tinymediamanager.core.entities.Person.Type.WRITER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BACKGROUND;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_BANNER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_POSTER;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.SEASON_THUMB;
+import static org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType.THUMB;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.FeatureNotEnabledException;
+import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.scraper.MediaProviderInfo;
-import org.tinymediamanager.scraper.exceptions.HttpException;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
+import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.http.TmmHttpClient;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
+import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.ArtworkTypeRecord;
+import org.tinymediamanager.scraper.thetvdb.entities.Character;
+import org.tinymediamanager.scraper.thetvdb.service.Controller;
+import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
 
-import com.uwetrottmann.thetvdb.TheTvdb;
-import com.uwetrottmann.thetvdb.entities.Episode;
-import com.uwetrottmann.thetvdb.entities.EpisodeResponse;
-import com.uwetrottmann.thetvdb.entities.Language;
-import com.uwetrottmann.thetvdb.entities.LanguagesResponse;
-import com.uwetrottmann.thetvdb.entities.Series;
-import com.uwetrottmann.thetvdb.entities.SeriesResponse;
-
-import okhttp3.OkHttpClient;
-import retrofit2.Response;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * The Class TheTvDbMetadataProvider.
@@ -45,19 +62,19 @@ import retrofit2.Response;
  * @author Manuel Laggner
  */
 abstract class TheTvDbMetadataProvider implements IMediaProvider {
-  private static final String     ID                = "tvdb";
+  private static final Logger                   LOGGER            = LoggerFactory.getLogger(TheTvDbMetadataProvider.class);
+  private static final String                   ID                = "tvdb";
+  protected static final String                 FALLBACK_LANGUAGE = "fallbackLanguage";
 
-  protected static final String   ARTWORK_URL       = "https://artworks.thetvdb.com/banners/";
-  protected static final String   FALLBACK_LANGUAGE = "fallbackLanguage";
+  private final MediaProviderInfo               providerInfo;
+  private final Map<Integer, ArtworkTypeRecord> artworkTypes      = new HashMap<>();
+  private final Pattern                         artworkSeasonNumberPattern;
 
-  private final MediaProviderInfo providerInfo;
-
-  protected final List<Language>  tvdbLanguages;
-  protected TheTvdb               tvdb;
+  protected Controller                          tvdb;
 
   TheTvDbMetadataProvider() {
     providerInfo = createMediaProviderInfo();
-    tvdbLanguages = new ArrayList<>();
+    artworkSeasonNumberPattern = Pattern.compile("https?.*seasons.*/\\d.*?-(\\d)(-.*)?\\..{3,}$");
   }
 
   protected abstract Logger getLogger();
@@ -83,6 +100,19 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     return isFeatureEnabled() && isApiKeyAvailable(providerInfo.getConfig().getValue("apiKey"));
   }
 
+  String getAuthToken() {
+    if (StringUtils.isNotBlank(providerInfo.getConfig().getValue("apiKey"))) {
+      try {
+        return Controller.login(providerInfo.getConfig().getValue("apiKey"));
+      }
+      catch (Exception e) {
+        LOGGER.warn("could not logon with the user entered key - '{}'", e.getMessage());
+      }
+    }
+
+    return getApiKey();
+  }
+
   protected synchronized void initAPI() throws ScrapeException {
 
     if (tvdb == null) {
@@ -91,31 +121,16 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
       }
 
       try {
-        tvdb = new TheTvdb(getApiKey()) {
-          // tell the tvdb api to use our OkHttp client
-          private OkHttpClient okHttpClient;
+        tvdb = new Controller();
+        tvdb.setAuthToken(getAuthToken());
 
-          @Override
-          protected synchronized OkHttpClient okHttpClient() {
-            if (this.okHttpClient == null) {
-              OkHttpClient.Builder builder = TmmHttpClient.newBuilder(true); // with cache
-              this.setOkHttpClientDefaults(builder);
-              this.okHttpClient = builder.build();
-            }
+        artworkTypes.clear();
 
-            return this.okHttpClient;
+        for (ArtworkTypeRecord artworkTypeRecord : Objects.requireNonNull(tvdb.getConfigService().getArtworkTypes().execute().body()).data) {
+          if (artworkTypeRecord.width > 0 && artworkTypeRecord.height > 0) {
+            artworkTypes.put(artworkTypeRecord.id, artworkTypeRecord);
           }
-        };
-        Response<LanguagesResponse> httpResponse = tvdb.languages().allAvailable().execute();
-        if (!httpResponse.isSuccessful()) {
-          throw new HttpException(httpResponse.code(), httpResponse.message());
         }
-        LanguagesResponse response = httpResponse.body();
-        if (response == null) {
-          throw new Exception("Could not connect to TVDB");
-        }
-        tvdbLanguages.clear();
-        tvdbLanguages.addAll(response.data);
       }
       catch (Exception e) {
         getLogger().warn("could not initialize API: {}", e.getMessage());
@@ -123,69 +138,6 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
         tvdb = null;
         throw new ScrapeException(e);
       }
-    }
-
-    String userApiKey = providerInfo.getConfig().getValue("apiKey");
-
-    // check if the API should change from current key to user key
-    if (StringUtils.isNotBlank(userApiKey)) {
-      tvdb.apiKey(userApiKey);
-    }
-
-    // check if the API should change from current key to tmm key
-    if (StringUtils.isBlank(userApiKey)) {
-      tvdb.apiKey(getApiKey());
-    }
-  }
-
-  protected void fillFallbackLanguages(String language, String fallbackLanguage, Series serie) throws IOException {
-    // check with fallback language
-    Response<SeriesResponse> httpResponse;
-    if ((StringUtils.isEmpty(serie.seriesName) || StringUtils.isEmpty(serie.overview)) && !fallbackLanguage.equals(language)) {
-      getLogger().trace("Getting show in fallback language {}", fallbackLanguage);
-      httpResponse = tvdb.series().series(serie.id, fallbackLanguage).execute();
-      if (!httpResponse.isSuccessful()) {
-        throw new HttpException(httpResponse.code(), httpResponse.message());
-      }
-      serie.seriesName = StringUtils.isEmpty(serie.seriesName) ? httpResponse.body().data.seriesName : serie.seriesName;
-      serie.overview = StringUtils.isEmpty(serie.overview) ? httpResponse.body().data.overview : serie.overview;
-    }
-
-    // STILL empty? check with EN language...
-    if ((StringUtils.isEmpty(serie.seriesName) || StringUtils.isEmpty(serie.overview)) && !fallbackLanguage.equals("en") && !language.equals("en")) {
-      getLogger().trace("Getting show in fallback language {}", "en");
-      httpResponse = tvdb.series().series(serie.id, "en").execute();
-      if (!httpResponse.isSuccessful()) {
-        throw new HttpException(httpResponse.code(), httpResponse.message());
-      }
-      serie.seriesName = StringUtils.isEmpty(serie.seriesName) ? httpResponse.body().data.seriesName : serie.seriesName;
-      serie.overview = StringUtils.isEmpty(serie.overview) ? httpResponse.body().data.overview : serie.overview;
-    }
-  }
-
-  protected void fillFallbackLanguages(String language, String fallbackLanguage, Episode episode) throws IOException {
-    // check with fallback language
-    Response<EpisodeResponse> httpResponse;
-    if ((StringUtils.isEmpty(episode.episodeName) || StringUtils.isEmpty(episode.overview)) && !fallbackLanguage.equals(language)) {
-      getLogger().trace("Getting episode S{}E{} in fallback language {}", episode.airedSeason, episode.airedEpisodeNumber, fallbackLanguage);
-      httpResponse = tvdb.episodes().get(episode.id, fallbackLanguage).execute();
-      if (!httpResponse.isSuccessful()) {
-        throw new HttpException(httpResponse.code(), httpResponse.message());
-      }
-      episode.episodeName = StringUtils.isEmpty(episode.episodeName) ? httpResponse.body().data.episodeName : episode.episodeName;
-      episode.overview = StringUtils.isEmpty(episode.overview) ? httpResponse.body().data.overview : episode.overview;
-    }
-
-    // STILL empty? check with EN language...
-    if ((StringUtils.isEmpty(episode.episodeName) || StringUtils.isEmpty(episode.overview)) && !fallbackLanguage.equals("en")
-        && !language.equals("en")) {
-      getLogger().trace("Getting episode S{}E{} in fallback language {}", episode.airedSeason, episode.airedEpisodeNumber, "en");
-      httpResponse = tvdb.episodes().get(episode.id, "en").execute();
-      if (!httpResponse.isSuccessful()) {
-        throw new HttpException(httpResponse.code(), httpResponse.message());
-      }
-      episode.episodeName = StringUtils.isEmpty(episode.episodeName) ? httpResponse.body().data.episodeName : episode.episodeName;
-      episode.overview = StringUtils.isEmpty(episode.overview) ? httpResponse.body().data.overview : episode.overview;
     }
   }
 
@@ -200,5 +152,247 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
    */
   protected String clearYearFromTitle(String title, int year) {
     return title.replaceAll("\\(" + year + "\\)$", "").trim();
+  }
+
+  /**
+   * get the {@link ArtworkTypeRecord} for the given id
+   * 
+   * @param id
+   *          the id to get the artwork type for
+   * @return the {@link ArtworkTypeRecord} or null
+   */
+  protected ArtworkTypeRecord getArtworkType(Integer id) {
+    if (id == null) {
+      return null;
+    }
+
+    return artworkTypes.get(id);
+  }
+
+  /**
+   * parse the localized text from the given texts
+   * 
+   * @param desiredLanguage
+   *          the desired {@link MediaLanguages} to get the text in
+   * @param localizedTexts
+   *          a {@link List} of translated texts
+   * @return the translated text or an empty {@link String}
+   */
+  protected String parseLocalizedText(MediaLanguages desiredLanguage, List<String> localizedTexts) {
+    if (localizedTexts == null) {
+      return "";
+    }
+
+    String iso3LanguageTag = LanguageUtils.getIso3Language(desiredLanguage.toLocale());
+
+    // pt-BR is pt at tvdb...
+    if ("pob".equals(iso3LanguageTag)) {
+      iso3LanguageTag = "pt";
+    }
+
+    for (String text : localizedTexts) {
+      if (text.startsWith(iso3LanguageTag + ": ")) {
+        return text.replace(iso3LanguageTag + ": ", "");
+      }
+    }
+
+    return "";
+  }
+
+  /**
+   * parse the localized text from the JSON String - LEGACY to avoid a bug in the API
+   * 
+   * @param desiredLanguage
+   *          the desired {@link MediaLanguages} to get the text in
+   * @param localizedTextsInJson
+   *          a {@link String} with the JSON of translated texts
+   * @return the translated text or an empty {@link String}
+   */
+  protected String parseLocalizedText(MediaLanguages desiredLanguage, String localizedTextsInJson) {
+    if (localizedTextsInJson == null) {
+      return "";
+    }
+
+    // parse the JSON into a List with the same structure as the other translations
+    List<String> localizedTexts = new ArrayList<>();
+
+    JsonObject jsonObject = new JsonParser().parse(localizedTextsInJson).getAsJsonObject();
+    for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+      localizedTexts.add(entry.getKey() + ": " + entry.getValue().getAsString());
+    }
+    return parseLocalizedText(desiredLanguage, localizedTexts);
+  }
+
+  protected List<Person> parseCastMembers(List<Character> characters) {
+    List<Person> members = new ArrayList<>();
+
+    for (Character character : ListUtils.nullSafe(characters)) {
+      Person member;
+
+      switch (character.type) {
+
+        case 1:
+          member = new Person(DIRECTOR);
+          break;
+
+        case 2:
+          member = new Person(WRITER);
+          break;
+
+        case 3:
+        case 4:
+          member = new Person(ACTOR);
+          break;
+
+        case 7:
+          member = new Person(PRODUCER);
+          break;
+
+        default:
+          continue;
+      }
+
+      member.setId(getId(), character.id);
+      member.setName(character.personName);
+      member.setRole(character.name);
+      if (StringUtils.isNotBlank(character.image)) {
+        member.setThumbUrl(character.image);
+      }
+
+      members.add(member);
+    }
+
+    return members;
+  }
+
+  /**
+   * parse the {@link ArtworkBaseRecord} and morph it to {@link MediaArtwork}
+   * 
+   * @param image
+   *          the {@link ArtworkBaseRecord} from TVDB
+   * @return the parsed {@link MediaArtwork}
+   */
+  protected MediaArtwork parseArtwork(ArtworkBaseRecord image) {
+    if (image.id == null) {
+      return null;
+    }
+
+    MediaArtwork ma = null;
+
+    // set artwork type
+    switch (image.type) {
+      case 1:
+      case 16:
+        ma = new MediaArtwork(getProviderInfo().getId(), BANNER);
+        break;
+
+      case 2:
+      case 15:
+        ma = new MediaArtwork(getProviderInfo().getId(), POSTER);
+        break;
+
+      case 3:
+      case 14:
+        ma = new MediaArtwork(getProviderInfo().getId(), BACKGROUND);
+        break;
+
+      case 6:
+        ma = new MediaArtwork(getProviderInfo().getId(), SEASON_BANNER);
+        break;
+
+      case 7:
+        ma = new MediaArtwork(getProviderInfo().getId(), SEASON_POSTER);
+        break;
+
+      case 8:
+        ma = new MediaArtwork(getProviderInfo().getId(), SEASON_THUMB);
+        break;
+
+      case 11:
+      case 12:
+        ma = new MediaArtwork(getProviderInfo().getId(), THUMB);
+        break;
+
+      default:
+        return null;
+    }
+
+    // extract image sizes
+    ArtworkTypeRecord artworkType = getArtworkType(image.type);
+    if (artworkType != null) {
+      int width = artworkType.width;
+      int height = artworkType.height;
+      ma.addImageSize(width, height, image.image);
+
+      // set image size
+      switch (ma.getType()) {
+        case POSTER:
+          if (width >= 1000) {
+            ma.setSizeOrder(MediaArtwork.PosterSizes.LARGE.getOrder());
+          }
+          else if (width >= 500) {
+            ma.setSizeOrder(MediaArtwork.PosterSizes.BIG.getOrder());
+          }
+          else if (width >= 342) {
+            ma.setSizeOrder(MediaArtwork.PosterSizes.MEDIUM.getOrder());
+          }
+          else {
+            ma.setSizeOrder(MediaArtwork.PosterSizes.SMALL.getOrder());
+          }
+          break;
+
+        case BACKGROUND:
+          if (width >= 3840) {
+            ma.setSizeOrder(MediaArtwork.FanartSizes.XLARGE.getOrder());
+          }
+          if (width >= 1920) {
+            ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
+          }
+          else if (width >= 1280) {
+            ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
+          }
+          else {
+            ma.setSizeOrder(MediaArtwork.FanartSizes.SMALL.getOrder());
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    // set size for banner & season poster (resolution not in api)
+    if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER) {
+      ma.setSizeOrder(MediaArtwork.FanartSizes.LARGE.getOrder());
+    }
+    else if (ma.getType() == BANNER) {
+      ma.setSizeOrder(MediaArtwork.FanartSizes.MEDIUM.getOrder());
+    }
+
+    ma.setDefaultUrl(image.image);
+    ma.setOriginalUrl(image.image);
+    if (StringUtils.isNotBlank(image.thumbnail)) {
+      ma.setPreviewUrl(image.thumbnail);
+    }
+    else {
+      ma.setPreviewUrl(ma.getDefaultUrl());
+    }
+
+    ma.setLanguage(ma.getLanguage());
+
+    // parse the season number
+    if (ma.getType() == SEASON_BANNER || ma.getType() == SEASON_POSTER || ma.getType() == SEASON_THUMB) {
+      Matcher matcher = artworkSeasonNumberPattern.matcher(ma.getDefaultUrl());
+      if (matcher.matches() && matcher.groupCount() > 0) {
+        try {
+          ma.setSeason(Integer.parseInt(matcher.group(1)));
+        }
+        catch (Exception e) {
+          getLogger().trace("Could not parse season from '{}' - '{}'", ma.getDefaultUrl(), e.getMessage());
+        }
+      }
+    }
+
+    return ma;
   }
 }

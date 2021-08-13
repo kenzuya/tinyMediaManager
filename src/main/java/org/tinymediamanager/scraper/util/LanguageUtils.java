@@ -97,7 +97,7 @@ public class LanguageUtils {
       // ISO-639-2/T
       langArray.put(base.getISO3Language().toLowerCase(Locale.ROOT), base);
       // ISO-639-2/B
-      langArray.put(LanguageUtils.getISO3BLanguage(base).toLowerCase(Locale.ROOT), base);
+      langArray.put(LanguageUtils.getIso3BLanguage(base).toLowerCase(Locale.ROOT), base);
       // ISO 639-1
       langArray.put(langu.toLowerCase(Locale.ROOT), base);
 
@@ -203,7 +203,7 @@ public class LanguageUtils {
    * @return the 3 letter code
    * @since 2.0
    */
-  public static String getISO3BLanguage(Locale locale) {
+  public static String getIso3BLanguage(Locale locale) {
     if (ISO_639_2B_EXCEPTIONS.containsKey(locale)) {
       return ISO_639_2B_EXCEPTIONS.get(locale);
     }
@@ -222,8 +222,8 @@ public class LanguageUtils {
    * @return the 3 letter code
    * @since 2.0
    */
-  public static String getISO3BLanguage(String language) {
-    return getISO3BLanguage(Locale.forLanguageTag(language));
+  public static String getIso3BLanguage(String language) {
+    return getIso3BLanguage(Locale.forLanguageTag(language));
   }
 
   /**
@@ -247,6 +247,25 @@ public class LanguageUtils {
   }
 
   /**
+   * get the iso3 code including exceptions
+   *
+   * @param locale
+   *          the {@link Locale} to get the iso3 code for
+   * @return 3 chars or empty string
+   * @since 4.2
+   */
+  public static String getIso3Language(Locale locale) {
+    if (locale != null) {
+      // special handling for pt-BR since Java handles this is por instead of pob
+      if ("pt-BR".equals(locale.toLanguageTag())) {
+        return "pob";
+      }
+      return locale.getISO3Language();
+    }
+    return "";
+  }
+
+  /**
    * uses our localized language mapping table, to get the iso3B code
    *
    * @param text
@@ -257,7 +276,7 @@ public class LanguageUtils {
   public static String getIso3BLanguageFromLocalizedString(String text) {
     Locale l = KEY_TO_LOCALE_MAP.get(text.toLowerCase(Locale.ROOT));
     if (l != null) {
-      return getISO3BLanguage(l);
+      return getIso3BLanguage(l);
     }
     return "";
   }
