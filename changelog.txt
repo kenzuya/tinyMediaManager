@@ -4,16 +4,16 @@ Version 4.2
 added TheTVDB API v4 which improves scraping TV show (and movie) metadata in several places #921 #1367
 
 TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a contract with TheTVDB
-  to allow all PRO users to continue using this service without any additional subscription needed!
+  to allow all PRO users to continue using this service without any additional subscription needed! (https://bit.ly/2VJTy7n)
 ******************************************************************************************************
 
-+ added Windows installer, macOS dmg and Docker image
-+ added support for 3rd party scrapers
++ added Windows installer, macOS dmg and Docker image (https://bit.ly/3CN2Y2o)
++ added support for 3rd party scrapers (https://bit.ly/3smdPM8)
 + added experimental support for post process actions #817
-+ added regular expression based skip folders #1402
-+ enhanced visualization of missing metadata #1350
++ added regular expression based skip folders (https://bit.ly/3xJ6aZa) #1402
++ enhanced visualization of missing metadata (https://bit.ly/3CGNeOF) #1350
 + (Linux) ship libmediainfo for 64bit systems
-+ added support for not overwriting existing items on scrape #1368
++ added support for not overwriting existing items on scrape (https://bit.ly/37G1U20) #1368
 + added support for webp images
 + added country MX to supported certifications #1379
 + (TV shows) added experimental TV show renamer preview #534
@@ -28,7 +28,7 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
 + (TV shows) bulk add actor / director /  rating / certification in episodes / tvshows
 + (movies/TV shows) added column to see if note is available
 + (movies) added the possibility to download just extrafanarts/extrathumbs #741 #1397
-+ (movies) added a "index of movie in movie set" renamer token #1347
++ (movies) added "index of movie in movie set" renamer token #1347
 + (movies/TV shows) added universal filter to filter all text based filters in one #1387
 + (TV shows) added context menu for downloading best trailer for selected TV Shows #1417
 + (TV shows) added bulk adding subtitle information #1396
