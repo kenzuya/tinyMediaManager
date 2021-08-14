@@ -37,3 +37,24 @@ deploy:
     - build
   trigger:
     project: tinyMediaManager/prerelease.tinymediamanager.org
+
+deploy-docker:
+  stage: deploy
+  image: docker:latest
+  services:
+    - name: docker:dind
+  needs:
+    - build
+  variables:
+    IMAGE_NAME: tinymediamanager/tinymediamanager:4-prerelease
+  script:
+    # login
+    - docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+
+    # build
+    - tar xzf dist/tmm*linux-amd64.tar.gz -C docker/
+    - cd docker
+    - docker build -f Dockerfile.nightly -t $IMAGE_NAME .
+
+    # push to the registry
+    - docker push $IMAGE_NAME
