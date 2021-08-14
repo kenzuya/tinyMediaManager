@@ -470,6 +470,10 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
         case "TheMovieDB.com":
           md.setId(MediaMetadata.TMDB, MetadataUtil.parseInt(remoteID.id, 0));
+          break;
+
+        default:
+          break;
       }
     }
 
@@ -590,7 +594,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     for (SearchResultRecord searchResultRecord : searchResults) {
       // build up a new result
       MediaSearchResult result = new MediaSearchResult(getId(), options.getMediaType());
-      result.setId(searchResultRecord.tvdb_id);
+      result.setId(searchResultRecord.tvdbId);
 
       MediaLanguages baseLanguage = options.getLanguage();
       MediaLanguages fallbackLanguage = null;
@@ -613,13 +617,13 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
         }
       }
 
-      String overview = parseLocalizedText(baseLanguage, searchResultRecord.overview_translated);
+      String overview = parseLocalizedText(baseLanguage, searchResultRecord.overviewTranslated);
       if (StringUtils.isNotBlank(overview)) {
         result.setOverview(overview);
       }
       else {
         // try fallback
-        overview = parseLocalizedText(fallbackLanguage, searchResultRecord.overview_translated);
+        overview = parseLocalizedText(fallbackLanguage, searchResultRecord.overviewTranslated);
         if (StringUtils.isNotBlank(overview)) {
           result.setOverview(overview);
         }
@@ -632,7 +636,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
       // calculate score
       result.calculateScore(options);
-      resultMap.put(searchResultRecord.tvdb_id, result);
+      resultMap.put(searchResultRecord.tvdbId, result);
     }
 
     // and convert all entries from the map to a list

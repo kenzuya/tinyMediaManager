@@ -63,7 +63,7 @@ public class SearchResultRecord {
   public String       overview             = null;
 
   @SerializedName("overview_translated")
-  public List<String> overview_translated  = null;
+  public List<String> overviewTranslated   = null;
 
   @SerializedName("posters")
   public List<String> posters              = null;
@@ -81,7 +81,7 @@ public class SearchResultRecord {
   public List<String> translationsWithLang = null;
 
   @SerializedName("tvdb_id")
-  public String       tvdb_id              = null;
+  public String       tvdbId               = null;
 
   @SerializedName("type")
   public String       type                 = null;
