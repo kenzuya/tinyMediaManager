@@ -21,6 +21,15 @@ import static java.nio.file.FileVisitResult.TERMINATE;
 import static org.tinymediamanager.core.MediaFileHelper.BDMV;
 import static org.tinymediamanager.core.MediaFileHelper.HVDVD_TS;
 import static org.tinymediamanager.core.MediaFileHelper.VIDEO_TS;
+import static org.tinymediamanager.core.MediaFileType.BANNER;
+import static org.tinymediamanager.core.MediaFileType.CLEARART;
+import static org.tinymediamanager.core.MediaFileType.CLEARLOGO;
+import static org.tinymediamanager.core.MediaFileType.DISC;
+import static org.tinymediamanager.core.MediaFileType.FANART;
+import static org.tinymediamanager.core.MediaFileType.GRAPHIC;
+import static org.tinymediamanager.core.MediaFileType.KEYART;
+import static org.tinymediamanager.core.MediaFileType.LOGO;
+import static org.tinymediamanager.core.MediaFileType.POSTER;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 
 import java.io.IOException;
@@ -819,7 +828,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     // fourth round - try to match unknown graphics like title.ext or
     // filename.ext as poster
     // ***************************************************************
-    if (movie.getArtworkFilename(MediaFileType.POSTER).isEmpty()) {
+    if (movie.getArtworkFilename(POSTER).isEmpty()) {
       for (MediaFile mf : mfs) {
         if (mf.getType().equals(MediaFileType.GRAPHIC)) {
           LOGGER.debug("| parsing unknown graphic: {}", mf.getFilename());
@@ -831,7 +840,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
                                                                                                                                                // w/o
                                                                                                                                                // stacking
                 || movie.getTitle().equals(FilenameUtils.getBaseName(mf.getFilename()))) { // title match
-              mf.setType(MediaFileType.POSTER);
+              mf.setType(POSTER);
               movie.addToMediaFiles(mf);
             }
           }
@@ -913,12 +922,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     if (MovieModuleManager.getInstance().getSettings().isExtractArtworkFromVsmeta()) {
       List<MediaFile> vsmetas = movie.getMediaFiles(MediaFileType.VSMETA);
 
-      if (movie.getMediaFiles(MediaFileType.POSTER).isEmpty() && !vsmetas.isEmpty()
+      if (movie.getMediaFiles(POSTER).isEmpty() && !vsmetas.isEmpty()
           && !MovieModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
         LOGGER.debug("extracting POSTERs from VSMETA for {}", movie.getMainFile().getFileAsPath());
         MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
       }
-      if (movie.getMediaFiles(MediaFileType.FANART).isEmpty() && !vsmetas.isEmpty()
+      if (movie.getMediaFiles(FANART).isEmpty() && !vsmetas.isEmpty()
           && !MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
         LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
         MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
@@ -974,7 +983,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         if (smBasename.equals(basename) || smBasename.matches(smNameRegexp)) {
           if (sm.getType() == MediaFileType.GRAPHIC) {
             // same named graphics (unknown, not detected without postfix) treated as posters
-            sm.setType(MediaFileType.POSTER);
+            sm.setType(POSTER);
           }
           sameName.add(sm);
           LOGGER.trace("UDS: found matching MF: {}", sm);
@@ -1091,12 +1100,12 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
       if (MovieModuleManager.getInstance().getSettings().isExtractArtworkFromVsmeta()) {
         List<MediaFile> vsmetas = movie.getMediaFiles(MediaFileType.VSMETA);
 
-        if (movie.getMediaFiles(MediaFileType.POSTER).isEmpty() && !vsmetas.isEmpty()
+        if (movie.getMediaFiles(POSTER).isEmpty() && !vsmetas.isEmpty()
             && !MovieModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
           LOGGER.debug("extracting POSTERs from VSMETA for {}", movie.getMainFile().getFileAsPath());
           MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
         }
-        if (movie.getMediaFiles(MediaFileType.FANART).isEmpty() && !vsmetas.isEmpty()
+        if (movie.getMediaFiles(FANART).isEmpty() && !vsmetas.isEmpty()
             && !MovieModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
           LOGGER.debug("extracting FANARTs from VSMETA for {}", movie.getMainFile().getFileAsPath());
           MovieArtworkHelper.extractArtworkFromVsmeta(movie, vsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
@@ -1234,7 +1243,7 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
           default:
             LOGGER.debug("| NOT adding unknown media file type: {}", mf.getFileAsPath());
             // movie.addToMediaFiles(mf); // DO NOT ADD UNKNOWN
-            break;
+            continue;
         } // end switch type
 
         // debug
@@ -1245,6 +1254,20 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
       } // end new MF found
     } // end MF loop
+
+    // second loop: check if there is at least one type of every artwork. If not, try to re-parse GRAPHIC MFs less strictly
+    for (MediaFileType type : Arrays.asList(FANART, POSTER, BANNER, CLEARLOGO, LOGO, CLEARART, KEYART, DISC)) {
+      if (movie.getMediaFiles(type).isEmpty()) {
+        for (MediaFile mf : movie.getMediaFiles(GRAPHIC)) {
+          // re-evaluate the mf type
+          MediaFileType parsedType = MediaFileHelper.parseImageType(mf.getFile());
+          if (parsedType == type) {
+            mf.setType(type);
+            break;
+          }
+        }
+      }
+    }
   }
 
   private boolean hasInvalidBasename(MediaFile mainVideoFile, MediaFile toCheck, String suffix) {
@@ -1524,34 +1547,6 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
 
   /**
    * simple NIO File.listFiles() replacement<br>
-   * returns ONLY regular files (NO folders, NO hidden) in specified dir, filtering against our badwords (NOT recursive)
-   *
-   * @param directory
-   *          the folder to list the files for
-   * @return list of files&folders
-   */
-  private List<Path> listFilesOnly(Path directory) {
-    List<Path> fileNames = new ArrayList<>();
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
-      for (Path path : directoryStream) {
-        if (Utils.isRegularFile(path) || path.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
-          if (isInSkipFolder(path)) {
-            LOGGER.debug("Skipping: {}", path);
-          }
-          else {
-            fileNames.add(path.toAbsolutePath());
-          }
-        }
-      }
-    }
-    catch (IOException e) {
-      LOGGER.error("error on listFilesOnly: {}", e.getMessage());
-    }
-    return fileNames;
-  }
-
-  /**
-   * simple NIO File.listFiles() replacement<br>
    * returns all files & folders in specified dir, filtering against our skip folders (NOT recursive)
    *
    * @param directory
@@ -1759,6 +1754,34 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
         }
       }
       return CONTINUE;
+    }
+
+    /**
+     * simple NIO File.listFiles() replacement<br>
+     * returns ONLY regular files (NO folders, NO hidden) in specified dir, filtering against our badwords (NOT recursive)
+     *
+     * @param directory
+     *          the folder to list the files for
+     * @return list of files&folders
+     */
+    private List<Path> listFilesOnly(Path directory) {
+      List<Path> fileNames = new ArrayList<>();
+      try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
+        for (Path path : directoryStream) {
+          if (Utils.isRegularFile(path) || path.getFileName().toString().matches(DISC_FOLDER_REGEX)) {
+            if (isInSkipFolder(path)) {
+              LOGGER.debug("Skipping: {}", path);
+            }
+            else {
+              fileNames.add(path.toAbsolutePath());
+            }
+          }
+        }
+      }
+      catch (IOException e) {
+        LOGGER.error("error on listFilesOnly: {}", e.getMessage());
+      }
+      return fileNames;
     }
   }
 
