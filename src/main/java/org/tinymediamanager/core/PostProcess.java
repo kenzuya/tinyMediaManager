@@ -21,13 +21,9 @@ package org.tinymediamanager.core;
  * @Author Wolfgang Janes
  */
 public class PostProcess extends AbstractModelObject {
-  public static final String NAME    = "name";
-  public static final String PATH    = "path";
-  public static final String COMMAND = "command";
-
-  private String             name;
-  private String             path;
-  private String             command;
+  private String name;
+  private String path;
+  private String command;
 
   public String getName() {
     return name;
@@ -36,7 +32,7 @@ public class PostProcess extends AbstractModelObject {
   public void setName(String newValue) {
     String oldValue = this.name;
     this.name = newValue;
-    firePropertyChange(NAME, oldValue, newValue);
+    firePropertyChange("name", oldValue, newValue);
   }
 
   public String getPath() {
@@ -46,7 +42,7 @@ public class PostProcess extends AbstractModelObject {
   public void setPath(String newValue) {
     String oldValue = this.path;
     this.path = newValue;
-    firePropertyChange(PATH, oldValue, newValue);
+    firePropertyChange("path", oldValue, newValue);
   }
 
   public String getCommand() {
@@ -56,7 +52,6 @@ public class PostProcess extends AbstractModelObject {
   public void setCommand(String newValue) {
     String oldValue = this.command;
     this.command = newValue;
-    firePropertyChange(COMMAND, oldValue, newValue);
+    firePropertyChange("command", oldValue, newValue);
   }
-
 }

@@ -42,15 +42,18 @@ public class MoviePostProcessDialog extends PostProcessDialog {
       return;
     }
 
-    // create a new post-process
     if (process == null) {
+      // create a new post-process
       process = new PostProcess();
       MovieModuleManager.getInstance().getSettings().addPostProcess(process);
     }
 
     process.setName(tfProcessName.getText());
-    process.setCommand(tfCommand.getText());
+    process.setCommand(tfCommand.getText().replace('\n', ' '));
     process.setPath(tfPath.getText());
+
+    MovieModuleManager.getInstance().getSettings().saveSettings();
+
     firePropertyChange("postProcess", null, process);
     setVisible(false);
   }

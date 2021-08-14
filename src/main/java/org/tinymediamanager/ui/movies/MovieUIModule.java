@@ -286,7 +286,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
         // Post processing
         postProcessingMenu.removeAll();
         for (PostProcess process : new ArrayList<>(MovieModuleManager.getInstance().getSettings().getPostProcess())) {
-          JMenuItem menuItem = new JMenuItem(process.getName(), IconManager.APPLY_INV);
+          JMenuItem menuItem = new JMenuItem(process.getName(), IconManager.APPLY);
           menuItem.addActionListener(pp -> new MoviePostProcessExecutor(process).execute());
           postProcessingMenu.add(menuItem);
         }

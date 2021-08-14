@@ -50,7 +50,7 @@ import net.miginfocom.swing.MigLayout;
 public class MoviePostProcessingSettingsPanel extends JPanel {
   private final MovieSettings settings = MovieModuleManager.getInstance().getSettings();
 
-  private JTable              tablePostProcesses;
+  private TmmTable            tablePostProcesses;
   private JButton             btnRemoveProcess;
   private JButton             btnAddProcess;
   private JButton             btnEditProcess;
@@ -104,7 +104,7 @@ public class MoviePostProcessingSettingsPanel extends JPanel {
   private void initComponents() {
     setLayout(new MigLayout("", "[600lp,grow]", "[]"));
     {
-      JPanel panelProcess = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][600lp][]", "[500lp]"));
+      JPanel panelProcess = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][600lp,grow][]", "[500lp,grow]"));
       JLabel lblProcess = new TmmLabel(TmmResourceBundle.getString("Settings.postprocessing"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelProcess, lblProcess, false);
       add(collapsiblePanel, "growx,wmin 0");
@@ -113,7 +113,7 @@ public class MoviePostProcessingSettingsPanel extends JPanel {
         JScrollPane spProcesses = new JScrollPane();
         panelProcess.add(spProcesses, "cell 1 0,grow");
         tablePostProcesses = new TmmTable();
-        spProcesses.setViewportView(tablePostProcesses);
+        tablePostProcesses.configureScrollPane(spProcesses);
 
         btnAddProcess = new JButton(TmmResourceBundle.getString("Button.add"));
         panelProcess.add(btnAddProcess, "flowy,cell 2 0,growx,aligny top");

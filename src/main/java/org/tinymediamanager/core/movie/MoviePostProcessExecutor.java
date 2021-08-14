@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.PostProcess;
@@ -63,8 +64,12 @@ public class MoviePostProcessExecutor {
       try {
         executeCommand(command, movie);
       }
-      catch (IOException | InterruptedException e) {
-        e.printStackTrace();
+      catch (InterruptedException e) {
+        // ignored
+        return;
+      }
+      catch (Exception e) {
+        LOGGER.error("Problem executing post process", e);
       }
     }
   }
@@ -91,9 +96,21 @@ public class MoviePostProcessExecutor {
   }
 
   private void executeCommand(List<String> cmdline, Movie movie) throws IOException, InterruptedException {
-    LOGGER.debug("Running command: {}", String.join(" ", cmdline));
+    String command = String.join(" ", cmdline);
+    LOGGER.debug("Running command: {}", command);
 
-    ProcessBuilder pb = new ProcessBuilder(cmdline.toArray(new String[0])).redirectErrorStream(true);
+    ProcessBuilder pb;
+    if (SystemUtils.IS_OS_WINDOWS) {
+      pb = new ProcessBuilder("cmd", "/c", "start", command);
+    }
+    else if (SystemUtils.IS_OS_MAC) {
+      pb = new ProcessBuilder("/bin/sh", "-c", command);
+    }
+    else {
+      pb = new ProcessBuilder("/bin/sh", "-c", command);
+    }
+
+    pb.redirectErrorStream(true);
     pb.directory(movie.getPathNIO().toFile());
 
     final Process process = pb.start();

@@ -84,6 +84,7 @@ public class IconManager {
 
   // font awesome icons for actions in the popup menu
   public static final ImageIcon              ADD                          = createMenuIcon("plus.svg");
+  public static final ImageIcon              APPLY                        = createMenuIcon("check-circle.svg");
   public static final ImageIcon              ASPECT_RATIO_BLUE            = createMenuIcon("ruler-combined-solid.svg");
   public static final ImageIcon              BUG                          = createMenuIcon("bug.svg");
   public static final ImageIcon              CLEAN                        = createMenuIcon("broom.svg");
