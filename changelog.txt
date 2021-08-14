@@ -9,7 +9,7 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
 
 + added Windows installer, macOS dmg and Docker image (https://bit.ly/3CN2Y2o)
 + added support for 3rd party scrapers (https://bit.ly/3smdPM8)
-+ added experimental support for post process actions #817
++ added experimental support for post process actions (https://bit.ly/3si4Ew6) #817
 + added regular expression based skip folders (https://bit.ly/3xJ6aZa) #1402
 + enhanced visualization of missing metadata (https://bit.ly/3CGNeOF) #1350
 + (Linux) ship libmediainfo for 64bit systems
