@@ -34,7 +34,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
-public class WebServer extends NanoHTTPD {
+class WebServer extends NanoHTTPD {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebServer.class);
 
   public WebServer(int port) throws IOException {
