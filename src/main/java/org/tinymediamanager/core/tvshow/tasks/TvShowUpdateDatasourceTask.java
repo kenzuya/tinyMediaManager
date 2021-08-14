@@ -46,14 +46,15 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractFileVisitor;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -86,14 +87,9 @@ import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 public class TvShowUpdateDatasourceTask extends TmmThreadPool {
   private static final Logger       LOGGER        = LoggerFactory.getLogger(TvShowUpdateDatasourceTask.class);
 
-  // constants
-  private static final String       VIDEO_TS      = "VIDEO_TS";
-  private static final String       BDMV          = "BDMV";
-  private static final String       HVDVD_TS      = "HVDVD_TS";
-
   // skip well-known, but unneeded folders (UPPERCASE)
   private static final List<String> SKIP_FOLDERS  = Arrays.asList(".", "..", "CERTIFICATE", "$RECYCLE.BIN", "RECYCLER", "SYSTEM VOLUME INFORMATION",
-      "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB");
+      "@EADIR", "ADV_OBJ", "EXTRAS", "EXTRA", "EXTRATHUMB", "PLEX VERSIONS");
 
   // skip folders starting with a SINGLE "." or "._"
   private static final String       SKIP_REGEX    = "^[.][\\w@]+.*";
@@ -116,9 +112,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    */
   public TvShowUpdateDatasourceTask() {
     super(TmmResourceBundle.getString("update.datasource"));
-    tvShowList = TvShowList.getInstance();
-    dataSources = new ArrayList<>(TvShowModuleManager.SETTINGS.getTvShowDataSource());
-    skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
+    tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+    dataSources = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getTvShowDataSource());
+    skipFolders = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getSkipFolder());
   }
 
   /**
@@ -129,10 +125,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    */
   public TvShowUpdateDatasourceTask(String datasource) {
     super(TmmResourceBundle.getString("update.datasource") + " (" + datasource + ")");
-    tvShowList = TvShowList.getInstance();
+    tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     dataSources = new ArrayList<>(1);
     dataSources.add(datasource);
-    skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
+    skipFolders = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getSkipFolder());
   }
 
   /**
@@ -143,9 +139,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    */
   public TvShowUpdateDatasourceTask(List<Path> tvShowFolders) {
     super(TmmResourceBundle.getString("update.datasource"));
-    tvShowList = TvShowList.getInstance();
+    tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     dataSources = new ArrayList<>(0);
-    skipFolders = new ArrayList<>(TvShowModuleManager.SETTINGS.getSkipFolder());
+    skipFolders = new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getSkipFolder());
     this.tvShowFolders.addAll(tvShowFolders);
   }
 
@@ -249,7 +245,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             else {
               // File in root folder - not possible for TV datasource (at least, for videos ;)
               String ext = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.ROOT);
-              if (Globals.settings.getVideoFileType().contains("." + ext)) {
+              if (Settings.getInstance().getVideoFileType().contains("." + ext)) {
                 MessageManager.instance.pushMessage(new Message(MessageLevel.ERROR, "update.datasource", "update.datasource.episodeinroot",
                     new String[] { path.getFileName().toString() }));
               }
@@ -320,7 +316,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // map Kodi entries
-      if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+      if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
         KodiRPC.getInstance().updateTvShowMappings();
       }
 
@@ -363,11 +359,11 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         return;
       }
 
-      if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
-        TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(TvShowList.getInstance().getTvShows());
-        task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
-        task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-        task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+      if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
+        TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(TvShowModuleManager.getInstance().getTvShowList().getTvShows());
+        task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktCollection());
+        task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+        task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
@@ -450,6 +446,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
         if (!filesFound.contains(mf.getFileAsPath())) {
           LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
           tvShow.removeFromMediaFiles(mf);
+          // and remove the image cache
+          if (mf.isGraphic()) {
+            ImageCache.invalidateCachedImage(mf);
+          }
           dirty = true;
         }
       }
@@ -460,6 +460,10 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
           if (!filesFound.contains(mf.getFileAsPath())) {
             LOGGER.debug("removing orphaned file: {}", mf.getFileAsPath());
             episode.removeFromMediaFiles(mf);
+            // and remove the image cache
+            if (mf.isGraphic()) {
+              ImageCache.invalidateCachedImage(mf);
+            }
             dirty = true;
           }
         }
@@ -623,7 +627,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
         if (StringUtils.isBlank(tvShow.getTitle()) || tvShow.getYear() <= 0) {
           // we have a tv show object, but without title or year; try to parse that our of the folder/filename
-          String[] ty = ParserUtils.detectCleanTitleAndYear(showDir.getFileName().toString(), TvShowModuleManager.SETTINGS.getBadWord());
+          String[] ty = ParserUtils.detectCleanTitleAndYear(showDir.getFileName().toString(),
+              TvShowModuleManager.getInstance().getSettings().getBadWord());
           if (StringUtils.isBlank(tvShow.getTitle()) && StringUtils.isNotBlank(ty[0])) {
             tvShow.setTitle(ty[0]);
           }
@@ -860,7 +865,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // something found with the season detection?
             for (int ep : result.episodes) {
               TvShowEpisode episode = new TvShowEpisode();
-              episode.setDvdOrder(TvShowModuleManager.SETTINGS.isDvdOrder());
+              episode.setDvdOrder(TvShowModuleManager.getInstance().getSettings().isDvdOrder());
               episode.setEpisode(ep);
               episode.setSeason(result.season);
               episode.setFirstAired(result.date);
@@ -917,7 +922,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             // video as -1/-1
             // ******************************
             TvShowEpisode episode = new TvShowEpisode();
-            episode.setDvdOrder(TvShowModuleManager.SETTINGS.isDvdOrder());
+            episode.setDvdOrder(TvShowModuleManager.getInstance().getSettings().isDvdOrder());
             episode.setEpisode(-1);
             episode.setSeason(-1);
             episode.setPath(mf.getPath());
@@ -1056,7 +1061,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
       }
 
       // if there is missing artwork AND we do have a VSMETA file, we probably can extract an artwork from there
-      if (!TvShowModuleManager.SETTINGS.isExtractArtworkFromVsmeta()) {
+      if (!TvShowModuleManager.getInstance().getSettings().isExtractArtworkFromVsmeta()) {
         // TV show
         boolean missingTvShowPosters = tvShow.getMediaFiles(MediaFileType.POSTER).isEmpty();
         boolean missingTvShowFanarts = tvShow.getMediaFiles(MediaFileType.FANART).isEmpty();
@@ -1067,7 +1072,8 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             continue;
           }
 
-          if (episode.getMediaFiles(MediaFileType.THUMB).isEmpty() && !TvShowModuleManager.SETTINGS.getSeasonThumbFilenames().isEmpty()) {
+          if (episode.getMediaFiles(MediaFileType.THUMB).isEmpty()
+              && !TvShowModuleManager.getInstance().getSettings().getSeasonThumbFilenames().isEmpty()) {
             LOGGER.debug("extracting episode THUMBs from VSMETA for {}", episode.getMainFile().getFileAsPath());
             boolean ok = TvShowArtworkHelper.extractArtworkFromVsmeta(episode, episodeVsmetas.get(0), MediaArtwork.MediaArtworkType.THUMB);
             if (ok) {
@@ -1075,7 +1081,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             }
           }
 
-          if (missingTvShowFanarts && !TvShowModuleManager.SETTINGS.getFanartFilenames().isEmpty()) {
+          if (missingTvShowFanarts && !TvShowModuleManager.getInstance().getSettings().getFanartFilenames().isEmpty()) {
             LOGGER.debug("extracting TV show FANARTs from VSMETA for {}", episode.getMainFile().getFileAsPath());
             boolean ok = TvShowArtworkHelper.extractArtworkFromVsmeta(tvShow, episodeVsmetas.get(0), MediaArtwork.MediaArtworkType.BACKGROUND);
             if (ok) {
@@ -1083,7 +1089,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
             }
           }
 
-          if (missingTvShowPosters && !TvShowModuleManager.SETTINGS.getPosterFilenames().isEmpty()) {
+          if (missingTvShowPosters && !TvShowModuleManager.getInstance().getSettings().getPosterFilenames().isEmpty()) {
             LOGGER.debug("extracting TV show POSTERs from VSMETA for {}", episode.getMainFile().getFileAsPath());
             boolean ok = TvShowArtworkHelper.extractArtworkFromVsmeta(tvShow, episodeVsmetas.get(0), MediaArtwork.MediaArtworkType.POSTER);
             if (ok) {

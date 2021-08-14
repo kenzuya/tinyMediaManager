@@ -64,12 +64,12 @@ import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -131,7 +131,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
   private static final String                DIALOG_ID           = "tvShowEpisodeEditor";
 
-  private TvShowList                         tvShowList          = TvShowList.getInstance();
+  private TvShowList                         tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
   private TvShowEpisode                      episodeToEdit;
   private List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
   private List<MediaFile>                    mediaFiles          = new ArrayList<>();
@@ -230,7 +230,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
       cbMediaSource.setSelectedItem(episodeToEdit.getMediaSource());
       tfNote.setText(episodeToEdit.getNote());
 
-      for (Person origCast : episodeToEdit.getGuests()) {
+      for (Person origCast : episodeToEdit.getActors()) {
         guests.add(new Person(origCast));
       }
       for (Person director : episodeToEdit.getDirectors()) {
@@ -381,7 +381,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEpisodeEditorDialog.this, newIds, THUMB, tvShowList.getDefaultArtworkScrapers(),
                 lblThumb, MediaType.TV_EPISODE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(episodeToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -906,7 +906,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
     protected Void doInBackground() {
       setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
       TvShowEpisodeSearchAndScrapeOptions options = new TvShowEpisodeSearchAndScrapeOptions(episodeToEdit.getTvShow().getIds());
-      options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
 
       options.setId(MediaMetadata.SEASON_NR, spSeason.getValue().toString());
       options.setId(MediaMetadata.EPISODE_NR, spEpisode.getValue().toString());

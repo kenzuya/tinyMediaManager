@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -38,6 +37,7 @@ import org.tinymediamanager.core.tasks.TrailerDownloadTask;
 import org.tinymediamanager.core.tasks.YTDownloadTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 /**
  * a collection of various helpers for the movie module
@@ -74,13 +74,13 @@ public class MovieHelpers {
         c = c.trim();
         if (c.contains(":")) {
           String[] cs = c.split(":");
-          cert = MediaCertification.getCertification(MovieModuleManager.SETTINGS.getCertificationCountry(), cs[1]);
+          cert = MediaCertification.getCertification(MovieModuleManager.getInstance().getSettings().getCertificationCountry(), cs[1]);
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
           }
         }
         else {
-          cert = MediaCertification.getCertification(MovieModuleManager.SETTINGS.getCertificationCountry(), c);
+          cert = MediaCertification.getCertification(MovieModuleManager.getInstance().getSettings().getCertificationCountry(), c);
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
           }
@@ -109,11 +109,11 @@ public class MovieHelpers {
       // no slash, so only one country
       if (name.contains(":")) {
         String[] cs = name.split(":");
-        cert = MediaCertification.getCertification(MovieModuleManager.SETTINGS.getCertificationCountry(), cs[1].trim());
+        cert = MediaCertification.getCertification(MovieModuleManager.getInstance().getSettings().getCertificationCountry(), cs[1].trim());
       }
       else {
         // no country? try to find only by name
-        cert = MediaCertification.getCertification(MovieModuleManager.SETTINGS.getCertificationCountry(), name.trim());
+        cert = MediaCertification.getCertification(MovieModuleManager.getInstance().getSettings().getCertificationCountry(), name.trim());
       }
     }
     // still not found localized cert? parse the name to find *ANY* certificate
@@ -131,7 +131,8 @@ public class MovieHelpers {
    */
   public static void startAutomaticTrailerDownload(Movie movie) {
     // start movie trailer download?
-    if (MovieModuleManager.SETTINGS.isUseTrailerPreference() && MovieModuleManager.SETTINGS.isAutomaticTrailerDownload()
+    if (MovieModuleManager.getInstance().getSettings().isUseTrailerPreference()
+        && MovieModuleManager.getInstance().getSettings().isAutomaticTrailerDownload()
         && movie.getMediaFiles(MediaFileType.TRAILER).isEmpty() && !movie.getTrailer().isEmpty()) {
       downloadBestTrailer(movie);
     }
@@ -170,7 +171,7 @@ public class MovieHelpers {
       trailernames.add(MovieTrailerNaming.FILENAME_TRAILER);
     }
     else {
-      trailernames = MovieModuleManager.SETTINGS.getTrailerFilenames();
+      trailernames = MovieModuleManager.getInstance().getSettings().getTrailerFilenames();
     }
 
     // hmm.. at the moment we can only download ONE trailer, so both patterns won't work
@@ -186,7 +187,7 @@ public class MovieHelpers {
     try {
       Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
       if (matcher.matches()) {
-        YTDownloadTask task = new YTDownloadTask(trailer, MovieModuleManager.SETTINGS.getTrailerQuality()) {
+        YTDownloadTask task = new YTDownloadTask(trailer, MovieModuleManager.getInstance().getSettings().getTrailerQuality()) {
           @Override
           protected Path getDestinationWoExtension() {
             return movie.getPathNIO().resolve(filename);

@@ -32,7 +32,7 @@ import javax.swing.event.HyperlinkEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.ui.TmmUIHelper;
@@ -69,7 +69,7 @@ public class UpdateDialog extends TmmDialog {
       JScrollPane scrollPane = new NoBorderScrollPane();
       panelContent.add(scrollPane, "cell 0 3,grow");
       JTextPane textPane = new JTextPane();
-      textPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, Globals.settings.getFontSize() + 1));
+      textPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, Settings.getInstance().getFontSize() + 1));
       scrollPane.setViewportView(textPane);
 
       textPane.setContentType("text/html");

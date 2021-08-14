@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -49,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -60,11 +62,13 @@ import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
+import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaScraper;
 import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.ITvShowMetadataProvider;
@@ -82,11 +86,11 @@ import ca.odell.glazedlists.ObservableElementList;
  * 
  * @author Manuel Laggner
  */
-public class TvShowList extends AbstractModelObject {
-  private static final Logger                            LOGGER   = LoggerFactory.getLogger(TvShowList.class);
-  private static TvShowList                              instance = null;
+public final class TvShowList extends AbstractModelObject {
+  private static final Logger                            LOGGER        = LoggerFactory.getLogger(TvShowList.class);
+  private static TvShowList                              instance      = null;
 
-  private final List<TvShow>                             tvShowList;
+  private final List<TvShow>                             tvShows;
 
   private final CopyOnWriteArrayList<String>             tagsInTvShows;
   private final CopyOnWriteArrayList<String>             tagsInEpisodes;
@@ -102,13 +106,14 @@ public class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             hdrFormatInEpisodes;
 
   private final PropertyChangeListener                   propertyChangeListener;
+  private final ReadWriteLock                            readWriteLock = new ReentrantReadWriteLock();
 
   /**
    * Instantiates a new TvShowList.
    */
   private TvShowList() {
     // create the lists
-    tvShowList = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(TvShow.class));
+    tvShows = new ObservableElementList<>(GlazedLists.threadSafeList(new BasicEventList<>()), GlazedLists.beanConnector(TvShow.class));
     tagsInTvShows = new CopyOnWriteArrayList<>();
     tagsInEpisodes = new CopyOnWriteArrayList<>();
     videoCodecsInEpisodes = new CopyOnWriteArrayList<>();
@@ -144,7 +149,7 @@ public class TvShowList extends AbstractModelObject {
     };
 
     License.getInstance().addEventListener(() -> {
-      firePropertyChange(TV_SHOW_COUNT, 0, tvShowList.size());
+      firePropertyChange(TV_SHOW_COUNT, 0, tvShows.size());
       firePropertyChange(EPISODE_COUNT, 0, 1);
     });
   }
@@ -154,7 +159,7 @@ public class TvShowList extends AbstractModelObject {
    * 
    * @return single instance of TvShowList
    */
-  public static synchronized TvShowList getInstance() {
+  static synchronized TvShowList getInstance() {
     if (TvShowList.instance == null) {
       TvShowList.instance = new TvShowList();
     }
@@ -168,7 +173,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the tv shows
    */
   public List<TvShow> getTvShows() {
-    return tvShowList;
+    return tvShows;
   }
 
   /**
@@ -178,17 +183,15 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<TvShowEpisode> getEpisodes() {
     List<TvShowEpisode> newEp = new ArrayList<>();
-    for (TvShow show : tvShowList) {
-      for (TvShowEpisode ep : show.getEpisodes()) {
-        newEp.add(ep);
-      }
+    for (TvShow show : tvShows) {
+      newEp.addAll(show.getEpisodes());
     }
     return newEp;
   }
 
   public List<TvShowEpisode> getEpisodesWithoutSubtitles() {
     List<TvShowEpisode> subEp = new ArrayList<>();
-    for (TvShow show : tvShowList) {
+    for (TvShow show : tvShows) {
       for (TvShowEpisode ep : show.getEpisodes()) {
         if (!ep.getHasSubtitles()) {
           subEp.add(ep);
@@ -236,13 +239,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the unscraped TvShows
    */
   public List<TvShow> getUnscrapedTvShows() {
-    List<TvShow> unscrapedShows = new ArrayList<>();
-    for (TvShow show : tvShowList) {
-      if (!show.isScraped()) {
-        unscrapedShows.add(show);
-      }
-    }
-    return unscrapedShows;
+    return tvShows.parallelStream().filter(tvShow -> !tvShow.isScraped()).collect(Collectors.toList());
   }
 
   /**
@@ -252,13 +249,15 @@ public class TvShowList extends AbstractModelObject {
    *          the new value
    */
   public void addTvShow(TvShow newValue) {
-    int oldValue = tvShowList.size();
+    readWriteLock.writeLock().lock();
+    int oldValue = tvShows.size();
+    tvShows.add(newValue);
+    readWriteLock.writeLock().unlock();
 
-    tvShowList.add(newValue);
     newValue.addPropertyChangeListener(propertyChangeListener);
-    firePropertyChange(TV_SHOWS, null, tvShowList);
+    firePropertyChange(TV_SHOWS, null, tvShows);
     firePropertyChange(ADDED_TV_SHOW, null, newValue);
-    firePropertyChange(TV_SHOW_COUNT, oldValue, tvShowList.size());
+    firePropertyChange(TV_SHOW_COUNT, oldValue, tvShows.size());
   }
 
   /**
@@ -272,8 +271,8 @@ public class TvShowList extends AbstractModelObject {
       return;
     }
 
-    for (int i = tvShowList.size() - 1; i >= 0; i--) {
-      TvShow tvShow = tvShowList.get(i);
+    for (int i = tvShows.size() - 1; i >= 0; i--) {
+      TvShow tvShow = tvShows.get(i);
       if (Paths.get(path).equals(Paths.get(tvShow.getDataSource()))) {
         removeTvShow(tvShow);
       }
@@ -285,9 +284,7 @@ public class TvShowList extends AbstractModelObject {
    */
   void exchangeDatasource(String oldDatasource, String newDatasource) {
     Path oldPath = Paths.get(oldDatasource);
-    List<TvShow> tvShowsToChange = tvShowList.stream()
-        .filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource())))
-        .collect(Collectors.toList());
+    List<TvShow> tvShowsToChange = tvShows.stream().filter(tvShow -> oldPath.equals(Paths.get(tvShow.getDataSource()))).collect(Collectors.toList());
     List<MediaFile> imagesToCache = new ArrayList<>();
 
     for (TvShow tvShow : tvShowsToChange) {
@@ -336,10 +333,20 @@ public class TvShowList extends AbstractModelObject {
    *          the tvShow
    */
   public void removeTvShow(TvShow tvShow) {
-    int oldValue = tvShowList.size();
-    tvShow.removeAllEpisodes();
-    tvShowList.remove(tvShow);
+    readWriteLock.writeLock().lock();
+    int oldValue = tvShows.size();
+    // first remove the TV show itself to deregister the events in the UI (no more UI handling of the tbe removed episodes needed)
+    tvShows.remove(tvShow);
+    readWriteLock.writeLock().unlock();
 
+    firePropertyChange(TV_SHOWS, null, tvShows);
+    firePropertyChange(REMOVED_TV_SHOW, null, tvShow);
+    firePropertyChange(TV_SHOW_COUNT, oldValue, tvShows.size());
+
+    // last but not least remove all episodes
+    tvShow.removeAllEpisodes();
+
+    // and remove it from the DB
     try {
       TvShowModuleManager.getInstance().removeTvShowFromDb(tvShow);
     }
@@ -347,9 +354,12 @@ public class TvShowList extends AbstractModelObject {
       LOGGER.error("problem removing TV show from DB: {}", e.getMessage());
     }
 
-    firePropertyChange(TV_SHOWS, null, tvShowList);
-    firePropertyChange(REMOVED_TV_SHOW, null, tvShow);
-    firePropertyChange(TV_SHOW_COUNT, oldValue, tvShowList.size());
+    // and remove the image cache
+    for (MediaFile mf : tvShow.getMediaFiles()) {
+      if (mf.isGraphic()) {
+        ImageCache.invalidateCachedImage(mf);
+      }
+    }
   }
 
   /**
@@ -359,11 +369,13 @@ public class TvShowList extends AbstractModelObject {
    *          the tvShow
    */
   public void deleteTvShow(TvShow tvShow) {
-    int oldValue = tvShowList.size();
+    readWriteLock.writeLock().lock();
+    int oldValue = tvShows.size();
+    tvShows.remove(tvShow);
+    readWriteLock.writeLock().unlock();
 
     tvShow.deleteFilesSafely();
     tvShow.removeAllEpisodes();
-    tvShowList.remove(tvShow);
 
     try {
       TvShowModuleManager.getInstance().removeTvShowFromDb(tvShow);
@@ -372,9 +384,16 @@ public class TvShowList extends AbstractModelObject {
       LOGGER.error("problem removing TV show from DB: {}", e.getMessage());
     }
 
-    firePropertyChange(TV_SHOWS, null, tvShowList);
+    // and remove the image cache
+    for (MediaFile mf : tvShow.getMediaFiles()) {
+      if (mf.isGraphic()) {
+        ImageCache.invalidateCachedImage(mf);
+      }
+    }
+
+    firePropertyChange(TV_SHOWS, null, tvShows);
     firePropertyChange(REMOVED_TV_SHOW, null, tvShow);
-    firePropertyChange(TV_SHOW_COUNT, oldValue, tvShowList.size());
+    firePropertyChange(TV_SHOW_COUNT, oldValue, tvShows.size());
   }
 
   /**
@@ -383,7 +402,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the tv show count
    */
   public int getTvShowCount() {
-    return tvShowList.size();
+    return tvShows.size();
   }
 
   /**
@@ -393,7 +412,7 @@ public class TvShowList extends AbstractModelObject {
    */
   public int getEpisodeCount() {
     int count = 0;
-    for (TvShow tvShow : tvShowList) {
+    for (TvShow tvShow : tvShows) {
       count += tvShow.getEpisodeCount();
     }
 
@@ -407,7 +426,7 @@ public class TvShowList extends AbstractModelObject {
    */
   public int getDummyEpisodeCount() {
     int count = 0;
-    for (TvShow tvShow : tvShowList) {
+    for (TvShow tvShow : tvShows) {
       count += tvShow.getDummyEpisodeCount();
     }
 
@@ -420,7 +439,7 @@ public class TvShowList extends AbstractModelObject {
    * @return true/false
    */
   public boolean hasDummyEpisodes() {
-    for (TvShow tvShow : tvShowList) {
+    for (TvShow tvShow : tvShows) {
       if (tvShow.getDummyEpisodeCount() > 0) {
         return true;
       }
@@ -429,7 +448,7 @@ public class TvShowList extends AbstractModelObject {
   }
 
   public TvShow lookupTvShow(UUID uuid) {
-    for (TvShow tvShow : tvShowList) {
+    for (TvShow tvShow : tvShows) {
       if (tvShow.getDbId().equals(uuid)) {
         return tvShow;
       }
@@ -440,8 +459,9 @@ public class TvShowList extends AbstractModelObject {
   /**
    * Load tv shows from database.
    */
-  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap) {
+  void loadTvShowsFromDatabase(MVMap<UUID, String> tvShowMap, MVMap<UUID, String> episodesMap) {
     // load all TV shows from the database
+    List<TvShow> tvShowsFromDb = new ArrayList<>();
     ObjectReader tvShowObjectReader = TvShowModuleManager.getInstance().getTvShowObjectReader();
 
     for (UUID uuid : new ArrayList<>(tvShowMap.keyList())) {
@@ -451,8 +471,8 @@ public class TvShowList extends AbstractModelObject {
         TvShow tvShow = tvShowObjectReader.readValue(json);
         tvShow.setDbId(uuid);
 
-        // for performance reasons we add tv shows directly
-        tvShowList.add(tvShow);
+        // for performance reasons we add tv shows after loading the episodes
+        tvShowsFromDb.add(tvShow);
       }
       catch (Exception e) {
         LOGGER.warn("problem decoding TV show json string: {}", e.getMessage());
@@ -460,16 +480,10 @@ public class TvShowList extends AbstractModelObject {
         tvShowMap.remove(uuid);
       }
     }
-    LOGGER.info("found {} TV shows in database", tvShowList.size());
-  }
-
-  /**
-   * Load episodes from database.
-   */
-  void loadEpisodesFromDatabase(MVMap<UUID, String> episodesMap) {
-    List<UUID> orphanedEpisodes = new ArrayList<>();
+    LOGGER.info("found {} TV shows in database", tvShowsFromDb.size());
 
     // load all episodes from the database
+    List<UUID> orphanedEpisodes = new ArrayList<>();
     ObjectReader episodeObjectReader = TvShowModuleManager.getInstance().getEpisodeObjectReader();
     int episodeCount = 0;
 
@@ -491,7 +505,7 @@ public class TvShowList extends AbstractModelObject {
         boolean found = false;
 
         // and assign it the the right TV show
-        for (TvShow tvShow : tvShowList) {
+        for (TvShow tvShow : tvShowsFromDb) {
           if (tvShow.getDbId().equals(episode.getTvShowDbId())) {
             episodeCount++;
             episode.setTvShow(tvShow);
@@ -521,6 +535,9 @@ public class TvShowList extends AbstractModelObject {
     }
 
     LOGGER.info("found {} episodes in database", episodeCount);
+
+    // and add all TV shows to the UI
+    tvShows.addAll(tvShowsFromDb);
   }
 
   void initDataAfterLoading() {
@@ -530,7 +547,7 @@ public class TvShowList extends AbstractModelObject {
     List<TvShowEpisode> episodes = new ArrayList<>();
 
     // init everything after loading
-    for (TvShow tvShow : tvShowList) {
+    for (TvShow tvShow : tvShows) {
       tvShow.initializeAfterLoading();
 
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
@@ -541,8 +558,8 @@ public class TvShowList extends AbstractModelObject {
       tvShow.addPropertyChangeListener(propertyChangeListener);
     }
 
-    updateTvShowTags(tvShowList);
-    updateCertification(tvShowList);
+    updateTvShowTags(tvShows);
+    updateCertification(tvShows);
 
     updateEpisodeTags(episodes);
     updateMediaInformationLists(episodes);
@@ -555,16 +572,6 @@ public class TvShowList extends AbstractModelObject {
     }
     catch (Exception e) {
       LOGGER.error("failed to persist episode: {} - {}", tvShow.getTitle(), e.getMessage());
-    }
-  }
-
-  public void removeTvShowFromDb(TvShow tvShow) {
-    // delete this TV show from the database
-    try {
-      TvShowModuleManager.getInstance().removeTvShowFromDb(tvShow);
-    }
-    catch (Exception e) {
-      LOGGER.error("failed to remove episode: {} - {}", tvShow.getTitle(), e.getMessage());
     }
   }
 
@@ -591,7 +598,7 @@ public class TvShowList extends AbstractModelObject {
   }
 
   public MediaScraper getDefaultMediaScraper() {
-    MediaScraper scraper = MediaScraper.getMediaScraperById(TvShowModuleManager.SETTINGS.getScraper(), ScraperType.TV_SHOW);
+    MediaScraper scraper = MediaScraper.getMediaScraperById(TvShowModuleManager.getInstance().getSettings().getScraper(), ScraperType.TV_SHOW);
     if (scraper == null || !scraper.isEnabled()) {
       scraper = MediaScraper.getMediaScraperById(Constants.TMDB, ScraperType.TV_SHOW);
     }
@@ -647,7 +654,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified artwork scrapers
    */
   public List<MediaScraper> getDefaultArtworkScrapers() {
-    List<MediaScraper> defaultScrapers = getArtworkScrapers(TvShowModuleManager.SETTINGS.getArtworkScrapers());
+    List<MediaScraper> defaultScrapers = getArtworkScrapers(TvShowModuleManager.getInstance().getSettings().getArtworkScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -668,7 +675,7 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<MediaSearchResult> searchTvShow(String searchTerm, int year, Map<String, Object> ids, MediaScraper mediaScraper)
       throws ScrapeException {
-    return searchTvShow(searchTerm, year, ids, mediaScraper, TvShowModuleManager.SETTINGS.getScraperLanguage());
+    return searchTvShow(searchTerm, year, ids, mediaScraper, TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
   }
 
   /**
@@ -701,8 +708,8 @@ public class TvShowList extends AbstractModelObject {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.setSearchQuery(searchTerm);
     options.setLanguage(language);
-    options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-    options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+    options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+    options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
     if (ids != null) {
       options.setIds(ids);
@@ -917,43 +924,43 @@ public class TvShowList extends AbstractModelObject {
   }
 
   public Collection<String> getVideoCodecsInEpisodes() {
-    return videoCodecsInEpisodes;
+    return Collections.unmodifiableList(videoCodecsInEpisodes);
   }
 
   public Collection<String> getVideoContainersInEpisodes() {
-    return videoContainersInEpisodes;
+    return Collections.unmodifiableList(videoContainersInEpisodes);
   }
 
   public Collection<Double> getFrameRatesInEpisodes() {
-    return frameRatesInEpisodes;
+    return Collections.unmodifiableList(frameRatesInEpisodes);
   }
 
   public Collection<String> getAudioCodecsInEpisodes() {
-    return audioCodecsInEpisodes;
+    return Collections.unmodifiableList(audioCodecsInEpisodes);
   }
 
   public Collection<MediaCertification> getCertification() {
-    return certificationsInTvShows;
+    return Collections.unmodifiableList(certificationsInTvShows);
   }
 
   public Collection<Integer> getAudioStreamsInEpisodes() {
-    return audioStreamsInEpisodes;
+    return Collections.unmodifiableList(audioStreamsInEpisodes);
   }
 
   public Collection<Integer> getSubtitlesInEpisodes() {
-    return subtitlesInEpisodes;
+    return Collections.unmodifiableList(subtitlesInEpisodes);
   }
 
   public Collection<String> getAudioLanguagesInEpisodes() {
-    return audioLanguagesInEpisodes;
+    return Collections.unmodifiableList(audioLanguagesInEpisodes);
   }
 
   public Collection<String> getSubtitleLanguagesInEpisodes() {
-    return subtitleLanguagesInEpisodes;
+    return Collections.unmodifiableList(subtitleLanguagesInEpisodes);
   }
 
   public Collection<String> getHdrFormatInEpisodes() {
-    return hdrFormatInEpisodes;
+    return Collections.unmodifiableList(hdrFormatInEpisodes);
   }
 
   /**
@@ -964,9 +971,8 @@ public class TvShowList extends AbstractModelObject {
    * @return the TV show by path
    */
   public TvShow getTvShowByPath(Path path) {
-    ArrayList<TvShow> tvShows = new ArrayList<>(tvShowList);
     // iterate over all tv shows and check whether this path is being owned by one
-    for (TvShow tvShow : tvShows) {
+    for (TvShow tvShow : this.tvShows) {
       if (tvShow.getPathNIO().compareTo(path.toAbsolutePath()) == 0) {
         return tvShow;
       }
@@ -1005,12 +1011,12 @@ public class TvShowList extends AbstractModelObject {
    * invalidate the title sortable upon changes to the sortable prefixes
    */
   public void invalidateTitleSortable() {
-    for (TvShow tvShow : new ArrayList<>(tvShowList)) {
+    tvShows.stream().parallel().forEach(tvShow -> {
       tvShow.clearTitleSortable();
       for (TvShowEpisode episode : tvShow.getEpisodes()) {
         episode.clearTitleSortable();
       }
-    }
+    });
   }
 
   /**
@@ -1020,7 +1026,7 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<TvShow> getNewTvShows() {
     List<TvShow> newShows = new ArrayList<>();
-    for (TvShow show : tvShowList) {
+    for (TvShow show : tvShows) {
       if (show.isNewlyAdded()) {
         newShows.add(show);
       }
@@ -1035,7 +1041,7 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<TvShowEpisode> getNewEpisodes() {
     List<TvShowEpisode> newEp = new ArrayList<>();
-    for (TvShow show : tvShowList) {
+    for (TvShow show : tvShows) {
       for (TvShowEpisode ep : show.getEpisodes()) {
         if (ep.isNewlyAdded()) {
           newEp.add(ep);
@@ -1052,7 +1058,7 @@ public class TvShowList extends AbstractModelObject {
    */
   public List<TvShowEpisode> getUnscrapedEpisodes() {
     List<TvShowEpisode> newEp = new ArrayList<>();
-    for (TvShow show : tvShowList) {
+    for (TvShow show : tvShows) {
       for (TvShowEpisode ep : show.getEpisodes()) {
         if (!ep.isScraped()) {
           newEp.add(ep);
@@ -1067,7 +1073,7 @@ public class TvShowList extends AbstractModelObject {
    */
   private void checkAndCleanupMediaFiles() {
     boolean problemsDetected = false;
-    for (TvShow tvShow : tvShowList) {
+    for (TvShow tvShow : tvShows) {
       for (TvShowEpisode episode : new ArrayList<>(tvShow.getEpisodes())) {
         List<MediaFile> mfs = episode.getMediaFiles(MediaFileType.VIDEO);
         if (mfs.isEmpty()) {
@@ -1112,7 +1118,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified subtitle scrapers
    */
   public List<MediaScraper> getDefaultSubtitleScrapers() {
-    List<MediaScraper> defaultScrapers = getSubtitleScrapers(TvShowModuleManager.SETTINGS.getSubtitleScrapers());
+    List<MediaScraper> defaultScrapers = getSubtitleScrapers(TvShowModuleManager.getInstance().getSettings().getSubtitleScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -1122,7 +1128,7 @@ public class TvShowList extends AbstractModelObject {
    * @return the specified trailer scrapers
    */
   public List<MediaScraper> getDefaultTrailerScrapers() {
-    List<MediaScraper> defaultScrapers = getTrailerScrapers(TvShowModuleManager.SETTINGS.getTrailerScrapers());
+    List<MediaScraper> defaultScrapers = getTrailerScrapers(TvShowModuleManager.getInstance().getSettings().getTrailerScrapers());
     return defaultScrapers.stream().filter(MediaScraper::isActive).collect(Collectors.toList());
   }
 
@@ -1171,7 +1177,111 @@ public class TvShowList extends AbstractModelObject {
     }
   }
 
-  private class TvShowMediaScraperComparator implements Comparator<MediaScraper> {
+  public List<TvShowScraperMetadataConfig> detectMissingMetadata(TvShow tvShow) {
+    return detectMissingFields(tvShow, TvShowModuleManager.getInstance().getSettings().getTvShowCheckMetadata());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingArtwork(TvShow tvShow) {
+    return detectMissingFields(tvShow, TvShowModuleManager.getInstance().getSettings().getTvShowCheckArtwork());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingFields(TvShow tvshow, List<TvShowScraperMetadataConfig> toCheck) {
+    List<TvShowScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = tvshow.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingArtwork(TvShowSeason season) {
+    return detectMissingFields(season, TvShowModuleManager.getInstance().getSettings().getSeasonCheckArtwork());
+  }
+
+  public List<TvShowScraperMetadataConfig> detectMissingFields(TvShowSeason season, List<TvShowScraperMetadataConfig> toCheck) {
+    List<TvShowScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = season.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingMetadata(TvShowEpisode episode) {
+    return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckMetadata());
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingArtwork(TvShowEpisode episode) {
+    return detectMissingFields(episode, TvShowModuleManager.getInstance().getSettings().getEpisodeCheckArtwork());
+  }
+
+  public List<TvShowEpisodeScraperMetadataConfig> detectMissingFields(TvShowEpisode episode, List<TvShowEpisodeScraperMetadataConfig> toCheck) {
+    List<TvShowEpisodeScraperMetadataConfig> missingMetadata = new ArrayList<>();
+
+    for (TvShowEpisodeScraperMetadataConfig metadataConfig : toCheck) {
+      Object value = episode.getValueForMetadata(metadataConfig);
+      if (value == null) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof String && StringUtils.isBlank((String) value)) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Number && ((Number) value).intValue() <= 0) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Collection && ((Collection<?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value instanceof Map && ((Map<?, ?>) value).isEmpty()) {
+        missingMetadata.add(metadataConfig);
+      }
+      else if (value == MediaCertification.UNKNOWN) {
+        missingMetadata.add(metadataConfig);
+      }
+    }
+
+    return missingMetadata;
+  }
+
+  private static class TvShowMediaScraperComparator implements Comparator<MediaScraper> {
     @Override
     public int compare(MediaScraper o1, MediaScraper o2) {
       return o1.getId().compareTo(o2.getId());

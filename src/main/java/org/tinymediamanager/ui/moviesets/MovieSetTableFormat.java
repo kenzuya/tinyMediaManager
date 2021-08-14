@@ -16,6 +16,7 @@
 package org.tinymediamanager.ui.moviesets;
 
 import java.awt.FontMetrics;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -23,10 +24,15 @@ import javax.swing.ImageIcon;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaRating;
+import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
+import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
@@ -42,7 +48,12 @@ import org.tinymediamanager.ui.renderer.RuntimeTableCellRenderer;
  */
 public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
+  private final MovieList movieList;
+
   public MovieSetTableFormat() {
+
+    movieList = MovieModuleManager.getInstance().getMovieList();
+
     FontMetrics fontMetrics = getFontMetrics();
 
     Comparator<String> integerComparator = (o1, o2) -> {
@@ -240,12 +251,13 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     addColumn(col);
 
     /*
-     * NFO
+     * metadata
      */
-    col = new Column(TmmResourceBundle.getString("tmm.nfo"), "nfo", this::hasNfo, ImageIcon.class);
+    col = new Column(TmmResourceBundle.getString("tmm.metadata"), "metadata", this::hasMetadata, ImageIcon.class);
     col.setHeaderIcon(IconManager.NFO);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
+    col.setColumnTooltip(this::hasMetadataTooltip);
     addColumn(col);
 
     /*
@@ -255,6 +267,7 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     col.setHeaderIcon(IconManager.IMAGES);
     col.setColumnResizeable(false);
     col.setColumnComparator(imageComparator);
+    col.setColumnTooltip(this::hasImagesTooltip);
     addColumn(col);
 
     /*
@@ -315,13 +328,47 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     return null;
   }
 
-  private ImageIcon hasNfo(TmmTreeNode node) {
+  private ImageIcon hasMetadata(TmmTreeNode node) {
     Object userObject = node.getUserObject();
-    if (userObject instanceof MovieSet.MovieSetMovie) {
+    if (userObject instanceof MovieSet) {
+      return getCheckIcon(movieList.detectMissingMetadata((MovieSet) userObject).isEmpty());
+    }
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
       return null;
     }
     else if (userObject instanceof Movie) {
-      return getCheckIcon(((Movie) userObject).getHasNfoFile());
+      return getCheckIcon(movieList.detectMissingMetadata((Movie) userObject).isEmpty());
+    }
+    return null;
+  }
+
+  private String hasMetadataTooltip(TmmTreeNode node) {
+    if (!MovieModuleManager.getInstance().getSettings().isShowMovieSetTableTooltips()) {
+      return null;
+    }
+
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet) {
+      List<MovieSetScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
+        if (config.isMetaData() || config.isCast()) {
+          values.add(config);
+        }
+      }
+      return getMissingToolTip(movieList.detectMissingFields((MovieSet) userObject, values));
+    }
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
+      List<MovieScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+        if (config.isMetaData() || config.isCast()) {
+          values.add(config);
+        }
+      }
+      return getMissingToolTip(movieList.detectMissingFields((Movie) userObject, values));
     }
     return null;
   }
@@ -329,13 +376,44 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   private ImageIcon hasImages(TmmTreeNode node) {
     Object userObject = node.getUserObject();
     if (userObject instanceof MovieSet) {
-      return getCheckIcon(((MovieSet) userObject).getHasImages());
+      return getCheckIcon(movieList.detectMissingArtwork((MovieSet) userObject).isEmpty());
     }
     else if (userObject instanceof MovieSet.MovieSetMovie) {
       return null;
     }
     else if (userObject instanceof Movie) {
-      return getCheckIcon(((Movie) userObject).getHasImages());
+      return getCheckIcon(movieList.detectMissingArtwork((Movie) userObject).isEmpty());
+    }
+    return null;
+  }
+
+  private String hasImagesTooltip(TmmTreeNode node) {
+    if (!MovieModuleManager.getInstance().getSettings().isShowMovieSetTableTooltips()) {
+      return null;
+    }
+
+    Object userObject = node.getUserObject();
+
+    if (userObject instanceof MovieSet) {
+      List<MovieSetScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
+        if (config.isArtwork()) {
+          values.add(config);
+        }
+      }
+      return getMissingToolTip(movieList.detectMissingFields((MovieSet) userObject, values));
+    }
+    else if (userObject instanceof MovieSet.MovieSetMovie) {
+      return null;
+    }
+    else if (userObject instanceof Movie) {
+      List<MovieScraperMetadataConfig> values = new ArrayList<>();
+      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+        if (config.isArtwork()) {
+          values.add(config);
+        }
+      }
+      return getMissingToolTip(movieList.detectMissingFields((Movie) userObject, values));
     }
     return null;
   }
@@ -506,6 +584,20 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     if (userObject instanceof Movie) {
       return ((Movie) userObject).getMainVideoFile().getFilename();
+    }
+
+    return null;
+  }
+
+  private String getMissingToolTip(List<? extends ScraperMetadataConfig> missingValues) {
+    if (!missingValues.isEmpty()) {
+      StringBuilder missing = new StringBuilder(TmmResourceBundle.getString("tmm.missing") + ":");
+
+      for (ScraperMetadataConfig metadataConfig : missingValues) {
+        missing.append("\n").append(metadataConfig.getDescription());
+      }
+
+      return missing.toString();
     }
 
     return null;

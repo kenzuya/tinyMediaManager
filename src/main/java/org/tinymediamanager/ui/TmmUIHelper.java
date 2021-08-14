@@ -18,15 +18,11 @@ package org.tinymediamanager.ui;
 import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Window;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -48,16 +43,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.TmmOsUtils;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.TinyFileDialogs;
 import org.tinymediamanager.ui.components.ImageLabel;
 import org.tinymediamanager.ui.components.LinkLabel;
 import org.tinymediamanager.ui.dialogs.ImagePreviewDialog;
+import org.tinymediamanager.ui.dialogs.RegexpInputDialog;
 import org.tinymediamanager.ui.dialogs.UpdateDialog;
 import org.tinymediamanager.ui.plaf.dark.TmmDarkLaf;
 import org.tinymediamanager.ui.plaf.light.TmmLightLaf;
@@ -78,6 +74,11 @@ public class TmmUIHelper {
   }
 
   public static Path selectDirectory(String title, String initialPath) {
+    // are we forced to open the legacy file chooser?
+    if ("true".equalsIgnoreCase(System.getProperty("tmm.legacy.filechooser"))) {
+      return openJFileChooser(JFileChooser.DIRECTORIES_ONLY, title, initialPath, true, null, null);
+    }
+
     // on macOS/OSX we simply use the AWT FileDialog
     if (SystemUtils.IS_OS_MAC) {
       try {
@@ -137,11 +138,8 @@ public class TmmUIHelper {
   private static Path openJFileChooser(int mode, String dialogTitle, String initialPath, boolean open, String filename,
       FileNameExtensionFilter filter) {
     JFileChooser fileChooser = null;
-    // are we forced to open the legacy file chooser?
-    if ("true".equals(System.getProperty("tmm.legacy.filechooser"))) {
-      fileChooser = new JFileChooser();
-    }
-    else if (StringUtils.isNotBlank(initialPath)) {
+
+    if (StringUtils.isNotBlank(initialPath)) {
       Path path = Paths.get(initialPath);
       if (Files.exists(path)) {
         fileChooser = new JFileChooser(path.toFile());
@@ -175,6 +173,11 @@ public class TmmUIHelper {
   }
 
   public static Path selectFile(String title, String initialPath, FileNameExtensionFilter filter) {
+    // are we forced to open the legacy file chooser?
+    if ("true".equalsIgnoreCase(System.getProperty("tmm.legacy.filechooser"))) {
+      return openJFileChooser(JFileChooser.FILES_ONLY, title, initialPath, true, null, filter);
+    }
+
     // on macOS/OSX we simply use the AWT FileDialog
     if (SystemUtils.IS_OS_MAC) {
       try {
@@ -249,6 +252,11 @@ public class TmmUIHelper {
   }
 
   public static Path saveFile(String title, String initialPath, String filename, FileNameExtensionFilter filter) {
+    // are we forced to open the legacy file chooser?
+    if ("true".equalsIgnoreCase(System.getProperty("tmm.legacy.filechooser"))) {
+      return openJFileChooser(JFileChooser.FILES_ONLY, title, initialPath, false, filename, filter);
+    }
+
     // on macOS/OSX we simply use the AWT FileDialog
     if (SystemUtils.IS_OS_MAC) {
       try {
@@ -288,12 +296,12 @@ public class TmmUIHelper {
     String fileType = "." + FilenameUtils.getExtension(file.getFileName().toString().toLowerCase(Locale.ROOT));
     String abs = file.toAbsolutePath().toString();
 
-    if (StringUtils.isNotBlank(Globals.settings.getMediaPlayer()) && Globals.settings.getAllSupportedFileTypes().contains(fileType)) {
+    if (StringUtils.isNotBlank(Settings.getInstance().getMediaPlayer()) && Settings.getInstance().getAllSupportedFileTypes().contains(fileType)) {
       if (SystemUtils.IS_OS_MAC) {
-        exec(new String[] { "open", Globals.settings.getMediaPlayer(), "--args", abs });
+        exec(new String[] { "open", Settings.getInstance().getMediaPlayer(), "--args", abs });
       }
       else {
-        exec(new String[] { Globals.settings.getMediaPlayer(), abs });
+        exec(new String[] { Settings.getInstance().getMediaPlayer(), abs });
       }
     }
     else if (SystemUtils.IS_OS_WINDOWS) {
@@ -428,20 +436,6 @@ public class TmmUIHelper {
   }
 
   /**
-   * get the column width for a column containing the given icon (icon width + 10%)
-   *
-   * @param icon
-   *          the given icon
-   * @return the desired column width
-   */
-  public static int getColumnWidthForIcon(ImageIcon icon) {
-    if (icon == null) {
-      return 0;
-    }
-    return (int) (icon.getIconWidth() * 1.1);
-  }
-
-  /**
    * Executes a command line and discards the stdout and stderr of the spawned process.
    *
    * @param cmdline
@@ -528,7 +522,7 @@ public class TmmUIHelper {
 
   public static void setTheme() throws Exception {
 
-    switch (Globals.settings.getTheme()) {
+    switch (Settings.getInstance().getTheme()) {
       case "Dark":
         UIManager.setLookAndFeel(new TmmDarkLaf());
         break;
@@ -606,5 +600,11 @@ public class TmmUIHelper {
     if (confirm == JOptionPane.YES_OPTION) {
       MainWindow.getInstance().closeTmmAndStart(TmmOsUtils.getPBforTMMrestart());
     }
+  }
+
+  public static String showRegexpInputDialog(Window parent) {
+    RegexpInputDialog inputDialog = new RegexpInputDialog(parent);
+    inputDialog.setVisible(true);
+    return inputDialog.getRegularExpression();
   }
 }

@@ -75,13 +75,12 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaAiredStatus;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -94,6 +93,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.thirdparty.trakttv.TvShowSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
@@ -144,7 +144,7 @@ public class TvShowEditorDialog extends TmmDialog {
   private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
 
   private final TvShow                             tvShowToEdit;
-  private final TvShowList                         tvShowList          = TvShowList.getInstance();
+  private final TvShowList                         tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
   private final EventList<Person>                  actors;
   private final List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
   private final EventList<MediaId>                 ids;
@@ -280,12 +280,12 @@ public class TvShowEditorDialog extends TmmDialog {
 
       genres.addAll(tvShow.getGenres());
       tags.addAll(tvShowToEdit.getTags());
-      if (TvShowModuleManager.SETTINGS.isImageExtraFanart()) {
+      if (TvShowModuleManager.getInstance().getSettings().isImageExtraFanart()) {
         extrafanarts = new ArrayList<>(tvShowToEdit.getExtraFanartUrls());
       }
 
       List<MediaCertification> availableCertifications = MediaCertification
-          .getCertificationsforCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
+          .getCertificationsforCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
       if (!availableCertifications.contains(tvShowToEdit.getCertification())) {
         availableCertifications.add(0, tvShowToEdit.getCertification());
       }
@@ -383,7 +383,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), POSTER,
                 tvShowList.getDefaultArtworkScrapers(), lblPoster, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -516,7 +516,7 @@ public class TvShowEditorDialog extends TmmDialog {
 
             dialog.bindExtraFanarts(extrafanarts);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -704,7 +704,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARLOGO,
                 tvShowList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -740,7 +740,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), BANNER,
                 tvShowList.getDefaultArtworkScrapers(), lblBanner, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -777,7 +777,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CLEARART,
                 tvShowList.getDefaultArtworkScrapers(), lblClearart, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -813,7 +813,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), LOGO,
                 tvShowList.getDefaultArtworkScrapers(), lblLogo, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -849,7 +849,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), KEYART,
                 tvShowList.getDefaultArtworkScrapers(), lblKeyart, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -885,7 +885,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), THUMB,
                 tvShowList.getDefaultArtworkScrapers(), lblThumb, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -921,7 +921,7 @@ public class TvShowEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(TvShowEditorDialog.this, new HashMap<>(tvShowToEdit.getIds()), CHARACTERART,
                 tvShowList.getDefaultArtworkScrapers(), lblCharacterart, MediaType.TV_SHOW);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(tvShowToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -1262,11 +1262,11 @@ public class TvShowEditorDialog extends TmmDialog {
       tvShowToEdit.writeNFO();
       tvShowToEdit.saveToDb();
 
-      if (TvShowModuleManager.SETTINGS.getSyncTrakt()) {
+      if (TvShowModuleManager.getInstance().getSettings().getSyncTrakt()) {
         TvShowSyncTraktTvTask task = new TvShowSyncTraktTvTask(Collections.singletonList(tvShowToEdit));
-        task.setSyncCollection(TvShowModuleManager.SETTINGS.getSyncTraktCollection());
-        task.setSyncWatched(TvShowModuleManager.SETTINGS.getSyncTraktWatched());
-        task.setSyncRating(TvShowModuleManager.SETTINGS.getSyncTraktRating());
+        task.setSyncCollection(TvShowModuleManager.getInstance().getSettings().getSyncTraktCollection());
+        task.setSyncWatched(TvShowModuleManager.getInstance().getSettings().getSyncTraktWatched());
+        task.setSyncRating(TvShowModuleManager.getInstance().getSettings().getSyncTraktRating());
 
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }
@@ -1715,7 +1715,7 @@ public class TvShowEditorDialog extends TmmDialog {
     }
   }
 
-  private class EpisodeEditorContainer extends AbstractModelObject {
+  private static class EpisodeEditorContainer extends AbstractModelObject {
     TvShowEpisode tvShowEpisode;
     int           season;
     int           episode;

@@ -42,7 +42,6 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -89,7 +88,7 @@ class UiSettingsPanel extends JPanel {
 
   UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
-    Locale settingsLang = Utils.getLocaleFromLanguage(Globals.settings.getLanguage());
+    Locale settingsLang = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);
@@ -108,7 +107,7 @@ class UiSettingsPanel extends JPanel {
       cbLanguage.setSelectedItem(actualLocale);
     }
 
-    cbFontFamily.setSelectedItem(Globals.settings.getFontFamily());
+    cbFontFamily.setSelectedItem(Settings.getInstance().getFontFamily());
     int index = cbFontFamily.getSelectedIndex();
     if (index < 0) {
       cbFontFamily.setSelectedItem("Dialog");
@@ -117,12 +116,12 @@ class UiSettingsPanel extends JPanel {
     if (index < 0) {
       cbFontFamily.setSelectedIndex(0);
     }
-    cbFontSize.setSelectedItem(Globals.settings.getFontSize());
+    cbFontSize.setSelectedItem(Settings.getInstance().getFontSize());
     index = cbFontSize.getSelectedIndex();
     if (index < 0) {
       cbFontSize.setSelectedIndex(0);
     }
-    cbTheme.setSelectedItem(Globals.settings.getTheme());
+    cbTheme.setSelectedItem(Settings.getInstance().getTheme());
     index = cbTheme.getSelectedIndex();
     if (index < 0) {
       cbTheme.setSelectedIndex(0);
@@ -145,23 +144,23 @@ class UiSettingsPanel extends JPanel {
     cbFontSize.addActionListener(actionListener);
     cbTheme.addActionListener(actionListener);
 
-    Globals.settings.addPropertyChangeListener(evt -> {
+    Settings.getInstance().addPropertyChangeListener(evt -> {
       switch (evt.getPropertyName()) {
         case "theme":
-          if (!Globals.settings.getTheme().equals(cbTheme.getSelectedItem())) {
-            cbTheme.setSelectedItem(Globals.settings.getTheme());
+          if (!Settings.getInstance().getTheme().equals(cbTheme.getSelectedItem())) {
+            cbTheme.setSelectedItem(Settings.getInstance().getTheme());
           }
           break;
 
         case "fontSize":
-          if (cbFontSize.getSelectedItem() != null && Globals.settings.getFontSize() != (Integer) cbFontSize.getSelectedItem()) {
-            cbFontSize.setSelectedItem(Globals.settings.getFontSize());
+          if (cbFontSize.getSelectedItem() != null && Settings.getInstance().getFontSize() != (Integer) cbFontSize.getSelectedItem()) {
+            cbFontSize.setSelectedItem(Settings.getInstance().getFontSize());
           }
           break;
 
         case "fontFamily":
-          if (!Globals.settings.getFontFamily().equals(cbFontFamily.getSelectedItem())) {
-            cbFontFamily.setSelectedItem(Globals.settings.getFontFamily());
+          if (!Settings.getInstance().getFontFamily().equals(cbFontFamily.getSelectedItem())) {
+            cbFontFamily.setSelectedItem(Settings.getInstance().getFontFamily());
           }
           break;
       }
@@ -305,17 +304,17 @@ class UiSettingsPanel extends JPanel {
     LocaleComboBox loc = (LocaleComboBox) cbLanguage.getSelectedItem();
     if (loc != null) {
       Locale locale = loc.loc;
-      Locale actualLocale = Utils.getLocaleFromLanguage(Globals.settings.getLanguage());
+      Locale actualLocale = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
       if (!locale.equals(actualLocale)) {
-        Globals.settings.setLanguage(locale.toString());
+        Settings.getInstance().setLanguage(locale.toString());
         lblLanguageChangeHint.setText(TmmResourceBundle.getString("Settings.languagehint"));
       }
     }
 
     // theme
     String theme = (String) cbTheme.getSelectedItem();
-    if (!Globals.settings.getTheme().equals(theme)) {
-      Globals.settings.setTheme(theme);
+    if (!Settings.getInstance().getTheme().equals(theme)) {
+      Settings.getInstance().setTheme(theme);
       try {
         TmmUIHelper.setTheme();
         TmmUIHelper.updateUI();
@@ -328,10 +327,10 @@ class UiSettingsPanel extends JPanel {
     // fonts
     String fontFamily = (String) cbFontFamily.getSelectedItem();
     Integer fontSize = (Integer) cbFontSize.getSelectedItem();
-    if ((fontFamily != null && !fontFamily.equals(Globals.settings.getFontFamily()))
-        || (fontSize != null && fontSize != Globals.settings.getFontSize())) {
-      Globals.settings.setFontFamily(fontFamily);
-      Globals.settings.setFontSize(fontSize);
+    if ((fontFamily != null && !fontFamily.equals(Settings.getInstance().getFontFamily()))
+        || (fontSize != null && fontSize != Settings.getInstance().getFontSize())) {
+      Settings.getInstance().setFontFamily(fontFamily);
+      Settings.getInstance().setFontSize(fontSize);
 
       Font font = UIManager.getFont("defaultFont");
       Font newFont = new Font(fontFamily, font.getStyle(), fontSize);

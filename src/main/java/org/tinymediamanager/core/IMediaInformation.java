@@ -18,6 +18,7 @@ package org.tinymediamanager.core;
 import java.util.List;
 
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 /**
  * The interface IMediaInformation is used to provide an interface to common media related infos
@@ -74,6 +75,13 @@ public interface IMediaInformation {
    * @return the aspect ratio
    */
   float getMediaInfoAspectRatio();
+
+  /**
+   * gets the 2nd aspect ratio (only for multiformat, e.g. 1.33).
+   *
+   * @return the 2nd aspect ratio
+   */
+  Float getMediaInfoAspectRatio2();
 
   /**
    * gets the media info video codec (e.g. divx)

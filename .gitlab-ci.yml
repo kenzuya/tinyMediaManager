@@ -12,6 +12,8 @@ cache:
 
 stages:
   - test
+  - build
+  - package
   - deploy
 
 test:jdk11:
@@ -41,6 +43,18 @@ test:jdk14:
 test:jdk15:
   stage: test
   image: registry.gitlab.com/tinymediamanager/docker/jdk15
+  except:
+    - main@tinyMediaManager/tinyMediaManager
+  only:
+    - pushes
+  script:
+    - mvn $MAVEN_CLI_OPTS -U -DskipTests=false -DskipITs=true -Dmaven.test.failure.ignore=false clean test
+  artifacts:
+    expire_in: 1 days
+
+test:jdk16:
+  stage: test
+  image: registry.gitlab.com/tinymediamanager/docker/jdk16
   except:
     - main@tinyMediaManager/tinyMediaManager
   only:
@@ -81,65 +95,21 @@ sonarqube-qa:
 
 deploy:nightly:
   stage: deploy
-  image: maven:3-jdk-11                                # stay with stretch
-  environment:
-    name: nightly
-    url: https://nightly.tinymediamanager.org
   only:
     variables:
       - $NIGHTLY_BUILD == "true"
-  tags:
-    - docker # force running on gitlab
-  except:
-    - pushes                                          # do not run packaging on push-builds
-  script:
-    # update package sources and install ant, 32 bit libs, git and lftp
-    - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 git lftp curl
-    # generate changelog.txt for nightly builds
-    - ./generate_changelog.sh
-    # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-nightly.txt -Dnightly=true -Dthread_pool_size=1 clean package
-
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 build\"}" https://gitlab.com/api/v4/projects/7895208/repository/files/v4_job_id.txt
-
-    # trigger the deployment on nightly.tinymediamanager.org
-    - curl -X POST -F "token=${NIGHTLY_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/7895208/trigger/pipeline
-
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - build/
-      - dist/
+  trigger:
+    include: .ci/deploy_nightly.yml
+    strategy: depend
 
 deploy:PRE-RELEASE:
   stage: deploy
-  image: maven:3-jdk-11  # stay with stretch
-  environment:
-    name: prerelease
-    url: https://prerelease.tinymediamanager.org
   only:
     - main@tinyMediaManager/tinyMediaManager
-  tags:
-    - docker # force running on gitlab
   when: manual
-  script:
-    # update package sources and install ant + 32 bit libs
-    - dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends ant libstdc++6:i386 libgcc1:i386 zlib1g:i386 libncurses5:i386 lftp curl
-    # package
-    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown-prerelease.txt -Dprerelease=true -Dthread_pool_size=1 clean package
-
-    # write the job ID to the repo
-    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 prerelease\"}" https://gitlab.com/api/v4/projects/10869644/repository/files/v4_job_id.txt
-
-    # trigger the deployment on prerelease.tinymediamanager.org (new HP)
-    - curl -X POST -F "token=${PREREL_PIPELINE_TOKEN}" -F "ref=master" https://gitlab.com/api/v4/projects/10869644/trigger/pipeline
-
-  artifacts:
-    expire_in: 30 days
-    paths:
-      - build/
-      - dist/
+  trigger:
+    include: .ci/deploy_prerelease.yml
+    strategy: depend
 
 deploy:RELEASE:
   stage: deploy
@@ -213,3 +183,16 @@ deploy:RELEASE:
     paths:
       - build/
       - dist/
+
+##########################################
+# TEST
+##########################################
+deploy:test:
+  stage: deploy
+  only:
+    variables:
+      - $TEST_BUILD == "true"
+  when: manual
+  trigger:
+    include: .ci/deploy_test.yml
+    strategy: depend

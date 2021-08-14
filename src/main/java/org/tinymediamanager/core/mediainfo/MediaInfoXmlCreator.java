@@ -35,22 +35,22 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.ReleaseInfo;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.thirdparty.MediaInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class MediaInfoXmlCreator {
-  private static final Logger  LOGGER                        = LoggerFactory.getLogger(MediaInfoXmlCreator.class);
-  private static final String  ORACLE_IS_STANDALONE          = "http://www.oracle.com/xml/is-standalone";
-  private static final Pattern FIRST_CHARACTER_DIGIT_PATTERN = Pattern.compile("^\\d");
+  private static final Logger       LOGGER                        = LoggerFactory.getLogger(MediaInfoXmlCreator.class);
+  private static final String       ORACLE_IS_STANDALONE          = "http://www.oracle.com/xml/is-standalone";
+  private static final Pattern      FIRST_CHARACTER_DIGIT_PATTERN = Pattern.compile("^\\d");
 
-  private Document             document;
+  private Document                  document;
 
-  private MediaFile            mediaFile;
-  private List<MediaInfoFile>  mediaInfoFiles;
+  private final MediaFile           mediaFile;
+  private final List<MediaInfoFile> mediaInfoFiles;
 
   public MediaInfoXmlCreator(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
     this.mediaFile = mediaFile;
@@ -66,7 +66,7 @@ public class MediaInfoXmlCreator {
     // tmm comment
     Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     String dat = formatter.format(new Date());
-    document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Globals.settings.getVersion()));
+    document.appendChild(document.createComment("created on " + dat + " - tinyMediaManager " + Settings.getInstance().getVersion()));
 
     Element mediaInfo = document.createElement("MediaInfo");
     mediaInfo.setAttribute("xmlns", "https://mediaarea.net/mediainfo");

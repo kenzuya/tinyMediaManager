@@ -26,12 +26,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -39,6 +39,8 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.jdesktop.beansbinding.AutoBinding;
@@ -57,7 +59,10 @@ import org.tinymediamanager.ui.ITmmUIModule;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.TablePopupListener;
 import org.tinymediamanager.ui.TmmUILayoutStore;
+import org.tinymediamanager.ui.actions.ClearFilterPresetAction;
+import org.tinymediamanager.ui.actions.FilterPresetAction;
 import org.tinymediamanager.ui.actions.RequestFocusAction;
+import org.tinymediamanager.ui.components.SplitButton;
 import org.tinymediamanager.ui.components.TmmListPanel;
 import org.tinymediamanager.ui.components.tree.ITmmTreeFilter;
 import org.tinymediamanager.ui.components.tree.TmmTreeModel;
@@ -76,21 +81,19 @@ import org.tinymediamanager.ui.moviesets.actions.MovieSetEditAction;
 import net.miginfocom.swing.MigLayout;
 
 public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
-  private static final long           serialVersionUID = 5889203009864512935L;
+  private static final long serialVersionUID = 5889203009864512935L;
 
-  
+  private final MovieList   movieList        = MovieModuleManager.getInstance().getMovieList();
 
-  private final MovieList             movieList        = MovieList.getInstance();
+  private int               rowcount;
+  private long              rowcountLastUpdate;
 
-  private int                         rowcount;
-  private long                        rowcountLastUpdate;
-
-  private TmmTreeTable                tree;
-  private JLabel                      lblMovieCountFiltered;
-  private JLabel                      lblMovieCountTotal;
-  private JLabel                      lblMovieSetCountFiltered;
-  private JLabel                      lblMovieSetCountTotal;
-  private JButton                     btnFilter;
+  private TmmTreeTable      tree;
+  private JLabel            lblMovieCountFiltered;
+  private JLabel            lblMovieCountTotal;
+  private JLabel            lblMovieSetCountFiltered;
+  private JLabel            lblMovieSetCountTotal;
+  private SplitButton       btnFilter;
 
   public MovieSetTreePanel(MovieSetSelectionModel movieSetSelectionModel) {
     initComponents();
@@ -112,6 +115,18 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
           break;
       }
     });
+
+    MovieModuleManager.getInstance().getSettings().addPropertyChangeListener(e -> {
+      switch (e.getPropertyName()) {
+        case "movieSetCheckMetadata":
+        case "movieSetCheckArtwork":
+          tree.invalidate();
+          break;
+
+        default:
+          break;
+      }
+    });
   }
 
   private void initComponents() {
@@ -124,16 +139,56 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, CTRL_DOWN_MASK), "search");
     getActionMap().put("search", new RequestFocusAction(searchField));
 
-    btnFilter = new JButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
+    btnFilter = new SplitButton(TmmResourceBundle.getString("movieextendedsearch.filter"));
     btnFilter.setToolTipText(TmmResourceBundle.getString("movieextendedsearch.options"));
-    btnFilter.addActionListener(e -> MovieSetUIModule.getInstance().setFilterDialogVisible(true));
+    btnFilter.getActionButton().addActionListener(e -> MovieSetUIModule.getInstance().setFilterDialogVisible(true));
+    btnFilter.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        JPopupMenu popupMenu = btnFilter.getPopupMenu();
+        popupMenu.removeAll();
+
+        for (String uiFilter : MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().keySet()) {
+          FilterPresetAction action = new FilterPresetAction(uiFilter) {
+            @Override
+            protected void processAction(ActionEvent e) {
+              tree.setFilterValues(MovieModuleManager.getInstance().getSettings().getMovieSetUiFilterPresets().get(presetName));
+            }
+          };
+          popupMenu.add(action);
+        }
+        if (popupMenu.getSubElements().length != 0) {
+          popupMenu.addSeparator();
+        }
+
+        popupMenu.add(new ClearFilterPresetAction() {
+          @Override
+          protected void processAction(ActionEvent e) {
+            tree.setFilterValues(Collections.emptyList());
+          }
+        });
+
+        popupMenu.pack();
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // do nothing
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+        // do nothing
+      }
+    });
+
     add(btnFilter, "cell 1 0");
 
     TmmTreeTableFormat<TmmTreeNode> tableFormat = new MovieSetTableFormat();
     tree = new TmmTreeTable(new MovieSetTreeDataProvider(tableFormat), tableFormat) {
       @Override
       public void storeFilters() {
-        if (MovieModuleManager.SETTINGS.isStoreMovieSetUiFilters()) {
+        if (MovieModuleManager.getInstance().getSettings().isStoreMovieSetUiFilters()) {
           List<AbstractSettings.UIFilters> filterValues = new ArrayList<>();
           for (ITmmTreeFilter<TmmTreeNode> filter : treeFilters) {
             if (filter instanceof ITmmUIFilter) {
@@ -147,8 +202,8 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
               }
             }
           }
-          MovieModuleManager.SETTINGS.setMovieSetUiFilters(filterValues);
-          MovieModuleManager.SETTINGS.saveSettings();
+          MovieModuleManager.getInstance().getSettings().setMovieSetUiFilters(filterValues);
+          MovieModuleManager.getInstance().getSettings().saveSettings();
         }
       }
     };
@@ -299,10 +354,10 @@ public class MovieSetTreePanel extends TmmListPanel implements ITmmTabItem {
     }
 
     if (active) {
-      btnFilter.setIcon(IconManager.FILTER_ACTIVE);
+      btnFilter.getActionButton().setIcon(IconManager.FILTER_ACTIVE);
     }
     else {
-      btnFilter.setIcon(null);
+      btnFilter.getActionButton().setIcon(null);
     }
   }
 

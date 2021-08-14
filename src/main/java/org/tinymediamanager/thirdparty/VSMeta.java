@@ -45,20 +45,20 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Constants;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
 import org.tinymediamanager.core.entities.Person;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 import com.google.gson.stream.JsonReader;
 
@@ -69,7 +69,6 @@ import com.google.gson.stream.JsonReader;
  *
  */
 public class VSMeta {
-
   private static final Logger           LOGGER                    = LoggerFactory.getLogger(VSMeta.class);
 
   // https://gist.github.com/soywiz/2c10feb1231e70aca19a58aca9d6c16a
@@ -578,7 +577,7 @@ public class VSMeta {
                   case "themoviedb":
                     try {
                       int t = Integer.parseInt(value);
-                      movieSet = MovieList.getInstance().getMovieSet(info.title1 + "_col", t);
+                      movieSet = MovieModuleManager.getInstance().getMovieList().getMovieSet(info.title1 + "_col", t);
                     }
                     catch (NumberFormatException ignored) {
                     }

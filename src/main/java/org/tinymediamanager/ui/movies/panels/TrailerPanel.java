@@ -33,10 +33,10 @@ import javax.swing.table.TableCellRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaTrailer;
 import org.tinymediamanager.core.movie.MovieHelpers;
@@ -67,10 +67,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class TrailerPanel extends JPanel {
   private static final long       serialVersionUID = 2506465845096043845L;
-  /**
-   * @wbp.nls.resourceBundle messages
-   */
-
   private static final Logger     LOGGER           = LoggerFactory.getLogger(TrailerPanel.class);
 
   private MovieSelectionModel     movieSelectionModel;
@@ -247,7 +243,7 @@ public class TrailerPanel extends JPanel {
        */
       col = new Column(TmmResourceBundle.getString("metatag.format"), "format", trailer -> {
         String ext = UrlUtil.getExtension(trailer.getUrl()).toLowerCase(Locale.ROOT);
-        if (!Globals.settings.getVideoFileType().contains("." + ext)) {
+        if (!Settings.getInstance().getVideoFileType().contains("." + ext)) {
           // .php redirection scripts et all
           ext = "";
         }

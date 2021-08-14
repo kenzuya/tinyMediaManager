@@ -103,18 +103,18 @@ public class TvShowEpisodeSearchAndScrapeOptions extends MediaSearchAndScrapeOpt
    */
   public void loadDefaults() {
     // language
-    language = TvShowModuleManager.SETTINGS.getScraperLanguage();
+    language = TvShowModuleManager.getInstance().getSettings().getScraperLanguage();
 
     // metadata
-    metadataScraper = TvShowList.getInstance().getDefaultMediaScraper();
+    metadataScraper = TvShowModuleManager.getInstance().getTvShowList().getDefaultMediaScraper();
 
     // artwork
-    artworkScrapers.addAll(TvShowList.getInstance().getDefaultArtworkScrapers());
+    artworkScrapers.addAll(TvShowModuleManager.getInstance().getTvShowList().getDefaultArtworkScrapers());
 
     // trailer
-    trailerScrapers.addAll(TvShowList.getInstance().getDefaultTrailerScrapers());
+    trailerScrapers.addAll(TvShowModuleManager.getInstance().getTvShowList().getDefaultTrailerScrapers());
 
     // subtitle
-    subtitleScrapers.addAll(TvShowList.getInstance().getDefaultSubtitleScrapers());
+    subtitleScrapers.addAll(TvShowModuleManager.getInstance().getTvShowList().getDefaultSubtitleScrapers());
   }
 }

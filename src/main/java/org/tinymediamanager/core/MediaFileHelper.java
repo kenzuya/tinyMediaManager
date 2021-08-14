@@ -44,7 +44,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaFileAudioStream;
 import org.tinymediamanager.core.entities.MediaFileSubtitle;
@@ -75,7 +74,7 @@ public class MediaFileHelper {
   public static final List<String> TRAILER_FOLDERS    = List.of("trailer", "trailers");
   // lower case
   public static final List<String> EXTRA_FOLDERS      = List.of("extra", "extras", "behind the scenes", "behindthescenes", "deleted scenes",
-      "deletedscenes", "featurettes", "interviews", "scenes", "shorts", "other");
+      "deletedscenes", "deleted", "featurette", "featurettes", "interview", "interviews", "scene", "scenes", "short", "shorts", "other", "others");
 
   public static final List<String> SUPPORTED_ARTWORK_FILETYPES;
   public static final List<String> DEFAULT_VIDEO_FILETYPES;
@@ -131,8 +130,13 @@ public class MediaFileHelper {
   public static final String       VIDEO_3D_HTAB      = "3D HTAB";
   public static final String       VIDEO_3D_MVC       = "3D MVC";
 
+  // disc folders
+  public static final String       VIDEO_TS           = "VIDEO_TS";
+  public static final String       BDMV               = "BDMV";
+  public static final String       HVDVD_TS           = "HVDVD_TS";
+
   static {
-    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp");
+    SUPPORTED_ARTWORK_FILETYPES = List.of("jpg", "jpeg,", "png", "tbn", "gif", "bmp", "webp");
 
     // .disc = video stubs
     // .evo = hd-dvd
@@ -288,15 +292,15 @@ public class MediaFileHelper {
       return MediaFileType.THEME;
     }
 
-    if (Globals.settings.getAudioFileType().contains("." + ext)) {
+    if (Settings.getInstance().getAudioFileType().contains("." + ext)) {
       return MediaFileType.AUDIO;
     }
 
-    if (Globals.settings.getSubtitleFileType().contains("." + ext)) {
+    if (Settings.getInstance().getSubtitleFileType().contains("." + ext)) {
       return MediaFileType.SUBTITLE;
     }
 
-    if (Globals.settings.getVideoFileType().contains("." + ext)) {
+    if (Settings.getInstance().getVideoFileType().contains("." + ext)) {
       // is this maybe a trailer?
       if (basename.matches("(?i).*[\\[\\]\\(\\)_.-]+trailer[\\[\\]\\(\\)_.-]?$") || basename.equalsIgnoreCase("movie-trailer")
           || TRAILER_FOLDERS.contains(foldername)) {
@@ -1009,7 +1013,7 @@ public class MediaFileHelper {
    * @return a {@link List} of all associated files along with libmediainfo data
    */
   private static synchronized List<MediaInfoFile> getMediaInfoFromSingleFile(MediaFile mediaFile) {
-    if (!MediaInfoUtils.USE_LIBMEDIAINFO) {
+    if (!MediaInfoUtils.useMediaInfo()) {
       return Collections.emptyList();
     }
 
@@ -1090,7 +1094,7 @@ public class MediaFileHelper {
   private static synchronized List<MediaInfoFile> getMediaInfoSnapshotFromISO(MediaFile mediaFile) {
     List<MediaInfoFile> miFiles;
 
-    if (!MediaInfoUtils.USE_LIBMEDIAINFO) {
+    if (!MediaInfoUtils.useMediaInfo()) {
       return Collections.emptyList();
     }
 

@@ -142,9 +142,7 @@ ${foreach movies movie}
     <Cell><Data ss:Type="String">${foreach movie.mediaFiles mediafiles}${foreach mediafiles.audioStreams audio}${audio.audioChannels}, ${end}${end}</Data></Cell>
     <Cell><Data ss:Type="String">${foreach movie.mediaFiles mediafiles}${foreach mediafiles.audioStreams audio}${audio.bitrateInKbps}, ${end}${end}</Data></Cell>
     <Cell><Data ss:Type="String">${movie.mainVideoFile.subtitlesAsString}</Data></Cell>
-    <Cell><Data ss:Type="String">${movie.hasMetadata}</Data></Cell>
     <Cell><Data ss:Type="String">${movie.duplicate}</Data></Cell>
-    <Cell><Data ss:Type="String">${movie.hasImages}</Data></Cell>
     <Cell><Data ss:Type="String">${movie.hasNfoFile}</Data></Cell>
     <Cell><Data ss:Type="String">${movie.hasTrailer}</Data></Cell>
     <Cell><Data ss:Type="String">${foreach movie.actors actor}${actor.name}, ${end}</Data></Cell>

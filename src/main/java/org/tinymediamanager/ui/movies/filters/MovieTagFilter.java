@@ -27,6 +27,7 @@ import javax.swing.SwingUtilities;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -46,7 +47,7 @@ public class MovieTagFilter extends AbstractCheckComboBoxMovieUIFilter<String> {
     super();
     checkComboBox.enableFilter((s, s2) -> s.toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
     comparator = new TmmTableFormat.StringComparator();
-    movieList = MovieList.getInstance();
+    movieList = MovieModuleManager.getInstance().getMovieList();
     oldTags = new HashSet<>();
 
     buildAndInstallTagsArray();

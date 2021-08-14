@@ -36,7 +36,6 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
@@ -71,7 +70,7 @@ class UiSettingsPanel extends JPanel {
 
   public UiSettingsPanel() {
     LocaleComboBox actualLocale = null;
-    Locale settingsLang = Utils.getLocaleFromLanguage(Globals.settings.getLanguage());
+    Locale settingsLang = Utils.getLocaleFromLanguage(Settings.getInstance().getLanguage());
     for (Locale l : Utils.getLanguages()) {
       LocaleComboBox localeComboBox = new LocaleComboBox(l);
       locales.add(localeComboBox);

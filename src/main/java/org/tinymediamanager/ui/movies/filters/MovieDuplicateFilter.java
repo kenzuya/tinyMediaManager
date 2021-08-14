@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.ui.components.TmmLabel;
 
@@ -29,7 +30,7 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * @author Manuel Laggner
  */
 public class MovieDuplicateFilter extends AbstractMovieUIFilter {
-  private MovieList movieList = MovieList.getInstance();
+  private final MovieList movieList = MovieModuleManager.getInstance().getMovieList();
 
   @Override
   protected void filterChanged() {

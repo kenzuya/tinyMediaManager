@@ -15,12 +15,17 @@
  */
 package org.tinymediamanager.ui.tvshows.filters;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 import org.tinymediamanager.core.TmmResourceBundle;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
+import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.ui.components.TmmLabel;
@@ -30,7 +35,25 @@ import org.tinymediamanager.ui.components.TmmLabel;
  * 
  * @author Manuel Laggner
  */
-public class TvShowMissingMetadataFilter extends AbstractTvShowUIFilter {
+public class TvShowMissingMetadataFilter extends AbstractCheckComboBoxTvShowUIFilter<TvShowMissingMetadataFilter.MetadataField> {
+
+  private final TvShowList tvShowList;
+
+  public TvShowMissingMetadataFilter() {
+    super();
+    tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+
+    checkComboBox.enableFilter((s, s2) -> s.toString().toLowerCase(Locale.ROOT).startsWith(s2.toLowerCase(Locale.ROOT)));
+
+    // initial filling
+    List<MetadataField> values = new ArrayList<>();
+    for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
+      if (config.isMetaData() || config.isCast()) {
+        values.add(new MetadataField(config));
+      }
+    }
+    setValues(values);
+  }
 
   @Override
   public String getId() {
@@ -38,17 +61,60 @@ public class TvShowMissingMetadataFilter extends AbstractTvShowUIFilter {
   }
 
   @Override
-  public String getFilterValueAsString() {
-    return null;
+  protected String parseTypeToString(MetadataField type) throws Exception {
+    return type.config.name();
   }
 
   @Override
-  public void setFilterValue(Object value) {
+  protected MetadataField parseStringToType(String string) throws Exception {
+    try {
+      return new MetadataField(TvShowScraperMetadataConfig.valueOf(string));
+    }
+    catch (Exception e) {
+      return null;
+    }
   }
 
   @Override
   protected boolean accept(TvShow tvShow, List<TvShowEpisode> episodes, boolean invert) {
-    if (invert ^ !tvShow.isScraped()) {
+    List<TvShowScraperMetadataConfig> tvShowValues = new ArrayList<>();
+    List<TvShowEpisodeScraperMetadataConfig> episodeValues = new ArrayList<>();
+    for (MetadataField metadataField : checkComboBox.getSelectedItems()) {
+      tvShowValues.add(metadataField.config);
+
+      // the values which should be added to the episode too
+      switch (metadataField.config) {
+        case TITLE:
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.TITLE);
+          break;
+
+        case ORIGINAL_TITLE:
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.ORIGINAL_TITLE);
+          break;
+
+        case PLOT:
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.PLOT);
+          break;
+
+        case AIRED:
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.AIRED);
+          break;
+
+        case RATING:
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.RATING);
+          break;
+
+        case TAGS:
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.TAGS);
+          break;
+
+        case ACTORS:
+          episodeValues.add(TvShowEpisodeScraperMetadataConfig.ACTORS);
+          break;
+      }
+    }
+
+    if (invert ^ !tvShowList.detectMissingFields(tvShow, tvShowValues).isEmpty()) {
       return true;
     }
 
@@ -57,7 +123,7 @@ public class TvShowMissingMetadataFilter extends AbstractTvShowUIFilter {
         continue;
       }
 
-      if (invert ^ !episode.isScraped()) {
+      if (invert ^ !tvShowList.detectMissingFields(episode, episodeValues).isEmpty()) {
         return true;
       }
     }
@@ -70,8 +136,16 @@ public class TvShowMissingMetadataFilter extends AbstractTvShowUIFilter {
     return new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.missingmetadata"));
   }
 
-  @Override
-  protected JComponent createFilterComponent() {
-    return null;
+  public static class MetadataField {
+    private final TvShowScraperMetadataConfig config;
+
+    public MetadataField(TvShowScraperMetadataConfig config) {
+      this.config = config;
+    }
+
+    @Override
+    public String toString() {
+      return config.getDescription();
+    }
   }
 }

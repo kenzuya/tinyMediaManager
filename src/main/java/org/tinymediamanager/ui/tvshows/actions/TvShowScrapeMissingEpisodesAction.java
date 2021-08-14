@@ -39,8 +39,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowScrapeMissingEpisodesAction extends TmmAction {
-  private static final long           serialVersionUID = -389165862194237592L;
-
+  private static final long serialVersionUID = -389165862194237592L;
 
   public TvShowScrapeMissingEpisodesAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.scrape.missingepisodes"));
@@ -60,7 +59,8 @@ public class TvShowScrapeMissingEpisodesAction extends TmmAction {
     TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
     options.loadDefaults();
 
-    TmmThreadPool scrapeTask = new TvShowScrapeTask(selectedTvShows, true, options, new ArrayList<>(), new ArrayList<>());
+    TmmThreadPool scrapeTask = new TvShowScrapeTask(
+        new TvShowScrapeTask.TvShowScrapeParams(selectedTvShows, options, new ArrayList<>(), new ArrayList<>()));
     TmmTaskManager.getInstance().addMainTask(scrapeTask);
   }
 }

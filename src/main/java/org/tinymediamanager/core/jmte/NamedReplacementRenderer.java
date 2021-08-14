@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.Globals;
@@ -48,7 +49,7 @@ public class NamedReplacementRenderer implements NamedRenderer {
 
   @Override
   public String render(Object object, String filename, Locale locale, Map<String, Object> map) {
-    if (object == null) {
+    if (object == null || StringUtils.isBlank(filename)) {
       return null;
     }
 

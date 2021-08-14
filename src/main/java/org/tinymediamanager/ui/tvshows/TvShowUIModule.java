@@ -27,8 +27,8 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -68,6 +68,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowRebuildImageCacheAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRebuildMediainfoXmlAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRemoveAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRenameAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowRenamePreviewAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRewriteEpisodeNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowRewriteNfoAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowScrapeEpisodesAction;
@@ -83,6 +84,7 @@ import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncSelectedWatchedTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowSyncTraktTvAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowToggleWatchedFlagAction;
+import org.tinymediamanager.ui.tvshows.actions.TvShowTrailerDownloadAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateDatasourcesAction;
 import org.tinymediamanager.ui.tvshows.actions.TvShowUpdateSingleDatasourceAction;
@@ -126,11 +128,9 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     listPanel = new TvShowTreePanel(tvShowSelectionModel);
 
     detailPanel = new JPanel();
-    detailPanel.setOpaque(false);
     detailPanel.setLayout(new MigLayout("insets 0", "[grow]", "[grow]"));
 
     dataPanel = new JPanel();
-    dataPanel.setOpaque(false);
     dataPanel.setLayout(new CardLayout());
     detailPanel.add(dataPanel, "cell 0 0, grow");
 
@@ -204,10 +204,10 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
   private void init() {
     // re-set filters
-    if (TvShowModuleManager.SETTINGS.isStoreUiFilters()) {
+    if (TvShowModuleManager.getInstance().getSettings().isStoreUiFilters()) {
       SwingUtilities.invokeLater(() -> {
-        TvShowList.getInstance().searchDuplicateEpisodes();
-        listPanel.getTreeTable().setFilterValues(TvShowModuleManager.SETTINGS.getUiFilters());
+        TvShowModuleManager.getInstance().getTvShowList().searchDuplicateEpisodes();
+        listPanel.getTreeTable().setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilters());
       });
     }
   }
@@ -300,11 +300,13 @@ public class TvShowUIModule extends AbstractTmmUIModule {
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowRenameAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowRenamePreviewAction.class));
     popupMenu.add(createAndRegisterAction(TvShowExportAction.class));
 
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowDownloadMissingArtworkAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDownloadActorImagesAction.class));
+    popupMenu.add(createAndRegisterAction(TvShowTrailerDownloadAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleSearchAction.class));
     popupMenu.add(createAndRegisterAction(TvShowSubtitleDownloadAction.class));
     popupMenu.add(createAndRegisterAction(TvShowDownloadThemeAction.class));
@@ -340,7 +342,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     popupMenu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+        if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
           kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
           kodiRPCMenu.setEnabled(true);
         }
@@ -349,7 +351,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
           kodiRPCMenu.setEnabled(false);
         }
 
-        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Settings.getInstance().getTraktAccessToken())) {
           traktMenu.setEnabled(true);
         }
         else {
@@ -377,7 +379,7 @@ public class TvShowUIModule extends AbstractTmmUIModule {
         updatePopupMenu.removeAll();
         updatePopupMenu.add(createAndRegisterAction(TvShowUpdateDatasourcesAction.class));
         updatePopupMenu.addSeparator();
-        for (String ds : TvShowModuleManager.SETTINGS.getTvShowDataSource()) {
+        for (String ds : TvShowModuleManager.getInstance().getSettings().getTvShowDataSource()) {
           updatePopupMenu.add(new TvShowUpdateSingleDatasourceAction(ds));
         }
         updatePopupMenu.addSeparator();

@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -41,6 +40,7 @@ import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowTrailerNaming;
 import org.tinymediamanager.core.tvshow.tasks.TvShowTrailerDownloadTask;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 /**
  * a collection of various helpers for the TV show module
@@ -77,13 +77,13 @@ public class TvShowHelpers {
         c = c.trim();
         if (c.contains(":")) {
           String[] cs = c.split(":");
-          cert = MediaCertification.getCertification(TvShowModuleManager.SETTINGS.getCertificationCountry(), cs[1]);
+          cert = MediaCertification.getCertification(TvShowModuleManager.getInstance().getSettings().getCertificationCountry(), cs[1]);
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
           }
         }
         else {
-          cert = MediaCertification.getCertification(TvShowModuleManager.SETTINGS.getCertificationCountry(), c);
+          cert = MediaCertification.getCertification(TvShowModuleManager.getInstance().getSettings().getCertificationCountry(), c);
           if (cert != MediaCertification.UNKNOWN) {
             return cert;
           }
@@ -112,14 +112,14 @@ public class TvShowHelpers {
       // no slash, so only one country
       if (name.contains(":")) {
         String[] cs = name.split(":");
-        cert = MediaCertification.getCertification(TvShowModuleManager.SETTINGS.getCertificationCountry(), cs[1].trim());
+        cert = MediaCertification.getCertification(TvShowModuleManager.getInstance().getSettings().getCertificationCountry(), cs[1].trim());
         if (cert == MediaCertification.UNKNOWN) {
           cert = MediaCertification.findCertification(cs[1].trim());
         }
       }
       else {
         // no country? try to find only by name
-        cert = MediaCertification.getCertification(TvShowModuleManager.SETTINGS.getCertificationCountry(), name.trim());
+        cert = MediaCertification.getCertification(TvShowModuleManager.getInstance().getSettings().getCertificationCountry(), name.trim());
       }
     }
     // still not found localized cert? parse the name to find *ANY* certificate
@@ -193,7 +193,8 @@ public class TvShowHelpers {
    */
   public static void startAutomaticTrailerDownload(TvShow tvShow) {
     // start movie trailer download?
-    if (TvShowModuleManager.SETTINGS.isUseTrailerPreference() && TvShowModuleManager.SETTINGS.isAutomaticTrailerDownload()
+    if (TvShowModuleManager.getInstance().getSettings().isUseTrailerPreference()
+        && TvShowModuleManager.getInstance().getSettings().isAutomaticTrailerDownload()
         && tvShow.getMediaFiles(MediaFileType.TRAILER).isEmpty() && !tvShow.getTrailer().isEmpty()) {
       downloadBestTrailer(tvShow);
     }
@@ -222,7 +223,7 @@ public class TvShowHelpers {
    */
   public static void downloadTrailer(TvShow tvshow, MediaTrailer trailer) {
     // get the right file name
-    List<TvShowTrailerNaming> trailernames = TvShowModuleManager.SETTINGS.getTrailerFilenames();
+    List<TvShowTrailerNaming> trailernames = TvShowModuleManager.getInstance().getSettings().getTrailerFilenames();
 
     // hmm.. at the moment we can only download ONE trailer, so both patterns won't work
     // just take the first one (or the default if there is no entry whyever)
@@ -237,7 +238,7 @@ public class TvShowHelpers {
     try {
       Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
       if (matcher.matches()) {
-        YTDownloadTask task = new YTDownloadTask(trailer, TvShowModuleManager.SETTINGS.getTrailerQuality()) {
+        YTDownloadTask task = new YTDownloadTask(trailer, TvShowModuleManager.getInstance().getSettings().getTrailerQuality()) {
           @Override
           protected Path getDestinationWoExtension() {
             return tvshow.getPathNIO().resolve(filename);

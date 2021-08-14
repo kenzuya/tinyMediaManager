@@ -36,11 +36,9 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.MediaAiredStatus;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
-import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -48,14 +46,13 @@ import org.tinymediamanager.core.entities.Person;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 public class TvShowToNfoConnectorTest extends BasicTest {
 
   @BeforeClass
   public static void setup() {
-    // create a default config file for config access
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
+    BasicTest.setup();
   }
 
   @Test
@@ -122,7 +119,7 @@ public class TvShowToNfoConnectorTest extends BasicTest {
 
   @Test
   public void testWriteUnsupportedTags() {
-    TvShowModuleManager.SETTINGS.setWriteCleanNfo(false);
+    TvShowModuleManager.getInstance().getSettings().setWriteCleanNfo(false);
     // Kodi version 17.0
     try {
       Path showPath = Paths.get(getSettingsFolder(), "kodi_nfo_unsupported");

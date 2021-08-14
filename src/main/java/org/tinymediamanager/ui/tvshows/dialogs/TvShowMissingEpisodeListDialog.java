@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
@@ -199,11 +198,11 @@ public class TvShowMissingEpisodeListDialog extends TmmDialog {
 
     private List<MediaMetadata> getEpisodes(TvShow tvShow) {
       TvShowSearchAndScrapeOptions options = new TvShowSearchAndScrapeOptions();
-      options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
-      options.setCertificationCountry(TvShowModuleManager.SETTINGS.getCertificationCountry());
-      options.setReleaseDateCountry(TvShowModuleManager.SETTINGS.getReleaseDateCountry());
+      options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
+      options.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+      options.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
 
-      MediaScraper mediaScraper = TvShowList.getInstance().getDefaultMediaScraper();
+      MediaScraper mediaScraper = TvShowModuleManager.getInstance().getTvShowList().getDefaultMediaScraper();
       MediaMetadata md = new MediaMetadata(mediaScraper.getMediaProvider().getProviderInfo().getId());
       options.setMetadata(md);
 

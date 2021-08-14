@@ -16,9 +16,11 @@
 package org.tinymediamanager.ui.movies;
 
 import java.awt.CardLayout;
+import java.util.ArrayList;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
@@ -28,9 +30,11 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.PostProcess;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
+import org.tinymediamanager.core.movie.MoviePostProcessExecutor;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.thirdparty.KodiRPC;
 import org.tinymediamanager.ui.AbstractTmmUIModule;
@@ -111,12 +115,10 @@ public class MovieUIModule extends AbstractTmmUIModule {
     selectionModel = listPanel.getSelectionModel();
 
     detailPanel = new JPanel();
-    detailPanel.setOpaque(false);
     detailPanel.setLayout(new MigLayout("insets 0", "[grow]", "[grow]"));
 
     // need this panel for layouting
     JPanel dataPanel = new JPanel();
-    dataPanel.setOpaque(false);
     dataPanel.setLayout(new CardLayout());
     detailPanel.add(dataPanel, "cell 0 0, grow");
 
@@ -155,10 +157,10 @@ public class MovieUIModule extends AbstractTmmUIModule {
 
   private void init() {
     // apply stored UI filters
-    if (MovieModuleManager.SETTINGS.isStoreUiFilters()) {
+    if (MovieModuleManager.getInstance().getSettings().isStoreUiFilters()) {
       SwingUtilities.invokeLater(() -> {
-        MovieList.getInstance().searchDuplicates();
-        selectionModel.setFilterValues(MovieModuleManager.SETTINGS.getUiFilters());
+        MovieModuleManager.getInstance().getMovieList().searchDuplicates();
+        selectionModel.setFilterValues(MovieModuleManager.getInstance().getSettings().getUiFilters());
       });
     }
 
@@ -242,12 +244,17 @@ public class MovieUIModule extends AbstractTmmUIModule {
     JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickMovies();
     popupMenu.add(kodiRPCMenu);
 
+    JMenu postProcessingMenu = new JMenu(TmmResourceBundle.getString("Settings.postprocessing"));
+    postProcessingMenu.setIcon(IconManager.MENU);
+    popupMenu.add(postProcessingMenu);
+
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(MovieCleanUpFilesAction.class));
     popupMenu.add(createAndRegisterAction(MovieClearImageCacheAction.class));
     popupMenu.add(createAndRegisterAction(MovieRebuildImageCacheAction.class));
     popupMenu.add(createAndRegisterAction(MovieRemoveAction.class));
     popupMenu.add(createAndRegisterAction(MovieDeleteAction.class));
+    popupMenu.addSeparator();
 
     if (Globals.isDebug()) {
       final JMenu debugMenu = new JMenu("Debug");
@@ -260,7 +267,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     popupMenu.addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-        if (StringUtils.isNotBlank(Globals.settings.getKodiHost())) {
+        if (StringUtils.isNotBlank(Settings.getInstance().getKodiHost())) {
           kodiRPCMenu.setText(KodiRPC.getInstance().getVersion());
           kodiRPCMenu.setEnabled(true);
         }
@@ -269,20 +276,36 @@ public class MovieUIModule extends AbstractTmmUIModule {
           kodiRPCMenu.setEnabled(false);
         }
 
-        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Globals.settings.getTraktAccessToken())) {
+        if (License.getInstance().isValidLicense() && StringUtils.isNotBlank(Settings.getInstance().getTraktAccessToken())) {
           traktMenu.setEnabled(true);
         }
         else {
           traktMenu.setEnabled(false);
         }
+
+        // Post processing
+        postProcessingMenu.removeAll();
+        for (PostProcess process : new ArrayList<>(MovieModuleManager.getInstance().getSettings().getPostProcess())) {
+          JMenuItem menuItem = new JMenuItem(process.getName(), IconManager.APPLY);
+          menuItem.addActionListener(pp -> new MoviePostProcessExecutor(process).execute());
+          postProcessingMenu.add(menuItem);
+        }
+        if (postProcessingMenu.getItemCount() == 0) {
+          postProcessingMenu.setEnabled(false);
+        }
+        else {
+          postProcessingMenu.setEnabled(true);
+        }
       }
 
       @Override
       public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        // nothing to do
       }
 
       @Override
       public void popupMenuCanceled(PopupMenuEvent e) {
+        // nothing to do
       }
     });
 
@@ -297,7 +320,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
         updatePopupMenu.removeAll();
         updatePopupMenu.add(createAndRegisterAction(MovieUpdateDatasourceAction.class));
         updatePopupMenu.addSeparator();
-        for (String ds : MovieModuleManager.SETTINGS.getMovieDataSource()) {
+        for (String ds : MovieModuleManager.getInstance().getSettings().getMovieDataSource()) {
           updatePopupMenu.add(new MovieUpdateSingleDatasourceAction(ds));
         }
         updatePopupMenu.addSeparator();
@@ -334,6 +357,7 @@ public class MovieUIModule extends AbstractTmmUIModule {
     editPopupMenu.add(createAndRegisterAction(MovieToggleWatchedFlagAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieRewriteNfoAction.class));
     editPopupMenu.add(createAndRegisterAction(MovieReadNfoAction.class));
+    editPopupMenu.add(createAndRegisterAction(MovieAspectRatioDetectAction.class));
 
     editPopupMenu.addSeparator();
     editPopupMenu.add(createAndRegisterAction(MovieMediaInformationAction.class));

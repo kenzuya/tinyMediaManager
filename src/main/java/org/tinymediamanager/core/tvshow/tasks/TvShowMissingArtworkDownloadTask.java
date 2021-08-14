@@ -116,7 +116,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
    * Helper classes
    ****************************************************************************************/
   private static class TvShowWorker implements Runnable {
-    private TvShowList                  tvShowList = TvShowList.getInstance();
+    private TvShowList                  tvShowList = TvShowModuleManager.getInstance().getTvShowList();
     private TvShow                      tvShow;
     private MediaSearchAndScrapeOptions scrapeOptions;
 
@@ -134,7 +134,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(TV_SHOW);
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
-        options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+        options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
         for (Map.Entry<String, Object> entry : tvShow.getIds().entrySet()) {
           options.setId(entry.getKey(), entry.getValue().toString());
         }
@@ -186,7 +186,7 @@ public class TvShowMissingArtworkDownloadTask extends TmmThreadPool {
         ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.TV_EPISODE);
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtwork.MediaArtworkType.ALL);
-        options.setLanguage(TvShowModuleManager.SETTINGS.getScraperLanguage());
+        options.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
         options.setId("tvShowIds", episode.getTvShow().getIds());
         options.setId("mediaFile", episode.getMainFile());
 

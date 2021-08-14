@@ -28,11 +28,11 @@ import org.tinymediamanager.core.MediaEntityExporter;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.movie.MovieComparator;
 import org.tinymediamanager.core.movie.MovieExporter;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.entities.Movie;
+import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
 import org.tinymediamanager.core.movie.tasks.MovieScrapeTask;
 import org.tinymediamanager.core.movie.tasks.MovieSubtitleSearchAndDownloadTask;
@@ -91,6 +91,9 @@ class MovieCommand implements Runnable {
   @CommandLine.Option(names = { "-w", "--rewriteNFO" }, description = "Rewrite NFO files of all movies")
   boolean                     rewriteNFO;
 
+  @CommandLine.ArgGroup
+  AspectRatioDetect           ard;
+
   @Override
   public void run() {
     // update data sources
@@ -103,6 +106,10 @@ class MovieCommand implements Runnable {
     // scrape movies
     if (scrape != null) {
       scrapeMovies(moviesToScrape);
+    }
+
+    if (ard != null) {
+      detectAspectRatio();
     }
 
     // download trailer
@@ -138,7 +145,7 @@ class MovieCommand implements Runnable {
       task.run(); // blocking
     }
     else {
-      List<String> dataSources = new ArrayList<>(MovieModuleManager.SETTINGS.getMovieDataSource());
+      List<String> dataSources = new ArrayList<>(MovieModuleManager.getInstance().getSettings().getMovieDataSource());
       if (ListUtils.isNotEmpty(dataSources)) {
         for (Integer i : datasource.indices) {
           if (dataSources.size() >= i - 1) {
@@ -148,30 +155,30 @@ class MovieCommand implements Runnable {
         }
       }
     }
-    LOGGER.info("Found {} new movies", MovieList.getInstance().getNewMovies().size());
+    LOGGER.info("Found {} new movies", MovieModuleManager.getInstance().getMovieList().getNewMovies().size());
 
   }
 
   private void scrapeMovies(List<Movie> moviesToScrape) {
     if (scrape.scrapeAll) {
       LOGGER.info("scraping ALL movies...");
-      moviesToScrape.addAll(MovieList.getInstance().getMovies());
+      moviesToScrape.addAll(MovieModuleManager.getInstance().getMovieList().getMovies());
     }
     else if (scrape.scrapeNew) {
       LOGGER.info("scraping NEW movies...");
-      moviesToScrape.addAll(MovieList.getInstance().getNewMovies());
+      moviesToScrape.addAll(MovieModuleManager.getInstance().getMovieList().getNewMovies());
     }
     else if (scrape.scrapeUnscraped) {
       LOGGER.info("scraping UNSCRAPED movies...");
-      moviesToScrape.addAll(MovieList.getInstance().getUnscrapedMovies());
+      moviesToScrape.addAll(MovieModuleManager.getInstance().getMovieList().getUnscrapedMovies());
     }
 
     if (!moviesToScrape.isEmpty()) {
       MovieSearchAndScrapeOptions options = new MovieSearchAndScrapeOptions();
-      List<MovieScraperMetadataConfig> config = MovieModuleManager.SETTINGS.getScraperMetadataConfig();
+      List<MovieScraperMetadataConfig> config = MovieModuleManager.getInstance().getSettings().getScraperMetadataConfig();
       options.loadDefaults();
 
-      Runnable task = new MovieScrapeTask(moviesToScrape, true, options, config);
+      Runnable task = new MovieScrapeTask(new MovieScrapeTask.MovieScrapeParams(moviesToScrape, options, config));
       task.run(); // blocking
 
       // wait for other tmm threads (artwork download et all)
@@ -186,9 +193,27 @@ class MovieCommand implements Runnable {
     }
   }
 
+  private void detectAspectRatio() {
+    List<Movie> moviesToDetect = new ArrayList<>();
+    if (ard.ardAll) {
+      moviesToDetect = MovieModuleManager.getInstance().getMovieList().getMovies();
+    }
+    else if (ard.ardNew) {
+      moviesToDetect = MovieModuleManager.getInstance().getMovieList().getNewMovies();
+    }
+
+    if (!moviesToDetect.isEmpty()) {
+      TmmTask task = new MovieARDetectorTask(moviesToDetect);
+      task.run();
+    }
+  }
+
   private void downloadTrailer() {
     LOGGER.info("downloading missing trailers...");
-    List<Movie> moviesWithoutTrailer = MovieList.getInstance().getMovies().stream()
+    List<Movie> moviesWithoutTrailer = MovieModuleManager.getInstance()
+        .getMovieList()
+        .getMovies()
+        .stream()
         .filter(movie -> movie.getMediaFiles(MediaFileType.TRAILER).isEmpty()).collect(Collectors.toList());
 
     for (Movie movie : moviesWithoutTrailer) {
@@ -213,10 +238,14 @@ class MovieCommand implements Runnable {
     }
     else {
       // download in "main" language
-      languages.add(MovieModuleManager.SETTINGS.getSubtitleScraperLanguage());
+      languages.add(MovieModuleManager.getInstance().getSettings().getSubtitleScraperLanguage());
     }
 
-    List<Movie> moviesWithoutSubtitle = MovieList.getInstance().getMovies().stream().filter(movie -> !movie.getHasSubtitles())
+    List<Movie> moviesWithoutSubtitle = MovieModuleManager.getInstance()
+        .getMovieList()
+        .getMovies()
+        .stream()
+        .filter(movie -> !movie.getHasSubtitles())
         .collect(Collectors.toList());
 
     for (MediaLanguages language : languages) {
@@ -233,7 +262,7 @@ class MovieCommand implements Runnable {
     }
     else if (rename.renameAll) {
       LOGGER.info("renaming ALL movies...");
-      moviesToRename.addAll(MovieList.getInstance().getMovies());
+      moviesToRename.addAll(MovieModuleManager.getInstance().getMovieList().getMovies());
     }
 
     if (!moviesToRename.isEmpty()) {
@@ -252,7 +281,7 @@ class MovieCommand implements Runnable {
         try {
           ex = new MovieExporter(Paths.get(exportTemplate.getPath()));
 
-          List<Movie> movies = MovieList.getInstance().getMovies();
+          List<Movie> movies = MovieModuleManager.getInstance().getMovieList().getMovies();
           movies.sort(new MovieComparator());
           ex.export(movies, export.path);
         }
@@ -266,12 +295,12 @@ class MovieCommand implements Runnable {
   }
 
   private void rewriteNfoFiles() {
-    if (MovieModuleManager.SETTINGS.getNfoFilenames().isEmpty()) {
+    if (MovieModuleManager.getInstance().getSettings().getNfoFilenames().isEmpty()) {
       LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
       return;
     }
 
-    for (Movie movie : MovieList.getInstance().getMovies()) {
+    for (Movie movie : MovieModuleManager.getInstance().getMovieList().getMovies()) {
       movie.writeNFO();
     }
   }
@@ -297,6 +326,14 @@ class MovieCommand implements Runnable {
 
     @CommandLine.Option(names = { "--scrapeAll", }, description = "Scrape all movies")
     boolean scrapeAll;
+  }
+
+  static class AspectRatioDetect {
+    @CommandLine.Option(names = { "-d", "--ardNew", }, description = "Detect aspect ratio of new movies (found with the update options)")
+    boolean ardNew;
+
+    @CommandLine.Option(names = { "-dA", "--ardAll", }, description = "Detect aspect ratio of all movies")
+    boolean ardAll;
   }
 
   static class Subtitle {

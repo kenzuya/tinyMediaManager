@@ -33,7 +33,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  */
 public class TmmSettingsDataProvider extends TmmTreeDataProvider<TmmTreeNode> {
 
-  private TmmTreeNode                 root;
+  private TmmTreeNode root;
 
   public TmmSettingsDataProvider() {
     TmmSettingsNode rootSettingsNode = new TmmSettingsNode("", null);

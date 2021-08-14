@@ -18,7 +18,7 @@ package org.tinymediamanager.ui.movies.actions;
 import java.awt.event.ActionEvent;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
@@ -30,8 +30,7 @@ import org.tinymediamanager.ui.actions.TmmAction;
  * @author Manuel Laggner
  */
 public class MovieSyncTraktTvAction extends TmmAction {
-  private static final long           serialVersionUID = 6640292090443882545L;
-
+  private static final long serialVersionUID = 6640292090443882545L;
 
   public MovieSyncTraktTvAction() {
     putValue(NAME, TmmResourceBundle.getString("movie.synctrakt"));
@@ -42,7 +41,7 @@ public class MovieSyncTraktTvAction extends TmmAction {
 
   @Override
   protected void processAction(ActionEvent e) {
-    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieList.getInstance().getMovies());
+    MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(MovieModuleManager.getInstance().getMovieList().getMovies());
     task.setSyncCollection(true);
     task.setSyncWatched(true);
     task.setSyncRating(true);

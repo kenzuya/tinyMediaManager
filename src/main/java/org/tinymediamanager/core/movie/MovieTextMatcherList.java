@@ -28,7 +28,8 @@ public enum MovieTextMatcherList {
   TITLE_SORTABLE("metatag.title.sortable"),
   ORIGINAL_TITLE("metatag.originaltitle"),
   ORIGINAL_TITLE_SORTABLE("metatag.originaltitle.sortable"),
-  SORTED_TITLE("metatag.sorttitle");
+  SORTED_TITLE("metatag.sorttitle"),
+  NOTE("metatag.note");
 
   private final String description;
 

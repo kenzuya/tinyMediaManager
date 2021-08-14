@@ -34,7 +34,6 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tasks.SubtitleDownloadTask;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.core.threading.TmmThreadPool;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -69,7 +68,7 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
     this.language = language;
 
     // get scrapers
-    this.subtitleScrapers = new ArrayList<>(TvShowList.getInstance().getDefaultSubtitleScrapers());
+    this.subtitleScrapers = new ArrayList<>(TvShowModuleManager.getInstance().getTvShowList().getDefaultSubtitleScrapers());
   }
 
   public TvShowSubtitleSearchAndDownloadTask(List<TvShowEpisode> episodes, List<MediaScraper> subtitleScrapers, MediaLanguages language) {
@@ -155,7 +154,8 @@ public class TvShowSubtitleSearchAndDownloadTask extends TmmThreadPool {
             }
 
             // the right language tag from the renamer settings
-            String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), TvShowModuleManager.SETTINGS.getSubtitleLanguageStyle());
+            String lang = LanguageStyle.getLanguageCodeForStyle(language.name(),
+                TvShowModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
             if (StringUtils.isBlank(lang)) {
               lang = language.name();
             }

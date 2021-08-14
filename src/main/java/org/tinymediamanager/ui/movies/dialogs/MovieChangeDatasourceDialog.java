@@ -74,7 +74,7 @@ public class MovieChangeDatasourceDialog extends TmmDialog {
         panelContent.add(lblDatasourceT, "cell 0 2");
       }
       {
-        cbDatasource = new JComboBox(MovieModuleManager.SETTINGS.getMovieDataSource().toArray());
+        cbDatasource = new JComboBox(MovieModuleManager.getInstance().getSettings().getMovieDataSource().toArray());
         panelContent.add(cbDatasource, "cell 1 2,growx,wmin 0");
       }
 

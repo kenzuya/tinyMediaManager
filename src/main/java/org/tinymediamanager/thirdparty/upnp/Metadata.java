@@ -31,11 +31,14 @@ import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.Person;
 
-public class Metadata {
+class Metadata {
 
   // https://github.com/4thline/cling/tree/master/support/src/main/java/org/fourthline/cling/support/model/item
-
   private static final Logger LOGGER = LoggerFactory.getLogger(Metadata.class);
+
+  private Metadata() {
+    throw new IllegalAccessError();
+  }
 
   /**
    * wraps a TMM movie into a UPNP movie/video item object
@@ -47,7 +50,6 @@ public class Metadata {
    * @return
    */
   public static Movie getUpnpMovie(org.tinymediamanager.core.movie.entities.Movie tmmMovie, boolean full) {
-
     LOGGER.trace(tmmMovie.getTitle());
     Movie m = new Movie();
     try {

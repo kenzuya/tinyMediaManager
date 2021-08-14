@@ -60,14 +60,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * 
  * @author Manuel Laggner
  */
-public class TvShowModuleManager implements ITmmModule {
+public final class TvShowModuleManager implements ITmmModule {
 
-  public static final TvShowSettings   SETTINGS     = TvShowSettings.getInstance();
-
-  private static final String          MODULE_TITLE = "TV show management";
-  private static final String          TV_SHOW_DB   = "tvshows.db";
-  private static final Logger          LOGGER       = LoggerFactory.getLogger(TvShowModuleManager.class);
-  private static final int             COMMIT_DELAY = 2000;
+  private static final String          MODULE_TITLE         = "TV show management";
+  private static final String          TV_SHOW_DB           = "tvshows.db";
+  private static final Logger          LOGGER               = LoggerFactory.getLogger(TvShowModuleManager.class);
+  private static final int             COMMIT_DELAY         = 2000;
 
   private static TvShowModuleManager   instance;
 
@@ -76,6 +74,7 @@ public class TvShowModuleManager implements ITmmModule {
   private final ReentrantReadWriteLock lock;
 
   private boolean                      enabled;
+  private int                          autoCommitBufferSize = 8192;
   private MVStore                      mvStore;
   private ObjectWriter                 tvShowObjectWriter;
   private ObjectReader                 tvShowObjectReader;
@@ -92,6 +91,12 @@ public class TvShowModuleManager implements ITmmModule {
     startupMessages = new ArrayList<>();
     pendingChanges = new HashMap<>();
     lock = new ReentrantReadWriteLock();
+
+    // check if a custom autocommit buffer size has been set via jvm args
+    int bufferSize = Integer.getInteger("tmm.mvstore.buffersize", 8);
+    if (2 <= bufferSize && bufferSize <= 64) {
+      autoCommitBufferSize = 1024 * bufferSize;
+    }
   }
 
   public static TvShowModuleManager getInstance() {
@@ -99,6 +104,14 @@ public class TvShowModuleManager implements ITmmModule {
       instance = new TvShowModuleManager();
     }
     return instance;
+  }
+
+  public TvShowSettings getSettings() {
+    return TvShowSettings.getInstance();
+  }
+
+  public TvShowList getTvShowList() {
+    return TvShowList.getInstance();
   }
 
   @Override
@@ -146,7 +159,7 @@ public class TvShowModuleManager implements ITmmModule {
    * 3. open a new one
    */
   private void openDatabaseAndLoadTvShows() {
-    Path databaseFile = Paths.get(Globals.settings.getSettingsFolder(), TV_SHOW_DB);
+    Path databaseFile = Paths.get(Settings.getInstance().getSettingsFolder(), TV_SHOW_DB);
     try {
       loadDatabase(databaseFile);
       return;
@@ -245,7 +258,7 @@ public class TvShowModuleManager implements ITmmModule {
 
           mvStore = new MVStore.Builder().fileName(databaseFile.toString())
               .compressHigh()
-              .autoCommitBufferSize(2048)
+              .autoCommitBufferSize(autoCommitBufferSize)
               .backgroundExceptionHandler(this)
               .open();
           mvStore.setAutoCommitDelay(2000); // 2 sec
@@ -256,7 +269,7 @@ public class TvShowModuleManager implements ITmmModule {
           tvShowMap = mvStore.openMap("tvshows");
           episodeMap = mvStore.openMap("episodes");
 
-          for (TvShow tvShow : TvShowList.getInstance().getTvShows()) {
+          for (TvShow tvShow : getTvShowList().getTvShows()) {
             persistTvShow(tvShow);
 
             for (TvShowEpisode episode : tvShow.getEpisodes()) {
@@ -271,7 +284,7 @@ public class TvShowModuleManager implements ITmmModule {
 
     mvStore = new MVStore.Builder().fileName(databaseFile.toString())
         .compressHigh()
-        .autoCommitBufferSize(2048)
+        .autoCommitBufferSize(autoCommitBufferSize)
         .backgroundExceptionHandler(exceptionHandler)
         .open();
     mvStore.setAutoCommitDelay(2000); // 2 sec
@@ -282,9 +295,8 @@ public class TvShowModuleManager implements ITmmModule {
     tvShowMap = mvStore.openMap("tvshows");
     episodeMap = mvStore.openMap("episodes");
 
-    TvShowList.getInstance().loadTvShowsFromDatabase(tvShowMap);
-    TvShowList.getInstance().loadEpisodesFromDatabase(episodeMap);
-    TvShowList.getInstance().initDataAfterLoading();
+    getTvShowList().loadTvShowsFromDatabase(tvShowMap, episodeMap);
+    getTvShowList().initDataAfterLoading();
   }
 
   @Override
@@ -305,8 +317,8 @@ public class TvShowModuleManager implements ITmmModule {
       mvStore.close();
     }
 
-    if (Globals.settings.isDeleteTrashOnExit()) {
-      for (String ds : SETTINGS.getTvShowDataSource()) {
+    if (Settings.getInstance().isDeleteTrashOnExit()) {
+      for (String ds : getSettings().getTvShowDataSource()) {
         Path file = Paths.get(ds, Constants.BACKUP_FOLDER);
         Utils.deleteDirectoryRecursive(file);
       }
@@ -456,7 +468,7 @@ public class TvShowModuleManager implements ITmmModule {
 
   @Override
   public void saveSettings() {
-    SETTINGS.saveSettings();
+    getSettings().saveSettings();
   }
 
   @Override

@@ -26,8 +26,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.addon.FFmpegAddon;
+import org.tinymediamanager.core.Settings;
 
 /**
  * the class {@link FFmpeg} is used to access FFmpeg
@@ -181,17 +181,17 @@ public class FFmpeg {
 
   public static boolean isAvailable() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
-    return ((Globals.settings.isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) ||
-            StringUtils.isNotEmpty(Globals.settings.getMediaFramework()));
+    return ((Settings.getInstance().isUseInternalMediaFramework() && fFmpegAddon.isAvailable())
+        || StringUtils.isNotEmpty(Settings.getInstance().getMediaFramework()));
   }
   private static String getFfmpegExecutable() {
     FFmpegAddon fFmpegAddon = new FFmpegAddon();
 
-    if (Globals.settings.isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) {
+    if (Settings.getInstance().isUseInternalMediaFramework() && fFmpegAddon.isAvailable()) {
       return fFmpegAddon.getExecutablePath();
     }
     else {
-      return Globals.settings.getMediaFramework();
+      return Settings.getInstance().getMediaFramework();
     }
   }
 }

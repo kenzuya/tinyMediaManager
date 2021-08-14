@@ -88,7 +88,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
   private static final long                           serialVersionUID = -3104541519073924724L;
   private static final Logger                         LOGGER           = LoggerFactory.getLogger(TvShowSubtitleChooserDialog.class);
 
-  private final TvShowList                            tvShowList       = TvShowList.getInstance();
+  private final TvShowList                            tvShowList       = TvShowModuleManager.getInstance().getTvShowList();
   private final TvShowEpisode                         episodeToScrape;
   private final MediaFile                             fileToScrape;
   private SearchTask                                  activeSearchTask = null;
@@ -128,7 +128,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
     // Subtitle scraper
     List<MediaScraper> selectedSubtitleScrapers = new ArrayList<>();
     for (MediaScraper subtitleScraper : tvShowList.getAvailableSubtitleScrapers()) {
-      if (TvShowModuleManager.SETTINGS.getSubtitleScrapers().contains(subtitleScraper.getId())) {
+      if (TvShowModuleManager.getInstance().getSettings().getSubtitleScrapers().contains(subtitleScraper.getId())) {
         selectedSubtitleScrapers.add(subtitleScraper);
       }
     }
@@ -138,7 +138,7 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
 
     for (MediaLanguages language : MediaLanguages.valuesSorted()) {
       cbLanguage.addItem(language);
-      if (language == TvShowModuleManager.SETTINGS.getSubtitleScraperLanguage()) {
+      if (language == TvShowModuleManager.getInstance().getSettings().getSubtitleScraperLanguage()) {
         cbLanguage.setSelectedItem(language);
       }
     }
@@ -402,7 +402,8 @@ public class TvShowSubtitleChooserDialog extends TmmDialog {
         if (StringUtils.isNotBlank(model.getDownloadUrl())) {
           MediaLanguages language = model.getLanguage();
           // the right language tag from the renamer settings
-          String lang = LanguageStyle.getLanguageCodeForStyle(language.name(), TvShowModuleManager.SETTINGS.getSubtitleLanguageStyle());
+          String lang = LanguageStyle.getLanguageCodeForStyle(language.name(),
+              TvShowModuleManager.getInstance().getSettings().getSubtitleLanguageStyle());
           if (StringUtils.isBlank(lang)) {
             lang = language.name();
           }

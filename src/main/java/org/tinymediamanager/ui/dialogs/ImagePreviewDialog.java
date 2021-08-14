@@ -174,7 +174,7 @@ public class ImagePreviewDialog extends TmmDialog {
           filename = FilenameUtils.getBaseName(imageUrl);
         }
         file = TmmUIHelper.saveFile(TmmResourceBundle.getString("image.savetodisk"), "", filename,
-            new FileNameExtensionFilter("Image files", ".jpg", ".png"));
+            new FileNameExtensionFilter("Image files", ".jpg", ".png", ".webp"));
         if (file != null) {
           try (FileOutputStream os = new FileOutputStream(file.toFile())) {
             IOUtils.write(originalImageBytes, os);

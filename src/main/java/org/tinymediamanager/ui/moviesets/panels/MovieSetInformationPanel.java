@@ -100,6 +100,7 @@ public class MovieSetInformationPanel extends JPanel {
   private LinkLabel                    lblTmdbid;
   private LinkTextArea                 taArtworkPath1;
   private LinkTextArea                 taArtworkPath2;
+  private JTextPane                    tpNote;
 
   public MovieSetInformationPanel(MovieSetSelectionModel setSelectionModel) {
     this.selectionModel = setSelectionModel;
@@ -222,8 +223,8 @@ public class MovieSetInformationPanel extends JPanel {
     {
       JPanel panelRight = new JPanel();
       add(panelRight, "cell 1 0,grow");
-      panelRight.setLayout(
-          new MigLayout("insets 0 n n n, hidemode 2", "[450lp,grow]", "[][shrink 0][][shrink 0][][250lp:350lp,grow][][shrink 0][][350lp,grow]"));
+      panelRight.setLayout(new MigLayout("insets 0 n n n, hidemode 2", "[450lp,grow]",
+          "[][shrink 0][][shrink 0][][250lp:350lp,grow][shrink 0][][shrink 0][20lp!][][350lp,grow]"));
 
       {
         lblMovieSetName = new JLabel("");
@@ -265,10 +266,13 @@ public class MovieSetInformationPanel extends JPanel {
         taOverview = new ReadOnlyTextPane();
         scrollPaneOverview.setViewportView(taOverview);
       }
+
+      JSeparator separator = new JSeparator();
+      panelRight.add(separator, "cell 0 6,growx");
       {
         JPanel panelBottom = new JPanel();
-        panelRight.add(panelBottom, "cell 0 6,grow");
-        panelBottom.setLayout(new MigLayout("insets 0, hidemode 3", "[][grow]", "[]"));
+        panelRight.add(panelBottom, "cell 0 7,grow");
+        panelBottom.setLayout(new MigLayout("insets 0, hidemode 3", "[][grow]", "[][grow]"));
 
         JLabel lblArtworkT = new TmmLabel(TmmResourceBundle.getString("metatag.artwork"));
         panelBottom.add(lblArtworkT, "cell 0 0,aligny top");
@@ -278,18 +282,28 @@ public class MovieSetInformationPanel extends JPanel {
 
         taArtworkPath2 = new LinkTextArea();
         panelBottom.add(taArtworkPath2, "cell 1 0,growx,wmin 0");
+
+        JLabel lblNoteT = new TmmLabel(TmmResourceBundle.getString("metatag.note"));
+        panelBottom.add(lblNoteT, "cell 0 1");
+
+        tpNote = new ReadOnlyTextPane();
+        panelBottom.add(tpNote, "cell 1 1,growx,wmin 0");
       }
       {
-        panelRight.add(new JSeparator(), "cell 0 7,growx");
+        panelRight.add(new JSeparator(), "cell 0 8,growx");
       }
       {
         TmmTable tableAssignedMovies = new TmmTable(new TmmTableModel<>(movieEventList, new MovieInMovieSetTableFormat()));
         tableAssignedMovies.setName("movieSets.movieTable");
         TmmUILayoutStore.getInstance().install(tableAssignedMovies);
         tableAssignedMovies.adjustColumnPreferredWidths(3);
+
+        JLabel lblMoviesT = new TmmLabel(TmmResourceBundle.getString("tmm.movies"));
+        panelRight.add(lblMoviesT, "cell 0 10");
+
         JScrollPane scrollPane = new JScrollPane();
         tableAssignedMovies.configureScrollPane(scrollPane);
-        panelRight.add(scrollPane, "cell 0 9,grow");
+        panelRight.add(scrollPane, "cell 0 11,grow");
       }
     }
   }
@@ -333,7 +347,7 @@ public class MovieSetInformationPanel extends JPanel {
   }
 
   private void setArtworkPath(MovieSet movieSet) {
-    String artworkPath = MovieModuleManager.SETTINGS.getMovieSetArtworkFolder();
+    String artworkPath = MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder();
     if (StringUtils.isBlank(artworkPath)) {
       taArtworkPath1.setVisible(false);
       taArtworkPath2.setVisible(false);
@@ -439,5 +453,11 @@ public class MovieSetInformationPanel extends JPanel {
     AutoBinding autoBinding_2 = Bindings.createAutoBinding(UpdateStrategy.READ, selectionModel, movieSetSelectionModelBeanProperty, lblTmdbid,
         jLabelBeanProperty);
     autoBinding_2.bind();
+    //
+    Property movieSetSelectionModelBeanProperty_1 = BeanProperty.create("selectedMovieSet.note");
+    Property jTextAreaBeanProperty = BeanProperty.create("text");
+    AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ, selectionModel, movieSetSelectionModelBeanProperty_1, tpNote,
+        jTextAreaBeanProperty);
+    autoBinding_3.bind();
   }
 }

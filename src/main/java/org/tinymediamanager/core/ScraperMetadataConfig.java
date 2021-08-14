@@ -23,7 +23,8 @@ public interface ScraperMetadataConfig {
     METADATA,
     CAST,
     ARTWORK,
-    THEME
+    THEME,
+    DEPRECATED
   }
 
   Type getType();

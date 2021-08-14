@@ -36,11 +36,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 
 /**
@@ -53,8 +54,8 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
   private final TvShow                 tvShow;
   private final List<TvShowEpisode>    episodes    = new CopyOnWriteArrayList<>();
   private final PropertyChangeListener listener;
+  private final int                    season;
 
-  private int                          season      = -1;
   private String                       title       = "";
   private Date                         lastWatched = null;
 
@@ -114,11 +115,13 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
     // when adding a new episode, check:
     for (TvShowEpisode e : episodes) {
       // - if that is a dummy episode; do not add it if a the real episode is available
-      if (episode.isDummy() && episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason()) {
+      if (episode.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
+          || (episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
         return;
       }
       // - if that is a real episode; remove the corresponding dummy episode if available
-      if (!episode.isDummy() && e.isDummy() && episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason()) {
+      if (!episode.isDummy() && e.isDummy() && ((episode.getEpisode() == e.getEpisode() && episode.getSeason() == e.getSeason())
+          || (episode.getDvdEpisode() == e.getDvdEpisode() && episode.getDvdSeason() == e.getDvdSeason()))) {
         tvShow.removeEpisode(e);
       }
     }
@@ -204,27 +207,15 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
   }
 
   /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
-   * @return true if artwork is available
-   */
-  public Boolean getHasImages() {
-    for (MediaArtworkType type : TvShowModuleManager.SETTINGS.getSeasonCheckImages()) {
-      if (StringUtils.isBlank(getArtworkFilename(type))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
    * Checks if all episodes of that season have artwork assigned
    *
    * @return true if artwork is available
    */
   public Boolean getHasEpisodeImages() {
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isDummy() && !episode.getHasImages()) {
+      if (!episode.isDummy() && !tvShowList.detectMissingArtwork(episode).isEmpty()) {
         return false;
       }
     }
@@ -232,19 +223,20 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
   }
 
   /**
-   * Checks if all episodes of that season have a NFO file
+   * Checks if all episodes of that season have valis metadata
    *
-   * @return true if NFO files are available
+   * @return true if all chosen metadata fields are filled
    */
-  public Boolean getHasEpisodeNfoFiles() {
-    boolean nfo = true;
+  public Boolean getHasEpisodeMetadata() {
+    TvShowList tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+
     for (TvShowEpisode episode : episodes) {
-      if (!episode.isDummy() && !episode.getHasNfoFile()) {
-        nfo = false;
-        break;
+      if (!episode.isDummy() && !tvShowList.detectMissingMetadata(episode).isEmpty()) {
+        return false;
       }
     }
-    return nfo;
+
+    return true;
   }
 
   public boolean isDummy() {
@@ -412,6 +404,25 @@ public class TvShowSeason extends AbstractModelObject implements Comparable<TvSh
 
   public void setLastWatched(Date lastWatched) {
     this.lastWatched = lastWatched;
+  }
+
+  public Object getValueForMetadata(TvShowScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case TITLE:
+        return getTitle();
+
+      case SEASON_POSTER:
+        return getArtworkFilename(MediaArtworkType.SEASON_POSTER);
+
+      case SEASON_BANNER:
+        return getArtworkFilename(MediaArtworkType.SEASON_BANNER);
+
+      case SEASON_THUMB:
+        return getArtworkFilename(MediaArtworkType.SEASON_THUMB);
+    }
+
+    return null;
   }
 
   @Override

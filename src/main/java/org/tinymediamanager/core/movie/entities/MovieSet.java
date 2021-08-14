@@ -15,6 +15,7 @@
  */
 package org.tinymediamanager.core.movie.entities;
 
+import static org.tinymediamanager.core.Constants.HAS_NFO_FILE;
 import static org.tinymediamanager.core.Constants.TITLE_FOR_UI;
 import static org.tinymediamanager.core.Constants.TITLE_SORTABLE;
 import static org.tinymediamanager.core.Constants.TMDB;
@@ -28,7 +29,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -43,18 +49,21 @@ import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
+import org.tinymediamanager.core.entities.MediaGenres;
 import org.tinymediamanager.core.entities.MediaRating;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetArtworkHelper;
 import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
+import org.tinymediamanager.core.movie.connector.IMovieSetConnector;
+import org.tinymediamanager.core.movie.connector.MovieSetToEmbyConnector;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
+import org.tinymediamanager.scraper.util.ParserUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -70,7 +79,6 @@ public class MovieSet extends MediaEntity {
 
   @JsonProperty
   private final List<UUID>                   movieIds              = new ArrayList<>(0);
-
   @JsonProperty
   private final List<MovieSetMovie>          dummyMovies           = new CopyOnWriteArrayList<>();
 
@@ -104,7 +112,7 @@ public class MovieSet extends MediaEntity {
 
     // link with movies
     for (UUID uuid : movieIds) {
-      Movie movie = MovieList.getInstance().lookupMovie(uuid);
+      Movie movie = MovieModuleManager.getInstance().getMovieList().lookupMovie(uuid);
       if (movie != null && movie.getMovieSet() == this) {
         movies.add(movie);
       }
@@ -140,9 +148,6 @@ public class MovieSet extends MediaEntity {
     firePropertyChange(TITLE_SORTABLE, oldValueTitleSortable, titleSortable);
 
     if (!StringUtils.equals(oldValue, newValue)) {
-      // update artwork
-      MovieSetArtworkHelper.cleanupArtwork(this);
-
       synchronized (movies) {
         for (Movie movie : movies) {
           movie.movieSetTitleChanged();
@@ -179,6 +184,39 @@ public class MovieSet extends MediaEntity {
     int oldValue = getTmdbId();
     ids.put(TMDB_SET, newValue);
     firePropertyChange(TMDB, oldValue, newValue);
+  }
+
+  /**
+   * Gets the genres.
+   *
+   * @return the genres
+   */
+  public List<MediaGenres> getGenres() {
+    // just a list of all genres from the movies
+    Set<MediaGenres> genres = new TreeSet<>(new MediaGenres.MediaGenresComparator());
+
+    for (Movie movie : movies) {
+      genres.addAll(movie.getGenres());
+    }
+
+    return new ArrayList<>(genres);
+  }
+
+  @Override
+  public String getProductionCompany() {
+    Set<String> productionCompanies = new HashSet<>();
+
+    for (Movie movie : movies) {
+      List<String> movieProductionCompanies = ParserUtils.split(movie.getProductionCompany());
+      productionCompanies.addAll(movieProductionCompanies);
+    }
+
+    return String.join(", ", productionCompanies);
+  }
+
+  @Override
+  public void setProductionCompany(String newValue) {
+    // do nothing since we do not store that on movie set level
   }
 
   @Override
@@ -314,7 +352,7 @@ public class MovieSet extends MediaEntity {
     List<Movie> moviesForDisplay = new ArrayList<>(getMovies());
 
     // now mix in all missing movies
-    if (MovieModuleManager.SETTINGS.isDisplayMovieSetMissingMovies() && ListUtils.isNotEmpty(dummyMovies)) {
+    if (MovieModuleManager.getInstance().getSettings().isDisplayMovieSetMissingMovies() && ListUtils.isNotEmpty(dummyMovies)) {
       for (MovieSetMovie movieSetMovie : dummyMovies) {
         boolean found = false;
 
@@ -393,12 +431,14 @@ public class MovieSet extends MediaEntity {
   }
 
   /**
-   * Gets the check mark for images. What to be checked is configurable
-   * 
+   * do we have basic images? Poster is checked.<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingArtwork()
+   *
    * @return the checks for images
    */
+  @Deprecated
   public Boolean getHasImages() {
-    for (MediaArtworkType type : MovieModuleManager.SETTINGS.getCheckImagesMovieSet()) {
+    for (MediaArtworkType type : Arrays.asList(MediaArtworkType.POSTER)) {
       if (getMediaFiles(MediaFileType.getMediaFileType(type)).isEmpty()) {
         return false;
       }
@@ -406,11 +446,22 @@ public class MovieSet extends MediaEntity {
     return true;
   }
 
+  /**
+   * do we have basic metadata filled?<br>
+   * If you want to have the configurable check, use {@link org.tinymediamanager.core.movie.MovieList}.detectMissingMetadata()
+   *
+   * @return true/false
+   */
+  @Deprecated
   public Boolean getHasMetadata() {
-    return StringUtils.isNotBlank(plot) && StringUtils.isNotBlank(title);
+    return StringUtils.isNoneBlank(title, plot);
   }
 
   public Boolean isWatched() {
+    if (movies.isEmpty()) {
+      return false;
+    }
+
     for (Movie movie : movies) {
       if (!movie.isWatched()) {
         return false;
@@ -419,6 +470,7 @@ public class MovieSet extends MediaEntity {
     return true;
   }
 
+  @Override
   public List<MediaFile> getImagesToCache() {
     // get files to cache
     List<MediaFile> filesToCache = new ArrayList<>();
@@ -443,50 +495,17 @@ public class MovieSet extends MediaEntity {
 
   @Override
   public synchronized void callbackForWrittenArtwork(MediaArtworkType type) {
+    // nothing to do here
   }
 
   @Override
   public void saveToDb() {
-    MovieList.getInstance().persistMovieSet(this);
+    MovieModuleManager.getInstance().getMovieList().persistMovieSet(this);
   }
 
   @Override
   public void deleteFromDb() {
-    MovieList.getInstance().removeMovieSetFromDb(this);
-  }
-
-  /**
-   * clean movies from this movieset if there are any inconsistances
-   */
-  public void cleanMovieSet() {
-    MovieList movieList = MovieList.getInstance();
-    boolean dirty = false;
-
-    for (Movie movie : new ArrayList<>(movies)) {
-      if (!movieList.getMovies().contains(movie)) {
-        movies.remove(movie);
-        movieIds.remove(movie.getDbId());
-        dirty = true;
-      }
-    }
-
-    if (dirty) {
-      saveToDb();
-    }
-  }
-
-  /**
-   * check if one of the movies is newly added
-   *
-   * @return true/false
-   */
-  public boolean hasNewlyAddedMovies() {
-    for (Movie movie : movies) {
-      if (movie.isNewlyAdded()) {
-        return true;
-      }
-    }
-    return false;
+    MovieModuleManager.getInstance().getMovieList().removeMovieSetFromDb(this);
   }
 
   /**
@@ -509,14 +528,33 @@ public class MovieSet extends MediaEntity {
       return;
     }
 
-    // populate ids (and remove old ones)
-    ids.clear();
+    // populate ids
+
+    // here we have two flavors:
+    // a) we did a search, so all existing ids should be different to to new ones -> remove old ones
+    // b) we did just a scrape (probably with another scraper). we should have at least one id in the movie which matches the ids from the metadata ->
+    // merge ids
+
+    // search for existing ids
+    boolean matchFound = false;
+    for (Map.Entry<String, Object> entry : metadata.getIds().entrySet()) {
+      if (entry.getValue() != null && entry.getValue().equals(getId(entry.getKey()))) {
+        matchFound = true;
+        break;
+      }
+    }
+
+    if (!matchFound) {
+      // clear the old ids/tags to set only the new ones
+      ids.clear();
+    }
+
     setIds(metadata.getIds());
 
     // set chosen metadata
     if (config.contains(MovieSetScraperMetadataConfig.TITLE)) {
       // Capitalize first letter of title if setting is set!
-      if (MovieModuleManager.SETTINGS.getCapitalWordsInTitles()) {
+      if (MovieModuleManager.getInstance().getSettings().getCapitalWordsInTitles()) {
         setTitle(WordUtils.capitalize(metadata.getTitle()));
       }
       else {
@@ -528,10 +566,71 @@ public class MovieSet extends MediaEntity {
       setPlot(metadata.getPlot());
     }
 
+    if (config.contains(MovieSetScraperMetadataConfig.RATING)) {
+      Map<String, MediaRating> newRatings = new HashMap<>();
+
+      if (matchFound) {
+        // only update new ratings, but let the old ones survive
+        newRatings.putAll(getRatings());
+      }
+
+      for (MediaRating mediaRating : metadata.getRatings()) {
+        newRatings.put(mediaRating.getId(), mediaRating);
+      }
+
+      setRatings(newRatings);
+    }
+
     // set scraped
     setScraped(true);
 
+    // update DB
+    writeNFO();
     saveToDb();
+
+    MovieSetArtworkHelper.cleanupArtwork(this);
+  }
+
+  /**
+   * Write nfo.
+   */
+  public void writeNFO() {
+    if (MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames().isEmpty()) {
+      LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
+      return;
+    }
+
+    IMovieSetConnector connector = null;
+
+    switch (MovieModuleManager.getInstance().getSettings().getMovieSetConnector()) {
+      case EMBY:
+      default:
+        connector = new MovieSetToEmbyConnector(this);
+    }
+
+    if (connector != null) {
+      connector.write(MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames());
+      firePropertyChange(HAS_NFO_FILE, false, true);
+    }
+  }
+
+  /**
+   * cleans the movie set title according to the Kodi logic from https://github.com/xbmc/xbmc/blob/master/xbmc/Util.cpp#L919
+   *
+   * @return the cleaned movie set title
+   */
+  public String getTitleForStorage() {
+    String result = title.replace('/', '_');
+    result = result.replace('\\', '_');
+    result = result.replace('?', '_');
+    result = result.replace(':', '_');
+    result = result.replace('*', '_');
+    result = result.replace('\"', '_');
+    result = result.replace('<', '_');
+    result = result.replace('>', '_');
+    result = result.replace('|', '_');
+
+    return result;
   }
 
   public void setDummyMovies(List<MovieSetMovie> dummyMovies) {
@@ -571,6 +670,49 @@ public class MovieSet extends MediaEntity {
     }
 
     return "";
+  }
+
+  public Object getValueForMetadata(MovieSetScraperMetadataConfig metadataConfig) {
+
+    switch (metadataConfig) {
+      case ID:
+        return getIds();
+
+      case TITLE:
+        return getTitle();
+
+      case PLOT:
+        return getPlot();
+
+      case RATING:
+        return getRatings();
+
+      case POSTER:
+        return getMediaFiles(MediaFileType.POSTER);
+
+      case FANART:
+        return getMediaFiles(MediaFileType.FANART);
+
+      case BANNER:
+        return getMediaFiles(MediaFileType.BANNER);
+
+      case CLEARART:
+        return getMediaFiles(MediaFileType.CLEARART);
+
+      case THUMB:
+        return getMediaFiles(MediaFileType.THUMB);
+
+      case LOGO:
+        return getMediaFiles(MediaFileType.LOGO);
+
+      case CLEARLOGO:
+        return getMediaFiles(MediaFileType.CLEARLOGO);
+
+      case DISCART:
+        return getMediaFiles(MediaFileType.DISC);
+    }
+
+    return null;
   }
 
   /*******************************************************************************
@@ -633,11 +775,11 @@ public class MovieSet extends MediaEntity {
     }
 
     @Override
-    public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config) {
+    public void setMetadata(MediaMetadata metadata, List<MovieScraperMetadataConfig> config, boolean overwriteExistingItems) {
       // do not set movie set assignment since that could create new movie sets in the DB
       List<MovieScraperMetadataConfig> newConfig = new ArrayList<>(config);
       newConfig.remove(MovieScraperMetadataConfig.COLLECTION);
-      super.setMetadata(metadata, newConfig);
+      super.setMetadata(metadata, newConfig, overwriteExistingItems);
     }
 
     @Override

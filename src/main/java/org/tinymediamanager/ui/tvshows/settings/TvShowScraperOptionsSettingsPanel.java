@@ -48,7 +48,7 @@ import net.miginfocom.swing.MigLayout;
 class TvShowScraperOptionsSettingsPanel extends JPanel {
   private static final long         serialVersionUID = 4999827736720726395L;
 
-  private TvShowSettings            settings         = TvShowModuleManager.SETTINGS;
+  private TvShowSettings            settings         = TvShowModuleManager.getInstance().getSettings();
   private JCheckBox                 chckbxAutomaticallyScrapeImages;
   private JComboBox<MediaLanguages> cbScraperLanguage;
   private JComboBox<CountryCode>    cbCertificationCountry;

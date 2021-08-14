@@ -22,7 +22,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.movie.MovieList;
+import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.MainWindow;
@@ -34,8 +34,7 @@ import org.tinymediamanager.ui.moviesets.MovieSetUIModule;
  * 
  */
 public class MovieSetRemoveAction extends TmmAction {
-  private static final long           serialVersionUID = -9030996266835702009L;
-  
+  private static final long serialVersionUID = -9030996266835702009L;
 
   /**
    * Instantiates a new removes the movie set action.
@@ -58,7 +57,7 @@ public class MovieSetRemoveAction extends TmmAction {
 
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     for (MovieSet movieSet : selectedMovieSets) {
-      MovieList.getInstance().removeMovieSet(movieSet);
+      MovieModuleManager.getInstance().getMovieList().removeMovieSet(movieSet);
     }
     MainWindow.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
   }

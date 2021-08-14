@@ -265,7 +265,7 @@ public class ParserUtils {
     }
 
     // also remove bad words
-    for (String s : TvShowModuleManager.SETTINGS.getBadWord()) {
+    for (String s : TvShowModuleManager.getInstance().getSettings().getBadWord()) {
       basename = basename.replaceAll("(?i)" + DELIMITER + s + "(" + DELIMITER + "|$)", " "); // TV bad words must start AND END with a non-word (else
                                                                                              // too global) or line end
       if (LOGGER.isTraceEnabled() && basename.length() != before.length()) {

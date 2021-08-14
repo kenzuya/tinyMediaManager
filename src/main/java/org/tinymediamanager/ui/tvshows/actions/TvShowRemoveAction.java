@@ -30,7 +30,7 @@ import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmProperties;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -46,8 +46,7 @@ import org.tinymediamanager.ui.tvshows.TvShowUIModule;
  * @author Manuel Laggner
  */
 public class TvShowRemoveAction extends TmmAction {
-  private static final long           serialVersionUID = -2355545751433709417L;
-  
+  private static final long serialVersionUID = -2355545751433709417L;
 
   public TvShowRemoveAction() {
     putValue(NAME, TmmResourceBundle.getString("tvshow.remove"));
@@ -72,8 +71,8 @@ public class TvShowRemoveAction extends TmmAction {
       checkBox.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
       Object[] params = { TmmResourceBundle.getString("tvshow.remove.desc"), checkBox };
       Object[] options = { TmmResourceBundle.getString("Button.yes"), TmmResourceBundle.getString("Button.no") };
-      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("tvshow.remove"), JOptionPane.YES_NO_OPTION,
-          JOptionPane.QUESTION_MESSAGE, null, options, null);
+      int answer = JOptionPane.showOptionDialog(MainWindow.getInstance(), params, TmmResourceBundle.getString("tvshow.remove"),
+          JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 
       // the user don't want to show this dialog again
       if (checkBox.isSelected()) {
@@ -90,7 +89,7 @@ public class TvShowRemoveAction extends TmmAction {
       // remove a whole TV show
       if (obj instanceof TvShow) {
         TvShow tvShow = (TvShow) obj;
-        TvShowList.getInstance().removeTvShow(tvShow);
+        TvShowModuleManager.getInstance().getTvShowList().removeTvShow(tvShow);
       }
       // remove seasons
       if (obj instanceof TvShowSeason) {

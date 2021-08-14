@@ -21,6 +21,7 @@ import java.awt.event.ItemListener;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -33,12 +34,12 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.DateField;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieSettings;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
 import org.tinymediamanager.core.movie.filenaming.MovieNfoNaming;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
 import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
@@ -56,7 +57,7 @@ import net.miginfocom.swing.MigLayout;
 class MovieScraperNfoSettingsPanel extends JPanel {
   private static final long                    serialVersionUID = -299825914193235308L;
 
-  private final MovieSettings                  settings         = MovieModuleManager.SETTINGS;
+  private final MovieSettings                  settings         = MovieModuleManager.getInstance().getSettings();
   private final ItemListener                   checkBoxListener;
   private final ItemListener                   comboBoxListener;
 
@@ -175,6 +176,9 @@ class MovieScraperNfoSettingsPanel extends JPanel {
 
         cbNfoFormat = new JComboBox(MovieConnectors.values());
         panelNfo.add(cbNfoFormat, "cell 1 0 2 1");
+
+        JButton docsButton = new DocsButton("/movies/nfo-formats");
+        panelNfo.add(docsButton, "cell 1 0 2 1");
 
         {
           JPanel panelNfoFormat = new JPanel();

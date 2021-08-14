@@ -22,12 +22,9 @@ import org.fourthline.cling.support.model.SortCriterion;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
-import org.tinymediamanager.core.Settings;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.TmmModuleManager;
-import org.tinymediamanager.core.movie.MovieList;
 import org.tinymediamanager.core.movie.MovieModuleManager;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.thirdparty.upnp.ContentDirectoryService;
 
@@ -37,11 +34,11 @@ public class ContentDirectoryBrowseTest extends BasicTest {
   private static final ContentDirectoryService CDS         = new ContentDirectoryService();
 
   private String getValidMovieID() {
-    return MovieList.getInstance().getMovies().get(0).getDbId().toString();
+    return MovieModuleManager.getInstance().getMovieList().getMovies().get(0).getDbId().toString();
   }
 
   private String getValidShowID() {
-    return TvShowList.getInstance().getTvShows().get(0).getDbId().toString();
+    return TvShowModuleManager.getInstance().getTvShowList().getTvShows().get(0).getDbId().toString();
   }
 
   @Test
@@ -177,9 +174,8 @@ public class ContentDirectoryBrowseTest extends BasicTest {
 
   @BeforeClass
   public static void init() throws Exception {
+    BasicTest.setup();
     setTraceLogging();
-    deleteSettingsFolder();
-    Settings.getInstance(getSettingsFolder());
 
     TmmModuleManager.getInstance().startUp();
     MovieModuleManager.getInstance().startUp();

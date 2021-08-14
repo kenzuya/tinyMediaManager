@@ -28,7 +28,6 @@ import org.mp4parser.muxer.builder.FragmentedMp4Builder;
 import org.mp4parser.muxer.container.mp4.MovieCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.thirdparty.FFmpeg;
 
 /**
@@ -61,7 +60,7 @@ public class TmmMuxer {
     Movie movie = null;
 
     // try to use FFmpeg if available
-    if (StringUtils.isNotBlank(Globals.settings.getMediaFramework())) {
+    if (StringUtils.isNotBlank(Settings.getInstance().getMediaFramework())) {
       try {
         FFmpeg.muxVideoAndAudio(videoFile, audioFile, destination);
         return;

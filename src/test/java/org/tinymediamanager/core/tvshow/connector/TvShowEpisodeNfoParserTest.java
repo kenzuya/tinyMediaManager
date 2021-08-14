@@ -23,11 +23,18 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.core.MediaCertification;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaGenres;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
-public class TvShowEpisodeNfoParserTest {
+public class TvShowEpisodeNfoParserTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testKodi17_0() {

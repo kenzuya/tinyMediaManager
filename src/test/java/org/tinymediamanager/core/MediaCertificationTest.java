@@ -2,10 +2,16 @@ package org.tinymediamanager.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 
 public class MediaCertificationTest extends BasicTest {
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   // @Test
   // public void testCertificationNames() {

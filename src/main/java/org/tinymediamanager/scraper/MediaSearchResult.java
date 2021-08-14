@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.StrgUtils;
@@ -36,20 +37,21 @@ import org.tinymediamanager.scraper.util.StrgUtils;
  * @since 1.0
  */
 public class MediaSearchResult implements Comparable<MediaSearchResult> {
-  private static final Logger LOGGER   = LoggerFactory.getLogger(MediaSearchResult.class);
+  private static final Logger       LOGGER           = LoggerFactory.getLogger(MediaSearchResult.class);
 
-  private String              providerId;
-  private String              url;
-  private String              title;
-  private String              overview;
-  private int                 year;
-  private String              originalTitle;
-  private String              originalLanguage;
-  private Map<String, Object> ids      = new HashMap<>();
-  private float               score;
-  private MediaMetadata       metadata = null;
-  private MediaType           type;
-  private String              posterUrl;
+  private final MediaType           type;
+  private final Map<String, Object> ids              = new HashMap<>();
+
+  private String                    providerId;
+  private String                    url              = "";
+  private String                    title            = "";
+  private String                    overview         = "";
+  private int                       year             = 0;
+  private String                    originalTitle    = "";
+  private String                    originalLanguage = "";
+  private float                     score            = 0;
+  private MediaMetadata             metadata         = null;
+  private String                    posterUrl        = "";
 
   public MediaSearchResult(String providerId, MediaType type) {
     this.providerId = providerId;
@@ -101,6 +103,25 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
     }
     else {
       metadata.mergeFrom(msr.getMediaMetadata());
+    }
+  }
+
+  public void mergeFrom(MediaMetadata mediaMetadata) {
+    if (mediaMetadata == null) {
+      return;
+    }
+
+    this.metadata = mediaMetadata;
+
+    ids.putAll(mediaMetadata.getIds());
+    setTitle(mediaMetadata.getTitle());
+    setOriginalTitle(mediaMetadata.getOriginalTitle());
+    setYear(mediaMetadata.getYear());
+    setOverview(mediaMetadata.getPlot());
+
+    if (!mediaMetadata.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).isEmpty()) {
+      MediaArtwork poster = mediaMetadata.getMediaArt(MediaArtwork.MediaArtworkType.POSTER).get(0);
+      setPosterUrl(poster.getDefaultUrl());
     }
   }
 
@@ -310,6 +331,26 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
   }
 
   /**
+   * set all given ids
+   * 
+   * @param ids
+   *          the ids to set
+   */
+  public void setIds(Map<String, Object> ids) {
+    if (ids == null) {
+      return;
+    }
+
+    for (Map.Entry<String, Object> entry : ids.entrySet()) {
+      if (entry.getValue() == null) {
+        continue;
+      }
+
+      setId(entry.getKey(), entry.getValue().toString());
+    }
+  }
+
+  /**
    * Get the IMDB id
    * 
    * @return the IMDB id
@@ -431,16 +472,17 @@ public class MediaSearchResult implements Comparable<MediaSearchResult> {
 
     float yearPenalty = MetadataUtil.calculateYearPenalty(options.getSearchYear(), year);
     if (yearPenalty > 0) {
-      LOGGER.debug("parsed year does not match search result year - downgrading score by {}", yearPenalty);
+      LOGGER.trace("parsed year does not match search result year - downgrading score by {}", yearPenalty);
       calculatedScore -= yearPenalty;
     }
 
     if (StringUtils.isBlank(posterUrl)) {
       // no poster?
-      LOGGER.debug("no poster - downgrading score by 0.01");
+      LOGGER.trace("no poster - downgrading score by 0.01");
       calculatedScore -= 0.01f;
     }
 
+    LOGGER.debug(String.format("Similarity Score: [%s] [%s / %s]=[%s]", options.getSearchQuery(), title, originalTitle, calculatedScore));
     setScore(calculatedScore);
   }
 

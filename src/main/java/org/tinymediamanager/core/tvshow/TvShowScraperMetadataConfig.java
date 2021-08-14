@@ -30,6 +30,7 @@ import org.tinymediamanager.core.TmmResourceBundle;
  */
 public enum TvShowScraperMetadataConfig implements ScraperMetadataConfig {
   // meta data
+  ID(Type.METADATA),
   TITLE(Type.METADATA),
   ORIGINAL_TITLE(Type.METADATA, "metatag.originaltitle"),
   PLOT(Type.METADATA),

@@ -233,7 +233,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
     String posterPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_POSTER);
     Dimension posterSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_POSTER);
 
-    if (StringUtils.isBlank(posterPath) && TvShowModuleManager.SETTINGS.isSeasonArtworkFallback()) {
+    if (StringUtils.isBlank(posterPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       // fall back to the show
       posterPath = season.getTvShow().getArtworkFilename(MediaFileType.POSTER);
       posterSize = season.getTvShow().getArtworkDimension(MediaFileType.POSTER);
@@ -254,7 +254,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
     String bannerPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_BANNER);
     Dimension bannerSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_BANNER);
 
-    if (StringUtils.isBlank(bannerPath) && TvShowModuleManager.SETTINGS.isSeasonArtworkFallback()) {
+    if (StringUtils.isBlank(bannerPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       // fall back to the show
       bannerPath = season.getTvShow().getArtworkFilename(MediaFileType.BANNER);
       bannerSize = season.getTvShow().getArtworkDimension(MediaFileType.BANNER);
@@ -275,7 +275,7 @@ public class TvShowSeasonInformationPanel extends JPanel {
     String thumbPath = season.getArtworkFilename(MediaArtwork.MediaArtworkType.SEASON_THUMB);
     Dimension thumbSize = season.getArtworkSize(MediaArtwork.MediaArtworkType.SEASON_THUMB);
 
-    if (StringUtils.isBlank(thumbPath) && TvShowModuleManager.SETTINGS.isSeasonArtworkFallback()) {
+    if (StringUtils.isBlank(thumbPath) && TvShowModuleManager.getInstance().getSettings().isSeasonArtworkFallback()) {
       thumbPath = season.getTvShow().getArtworkFilename(MediaFileType.FANART);
       thumbSize = season.getTvShow().getArtworkDimension(MediaFileType.FANART);
     }

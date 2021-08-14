@@ -27,8 +27,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
@@ -117,7 +117,7 @@ public class SubtitleDownloadTask extends DownloadTask {
           String extension = FilenameUtils.getExtension(ze.getName()).toLowerCase(Locale.ROOT);
 
           // check is that is a valid file type
-          if (Globals.settings.getSubtitleFileType().contains("." + extension) || "idx".equals(extension)) {
+          if (Settings.getInstance().getSubtitleFileType().contains("." + extension) || "idx".equals(extension)) {
             firstSubtitle = new SubtitleEntry(extension, is.readAllBytes());
           }
 

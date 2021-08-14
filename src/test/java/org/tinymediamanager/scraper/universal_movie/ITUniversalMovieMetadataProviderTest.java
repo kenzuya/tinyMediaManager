@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.tinymediamanager.BasicTest;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.movie.MovieSearchAndScrapeOptions;
 import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviders;
@@ -38,6 +38,7 @@ public class ITUniversalMovieMetadataProviderTest extends BasicTest {
 
   @BeforeClass
   public static void setUp() {
+    BasicTest.setup();
     // load all classpath plugins
     MediaProviders.loadMediaProviders();
   }

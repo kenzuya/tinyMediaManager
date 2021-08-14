@@ -39,10 +39,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.AbstractModelObject;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.thirdparty.MediaInfo.StreamKind;
@@ -82,6 +82,8 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   private int                        videoHeight       = 0;
   @JsonProperty
   private float                      aspectRatio       = 0f;
+  @JsonProperty
+  private Float                      aspectRatio2      = null;
   @JsonProperty
   private int                        videoBitRate      = 0;
   @JsonProperty
@@ -134,6 +136,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     this.videoHeight = clone.videoHeight;
     this.videoWidth = clone.videoWidth;
     this.aspectRatio = clone.aspectRatio;
+    this.aspectRatio2 = clone.aspectRatio2;
     this.overallBitRate = clone.overallBitRate;
     this.bitDepth = clone.bitDepth;
     this.frameRate = clone.frameRate;
@@ -323,7 +326,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
       case EXTRA:
         // check if that extra is a video file
-        if (Globals.settings.getVideoFileType().contains("." + getExtension().toLowerCase(Locale.ROOT))) {
+        if (Settings.getInstance().getVideoFileType().contains("." + getExtension().toLowerCase(Locale.ROOT))) {
           return true;
         }
         break;
@@ -395,6 +398,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
     setExactVideoFormat("");
     setContainerFormat("");
     setAspectRatio(0);
+    setAspectRatio2(null);
     setVideo3DFormat("");
     setHdrFormat("");
     setAnimatedGraphic(false);
@@ -481,6 +485,10 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    *          the new path
    */
   public void replacePathForRenamedFolder(Path oldPath, Path newPath) {
+    if (oldPath == null || newPath == null) {
+      return;
+    }
+
     String p = getPath();
     p = p.replace(oldPath.toAbsolutePath().toString(), newPath.toAbsolutePath().toString());
     setPath(p);
@@ -1025,7 +1033,7 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
    *
    * @return the aspect ratio
    */
-  public float getAspectRatio() {
+  public Float getAspectRatio() {
 
     // check whether the aspect ratio has been overridden
     if (aspectRatio > 0) {
@@ -1038,6 +1046,22 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
 
     float ar = (float) this.videoWidth / (float) this.videoHeight;
     return getCommonAspectRatio(ar);
+  }
+
+  /**
+   * sets the aspect ratio 2 for this file.
+   *
+   * @param newValue
+   *          the new aspect ratio 2
+   */
+  public void setAspectRatio2(Float newValue) {
+    Float oldValue = this.aspectRatio2;
+    this.aspectRatio2 = newValue;
+    firePropertyChange("aspectRatio2", oldValue, newValue);
+  }
+
+  public Float getAspectRatio2() {
+    return this.aspectRatio2;
   }
 
   /**

@@ -57,12 +57,6 @@ public class MediaInfo implements Closeable {
   }
 
   /**
-   * Instantiates a new media info.
-   */
-  public MediaInfo() {
-  }
-
-  /**
    * Open.
    * 
    * @param file
@@ -213,7 +207,8 @@ public class MediaInfo implements Closeable {
   public String Get(StreamKind StreamKind, int StreamNumber, String parameter, InfoKind infoKind, InfoKind searchKind) {
     if (isLoaded()) {
       return MediaInfoLibrary.INSTANCE
-          .Get(handle, StreamKind.ordinal(), StreamNumber, new WString(parameter), infoKind.ordinal(), searchKind.ordinal()).toString();
+          .Get(handle, StreamKind.ordinal(), StreamNumber, new WString(parameter), infoKind.ordinal(), searchKind.ordinal())
+          .toString();
     }
     else {
       return "";
@@ -325,7 +320,8 @@ public class MediaInfo implements Closeable {
   public String get(StreamKind streamKind, int streamNumber, String parameter, InfoKind infoKind, InfoKind searchKind) {
     if (isLoaded()) {
       return MediaInfoLibrary.INSTANCE
-          .Get(handle, streamKind.ordinal(), streamNumber, new WString(parameter), infoKind.ordinal(), searchKind.ordinal()).toString();
+          .Get(handle, streamKind.ordinal(), streamNumber, new WString(parameter), infoKind.ordinal(), searchKind.ordinal())
+          .toString();
     }
     else {
       return "";
@@ -606,8 +602,7 @@ public class MediaInfo implements Closeable {
       return MediaInfoLibrary.INSTANCE.Option(null, new WString(option), new WString(value)).toString();
     }
     catch (Error e) {
-      // throw new MediaInfoException(e);
-      LOGGER.error("Failed to load mediainfo", e);
+      LOGGER.error("Failed to load mediainfo - '{}'", e.getMessage());
       return "";
     }
   }

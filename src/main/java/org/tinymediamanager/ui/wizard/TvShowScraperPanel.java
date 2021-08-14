@@ -38,7 +38,6 @@ import org.jdesktop.observablecollections.ObservableCollections;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.tinymediamanager.core.TmmResourceBundle;
-import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.scraper.MediaScraper;
@@ -66,7 +65,7 @@ class TvShowScraperPanel extends JPanel {
    */
   
 
-  private final TvShowSettings        settings         = TvShowModuleManager.SETTINGS;
+  private final TvShowSettings      settings         = TvShowModuleManager.getInstance().getSettings();
   private final List<TvShowScraper>   scrapers         = ObservableCollections.observableList(new ArrayList<>());
 
   private JTable                      tableScraper;
@@ -77,10 +76,10 @@ class TvShowScraperPanel extends JPanel {
 
   TvShowScraperPanel() {
     // data init before UI init
-    MediaScraper defaultMediaScraper = TvShowList.getInstance().getDefaultMediaScraper();
+    MediaScraper defaultMediaScraper = TvShowModuleManager.getInstance().getTvShowList().getDefaultMediaScraper();
     int selectedIndex = 0;
     int counter = 0;
-    for (MediaScraper scraper : TvShowList.getInstance().getAvailableMediaScrapers()) {
+    for (MediaScraper scraper : TvShowModuleManager.getInstance().getTvShowList().getAvailableMediaScrapers()) {
       TvShowScraper tvShowScraper = new TvShowScraper(scraper);
       if (scraper.equals(defaultMediaScraper)) {
         tvShowScraper.setDefaultScraper(true);

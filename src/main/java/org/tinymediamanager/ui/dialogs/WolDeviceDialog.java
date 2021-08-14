@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
-import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.WolDevice;
 import org.tinymediamanager.ui.IconManager;
@@ -118,7 +118,7 @@ public class WolDeviceDialog extends TmmDialog {
       // create a new WOL device
       if (device == null) {
         device = new WolDevice();
-        Globals.settings.addWolDevices(device);
+        Settings.getInstance().addWolDevices(device);
       }
 
       device.setName(tfName.getText());

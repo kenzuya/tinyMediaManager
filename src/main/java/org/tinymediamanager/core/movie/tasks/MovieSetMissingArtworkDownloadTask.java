@@ -45,14 +45,14 @@ import org.tinymediamanager.scraper.interfaces.IMovieSetArtworkProvider;
  * @author Manuel Laggner
  */
 public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
-  private static final Logger            LOGGER = LoggerFactory.getLogger(MovieSetMissingArtworkDownloadTask.class);
+  private static final Logger                  LOGGER = LoggerFactory.getLogger(MovieSetMissingArtworkDownloadTask.class);
 
-  private List<MovieSet>                 moviesToScrape;
-  private MovieSetSearchAndScrapeOptions scrapeOptions;
+  private final List<MovieSet>                 moviesToScrape;
+  private final MovieSetSearchAndScrapeOptions scrapeOptions;
 
   public MovieSetMissingArtworkDownloadTask(List<MovieSet> moviesToScrape, MovieSetSearchAndScrapeOptions scrapeOptions) {
     super(TmmResourceBundle.getString("task.missingartwork"));
-    this.moviesToScrape = moviesToScrape;
+    this.moviesToScrape = new ArrayList<>(moviesToScrape);
     this.scrapeOptions = scrapeOptions;
   }
 
@@ -94,16 +94,16 @@ public class MovieSetMissingArtworkDownloadTask extends TmmThreadPool {
     @Override
     public void run() {
       try {
-        MovieList movieList = MovieList.getInstance();
+        MovieList movieList = MovieModuleManager.getInstance().getMovieList();
         // set up scrapers
         List<MediaArtwork> artwork = new ArrayList<>();
         ArtworkSearchAndScrapeOptions options = new ArtworkSearchAndScrapeOptions(MediaType.MOVIE_SET);
         options.setDataFromOtherOptions(scrapeOptions);
         options.setArtworkType(MediaArtworkType.ALL);
         options.setIds(movieSet.getIds());
-        options.setLanguage(MovieModuleManager.SETTINGS.getScraperLanguage());
-        options.setFanartSize(MovieModuleManager.SETTINGS.getImageFanartSize());
-        options.setPosterSize(MovieModuleManager.SETTINGS.getImagePosterSize());
+        options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+        options.setFanartSize(MovieModuleManager.getInstance().getSettings().getImageFanartSize());
+        options.setPosterSize(MovieModuleManager.getInstance().getSettings().getImagePosterSize());
 
         // scrape providers till one artwork has been found
         for (MediaScraper scraper : movieList.getDefaultArtworkScrapers()) {

@@ -76,13 +76,12 @@ import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
-import org.tinymediamanager.core.MediaCertification;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.entities.MediaGenres;
@@ -96,6 +95,7 @@ import org.tinymediamanager.core.movie.entities.Movie;
 import org.tinymediamanager.core.movie.entities.MovieSet;
 import org.tinymediamanager.core.threading.TmmTaskManager;
 import org.tinymediamanager.scraper.ScraperType;
+import org.tinymediamanager.scraper.entities.MediaCertification;
 import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.thirdparty.trakttv.MovieSyncTraktTvTask;
 import org.tinymediamanager.ui.IconManager;
@@ -141,7 +141,7 @@ public class MovieEditorDialog extends TmmDialog {
   private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
 
   private Movie                              movieToEdit;
-  private MovieList                          movieList           = MovieList.getInstance();
+  private MovieList                          movieList           = MovieModuleManager.getInstance().getMovieList();
 
   private List<MediaGenres>                  genres              = ObservableCollections.observableList(new ArrayList<>());
   private List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
@@ -263,7 +263,7 @@ public class MovieEditorDialog extends TmmDialog {
       int year = movieToEdit.getYear();
 
       List<MediaCertification> availableCertifications = MediaCertification
-          .getCertificationsforCountry(MovieModuleManager.SETTINGS.getCertificationCountry());
+          .getCertificationsforCountry(MovieModuleManager.getInstance().getSettings().getCertificationCountry());
       if (!availableCertifications.contains(movieToEdit.getCertification())) {
         availableCertifications.add(0, movieToEdit.getCertification());
       }
@@ -337,10 +337,10 @@ public class MovieEditorDialog extends TmmDialog {
       showlinks.addAll(movieToEdit.getShowlinks());
       showlinks.sort(Comparator.naturalOrder());
 
-      if (MovieModuleManager.SETTINGS.isImageExtraThumbs()) {
+      if (MovieModuleManager.getInstance().getSettings().isImageExtraThumbs()) {
         extrathumbs = new ArrayList<>(movieToEdit.getExtraThumbs());
       }
-      if (MovieModuleManager.SETTINGS.isImageExtraFanart()) {
+      if (MovieModuleManager.getInstance().getSettings().isImageExtraFanart()) {
         extrafanarts = new ArrayList<>(movieToEdit.getExtraFanarts());
       }
       for (MovieSet movieSet : movieList.getSortedMovieSetList()) {
@@ -416,7 +416,7 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), POSTER,
                 movieList.getDefaultArtworkScrapers(), lblPoster, MediaType.MOVIE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -558,7 +558,7 @@ public class MovieEditorDialog extends TmmDialog {
             dialog.bindExtraFanarts(extrafanarts);
             dialog.bindExtraThumbs(extrathumbs);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -915,7 +915,7 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), LOGO,
                 movieList.getDefaultArtworkScrapers(), lblLogo, MediaType.MOVIE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -953,7 +953,7 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), KEYART,
                 movieList.getDefaultArtworkScrapers(), lblKeyart, MediaType.MOVIE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -989,7 +989,7 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARLOGO,
                 movieList.getDefaultArtworkScrapers(), lblClearlogo, MediaType.MOVIE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -1025,7 +1025,7 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), BANNER,
                 movieList.getDefaultArtworkScrapers(), lblBanner, MediaType.MOVIE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -1061,7 +1061,7 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), CLEARART,
                 movieList.getDefaultArtworkScrapers(), lblClearart, MediaType.MOVIE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -1100,7 +1100,7 @@ public class MovieEditorDialog extends TmmDialog {
 
             dialog.bindExtraThumbs(extrathumbs);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -1136,7 +1136,7 @@ public class MovieEditorDialog extends TmmDialog {
             ImageChooserDialog dialog = new ImageChooserDialog(MovieEditorDialog.this, createIdsForImageChooser(), DISC,
                 movieList.getDefaultArtworkScrapers(), lblDisc, MediaType.MOVIE);
 
-            if (Globals.settings.isImageChooserUseEntityFolder()) {
+            if (Settings.getInstance().isImageChooserUseEntityFolder()) {
               dialog.setOpenFolderPath(movieToEdit.getPathNIO().toAbsolutePath().toString());
             }
 
@@ -1460,11 +1460,11 @@ public class MovieEditorDialog extends TmmDialog {
       movieToEdit.saveToDb();
 
       // if configured - sync with trakt.tv
-      if (MovieModuleManager.SETTINGS.getSyncTrakt()) {
+      if (MovieModuleManager.getInstance().getSettings().getSyncTrakt()) {
         MovieSyncTraktTvTask task = new MovieSyncTraktTvTask(Collections.singletonList(movieToEdit));
-        task.setSyncCollection(MovieModuleManager.SETTINGS.getSyncTraktCollection());
-        task.setSyncWatched(MovieModuleManager.SETTINGS.getSyncTraktWatched());
-        task.setSyncRating(MovieModuleManager.SETTINGS.getSyncTraktRating());
+        task.setSyncCollection(MovieModuleManager.getInstance().getSettings().getSyncTraktCollection());
+        task.setSyncWatched(MovieModuleManager.getInstance().getSettings().getSyncTraktWatched());
+        task.setSyncRating(MovieModuleManager.getInstance().getSettings().getSyncTraktRating());
 
         TmmTaskManager.getInstance().addUnnamedTask(task);
       }

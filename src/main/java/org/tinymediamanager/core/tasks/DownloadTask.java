@@ -29,10 +29,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.Globals;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaEntity;
 import org.tinymediamanager.core.entities.MediaFile;
@@ -96,14 +96,14 @@ public abstract class DownloadTask extends TmmTask {
       // try to get the file extension from the destination filename
       String fileExtension = FilenameUtils.getExtension(destination.getFileName().toString()).toLowerCase(Locale.ROOT);
       if (StringUtils.isNotBlank(fileExtension) && fileExtension.length() > 4
-          || !Globals.settings.getAllSupportedFileTypes().contains("." + fileExtension)) {
+          || !Settings.getInstance().getAllSupportedFileTypes().contains("." + fileExtension)) {
         fileExtension = ""; // no extension when longer than 4 chars!
       }
       // if file extension is empty, detect from url
       if (StringUtils.isBlank(fileExtension)) {
         fileExtension = UrlUtil.getExtension(url).toLowerCase(Locale.ROOT);
         if (!fileExtension.isEmpty()) {
-          if (Globals.settings.getAllSupportedFileTypes().contains("." + fileExtension)) {
+          if (Settings.getInstance().getAllSupportedFileTypes().contains("." + fileExtension)) {
             destination = destination.getParent().resolve(destination.getFileName() + "." + fileExtension);
           }
           else {

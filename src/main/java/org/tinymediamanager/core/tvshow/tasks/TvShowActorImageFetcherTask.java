@@ -37,7 +37,7 @@ public class TvShowActorImageFetcherTask extends MediaEntityActorImageFetcherTas
     // create a set of all actors and guests
     persons = new HashSet<>(tvShow.getActors());
     for (TvShowEpisode episode : tvShow.getEpisodes()) {
-      persons.addAll(episode.getGuests());
+      persons.addAll(episode.getActors());
     }
   }
 
@@ -46,7 +46,7 @@ public class TvShowActorImageFetcherTask extends MediaEntityActorImageFetcherTas
     this.mediaEntity = episode.getTvShow();
     cleanup = false;
 
-    persons = new HashSet<>(episode.getGuests());
+    persons = new HashSet<>(episode.getActors());
   }
 
   @Override

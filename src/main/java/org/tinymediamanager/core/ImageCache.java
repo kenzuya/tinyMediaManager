@@ -219,7 +219,7 @@ public class ImageCache {
       retries = 5;
       do {
         try {
-          switch (Globals.settings.getImageCacheType()) {
+          switch (Settings.getInstance().getImageCacheType()) {
             case BALANCED:
               // scale fast
               scaledImage = Scalr.resize(originalImage, Scalr.Method.BALANCED, Scalr.Mode.FIT_EXACT, size.x, size.y);
@@ -425,7 +425,7 @@ public class ImageCache {
     }
 
     // is the image cache activated?
-    if (!Globals.settings.isImageCache()) {
+    if (!Settings.getInstance().isImageCache()) {
       return null;
     }
 
@@ -484,7 +484,7 @@ public class ImageCache {
     }
 
     // is the image cache activated?
-    if (!Globals.settings.isImageCache()) {
+    if (!Settings.getInstance().isImageCache()) {
       // need to return null, else the caller couldn't distinguish between cached/original file
       return null;
     }
@@ -515,7 +515,7 @@ public class ImageCache {
    * @return true/false
    */
   public static boolean isImageCached(Path path) {
-    if (!Globals.settings.isImageCache()) {
+    if (!Settings.getInstance().isImageCache()) {
       return false;
     }
 

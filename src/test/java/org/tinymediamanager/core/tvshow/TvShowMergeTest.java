@@ -3,14 +3,21 @@ package org.tinymediamanager.core.tvshow;
 import java.nio.file.Paths;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.tinymediamanager.core.BasicTest;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 
-public class TvShowMergeTest {
+public class TvShowMergeTest extends BasicTest {
 
   private static final MediaFile dmf = new MediaFile(Paths.get("/path/to", "video.avi"));
+
+  @BeforeClass
+  public static void setup() {
+    BasicTest.setup();
+  }
 
   @Test
   public void testEPmerge() {

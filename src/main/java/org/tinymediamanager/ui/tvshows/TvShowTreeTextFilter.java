@@ -23,10 +23,18 @@ import java.util.regex.Pattern;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.lang3.StringUtils;
+import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.ui.components.tree.TmmTreeNode;
 import org.tinymediamanager.ui.components.tree.TmmTreeTextFilter;
 
+/**
+ * the class {@link TvShowTreeTextFilter} is used to filter the TV shows by text input
+ * 
+ * @author Manuel Laggner
+ */
 public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilter {
+  private final TvShowSettings settings = TvShowModuleManager.getInstance().getSettings();
 
   @Override
   public boolean accept(TmmTreeNode node) {
@@ -37,22 +45,37 @@ public class TvShowTreeTextFilter<E extends TmmTreeNode> extends TmmTreeTextFilt
     if (node instanceof TvShowTreeDataProvider.AbstractTvShowTreeNode) {
       TvShowTreeDataProvider.AbstractTvShowTreeNode treeNode = (TvShowTreeDataProvider.AbstractTvShowTreeNode) node;
 
-      // first: filter on the node
-      Matcher matcher = filterPattern.matcher(treeNode.toString());
-      if (matcher.find()) {
-        return true;
+      // filter on the node
+      Matcher matcher;
+      if (settings.getNode()) {
+        matcher = filterPattern.matcher(treeNode.toString());
+        if (matcher.find()) {
+          return true;
+        }
       }
 
-      // second: filter on the orignal title
-      matcher = filterPattern.matcher(treeNode.getTitle());
-      if (matcher.find()) {
-        return true;
+      // filter on the title
+      if (settings.getTitle()) {
+        matcher = filterPattern.matcher(treeNode.getTitle());
+        if (matcher.find()) {
+          return true;
+        }
       }
 
-      // third: filter on the original title
-      matcher = filterPattern.matcher(treeNode.getOriginalTitle());
-      if (matcher.find()) {
-        return true;
+      // filter on the original title
+      if (settings.getOriginalTitle()) {
+        matcher = filterPattern.matcher(treeNode.getOriginalTitle());
+        if (matcher.find()) {
+          return true;
+        }
+      }
+
+      // Note
+      if (settings.getNote()) {
+        matcher = filterPattern.matcher(treeNode.getNote());
+        if (matcher.find()) {
+          return true;
+        }
       }
 
       // second: parse all children too
