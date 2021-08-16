@@ -29,11 +29,13 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
@@ -42,6 +44,7 @@ import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowEpisodeAndSeasonParser;
+import org.tinymediamanager.core.tvshow.TvShowEpisodeSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSearchAndScrapeOptions;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
@@ -91,11 +94,14 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
   private MediaMetadata                                          metadata;
   private final List<TvShowEpisodeChooserModel>                  selectedEpisodes;
   private final SortedList<TvShowEpisodeChooserModel>            sortedEpisodes;
+  private final SearchTask                                       task;
 
   private JLabel                                                 lblPath;
   private TmmTable                                               table;
   private JTextArea                                              taPlot;
   private JTextField                                             textField;
+  private JProgressBar                                           progressBar;
+  private JLabel                                                 lblProgressAction;
 
   public TvShowEpisodeChooserDialog(TvShowEpisode ep, MediaScraper mediaScraper) {
     super(TmmResourceBundle.getString("tvshowepisode.choose"), "episodeChooser");
@@ -178,6 +184,18 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
       scrollPane_1.setViewportView(taPlot);
     }
     {
+      JPanel infoPanel = new JPanel();
+      infoPanel.setLayout(new MigLayout("", "[][grow]", "[]"));
+
+      progressBar = new JProgressBar();
+      infoPanel.add(progressBar, "cell 0 0");
+
+      lblProgressAction = new JLabel("");
+      infoPanel.add(lblProgressAction, "cell 1 0");
+
+      setBottomInformationPanel(infoPanel);
+    }
+    {
 
       JButton cancelButton = new JButton(TmmResourceBundle.getString("Button.cancel"));
       cancelButton.setToolTipText(TmmResourceBundle.getString("edit.discard"));
@@ -207,8 +225,14 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
     table.getColumnModel().getColumn(0).setMaxWidth(50);
     table.getColumnModel().getColumn(1).setMaxWidth(50);
 
-    SearchTask task = new SearchTask();
+    task = new SearchTask();
     task.execute();
+
+    SwingUtilities.invokeLater(() -> {
+      lblProgressAction.setText(TmmResourceBundle.getString("chooser.scrapeepisodes"));
+      progressBar.setVisible(true);
+      progressBar.setIndeterminate(true);
+    });
 
     lblPath.setText(episode.getPathNIO().resolve(episode.getMainVideoFile().getFilename()).toString());
   }
@@ -223,12 +247,18 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
           metadata = episode.getMediaMetadata();
         }
 
+        if (task != null && !task.isDone()) {
+          task.cancel(true);
+        }
         setVisible(false);
       }
     }
 
     // cancel
     if ("Cancel".equals(e.getActionCommand())) {
+      if (task != null && !task.isDone()) {
+        task.cancel(true);
+      }
       setVisible(false);
     }
   }
@@ -248,7 +278,25 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
 
       try {
         for (MediaMetadata md : ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getEpisodeList(options)) {
-          episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
+          if (isCancelled()) {
+            break;
+          }
+          try {
+            TvShowEpisodeSearchAndScrapeOptions episodeOptions = new TvShowEpisodeSearchAndScrapeOptions();
+            episodeOptions.setLanguage(TvShowModuleManager.getInstance().getSettings().getScraperLanguage());
+            episodeOptions.setCertificationCountry(TvShowModuleManager.getInstance().getSettings().getCertificationCountry());
+            episodeOptions.setReleaseDateCountry(TvShowModuleManager.getInstance().getSettings().getReleaseDateCountry());
+            episodeOptions.setTvShowIds(episode.getTvShow().getIds());
+            episodeOptions.setMetadata(md);
+            episodeOptions.setIds(md.getIds());
+
+            MediaMetadata episodeMd = ((ITvShowMetadataProvider) mediaScraper.getMediaProvider()).getMetadata(episodeOptions);
+            episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, episodeMd));
+          }
+          catch (Exception e) {
+            // fallback
+            episodeEventList.add(new TvShowEpisodeChooserModel(mediaScraper, md));
+          }
         }
         table.adjustColumnPreferredWidths(5);
       }
@@ -311,6 +359,11 @@ public class TvShowEpisodeChooserDialog extends TmmDialog implements ActionListe
           // Rectangle rect = table.getCellRect(index, 0, true);
           // table.scrollRectToVisible(rect);
         }
+
+        SwingUtilities.invokeLater(() -> {
+          lblProgressAction.setVisible(false);
+          progressBar.setVisible(false);
+        });
       }
     }
 

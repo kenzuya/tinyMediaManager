@@ -87,6 +87,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
   private static final Logger                                LOGGER                 = LoggerFactory.getLogger(TheTvDbTvShowMetadataProvider.class);
 
   private static final CacheMap<String, List<MediaMetadata>> EPISODE_LIST_CACHE_MAP = new CacheMap<>(600, 5);
+  private static final CacheMap<String, MediaMetadata>       EPISODE_CACHE_MAP      = new CacheMap<>(600, 5);
 
   @Override
   protected MediaProviderInfo createMediaProviderInfo() {
@@ -154,7 +155,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       show = httpResponse.body().data;
 
       // base translation (needed for overview)
-      if (show.overviewTranslations.contains(baseLanguage)) {
+      if (show.nameTranslations.contains(baseLanguage) || show.overviewTranslations.contains(baseLanguage)) {
         Response<TranslationResponse> translationResponse = tvdb.getSeriesService().getSeriesTranslation(id, baseLanguage).execute();
         if (translationResponse.isSuccessful()) {
           baseTranslation = translationResponse.body().data;
@@ -163,7 +164,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
       // also get fallback is either title or overview of the base translation is missing
       if ((baseTranslation == null || StringUtils.isAnyBlank(baseTranslation.name, baseTranslation.overview))
-          && show.overviewTranslations.contains(fallbackLanguage)) {
+          && (show.nameTranslations.contains(fallbackLanguage) || show.overviewTranslations.contains(fallbackLanguage))) {
         Response<TranslationResponse> translationResponse = tvdb.getSeriesService().getSeriesTranslation(id, fallbackLanguage).execute();
         if (translationResponse.isSuccessful()) {
           fallbackTranslation = translationResponse.body().data;
@@ -369,6 +370,18 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       throw new NothingFoundException();
     }
 
+    // look in the cache map if there is an entry
+    try {
+      MediaMetadata cachedEpisode = EPISODE_CACHE_MAP.get(foundEpisode.getId(getId()) + "_" + options.getLanguage().getLanguage());
+      if (cachedEpisode != null) {
+        // cache hit!
+        return cachedEpisode;
+      }
+    }
+    catch (Exception ignored) {
+      // ignore
+    }
+
     EpisodeExtendedRecord episode;
     Translation baseTranslation = null;
     Translation fallbackTranslation = null;
@@ -377,7 +390,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       int id = (int) foundEpisode.getId(getId());
 
       // language in 3 char
-      String baseLanguage = LanguageUtils.getIso3BLanguage(options.getLanguage().getLanguage());
+      String baseLanguage = LanguageUtils.getIso3Language(options.getLanguage().toLocale());
       String fallbackLanguage = LanguageUtils
           .getIso3Language(MediaLanguages.get(getProviderInfo().getConfig().getValue(FALLBACK_LANGUAGE)).toLocale());
 
@@ -389,7 +402,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       episode = httpResponse.body().data;
 
       // base translation (needed for overview)
-      if (episode.overviewTranslations.contains(baseLanguage)) {
+      if (episode.nameTranslations.contains(baseLanguage) || episode.overviewTranslations.contains(baseLanguage)) {
         Response<TranslationResponse> translationResponse = tvdb.getEpisodesService().getEpisodeTranslation(id, baseLanguage).execute();
         if (translationResponse.isSuccessful()) {
           baseTranslation = translationResponse.body().data;
@@ -398,7 +411,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
       // also get fallback is either title or overview of the base translation is missing
       if ((baseTranslation == null || StringUtils.isAnyBlank(baseTranslation.name, baseTranslation.overview))
-          && episode.overviewTranslations.contains(fallbackLanguage)) {
+          && (episode.nameTranslations.contains(fallbackLanguage) || episode.overviewTranslations.contains(fallbackLanguage))) {
         Response<TranslationResponse> translationResponse = tvdb.getEpisodesService().getEpisodeTranslation(id, fallbackLanguage).execute();
         if (translationResponse.isSuccessful()) {
           fallbackTranslation = translationResponse.body().data;
@@ -510,6 +523,8 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
       md.addMediaArt(ma);
     }
+
+    EPISODE_CACHE_MAP.put(foundEpisode.getId(getId()) + "_" + options.getLanguage().getLanguage(), md);
 
     return md;
   }
@@ -712,6 +727,12 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     }
 
     episodes = new ArrayList<>(episodeMap.values());
+    episodes.sort((o1, o2) -> {
+      if (o1.getSeasonNumber() != o2.getSeasonNumber()) {
+        return o1.getSeasonNumber() - o2.getSeasonNumber();
+      }
+      return o1.getEpisodeNumber() - o2.getEpisodeNumber();
+    });
 
     // cache for further fast access
     if (!episodes.isEmpty()) {
