@@ -57,9 +57,10 @@ public class UnlockDialog extends TmmDialog {
     getContentPane().add(panelContent, BorderLayout.CENTER);
     panelContent.setLayout(new MigLayout("", "[][400lp,grow]", "[][][][10lp:n][][][100lp:150lp,grow][grow]"));
     {
-      JTextArea taLicenseHint = new ReadOnlyTextArea(TmmResourceBundle.getString("tmm.license.hint1") + "\n\n" + TmmResourceBundle.getString("tmm.license.hint2"));
+      JTextArea taLicenseHint = new ReadOnlyTextArea(
+          TmmResourceBundle.getString("tmm.license.hint") + "\n\n" + TmmResourceBundle.getString("tmm.license.hint2"));
       taLicenseHint.setLineWrap(true);
-      panelContent.add(taLicenseHint, "cell 0 0 2 1,grow");
+      panelContent.add(taLicenseHint, "cell 0 0 2 1,grow, wmin 0");
 
       JButton btnOpenPaddle = new JButton(TmmResourceBundle.getString("tmm.license.buy"));
       btnOpenPaddle.addActionListener(e -> {
@@ -88,7 +89,7 @@ public class UnlockDialog extends TmmDialog {
 
       JScrollPane scrollPane = new JScrollPane(taLicenseCode);
       scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-      panelContent.add(scrollPane, "cell 1 5 1 2,grow");
+      panelContent.add(scrollPane, "cell 1 5 1 2,grow, wmin 0");
 
       JButton btnUnlock = new JButton(TmmResourceBundle.getString("tmm.license.unlock"));
       btnUnlock.addActionListener(arg0 -> {

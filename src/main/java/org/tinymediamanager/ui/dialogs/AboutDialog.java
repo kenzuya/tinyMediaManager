@@ -18,6 +18,7 @@ package org.tinymediamanager.ui.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.sql.Date;
 import java.time.LocalDate;
 
 import javax.swing.AbstractAction;
@@ -32,6 +33,7 @@ import org.tinymediamanager.ReleaseInfo;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
 import org.tinymediamanager.core.MessageManager;
+import org.tinymediamanager.core.TmmDateFormat;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.license.License;
 import org.tinymediamanager.ui.IconManager;
@@ -87,7 +89,8 @@ public class AboutDialog extends TmmDialog {
 
       LocalDate validUntil = License.getInstance().validUntil();
       if (validUntil != null) {
-        lblLicense.setText(TmmResourceBundle.getString("tmm.license.validuntil") + ": " + validUntil.toString());
+        lblLicense.setText(
+            TmmResourceBundle.getString("tmm.license.validuntil") + ": " + TmmDateFormat.MEDIUM_DATE_FORMAT.format(Date.valueOf(validUntil)));
       }
       else {
         lblLicense.setText(TmmResourceBundle.getString("tmm.license.unregistered"));
