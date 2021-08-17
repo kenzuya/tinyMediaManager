@@ -351,10 +351,15 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     if (userObject instanceof MovieSet) {
       List<MovieSetScraperMetadataConfig> values = new ArrayList<>();
-      for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
-        if (config.isMetaData() || config.isCast()) {
-          values.add(config);
+      if (MovieModuleManager.getInstance().getSettings().isMovieSetDisplayAllMissingMetadata()) {
+        for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
+          if (config.isMetaData() || config.isCast()) {
+            values.add(config);
+          }
         }
+      }
+      else {
+        values.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetCheckMetadata());
       }
       return getMissingToolTip(movieList.detectMissingFields((MovieSet) userObject, values));
     }
@@ -396,10 +401,15 @@ public class MovieSetTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
     if (userObject instanceof MovieSet) {
       List<MovieSetScraperMetadataConfig> values = new ArrayList<>();
-      for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
-        if (config.isArtwork()) {
-          values.add(config);
+      if (MovieModuleManager.getInstance().getSettings().isMovieSetDisplayAllMissingArtwork()) {
+        for (MovieSetScraperMetadataConfig config : MovieSetScraperMetadataConfig.values()) {
+          if (config.isArtwork()) {
+            values.add(config);
+          }
         }
+      }
+      else {
+        values.addAll(MovieModuleManager.getInstance().getSettings().getMovieSetCheckArtwork());
       }
       return getMissingToolTip(movieList.detectMissingFields((MovieSet) userObject, values));
     }

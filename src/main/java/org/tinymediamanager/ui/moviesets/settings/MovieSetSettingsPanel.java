@@ -70,7 +70,8 @@ public class MovieSetSettingsPanel extends JPanel {
 
   private JCheckBox                                           chckbxShowMissingMovies;
   private JCheckBox                                           chckbxTvShowTableTooltips;
-
+  private JHintCheckBox                                       chckbxDisplayAllMissingMetadata;
+  private JHintCheckBox                                       chckbxDisplayAllMissingArtwork;
   private JTextField                                          tfMovieSetArtworkFolder;
   private JButton                                             btnSelectFolder;
   private JComboBox                                           cbNfoFormat;
@@ -261,7 +262,7 @@ public class MovieSetSettingsPanel extends JPanel {
     }
     {
       JPanel panelMisc = new JPanel();
-      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "")); // 16lp ~ width of the
+      panelMisc.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblMiscT = new TmmLabel(TmmResourceBundle.getString("Settings.misc"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelMisc, lblMiscT, true);
@@ -286,11 +287,15 @@ public class MovieSetSettingsPanel extends JPanel {
           }
         }
         panelMisc.add(panelCheckMetadata, "cell 2 1");
-      }
 
+        chckbxDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
+        chckbxDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
+        chckbxDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
+        panelMisc.add(chckbxDisplayAllMissingMetadata, "cell 2 2");
+      }
       {
         JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelMisc.add(lblCheckImages, "cell 1 2 2 1");
+        panelMisc.add(lblCheckImages, "cell 1 4 2 1");
 
         JPanel panelCheckImages = new JPanel();
         panelCheckImages.setLayout(new GridBagLayout());
@@ -308,7 +313,12 @@ public class MovieSetSettingsPanel extends JPanel {
           }
         }
 
-        panelMisc.add(panelCheckImages, "cell 2 3");
+        panelMisc.add(panelCheckImages, "cell 2 5");
+
+        chckbxDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
+        chckbxDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
+        chckbxDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
+        panelMisc.add(chckbxDisplayAllMissingArtwork, "cell 2 6");
       }
     }
   }
@@ -363,5 +373,15 @@ public class MovieSetSettingsPanel extends JPanel {
     AutoBinding autoBinding_4 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_4, cbNfoFormat,
         jComboBoxBeanProperty);
     autoBinding_4.bind();
+    //
+    Property movieSettingsBeanProperty_5 = BeanProperty.create("movieSetDisplayAllMissingMetadata");
+    AutoBinding autoBinding_5 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_5,
+        chckbxDisplayAllMissingMetadata, jCheckBoxBeanProperty);
+    autoBinding_5.bind();
+    //
+    Property movieSettingsBeanProperty_6 = BeanProperty.create("movieSetDisplayAllMissingArtwork");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_6,
+        chckbxDisplayAllMissingArtwork, jCheckBoxBeanProperty);
+    autoBinding_6.bind();
   }
 }

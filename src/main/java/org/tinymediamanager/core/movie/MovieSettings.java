@@ -73,13 +73,13 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * The Class MovieSettings.
  */
 public final class MovieSettings extends AbstractSettings {
-  private static final Logger            LOGGER                                 = LoggerFactory.getLogger(MovieSettings.class);
-  private static final String            CONFIG_FILE                            = "movies.json";
+  private static final Logger               LOGGER                                 = LoggerFactory.getLogger(MovieSettings.class);
+  private static final String               CONFIG_FILE                            = "movies.json";
 
-  public static final String             DEFAULT_RENAMER_FOLDER_PATTERN         = "${title} ${- ,edition,} (${year})";
-  public static final String             DEFAULT_RENAMER_FILE_PATTERN           = "${title} ${- ,edition,} (${year}) ${videoFormat} ${audioCodec}";
+  public static final String                DEFAULT_RENAMER_FOLDER_PATTERN         = "${title} ${- ,edition,} (${year})";
+  public static final String                DEFAULT_RENAMER_FILE_PATTERN           = "${title} ${- ,edition,} (${year}) ${videoFormat} ${audioCodec}";
 
-  private static MovieSettings           instance;
+  private static MovieSettings              instance;
 
   /**
    * Constants mainly for events
@@ -116,7 +116,7 @@ public final class MovieSettings extends AbstractSettings {
   static final String                       MOVIE_CHECK_ARTWORK                    = "movieCheckArtwork";
   static final String                       MOVIESET_CHECK_METADATA                = "movieSetCheckMetadata";
   static final String                       MOVIESET_CHECK_ARTWORK                 = "movieSetCheckArtwork";
-  static final String                    POST_PROCESS                           = "postProcess";
+  static final String                       POST_PROCESS                           = "postProcess";
 
   final List<String>                        movieDataSources                       = ObservableCollections.observableList(new ArrayList<>());
   final List<MovieNfoNaming>                nfoFilenames                           = new ArrayList<>();
@@ -219,15 +219,19 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   sortableOriginalTitle                  = false;
   boolean                                   sortTitle                              = false;
   boolean                                   note                                   = false;
-  final List<PostProcess>                postProcess                            = ObservableCollections.observableList(new ArrayList<>());
+  final List<PostProcess>                   postProcess                            = ObservableCollections.observableList(new ArrayList<>());
 
   // ui
   boolean                                   showMovieTableTooltips                 = true;
   final List<String>                        ratingSources                          = ObservableCollections.observableList(new ArrayList<>());
   final List<MovieScraperMetadataConfig>    movieCheckMetadata                     = new ArrayList<>();
+  boolean                                   movieDisplayAllMissingMetadata         = false;
   final List<MovieScraperMetadataConfig>    movieCheckArtwork                      = new ArrayList<>();
+  boolean                                   movieDisplayAllMissingArtwork          = false;
   final List<MovieSetScraperMetadataConfig> movieSetCheckMetadata                  = new ArrayList<>();
+  boolean                                   movieSetDisplayAllMissingMetadata      = false;
   final List<MovieSetScraperMetadataConfig> movieSetCheckArtwork                   = new ArrayList<>();
+  boolean                                   movieSetDisplayAllMissingArtwork       = false;
   boolean                                   storeUiFilters                         = false;
   final List<UIFilters>                     uiFilters                              = new ArrayList<>();
 
@@ -657,6 +661,16 @@ public final class MovieSettings extends AbstractSettings {
     }
   }
 
+  public void setMovieDisplayAllMissingMetadata(boolean newValue) {
+    boolean oldValue = movieDisplayAllMissingMetadata;
+    movieDisplayAllMissingMetadata = newValue;
+    firePropertyChange("movieDisplayAllMissingMetadata", oldValue, newValue);
+  }
+
+  public boolean isMovieDisplayAllMissingMetadata() {
+    return movieDisplayAllMissingMetadata;
+  }
+
   public void clearMovieCheckArtwork() {
     movieCheckArtwork.clear();
     firePropertyChange(MOVIE_CHECK_ARTWORK, null, movieCheckArtwork);
@@ -671,6 +685,16 @@ public final class MovieSettings extends AbstractSettings {
       movieCheckArtwork.add(config);
       firePropertyChange(MOVIE_CHECK_ARTWORK, null, movieCheckArtwork);
     }
+  }
+
+  public void setMovieDisplayAllMissingArtwork(boolean newValue) {
+    boolean oldValue = movieDisplayAllMissingArtwork;
+    movieDisplayAllMissingArtwork = newValue;
+    firePropertyChange("movieDisplayAllMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isMovieDisplayAllMissingArtwork() {
+    return movieDisplayAllMissingArtwork;
   }
 
   public void clearMovieSetCheckMetadata() {
@@ -689,6 +713,16 @@ public final class MovieSettings extends AbstractSettings {
     }
   }
 
+  public void setMovieSetDisplayAllMissingMetadata(boolean newValue) {
+    boolean oldValue = movieSetDisplayAllMissingMetadata;
+    movieSetDisplayAllMissingMetadata = newValue;
+    firePropertyChange("movieSetDisplayAllMissingMetadata", oldValue, newValue);
+  }
+
+  public boolean isMovieSetDisplayAllMissingMetadata() {
+    return movieSetDisplayAllMissingMetadata;
+  }
+
   public void clearMovieSetCheckArtwork() {
     movieSetCheckArtwork.clear();
     firePropertyChange(MOVIESET_CHECK_ARTWORK, null, movieSetCheckArtwork);
@@ -703,6 +737,16 @@ public final class MovieSettings extends AbstractSettings {
       movieSetCheckArtwork.add(config);
       firePropertyChange(MOVIESET_CHECK_ARTWORK, null, movieSetCheckArtwork);
     }
+  }
+
+  public void setMovieSetDisplayAllMissingArtwork(boolean newValue) {
+    boolean oldValue = movieSetDisplayAllMissingArtwork;
+    movieSetDisplayAllMissingArtwork = newValue;
+    firePropertyChange("movieSetDisplayAllMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isMovieSetDisplayAllMissingArtwork() {
+    return movieSetDisplayAllMissingArtwork;
   }
 
   public void addKeyartFilename(MovieKeyartNaming filename) {

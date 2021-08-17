@@ -34,6 +34,7 @@ import org.tinymediamanager.core.tvshow.TvShowEpisodeScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.TvShowList;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
+import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -52,10 +53,12 @@ import org.tinymediamanager.ui.renderer.RightAlignTableCellRenderer;
  */
 public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
-  private final TvShowList tvShowList;
+  private final TvShowList     tvShowList;
+  private final TvShowSettings settings;
 
   public TvShowTableFormat() {
     tvShowList = TvShowModuleManager.getInstance().getTvShowList();
+    settings = TvShowModuleManager.getInstance().getSettings();
     FontMetrics fontMetrics = getFontMetrics();
 
     Comparator<String> stringComparator = new StringComparator();
@@ -610,21 +613,32 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasMetadataTooltip(TmmTreeNode node) {
-    if (!TvShowModuleManager.getInstance().getSettings().isShowTvShowTableTooltips()) {
+    if (!settings.isShowTvShowTableTooltips()) {
       return null;
     }
 
     List<TvShowScraperMetadataConfig> tvShowValues = new ArrayList<>();
-    for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
-      if (config.isMetaData() || config.isCast()) {
-        tvShowValues.add(config);
+    if (settings.isTvShowDisplayAllMissingMetadata()) {
+      for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
+        if (config.isMetaData() || config.isCast()) {
+          tvShowValues.add(config);
+        }
       }
     }
+    else {
+      tvShowValues.addAll(settings.getTvShowCheckMetadata());
+    }
+
     List<TvShowEpisodeScraperMetadataConfig> episodeValues = new ArrayList<>();
-    for (TvShowEpisodeScraperMetadataConfig config : TvShowEpisodeScraperMetadataConfig.values()) {
-      if (config.isMetaData() || config.isCast()) {
-        episodeValues.add(config);
+    if (settings.isEpisodeDisplayAllMissingMetadata()) {
+      for (TvShowEpisodeScraperMetadataConfig config : TvShowEpisodeScraperMetadataConfig.values()) {
+        if (config.isMetaData() || config.isCast()) {
+          episodeValues.add(config);
+        }
       }
+    }
+    else {
+      episodeValues.addAll(settings.getEpisodeCheckMetadata());
     }
 
     if (node.getUserObject() instanceof TvShow) {
@@ -688,27 +702,44 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
   }
 
   private String hasImageTooltip(TmmTreeNode node) {
-    if (!TvShowModuleManager.getInstance().getSettings().isShowTvShowTableTooltips()) {
+    if (!settings.isShowTvShowTableTooltips()) {
       return null;
     }
 
     List<TvShowScraperMetadataConfig> tvShowValues = new ArrayList<>();
-    for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
-      if (config.isArtwork()) {
-        tvShowValues.add(config);
+    if (settings.isTvShowDisplayAllMissingArtwork()) {
+      for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
+        if (config.isArtwork()) {
+          tvShowValues.add(config);
+        }
       }
     }
+    else {
+      tvShowValues.addAll(settings.getTvShowCheckArtwork());
+    }
+
     List<TvShowScraperMetadataConfig> seasonValues = new ArrayList<>();
-    for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
-      if (config.isArtwork() && config.name().startsWith("SEASON")) {
-        seasonValues.add(config);
+    if (settings.isSeasonDisplayAllMissingArtwork()) {
+      for (TvShowScraperMetadataConfig config : TvShowScraperMetadataConfig.values()) {
+        if (config.isArtwork() && config.name().startsWith("SEASON")) {
+          seasonValues.add(config);
+        }
       }
     }
+    else {
+      seasonValues.addAll(settings.getSeasonCheckArtwork());
+    }
+
     List<TvShowEpisodeScraperMetadataConfig> episodeValues = new ArrayList<>();
-    for (TvShowEpisodeScraperMetadataConfig config : TvShowEpisodeScraperMetadataConfig.values()) {
-      if (config.isArtwork()) {
-        episodeValues.add(config);
+    if (settings.isEpisodeDisplayAllMissingArtwork()) {
+      for (TvShowEpisodeScraperMetadataConfig config : TvShowEpisodeScraperMetadataConfig.values()) {
+        if (config.isArtwork()) {
+          episodeValues.add(config);
+        }
       }
+    }
+    else {
+      episodeValues.addAll(settings.getEpisodeCheckArtwork());
     }
 
     if (node.getUserObject() instanceof TvShow) {
