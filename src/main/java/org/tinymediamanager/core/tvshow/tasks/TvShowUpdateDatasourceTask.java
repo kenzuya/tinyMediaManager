@@ -202,7 +202,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
           List<Path> newTvShowDirs = new ArrayList<>();
           List<Path> existingTvShowDirs = new ArrayList<>();
-          List<Path> rootList = listFilesAndDirs(dsAsPath);
+          List<Path> rootList = listDirs(dsAsPath);
 
           // when there is _nothing_ found in the ds root, it might be offline -
           // skip further processing
@@ -219,7 +219,7 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
               // additional datasource/A/show sub dirs!
               if (path.getFileName().toString().length() == 1) {
-                List<Path> subList = listFilesAndDirs(path);
+                List<Path> subList = listDirs(path);
                 for (Path sub : subList) {
                   if (Files.isDirectory(sub)) {
                     if (existing.contains(sub)) {
@@ -1210,17 +1210,20 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
 
   /**
    * simple NIO File.listFiles() replacement<br>
-   * returns all files & folders in specified dir (NOT recursive)
+   * returns all folders in specified dir (NOT recursive)
    * 
    * @param directory
    *          the folder to list the items for
    * @return list of files&folders
    */
-  private List<Path> listFilesAndDirs(Path directory) {
+  private List<Path> listDirs(Path directory) {
     List<Path> fileNames = new ArrayList<>();
     try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
-      List<Path> allElements = directoryStream.collect(Collectors.toList());
+      List<Path> allElements = directoryStream.filter(Files::isDirectory).collect(Collectors.toList());
       for (Path path : allElements) {
+        if (directory.toAbsolutePath().equals(path.toAbsolutePath())) {
+          continue;
+        }
         String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
         if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
           fileNames.add(path.toAbsolutePath());

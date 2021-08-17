@@ -1560,6 +1560,9 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
     try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
       List<Path> allElements = directoryStream.collect(Collectors.toList());
       for (Path path : allElements) {
+        if (directory.toAbsolutePath().equals(path.toAbsolutePath())) {
+          continue;
+        }
         if (isInSkipFolder(path)) {
           LOGGER.debug("Skipping: {}", path);
         }
