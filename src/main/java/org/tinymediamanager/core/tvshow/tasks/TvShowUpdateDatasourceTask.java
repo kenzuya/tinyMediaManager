@@ -20,7 +20,6 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 import static org.tinymediamanager.core.Utils.DISC_FOLDER_REGEX;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -39,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1218,8 +1218,9 @@ public class TvShowUpdateDatasourceTask extends TmmThreadPool {
    */
   private List<Path> listFilesAndDirs(Path directory) {
     List<Path> fileNames = new ArrayList<>();
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
-      for (Path path : directoryStream) {
+    try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
+      List<Path> allElements = directoryStream.collect(Collectors.toList());
+      for (Path path : allElements) {
         String fn = path.getFileName().toString().toUpperCase(Locale.ROOT);
         if (!SKIP_FOLDERS.contains(fn) && !fn.matches(SKIP_REGEX) && !skipFolders.contains(path.toFile().getAbsolutePath())) {
           fileNames.add(path.toAbsolutePath());
