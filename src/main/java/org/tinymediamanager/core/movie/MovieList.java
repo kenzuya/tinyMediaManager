@@ -414,10 +414,11 @@ public final class MovieList extends AbstractModelObject {
         movie.setDbId(uuid);
 
         // sanity check: only movies with a video file are valid
-        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-          // no video file? drop it
-          LOGGER.info("movie \"{}\" without video file - dropping", movie.getTitle());
+        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty() || movie.getPathNIO() == null || StringUtils.isBlank(movie.getDataSource())) {
+          // no video file or path or datasource? drop it
+          LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
           movieMap.remove(uuid);
+          continue;
         }
 
         // for performance reasons we add movies directly

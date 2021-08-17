@@ -332,12 +332,12 @@ public abstract class MediaEntity extends AbstractModelObject {
    * @return a string which represents the parent relative to the data source
    */
   public String getParent() {
-    Path path = getPathNIO();
-    if (path == null) {
+    Path pathNIO = getPathNIO();
+    if (pathNIO == null) {
       return "";
     }
 
-    Path parent = Paths.get(this.dataSource).toAbsolutePath().relativize(path.getParent());
+    Path parent = Paths.get(this.dataSource).toAbsolutePath().relativize(pathNIO.getParent());
 
     return parent.toString();
   }
