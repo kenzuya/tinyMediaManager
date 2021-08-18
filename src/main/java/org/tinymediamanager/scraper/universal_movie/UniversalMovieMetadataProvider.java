@@ -30,8 +30,10 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +64,8 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
   private static final String                              RATINGS             = "ratings";
   private static final Logger                              LOGGER              = LoggerFactory.getLogger(UniversalMovieMetadataProvider.class);
   private static final Map<String, IMovieMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
+  private static final ExecutorService                     EXECUTOR            = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS,
+      new LinkedBlockingQueue<>());
 
   private final MediaProviderInfo                          providerInfo;
 
@@ -277,8 +281,7 @@ public class UniversalMovieMetadataProvider implements IMovieMetadataProvider {
     }
 
     // start the workers to get the metadata from the different providers
-    ExecutorService executorService = Executors.newFixedThreadPool(metadataProviders.size());
-    ExecutorCompletionService<MediaMetadata> completionService = new ExecutorCompletionService<>(executorService);
+    ExecutorCompletionService<MediaMetadata> completionService = new ExecutorCompletionService<>(EXECUTOR);
     List<Future<MediaMetadata>> futures = new ArrayList<>();
     for (IMovieMetadataProvider mp : metadataProviders) {
       // look into the cache - maybe we do not need to call it again

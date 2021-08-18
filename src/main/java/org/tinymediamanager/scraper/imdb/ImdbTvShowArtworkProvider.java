@@ -46,10 +46,10 @@ public class ImdbTvShowArtworkProvider extends ImdbMetadataProvider implements I
     if (options.getArtworkType() == MediaArtwork.MediaArtworkType.ALL || options.getArtworkType() == MediaArtwork.MediaArtworkType.POSTER) {
       switch (options.getMediaType()) {
         case MOVIE:
-          return (new ImdbMovieParser(this, executor)).getMovieArtwork(options);
+          return (new ImdbMovieParser(this, EXECUTOR)).getMovieArtwork(options);
 
         case TV_SHOW:
-          return (new ImdbTvShowParser(this, executor)).getTvShowArtwork(options);
+          return (new ImdbTvShowParser(this, EXECUTOR)).getTvShowArtwork(options);
 
         default:
           break;

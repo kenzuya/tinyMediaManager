@@ -135,23 +135,20 @@ public class ImdbTvShowParser extends ImdbParser {
     // worker for tmdb request
     Future<MediaMetadata> futureTmdb = null;
     if (isUseTmdbForTvShows()) {
-      ExecutorCompletionService<MediaMetadata> compSvcTmdb = new ExecutorCompletionService<>(executor);
       Callable<MediaMetadata> worker2 = new TmdbTvShowWorker(options);
-      futureTmdb = compSvcTmdb.submit(worker2);
+      futureTmdb = executor.submit(worker2);
     }
-
-    ExecutorCompletionService<Document> compSvcImdb = new ExecutorCompletionService<>(executor);
 
     // get reference data (/reference)
     String url = apiKey + "title/" + imdbId + "/reference";
     Callable<Document> worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
-    Future<Document> futureReference = compSvcImdb.submit(worker);
+    Future<Document> futureReference = executor.submit(worker);
 
     // worker for imdb request (/plotsummary)
     Future<Document> futurePlotsummary;
     url = apiKey + "title/" + imdbId + "/plotsummary";
     worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
-    futurePlotsummary = compSvcImdb.submit(worker);
+    futurePlotsummary = executor.submit(worker);
 
     // worker for imdb request (/releaseinfo)
     // Future<Document> futureReleaseinfo;
@@ -163,7 +160,7 @@ public class ImdbTvShowParser extends ImdbParser {
     if (isScrapeKeywordsPage()) {
       url = apiKey + "title/" + imdbId + "/keywords";
       worker = new ImdbWorker(url, options.getLanguage().getLanguage(), options.getCertificationCountry().getAlpha2());
-      futureKeywords = compSvcImdb.submit(worker);
+      futureKeywords = executor.submit(worker);
     }
 
     Document doc;
@@ -181,7 +178,7 @@ public class ImdbTvShowParser extends ImdbParser {
       // did we get a release date?
       if (md.getReleaseDate() == null || Boolean.TRUE.equals(config.getValueAsBool(LOCAL_RELEASE_DATE))) {
         // get the date from the releaseinfo page
-        Document releaseinfoDoc = compSvcImdb.submit(worker).get();
+        Document releaseinfoDoc = executor.submit(worker).get();
         // parse original title here!!
         if (releaseinfoDoc != null) {
           parseReleaseinfoPage(releaseinfoDoc, options, md);

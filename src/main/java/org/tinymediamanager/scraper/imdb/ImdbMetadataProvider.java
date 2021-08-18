@@ -16,7 +16,9 @@
 package org.tinymediamanager.scraper.imdb;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.tinymediamanager.scraper.MediaProviderInfo;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
@@ -29,17 +31,16 @@ import org.tinymediamanager.scraper.interfaces.IMediaProvider;
  * @author Manuel Laggner
  */
 abstract class ImdbMetadataProvider implements IMediaProvider {
-  static final String             ID        = "imdb";
+  protected static final ExecutorService EXECUTOR  = new ThreadPoolExecutor(5, 10, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
-  static final String             CAT_TITLE = "&s=tt";
+  static final String                    ID        = "imdb";
 
-  private final MediaProviderInfo providerInfo;
+  static final String                    CAT_TITLE = "&s=tt";
 
-  protected final ExecutorService executor;
+  private final MediaProviderInfo        providerInfo;
 
   ImdbMetadataProvider() {
     providerInfo = createMediaProviderInfo();
-    executor = Executors.newFixedThreadPool(4);
   }
 
   /**

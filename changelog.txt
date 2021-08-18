@@ -50,3 +50,4 @@ x (movies) improved internal artwork handling #1413
 x (movies/TV shows) parsing of IMDB search requests #1420
 x (movies) remove corrupted/faulty movies from database at startup
 x (movies) fixed downloading actor images for movies in movie sets
+x (universal scraper) added proper thread cleanup to prevent memory leak #1432
