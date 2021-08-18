@@ -764,6 +764,16 @@ public class MovieSet extends MediaEntity {
     }
 
     @Override
+    protected void postProcess(List<MovieScraperMetadataConfig> config) {
+      // no postprocessing needed
+    }
+
+    @Override
+    protected List<MediaFile> listActorFiles() {
+      return Collections.emptyList();
+    }
+
+    @Override
     public MediaFile getMainVideoFile() {
       // per se no video file here
       return new MediaFile();

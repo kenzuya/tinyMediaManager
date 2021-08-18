@@ -1718,6 +1718,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * Gets the images to cache.
    */
+  @Override
   public List<MediaFile> getImagesToCache() {
     // image files
     List<MediaFile> filesToCache = new ArrayList<>();
@@ -1742,8 +1743,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * @return list of actor images on filesystem
    */
-  private List<MediaFile> listActorFiles() {
-    if (!Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
+  protected List<MediaFile> listActorFiles() {
+    if (getPathNIO() == null || !Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
       return Collections.emptyList();
     }
 
@@ -2791,7 +2792,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return null;
   }
 
-  private void postProcess(List<MovieScraperMetadataConfig> config) {
+  protected void postProcess(List<MovieScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape()) {
