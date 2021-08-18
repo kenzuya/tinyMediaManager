@@ -493,7 +493,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     try {
       md.setReleaseDate(StrgUtils.parseDate(episode.aired));
     }
-    catch (ParseException e) {
+    catch (Exception e) {
       LOGGER.debug("could not parse date: {}", e.getMessage());
     }
 

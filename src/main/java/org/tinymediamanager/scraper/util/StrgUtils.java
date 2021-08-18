@@ -26,6 +26,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * The class StrgUtils. This can be used for several String related tasks
  * 
@@ -178,6 +180,10 @@ public class StrgUtils {
    * @return the string
    */
   public static String zeroPad(String encodeString, int padding) {
+    if (StringUtils.isBlank(encodeString)) {
+      return encodeString;
+    }
+
     try {
       int v = Integer.parseInt(encodeString);
       String format = "%0" + padding + "d";
@@ -198,6 +204,10 @@ public class StrgUtils {
    * @return the matched substring or empty string
    */
   public static String substr(String str, String pattern) {
+    if (StringUtils.isBlank(str)) {
+      return "";
+    }
+
     Pattern regex = Pattern.compile(pattern);
     Matcher m = regex.matcher(str);
     if (m.find()) {
@@ -218,7 +228,11 @@ public class StrgUtils {
    * @return The matching SimpleDateFormat pattern, or null if format is unknown.
    * @see SimpleDateFormat
    */
-  public static String determineDateFormat(String dateString) throws ParseException {
+  public static String determineDateFormat(String dateString) {
+    if (StringUtils.isBlank(dateString)) {
+      return null;
+    }
+
     for (String regexp : DATE_FORMAT_REGEXPS.keySet()) {
       if (dateString.toLowerCase(Locale.ROOT).matches(regexp)) {
         return DATE_FORMAT_REGEXPS.get(regexp);
@@ -237,7 +251,11 @@ public class StrgUtils {
    *           the parse exception
    */
   public static Date parseDate(String dateAsString) throws ParseException {
-    Date date = null;
+    if (StringUtils.isBlank(dateAsString)) {
+      return null;
+    }
+
+    Date date;
 
     String format = determineDateFormat(dateAsString);
     if (format != null) {
@@ -265,6 +283,10 @@ public class StrgUtils {
    * @return a string with unique whitespace.
    */
   public static String removeDuplicateWhitespace(String s) {
+    if (StringUtils.isBlank(s)) {
+      return "";
+    }
+
     StringBuilder result = new StringBuilder();
     int length = s.length();
     boolean isPreviousWhiteSpace = false;
@@ -293,7 +315,7 @@ public class StrgUtils {
    */
   public static String convertToAscii(String input, boolean replaceAllCapitalLetters) {
     String result = null;
-    if (null != input) {
+    if (input != null) {
       String normalized = Normalizer.normalize(input, Normalizer.Form.NFKD);
       // https://stackoverflow.com/questions/9376621/folding-normalizing-ligatures-e-g-%C3%86-to-ae-using-corefoundation
 
