@@ -17,9 +17,11 @@ package org.tinymediamanager.ui.moviesets.actions;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
@@ -44,6 +46,7 @@ public class MovieSetRemoveAction extends TmmAction {
     putValue(LARGE_ICON_KEY, IconManager.DELETE);
     putValue(SMALL_ICON, IconManager.DELETE);
     putValue(SHORT_DESCRIPTION, TmmResourceBundle.getString("movieset.remove.desc"));
+    putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
   }
 
   @Override

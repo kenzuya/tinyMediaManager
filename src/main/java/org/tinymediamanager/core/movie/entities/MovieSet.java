@@ -596,7 +596,7 @@ public class MovieSet extends MediaEntity {
    */
   public void writeNFO() {
     if (MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames().isEmpty()) {
-      LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
+      LOGGER.debug("Not writing any NFO file, because NFO filename preferences were empty...");
       return;
     }
 

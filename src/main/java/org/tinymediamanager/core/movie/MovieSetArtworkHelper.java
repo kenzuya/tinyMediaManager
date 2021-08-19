@@ -496,6 +496,7 @@ public class MovieSetArtworkHelper {
 
     // update DB
     movieSet.saveToDb();
+    movieSet.writeNFO();
   }
 
   /**
