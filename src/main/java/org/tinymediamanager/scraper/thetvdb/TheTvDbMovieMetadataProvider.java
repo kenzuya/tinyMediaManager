@@ -107,7 +107,9 @@ public class TheTvDbMovieMetadataProvider extends TheTvDbMetadataProvider implem
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     // detect the string to search
-    int year = options.getSearchYear();
+    // int year = options.getSearchYear();
+    int year = 0; // do not search with year because it seems broken atm
+
     String searchString = "";
     if (StringUtils.isNotBlank(options.getSearchQuery())) {
       searchString = options.getSearchQuery();
