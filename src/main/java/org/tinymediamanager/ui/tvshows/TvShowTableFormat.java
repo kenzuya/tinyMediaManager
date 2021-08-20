@@ -17,6 +17,7 @@ package org.tinymediamanager.ui.tvshows;
 
 import java.awt.FontMetrics;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +56,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
 
   private final TvShowList     tvShowList;
   private final TvShowSettings settings;
+  private final Calendar       calendar = Calendar.getInstance();
 
   public TvShowTableFormat() {
     tvShowList = TvShowModuleManager.getInstance().getTvShowList();
@@ -125,7 +127,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * season count
      */
-    col = new Column(TmmResourceBundle.getString("metatag.seasons"), "seasons", this::getSeasons, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.season.count"), "seasons", this::getSeasons, String.class);
     col.setHeaderIcon(IconManager.SEASONS);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -136,7 +138,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     /*
      * episode count
      */
-    col = new Column(TmmResourceBundle.getString("metatag.episodes"), "episodes", this::getEpisodes, String.class);
+    col = new Column(TmmResourceBundle.getString("metatag.episode.count"), "episodes", this::getEpisodes, String.class);
     col.setHeaderIcon(IconManager.EPISODES);
     col.setCellRenderer(new RightAlignTableCellRenderer());
     col.setColumnResizeable(false);
@@ -378,7 +380,15 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
       if (year > 0) {
         return String.valueOf(year);
       }
-      return "";
+      return null;
+    }
+    else if (userObject instanceof TvShowSeason) {
+      Date firstAired = ((TvShowSeason) userObject).getFirstAired();
+      if (firstAired != null) {
+        calendar.setTime(firstAired);
+        return String.valueOf(calendar.get(Calendar.YEAR));
+      }
+      return null;
     }
     return null;
   }
@@ -388,7 +398,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
     if (userObject instanceof TvShow) {
       return String.valueOf(((TvShow) userObject).getSeasonCount());
     }
-    return "";
+    return null;
   }
 
   private String getEpisodes(TmmTreeNode node) {
@@ -401,7 +411,7 @@ public class TvShowTableFormat extends TmmTreeTableFormat<TmmTreeNode> {
         return String.valueOf(((TvShowSeason) userObject).getEpisodes().size());
       }
     }
-    return "";
+    return null;
   }
 
   private ImageIcon getNewIcon(TmmTreeNode node) {
