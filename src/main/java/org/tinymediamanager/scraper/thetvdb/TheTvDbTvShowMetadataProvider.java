@@ -538,9 +538,6 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     SortedSet<MediaSearchResult> results = new TreeSet<>();
 
     // detect the string to search
-    // int year = options.getSearchYear();
-    int year = 0; // do not search with year because it seems broken atm
-
     String searchString = "";
     if (StringUtils.isNotBlank(options.getSearchQuery())) {
       searchString = options.getSearchQuery();
@@ -580,14 +577,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
     // only search when we did not find something by ID (and search string or IMDB is present)
     if (StringUtils.isNotBlank(searchString)) {
       try {
-        Response<SearchResultResponse> httpResponse;
-
-        if (year > 0) {
-          httpResponse = tvdb.getSearchService().getSearch(searchString, SearchType.SERIES, year).execute();
-        }
-        else {
-          httpResponse = tvdb.getSearchService().getSearch(searchString, SearchType.SERIES).execute();
-        }
+        Response<SearchResultResponse> httpResponse = tvdb.getSearchService().getSearch(searchString, SearchType.SERIES).execute();
 
         if (!httpResponse.isSuccessful()) {
           throw new HttpException(httpResponse.code(), httpResponse.message());
