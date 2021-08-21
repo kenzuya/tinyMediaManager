@@ -596,7 +596,7 @@ public class MovieSet extends MediaEntity {
    */
   public void writeNFO() {
     if (MovieModuleManager.getInstance().getSettings().getMovieSetNfoFilenames().isEmpty()) {
-      LOGGER.info("Not writing any NFO file, because NFO filename preferences were empty...");
+      LOGGER.debug("Not writing any NFO file, because NFO filename preferences were empty...");
       return;
     }
 
@@ -761,6 +761,16 @@ public class MovieSet extends MediaEntity {
     @Override
     public void saveToDb() {
       // do nothing here
+    }
+
+    @Override
+    protected void postProcess(List<MovieScraperMetadataConfig> config) {
+      // no postprocessing needed
+    }
+
+    @Override
+    protected List<MediaFile> listActorFiles() {
+      return Collections.emptyList();
     }
 
     @Override

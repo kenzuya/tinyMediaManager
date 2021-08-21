@@ -222,10 +222,15 @@ public final class TvShowSettings extends AbstractSettings {
   boolean                                        storeUiFilters                         = false;
   final List<UIFilters>                          uiFilters                              = new ArrayList<>();
   final List<TvShowScraperMetadataConfig>        tvShowCheckMetadata                    = new ArrayList<>();
+  boolean                                        tvShowDisplayAllMissingMetadata        = false;
   final List<TvShowScraperMetadataConfig>        tvShowCheckArtwork                     = new ArrayList<>();
+  boolean                                        tvShowDisplayAllMissingArtwork         = false;
   final List<TvShowScraperMetadataConfig>        seasonCheckArtwork                     = new ArrayList<>();
+  boolean                                        seasonDisplayAllMissingArtwork         = false;
   final List<TvShowEpisodeScraperMetadataConfig> episodeCheckMetadata                   = new ArrayList<>();
+  boolean                                        episodeDisplayAllMissingMetadata       = false;
   final List<TvShowEpisodeScraperMetadataConfig> episodeCheckArtwork                    = new ArrayList<>();
+  boolean                                        episodeDisplayAllMissingArtwork        = false;
 
   // Quick Search filter
   boolean                                        node                                   = true;
@@ -1317,6 +1322,16 @@ public final class TvShowSettings extends AbstractSettings {
     }
   }
 
+  public void setTvShowDisplayAllMissingMetadata(boolean newValue) {
+    boolean oldValue = tvShowDisplayAllMissingMetadata;
+    tvShowDisplayAllMissingMetadata = newValue;
+    firePropertyChange("tvShowDisplayAllMissingMetadata", oldValue, newValue);
+  }
+
+  public boolean isTvShowDisplayAllMissingMetadata() {
+    return tvShowDisplayAllMissingMetadata;
+  }
+
   public void clearTvShowCheckArtwork() {
     tvShowCheckArtwork.clear();
     firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
@@ -1331,6 +1346,16 @@ public final class TvShowSettings extends AbstractSettings {
       tvShowCheckArtwork.add(config);
       firePropertyChange(TVSHOW_CHECK_ARTWORK, null, tvShowCheckArtwork);
     }
+  }
+
+  public void setTvShowDisplayAllMissingArtwork(boolean newValue) {
+    boolean oldValue = tvShowDisplayAllMissingArtwork;
+    tvShowDisplayAllMissingArtwork = newValue;
+    firePropertyChange("tvShowDisplayAllMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isTvShowDisplayAllMissingArtwork() {
+    return tvShowDisplayAllMissingArtwork;
   }
 
   public void clearSeasonCheckArtwork() {
@@ -1349,6 +1374,16 @@ public final class TvShowSettings extends AbstractSettings {
     }
   }
 
+  public void setSeasonDisplayAllMissingArtwork(boolean newValue) {
+    boolean oldValue = seasonDisplayAllMissingArtwork;
+    seasonDisplayAllMissingArtwork = newValue;
+    firePropertyChange("seasonDisplayAllMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isSeasonDisplayAllMissingArtwork() {
+    return seasonDisplayAllMissingArtwork;
+  }
+
   public void clearEpisodeCheckMetadata() {
     episodeCheckMetadata.clear();
     firePropertyChange(EPISODE_CHECK_METADATA, null, episodeCheckMetadata);
@@ -1365,6 +1400,16 @@ public final class TvShowSettings extends AbstractSettings {
     }
   }
 
+  public void setEpisodeDisplayAllMissingMetadata(boolean newValue) {
+    boolean oldValue = episodeDisplayAllMissingMetadata;
+    episodeDisplayAllMissingMetadata = newValue;
+    firePropertyChange("episodeDisplayAllMissingMetadata", oldValue, newValue);
+  }
+
+  public boolean isEpisodeDisplayAllMissingMetadata() {
+    return episodeDisplayAllMissingMetadata;
+  }
+
   public void clearEpisodeCheckArtwork() {
     episodeCheckArtwork.clear();
     firePropertyChange(EPISODE_CHECK_ARTWORK, null, episodeCheckArtwork);
@@ -1379,6 +1424,16 @@ public final class TvShowSettings extends AbstractSettings {
       episodeCheckArtwork.add(config);
       firePropertyChange(EPISODE_CHECK_ARTWORK, null, episodeCheckArtwork);
     }
+  }
+
+  public void setEpisodeDisplayAllMissingArtwork(boolean newValue) {
+    boolean oldValue = episodeDisplayAllMissingArtwork;
+    episodeDisplayAllMissingArtwork = newValue;
+    firePropertyChange("episodeDisplayAllMissingArtwork", oldValue, newValue);
+  }
+
+  public boolean isEpisodeDisplayAllMissingArtwork() {
+    return episodeDisplayAllMissingArtwork;
   }
 
   public CertificationStyle getCertificationStyle() {

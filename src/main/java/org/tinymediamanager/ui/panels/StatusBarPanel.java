@@ -93,6 +93,12 @@ public class StatusBarPanel extends JPanel implements TmmTaskListener {
     final Settings settings = Settings.getInstance();
 
     memoryUsagePanel.setVisible(settings.isShowMemory());
+    memoryUsagePanel.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        System.gc();
+      }
+    });
     // listener for settings change
 
     settings.addPropertyChangeListener(evt -> {

@@ -422,7 +422,7 @@ public class TmmCheckComboBox<E> extends JComboBox<TmmCheckComboBoxItem<E>> {
 
       setLayout(new WrapLayout(FlowLayout.LEFT, 5, 2));
       setOpaque(false);
-      setBorder(BorderFactory.createEmptyBorder(-2, -5, -2, 0)); // to avoid space of the first/last item
+      setBorder(BorderFactory.createEmptyBorder(-2, -5, 2, 0)); // to avoid space of the first/last item
     }
 
     @Override

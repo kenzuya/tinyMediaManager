@@ -81,8 +81,6 @@ import org.tinymediamanager.core.IMediaInformation;
 import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
-import org.tinymediamanager.core.Message;
-import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.ScraperMetadataConfig;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmDateFormat;
@@ -101,6 +99,7 @@ import org.tinymediamanager.core.movie.MovieEdition;
 import org.tinymediamanager.core.movie.MovieMediaFileComparator;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
+import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
@@ -114,6 +113,7 @@ import org.tinymediamanager.core.movie.filenaming.MovieTrailerNaming;
 import org.tinymediamanager.core.movie.tasks.MovieARDetectorTask;
 import org.tinymediamanager.core.movie.tasks.MovieActorImageFetcherTask;
 import org.tinymediamanager.core.movie.tasks.MovieRenameTask;
+import org.tinymediamanager.core.movie.tasks.MovieSetScrapeTask;
 import org.tinymediamanager.core.tasks.ImageCacheTask;
 import org.tinymediamanager.core.threading.TmmTask;
 import org.tinymediamanager.core.threading.TmmTaskChain;
@@ -125,10 +125,6 @@ import org.tinymediamanager.scraper.ScraperType;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaArtwork.MediaArtworkType;
 import org.tinymediamanager.scraper.entities.MediaCertification;
-import org.tinymediamanager.scraper.exceptions.MissingIdException;
-import org.tinymediamanager.scraper.exceptions.NothingFoundException;
-import org.tinymediamanager.scraper.exceptions.ScrapeException;
-import org.tinymediamanager.scraper.interfaces.IMovieSetMetadataProvider;
 import org.tinymediamanager.scraper.util.LanguageUtils;
 import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.ParserUtils;
@@ -892,41 +888,16 @@ public class Movie extends MediaEntity implements IMediaInformation {
         // no need to log here
       }
       if (col != 0) {
-        MovieSet movieSet = MovieModuleManager.getInstance().getMovieList().getMovieSet(metadata.getCollectionName(), col);
-        if (movieSet != null && movieSet.getTmdbId() == 0) {
+        boolean created = false;
+        MovieSet movieSet = MovieModuleManager.getInstance().getMovieList().findMovieSet(metadata.getCollectionName(), col);
+
+        if (movieSet == null && StringUtils.isNotBlank(metadata.getCollectionName())) {
+          // no movie set here yet
+          movieSet = new MovieSet(metadata.getCollectionName());
           movieSet.setTmdbId(col);
-          // get movieset metadata
-          try {
-            List<MediaScraper> movieSetMediaScrapers = MediaScraper.getMediaScrapers(ScraperType.MOVIE_SET);
-            if (!movieSetMediaScrapers.isEmpty()) {
-              MediaScraper first = movieSetMediaScrapers.get(0); // just get first
-              IMovieSetMetadataProvider mp = ((IMovieSetMetadataProvider) first.getMediaProvider());
-              MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
-              options.setTmdbId(col);
-              options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
-
-              MediaMetadata info = mp.getMetadata(options);
-              if (info != null && StringUtils.isNotBlank(info.getTitle())) {
-                movieSet.setTitle(info.getTitle());
-                movieSet.setPlot(info.getPlot());
-
-                if (!info.getMediaArt(MediaArtworkType.POSTER).isEmpty()) {
-                  movieSet.setArtworkUrl(info.getMediaArt(MediaArtworkType.POSTER).get(0).getDefaultUrl(), MediaFileType.POSTER);
-                }
-                if (!info.getMediaArt(MediaArtworkType.BACKGROUND).isEmpty()) {
-                  movieSet.setArtworkUrl(info.getMediaArt(MediaArtworkType.BACKGROUND).get(0).getDefaultUrl(), MediaFileType.FANART);
-                }
-              }
-            }
-          }
-          catch (MissingIdException | NothingFoundException e) {
-            LOGGER.debug("could not get movie set meta data: {}", e.getMessage());
-          }
-          catch (ScrapeException e) {
-            LOGGER.error("getMovieSet", e);
-            MessageManager.instance.pushMessage(new Message(Message.MessageLevel.ERROR, this, "message.scrape.metadatamoviesetfailed",
-                new String[] { ":", e.getLocalizedMessage() }));
-          }
+          movieSet.saveToDb();
+          MovieModuleManager.getInstance().getMovieList().addMovieSet(movieSet);
+          created = true;
         }
 
         // add movie to movieset
@@ -938,6 +909,24 @@ public class Movie extends MediaEntity implements IMediaInformation {
           setMovieSet(movieSet);
           movieSet.insertMovie(this);
           movieSet.saveToDb();
+
+          // and scrape if unscraped
+          if (created) {
+            // get movieset metadata
+            List<MediaScraper> movieSetMediaScrapers = MediaScraper.getMediaScrapers(ScraperType.MOVIE_SET);
+            if (!movieSetMediaScrapers.isEmpty()) {
+
+              // get movieset metadata (async to donot block here)
+              MovieSetSearchAndScrapeOptions options = new MovieSetSearchAndScrapeOptions();
+              options.setTmdbId(col);
+              options.setLanguage(MovieModuleManager.getInstance().getSettings().getScraperLanguage());
+              options.setMetadataScraper(movieSetMediaScrapers.get(0));
+              options.setArtworkScraper(MovieModuleManager.getInstance().getMovieList().getDefaultArtworkScrapers());
+              MovieSetScrapeTask task = new MovieSetScrapeTask(Collections.singletonList(movieSet), options,
+                  Arrays.asList(MovieSetScraperMetadataConfig.values()));
+              TmmTaskManager.getInstance().addUnnamedTask(task);
+            }
+          }
         }
       }
     }
@@ -1718,6 +1707,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * Gets the images to cache.
    */
+  @Override
   public List<MediaFile> getImagesToCache() {
     // image files
     List<MediaFile> filesToCache = new ArrayList<>();
@@ -1742,8 +1732,8 @@ public class Movie extends MediaEntity implements IMediaInformation {
   /**
    * @return list of actor images on filesystem
    */
-  private List<MediaFile> listActorFiles() {
-    if (!Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
+  protected List<MediaFile> listActorFiles() {
+    if (getPathNIO() == null || !Files.exists(getPathNIO().resolve(Person.ACTOR_DIR))) {
       return Collections.emptyList();
     }
 
@@ -2791,7 +2781,7 @@ public class Movie extends MediaEntity implements IMediaInformation {
     return null;
   }
 
-  private void postProcess(List<MovieScraperMetadataConfig> config) {
+  protected void postProcess(List<MovieScraperMetadataConfig> config) {
     TmmTaskChain taskChain = new TmmTaskChain();
 
     if (MovieModuleManager.getInstance().getSettings().isArdAfterScrape()) {

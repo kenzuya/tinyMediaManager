@@ -30,8 +30,10 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +66,8 @@ public class UniversalTvShowMetadataProvider implements ITvShowMetadataProvider 
   private static final String                               RATINGS             = "ratings";
   private static final Logger                               LOGGER              = LoggerFactory.getLogger(UniversalTvShowMetadataProvider.class);
   private static final Map<String, ITvShowMetadataProvider> COMPATIBLE_SCRAPERS = new HashMap<>();
-  private static final ExecutorService                      EXECUTOR            = Executors.newFixedThreadPool(4);
+  private static final ExecutorService                      EXECUTOR            = new ThreadPoolExecutor(4, 8, 5, TimeUnit.SECONDS,
+      new LinkedBlockingQueue<>());
 
   private final MediaProviderInfo                           providerInfo;
 

@@ -256,7 +256,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     {
       JPanel infoPanel = new JPanel();
-      infoPanel.setLayout(new MigLayout("", "[][grow]", "[]"));
+      infoPanel.setLayout(new MigLayout("hidemode 3", "[][grow]", "[]"));
 
       progressBar = new JProgressBar();
       infoPanel.add(progressBar, "cell 0 0");
@@ -301,10 +301,10 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     tableMovieSets.getColumnModel().getColumn(0).setHeaderValue(TmmResourceBundle.getString("chooser.searchresult"));
     tfMovieSetName.setText(movieSet.getTitle());
-    searchMovie();
+    searchMovieSet();
   }
 
-  private void searchMovie() {
+  private void searchMovieSet() {
     SearchTask task = new SearchTask(tfMovieSetName.getText());
     task.execute();
   }
@@ -375,7 +375,7 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      searchMovie();
+      searchMovieSet();
     }
   }
 
@@ -460,6 +460,8 @@ public class MovieSetChooserDialog extends TmmDialog implements ActionListener {
               if (scraperConfig.contains(MovieSetScraperMetadataConfig.THUMB)) {
                 chooseArtwork(MediaFileType.THUMB);
               }
+              // write artwork urls to the NFO
+              movieSetToScrape.writeNFO();
             }
             else {
               // get artwork asynchronous

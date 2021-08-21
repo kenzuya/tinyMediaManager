@@ -414,10 +414,11 @@ public final class MovieList extends AbstractModelObject {
         movie.setDbId(uuid);
 
         // sanity check: only movies with a video file are valid
-        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty()) {
-          // no video file? drop it
-          LOGGER.info("movie \"{}\" without video file - dropping", movie.getTitle());
+        if (movie.getMediaFiles(MediaFileType.VIDEO).isEmpty() || movie.getPathNIO() == null || StringUtils.isBlank(movie.getDataSource())) {
+          // no video file or path or datasource? drop it
+          LOGGER.info("movie \"{}\" without video file/path/datasource - dropping", movie.getTitle());
           movieMap.remove(uuid);
+          continue;
         }
 
         // for performance reasons we add movies directly
@@ -1237,7 +1238,6 @@ public final class MovieList extends AbstractModelObject {
    */
   public void removeMovieSet(MovieSet movieSet) {
     int oldValue = movieSetList.size();
-    movieSet.removeAllMovies();
     movieSet.removePropertyChangeListener(movieSetListener);
 
     try {
@@ -1254,6 +1254,9 @@ public final class MovieList extends AbstractModelObject {
         String movieSetName = movieSet.getTitleForStorage();
         Utils.deleteEmptyDirectoryRecursive(Paths.get(MovieModuleManager.getInstance().getSettings().getMovieSetDataFolder(), movieSetName));
       }
+
+      movieSet.removeAllMovies();
+
       readWriteLock.writeLock().lock();
       movieSetList.remove(movieSet);
       readWriteLock.writeLock().unlock();
@@ -1268,7 +1271,7 @@ public final class MovieList extends AbstractModelObject {
     firePropertyChange("movieInMovieSetCount", oldValue, getMovieInMovieSetCount());
   }
 
-  private MovieSet findMovieSet(String title, int tmdbId) {
+  public MovieSet findMovieSet(String title, int tmdbId) {
     // first search by tmdbId
     if (tmdbId > 0) {
       for (MovieSet movieSet : movieSetList) {
@@ -1279,9 +1282,11 @@ public final class MovieList extends AbstractModelObject {
     }
 
     // search for the movieset by name
-    for (MovieSet movieSet : movieSetList) {
-      if (movieSet.getTitle().equals(title)) {
-        return movieSet;
+    if (StringUtils.isNotBlank(title)) {
+      for (MovieSet movieSet : movieSetList) {
+        if (movieSet.getTitle().equals(title)) {
+          return movieSet;
+        }
       }
     }
 

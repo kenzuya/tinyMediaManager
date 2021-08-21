@@ -478,10 +478,16 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      */
     Function<Movie, String> nfoFunction = movie -> {
       List<MovieScraperMetadataConfig> values = new ArrayList<>();
-      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
-        if (config.isMetaData() || config.isCast()) {
-          values.add(config);
+
+      if (MovieModuleManager.getInstance().getSettings().isMovieDisplayAllMissingMetadata()) {
+        for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+          if (config.isMetaData() || config.isCast()) {
+            values.add(config);
+          }
         }
+      }
+      else {
+        values.addAll(MovieModuleManager.getInstance().getSettings().getMovieCheckMetadata());
       }
       List<MovieScraperMetadataConfig> missingMetadata = movieList.detectMissingFields(movie, values);
 
@@ -510,10 +516,15 @@ public class MovieTableFormat extends TmmTableFormat<Movie> {
      */
     Function<Movie, String> imageFunction = movie -> {
       List<MovieScraperMetadataConfig> values = new ArrayList<>();
-      for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
-        if (config.isArtwork()) {
-          values.add(config);
+      if (MovieModuleManager.getInstance().getSettings().isMovieDisplayAllMissingArtwork()) {
+        for (MovieScraperMetadataConfig config : MovieScraperMetadataConfig.values()) {
+          if (config.isArtwork()) {
+            values.add(config);
+          }
         }
+      }
+      else {
+        values.addAll(MovieModuleManager.getInstance().getSettings().getMovieCheckArtwork());
       }
       List<MovieScraperMetadataConfig> missingMetadata = movieList.detectMissingFields(movie, values);
 

@@ -55,6 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1555,8 +1556,13 @@ public class MovieUpdateDatasourceTask extends TmmThreadPool {
    */
   private List<Path> listFilesAndDirs(Path directory) {
     List<Path> fileNames = new ArrayList<>();
-    try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
-      for (Path path : directoryStream) {
+
+    try (Stream<Path> directoryStream = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS)) {
+      List<Path> allElements = directoryStream.collect(Collectors.toList());
+      for (Path path : allElements) {
+        if (directory.toAbsolutePath().equals(path.toAbsolutePath())) {
+          continue;
+        }
         if (isInSkipFolder(path)) {
           LOGGER.debug("Skipping: {}", path);
         }

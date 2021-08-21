@@ -36,9 +36,6 @@ public class CompanyBaseRecord {
   @SerializedName("overviewTranslations")
   public List<String> overviewTranslations = null;
 
-  @SerializedName("aliases")
-  public List<String> aliases              = null;
-
   @SerializedName("country")
   public String       country              = null;
 }
