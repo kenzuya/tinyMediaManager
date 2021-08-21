@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -1313,16 +1314,7 @@ public class MediaFileHelper {
    * @return a {@link List} of all relevant DVD files
    */
   private static List<MediaInfoFile> detectRelevantDvdFiles(List<MediaInfoFile> mediaInfoFiles) {
-    Map<String, Long> fileSizes = new HashMap<>();
-
-    // a) find the "main" title (biggest coherent VOB files)
-    mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("vob")).forEach(mediaInfoFile -> {
-      String prefix = mediaInfoFile.getFilename().replaceAll("(?i)_\\d?\\.vob", "");
-      Long size = fileSizes.getOrDefault(prefix, 0L) + mediaInfoFile.getFilesize();
-      fileSizes.put(prefix, size);
-    });
-
-    String prefix = fileSizes.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey(); // NOSONAR
+    String prefix = detectRelevantDvdPrefix(mediaInfoFiles);
 
     // find all relevant files
 
@@ -1354,6 +1346,19 @@ public class MediaFileHelper {
     }
 
     return relevantFiles;
+  }
+
+  private static String detectRelevantDvdPrefix(List<MediaInfoFile> mediaInfoFiles) {
+    Map<String, Long> fileSizes = new HashMap<>();
+
+    // a) find the "main" title (biggest coherent VOB files)
+    mediaInfoFiles.stream().filter(mediaInfoFile -> mediaInfoFile.getFileExtension().equalsIgnoreCase("vob")).forEach(mediaInfoFile -> {
+      String prefix = mediaInfoFile.getFilename().replaceAll("(?i)_\\d?\\.vob", "");
+      Long size = fileSizes.getOrDefault(prefix, 0L) + mediaInfoFile.getFilesize();
+      fileSizes.put(prefix, size);
+    });
+
+    return fileSizes.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey(); // NOSONAR
   }
 
   /**
@@ -2645,5 +2650,61 @@ public class MediaFileHelper {
 
     LOGGER.trace("Considering EVO file: {}", evo.getFilename());
     gatherMediaInformationFromFile(mediaFile, Collections.singletonList(evo));
+  }
+
+  /**
+   * get the main video file for the given {@link MediaFile}. Handy if the {@link MediaFile} is a disc structure<br />
+   * partly taken from detectRelevantDvdFiles, detectRelevantBlurayFiles and detectRelevantHdDvdFiles
+   * 
+   * @param mediaFile
+   *          the {@link MediaFile} to check
+   * @return the {@link Path} to the main video file
+   */
+  public static Path getMainVideoFile(MediaFile mediaFile) {
+    if (Files.isDirectory(mediaFile.getFileAsPath())) {
+      // looks like a disc structure
+      List<MediaInfoFile> mediaInfoFiles = new ArrayList<>();
+      for (Path path : Utils.listFiles(mediaFile.getFileAsPath())) {
+        try {
+          mediaInfoFiles.add(new MediaInfoFile(path, Files.size(path)));
+        }
+        catch (Exception e) {
+          LOGGER.debug("could not parse filesize of {} - {}", path, e.getMessage());
+        }
+      }
+
+      if (mediaFile.isDVDFile()) {
+        String relevantPrefix = detectRelevantDvdPrefix(mediaInfoFiles);
+        mediaInfoFiles = mediaInfoFiles.stream().filter(file -> {
+          if (!"vob".equalsIgnoreCase(file.getFileExtension())) {
+            return false;
+          }
+          if (file.getFilename().startsWith(relevantPrefix)) {
+            return true;
+          }
+          return false;
+        }).sorted().collect(Collectors.toList());
+      }
+      else if (mediaFile.isBlurayFile()) {
+        mediaInfoFiles = detectRelevantBlurayFiles(mediaInfoFiles);
+      }
+      else if (mediaFile.isHDDVDFile()) {
+        mediaInfoFiles = detectRelevantHdDvdFiles(mediaInfoFiles);
+      }
+
+      if (!mediaInfoFiles.isEmpty()) {
+        // take the first which is > 200 mb
+        MediaInfoFile mediaInfoFile = mediaInfoFiles.stream().filter(file -> file.getFilesize() > 200000000).findFirst().orElse(null);
+        if (mediaInfoFile == null) {
+          mediaInfoFile = mediaInfoFiles.get(0);
+        }
+        Path path = Paths.get(mediaInfoFile.getPath(), mediaInfoFile.getFilename());
+        if (Files.exists(path)) {
+          return path;
+        }
+      }
+    }
+
+    return mediaFile.getFileAsPath();
   }
 }

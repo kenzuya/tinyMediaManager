@@ -51,3 +51,4 @@ x (movies/TV shows) parsing of IMDB search requests #1420
 x (movies) remove corrupted/faulty movies from database at startup
 x (movies) fixed downloading actor images for movies in movie sets
 x (universal scraper) added proper thread cleanup to prevent memory leak #1432
+x (movies/TV shows) added new approach to play (DVD/BR) disc folders with the systems default media player #644

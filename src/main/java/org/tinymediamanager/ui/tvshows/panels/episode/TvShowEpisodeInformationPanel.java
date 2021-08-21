@@ -48,6 +48,7 @@ import org.jdesktop.beansbinding.BeanProperty;
 import org.jdesktop.beansbinding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -168,7 +169,7 @@ public class TvShowEpisodeInformationPanel extends JPanel {
       MediaFile mf = this.tvShowEpisodeSelectionModel.getSelectedTvShowEpisode().getMainVideoFile();
       if (StringUtils.isNotBlank(mf.getFilename())) {
         try {
-          TmmUIHelper.openFile(mf.getFileAsPath());
+          TmmUIHelper.openFile(MediaFileHelper.getMainVideoFile(mf));
         }
         catch (Exception ex) {
           LOGGER.error("open file - '{}'", e);

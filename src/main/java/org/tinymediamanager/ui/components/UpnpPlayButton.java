@@ -24,6 +24,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
 import org.fourthline.cling.model.meta.Device;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
 import org.tinymediamanager.core.Settings;
@@ -68,7 +69,7 @@ public abstract class UpnpPlayButton extends JButton {
       return;
     }
     try {
-      TmmUIHelper.openFile(mf.getFileAsPath());
+      TmmUIHelper.openFile(MediaFileHelper.getMainVideoFile(mf));
     }
     catch (Exception ex) {
       MessageManager.instance

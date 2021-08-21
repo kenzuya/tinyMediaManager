@@ -27,6 +27,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.MediaFileHelper;
@@ -39,7 +40,7 @@ import org.tinymediamanager.thirdparty.MediaInfo.StreamKind;
  * @author Myron Boyle
  *
  */
-public class MediaInfoFile {
+public class MediaInfoFile implements Comparable<MediaInfoFile> {
 
   private static final Logger                        LOGGER   = LoggerFactory.getLogger(MediaInfoFile.class);
   private Map<StreamKind, List<Map<String, String>>> snapshot;
@@ -152,5 +153,10 @@ public class MediaInfoFile {
   @Override
   public int hashCode() {
     return Objects.hash(path, filename);
+  }
+
+  @Override
+  public int compareTo(@NotNull MediaInfoFile o) {
+    return getFilename().compareTo(o.getFilename());
   }
 }
