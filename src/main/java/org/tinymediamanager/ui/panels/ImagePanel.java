@@ -15,6 +15,9 @@
  */
 package org.tinymediamanager.ui.panels;
 
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.HierarchyEvent;
@@ -24,6 +27,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -37,6 +41,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.ImageCache;
 import org.tinymediamanager.core.ImageUtils;
+import org.tinymediamanager.core.MediaFileType;
+import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.entities.MediaFile;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.WrapLayout;
@@ -50,27 +56,27 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class ImagePanel extends JPanel implements HierarchyListener {
-  private static final long   serialVersionUID = -5344085698387374260L;
-  private static final Logger LOGGER           = LoggerFactory.getLogger(ImagePanel.class);
+  private static final long     serialVersionUID = -5344085698387374260L;
+  private static final Logger   LOGGER           = LoggerFactory.getLogger(ImagePanel.class);
 
-  protected int               maxWidth         = 300;
-  protected int               maxHeight        = 100;
-  private List<MediaFile>     mediaFiles       = null;
+  private final List<MediaFile> mediaFiles;
 
-  private ImageLoader         activeWorker     = null;
+  protected int                 maxWidth         = 300;
+  protected int                 maxHeight        = 100;
+  private ImageLoader           activeWorker     = null;
 
   /**
    * UI components
    */
-  private JPanel              panelImages;
-  private JScrollPane         scrollPane;
+  private final JPanel          panelImages;
+  private final JScrollPane     scrollPane;
 
   public ImagePanel(List<MediaFile> mediaFiles) {
     this.mediaFiles = mediaFiles;
     setLayout(new MigLayout("", "[400lp,grow]", "[300lp,grow]"));
 
     scrollPane = new NoBorderScrollPane();
-    scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scrollPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
     scrollPane.getVerticalScrollBar().setUnitIncrement(16);
     add(scrollPane, "cell 0 0,grow");
 
@@ -136,7 +142,7 @@ public class ImagePanel extends JPanel implements HierarchyListener {
    * worker to load the images asynchrony
    */
   protected class ImageLoader extends SwingWorker<Void, ImageChunk> {
-    private List<MediaFile> mediaFiles;
+    private final List<MediaFile> mediaFiles;
 
     private ImageLoader(List<MediaFile> mediaFiles) {
       this.mediaFiles = mediaFiles;
@@ -163,7 +169,7 @@ public class ImagePanel extends JPanel implements HierarchyListener {
               return null;
             }
 
-            publish(new ImageChunk(mediaFile.getFileAsPath().toString(), img));
+            publish(new ImageChunk(mediaFile.getFileAsPath().toString(), mediaFile.getType(), img));
             img = null;
           }
           catch (Exception e) {
@@ -182,24 +188,35 @@ public class ImagePanel extends JPanel implements HierarchyListener {
             return;
           }
 
+          JPanel panelContainer = new JPanel(new BorderLayout());
+
           JLabel lblImageJLabel = new JLabel(new ImageIcon(chunk.image));
           lblImageJLabel.addMouseListener(new ImageLabelClickListener(chunk.pathToImage));
-          panelImages.add(lblImageJLabel);
+          panelContainer.add(lblImageJLabel, BorderLayout.CENTER);
+
+          JLabel lblImageType = new JLabel(TmmResourceBundle.getString("mediafiletype." + chunk.type.name().toLowerCase(Locale.ROOT)));
+          lblImageType.setHorizontalAlignment(JLabel.CENTER);
+          panelContainer.add(lblImageType, BorderLayout.SOUTH);
+
+          panelImages.add(panelContainer);
           panelImages.revalidate();
           scrollPane.repaint();
         }
         catch (Exception ignored) {
+          // ignore
         }
       }
     }
   }
 
-  protected class ImageChunk {
-    private String        pathToImage;
-    private BufferedImage image;
+  protected static class ImageChunk {
+    private final String        pathToImage;
+    private final BufferedImage image;
+    private final MediaFileType type;
 
-    private ImageChunk(String path, BufferedImage image) {
+    private ImageChunk(String path, MediaFileType type, BufferedImage image) {
       this.pathToImage = path;
+      this.type = type;
       this.image = image;
     }
   }
@@ -207,8 +224,8 @@ public class ImagePanel extends JPanel implements HierarchyListener {
   /*
    * click listener for creating a lightbox effect
    */
-  private class ImageLabelClickListener implements MouseListener {
-    private String pathToFile;
+  private static class ImageLabelClickListener implements MouseListener {
+    private final String pathToFile;
 
     private ImageLabelClickListener(String path) {
       this.pathToFile = path;
@@ -223,18 +240,22 @@ public class ImagePanel extends JPanel implements HierarchyListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
+      // not used
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
+      // not used
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+      // not used
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+      // not used
     }
   }
 }
