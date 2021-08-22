@@ -675,17 +675,50 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     Map<SeasonType, List<EpisodeBaseRecord>> eps = new EnumMap<>(SeasonType.class);
     // paginated results
+    int pageSize = 500;
+    // DEFAULT/AIRED
     int counter = 0;
     while (true) {
       // get default episode lists
+      List<EpisodeBaseRecord> episodeBaseRecords = getEpisodeBaseRecords(showId, SeasonType.DEFAULT, counter);
 
-      eps.put(SeasonType.DEFAULT, getEpisodeBaseRecords(showId, SeasonType.DEFAULT, counter));
-      // and all other orderings we're interested in
-      eps.put(SeasonType.DVD, getEpisodeBaseRecords(showId, SeasonType.DVD, counter));
-      eps.put(SeasonType.ABSOLUTE, getEpisodeBaseRecords(showId, SeasonType.ABSOLUTE, counter));
+      eps.computeIfAbsent(SeasonType.DEFAULT, seasonType -> new ArrayList<>()).addAll(getEpisodeBaseRecords(showId, SeasonType.DEFAULT, counter));
+
+      if (episodeBaseRecords.size() < pageSize) {
+        break;
+      }
 
       counter++;
-      break; // at the moment it looks like that the call returns all episodes in the first page
+    }
+
+    // DVD
+    counter = 0;
+    while (true) {
+      // get default episode lists
+      List<EpisodeBaseRecord> episodeBaseRecords = getEpisodeBaseRecords(showId, SeasonType.DVD, counter);
+
+      eps.computeIfAbsent(SeasonType.DVD, seasonType -> new ArrayList<>()).addAll(getEpisodeBaseRecords(showId, SeasonType.DVD, counter));
+
+      if (episodeBaseRecords.size() < pageSize) {
+        break;
+      }
+
+      counter++;
+    }
+
+    // ABSOLUTE
+    counter = 0;
+    while (true) {
+      // get default episode lists
+      List<EpisodeBaseRecord> episodeBaseRecords = getEpisodeBaseRecords(showId, SeasonType.ABSOLUTE, counter);
+
+      eps.computeIfAbsent(SeasonType.ABSOLUTE, seasonType -> new ArrayList<>()).addAll(getEpisodeBaseRecords(showId, SeasonType.ABSOLUTE, counter));
+
+      if (episodeBaseRecords.size() < pageSize) {
+        break;
+      }
+
+      counter++;
     }
 
     // now merge all episode records by the ids (to merge the different episode numbers)
