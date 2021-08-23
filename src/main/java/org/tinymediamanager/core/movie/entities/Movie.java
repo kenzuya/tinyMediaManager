@@ -103,6 +103,7 @@ import org.tinymediamanager.core.movie.MovieSetScraperMetadataConfig;
 import org.tinymediamanager.core.movie.MovieSetSearchAndScrapeOptions;
 import org.tinymediamanager.core.movie.connector.IMovieConnector;
 import org.tinymediamanager.core.movie.connector.MovieConnectors;
+import org.tinymediamanager.core.movie.connector.MovieToEmbyConnector;
 import org.tinymediamanager.core.movie.connector.MovieToKodiConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpLegacyConnector;
 import org.tinymediamanager.core.movie.connector.MovieToMpMovingPicturesConnector;
@@ -1275,8 +1276,11 @@ public class Movie extends MediaEntity implements IMediaInformation {
         connector = new MovieToXbmcConnector(this);
         break;
 
-      case KODI:
       case EMBY:
+        connector = new MovieToEmbyConnector(this);
+        break;
+
+      case KODI:
       case JELLYFIN:
       case PLEX:
       case DVR_3:

@@ -26,15 +26,15 @@ import org.tinymediamanager.ui.settings.TmmSettingsNode;
  */
 public class MovieSettingsNode extends TmmSettingsNode {
 
-
   public MovieSettingsNode() {
     super(TmmResourceBundle.getString("Settings.movies"), new MovieSettingsPanel());
 
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.source"), new MovieDatasourceSettingsPanel()));
+    addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.nfo"), new MovieScraperNfoSettingsPanel()));
 
     TmmSettingsNode scraperSettingsNode = new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper"), new MovieScraperSettingsPanel());
-    scraperSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper.options"), new MovieScraperOptionsSettingsPanel()));
-    scraperSettingsNode.addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.nfo"), new MovieScraperNfoSettingsPanel()));
+    scraperSettingsNode
+        .addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.scraper.options"), new MovieScraperOptionsSettingsPanel()));
     addChild(scraperSettingsNode);
 
     TmmSettingsNode imageSettingsNode = new TmmSettingsNode(TmmResourceBundle.getString("Settings.images"), new MovieImageSettingsPanel());

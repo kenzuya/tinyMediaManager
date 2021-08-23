@@ -146,7 +146,7 @@ public final class TvShowSettings extends AbstractSettings {
   final Map<String, List<UIFilters>>             uiFilterPresets                        = new HashMap<>();
 
   // data sources / NFO settings
-  TvShowConnectors                               tvShowConnector                        = TvShowConnectors.XBMC;
+  TvShowConnectors                               tvShowConnector                        = TvShowConnectors.KODI;
   CertificationStyle                             certificationStyle                     = CertificationStyle.LARGE;
   boolean                                        writeCleanNfo                          = false;
   DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;

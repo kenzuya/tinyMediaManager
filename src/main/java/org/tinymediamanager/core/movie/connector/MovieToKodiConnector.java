@@ -41,13 +41,13 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
 /**
- * the class MovieToKodiConnector is used to write a the most recent Kodi compatible NFO file
+ * the class {@link MovieToKodiConnector} is used to write a most recent Kodi compatible NFO file
  *
  * @author Manuel Laggner
  */
 public class MovieToKodiConnector extends MovieGenericXmlConnector {
-  private static final Logger  LOGGER              = LoggerFactory.getLogger(MovieToKodiConnector.class);
-  private static final Pattern HD_TRAILERS_PATTERN = Pattern
+  protected static final Logger  LOGGER              = LoggerFactory.getLogger(MovieToKodiConnector.class);
+  protected static final Pattern HD_TRAILERS_PATTERN = Pattern
       .compile("https?://.*(apple.com|yahoo-redir|yahoo.com|youtube.com|moviefone.com|ign.com|hd-trailers.net|aol.com).*");
 
   public MovieToKodiConnector(Movie movie) {
@@ -109,7 +109,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
     addThumb(MediaFileType.LOGO, "logo");
   }
 
-  private void addThumb(MediaFileType type, String aspect) {
+  protected void addThumb(MediaFileType type, String aspect) {
     Element thumb = document.createElement("thumb");
 
     String artworkUrl = movie.getArtworkUrl(type);
@@ -167,7 +167,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
     root.appendChild(trailer);
   }
 
-  private String prepareTrailerForKodi(MediaTrailer trailer) {
+  protected String prepareTrailerForKodi(MediaTrailer trailer) {
     // youtube trailer are stored in a special notation: plugin://plugin.video.youtube/?action=play_video&videoid=<ID>
     // parse out the ID from the url and store it in the right notation
     Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
@@ -242,7 +242,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   /**
    * add the <epbookmark>xxx</epbookmark> just before the <year>xxx</year>
    */
-  private void addEpbookmark() {
+  protected void addEpbookmark() {
     Element epbookmark = document.createElement("epbookmark");
 
     Element year = getSingleElementByTag("year");
@@ -255,7 +255,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   /**
    * add the <top250>xxx</top250> just before the <set>xxx</set>
    */
-  private void addTop250() {
+  protected void addTop250() {
     Element top250 = document.createElement("top250");
     top250.setTextContent(Integer.toString(movie.getTop250()));
     Element set = getSingleElementByTag("set");
@@ -265,7 +265,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   /**
    * add the <lastplayed>xxx</lastplayed> just before the <genre>xxx</genre>
    */
-  private void addLastplayed() {
+  protected void addLastplayed() {
     Element lastplayed = document.createElement("lastplayed");
 
     Element genre = getSingleElementByTag("genre");
@@ -278,7 +278,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   /**
    * add the <status>xxx</status> and <code>xxx</code> just before the <premiered>xxx</premiered>
    */
-  private void addStatusAndCode() {
+  protected void addStatusAndCode() {
     Element status = document.createElement("status");
     Element code = document.createElement("code");
 
@@ -294,7 +294,7 @@ public class MovieToKodiConnector extends MovieGenericXmlConnector {
   /**
    * add the <fileinfo>xx</fileinfo> tag with mediainfo data
    */
-  private void addFileinfo() {
+  protected void addFileinfo() {
     Element fileinfo = document.createElement("fileinfo");
     Element streamdetails = document.createElement("streamdetails");
 

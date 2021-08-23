@@ -7,6 +7,8 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
   to allow all PRO users to continue using this service without any additional subscription needed! (https://bit.ly/2VJTy7n)
 ******************************************************************************************************
 
++ (movies/TV shows) added a better overview for compatible NFO consumers (media centers/other tools)
+  => Emby users should switch from Kodi NFO style to Emby NFO style!
 + added Windows installer, macOS dmg and Docker image (https://bit.ly/3CN2Y2o)
 + added support for 3rd party scrapers (https://bit.ly/3smdPM8)
 + added experimental support for post process actions (https://bit.ly/3si4Ew6) #817
@@ -23,7 +25,6 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
 + (movies/TV shows) added a filter for date added
 + (movies) added quickfilter for notes
 + (TV shows) added customizable quickfilters
-+ (movies/TV shows) added a better overview for compatible NFO consumers (media centers/other tools)
 + (TV shows) added filter for year and decade
 + (TV shows) bulk add actor / director /  rating / certification in episodes / tvshows
 + (movies/TV shows) added column to see if note is available
