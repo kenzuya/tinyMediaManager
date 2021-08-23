@@ -112,6 +112,7 @@ public final class MovieList extends AbstractModelObject {
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInMovies;
   private final CopyOnWriteArrayList<String>             decadeInMovies;
   private final CopyOnWriteArrayList<String>             hdrFormatInMovies;
+  private final CopyOnWriteArrayList<String>             audioTitlesInMovies;
 
   private final PropertyChangeListener                   movieListener;
   private final PropertyChangeListener                   movieSetListener;
@@ -140,6 +141,7 @@ public final class MovieList extends AbstractModelObject {
     subtitleLanguagesInMovies = new CopyOnWriteArrayList<>();
     decadeInMovies = new CopyOnWriteArrayList<>();
     hdrFormatInMovies = new CopyOnWriteArrayList<>();
+    audioTitlesInMovies = new CopyOnWriteArrayList<>();
 
     // movie listener: its used to always have a full list of all tags, codecs, years, ... used in tmm
     movieListener = evt -> {
@@ -965,6 +967,7 @@ public final class MovieList extends AbstractModelObject {
     Set<String> audioLanguages = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
+    Set<String> audioTitles = new HashSet<>();
 
     // get Subtitle language from video files and subtitle files
     for (Movie movie : movies) {
@@ -1018,6 +1021,11 @@ public final class MovieList extends AbstractModelObject {
         if (!mf.getHdrFormat().isEmpty()) {
           hdrFormat.add(mf.getHdrFormat());
         }
+
+        // Audio Titles
+        if (!mf.getAudioTitleList().isEmpty()) {
+          audioTitles.addAll(mf.getAudioTitleList());
+        }
       }
     }
 
@@ -1064,6 +1072,11 @@ public final class MovieList extends AbstractModelObject {
     // HDR Format
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInMovies, hdrFormat)) {
       firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInMovies);
+    }
+
+    // AudioTitle
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioTitlesInMovies, audioTitles)) {
+      firePropertyChange(Constants.AUDIO_TITLE, null, audioTitlesInMovies);
     }
   }
 
@@ -1148,6 +1161,8 @@ public final class MovieList extends AbstractModelObject {
   public Collection<String> getHDRFormatInMovies() {
     return Collections.unmodifiableList(hdrFormatInMovies);
   }
+
+  public Collection<String> getAudioTitlesInMovies() { return Collections.unmodifiableList(audioTitlesInMovies);}
 
   /**
    * Search duplicates.

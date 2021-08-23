@@ -66,6 +66,7 @@ import org.tinymediamanager.ui.tvshows.filters.TvShowAudioChannelFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioCodecFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioLanguageFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowAudioStreamCountFilter;
+import org.tinymediamanager.ui.tvshows.filters.TvShowAudioTitleFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCastFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCertificationFilter;
 import org.tinymediamanager.ui.tvshows.filters.TvShowCountryFilter;
@@ -163,7 +164,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowNoteFilter(), panelMain);
         addFilter(new TvShowYearFilter(), panelMain);
         addFilter(new TvShowDecadeFilter(), panelMain);
-        addFilter(new TvShowAllInOneFilter(),panelMain);
+        addFilter(new TvShowAllInOneFilter(), panelMain);
         addFilter(new TvShowMissingMetadataFilter(), panelMain);
         addFilter(new TvShowMissingArtworkFilter(), panelMain);
       }
@@ -189,6 +190,7 @@ public class TvShowFilterDialog extends TmmDialog {
         addFilter(new TvShowAudioChannelFilter(), panelMediaData);
         addFilter(new TvShowAudioStreamCountFilter(), panelMediaData);
         addFilter(new TvShowAudioLanguageFilter(), panelMediaData);
+        addFilter(new TvShowAudioTitleFilter(), panelMediaData);
         addFilter(new TvShowSubtitleCountFilter(), panelMediaData);
         addFilter(new TvShowSubtitleLanguageFilter(), panelMediaData);
         addFilter(new TvShowMediaSourceFilter(), panelMediaData);

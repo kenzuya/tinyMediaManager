@@ -776,6 +776,21 @@ public class MediaFile extends AbstractModelObject implements Comparable<MediaFi
   }
 
   /**
+   * gets the audio title from the mediafile
+   * @return the audio title
+   */
+  public List<String> getAudioTitleList() {
+
+    List<String> audioTitleList = new ArrayList<>();
+
+    for (MediaFileAudioStream stream : ListUtils.nullSafe(audioStreams)) {
+      audioTitleList.add(stream.getAudioTitle());
+    }
+
+    return audioTitleList;
+  }
+
+  /**
    * gets the audio codecs from all streams as List<br>
    * (w/o punctuation; eg AC-3 => AC3).
    *

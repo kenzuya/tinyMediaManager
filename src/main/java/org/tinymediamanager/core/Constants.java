@@ -131,6 +131,7 @@ public final class Constants {
   public static final String AUDIO_LANGUAGES        = "audioLanugages";
   public static final String DECADE                 = "decade";
   public static final String HDR_FORMAT             = "hdrFormat";
+  public static final String AUDIO_TITLE            = "audioTitle";
 
   // some hardcoded, well known meta data provider IDs
   // may add new ones in MediaEntity.setId()
