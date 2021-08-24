@@ -1399,6 +1399,9 @@ public class TvShowEpisodeNfoParser {
      * find and store all unsupported tags
      */
     private Void findUnsupportedElements() {
+      // just ignore further elements
+      unsupportedElements.add("lockdata");
+
       // get all children of the root
       for (Element element : root.children()) {
         if (!IGNORE.contains(element.tagName()) && !supportedElements.contains(element.tagName())) {

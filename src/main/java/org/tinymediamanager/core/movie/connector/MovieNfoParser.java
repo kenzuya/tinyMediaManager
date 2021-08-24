@@ -1606,6 +1606,9 @@ public class MovieNfoParser {
    * find and store all unsupported tags
    */
   private Void findUnsupportedElements() {
+    // just ignore further elements
+    unsupportedElements.add("lockdata");
+
     // get all children of the root
     for (Element element : root.children()) {
       if (!supportedElements.contains(element.tagName().toLowerCase(Locale.ROOT))) {
