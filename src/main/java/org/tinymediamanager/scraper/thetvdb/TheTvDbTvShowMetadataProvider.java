@@ -550,20 +550,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       try {
         MediaMetadata md = getMetadata(options);
         if (md != null) {
-          MediaSearchResult searchResult = new MediaSearchResult(getId(), MediaType.TV_SHOW);
-          searchResult.setTitle(md.getTitle());
-          searchResult.setYear(md.getYear());
-          searchResult.setIds(md.getIds());
-          searchResult.setMetadata(md);
-          for (MediaArtwork artwork : md.getMediaArt()) {
-            if (artwork.getType() == MediaArtwork.MediaArtworkType.POSTER) {
-              searchResult.setPosterUrl(artwork.getDefaultUrl());
-              break;
-            }
-          }
-          searchResult.setScore(1);
-
-          results.add(searchResult);
+          results.add(morphMediaMetadataToSearchResult(md, MediaType.TV_SHOW));
           return results;
         }
       }
@@ -584,6 +571,21 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
         }
 
         searchResults = httpResponse.body().data;
+
+        // nothing found - but maybe only the tvdb id entered?
+        if (ListUtils.isEmpty(searchResults) && ID_PATTERN.matcher(searchString).matches()) {
+          LOGGER.debug("nothing found, but search term '{}' looks like a TvDb ID - getting direct", searchString);
+          try {
+            MediaMetadata md = getMetadata(options);
+            if (md != null) {
+              results.add(morphMediaMetadataToSearchResult(md, MediaType.TV_SHOW));
+              return results;
+            }
+          }
+          catch (Exception e) {
+            LOGGER.error("problem getting data vom tvdb via ID: {}", e.getMessage());
+          }
+        }
       }
       catch (Exception e) {
         LOGGER.error("problem getting data vom tvdb: {}", e.getMessage());

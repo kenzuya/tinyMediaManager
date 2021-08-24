@@ -40,9 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinymediamanager.core.FeatureNotEnabledException;
 import org.tinymediamanager.core.entities.Person;
+import org.tinymediamanager.scraper.MediaMetadata;
 import org.tinymediamanager.scraper.MediaProviderInfo;
+import org.tinymediamanager.scraper.MediaSearchResult;
 import org.tinymediamanager.scraper.entities.MediaArtwork;
 import org.tinymediamanager.scraper.entities.MediaLanguages;
+import org.tinymediamanager.scraper.entities.MediaType;
 import org.tinymediamanager.scraper.exceptions.ScrapeException;
 import org.tinymediamanager.scraper.interfaces.IMediaProvider;
 import org.tinymediamanager.scraper.thetvdb.entities.ArtworkBaseRecord;
@@ -64,7 +67,9 @@ import com.google.gson.JsonParser;
 abstract class TheTvDbMetadataProvider implements IMediaProvider {
   private static final Logger                   LOGGER            = LoggerFactory.getLogger(TheTvDbMetadataProvider.class);
   private static final String                   ID                = "tvdb";
+
   protected static final String                 FALLBACK_LANGUAGE = "fallbackLanguage";
+  protected static final Pattern                ID_PATTERN        = Pattern.compile("\\d{3,}");
 
   private final MediaProviderInfo               providerInfo;
   private final Map<Integer, ArtworkTypeRecord> artworkTypes      = new HashMap<>();
@@ -394,5 +399,22 @@ abstract class TheTvDbMetadataProvider implements IMediaProvider {
     }
 
     return ma;
+  }
+
+  protected MediaSearchResult morphMediaMetadataToSearchResult(MediaMetadata md, MediaType type) {
+    MediaSearchResult searchResult = new MediaSearchResult(getId(), type);
+    searchResult.setTitle(md.getTitle());
+    searchResult.setYear(md.getYear());
+    searchResult.setIds(md.getIds());
+    searchResult.setMetadata(md);
+    for (MediaArtwork artwork : md.getMediaArt()) {
+      if (artwork.getType() == MediaArtwork.MediaArtworkType.POSTER) {
+        searchResult.setPosterUrl(artwork.getDefaultUrl());
+        break;
+      }
+    }
+    searchResult.setScore(1);
+
+    return searchResult;
   }
 }
