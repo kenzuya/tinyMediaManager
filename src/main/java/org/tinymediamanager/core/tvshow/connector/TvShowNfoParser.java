@@ -1401,7 +1401,7 @@ public class TvShowNfoParser {
    */
   private Void findUnsupportedElements() {
     // just ignore further elements
-    unsupportedElements.add("lockdata");
+    supportedElements.add("lockdata");
 
     // get all children of the root
     for (Element element : root.children()) {
