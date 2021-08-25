@@ -18,6 +18,8 @@ package org.tinymediamanager.core.tvshow;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,8 +63,8 @@ public class TvShowPostProcessExecutor {
 
     for (Object object : selectedTvShowObject) {
       if (object instanceof TvShow) {
-        //Episode
-        command = substituteTokens("tvShow",(TvShow) object);
+        // Episode
+        command = substituteTokens("tvShow", (TvShow) object);
         command.add(0, postProcess.getPath());
         // Execute File
         try {
@@ -73,8 +75,8 @@ public class TvShowPostProcessExecutor {
         }
       }
       else if (object instanceof TvShowEpisode) {
-        //Episode
-        command = substituteTokens("episode",(TvShowEpisode) object);
+        // Episode
+        command = substituteTokens("episode", (TvShowEpisode) object);
         command.add(0, postProcess.getPath());
         // Execute File
         try {
@@ -83,8 +85,9 @@ public class TvShowPostProcessExecutor {
         catch (IOException | InterruptedException e) {
           e.printStackTrace();
         }
-      }else if (object instanceof TvShowSeason) {
-        //Season
+      }
+      else if (object instanceof TvShowSeason) {
+        // Season
         command = substituteTokens("season", (TvShowSeason) object);
         command.add(0, postProcess.getPath());
         try {
@@ -121,7 +124,7 @@ public class TvShowPostProcessExecutor {
   private void executeCommand(List<String> cmdline, Object object) throws IOException, InterruptedException {
 
     String command = String.join(" ", cmdline);
-    LOGGER.debug("Running command: {}", command );
+    LOGGER.debug("Running command: {}", command);
 
     ProcessBuilder pb;
     if (SystemUtils.IS_OS_WINDOWS) {
@@ -138,11 +141,15 @@ public class TvShowPostProcessExecutor {
 
     if (object instanceof TvShow) {
       pb.directory(((TvShow) object).getPathNIO().toFile());
-    } else if (object instanceof TvShowEpisode) {
+    }
+    else if (object instanceof TvShowEpisode) {
       pb.directory(((TvShowEpisode) object).getPathNIO().toFile());
-    } else if (object instanceof TvShowSeason) {
-      //Get first Episode of the Season for Path
-      pb.directory(((TvShowSeason) object).getEpisodes().get(0).getPathNIO().toFile());
+    }
+    else if (object instanceof TvShowSeason) {
+      // use the renamer to get the season foldername
+      TvShowSeason tvShowSeason = (TvShowSeason) object;
+      Path seasonFolderName = Paths.get(TvShowHelpers.detectSeasonFolder(tvShowSeason.getTvShow(), tvShowSeason.getSeason()));
+      pb.directory(seasonFolderName.toFile());
     }
 
     final Process process = pb.start();
