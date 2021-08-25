@@ -16,8 +16,10 @@
 package org.tinymediamanager.ui.tvshows;
 
 import java.awt.CardLayout;
+import java.util.ArrayList;
 
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
@@ -27,9 +29,11 @@ import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.tinymediamanager.Globals;
+import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
+import org.tinymediamanager.core.tvshow.TvShowPostProcessExecutor;
 import org.tinymediamanager.core.tvshow.entities.TvShow;
 import org.tinymediamanager.core.tvshow.entities.TvShowEpisode;
 import org.tinymediamanager.core.tvshow.entities.TvShowSeason;
@@ -324,6 +328,10 @@ public class TvShowUIModule extends AbstractTmmUIModule {
     JMenu kodiRPCMenu = KodiRPCMenu.createMenuKodiMenuRightClickTvShows();
     popupMenu.add(kodiRPCMenu);
 
+    JMenu postProcessingMenu = new JMenu(TmmResourceBundle.getString("Settings.postprocessing"));
+    postProcessingMenu.setIcon(IconManager.MENU);
+    popupMenu.add(postProcessingMenu);
+
     popupMenu.addSeparator();
     popupMenu.add(createAndRegisterAction(TvShowCleanUpFilesAction.class));
     popupMenu.add(createAndRegisterAction(TvShowClearImageCacheAction.class));
@@ -356,6 +364,20 @@ public class TvShowUIModule extends AbstractTmmUIModule {
         }
         else {
           traktMenu.setEnabled(false);
+        }
+
+        // Post processing
+        postProcessingMenu.removeAll();
+        for (PostProcess process : new ArrayList<>(TvShowModuleManager.getInstance().getSettings().getPostProcessTvShow())) {
+          JMenuItem menuItem = new JMenuItem(process.getName(), IconManager.APPLY_INV);
+          menuItem.addActionListener(pp -> new TvShowPostProcessExecutor(process).execute());
+          postProcessingMenu.add(menuItem);
+        }
+        if (postProcessingMenu.getItemCount() == 0) {
+          postProcessingMenu.setEnabled(false);
+        }
+        else {
+          postProcessingMenu.setEnabled(true);
         }
       }
 

@@ -44,5 +44,6 @@ public class TvShowSettingsNode extends TmmSettingsNode {
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.trailer"), new TvShowTrailerSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.subtitle"), new TvShowSubtitleSettingsPanel()));
     addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.renamer"), new TvShowRenamerSettingsPanel()));
+    addChild(new TmmSettingsNode(TmmResourceBundle.getString("Settings.postprocessing"), new TvShowPostProcessingSettingsPanel()));
   }
 }
