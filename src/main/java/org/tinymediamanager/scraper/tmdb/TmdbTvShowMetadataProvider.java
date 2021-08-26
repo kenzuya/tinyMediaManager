@@ -902,6 +902,11 @@ public class TmdbTvShowMetadataProvider extends TmdbMetadataProvider
       // get in desired localization
       String[] val = getValuesFromTranslation(show.translations, language);
 
+      // if the search language equals the original language of the movie, there may be no translation
+      if (StringUtils.isBlank(val[0]) && language.getLanguage().equals(show.original_language)) {
+        val[0] = show.original_name;
+      }
+
       // merge empty ones with fallback
       String[] temp = getValuesFromTranslation(show.translations, fallbackLanguage);
       if (StringUtils.isBlank(val[0])) {
