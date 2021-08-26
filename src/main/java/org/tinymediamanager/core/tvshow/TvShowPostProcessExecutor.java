@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,53 +58,61 @@ public class TvShowPostProcessExecutor {
   }
 
   public void execute() {
-    List<String> command;
 
     List<Object> selectedTvShowObject = new ArrayList<>(TvShowUIModule.getInstance().getSelectionModel().getSelectedObjects());
 
     for (Object object : selectedTvShowObject) {
+      List<String> command = null;
+
       if (object instanceof TvShow) {
-        // Episode
-        command = substituteTokens("tvShow", (TvShow) object);
-        command.add(0, postProcess.getPath());
-        // Execute File
-        try {
-          executeCommand(command, object);
-        }
-        catch (IOException | InterruptedException e) {
-          e.printStackTrace();
-        }
+        // TV show
+        Map<String, Object> mappings = new HashMap<>();
+        mappings.put("tvShow", object);
+
+        command = substituteTokens(mappings);
       }
       else if (object instanceof TvShowEpisode) {
         // Episode
-        command = substituteTokens("episode", (TvShowEpisode) object);
-        command.add(0, postProcess.getPath());
-        // Execute File
-        try {
-          executeCommand(command, object);
-        }
-        catch (IOException | InterruptedException e) {
-          e.printStackTrace();
-        }
+        Map<String, Object> mappings = new HashMap<>();
+        TvShowEpisode episode = (TvShowEpisode) object;
+        mappings.put("tvShow", episode.getTvShow());
+        mappings.put("season", episode.getTvShowSeason());
+        mappings.put("episode", episode);
+
+        command = substituteTokens(mappings);
       }
       else if (object instanceof TvShowSeason) {
         // Season
-        command = substituteTokens("season", (TvShowSeason) object);
+        Map<String, Object> mappings = new HashMap<>();
+        TvShowSeason season = (TvShowSeason) object;
+        mappings.put("tvShow", season.getTvShow());
+        mappings.put("season", season);
+
+        command = substituteTokens(mappings);
+      }
+
+      if (command != null && !command.isEmpty()) {
         command.add(0, postProcess.getPath());
         try {
           executeCommand(command, object);
         }
-        catch (IOException | InterruptedException e) {
-          e.printStackTrace();
+        catch (InterruptedException e) {
+          // ignored
+          return;
+        }
+        catch (Exception e) {
+          LOGGER.error("Problem executing post process", e);
         }
       }
     }
   }
 
-  private <T> List<String> substituteTokens(String id, T object) {
+  private List<String> substituteTokens(Map<String, Object> mappings) {
+    if (mappings == null || mappings.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     Engine engine;
-    Map<String, Object> root;
     List<String> commandList = new ArrayList<>();
 
     engine = Engine.createEngine();
@@ -112,10 +121,7 @@ public class TvShowPostProcessExecutor {
     engine.registerNamedRenderer(new NamedFirstCharacterRenderer());
     engine.setModelAdaptor(new TmmModelAdaptor());
 
-    root = new HashMap<>();
-    root.put(id, object);
-
-    String transformedCommand = engine.transform(JmteUtils.morphTemplate(postProcess.getCommand(), TvShowRenamer.getTokenMap()), root);
+    String transformedCommand = engine.transform(JmteUtils.morphTemplate(postProcess.getCommand(), TvShowRenamer.getTokenMap()), mappings);
     commandList.add(transformedCommand);
     return commandList;
 
