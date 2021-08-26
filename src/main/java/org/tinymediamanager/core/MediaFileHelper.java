@@ -2527,9 +2527,6 @@ public class MediaFileHelper {
         mediaFile.setOverallBitRate(0);
       }
     }
-
-    // sum up all files for the filesize
-    mediaFile.setFilesize(mediaInfoFiles.stream().mapToLong(MediaInfoFile::getFilesize).sum());
   }
 
   private static void gatherMediaInformationFromBluRayFile(MediaFile mediaFile, List<MediaInfoFile> mediaInfoFiles) {
