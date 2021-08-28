@@ -34,6 +34,7 @@ import javax.swing.JTable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.Message.MessageLevel;
@@ -222,8 +223,18 @@ public abstract class MediaFilesPanel extends JPanel {
         int row = tableFiles.rowAtPoint(arg0.getPoint());
         row = tableFiles.convertRowIndexToModel(row);
         MediaFile mf = mediaFileEventList.get(row);
-        // open the video file in the desired player
-        if (mf.isVideo() || mf.isMusicTheme()) {
+        if (mf.isVideo()) {
+          // open the video file in the desired player
+          try {
+            TmmUIHelper.openFile(MediaFileHelper.getMainVideoFile(mf));
+          }
+          catch (Exception e) {
+            LOGGER.error("open file", e);
+            MessageManager.instance
+                .pushMessage(new Message(MessageLevel.ERROR, mf, "message.erroropenfile", new String[] { ":", e.getLocalizedMessage() }));
+          }
+        }
+        else if (mf.isMusicTheme()) {
           try {
             TmmUIHelper.openFile(mf.getFileAsPath());
           }
@@ -233,13 +244,12 @@ public abstract class MediaFilesPanel extends JPanel {
                 .pushMessage(new Message(MessageLevel.ERROR, mf, "message.erroropenfile", new String[] { ":", e.getLocalizedMessage() }));
           }
         }
-        // open the graphic in the lightbox
-        if (mf.isGraphic()) {
+        else if (mf.isGraphic()) {
+          // open the graphic in the lightbox
           MainWindow.getInstance().createLightbox(mf.getFileAsPath().toString(), "");
         }
-
-        // open TextFile in Dialog
-        if (mf.isTextual()) {
+        else if (mf.isTextual()) {
+          // open TextFile in Dialog
           String text;
           try {
             text = Utils.readFileToString(mf.getFileAsPath());

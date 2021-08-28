@@ -64,6 +64,7 @@ import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.MediaSource;
 import org.tinymediamanager.core.Message;
@@ -272,7 +273,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
         btnPlay.addActionListener(e -> {
           MediaFile mf = episodeToEdit.getMainVideoFile();
           try {
-            TmmUIHelper.openFile(mf.getFileAsPath());
+            TmmUIHelper.openFile(MediaFileHelper.getMainVideoFile(mf));
           }
           catch (Exception ex) {
             LOGGER.error("open file - {}", e);

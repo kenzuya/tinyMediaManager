@@ -65,6 +65,7 @@ import org.tinymediamanager.ui.movies.filters.MovieAspectRatioFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioChannelFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioCodecFilter;
 import org.tinymediamanager.ui.movies.filters.MovieAudioLanguageFilter;
+import org.tinymediamanager.ui.movies.filters.MovieAudioTitleFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCastFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCertificationFilter;
 import org.tinymediamanager.ui.movies.filters.MovieCountAudioStreamFilter;
@@ -196,6 +197,7 @@ public class MovieFilterDialog extends TmmDialog {
         addFilter(new MovieAudioChannelFilter(), panelMediaData);
         addFilter(new MovieCountAudioStreamFilter(), panelMediaData);
         addFilter(new MovieAudioLanguageFilter(), panelMediaData);
+        addFilter(new MovieAudioTitleFilter(), panelMediaData);
         addFilter(new MovieCountSubtitleFilter(), panelMediaData);
         addFilter(new MovieSubtitleLanguageFilter(), panelMediaData);
         addFilter(new MovieDatasourceFilter(), panelMediaData);

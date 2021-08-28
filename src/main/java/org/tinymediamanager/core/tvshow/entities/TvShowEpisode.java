@@ -90,6 +90,7 @@ import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowRenamer;
 import org.tinymediamanager.core.tvshow.connector.ITvShowEpisodeConnector;
+import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToEmbyConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowEpisodeToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowEpisodeNfoNaming;
@@ -821,14 +822,22 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     ITvShowEpisodeConnector connector = null;
 
     switch (TvShowModuleManager.getInstance().getSettings().getTvShowConnector()) {
+      case XBMC:
+        connector = new TvShowEpisodeToXbmcConnector(episodesInNfo);
+        break;
+
+      case EMBY:
+        connector = new TvShowEpisodeToEmbyConnector(episodesInNfo);
+        break;
+
       case KODI:
+      case JELLYFIN:
+      case PLEX:
+      case MEDIAPORTAL:
+      default:
         connector = new TvShowEpisodeToKodiConnector(episodesInNfo);
         break;
 
-      case XBMC:
-      default:
-        connector = new TvShowEpisodeToXbmcConnector(episodesInNfo);
-        break;
     }
 
     if (connector != null) {

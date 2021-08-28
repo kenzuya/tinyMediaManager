@@ -550,20 +550,7 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
       try {
         MediaMetadata md = getMetadata(options);
         if (md != null) {
-          MediaSearchResult searchResult = new MediaSearchResult(getId(), MediaType.TV_SHOW);
-          searchResult.setTitle(md.getTitle());
-          searchResult.setYear(md.getYear());
-          searchResult.setIds(md.getIds());
-          searchResult.setMetadata(md);
-          for (MediaArtwork artwork : md.getMediaArt()) {
-            if (artwork.getType() == MediaArtwork.MediaArtworkType.POSTER) {
-              searchResult.setPosterUrl(artwork.getDefaultUrl());
-              break;
-            }
-          }
-          searchResult.setScore(1);
-
-          results.add(searchResult);
+          results.add(morphMediaMetadataToSearchResult(md, MediaType.TV_SHOW));
           return results;
         }
       }
@@ -584,6 +571,21 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
         }
 
         searchResults = httpResponse.body().data;
+
+        // nothing found - but maybe only the tvdb id entered?
+        if (ListUtils.isEmpty(searchResults) && ID_PATTERN.matcher(searchString).matches()) {
+          LOGGER.debug("nothing found, but search term '{}' looks like a TvDb ID - getting direct", searchString);
+          try {
+            MediaMetadata md = getMetadata(options);
+            if (md != null) {
+              results.add(morphMediaMetadataToSearchResult(md, MediaType.TV_SHOW));
+              return results;
+            }
+          }
+          catch (Exception e) {
+            LOGGER.error("problem getting data vom tvdb via ID: {}", e.getMessage());
+          }
+        }
       }
       catch (Exception e) {
         LOGGER.error("problem getting data vom tvdb: {}", e.getMessage());
@@ -675,17 +677,50 @@ public class TheTvDbTvShowMetadataProvider extends TheTvDbMetadataProvider imple
 
     Map<SeasonType, List<EpisodeBaseRecord>> eps = new EnumMap<>(SeasonType.class);
     // paginated results
+    int pageSize = 500;
+    // DEFAULT/AIRED
     int counter = 0;
     while (true) {
       // get default episode lists
+      List<EpisodeBaseRecord> episodeBaseRecords = getEpisodeBaseRecords(showId, SeasonType.DEFAULT, counter);
 
-      eps.put(SeasonType.DEFAULT, getEpisodeBaseRecords(showId, SeasonType.DEFAULT, counter));
-      // and all other orderings we're interested in
-      eps.put(SeasonType.DVD, getEpisodeBaseRecords(showId, SeasonType.DVD, counter));
-      eps.put(SeasonType.ABSOLUTE, getEpisodeBaseRecords(showId, SeasonType.ABSOLUTE, counter));
+      eps.computeIfAbsent(SeasonType.DEFAULT, seasonType -> new ArrayList<>()).addAll(getEpisodeBaseRecords(showId, SeasonType.DEFAULT, counter));
+
+      if (episodeBaseRecords.size() < pageSize) {
+        break;
+      }
 
       counter++;
-      break; // at the moment it looks like that the call returns all episodes in the first page
+    }
+
+    // DVD
+    counter = 0;
+    while (true) {
+      // get default episode lists
+      List<EpisodeBaseRecord> episodeBaseRecords = getEpisodeBaseRecords(showId, SeasonType.DVD, counter);
+
+      eps.computeIfAbsent(SeasonType.DVD, seasonType -> new ArrayList<>()).addAll(getEpisodeBaseRecords(showId, SeasonType.DVD, counter));
+
+      if (episodeBaseRecords.size() < pageSize) {
+        break;
+      }
+
+      counter++;
+    }
+
+    // ABSOLUTE
+    counter = 0;
+    while (true) {
+      // get default episode lists
+      List<EpisodeBaseRecord> episodeBaseRecords = getEpisodeBaseRecords(showId, SeasonType.ABSOLUTE, counter);
+
+      eps.computeIfAbsent(SeasonType.ABSOLUTE, seasonType -> new ArrayList<>()).addAll(getEpisodeBaseRecords(showId, SeasonType.ABSOLUTE, counter));
+
+      if (episodeBaseRecords.size() < pageSize) {
+        break;
+      }
+
+      counter++;
     }
 
     // now merge all episode records by the ids (to merge the different episode numbers)

@@ -48,6 +48,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinymediamanager.core.MediaFileHelper;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Message;
 import org.tinymediamanager.core.MessageManager;
@@ -229,7 +230,7 @@ public class MovieInformationPanel extends JPanel {
       MediaFile mf = movieSelectionModel.getSelectedMovie().getMainVideoFile();
       if (StringUtils.isNotBlank(mf.getFilename())) {
         try {
-          TmmUIHelper.openFile(mf.getFileAsPath());
+          TmmUIHelper.openFile(MediaFileHelper.getMainVideoFile(mf));
         }
         catch (Exception ex) {
           LOGGER.error("open file", ex);

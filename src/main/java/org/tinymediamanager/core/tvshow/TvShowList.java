@@ -104,6 +104,7 @@ public final class TvShowList extends AbstractModelObject {
   private final CopyOnWriteArrayList<Integer>            subtitlesInEpisodes;
   private final CopyOnWriteArrayList<String>             subtitleLanguagesInEpisodes;
   private final CopyOnWriteArrayList<String>             hdrFormatInEpisodes;
+  private final CopyOnWriteArrayList<String>             audioTitlesInEpisodes;
 
   private final PropertyChangeListener                   propertyChangeListener;
   private final ReadWriteLock                            readWriteLock = new ReentrantReadWriteLock();
@@ -126,6 +127,7 @@ public final class TvShowList extends AbstractModelObject {
     subtitlesInEpisodes = new CopyOnWriteArrayList<>();
     subtitleLanguagesInEpisodes = new CopyOnWriteArrayList<>();
     hdrFormatInEpisodes = new CopyOnWriteArrayList<>();
+    audioTitlesInEpisodes = new CopyOnWriteArrayList<>();
 
     // the tag listener: its used to always have a full list of all tags used in tmm
     propertyChangeListener = evt -> {
@@ -810,6 +812,7 @@ public final class TvShowList extends AbstractModelObject {
     Set<Integer> subtitleStreamCount = new HashSet<>();
     Set<String> subtitleLanguages = new HashSet<>();
     Set<String> hdrFormat = new HashSet<>();
+    Set<String> audioTitles = new HashSet<>();
 
     for (TvShowEpisode episode : episodes) {
       int audioCount = 0;
@@ -847,6 +850,9 @@ public final class TvShowList extends AbstractModelObject {
           // audio languages
           audioLanguages.addAll(mf.getAudioLanguagesList());
 
+          // audio titles
+          audioTitles.addAll(mf.getAudioTitleList());
+
           // subtitles stream count
           subtitleCount = mf.getSubtitles().size();
 
@@ -870,6 +876,7 @@ public final class TvShowList extends AbstractModelObject {
       for (MediaFile mf : episode.getMediaFiles(MediaFileType.AUDIO)) {
         audioCount++;
         audioLanguages.addAll(mf.getAudioLanguagesList());
+        audioTitles.addAll(mf.getAudioTitleList());
       }
 
       audioStreamCount.add(audioCount);
@@ -921,6 +928,11 @@ public final class TvShowList extends AbstractModelObject {
     if (ListUtils.addToCopyOnWriteArrayListIfAbsent(hdrFormatInEpisodes, hdrFormat)) {
       firePropertyChange(Constants.HDR_FORMAT, null, hdrFormatInEpisodes);
     }
+
+    // audio titles
+    if (ListUtils.addToCopyOnWriteArrayListIfAbsent(audioTitlesInEpisodes, audioTitles)) {
+      firePropertyChange(Constants.AUDIO_TITLE, null, audioTitlesInEpisodes);
+    }
   }
 
   public Collection<String> getVideoCodecsInEpisodes() {
@@ -961,6 +973,10 @@ public final class TvShowList extends AbstractModelObject {
 
   public Collection<String> getHdrFormatInEpisodes() {
     return Collections.unmodifiableList(hdrFormatInEpisodes);
+  }
+
+  public Collection<String> getAudioTitlesInEpisodes() {
+    return Collections.unmodifiableList(audioTitlesInEpisodes);
   }
 
   /**

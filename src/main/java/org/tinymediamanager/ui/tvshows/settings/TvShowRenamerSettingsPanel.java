@@ -205,13 +205,19 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
     exampleEventList.add(new TvShowRenamerExample("${episodeNrDvd2}"));
     exampleEventList.add(new TvShowRenamerExample("${airedDate}"));
     exampleEventList.add(new TvShowRenamerExample("${episodeImdb}"));
+    exampleEventList.add(new TvShowRenamerExample("${episodeTmdb}"));
+    exampleEventList.add(new TvShowRenamerExample("${episodeTvdb}"));
+    exampleEventList.add(new TvShowRenamerExample("${episodeTags[0]}"));
     exampleEventList.add(new TvShowRenamerExample("${year}"));
     exampleEventList.add(new TvShowRenamerExample("${showYear}"));
     exampleEventList.add(new TvShowRenamerExample("${showTitle}"));
     exampleEventList.add(new TvShowRenamerExample("${showOriginalTitle}"));
     exampleEventList.add(new TvShowRenamerExample("${showTitleSortable}"));
     exampleEventList.add(new TvShowRenamerExample("${showImdb}"));
+    exampleEventList.add(new TvShowRenamerExample("${showTmdb}"));
+    exampleEventList.add(new TvShowRenamerExample("${showTvdb}"));
     exampleEventList.add(new TvShowRenamerExample("${showStatus}"));
+    exampleEventList.add(new TvShowRenamerExample("${showTags[0]}"));
     exampleEventList.add(new TvShowRenamerExample("${videoResolution}"));
     exampleEventList.add(new TvShowRenamerExample("${aspectRatio}"));
     exampleEventList.add(new TvShowRenamerExample("${aspectRatio2}"));
@@ -519,6 +525,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
 
         String newFilenameAndPath = episodeMf.getFile().toString().replace(episode.getTvShow().getPath(), "");
         lblExample.setText(tvShowDir + newFilenameAndPath);
+        lblExample.setToolTipText(tvShowDir + newFilenameAndPath);
 
         // create examples
         for (TvShowRenamerExample example : exampleEventList) {
@@ -528,6 +535,7 @@ public class TvShowRenamerSettingsPanel extends JPanel implements HierarchyListe
       }
       else {
         lblExample.setText("");
+        lblExample.setToolTipText(null);
       }
     });
   }

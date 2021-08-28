@@ -32,6 +32,7 @@ import org.tinymediamanager.core.CertificationStyle;
 import org.tinymediamanager.core.Constants;
 import org.tinymediamanager.core.DateField;
 import org.tinymediamanager.core.LanguageStyle;
+import org.tinymediamanager.core.PostProcess;
 import org.tinymediamanager.core.Settings;
 import org.tinymediamanager.core.TrailerQuality;
 import org.tinymediamanager.core.TrailerSources;
@@ -117,6 +118,7 @@ public final class TvShowSettings extends AbstractSettings {
   static final String                            TITLE                                  = "title";
   static final String                            ORIGINAL_TITLE                         = "originalTitle";
   static final String                            NOTE                                   = "note";
+  static final String                            TV_SHOW_POST_PROCESS                   = "postProcessTvShow";
 
   final List<String>                             tvShowDataSources                      = ObservableCollections.observableList(new ArrayList<>());
   final List<String>                             badWords                               = ObservableCollections.observableList(new ArrayList<>());
@@ -124,6 +126,7 @@ public final class TvShowSettings extends AbstractSettings {
   final List<String>                             trailerScrapers                        = ObservableCollections.observableList(new ArrayList<>());
   final List<String>                             skipFolders                            = ObservableCollections.observableList(new ArrayList<>());
   final List<String>                             subtitleScrapers                       = ObservableCollections.observableList(new ArrayList<>());
+  final List<PostProcess>                        postProcess                            = ObservableCollections.observableList(new ArrayList<>());
   final List<TvShowNfoNaming>                    nfoFilenames                           = new ArrayList<>();
   final List<TvShowPosterNaming>                 posterFilenames                        = new ArrayList<>();
   final List<TvShowFanartNaming>                 fanartFilenames                        = new ArrayList<>();
@@ -146,7 +149,7 @@ public final class TvShowSettings extends AbstractSettings {
   final Map<String, List<UIFilters>>             uiFilterPresets                        = new HashMap<>();
 
   // data sources / NFO settings
-  TvShowConnectors                               tvShowConnector                        = TvShowConnectors.XBMC;
+  TvShowConnectors                               tvShowConnector                        = TvShowConnectors.KODI;
   CertificationStyle                             certificationStyle                     = CertificationStyle.LARGE;
   boolean                                        writeCleanNfo                          = false;
   DateField                                      nfoDateAddedField                      = DateField.DATE_ADDED;
@@ -1637,5 +1640,25 @@ public final class TvShowSettings extends AbstractSettings {
 
   public boolean isStoreUiFilters() {
     return storeUiFilters;
+  }
+
+  public void addPostProcessTvShow(PostProcess newProcess) {
+    postProcess.add(newProcess);
+    firePropertyChange(TV_SHOW_POST_PROCESS, null, postProcess);
+  }
+
+  public void removePostProcessTvShow(PostProcess process) {
+    postProcess.remove(process);
+    firePropertyChange(TV_SHOW_POST_PROCESS, null, postProcess);
+  }
+
+  public List<PostProcess> getPostProcessTvShow() {
+    return postProcess;
+  }
+
+  public void setPostProcessTvShow(List<PostProcess> newValues) {
+    postProcess.clear();
+    postProcess.addAll(newValues);
+    firePropertyChange(TV_SHOW_POST_PROCESS, null, postProcess);
   }
 }

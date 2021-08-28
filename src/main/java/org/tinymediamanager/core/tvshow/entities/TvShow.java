@@ -100,6 +100,7 @@ import org.tinymediamanager.core.tvshow.TvShowMediaFileComparator;
 import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowScraperMetadataConfig;
 import org.tinymediamanager.core.tvshow.connector.ITvShowConnector;
+import org.tinymediamanager.core.tvshow.connector.TvShowToEmbyConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToKodiConnector;
 import org.tinymediamanager.core.tvshow.connector.TvShowToXbmcConnector;
 import org.tinymediamanager.core.tvshow.filenaming.TvShowNfoNaming;
@@ -1081,9 +1082,12 @@ public class TvShow extends MediaEntity implements IMediaInformation {
         connector = new TvShowToXbmcConnector(this);
         break;
 
+      case EMBY:
+        connector = new TvShowToEmbyConnector(this);
+        break;
+
       case KODI:
       case JELLYFIN:
-      case EMBY:
       case PLEX:
       default:
         connector = new TvShowToKodiConnector(this);

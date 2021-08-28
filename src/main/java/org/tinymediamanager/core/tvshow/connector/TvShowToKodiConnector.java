@@ -18,9 +18,7 @@ package org.tinymediamanager.core.tvshow.connector;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -29,7 +27,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tinymediamanager.core.MediaAiredStatus;
 import org.tinymediamanager.core.MediaFileType;
 import org.tinymediamanager.core.Utils;
 import org.tinymediamanager.core.entities.MediaRating;
@@ -42,7 +39,7 @@ import org.tinymediamanager.scraper.MediaMetadata;
 import org.w3c.dom.Element;
 
 /**
- * the class TvShowToKodiConnector is used to write a the most recent Kodi compatible NFO file
+ * the class {@link TvShowToKodiConnector} is used to write a most recent Kodi compatible NFO file
  *
  * @author Manuel Laggner
  */
@@ -136,8 +133,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
 
   @Override
   protected void addOwnTags() {
-    // emby special tag for the end date
-    addEnddate();
+    // nothing here for now
   }
 
   @Override
@@ -157,7 +153,7 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
     root.appendChild(trailer);
   }
 
-  private String prepareTrailerForKodi(MediaTrailer trailer) {
+  protected String prepareTrailerForKodi(MediaTrailer trailer) {
     // youtube trailer are stored in a special notation: plugin://plugin.video.youtube/?action=play_video&videoid=<ID>
     // parse out the ID from the url and store it in the right notation
     Matcher matcher = Utils.YOUTUBE_PATTERN.matcher(trailer.getUrl());
@@ -177,35 +173,5 @@ public class TvShowToKodiConnector extends TvShowGenericXmlConnector {
     }
     // everything else is stored directly
     return trailer.getUrl();
-  }
-
-  /**
-   * write the <enddate> tag for Emby<br />
-   * This will only be set if the status of the TV show is ENDED
-   */
-  protected void addEnddate() {
-    if (!TvShowModuleManager.getInstance().getSettings().isNfoWriteDateEnded() || tvShow.getStatus() != MediaAiredStatus.ENDED) {
-      return;
-    }
-
-    Date latestAiredDate = null;
-
-    for (TvShowEpisode episode : tvShow.getEpisodes()) {
-      if (episode.getFirstAired() != null && (latestAiredDate == null || latestAiredDate.before(episode.getFirstAired()))) {
-        latestAiredDate = episode.getFirstAired();
-      }
-    }
-
-    for (TvShowEpisode episode : tvShow.getDummyEpisodes()) {
-      if (episode.getFirstAired() != null && (latestAiredDate == null || latestAiredDate.before(episode.getFirstAired()))) {
-        latestAiredDate = episode.getFirstAired();
-      }
-    }
-
-    if (latestAiredDate != null) {
-      Element enddate = document.createElement("enddate");
-      enddate.setTextContent(new SimpleDateFormat("yyyy-MM-dd").format(latestAiredDate));
-      root.appendChild(enddate);
-    }
   }
 }
