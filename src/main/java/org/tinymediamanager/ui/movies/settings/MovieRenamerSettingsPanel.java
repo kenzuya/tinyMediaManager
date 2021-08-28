@@ -94,7 +94,6 @@ import net.miginfocom.swing.MigLayout;
 public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListener {
   private static final long                    serialVersionUID = 5039498266207230875L;
 
-
   private static final Logger                  LOGGER           = LoggerFactory.getLogger(MovieRenamerSettingsPanel.class);
 
   private final MovieSettings                  settings         = MovieModuleManager.getInstance().getSettings();
@@ -122,6 +121,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
   private ReadOnlyTextArea                     taWarning;
   private JComboBox                            cbColonReplacement;
   private JTextField                           tfFirstCharacter;
+  private JCheckBox                            chckbxAllowMerge;
 
   public MovieRenamerSettingsPanel() {
     exampleEventList = GlazedLists
@@ -335,7 +335,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     }
     {
       JPanel panelAdvancedOptions = new JPanel();
-      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][]")); // 16lp ~ width of the
+      panelAdvancedOptions.setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][][][]")); // 16lp ~ width of the
 
       JLabel lblAdvancedOptions = new TmmLabel(TmmResourceBundle.getString("Settings.advancedoptions"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelAdvancedOptions, lblAdvancedOptions, true);
@@ -363,7 +363,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         lblColonReplacement.setToolTipText(TmmResourceBundle.getString("Settings.renamer.colonreplacement.hint"));
 
         cbColonReplacement = new JComboBox<>(colonReplacement.toArray());
-        panelAdvancedOptions.add(cbColonReplacement, "cell 1 2");
+        panelAdvancedOptions.add(cbColonReplacement, "cell 1 2 2 1");
       }
       {
         chckbxAsciiReplacement = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.asciireplacement"));
@@ -378,7 +378,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
         panelAdvancedOptions.add(lblFirstCharacterT, "flowx,cell 1 5 2 1");
 
         tfFirstCharacter = new JTextField();
-        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 5");
+        panelAdvancedOptions.add(tfFirstCharacter, "cell 1 5 2 1");
         tfFirstCharacter.setColumns(2);
       }
       {
@@ -388,6 +388,10 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       {
         chckbxRemoveOtherNfos = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.removenfo"));
         panelAdvancedOptions.add(chckbxRemoveOtherNfos, "cell 1 7 2 1");
+      }
+      {
+        chckbxAllowMerge = new JCheckBox(TmmResourceBundle.getString("Settings.renamer.movie.allowmerge"));
+        panelAdvancedOptions.add(chckbxAllowMerge, "cell 1 8 2 1");
       }
     }
     {
@@ -676,5 +680,10 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     AutoBinding autoBinding_3 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty, tfFirstCharacter,
         jTextFieldBeanProperty);
     autoBinding_3.bind();
+    //
+    Property movieSettingsBeanProperty_1 = BeanProperty.create("allowMultipleMoviesInSameDir");
+    AutoBinding autoBinding_6 = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, settings, movieSettingsBeanProperty_1, chckbxAllowMerge,
+        jCheckBoxBeanProperty);
+    autoBinding_6.bind();
   }
 }

@@ -34,6 +34,7 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
 + (movies/TV shows) added universal filter to filter all text based filters in one #1387
 + (TV shows) added context menu for downloading best trailer for selected TV Shows #1417
 + (TV shows) added bulk adding subtitle information #1396
++ (movies) added option to consolidate movies on rename #1048
 x (TV shows) introduced adaptive event processing: this will help the UI to stay responsive on large libraries.
   The drawback here is, that some sorting and filtering in the UI will be delayed for large libraries
 x (TV shows) do not mix in TV show actors to the episode cast #1219

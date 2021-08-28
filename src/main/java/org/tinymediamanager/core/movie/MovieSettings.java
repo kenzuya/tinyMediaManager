@@ -166,6 +166,7 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   renamerCreateMoviesetForSingleMovie    = false;
   String                                    renamerFirstCharacterNumberReplacement = "#";
   boolean                                   asciiReplacement                       = false;
+  boolean                                   allowMultipleMoviesInSameDir           = false;
 
   // meta data scraper
   String                                    movieScraper                           = Constants.TMDB;
@@ -1300,6 +1301,16 @@ public final class MovieSettings extends AbstractSettings {
     boolean oldValue = this.asciiReplacement;
     this.asciiReplacement = newValue;
     firePropertyChange("asciiReplacement", oldValue, newValue);
+  }
+
+  public boolean isAllowMultipleMoviesInSameDir() {
+    return allowMultipleMoviesInSameDir;
+  }
+
+  public void setAllowMultipleMoviesInSameDir(boolean newValue) {
+    boolean oldValue = allowMultipleMoviesInSameDir;
+    this.allowMultipleMoviesInSameDir = newValue;
+    firePropertyChange("allowMultipleMoviesInSameDir", oldValue, newValue);
   }
 
   public void addBadWord(String badWord) {
