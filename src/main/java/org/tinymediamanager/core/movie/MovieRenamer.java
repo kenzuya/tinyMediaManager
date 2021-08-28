@@ -120,6 +120,7 @@ public class MovieRenamer {
     tokenMap.put("titleSortable", "movie.titleSortable");
     tokenMap.put("rating", "movie.rating.rating");
     tokenMap.put("imdb", "movie.imdbId");
+    tokenMap.put("tmdb", "movie.tmdbId");
     tokenMap.put("certification", "movie.certification");
     tokenMap.put("language", "movie.spokenLanguages");
 

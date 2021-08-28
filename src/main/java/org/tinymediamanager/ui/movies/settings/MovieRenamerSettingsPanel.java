@@ -203,6 +203,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     exampleEventList.add(new MovieRenamerExample("${movieSetIndex}"));
     exampleEventList.add(new MovieRenamerExample("${rating}"));
     exampleEventList.add(new MovieRenamerExample("${imdb}"));
+    exampleEventList.add(new MovieRenamerExample("${tmdb}"));
     exampleEventList.add(new MovieRenamerExample("${certification}"));
     exampleEventList.add(new MovieRenamerExample("${directors[0].name}"));
     exampleEventList.add(new MovieRenamerExample("${actors[0].name}"));
@@ -475,7 +476,9 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
       }
 
       try {
-        lblExample.setText(Paths.get(path, filename).toString());
+        String result = Paths.get(path, filename).toString();
+        lblExample.setText(result);
+        lblExample.setToolTipText(result);
       }
       catch (Exception e) {
         // not changing on errors
@@ -489,6 +492,7 @@ public class MovieRenamerSettingsPanel extends JPanel implements HierarchyListen
     }
     else {
       lblExample.setText(TmmResourceBundle.getString("Settings.movie.renamer.nomovie"));
+      lblExample.setToolTipText(null);
     }
   }
 

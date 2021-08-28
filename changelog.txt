@@ -30,6 +30,7 @@ TheTVDB is closing their "free" API v3 (October 1, 2021), so we negotiated a con
 + (movies/TV shows) added column to see if note is available
 + (movies) added the possibility to download just extrafanarts/extrathumbs #741 #1397
 + (movies) added "index of movie in movie set" renamer token #1347
++ (movies/TV shows) added more tags to the renamer (TMDB id, TVDB id, tags) #1458
 + (movies/TV shows) added universal filter to filter all text based filters in one #1387
 + (TV shows) added context menu for downloading best trailer for selected TV Shows #1417
 + (TV shows) added bulk adding subtitle information #1396
