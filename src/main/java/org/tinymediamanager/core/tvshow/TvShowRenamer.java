@@ -1075,6 +1075,14 @@ public class TvShowRenamer {
       return newFiles;
     }
 
+    // sort the episodes
+    eps.sort((ep1, ep2) -> {
+      if (ep1.getSeason() != ep2.getSeason()) {
+        return Integer.compare(ep1.getSeason(), ep2.getSeason());
+      }
+      return Integer.compare(ep1.getEpisode(), ep2.getEpisode());
+    });
+
     String newFilename;
     if (StringUtils.isBlank(template)) {
       newFilename = createDestination(SETTINGS.getRenamerFilename(), eps);
