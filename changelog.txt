@@ -55,3 +55,4 @@ x (movies) remove corrupted/faulty movies from database at startup
 x (movies) fixed downloading actor images for movies in movie sets
 x (universal scraper) added proper thread cleanup to prevent memory leak #1432
 x (movies/TV shows) added new approach to play (DVD/BR) disc folders with the systems default media player #644
+x (TV shows) fix crash in episode chooser for episodes containing a ":" in the title #1463
