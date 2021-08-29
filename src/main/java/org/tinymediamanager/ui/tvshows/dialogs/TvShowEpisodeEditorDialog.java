@@ -127,55 +127,57 @@ import net.miginfocom.swing.MigLayout;
  * @author Manuel Laggner
  */
 public class TvShowEpisodeEditorDialog extends TmmDialog {
-  private static final long                  serialVersionUID    = 7702248909791283043L;
-  private static final Logger                LOGGER              = LoggerFactory.getLogger(TvShowEpisodeEditorDialog.class);
-  private static final String                ORIGINAL_IMAGE_SIZE = "originalImageSize";
-  private static final String                DIALOG_ID           = "tvShowEpisodeEditor";
+  private static final long                        serialVersionUID    = 7702248909791283043L;
+  private static final Logger                      LOGGER              = LoggerFactory.getLogger(TvShowEpisodeEditorDialog.class);
+  private static final String                      ORIGINAL_IMAGE_SIZE = "originalImageSize";
+  private static final String                      DIALOG_ID           = "tvShowEpisodeEditor";
 
-  private TvShowList                         tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
-  private TvShowEpisode                      episodeToEdit;
-  private List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
-  private List<MediaFile>                    mediaFiles          = new ArrayList<>();
-  private boolean                            continueQueue       = true;
-  private boolean                            navigateBack        = false;
-  private int                                queueIndex;
-  private int                                queueSize;
+  private final TvShowList                         tvShowList          = TvShowModuleManager.getInstance().getTvShowList();
+  private final TvShowEpisode                      episodeToEdit;
+  private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
+  private final List<MediaFile>                    mediaFiles          = new ArrayList<>();
 
-  private EventList<MediaIdTable.MediaId>    ids;
-  private EventList<MediaRatingTable.Rating> ratings;
-  private EventList<Person>                  guests;
-  private EventList<Person>                  directors;
-  private EventList<Person>                  writers;
+  private final int                                queueIndex;
+  private final int                                queueSize;
 
-  private JTextField                         tfTitle;
-  private JSpinner                           spEpisode;
-  private JSpinner                           spSeason;
-  private JSpinner                           spRating;
-  private JSpinner                           spDvdSeason;
-  private JSpinner                           spDvdEpisode;
-  private JCheckBox                          cbDvdOrder;
-  private JSpinner                           spDisplaySeason;
-  private JSpinner                           spDisplayEpisode;
-  private DatePicker                         dpFirstAired;
-  private JSpinner                           spDateAdded;
-  private JCheckBox                          chckbxWatched;
-  private ImageLabel                         lblThumb;
-  private JTextArea                          taPlot;
-  private AutocompleteComboBox<String>       cbTags;
-  private AutoCompleteSupport<String>        cbTagsAutoCompleteSupport;
-  private JList<String>                      listTags;
-  private AutocompleteComboBox<MediaSource>  cbMediaSource;
-  private MediaFileEditorPanel               mediaFilesPanel;
-  private MediaScraperComboBox               cbScraper;
+  private final EventList<MediaIdTable.MediaId>    ids;
+  private final EventList<MediaRatingTable.Rating> ratings;
+  private final EventList<Person>                  guests;
+  private final EventList<Person>                  directors;
+  private final EventList<Person>                  writers;
 
-  private TmmTable                           tableIds;
-  private TmmTable                           tableRatings;
-  private TmmTable                           tableGuests;
-  private TmmTable                           tableDirectors;
-  private TmmTable                           tableWriters;
-  private JTextField                         tfOriginalTitle;
-  private JTextField                         tfThumb;
-  private JTextField                         tfNote;
+  private boolean                                  continueQueue       = true;
+  private boolean                                  navigateBack        = false;
+
+  private JTextField                               tfTitle;
+  private JSpinner                                 spEpisode;
+  private JSpinner                                 spSeason;
+  private JSpinner                                 spRating;
+  private JSpinner                                 spDvdSeason;
+  private JSpinner                                 spDvdEpisode;
+  private JCheckBox                                cbDvdOrder;
+  private JSpinner                                 spDisplaySeason;
+  private JSpinner                                 spDisplayEpisode;
+  private DatePicker                               dpFirstAired;
+  private JSpinner                                 spDateAdded;
+  private JCheckBox                                chckbxWatched;
+  private ImageLabel                               lblThumb;
+  private JTextArea                                taPlot;
+  private AutocompleteComboBox<String>             cbTags;
+  private AutoCompleteSupport<String>              cbTagsAutoCompleteSupport;
+  private JList<String>                            listTags;
+  private AutocompleteComboBox<MediaSource>        cbMediaSource;
+  private MediaFileEditorPanel                     mediaFilesPanel;
+  private MediaScraperComboBox                     cbScraper;
+
+  private TmmTable                                 tableIds;
+  private TmmTable                                 tableRatings;
+  private TmmTable                                 tableGuests;
+  private TmmTable                                 tableDirectors;
+  private TmmTable                                 tableWriters;
+  private JTextField                               tfOriginalTitle;
+  private JTextField                               tfThumb;
+  private JTextField                               tfNote;
 
   /**
    * Instantiates a new TV show episode scrape dialog.
@@ -896,7 +898,7 @@ public class TvShowEpisodeEditorDialog extends TmmDialog {
   }
 
   private class ScrapeTask extends SwingWorker<Void, Void> {
-    private MediaScraper  mediaScraper;
+    private final MediaScraper mediaScraper;
     private MediaMetadata metadata = null;
 
     ScrapeTask(MediaScraper mediaScraper) {
