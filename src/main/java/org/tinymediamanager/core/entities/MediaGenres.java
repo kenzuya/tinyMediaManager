@@ -283,8 +283,8 @@ public class MediaGenres extends DynaEnum<MediaGenres> {
       }
     }
 
-    // dynamically create new one
-    return new MediaGenres(name, values(MediaGenres.class).length, name);
+    // else search by alternate terms
+    return getGenre(name);
   }
 
   /**
