@@ -16,7 +16,6 @@
 package org.tinymediamanager.scraper.moviemeter;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Date;
 
 import org.tinymediamanager.scraper.http.TmmHttpClient;
@@ -25,10 +24,7 @@ import org.tinymediamanager.scraper.moviemeter.services.SearchService;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.bind.DateTypeAdapter;
 
@@ -122,15 +118,12 @@ class MovieMeter {
   protected GsonBuilder getGsonBuilder() {
     GsonBuilder builder = new GsonBuilder();
     // class types
-    builder.registerTypeAdapter(Integer.class, new JsonDeserializer<Integer>() {
-      @Override
-      public Integer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        try {
-          return Integer.valueOf(json.getAsInt());
-        }
-        catch (NumberFormatException e) {
-          return 0;
-        }
+    builder.registerTypeAdapter(Integer.class, (JsonDeserializer<Integer>) (json, typeOfT, context) -> {
+      try {
+        return json.getAsInt();
+      }
+      catch (NumberFormatException e) {
+        return 0;
       }
     });
     builder.registerTypeAdapter(Date.class, new DateTypeAdapter());
