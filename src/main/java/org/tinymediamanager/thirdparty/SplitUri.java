@@ -20,6 +20,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,16 +51,16 @@ import org.tinymediamanager.thirdparty.upnp.Upnp;
  *
  */
 public class SplitUri {
-  private static final Logger LOGGER     = LoggerFactory.getLogger(SplitUri.class);
+  private static final Logger       LOGGER     = LoggerFactory.getLogger(SplitUri.class);
 
-  public String               file       = "";
-  public String               datasource = "";
-  public String               label      = "";
-  public String               type       = "";
-  public String               ip         = "";
-  public String               hostname   = "";
+  public String                     file       = "";
+  public String                     datasource = "";
+  public String                     label      = "";
+  public String                     type       = "";
+  public String                     ip         = "";
+  public String                     hostname   = "";
 
-  private Map<String, String> lookup     = new HashMap<>();
+  private final Map<String, String> lookup     = new HashMap<>();
 
   @SuppressWarnings("unused")
   private SplitUri() {
@@ -184,29 +185,29 @@ public class SplitUri {
   }
 
   private URI parseToUri(String file) {
-    LOGGER.trace("*** IN: " + file);
+
     URI u = null;
     try {
       try {
-        file = URLDecoder.decode(file, "UTF-8");
-        file = URLDecoder.decode(file, "UTF-8");
-        file = URLDecoder.decode(file, "UTF-8");
+        file = URLDecoder.decode(file, StandardCharsets.UTF_8);
+        file = URLDecoder.decode(file, StandardCharsets.UTF_8);
+        file = URLDecoder.decode(file, StandardCharsets.UTF_8);
       }
       catch (Exception e) {
         LOGGER.warn("Could not decode uri '{}': {}", file, e.getMessage());
       }
-      file = file.replaceAll("\\\\", "/");
+      file = file.replace("\\\\", "/");
 
       if (file.contains(":///")) {
         // 3 = file with scheme - parse as URI, but keep one slash
-        file = file.replaceAll(" ", "%20"); // space in urls
-        file = file.replaceAll("#", "%23"); // hash sign in urls
+        file = file.replace(" ", "%20"); // space in urls
+        file = file.replace("#", "%23"); // hash sign in urls
         u = new URI(file.substring(file.indexOf(":///") + 3));
       }
       else if (file.contains("://")) {
         // 2 = //hostname/path - parse as URI
-        file = file.replaceAll(" ", "%20"); // space in urls
-        file = file.replaceAll("#", "%23"); // hash sign in urls
+        file = file.replace(" ", "%20"); // space in urls
+        file = file.replace("#", "%23"); // hash sign in urls
         u = new URI(file);
       }
       else {
@@ -232,7 +233,7 @@ public class SplitUri {
       }
       u = parseToUri(file); // retry
     }
-    LOGGER.trace("***OUT: " + u);
+
     return u;
   }
 

@@ -72,25 +72,15 @@
         <appender-ref ref="FILE_TRACE"/>
     </appender>
 
-    <!-- memory appender for collection of logs - TRACE and above -->
-    <!-- appender name="INMEMORY" class="org.tinymediamanager.InMemoryAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>TRACE</level>
-        </filter>
-        <encoder>
-            <pattern>%d{ISO8601} %-5level [%thread] %logger{40}:%L - %msg%n</pattern>
-        </encoder>
-    </appender -->
-
     <!-- default settings -->
     <logger name="org.tinymediamanager" level="TRACE"/>
+    <logger name="org.tinymediamanager.jsonrpc" level="INFO"/>
 
     <!-- appender activation -->
     <root>
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ASYNC_TRACE"/>
-        <!-- appender-ref ref="INMEMORY"/ -->
     </root>
 
 </configuration>
