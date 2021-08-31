@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tinymediamanager.core.BasicTest;
@@ -302,7 +303,8 @@ public class TvShowTest extends BasicTest {
   }
 
   private String cleanTitle(String filename, String showname) {
-    return TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(filename, showname);
+    String basename = FilenameUtils.getBaseName(filename);
+    return TvShowEpisodeAndSeasonParser.cleanEpisodeTitle(basename, showname);
   }
 
   @Test

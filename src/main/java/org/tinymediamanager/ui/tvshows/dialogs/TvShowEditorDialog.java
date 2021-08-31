@@ -152,12 +152,12 @@ public class TvShowEditorDialog extends TmmDialog {
   private final List<String>                       tags                = ObservableCollections.observableList(new ArrayList<>());
   private final EventList<EpisodeEditorContainer>  episodes;
   private final List<MediaTrailer>                 trailers            = ObservableCollections.observableList(new ArrayList<>());
+  private final int                                queueIndex;
+  private final int                                queueSize;
 
   private List<String>                             extrafanarts        = null;
   private boolean                                  continueQueue       = true;
   private boolean                                  navigateBack        = false;
-  private int                                      queueIndex;
-  private int                                      queueSize;
 
   /**
    * UI elements

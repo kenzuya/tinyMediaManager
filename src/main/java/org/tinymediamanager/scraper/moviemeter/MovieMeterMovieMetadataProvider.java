@@ -41,8 +41,11 @@ import org.tinymediamanager.scraper.moviemeter.entities.MMActor;
 import org.tinymediamanager.scraper.moviemeter.entities.MMDirector;
 import org.tinymediamanager.scraper.moviemeter.entities.MMFilm;
 import org.tinymediamanager.scraper.util.LanguageUtils;
+import org.tinymediamanager.scraper.util.ListUtils;
 import org.tinymediamanager.scraper.util.MetadataUtil;
 import org.tinymediamanager.scraper.util.RatingUtil;
+
+import retrofit2.Response;
 
 /**
  * The Class MoviemeterMetadataProvider. A meta data provider for the site moviemeter.nl
@@ -276,7 +279,10 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
       // 1. "search" with IMDBid (get details, well)
       if (StringUtils.isNotEmpty(imdb)) {
         try {
-          fd = api.getFilmService().getMovieInfoByImdbId(imdb).execute().body();
+          Response<MMFilm> response = api.getFilmService().getMovieInfoByImdbId(imdb).execute();
+          if (response != null && response.isSuccessful()) {
+            fd = response.body();
+          }
           LOGGER.debug("found result with IMDB id");
         }
         catch (Exception e) {
@@ -288,7 +294,10 @@ public class MovieMeterMovieMetadataProvider implements IMovieMetadataProvider, 
       // 2. try with searchString
       if (fd == null) {
         try {
-          moviesFound.addAll(api.getSearchService().searchFilm(searchString).execute().body());
+          Response<List<MMFilm>> response = api.getSearchService().searchFilm(searchString).execute();
+          if (response != null && response.isSuccessful() && ListUtils.isNotEmpty(response.body())) {
+            moviesFound.addAll(response.body());
+          }
           LOGGER.debug("found {} results", moviesFound.size());
         }
         catch (Exception e) {

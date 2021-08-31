@@ -62,7 +62,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -252,6 +251,7 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     // the reference to the tv show and the media files are the only things we don't
     // copy
     tvShow = source.tvShow;
+    tvShowId = source.tvShowId;
 
     // clone media files
     for (MediaFile mf : source.getMediaFiles()) {
@@ -265,18 +265,19 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     year = source.year;
     plot = source.plot;
 
-    for (Entry<MediaFileType, String> entry : source.artworkUrlMap.entrySet()) {
-      artworkUrlMap.put(entry.getKey(), entry.getValue());
-    }
+    artworkUrlMap.putAll(source.artworkUrlMap);
 
     dateAdded = new Date(source.dateAdded.getTime());
     scraped = source.scraped;
     ids.putAll(source.ids);
+    mediaSource = source.mediaSource;
 
     episode = source.episode;
     season = source.season;
     dvdEpisode = source.dvdEpisode;
     dvdSeason = source.dvdSeason;
+    displayEpisode = source.displayEpisode;
+    displaySeason = source.displaySeason;
     isDvdOrder = source.isDvdOrder;
 
     if (source.firstAired != null) {
@@ -284,6 +285,10 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
     }
 
     disc = source.disc;
+    stacked = source.stacked;
+    multiEpisode = source.multiEpisode;
+    titleSortable = source.titleSortable;
+    lastWatched = source.lastWatched;
     watched = source.watched;
     playcount = source.playcount;
 
@@ -300,6 +305,8 @@ public class TvShowEpisode extends MediaEntity implements Comparable<TvShowEpiso
       ratings.put(mediaRating.getId(), new MediaRating(mediaRating));
     }
     tags.addAll(source.tags);
+    originalFilename = source.originalFilename;
+    dummy = source.dummy;
   }
 
   /**

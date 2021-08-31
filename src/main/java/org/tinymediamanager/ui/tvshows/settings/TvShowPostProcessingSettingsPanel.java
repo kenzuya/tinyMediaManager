@@ -35,6 +35,7 @@ import org.tinymediamanager.core.tvshow.TvShowModuleManager;
 import org.tinymediamanager.core.tvshow.TvShowSettings;
 import org.tinymediamanager.ui.MainWindow;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
+import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.table.TmmTable;
 import org.tinymediamanager.ui.dialogs.PostProcessDialog;
@@ -109,6 +110,7 @@ public class TvShowPostProcessingSettingsPanel extends JPanel {
       JPanel panelProcess = new JPanel(new MigLayout("hidemode 1, insets 0", "[20lp!][600lp][]", "[500lp]"));
       JLabel lblProcess = new TmmLabel(TmmResourceBundle.getString("Settings.postprocessing"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelProcess, lblProcess, false);
+      collapsiblePanel.addExtraTitleComponent(new DocsButton("/tvshows/settings#post-processing"));
       add(collapsiblePanel, "growx,wmin 0");
 
       {

@@ -1,0 +1,82 @@
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: registry.gitlab.com/tinymediamanager/docker/packaging
+  environment:
+    name: release
+    url: https://release.tinymediamanager.org
+  allow_failure: false
+  tags:
+    - docker # force running on gitlab  
+  script:
+    ##
+    ## Install ssh-agent if not already installed, it is required by Docker.
+    ## (change apt-get to yum if you use an RPM-based image)
+    ##
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+    ##
+    ## Run ssh-agent (inside the build environment)
+    ##
+    - eval $(ssh-agent -s)
+
+    ##
+    ## Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+    ## We're using tr to fix line endings which makes ed25519 keys work
+    ## without extra base64 encoding.
+    ## https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
+    ##
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+
+    ##
+    ## Create the SSH directory and give it the right permissions
+    ##
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+    ##
+    ## set gpg key
+    ##
+    - echo "${GPG_PRIVATE_KEY}" | gpg --batch --import
+    - gpg --list-keys
+
+    ##
+    ## configure git for version push
+    ##
+    - git config --global user.name ${SSH_USER_NAME}
+    - git config --global user.email ${SSH_USER_EMAIL}
+    - git checkout -f ${CI_COMMIT_REF_NAME}
+    - git remote set-url origin git@gitlab.com:tinyMediaManager/${CI_PROJECT_NAME}.git
+
+    ##
+    ## perform the release
+    ##
+    - mvn $MAVEN_CLI_OPTS -P gitlab-ci -P dist -DbuildNumber=${CI_COMMIT_SHORT_SHA} -Dgetdown=getdown.txt -Dthread_pool_size=1 release:prepare release:perform -Dresume=false -DautoVersionSubmodules=true -DdryRun=false -Dmaven.test.skip=true -DskipITs -DscmCommentPrefix="[ci skip]"
+
+    # build windows installer
+    - chmod 777 . dist
+    - sudo -u xclient PATH=$PATH:/opt/bin AppBundler/create_windows_installer.sh
+
+    # build macOS dmg file
+    - sh AppBundler/create_dmg.sh
+
+    # write the job ID to the repo
+    - curl -X PUT -H "PRIVATE-TOKEN:${TMMBUILD_AUTH_TOKEN}" -H "Content-Type:application/json" --data "{\"branch\":\"master\", \"author_email\":\"tinymediamanager@tinymediamanager.org\", \"author_name\":\"tinyMediaManager\", \"content\":\"${CI_JOB_ID}\", \"commit_message\":\"new v4 release\"}" https://gitlab.com/api/v4/projects/10869704/repository/files/v4_job_id.txt
+
+  artifacts:
+    expire_in: never
+    paths:
+      - build/
+      - dist/
+
+deploy:
+  stage: deploy
+  needs:
+    - build
+  trigger:
+    project: tinyMediaManager/release.tinymediamanager.org
