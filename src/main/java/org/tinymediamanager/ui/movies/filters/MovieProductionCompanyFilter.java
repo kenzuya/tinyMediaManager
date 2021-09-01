@@ -44,7 +44,6 @@ public class MovieProductionCompanyFilter extends AbstractTextMovieUIFilter {
     }
 
     try {
-      // country
       if (StringUtils.isNotEmpty(movie.getProductionCompany())) {
         Matcher matcher = filterPattern.matcher(StrgUtils.normalizeString(movie.getProductionCompany()));
         return matcher.find();
