@@ -15,14 +15,26 @@
  */
 package org.tinymediamanager.ui.movies.settings;
 
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.ACTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.COUNTRY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.DIRECTOR;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.FILENAME;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.NOTE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCER;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.PRODUCTION_COMPANY;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.SPOKEN_LANGUAGE;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.TAGS;
+import static org.tinymediamanager.core.AbstractSettings.UniversalFilterFields.WRITER;
 import static org.tinymediamanager.ui.TmmFontHelper.H3;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -43,6 +55,7 @@ import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.tinymediamanager.core.AbstractSettings;
 import org.tinymediamanager.core.TmmResourceBundle;
 import org.tinymediamanager.core.movie.MovieModuleManager;
 import org.tinymediamanager.core.movie.MovieScraperMetadataConfig;
@@ -56,6 +69,7 @@ import org.tinymediamanager.ui.IconManager;
 import org.tinymediamanager.ui.components.CollapsiblePanel;
 import org.tinymediamanager.ui.components.DocsButton;
 import org.tinymediamanager.ui.components.JHintCheckBox;
+import org.tinymediamanager.ui.components.JHintLabel;
 import org.tinymediamanager.ui.components.SquareIconButton;
 import org.tinymediamanager.ui.components.TmmLabel;
 import org.tinymediamanager.ui.components.combobox.AutoCompleteSupport;
@@ -104,6 +118,17 @@ public class MovieSettingsPanel extends JPanel {
   private JCheckBox                                        chckbxSortableOriginalTitle;
   private JCheckBox                                        chckbxSortTitle;
   private JCheckBox                                        chckbxNote;
+
+  private JCheckBox                                        chckbxUniversalNote;
+  private JCheckBox                                        chckbxUniversalFilename;
+  private JCheckBox                                        chckbxUniversalTags;
+  private JCheckBox                                        chckbxUniversalProductionCompany;
+  private JCheckBox                                        chckbxUniversalCountry;
+  private JCheckBox                                        chckbxUniversalLanguages;
+  private JCheckBox                                        chckbxUniversalActors;
+  private JCheckBox                                        chckbxUniversalProducers;
+  private JCheckBox                                        chckbxUniversalDirectors;
+  private JCheckBox                                        chckbxUniversalWriters;
 
   private JCheckBox                                        chckbxTraktSyncWatched;
   private JCheckBox                                        chckbxTraktSyncRating;
@@ -209,6 +234,40 @@ public class MovieSettingsPanel extends JPanel {
   }
 
   private void checkChanges() {
+    // universal filter
+    List<AbstractSettings.UniversalFilterFields> universalFilterFields = new ArrayList<>();
+    if (chckbxUniversalNote.isSelected()) {
+      universalFilterFields.add(NOTE);
+    }
+    if (chckbxUniversalFilename.isSelected()) {
+      universalFilterFields.add(FILENAME);
+    }
+    if (chckbxUniversalTags.isSelected()) {
+      universalFilterFields.add(TAGS);
+    }
+    if (chckbxUniversalCountry.isSelected()) {
+      universalFilterFields.add(COUNTRY);
+    }
+    if (chckbxUniversalProductionCompany.isSelected()) {
+      universalFilterFields.add(PRODUCTION_COMPANY);
+    }
+    if (chckbxUniversalLanguages.isSelected()) {
+      universalFilterFields.add(SPOKEN_LANGUAGE);
+    }
+    if (chckbxUniversalActors.isSelected()) {
+      universalFilterFields.add(ACTOR);
+    }
+    if (chckbxUniversalProducers.isSelected()) {
+      universalFilterFields.add(PRODUCER);
+    }
+    if (chckbxUniversalWriters.isSelected()) {
+      universalFilterFields.add(WRITER);
+    }
+    if (chckbxUniversalDirectors.isSelected()) {
+      universalFilterFields.add(DIRECTOR);
+    }
+    settings.setUniversalFilterFields(universalFilterFields);
+
     // metadata
     settings.clearMovieCheckMetadata();
     for (Map.Entry<MovieScraperMetadataConfig, JCheckBox> entry : metadataCheckBoxes.entrySet()) {
@@ -231,6 +290,63 @@ public class MovieSettingsPanel extends JPanel {
   }
 
   private void buildCheckBoxes() {
+    // universal filter
+    for (AbstractSettings.UniversalFilterFields filterField : settings.getUniversalFilterFields()) {
+      switch (filterField) {
+        case NOTE:
+          chckbxUniversalNote.setSelected(true);
+          break;
+
+        case FILENAME:
+          chckbxUniversalFilename.setSelected(true);
+          break;
+
+        case TAGS:
+          chckbxUniversalTags.setSelected(true);
+          break;
+
+        case PRODUCTION_COMPANY:
+          chckbxUniversalProductionCompany.setSelected(true);
+          break;
+
+        case COUNTRY:
+          chckbxUniversalCountry.setSelected(true);
+          break;
+
+        case SPOKEN_LANGUAGE:
+          chckbxUniversalLanguages.setSelected(true);
+          break;
+
+        case ACTOR:
+          chckbxUniversalActors.setSelected(true);
+          break;
+
+        case DIRECTOR:
+          chckbxUniversalDirectors.setSelected(true);
+          break;
+
+        case PRODUCER:
+          chckbxUniversalProducers.setSelected(true);
+          break;
+
+        case WRITER:
+          chckbxUniversalWriters.setSelected(true);
+          break;
+      }
+    }
+
+    // set the checkbox listener at the end!
+    chckbxUniversalNote.addItemListener(checkBoxListener);
+    chckbxUniversalFilename.addItemListener(checkBoxListener);
+    chckbxUniversalTags.addItemListener(checkBoxListener);
+    chckbxUniversalProductionCompany.addItemListener(checkBoxListener);
+    chckbxUniversalCountry.addItemListener(checkBoxListener);
+    chckbxUniversalLanguages.addItemListener(checkBoxListener);
+    chckbxUniversalActors.addItemListener(checkBoxListener);
+    chckbxUniversalProducers.addItemListener(checkBoxListener);
+    chckbxUniversalDirectors.addItemListener(checkBoxListener);
+    chckbxUniversalWriters.addItemListener(checkBoxListener);
+
     // metadata
     for (MovieScraperMetadataConfig value : settings.getMovieCheckMetadata()) {
       JCheckBox checkBox = metadataCheckBoxes.get(value);
@@ -263,8 +379,8 @@ public class MovieSettingsPanel extends JPanel {
     {
       JPanel panelUiSettings = new JPanel();
       // 16lp ~ width of the checkbox
-      panelUiSettings
-          .setLayout(new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][10lp!][][grow][][][][][][10lp!][][10lp!][][125lp,grow]"));
+      panelUiSettings.setLayout(
+          new MigLayout("hidemode 1, insets 0", "[20lp!][16lp!][grow]", "[][][][][][][10lp!][][grow][][][][][][10lp!][][10lp!][][125lp,grow]"));
 
       JLabel lblUiSettings = new TmmLabel(TmmResourceBundle.getString("Settings.ui"), H3);
       CollapsiblePanel collapsiblePanel = new CollapsiblePanel(panelUiSettings, lblUiSettings, true);
@@ -300,13 +416,50 @@ public class MovieSettingsPanel extends JPanel {
         chckbxNote = new JCheckBox(MovieTextMatcherList.NOTE.toString());
         panelUiSettings.add(chckbxNote, "cell 2 1");
       }
+
+      {
+        JHintLabel lblUniversalFilter = new JHintLabel(TmmResourceBundle.getString("filter.universal"));
+        lblUniversalFilter.setHintIcon(IconManager.HINT);
+        lblUniversalFilter.setToolTipText(TmmResourceBundle.getString("filter.universal.hint"));
+        panelUiSettings.add(lblUniversalFilter, "cell 1 2 2 1");
+
+        chckbxUniversalNote = new JCheckBox(TmmResourceBundle.getString("metatag.note"));
+        panelUiSettings.add(chckbxUniversalNote, "cell 2 3");
+
+        chckbxUniversalFilename = new JCheckBox(TmmResourceBundle.getString("metatag.filename"));
+        panelUiSettings.add(chckbxUniversalFilename, "cell 2 3");
+
+        chckbxUniversalTags = new JCheckBox(TmmResourceBundle.getString("metatag.tags"));
+        panelUiSettings.add(chckbxUniversalTags, "cell 2 3");
+
+        chckbxUniversalProductionCompany = new JCheckBox(TmmResourceBundle.getString("metatag.production"));
+        panelUiSettings.add(chckbxUniversalProductionCompany, "cell 2 3");
+
+        chckbxUniversalCountry = new JCheckBox(TmmResourceBundle.getString("metatag.country"));
+        panelUiSettings.add(chckbxUniversalCountry, "cell 2 3");
+
+        chckbxUniversalLanguages = new JCheckBox(TmmResourceBundle.getString("metatag.spokenlanguages"));
+        panelUiSettings.add(chckbxUniversalLanguages, "cell 2 3");
+
+        chckbxUniversalActors = new JCheckBox(TmmResourceBundle.getString("metatag.actors"));
+        panelUiSettings.add(chckbxUniversalActors, "cell 2 4");
+
+        chckbxUniversalProducers = new JCheckBox(TmmResourceBundle.getString("metatag.producers"));
+        panelUiSettings.add(chckbxUniversalProducers, "cell 2 4");
+
+        chckbxUniversalDirectors = new JCheckBox(TmmResourceBundle.getString("metatag.directors"));
+        panelUiSettings.add(chckbxUniversalDirectors, "cell 2 4");
+
+        chckbxUniversalWriters = new JCheckBox(TmmResourceBundle.getString("metatag.writers"));
+        panelUiSettings.add(chckbxUniversalWriters, "cell 2 4");
+      }
       {
         chckbxStoreFilter = new JCheckBox(TmmResourceBundle.getString("Settings.movie.persistuifilter"));
-        panelUiSettings.add(chckbxStoreFilter, "cell 1 2 2 1");
+        panelUiSettings.add(chckbxStoreFilter, "cell 1 5 2 1");
       }
       {
         JLabel lblCheckMetadata = new JLabel(TmmResourceBundle.getString("Settings.checkmetadata"));
-        panelUiSettings.add(lblCheckMetadata, "cell 1 4 2 1");
+        panelUiSettings.add(lblCheckMetadata, "cell 1 7 2 1");
 
         JPanel panelCheckMetadata = new JPanel();
         panelCheckMetadata.setLayout(new GridBagLayout());
@@ -332,17 +485,17 @@ public class MovieSettingsPanel extends JPanel {
             addMetadataCheckbox(panelCheckMetadata, value, metadataCheckBoxes, gbc);
           }
         }
-        panelUiSettings.add(panelCheckMetadata, "cell 2 5");
+        panelUiSettings.add(panelCheckMetadata, "cell 2 8");
 
         chckbxDisplayAllMissingMetadata = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkmetadata.displayall"));
         chckbxDisplayAllMissingMetadata.setToolTipText(TmmResourceBundle.getString("Settings.checkmetadata.displayall.desc"));
         chckbxDisplayAllMissingMetadata.setHintIcon(IconManager.HINT);
-        panelUiSettings.add(chckbxDisplayAllMissingMetadata, "cell 2 6");
+        panelUiSettings.add(chckbxDisplayAllMissingMetadata, "cell 2 9");
       }
 
       {
         JLabel lblCheckImages = new JLabel(TmmResourceBundle.getString("Settings.checkimages"));
-        panelUiSettings.add(lblCheckImages, "cell 1 8 2 1");
+        panelUiSettings.add(lblCheckImages, "cell 1 11 2 1");
 
         JPanel panelCheckImages = new JPanel();
         panelCheckImages.setLayout(new GridBagLayout());
@@ -360,23 +513,23 @@ public class MovieSettingsPanel extends JPanel {
           }
         }
 
-        panelUiSettings.add(panelCheckImages, "cell 2 9");
+        panelUiSettings.add(panelCheckImages, "cell 2 12");
 
         chckbxDisplayAllMissingArtwork = new JHintCheckBox(TmmResourceBundle.getString("Settings.checkimages.displayall"));
         chckbxDisplayAllMissingArtwork.setToolTipText(TmmResourceBundle.getString("Settings.checkimages.displayall.desc"));
         chckbxDisplayAllMissingArtwork.setHintIcon(IconManager.HINT);
-        panelUiSettings.add(chckbxDisplayAllMissingArtwork, "cell 2 10");
+        panelUiSettings.add(chckbxDisplayAllMissingArtwork, "cell 2 13");
       }
       {
         chckbxMovieTableTooltips = new JCheckBox(TmmResourceBundle.getString("Settings.movie.showtabletooltips"));
-        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 12 2 1");
+        panelUiSettings.add(chckbxMovieTableTooltips, "cell 1 15 2 1");
       }
       {
         JLabel lblRating = new JLabel(TmmResourceBundle.getString("Settings.preferredrating"));
-        panelUiSettings.add(lblRating, "cell 1 14 2 1");
+        panelUiSettings.add(lblRating, "cell 1 17 2 1");
 
         JPanel panelRatingSource = new JPanel();
-        panelUiSettings.add(panelRatingSource, "cell 2 15,grow");
+        panelUiSettings.add(panelRatingSource, "cell 2 18,grow");
         panelRatingSource.setLayout(new MigLayout("insets 0", "[100lp][]", "[grow][]"));
         {
           listRatings = new JList();

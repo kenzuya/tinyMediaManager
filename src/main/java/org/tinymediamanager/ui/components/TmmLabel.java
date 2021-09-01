@@ -19,13 +19,12 @@ package org.tinymediamanager.ui.components;
 import java.awt.Font;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.UIManager;
 
 /**
  * an own label class which has bold set and the scaling factor applied
  */
-public class TmmLabel extends JLabel {
+public class TmmLabel extends JHintLabel {
 
   private double scaleFactor = 1d;
 
