@@ -54,6 +54,7 @@ public class MovieAllInOneFilter extends AbstractTextMovieUIFilter {
   private final MovieSettings settings;
 
   public MovieAllInOneFilter() {
+    super();
     settings = MovieModuleManager.getInstance().getSettings();
   }
 
