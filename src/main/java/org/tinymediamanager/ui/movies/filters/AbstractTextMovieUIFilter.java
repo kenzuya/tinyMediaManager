@@ -45,6 +45,11 @@ public abstract class AbstractTextMovieUIFilter extends AbstractMovieUIFilter {
     }
   }
 
+  @Override
+  public void clearFilter() {
+    textField.setText("");
+  }
+
   /**
    * delegate the filter changed event to the tree
    */

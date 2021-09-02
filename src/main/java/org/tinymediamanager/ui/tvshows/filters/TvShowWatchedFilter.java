@@ -36,7 +36,7 @@ public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
     WATCHED(TmmResourceBundle.getString("metatag.watched")),
     NOT_WATCHED(TmmResourceBundle.getString("metatag.notwatched"));
 
-    private String title;
+    private final String title;
 
     WatchedFlag(String title) {
       this.title = title;
@@ -79,6 +79,11 @@ public class TvShowWatchedFilter extends AbstractTvShowUIFilter {
         comboBox.setSelectedItem(watchedFlag);
       }
     }
+  }
+
+  @Override
+  public void clearFilter() {
+    comboBox.setSelectedItem(comboBox.getItemAt(0));
   }
 
   @Override

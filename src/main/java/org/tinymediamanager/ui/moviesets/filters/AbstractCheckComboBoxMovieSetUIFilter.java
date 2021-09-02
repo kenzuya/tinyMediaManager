@@ -77,6 +77,11 @@ abstract class AbstractCheckComboBoxMovieSetUIFilter<E> extends AbstractMovieSet
     checkComboBox.setSelectedItems(selectedItems);
   }
 
+  @Override
+  public void clearFilter() {
+    checkComboBox.clearSelection();
+  }
+
   /**
    * set the given values into the {@link TmmCheckComboBox}
    *

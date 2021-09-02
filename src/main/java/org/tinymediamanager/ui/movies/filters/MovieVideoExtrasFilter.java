@@ -42,6 +42,12 @@ public class MovieVideoExtrasFilter extends AbstractMovieUIFilter {
 
   @Override
   public void setFilterValue(Object value) {
+    // nothing to do
+  }
+
+  @Override
+  public void clearFilter() {
+    // nothing to do
   }
 
   @Override

@@ -66,6 +66,11 @@ public class MovieDateAddedFilter extends AbstractMovieUIFilter {
   }
 
   @Override
+  public void clearFilter() {
+    datePicker.setDate(null);
+  }
+
+  @Override
   public String getId() {
     return "movieDateAdded";
   }

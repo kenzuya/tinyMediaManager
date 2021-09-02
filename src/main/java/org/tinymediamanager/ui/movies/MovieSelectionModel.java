@@ -268,4 +268,12 @@ public class MovieSelectionModel extends AbstractModelObject implements ListSele
     matcherEditor.setFilterValues(values);
     firePropertyChange("filterChanged", null, values);
   }
+
+  /**
+   * clear all active filters
+   */
+  public void clearFilters() {
+    matcherEditor.clearFilters();
+    firePropertyChange("filterChanged", null, Collections.emptyList());
+  }
 }

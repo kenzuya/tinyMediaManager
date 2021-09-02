@@ -21,7 +21,6 @@ import static org.tinymediamanager.ui.TmmFontHelper.L1;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -132,9 +131,11 @@ public class TvShowFilterDialog extends TmmDialog {
         treeTable.setFilterValues(TvShowModuleManager.getInstance().getSettings().getUiFilterPresets().get(filterName));
       }
       else {
-        treeTable.setFilterValues(Collections.emptyList());
+        treeTable.clearFilter();
       }
     };
+
+    ActionListener resetFilter = e -> SwingUtilities.invokeLater(treeTable::clearFilter);
 
     {
       tabbedPane = new TmmTabbedPane();
@@ -147,7 +148,11 @@ public class TvShowFilterDialog extends TmmDialog {
         scrollPaneMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("metatag.details"), scrollPaneMain);
 
-        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMain.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelMain.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelMain.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelMain.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowNewEpisodesFilter(), panelMain);
         addFilter(new TvShowDatasourceFilter(), panelMain);
@@ -166,7 +171,11 @@ public class TvShowFilterDialog extends TmmDialog {
         scrollPaneMetadata.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("tmm.metadata"), scrollPaneMetadata);
 
-        panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelMetadata.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelMetadata.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelMetadata.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelMetadata.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowYearFilter(), panelMetadata);
         addFilter(new TvShowDecadeFilter(), panelMetadata);
@@ -186,7 +195,11 @@ public class TvShowFilterDialog extends TmmDialog {
 
         scrollPaneVideo.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("metatag.video"), scrollPaneVideo);
-        panelVideo.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelVideo.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelVideo.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelVideo.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelVideo.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowVideoFormatFilter(), panelVideo);
         addFilter(new TvShowVideoCodecFilter(), panelVideo);
@@ -203,7 +216,11 @@ public class TvShowFilterDialog extends TmmDialog {
 
         scrollPaneAudio.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("metatag.audio"), scrollPaneAudio);
-        panelAudio.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelAudio.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelAudio.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelAudio.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelAudio.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowAudioCodecFilter(), panelAudio);
         addFilter(new TvShowAudioChannelFilter(), panelAudio);
@@ -219,7 +236,11 @@ public class TvShowFilterDialog extends TmmDialog {
 
         scrollPaneOthers.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tabbedPane.addTab(TmmResourceBundle.getString("filter.others"), scrollPaneOthers);
-        panelOthers.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 3 1, growx, aligny top, wrap");
+        panelOthers.add(new TmmLabel(TmmResourceBundle.getString("movieextendedsearch.filterby")), "cell 0 0 2 1");
+
+        panelOthers.add(new JLabel(TmmResourceBundle.getString("filter.reset")), "cell 2 0, right");
+        panelOthers.add(new FlatButton(IconManager.DELETE_GRAY, resetFilter), "cell 2 0, right, wrap");
+        panelOthers.add(Box.createHorizontalGlue(), "wrap");
 
         addFilter(new TvShowMediaSourceFilter(), panelOthers);
         addFilter(new TvShowMediaFilesFilter(), panelOthers);
