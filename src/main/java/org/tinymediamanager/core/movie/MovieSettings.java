@@ -219,7 +219,6 @@ public final class MovieSettings extends AbstractSettings {
   boolean                                   originalTitle                          = false;
   boolean                                   sortableOriginalTitle                  = false;
   boolean                                   sortTitle                              = false;
-  boolean                                   note                                   = false;
   final List<PostProcess>                   postProcess                            = ObservableCollections.observableList(new ArrayList<>());
 
   // ui
@@ -1255,12 +1254,6 @@ public final class MovieSettings extends AbstractSettings {
     firePropertyChange("sortTitle", oldValue, newValue);
   }
 
-  public void setNote(boolean newValue) {
-    boolean oldValue = this.note;
-    this.note = newValue;
-    firePropertyChange("note", oldValue, newValue);
-  }
-
   public boolean getTitle() {
     return this.title;
   }
@@ -1279,10 +1272,6 @@ public final class MovieSettings extends AbstractSettings {
 
   public boolean getSortTitle() {
     return this.sortTitle;
-  }
-
-  public boolean getNote() {
-    return this.note;
   }
 
   public boolean isIncludeExternalAudioStreams() {
