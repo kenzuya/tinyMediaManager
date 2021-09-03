@@ -471,7 +471,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
 
             List<Person> actors = new ArrayList<>();
-            actors.add(actor);
+            actors.add(new Person(actor)); // force copy constructor
             episode.addToActors(actors);
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -491,7 +491,7 @@ public class TvShowBulkEditorDialog extends TmmDialog {
           for (TvShowEpisode episode : tvShowEpisodesToEdit) {
 
             List<Person> directors = new ArrayList<>();
-            directors.add(director);
+            directors.add(new Person(director)); // force copy constructor
             episode.addToDirectors(directors);
           }
           setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
