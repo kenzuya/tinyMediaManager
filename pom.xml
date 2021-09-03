@@ -728,22 +728,22 @@
                                 <configuration>
                                     <artifacts>
                                         <artifact>
-                                            <file>dist/tmm_${project.version}_win.zip</file>
+                                            <file>dist/tmm_${project.version}_windows-amd64.zip</file>
                                             <type>zip</type>
                                             <classifier>win</classifier>
                                         </artifact>
                                         <artifact>
-                                            <file>dist/tmm_${project.version}_mac.zip</file>
+                                            <file>dist/tmm_${project.version}_macos-x86_64.zip</file>
                                             <type>zip</type>
                                             <classifier>mac</classifier>
                                         </artifact>
                                         <artifact>
-                                            <file>dist/tmm_${project.version}_linux.tar.gz</file>
+                                            <file>dist/tmm_${project.version}_linux-amd64.tar.gz</file>
                                             <type>tar.gz</type>
                                             <classifier>linux</classifier>
                                         </artifact>
                                         <artifact>
-                                            <file>dist/tmm_${project.version}_arm.tar.gz</file>
+                                            <file>dist/tmm_${project.version}_linux-arm.tar.gz</file>
                                             <type>tar.gz</type>
                                             <classifier>arm</classifier>
                                         </artifact>
